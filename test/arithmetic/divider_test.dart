@@ -17,8 +17,11 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
-// helper method to compute 2's complement representation
-// of the provided value based on its bit width
+// ---------------------------------------------------------------------------
+// Helper: two's complement decode
+// ---------------------------------------------------------------------------
+
+/// Decode a raw unsigned bit pattern as a two's complement signed integer.
 int _twosComp(int val, int bits) {
   var tmp = val;
   if (val & (1 << (bits - 1)) != 0) {
@@ -26,6 +29,10 @@ int _twosComp(int val, int bits) {
   }
   return tmp;
 }
+
+// ---------------------------------------------------------------------------
+// Sequence items
+// ---------------------------------------------------------------------------
 
 class MultiCycleDividerInputSeqItem extends SequenceItem {
   final int mDividend;
@@ -84,6 +91,10 @@ validOut=$mValidOut,
 readyIn=$mReadyIn
 ''';
 }
+
+// ---------------------------------------------------------------------------
+// Sequencer / Driver / Monitors
+// ---------------------------------------------------------------------------
 
 class MultiCycleDividerSequencer
     extends Sequencer<MultiCycleDividerInputSeqItem> {
@@ -188,7 +199,7 @@ class MultiCycleDividerOutputMonitor
   final MultiCycleDividerInterface intf;
 
   MultiCycleDividerOutputMonitor(this.intf, Component parent,
-      {String name = 'MultiCycleDividerInputMonitor'})
+      {String name = 'MultiCycleDividerOutputMonitor'})
       : super(name, parent);
 
   @override
@@ -210,26 +221,30 @@ class MultiCycleDividerOutputMonitor
   }
 }
 
+// ---------------------------------------------------------------------------
+// Scoreboard / Agent / Env
+// ---------------------------------------------------------------------------
+
 class MultiCycleDividerScoreboard extends Component {
   final Stream<MultiCycleDividerInputSeqItem> inStream;
   final Stream<MultiCycleDividerOutputSeqItem> outStream;
-
   final MultiCycleDividerInterface intf;
+  final bool computeRemainder;
 
   MultiCycleDividerScoreboard(
       this.inStream, this.outStream, this.intf, Component parent,
-      {String name = 'MultiCycleDividerScoreboard'})
+      {this.computeRemainder = true,
+      String name = 'MultiCycleDividerScoreboard'})
       : super(name, parent);
 
-  final List<int> lastA = [];
-  final List<int> lastB = [];
-  final List<bool> lastSign = [];
+  final List<int> _aQueue = [];
+  final List<int> _bQueue = [];
+  final List<bool> _signQueue = [];
 
-  int currResult = 0;
-  int currRemain = 0;
-  bool divZero = false;
-
-  bool triggerCheck = false;
+  int _currResult = 0;
+  int _currRemain = 0;
+  bool _divZero = false;
+  bool _triggerCheck = false;
 
   @override
   Future<void> run(Phase phase) async {
@@ -238,70 +253,67 @@ class MultiCycleDividerScoreboard extends Component {
     await intf.reset.nextNegedge;
 
     inStream.listen((event) {
-      lastA.add(event.mDividend);
-      lastB.add(event.mDivisor);
-      lastSign.add(event.mIsSigned);
+      _aQueue.add(event.mDividend);
+      _bQueue.add(event.mDivisor);
+      _signQueue.add(event.mIsSigned);
     });
 
-    // record the value we saw this cycle
     outStream.listen((event) {
-      currResult = event.mQuotient;
-      currRemain = event.mRemainder;
-      divZero = event.mDivZero;
-
-      triggerCheck = true;
+      _currResult = event.mQuotient;
+      _currRemain = event.mRemainder;
+      _divZero = event.mDivZero;
+      if (!computeRemainder) {
+        expect(event.mRemainder, 0,
+            reason: 'remainder must be 0 in quotient-only mode');
+      }
+      _triggerCheck = true;
     });
 
-    // check values on negative edge
-    intf.clk.negedge.listen((event) {
-      if (lastA.isNotEmpty) {
-        final in1 = lastA[0];
-        final in2 = lastB[0];
-        final inSign = lastSign[0];
-        lastA.removeAt(0);
-        lastB.removeAt(0);
-        lastSign.removeAt(0);
+    intf.clk.negedge.listen((_) {
+      if (_aQueue.isNotEmpty && _triggerCheck) {
+        final in1 = _aQueue.removeAt(0);
+        final in2 = _bQueue.removeAt(0);
+        final inSign = _signQueue.removeAt(0);
+
         final tCurrResult =
-            inSign ? _twosComp(currResult, intf.quotient.width) : currResult;
+            inSign ? _twosComp(_currResult, intf.quotient.width) : _currResult;
         final tCurrRemain =
-            inSign ? _twosComp(currRemain, intf.remainder.width) : currRemain;
+            inSign ? _twosComp(_currRemain, intf.remainder.width) : _currRemain;
+
         final overflow = inSign &&
             in1 ==
                 _twosComp(
                     1 << (intf.quotient.width - 1), intf.quotient.width) &&
             in2 == -1;
-        if (triggerCheck) {
-          var check1 = (in2 == 0) ? divZero : ((in1 ~/ in2) == tCurrResult);
-          var check2 = (in2 == 0)
-              ? divZero
-              : ((in1 - (in2 * tCurrResult)) == tCurrRemain);
-          if (overflow) {
-            check1 = tCurrResult ==
-                _twosComp(1 << (intf.quotient.width - 1), intf.quotient.width);
-            check2 = tCurrRemain == 0;
-          }
 
-          if (check1 && check2) {
-            final msg = (in2 == 0)
-                ? '''
-Divide by 0 error correctly encountered for denominator of 0.
-'''
-                : '''
-Correct result: dividend=$in1, divisor=$in2, quotient=$tCurrResult, remainder=$tCurrRemain,
-                ''';
-            logger.info(msg);
-          } else {
-            final msg = (in2 == 0)
-                ? '''
-No Divide by zero error for denominator of 0.
-'''
-                : '''
-Incorrect result: dividend=$in1, divisor=$in2, quotient=$tCurrResult, remainder=$tCurrRemain,
-''';
-            logger.severe(msg);
-          }
-          triggerCheck = false;
+        bool check1;
+        bool check2;
+
+        if (in2 == 0) {
+          check1 = _divZero;
+          check2 = _divZero;
+        } else if (overflow) {
+          check1 = tCurrResult ==
+              _twosComp(1 << (intf.quotient.width - 1), intf.quotient.width);
+          check2 = tCurrRemain == 0;
+        } else {
+          check1 = (in1 ~/ in2) == tCurrResult;
+          check2 =
+              !computeRemainder || (in1 - (in2 * tCurrResult)) == tCurrRemain;
         }
+
+        if (check1 && check2) {
+          logger.info(in2 == 0
+              ? 'Divide by 0 error correctly encountered for denominator of 0.'
+              : 'Correct result: dividend=$in1, divisor=$in2, '
+                  'quotient=$tCurrResult, remainder=$tCurrRemain');
+        } else {
+          logger.severe(in2 == 0
+              ? 'No Divide by zero error for denominator of 0.'
+              : 'Incorrect result: dividend=$in1, divisor=$in2, '
+                  'quotient=$tCurrResult, remainder=$tCurrRemain');
+        }
+        _triggerCheck = false;
       }
     });
   }
@@ -326,16 +338,18 @@ class MultiCycleDividerAgent extends Agent {
 
 class MultiCycleDividerEnv extends Env {
   final MultiCycleDividerInterface intf;
+  final bool computeRemainder;
 
   late final MultiCycleDividerAgent agent;
   late final MultiCycleDividerScoreboard scoreboard;
 
   MultiCycleDividerEnv(this.intf, Component parent,
-      {String name = 'MultiCycleDividerEnv'})
+      {this.computeRemainder = true, String name = 'MultiCycleDividerEnv'})
       : super(name, parent) {
     agent = MultiCycleDividerAgent(intf, this);
     scoreboard = MultiCycleDividerScoreboard(
-        agent.inMonitor.stream, agent.outMonitor.stream, intf, this);
+        agent.inMonitor.stream, agent.outMonitor.stream, intf, this,
+        computeRemainder: computeRemainder);
   }
 
   @override
@@ -343,6 +357,106 @@ class MultiCycleDividerEnv extends Env {
     unawaited(super.run(phase));
   }
 }
+
+// ---------------------------------------------------------------------------
+// Test
+// ---------------------------------------------------------------------------
+
+class MultiCycleDividerTest extends Test {
+  final Module dut;
+  late final MultiCycleDividerInterface intf;
+  final bool computeRemainder;
+  final List<Sequence>? sequences;
+
+  /// The test environment for [dut].
+  late final MultiCycleDividerEnv env;
+
+  /// A private, local pointer to the test environment's [Sequencer].
+  late final MultiCycleDividerSequencer _divSequencer;
+
+  MultiCycleDividerTest(this.dut, this.intf,
+      {this.computeRemainder = true,
+      this.sequences,
+      String name = 'MultiCycleDividerTest'})
+      : super(name) {
+    env = MultiCycleDividerEnv(intf, this, computeRemainder: computeRemainder);
+    _divSequencer = env.agent.sequencer;
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    // Raise an objection at the start of the test so that the
+    // simulation doesn't end before stimulus is injected
+    final obj = phase.raiseObjection('div_test');
+
+    logger.info('Running the test (computeRemainder=$computeRemainder)...');
+
+    // Add some simple reset behavior at specified timestamps
+    Simulator.registerAction(1, () {
+      intf.reset.put(0);
+      intf.dividend.put(0);
+      intf.divisor.put(0);
+      intf.validIn.put(0);
+    });
+    Simulator.registerAction(10, () => intf.reset.put(1));
+    Simulator.registerAction(20, () => intf.reset.put(0));
+
+    // Wait for the next negative edge of reset
+    await intf.reset.nextNegedge;
+
+    // Kick off a sequence on the sequencer
+    if (sequences != null) {
+      for (final seq in sequences!) {
+        await _divSequencer.start(seq);
+      }
+    } else {
+      await _divSequencer.start(MultiCycleDividerBasicSequence());
+      await _divSequencer.start(MultiCycleDividerEvilSequence(numBits: 32));
+      await _divSequencer.start(MultiCycleDividerVolumeSequence(1000));
+    }
+
+    logger.info('Done adding stimulus to the sequencer');
+
+    // Done adding stimulus, we can drop our objection now
+    obj.drop();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Testbenches
+// ---------------------------------------------------------------------------
+
+class TopTB {
+  // Instance of the DUT
+  late final MultiCycleDivider divider;
+
+  // A constant value for the width to use in this testbench
+  static const int width = 32;
+
+  TopTB(MultiCycleDividerInterface intf, {bool computeRemainder = true}) {
+    // Connect a generated clock to the interface
+    intf.clk <= SimpleClockGenerator(10).clk;
+
+    // Create the DUT, passing it our interface
+    divider = MultiCycleDivider(intf, computeRemainder: computeRemainder);
+  }
+}
+
+class TopTBNarrow {
+  late final MultiCycleDivider divider;
+  static const int width = 8;
+
+  TopTBNarrow(MultiCycleDividerInterface intf, {bool computeRemainder = true}) {
+    intf.clk <= SimpleClockGenerator(10).clk;
+    divider = MultiCycleDivider(intf, computeRemainder: computeRemainder);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Sequences
+// ---------------------------------------------------------------------------
 
 class MultiCycleDividerBasicSequence extends Sequence {
   MultiCycleDividerBasicSequence(
@@ -505,7 +619,6 @@ class MultiCycleDividerVolumeSequence extends Sequence {
   @override
   Future<void> body(Sequencer sequencer) async {
     final divSequencer = sequencer as MultiCycleDividerSequencer;
-
     for (var i = 0; i < numReps; i++) {
       final a = rng.nextInt(1 << 32);
       final b = rng.nextInt(1 << 32);
@@ -520,83 +633,486 @@ class MultiCycleDividerVolumeSequence extends Sequence {
   }
 }
 
-class MultiCycleDividerTest extends Test {
-  final MultiCycleDivider dut;
-  late final MultiCycleDividerInterface intf;
+/// Corner-case sequence parameterised by [dataWidth] — signed vectors only.
+class MultiCycleDividerCornerSequence extends Sequence {
+  final int dataWidth;
 
-  /// The test environment for [dut].
-  late final MultiCycleDividerEnv env;
+  MultiCycleDividerCornerSequence(
+      {required this.dataWidth,
+      String name = 'MultiCycleDividerCornerSequence'})
+      : super(name);
 
-  /// A private, local pointer to the test environment's [Sequencer].
-  late final MultiCycleDividerSequencer _divSequencer;
+  @override
+  Future<void> body(Sequencer sequencer) async {
+    final seq = sequencer as MultiCycleDividerSequencer;
 
-  MultiCycleDividerTest(this.dut, this.intf,
-      {String name = 'MultiCycleDividerTest'})
-      : super(name) {
-    env = MultiCycleDividerEnv(intf, this);
-    _divSequencer = env.agent.sequencer;
+    final maxS = (1 << (dataWidth - 1)) - 1;
+    final minS = -(1 << (dataWidth - 1));
+
+    void add(int a, int b, {required bool signed}) =>
+        seq.add(MultiCycleDividerInputSeqItem(
+            mDividend: a,
+            mDivisor: b,
+            mIsSigned: signed,
+            mValidIn: true,
+            mReadyOut: true));
+
+    // +/+
+    add(6, 3, signed: true);
+    add(7, 3, signed: true);
+    add(1, maxS, signed: true);
+    add(maxS, 1, signed: true);
+    add(maxS, maxS, signed: true);
+    // +/-
+    add(6, -3, signed: true);
+    add(7, -3, signed: true);
+    add(maxS, -1, signed: true);
+    // -/+
+    add(-6, 3, signed: true);
+    add(-7, 3, signed: true);
+    add(minS, 1, signed: true);
+    // -/-
+    add(-6, -3, signed: true);
+    add(-7, -3, signed: true);
+    add(minS, minS, signed: true);
+    // overflow
+    add(minS, -1, signed: true);
+    // divide-by-zero
+    add(3, 0, signed: true);
+    add(-3, 0, signed: true);
+    add(0, 0, signed: true);
   }
+}
 
-  // A "time consuming" method, similar to `task` in SystemVerilog, which
-  // waits for a given number of cycles before completing.
-  Future<void> waitCycles(int numCycles) async {
-    for (var i = 0; i < numCycles; i++) {
-      await intf.clk.nextNegedge;
-    }
+int _to1sComp(int value, int bits) {
+  final mask = (1 << bits) - 1;
+  if (value < 0) {
+    return ~ -value & mask;
+  }
+  return value & mask;
+}
+
+/// Interpret an n-bit raw value as a one's complement signed integer.
+int _from1sComp(int raw, int bits) {
+  if (raw & (1 << (bits - 1)) != 0) {
+    return -(~raw & ((1 << bits) - 1));
+  }
+  return raw;
+}
+
+// ---------------------------------------------------------------------------
+// Testbench
+// ---------------------------------------------------------------------------
+
+class TopTBOnesComp {
+  late final OnesComplementDivider divider;
+  static const int width = 8;
+
+  TopTBOnesComp(MultiCycleDividerInterface intf,
+      {bool computeRemainder = true}) {
+    intf.clk <= SimpleClockGenerator(10).clk;
+    divider = OnesComplementDivider(intf, computeRemainder: computeRemainder);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// VF infrastructure
+// ---------------------------------------------------------------------------
+
+/// Input monitor that decodes pin values using [_from1sComp] instead of
+/// [_twosComp], so signed dividends/divisors are captured correctly.
+class OnesComplementInputMonitor
+    extends Monitor<MultiCycleDividerInputSeqItem> {
+  final MultiCycleDividerInterface intf;
+
+  OnesComplementInputMonitor(this.intf, Component parent,
+      {String name = 'OnesComplementInputMonitor'})
+      : super(name, parent);
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+    intf.clk.posedge.listen((event) {
+      if (intf.validIn.value == LogicValue.one &&
+          intf.readyIn.value == LogicValue.one) {
+        add(MultiCycleDividerInputSeqItem(
+            mDividend: intf.isSigned.value.toBool()
+                ? _from1sComp(intf.dividend.value.toInt(), intf.dividend.width)
+                : intf.dividend.value.toInt(),
+            mDivisor: intf.isSigned.value.toBool()
+                ? _from1sComp(intf.divisor.value.toInt(), intf.divisor.width)
+                : intf.divisor.value.toInt(),
+            mIsSigned: intf.isSigned.value.toBool(),
+            mValidIn: true,
+            mReadyOut: true));
+      }
+    });
+  }
+}
+
+/// Scoreboard for [OnesComplementDivider].
+///
+/// Interprets both inputs (via [_from1sComp] in the input monitor) and raw
+/// register outputs (via [_from1sComp]) as one's complement signed integers.
+/// For unsigned inputs the raw value is used as-is.
+/// Divide-by-zero: triggered by all-zeros OR (signed) all-ones divisor.
+class OnesComplementScoreboard extends Component {
+  final Stream<MultiCycleDividerInputSeqItem> inStream;
+  final Stream<MultiCycleDividerOutputSeqItem> outStream;
+  final MultiCycleDividerInterface intf;
+  final bool computeRemainder;
+
+  OnesComplementScoreboard(
+      this.inStream, this.outStream, this.intf, Component parent,
+      {this.computeRemainder = true, String name = 'OnesComplementScoreboard'})
+      : super(name, parent);
+
+  final List<int> _aQueue = [];
+  final List<int> _bQueue = [];
+  final List<bool> _signQueue = [];
+
+  int _currResult = 0;
+  int _currRemain = 0;
+  bool _divZero = false;
+  bool _triggerCheck = false;
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+    await intf.reset.nextNegedge;
+
+    inStream.listen((event) {
+      _aQueue.add(event.mDividend);
+      _bQueue.add(event.mDivisor);
+      _signQueue.add(event.mIsSigned);
+    });
+
+    outStream.listen((event) {
+      _currResult = event.mQuotient;
+      _currRemain = event.mRemainder;
+      _divZero = event.mDivZero;
+      if (!computeRemainder) {
+        expect(event.mRemainder, 0,
+            reason: 'remainder must be 0 in quotient-only mode');
+      }
+      _triggerCheck = true;
+    });
+
+    intf.clk.negedge.listen((_) {
+      if (_aQueue.isNotEmpty && _triggerCheck) {
+        final in1 = _aQueue.removeAt(0);
+        final in2 = _bQueue.removeAt(0);
+        final inSign = _signQueue.removeAt(0);
+
+        final tCurrResult = inSign
+            ? _from1sComp(_currResult, intf.quotient.width)
+            : _currResult;
+        final tCurrRemain = inSign
+            ? _from1sComp(_currRemain, intf.remainder.width)
+            : _currRemain;
+
+        // in1/in2 already decoded by OnesComplementInputMonitor.
+        final isDivZero = in2 == 0;
+
+        bool check1;
+        bool check2;
+        if (isDivZero) {
+          check1 = _divZero;
+          check2 = _divZero;
+        } else {
+          check1 = (in1 ~/ in2) == tCurrResult;
+          check2 =
+              !computeRemainder || (in1 - (in2 * tCurrResult)) == tCurrRemain;
+        }
+
+        if (check1 && check2) {
+          logger.info(isDivZero
+              ? 'Divide by 0 error correctly encountered.'
+              : 'Correct result: dividend=$in1, divisor=$in2, '
+                  'quotient=$tCurrResult, remainder=$tCurrRemain');
+        } else {
+          logger.severe(isDivZero
+              ? 'No Divide by zero error for denominator of 0.'
+              : 'Incorrect result: dividend=$in1, divisor=$in2, '
+                  'quotient=$tCurrResult, remainder=$tCurrRemain');
+        }
+        _triggerCheck = false;
+      }
+    });
+  }
+}
+
+class OnesComplementAgent extends Agent {
+  final MultiCycleDividerInterface intf;
+  late final MultiCycleDividerSequencer sequencer;
+  late final MultiCycleDividerDriver driver;
+  late final OnesComplementInputMonitor inMonitor;
+  late final MultiCycleDividerOutputMonitor outMonitor;
+
+  OnesComplementAgent(this.intf, Component parent,
+      {String name = 'OnesComplementAgent'})
+      : super(name, parent) {
+    sequencer = MultiCycleDividerSequencer(this);
+    driver = MultiCycleDividerDriver(intf, sequencer, this);
+    inMonitor = OnesComplementInputMonitor(intf, this);
+    outMonitor = MultiCycleDividerOutputMonitor(intf, this);
+  }
+}
+
+class OnesComplementEnv extends Env {
+  final MultiCycleDividerInterface intf;
+  final bool computeRemainder;
+
+  late final OnesComplementAgent agent;
+  late final OnesComplementScoreboard scoreboard;
+
+  OnesComplementEnv(this.intf, Component parent,
+      {this.computeRemainder = true, String name = 'OnesComplementEnv'})
+      : super(name, parent) {
+    agent = OnesComplementAgent(intf, this);
+    scoreboard = OnesComplementScoreboard(
+        agent.inMonitor.stream, agent.outMonitor.stream, intf, this,
+        computeRemainder: computeRemainder);
   }
 
   @override
   Future<void> run(Phase phase) async {
     unawaited(super.run(phase));
+  }
+}
 
-    // Raise an objection at the start of the test so that the
-    // simulation doesn't end before stimulus is injected
-    final obj = phase.raiseObjection('div_test');
+class OnesComplementTest extends Test {
+  final Module dut;
+  late final MultiCycleDividerInterface intf;
+  final bool computeRemainder;
+  final List<Sequence>? sequences;
 
-    logger.info('Running the test...');
+  late final OnesComplementEnv env;
+  late final MultiCycleDividerSequencer _sequencer;
 
-    // Add some simple reset behavior at specified timestamps
+  OnesComplementTest(this.dut, this.intf,
+      {this.computeRemainder = true,
+      this.sequences,
+      String name = 'OnesComplementTest'})
+      : super(name) {
+    env = OnesComplementEnv(intf, this, computeRemainder: computeRemainder);
+    _sequencer = env.agent.sequencer;
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+    final obj = phase.raiseObjection('ones_comp_test');
+    logger.info(
+        'Running OnesComplementTest (computeRemainder=$computeRemainder)...');
+
     Simulator.registerAction(1, () {
       intf.reset.put(0);
       intf.dividend.put(0);
       intf.divisor.put(0);
       intf.validIn.put(0);
     });
-    Simulator.registerAction(10, () {
-      intf.reset.put(1);
-    });
-    Simulator.registerAction(20, () {
-      intf.reset.put(0);
-    });
+    Simulator.registerAction(10, () => intf.reset.put(1));
+    Simulator.registerAction(20, () => intf.reset.put(0));
 
-    // Wait for the next negative edge of reset
     await intf.reset.nextNegedge;
 
-    // Kick off a sequence on the sequencer
-    await _divSequencer.start(MultiCycleDividerBasicSequence());
-    await _divSequencer.start(MultiCycleDividerEvilSequence(numBits: 32));
-    await _divSequencer.start(MultiCycleDividerVolumeSequence(1000));
+    if (sequences != null) {
+      for (final seq in sequences!) {
+        await _sequencer.start(seq);
+      }
+    } else {
+      await _sequencer
+          .start(OnesCompSignedCornerSequence(dataWidth: intf.dataWidth));
+    }
 
-    logger.info('Done adding stimulus to the sequencer');
-
-    // Done adding stimulus, we can drop our objection now
     obj.drop();
   }
 }
 
-class TopTB {
-  // Instance of the DUT
-  late final MultiCycleDivider divider;
+// ---------------------------------------------------------------------------
+// Sequences
+// ---------------------------------------------------------------------------
 
-  // A constant value for the width to use in this testbench
-  static const int width = 32;
+/// Basic smoke sequence for [OnesComplementDivider].
+class OnesCompBasicSequence extends Sequence {
+  final int dataWidth;
 
-  TopTB(MultiCycleDividerInterface intf) {
-    // Connect a generated clock to the interface
-    intf.clk <= SimpleClockGenerator(10).clk;
+  OnesCompBasicSequence(
+      {required this.dataWidth, String name = 'OnesCompBasicSequence'})
+      : super(name);
 
-    // Create the DUT, passing it our interface
-    divider = MultiCycleDivider(intf);
+  @override
+  Future<void> body(Sequencer sequencer) async {
+    final seq = sequencer as MultiCycleDividerSequencer;
+
+    void u(int a, int b) => seq.add(MultiCycleDividerInputSeqItem(
+        mDividend: a,
+        mDivisor: b,
+        mIsSigned: false,
+        mValidIn: true,
+        mReadyOut: true));
+    void s(int a, int b) => seq.add(MultiCycleDividerInputSeqItem(
+        mDividend: _to1sComp(a, dataWidth),
+        mDivisor: _to1sComp(b, dataWidth),
+        mIsSigned: true,
+        mValidIn: true,
+        mReadyOut: true));
+
+    s(4, 2);
+    s(9, 3);
+    u(5, 2);
+    u(4, 1);
+    s(-10, 2);
+    s(13, -10);
+    s(-10, -9);
+    s(1, 4);
+    s(4, 0);
+    u((1 << (dataWidth - 1)) - 1, 6);
+  }
+}
+
+/// Edge-case sequence for [OnesComplementDivider].
+///
+/// Targets boundary values specific to 1's complement including negative-zero
+/// (-0 = all-ones) as divisor.
+class OnesCompEvilSequence extends Sequence {
+  final int dataWidth;
+
+  OnesCompEvilSequence(
+      {required this.dataWidth, String name = 'OnesCompEvilSequence'})
+      : super(name);
+
+  @override
+  Future<void> body(Sequencer sequencer) async {
+    final seq = sequencer as MultiCycleDividerSequencer;
+    final maxS = (1 << (dataWidth - 1)) - 1;
+
+    void s(int a, int b) => seq.add(MultiCycleDividerInputSeqItem(
+        mDividend: _to1sComp(a, dataWidth),
+        mDivisor: _to1sComp(b, dataWidth),
+        mIsSigned: true,
+        mValidIn: true,
+        mReadyOut: true));
+    void u(int a, int b) => seq.add(MultiCycleDividerInputSeqItem(
+        mDividend: a,
+        mDivisor: b,
+        mIsSigned: false,
+        mValidIn: true,
+        mReadyOut: true));
+
+    s(maxS, maxS);
+    s(maxS, 1);
+    s(maxS, -1);
+    s(-maxS, 1);
+    s(-maxS, -1);
+    s(-maxS, maxS);
+    s(maxS, -maxS);
+    s(1, maxS);
+    s(-1, maxS);
+    u((1 << dataWidth) - 2, 1);
+    u(0, 1);
+    // negative-zero divisor (-0 = all-ones) → divZero
+    seq.add(MultiCycleDividerInputSeqItem(
+        mDividend: 5,
+        mDivisor: (1 << dataWidth) - 1,
+        mIsSigned: true,
+        mValidIn: true,
+        mReadyOut: true));
+  }
+}
+
+/// Random volume sequence for [OnesComplementDivider].
+class OnesCompVolumeSequence extends Sequence {
+  final int dataWidth;
+  final int numReps;
+  final Random rng;
+
+  OnesCompVolumeSequence(this.numReps,
+      {required this.dataWidth,
+      int seed = 0xdeadbeef,
+      String name = 'OnesCompVolumeSequence'})
+      : rng = Random(seed),
+        super(name);
+
+  @override
+  Future<void> body(Sequencer sequencer) async {
+    final seq = sequencer as MultiCycleDividerSequencer;
+    final maxS = (1 << (dataWidth - 1)) - 1;
+    final maxU = (1 << dataWidth) - 2; // exclude all-ones (-0)
+
+    for (var i = 0; i < numReps; i++) {
+      if (i.isEven) {
+        seq.add(MultiCycleDividerInputSeqItem(
+            mDividend: rng.nextInt(maxU + 1),
+            mDivisor: rng.nextInt(maxU + 1),
+            mIsSigned: false,
+            mValidIn: true,
+            mReadyOut: true));
+      } else {
+        final a = rng.nextInt(2 * maxS + 1) - maxS;
+        final b = rng.nextInt(2 * maxS + 1) - maxS;
+        seq.add(MultiCycleDividerInputSeqItem(
+            mDividend: _to1sComp(a, dataWidth),
+            mDivisor: _to1sComp(b, dataWidth),
+            mIsSigned: true,
+            mValidIn: true,
+            mReadyOut: true));
+      }
+    }
+  }
+}
+
+/// Signed corner-case sequence for [OnesComplementDivider] — all four sign
+/// quadrants plus both forms of divide-by-zero (positive and negative zero).
+class OnesCompSignedCornerSequence extends Sequence {
+  final int dataWidth;
+
+  OnesCompSignedCornerSequence(
+      {required this.dataWidth, String name = 'OnesCompSignedCornerSequence'})
+      : super(name);
+
+  @override
+  Future<void> body(Sequencer sequencer) async {
+    final seq = sequencer as MultiCycleDividerSequencer;
+
+    void add(int a, int b) => seq.add(MultiCycleDividerInputSeqItem(
+        mDividend: _to1sComp(a, dataWidth),
+        mDivisor: _to1sComp(b, dataWidth),
+        mIsSigned: true,
+        mValidIn: true,
+        mReadyOut: true));
+
+    final maxS = (1 << (dataWidth - 1)) - 1;
+    final minS = -maxS;
+
+    // +/+
+    add(6, 3);
+    add(7, 3);
+    add(1, maxS);
+    add(maxS, 1);
+    add(maxS, maxS);
+    // +/-
+    add(6, -3);
+    add(7, -3);
+    add(maxS, -1);
+    // -/+
+    add(-6, 3);
+    add(-7, 3);
+    add(minS, 1);
+    // -/-
+    add(-6, -3);
+    add(-7, -3);
+    add(minS, minS);
+    // divide-by-zero: positive zero
+    add(5, 0);
+    // divide-by-zero: negative zero (-0 = all-ones)
+    seq.add(MultiCycleDividerInputSeqItem(
+        mDividend: 5,
+        mDivisor: (1 << dataWidth) - 1,
+        mIsSigned: true,
+        mValidIn: true,
+        mReadyOut: true));
   }
 }
 
@@ -605,51 +1121,149 @@ void main() {
     await Simulator.reset();
   });
 
-  group('divider tests', () {
-    test('VF tests', () async {
-      // Set the logger level
-      Logger.root.level = Level.SEVERE;
+  for (final computeRemainder in [true, false]) {
+    final label = computeRemainder ? 'with remainder' : 'quotient-only';
 
-      // Create the testbench
-      final intf = MultiCycleDividerInterface();
-      final tb = TopTB(intf);
+    group("2's C. Divider Tests ($label)", () {
+      test('VF tests', () async {
+        // Set the logger level
+        Logger.root.level = Level.SEVERE;
 
-      // Build the DUT
-      await tb.divider.build();
+        // Create the testbench
+        final intf = MultiCycleDividerInterface();
+        final tb = TopTB(intf, computeRemainder: computeRemainder);
 
-      // Attach a waveform dumper to the DUT
-      // WaveDumper(tb.divider);
+        // Build the DUT
+        await tb.divider.build();
 
-      // Set a maximum simulation time so it doesn't run forever
-      Simulator.setMaxSimTime(100000);
+        // Attach a waveform dumper to the DUT
+        // WaveDumper(tb.divider);
 
-      // Create and start the test!
-      final test = MultiCycleDividerTest(tb.divider, intf);
-      await test.start();
+        // Set a maximum simulation time so it doesn't run forever
+        Simulator.setMaxSimTime(200000);
+
+        // Create and start the test!
+        final test = MultiCycleDividerTest(tb.divider, intf,
+            computeRemainder: computeRemainder);
+        await test.start();
+      });
+
+      test('Factory method build', () async {
+        final clk = Logic(name: 'clk');
+        final reset = Logic(name: 'reset');
+        final validIn = Logic(name: 'validIn');
+        final dividend = Logic(name: 'dividend', width: 32);
+        final divisor = Logic(name: 'divisor', width: 32);
+        final isSigned = Logic(name: 'isSigned');
+        final readyOut = Logic(name: 'readyOut');
+        final div = MultiCycleDivider.ofLogics(
+            clk: clk,
+            reset: reset,
+            validIn: validIn,
+            dividend: dividend,
+            divisor: divisor,
+            isSigned: isSigned,
+            readyOut: readyOut,
+            computeRemainder: computeRemainder);
+        await div.build();
+
+        Logic(name: 'tValidOut').gets(div.validOut);
+        Logic(name: 'tQuotient', width: 32).gets(div.quotient);
+        Logic(name: 'tRemainder', width: 32).gets(div.remainder);
+        Logic(name: 'tDivZero').gets(div.divZero);
+        Logic(name: 'tReadyIn').gets(div.readyIn);
+      });
     });
 
-    test('Factory method build', () async {
-      final clk = Logic(name: 'clk');
-      final reset = Logic(name: 'reset');
-      final validIn = Logic(name: 'validIn');
-      final dividend = Logic(name: 'dividend', width: 32);
-      final divisor = Logic(name: 'divisor', width: 32);
-      final isSigned = Logic(name: 'isSigned');
-      final readyOut = Logic(name: 'readyOut');
-      final div = MultiCycleDivider.ofLogics(
-          clk: clk,
-          reset: reset,
-          validIn: validIn,
-          dividend: dividend,
-          divisor: divisor,
-          isSigned: isSigned,
-          readyOut: readyOut);
-      await div.build();
+    group("2's C. Divider Corner Cases ${TopTBNarrow.width}-bit ($label)", () {
+      test('targeted structural corners', () async {
+        Logger.root.level = Level.SEVERE;
 
-      Logic(name: 'tValidOut').gets(div.validOut);
-      Logic(name: 'tQuotient', width: 32).gets(div.quotient);
-      Logic(name: 'tDivZero').gets(div.divZero);
-      Logic(name: 'tReadyIn').gets(div.readyIn);
+        final intf = MultiCycleDividerInterface(dataWidth: TopTBNarrow.width);
+        final tb = TopTBNarrow(intf, computeRemainder: computeRemainder);
+        await tb.divider.build();
+
+        Simulator.setMaxSimTime(300000);
+
+        final test = MultiCycleDividerTest(tb.divider, intf,
+            computeRemainder: computeRemainder,
+            sequences: [
+              MultiCycleDividerCornerSequence(dataWidth: TopTBNarrow.width)
+            ]);
+
+        await test.start();
+      }, timeout: const Timeout(Duration(minutes: 1)));
     });
-  });
+  }
+
+  for (final computeRemainder in [true, false]) {
+    final label = computeRemainder ? 'with remainder' : 'quotient-only';
+
+    group("1's C. Divider Tests ($label)", () {
+      test('VF tests', () async {
+        Logger.root.level = Level.SEVERE;
+
+        final intf = MultiCycleDividerInterface();
+        final tb = TopTBOnesComp(intf, computeRemainder: computeRemainder);
+        await tb.divider.build();
+
+        Simulator.setMaxSimTime(200000);
+
+        final test = OnesComplementTest(tb.divider, intf,
+            computeRemainder: computeRemainder,
+            sequences: [
+              OnesCompBasicSequence(dataWidth: TopTB.width),
+              OnesCompEvilSequence(dataWidth: TopTB.width),
+              OnesCompVolumeSequence(1000, dataWidth: TopTB.width),
+            ]);
+        await test.start();
+      });
+
+      test('Factory method build', () async {
+        final clk = Logic(name: 'clk');
+        final reset = Logic(name: 'reset');
+        final validIn = Logic(name: 'validIn');
+        final dividend = Logic(name: 'dividend', width: TopTB.width);
+        final divisor = Logic(name: 'divisor', width: TopTB.width);
+        final isSigned = Logic(name: 'isSigned');
+        final readyOut = Logic(name: 'readyOut');
+        final div = OnesComplementDivider.ofLogics(
+            clk: clk,
+            reset: reset,
+            validIn: validIn,
+            dividend: dividend,
+            divisor: divisor,
+            isSigned: isSigned,
+            readyOut: readyOut,
+            computeRemainder: computeRemainder);
+        await div.build();
+
+        Logic(name: 'tValidOut').gets(div.validOut);
+        Logic(name: 'tQuotient', width: TopTB.width).gets(div.quotient);
+        Logic(name: 'tRemainder', width: TopTB.width).gets(div.remainder);
+        Logic(name: 'tDivZero').gets(div.divZero);
+        Logic(name: 'tReadyIn').gets(div.readyIn);
+      });
+    });
+
+    group("1's C. Divider Corner Cases ${TopTBOnesComp.width}-bit ($label)",
+        () {
+      test('targeted structural corners', () async {
+        Logger.root.level = Level.SEVERE;
+
+        final intf = MultiCycleDividerInterface(dataWidth: TopTBOnesComp.width);
+        final tb = TopTBOnesComp(intf, computeRemainder: computeRemainder);
+        await tb.divider.build();
+
+        Simulator.setMaxSimTime(300000);
+
+        final test = OnesComplementTest(tb.divider, intf,
+            computeRemainder: computeRemainder,
+            sequences: [
+              OnesCompSignedCornerSequence(dataWidth: TopTBOnesComp.width),
+            ]);
+        await test.start();
+      }, timeout: const Timeout(Duration(minutes: 1)));
+    });
+  }
 }
