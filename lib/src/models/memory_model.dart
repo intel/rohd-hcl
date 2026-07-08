@@ -69,10 +69,17 @@ class MemoryModel extends Memory {
         if (!wrPort.en.previousValue!.isValid && !storage.isEmpty) {
           // storage doesnt have access to `en`, so check ourselves
           storage.invalidWrite();
+
+          if (wrPort is AssertiveDataPortInterface) {
+            wrPort.ready.put(LogicValue.one);
+            wrPort.valid.put(LogicValue.zero);
+          }
           return;
         }
 
-        if (wrPort.en.previousValue == LogicValue.one) {
+        final wrEnHigh = wrPort.en.previousValue == LogicValue.one;
+
+        if (wrEnHigh) {
           final addrValue = wrPort.addr.previousValue!;
 
           if (wrPort is MaskedDataPortInterface) {
@@ -92,6 +99,11 @@ class MemoryModel extends Memory {
             storage.writeData(addrValue, wrPort.data.previousValue!);
           }
         }
+
+        if (wrPort is AssertiveDataPortInterface) {
+          wrPort.ready.put(LogicValue.one);
+          wrPort.valid.put(wrEnHigh ? LogicValue.one : LogicValue.zero);
+        }
       }
 
       for (final rdPort in rdPorts) {
@@ -101,7 +113,8 @@ class MemoryModel extends Memory {
               !rdPort.en.previousValue!.toBool() ||
               !rdPort.addr.previousValue!.isValid) {
             unawaited(_updateRead(
-                rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x)));
+                rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x),
+                valid: false));
           } else {
             unawaited(_updateRead(
                 rdPort, storage.readData(rdPort.addr.previousValue!)));
@@ -129,16 +142,38 @@ class MemoryModel extends Memory {
         !rdPort.en.value.toBool() ||
         !rdPort.addr.value.isValid) {
       rdPort.data.put(LogicValue.x, fill: true);
+
+      if (rdPort is AssertiveDataPortInterface) {
+        rdPort.ready.put(LogicValue.one);
+        rdPort.valid.put(LogicValue.zero);
+      }
     } else {
       rdPort.data.put(storage.readData(rdPort.addr.value));
+
+      if (rdPort is AssertiveDataPortInterface) {
+        rdPort.ready.put(LogicValue.one);
+        rdPort.valid.put(LogicValue.one);
+      }
     }
   }
 
   /// Updates read data for [rdPort] after [readLatency] time.
-  Future<void> _updateRead(DataPortInterface rdPort, LogicValue data) async {
+  Future<void> _updateRead(DataPortInterface rdPort, LogicValue data,
+      {bool valid = true}) async {
     if (readLatency > 1) {
+      // The transaction is in flight; drop ready/valid until it completes so
+      // downstream consumers don't latch a stale "data ready" indication.
+      if (rdPort is AssertiveDataPortInterface) {
+        rdPort.ready.put(LogicValue.zero);
+        rdPort.valid.put(LogicValue.zero);
+      }
       await clk.waitCycles(readLatency - 1);
     }
     rdPort.data.inject(data);
+
+    if (rdPort is AssertiveDataPortInterface) {
+      rdPort.ready.put(valid ? LogicValue.one : LogicValue.zero);
+      rdPort.valid.put(valid ? LogicValue.one : LogicValue.zero);
+    }
   }
 }
