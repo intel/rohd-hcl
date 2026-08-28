@@ -128,15 +128,15 @@ class CsrTopConfig extends CsrContainerConfig {
 
   /// Method to determine the minimum number of address bits
   /// needed to address all registers across all blocks. This is
-  /// based on the maximum block base address. Note that we independently
-  /// validate the block size relative to the base addresses
-  /// so we can trust the simpler analysis here.
+  /// based on the highest address reachable in any block (its base
+  /// address plus its effective size).
   @override
   int minAddrBits() {
     var maxAddr = 0;
     for (final block in blocks) {
-      if (block.baseAddr > maxAddr) {
-        maxAddr = block.baseAddr;
+      final highestBlockAddr = block.baseAddr + blockSizeForBlock(block) - 1;
+      if (highestBlockAddr > maxAddr) {
+        maxAddr = highestBlockAddr;
       }
     }
     return maxAddr.bitLength;

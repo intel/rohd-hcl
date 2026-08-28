@@ -175,6 +175,54 @@ class MyHeterogeneousCsrModule extends CsrTopConfig {
         );
 }
 
+/// A CSR module where a block's base address is not aligned to a
+/// power-of-two boundary derived from its size.
+///
+/// - block_a: baseAddr 0x0, default blockSize 8.
+/// - block_b: baseAddr 0x8, overrides blockSize to 16 (0x10). 0x8 is not a
+///   multiple of 16, so block_b's base address is not power-of-two aligned
+///   relative to its size.
+class MyMisalignedCsrModule extends CsrTopConfig {
+  MyMisalignedCsrModule()
+      : super(
+          name: 'myMisalignedCsrModule',
+          blockSize: 8, // default for blocks without their own override
+          blocks: [
+            MyRegisterBlock(
+              baseAddr: 0x0,
+              name: 'block_a',
+              numNoFieldCsrs: 2,
+            ),
+            CsrBlockConfig(
+              name: 'block_b',
+              baseAddr: 0x8,
+              blockSize: 0x10,
+              registers: [
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readWrite,
+                    name: 'bReg0',
+                    fields: const [],
+                  ),
+                  addr: 0x0,
+                  width: 32,
+                ),
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'bReg1',
+                    fields: const [],
+                  ),
+                  addr: 0xF,
+                  width: 32,
+                  resetValue: 0xCAFEF00D,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
 // to test potentially issues with CsrTop port propagation
 class DummyCsrTopModule extends Module {
   late final Logic _clk;
@@ -641,6 +689,104 @@ void main() {
     await clk.nextNegedge;
     rIntf.en.inject(0);
     expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('CSR top with non-power-of-two-aligned block base address', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyMisalignedCsrModule();
+
+    // block_b's highest address (0x8 + 0x10 - 1 = 0x17) needs 5 bits, even
+    // though its base address (0x8) alone only needs 4
+    expect(csrTopCfg.minAddrBits(), 5);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 32);
+    final rIntf = DataPortInterface(csrWidth, 32);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final blockA = csrTop.getBlockByName('block_a');
+    final blockB = csrTop.getBlockByName('block_b');
+    final aCsr1 = blockA.getRegisterByName('csr1');
+    final bReg0 = blockB.getRegisterByName('bReg0');
+    final bReg1 = blockB.getRegisterByName('bReg1');
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read block_b's read-only register (reset value 0xCAFEF00D); block_b's
+    // base address (0x8) is not aligned to its size (0x10), so this only
+    // returns the correct value if the block's address range is matched
+    // instead of a power-of-two-aligned bitmask
+    final addrBReg1 = blockB.baseAddr + bReg1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrBReg1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(bReg1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to block_b's read-write register (bReg0) and verify
+    final addrBReg0 = blockB.baseAddr + bReg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrBReg0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrBReg0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // confirm block_a (aligned, at base address 0x0) is still reachable and
+    // unaffected by block_b's misaligned base address
+    final addrACsr1 = blockA.baseAddr + aCsr1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrACsr1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(aCsr1.resetValue, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     await Simulator.endSimulation();
