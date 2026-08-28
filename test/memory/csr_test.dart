@@ -223,6 +223,46 @@ class MyMisalignedCsrModule extends CsrTopConfig {
         );
 }
 
+/// A CSR module with a single block whose size exactly fills the address
+/// space implied by its own offset width (baseAddr 0x0, blockSize 8 ==
+/// 2^3), to test that block range matching does not overflow in that case.
+class MyFullSpanCsrModule extends CsrTopConfig {
+  MyFullSpanCsrModule()
+      : super(
+          name: 'myFullSpanCsrModule',
+          blockSize: 8,
+          blocks: [
+            CsrBlockConfig(
+              name: 'block_full',
+              baseAddr: 0x0,
+              registers: [
+                for (var i = 0; i < 7; i++)
+                  CsrInstanceConfig(
+                    arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg$i',
+                      fields: const [],
+                    ),
+                    addr: i,
+                    width: 32,
+                  ),
+                // read-only register at the highest address in the block
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'reg7',
+                    fields: const [],
+                  ),
+                  addr: 7,
+                  width: 32,
+                  resetValue: 0xFEEDFACE,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
 // to test potentially issues with CsrTop port propagation
 class DummyCsrTopModule extends Module {
   late final Logic _clk;
@@ -787,6 +827,89 @@ void main() {
     rIntf.en.inject(0);
     expect(
         rIntf.data.value, LogicValue.ofInt(aCsr1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('CSR top with a block that spans the full address space', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyFullSpanCsrModule();
+
+    // block's baseAddr(0) + blockSize(8) == 2^3, exactly filling the
+    // address space implied by a 3-bit address
+    expect(csrTopCfg.minAddrBits(), 3);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 3);
+    final rIntf = DataPortInterface(csrWidth, 3);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final block = csrTop.getBlockByName('block_full');
+    final reg0 = block.getRegisterByName('reg0');
+    final reg7 = block.getRegisterByName('reg7');
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read the register at the highest address in the block (reset value
+    // 0xFEEDFACE); only reachable if the block's range match doesn't
+    // overflow when baseAddr + blockSize == 2^addrWidth
+    final addrReg7 = block.baseAddr + reg7.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrReg7);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(reg7.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to the register at the lowest address in the block and verify
+    final addrReg0 = block.baseAddr + reg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrReg0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrReg0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
     await clk.waitCycles(10);
 
     await Simulator.endSimulation();

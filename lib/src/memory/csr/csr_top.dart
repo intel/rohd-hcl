@@ -191,12 +191,16 @@ class CsrTop extends CsrContainer {
     }
   }
 
-  // true when addr falls within [block.baseAddr, block.baseAddr + blockSize)
+  // true when addr falls within [block.baseAddr, block.baseAddr + blockSize).
+  // compares at addrWidth + 1 bits so a block spanning the full address
+  // space (baseAddr + blockSize == 1 << addrWidth) does not overflow hi.
   Logic _blockRangeMatch(Logic addr, CsrBlockConfig block) {
-    final lo = Const(block.baseAddr, width: addrWidth);
+    final cmpWidth = addrWidth + 1;
+    final addrExt = addr.zeroExtend(cmpWidth);
+    final lo = Const(block.baseAddr, width: cmpWidth);
     final hi = Const(block.baseAddr + config.blockSizeForBlock(block),
-        width: addrWidth);
-    return addr.gte(lo) & addr.lt(hi);
+        width: cmpWidth);
+    return addrExt.gte(lo) & addrExt.lt(hi);
   }
 
   void _buildLogic() {
