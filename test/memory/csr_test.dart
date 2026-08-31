@@ -1153,4 +1153,53 @@ void main() {
             ),
         throwsA(isA<CsrValidationException>()));
   });
+
+  test('CsrBlock honors asyncReset without waiting for a clock edge', () async {
+    final csrBlockCfg = MyRegisterBlock(
+      baseAddr: 0x0,
+      numNoFieldCsrs: 2,
+    );
+
+    // tie the clock off entirely: with a synchronous reset, the register
+    // would never receive its reset value since there is no clock edge to
+    // sample `reset` on. With an asynchronous reset, the register should
+    // reset immediately upon `reset` being asserted, independent of `clk`.
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(32, 8);
+    final rIntf = DataPortInterface(32, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: Const(0),
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true,
+        asyncReset: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+    rIntf.en.put(0);
+    rIntf.addr.put(0);
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    final csr1 = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1);
+
+    // assert reset with no clock ever ticking.
+    reset.inject(1);
+    await Simulator.tick();
+
+    // register should already reflect its reset value.
+    expect(csrBlock.csrs[csr1Idx].value,
+        LogicValue.ofInt(csr1.resetValue, csr1.width));
+
+    reset.inject(0);
+    await Simulator.tick();
+    await Simulator.endSimulation();
+  });
 }
