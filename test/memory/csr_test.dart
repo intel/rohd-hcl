@@ -330,8 +330,10 @@ void main() {
     // check the write data
     // only some of what we're trying to write should
     // given the field access rules
+    // (field4_1 is write-ones-clear at bit 7; wd = 0xab has bit7 = 1,
+    // so that bit clears to 0, giving 0x63 instead of a literal copy)
     final wd2 = csr2.getWriteData(Const(0xab, width: dataWidth2));
-    expect(wd2.value, LogicValue.ofInt(0xe3, dataWidth2));
+    expect(wd2.value, LogicValue.ofInt(0x63, dataWidth2));
 
     // check grabbing individual fields
     final f1 = csr2.getField('field1');
@@ -491,6 +493,81 @@ void main() {
     await clk.nextNegedge;
     back1.wrData!.inject(0);
     expect(back1.rdData!.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('writeOnesClear field clears only on write of 1', () async {
+    const csrWidth = 8;
+
+    // csr1's reset value (0xff) sets every bit including the
+    // writeOnesClear fields (field4_0/field4_1) to 1.
+    final csrBlockCfg = MyRegisterBlock(
+      baseAddr: 0x0,
+      csrWidth: csrWidth,
+    );
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: null,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    // both writeOnesClear bits reset to 1
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_1').value, LogicValue.one);
+
+    // writing 0 to the writeOnesClear bits leaves them unchanged
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0x00);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_1').value, LogicValue.one);
+
+    // writing 1 to the writeOnesClear bits clears them to 0
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0xc0); // bits 6 (field4_0) and 7 (field4_1)
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.zero);
+    expect(csr1.getField('field4_1').value, LogicValue.zero);
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;

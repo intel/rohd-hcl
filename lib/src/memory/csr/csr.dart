@@ -167,10 +167,22 @@ class Csr extends LogicStructure {
 
         // if the given field is read only
         // take the current value instead of the new value
-        final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
-            fields[currField].access == CsrFieldAccess.writeOnesClear;
+        final chk2 = fields[currField].access == CsrFieldAccess.readOnly;
         if (chk2) {
           finalWd = finalWd.withSet(currIdx, elements[i]);
+          currField++;
+          currIdx += elements[i].width;
+          continue;
+        }
+
+        // if the given field is write-ones-clear, bits written as 1 clear
+        // the corresponding current bit; bits written as 0 leave the
+        // current bit unchanged.
+        final chk3 =
+            fields[currField].access == CsrFieldAccess.writeOnesClear;
+        if (chk3) {
+          final wdField = wd.getRange(currIdx, currIdx + elements[i].width);
+          finalWd = finalWd.withSet(currIdx, elements[i] & ~wdField);
           currField++;
           currIdx += elements[i].width;
           continue;
