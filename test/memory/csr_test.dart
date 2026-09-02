@@ -492,7 +492,7 @@ void main() {
     back1.wrData!.inject(0xbeefdead);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
-    expect(back1.rdData!.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
+    expect(back1.rdData!.value, LogicValue.ofInt(0xbeef00f3, rIntf.dataWidth));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
@@ -568,6 +568,68 @@ void main() {
     wIntf.en.inject(0);
     expect(csr1.getField('field4_0').value, LogicValue.zero);
     expect(csr1.getField('field4_1').value, LogicValue.zero);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('writeOnesClear field is set only by a backdoor write of 1', () async {
+    // csr1's writeOnesClear fields (field4_0..field4_7) occupy the upper
+    // byte (bits 31:24), which reset to 0 since csr1's reset value (0xff)
+    // only sets the low byte.
+    final csrBlockCfg = MyRegisterBlock(baseAddr: 0x0);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: null,
+        frontRead: null);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    expect(csr1.getField('field4_0').value, LogicValue.zero);
+    expect(csr1.getField('field4_7').value, LogicValue.zero);
+
+    // a backdoor write of 1 sets the writeOnesClear bits
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0xff000000);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_7').value, LogicValue.one);
+
+    // a subsequent backdoor write of 0 leaves the now-set bits unchanged
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0x00000000);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_7').value, LogicValue.one);
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
@@ -673,7 +735,7 @@ void main() {
     back1.wrData!.inject(0xdeadbeef);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
-    expect(back1.rdData!.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
+    expect(back1.rdData!.value, LogicValue.ofInt(0xdead00f3, rIntf.dataWidth));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;

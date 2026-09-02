@@ -238,7 +238,8 @@ class CsrBlock extends CsrContainer {
           ElseIf(_backdoorInterfaces[_backdoorIndexMap[i]!].wrEn!, [
             csrs[i] <
                 csrs[i].getWriteData(
-                    _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!),
+                    _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!,
+                    isBackdoorWrite: true),
           ]),
       ];
 
