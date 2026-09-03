@@ -307,6 +307,33 @@ void main() {
     }
   });
 
+  test('SignMagnitudeAdder: carryIn injects a rounding increment', () {
+    const width = 8;
+    final aSign = Logic(name: 'aSign')..put(0);
+    final a = Logic(name: 'a', width: width)..put(5);
+    final bSign = Logic(name: 'bSign')..put(0);
+    final b = Logic(name: 'b', width: width)..put(3);
+    final carryIn = Logic(name: 'carryIn');
+
+    final adder = SignMagnitudeAdder(aSign, a, bSign, b, carryIn: carryIn);
+    carryIn.put(0);
+    expect(adder.sum.value.toInt(), equals(8));
+    carryIn.put(1);
+    expect(adder.sum.value.toInt(), equals(9));
+
+    // Subtraction: 5 - 3 + carryIn.
+    bSign.put(1);
+    carryIn.put(0);
+    expect(adder.sum.value.toInt(), equals(2));
+    carryIn.put(1);
+    expect(adder.sum.value.toInt(), equals(3));
+
+    // Without a carryIn provided at all, the adder should have no
+    // carryIn input and behave as before.
+    final adderNoCarry = SignMagnitudeAdder(aSign, a, bSign, b);
+    expect(adderNoCarry.hasCarryIn, isFalse);
+  });
+
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];
 
   group('SignMagnitudeAdder: random', () {

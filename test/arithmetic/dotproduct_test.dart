@@ -204,6 +204,33 @@ void main() {
     }
   });
 
+  test('general dotproduct dynamically extends partial sums', () {
+    const width = 4;
+    const length = 5;
+    final multiplicands = [
+      for (var i = 0; i < length; i++) Logic(width: width)..put(0xf)
+    ];
+    final multipliers = [
+      for (var i = 0; i < length; i++) Logic(width: width)..put(0xf)
+    ];
+    final signedMultiplicand = Logic(name: 'signedMultiplicand')..put(0);
+    final signedMultiplier = Logic(name: 'signedMultiplier')..put(0);
+    final dotProduct = GeneralDotProduct(
+      multiplicands,
+      multipliers,
+      signedMultiplicand: signedMultiplicand,
+      signedMultiplier: signedMultiplier,
+    );
+
+    expect(dotProduct.product.value.toBigInt(), equals(BigInt.from(1125)),
+        reason: 'unsigned partial sums must be zero-extended');
+
+    signedMultiplicand.put(1);
+    signedMultiplier.put(1);
+    expect(dotProduct.product.value.toBigInt(), equals(BigInt.from(5)),
+        reason: 'signed partial sums must be sign-extended');
+  });
+
   test('dotproduct singleton', () async {
     const widths = [3, 3];
     final depth = widths.length;

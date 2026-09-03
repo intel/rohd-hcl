@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // counter_test.dart
@@ -474,7 +474,9 @@ void main() {
               if (intf.hasEnable) {
                 intf.enable!.inject(0);
               }
-              intf.amount.inject(0);
+              if (intf.fixedAmount == null) {
+                intf.amount.inject(0);
+              }
             }
             await clk.waitCycles(3);
             reset.inject(0);

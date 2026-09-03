@@ -18,6 +18,26 @@ The read path is combinational, so data is provided immediately according to the
 
 The `RegisterFile` can be initialized with data on reset using `resetValue` following the conventions of `ResettableEntries`.
 
+### Reset Values
+
+Components using `ResettableEntries`, including `RegisterFile` and
+`ShiftRegister`, accept these `resetValue` forms:
+
+- `null` resets every entry to zero.
+- A static `LogicValue.of`-compatible value resets every entry to that constant.
+- A multi-bit `Logic` supplies one runtime reset value for every entry.
+- A `List` supplies one static or runtime reset value per entry.
+- A `Map<int, dynamic>` supplies values for selected entry indices; omitted
+  entries reset to zero.
+
+Runtime reset values become module inputs and must match the entry width. Static
+values are converted to constants of the entry width. Lists must contain exactly
+one value per entry, and map keys must be valid entry indices.
+
+This behavior uses `StaticOrRuntimeValue<T>`, the generalized static-or-runtime
+parameter abstraction. Boolean component options use its
+`StaticOrRuntimeParameter` specialization.
+
 [RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)
 
 ## First-In First-Out (FIFO) Buffers

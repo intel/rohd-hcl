@@ -37,6 +37,8 @@ This example produces random `FixedPointValue` `fxv`s in the range $0.0 < fxv.to
 
 The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html) type is an extension of [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.  
 
+`FixedPoint` supports direct `+`, `-`, unary `-`, and `*` operators as well as `add`, `subtract`, and `multiply` methods. Addition and subtraction return full-precision widened results. Comparisons use `eq`, `neq`, `lt`, `lte`, `gt`, and `gte`; `>` and `>=` are also available as operators. ROHD reserves `<` and `<=` for signal assignment, so they cannot be comparison operators. A `FixedPointValue` can be converted to a constant `FixedPoint` signal with `toLogic()`.
+
 ## FixedToFloat
 
 The [FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html) component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to the nearest even (RNE) when applicable and set to infinity if the input exceed the representable range.

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_value_populator.dart
@@ -14,6 +14,8 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+
+typedef _ExactDyadic = ({BigInt significand, int exponent});
 
 /// A populator for [FloatingPointValue]s, a utility that can populate various
 /// forms of [FloatingPointValue]s.
@@ -152,6 +154,406 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
             : components.mantissa,
         explicitjBit: explicitJBit);
   }
+
+  /// Converts [fpv] directly to this format with one exact rounding step.
+  ///
+  /// Unlike [ofDouble], this method does not pass through the host
+  /// floating-point format and therefore cannot introduce double rounding.
+  FpvType ofFloatingPointValueRounded(FloatingPointValue fpv,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    if (fpv.isNaN) {
+      return _quietNaNFrom(fpv);
+    }
+    if (fpv.isAnInfinity) {
+      return _infinityOrLargestFinite(
+          negative: fpv.sign.toBool(), roundingMode: roundingMode);
+    }
+    return _quantize(_decodeFinite(fpv),
+        negative: fpv.sign.toBool(), roundingMode: roundingMode);
+  }
+
+  /// Constructs a value equal to [significand] times two to [exponent].
+  ///
+  /// The exact dyadic value is rounded once into this floating-point format.
+  FpvType ofScaledBigInt(BigInt significand, int exponent,
+          {FloatingPointRoundingMode roundingMode =
+              FloatingPointRoundingMode.roundNearestEven}) =>
+      _quantize((significand: significand.abs(), exponent: exponent),
+          negative: significand.isNegative, roundingMode: roundingMode);
+
+  /// Converts [fxv] directly into this floating-point format.
+  ///
+  /// The exact fixed-point value is rounded once according to [roundingMode].
+  FpvType ofFixedPointValue(FixedPointValue fxv,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    final exact = fxv.toScaledBigInt();
+    return ofScaledBigInt(exact.significand, exact.exponent,
+        roundingMode: roundingMode);
+  }
+
+  /// Adds [a] and [b] exactly and rounds once into this format.
+  FpvType add(FloatingPointValue a, FloatingPointValue b,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    if (a.isNaN | b.isNaN) {
+      return _propagateNaN(a, b);
+    }
+    if (a.isAnInfinity | b.isAnInfinity) {
+      if (a.isAnInfinity && b.isAnInfinity && a.sign != b.sign) {
+        return nan;
+      }
+      final infinity = a.isAnInfinity ? a : b;
+      return _infinityOrLargestFinite(
+          negative: infinity.sign.toBool(), roundingMode: roundingMode);
+    }
+
+    final aExact = _decodeFinite(a);
+    final bExact = _decodeFinite(b);
+    final commonExponent = min(aExact.exponent, bExact.exponent);
+    final aSigned =
+        (a.sign.toBool() ? -aExact.significand : aExact.significand) <<
+            (aExact.exponent - commonExponent);
+    final bSigned =
+        (b.sign.toBool() ? -bExact.significand : bExact.significand) <<
+            (bExact.exponent - commonExponent);
+    final sum = aSigned + bSigned;
+    final sameSignZeros =
+        a.isAZero && b.isAZero && a.sign.toBool() == b.sign.toBool();
+    final negative = sum.isNegative ||
+        (sum == BigInt.zero &&
+            (sameSignZeros
+                ? a.sign.toBool()
+                : roundingMode ==
+                    FloatingPointRoundingMode.roundTowardsNegativeInfinity));
+
+    return _quantize((significand: sum.abs(), exponent: commonExponent),
+        negative: negative, roundingMode: roundingMode);
+  }
+
+  /// Multiplies [a] and [b] exactly and rounds once into this format.
+  FpvType multiply(FloatingPointValue a, FloatingPointValue b,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    if (a.isNaN | b.isNaN) {
+      return _propagateNaN(a, b);
+    }
+    final negative = a.sign.toBool() != b.sign.toBool();
+    if ((a.isAnInfinity && b.isAZero) || (b.isAnInfinity && a.isAZero)) {
+      return nan;
+    }
+    if (a.isAnInfinity | b.isAnInfinity) {
+      return _infinityOrLargestFinite(
+          negative: negative, roundingMode: roundingMode);
+    }
+
+    final aExact = _decodeFinite(a);
+    final bExact = _decodeFinite(b);
+    return _quantize((
+      significand: aExact.significand * bExact.significand,
+      exponent: aExact.exponent + bExact.exponent
+    ), negative: negative, roundingMode: roundingMode);
+  }
+
+  /// Divides [a] by [b] exactly (to sufficient precision) and rounds once
+  /// into this format.
+  ///
+  /// [b] must be nonzero: callers are expected to handle infinity and
+  /// zero-divisor special cases before calling this (as
+  /// [FloatingPointValue.operator /] does). NaN operands are propagated
+  /// correctly.
+  FpvType divide(FloatingPointValue a, FloatingPointValue b,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    if (a.isNaN | b.isNaN) {
+      return _propagateNaN(a, b);
+    }
+    final negative = a.sign.toBool() != b.sign.toBool();
+
+    final aExact = _decodeFinite(a);
+    final bExact = _decodeFinite(b);
+    if (aExact.significand == BigInt.zero) {
+      return _zero(negative);
+    }
+
+    // Compute the quotient's significand to at least `guardBits` bits more
+    // precision than the target format needs, by left-shifting the
+    // dividend before doing exact BigInt integer division. Shifting left
+    // (never right) means no dividend precision is ever silently
+    // discarded. Any nonzero remainder from the integer division is folded
+    // into the quotient's LSB as a sticky bit -- a standard technique so
+    // that information about further (unrepresented) nonzero low-order
+    // bits isn't lost for tie-breaking during later rounding.
+    final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    final guardBits = fractionWidth + 4;
+    final shiftAmount = max(
+        0,
+        bExact.significand.bitLength +
+            guardBits -
+            aExact.significand.bitLength);
+    final shiftedDividend = aExact.significand << shiftAmount;
+    var quotient = shiftedDividend ~/ bExact.significand;
+    final remainder = shiftedDividend.remainder(bExact.significand);
+    if (remainder != BigInt.zero) {
+      quotient |= BigInt.one;
+    }
+
+    return _quantize((
+      significand: quotient,
+      exponent: aExact.exponent - bExact.exponent - shiftAmount,
+    ), negative: negative, roundingMode: roundingMode);
+  }
+
+  /// Computes square root exactly and rounds once into this format.
+  FpvType squareRoot(FloatingPointValue value,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    if (value.isNaN) {
+      return _quietNaNFrom(value);
+    }
+    if (value.isAZero) {
+      return _zero(value.sign.toBool());
+    }
+    if (value.sign.toBool()) {
+      return nan;
+    }
+    if (value.isAnInfinity) {
+      return _infinityOrLargestFinite(
+          negative: false, roundingMode: roundingMode);
+    }
+
+    final exact = _decodeFinite(value);
+    final floorLog2 = exact.significand.bitLength - 1 + exact.exponent;
+    var resultExponent =
+        floorLog2 >= 0 ? floorLog2 ~/ 2 : -((-floorLog2 + 1) ~/ 2);
+    final isSubnormal = resultExponent < minExponent;
+    if (isSubnormal) {
+      resultExponent = minExponent;
+    }
+
+    final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    final scaleExponent = exact.exponent + 2 * (fractionWidth - resultExponent);
+    final BigInt truncated;
+    final bool exactResult;
+    final int midpointComparison;
+    if (scaleExponent >= 0) {
+      final scaledRadicand = exact.significand << scaleExponent;
+      truncated = _integerSquareRoot(scaledRadicand);
+      exactResult = truncated * truncated == scaledRadicand;
+      final midpoint = (truncated << 1) + BigInt.one;
+      midpointComparison = (scaledRadicand << 2).compareTo(midpoint * midpoint);
+    } else {
+      final denominatorShift = -scaleExponent;
+      truncated = _integerSquareRoot(exact.significand >> denominatorShift);
+      exactResult =
+          (truncated * truncated) << denominatorShift == exact.significand;
+      final midpoint = (truncated << 1) + BigInt.one;
+      midpointComparison = (exact.significand << 2)
+          .compareTo((midpoint * midpoint) << denominatorShift);
+    }
+
+    final increment = !exactResult &&
+        switch (roundingMode) {
+          FloatingPointRoundingMode.truncate ||
+          FloatingPointRoundingMode.roundTowardsZero ||
+          FloatingPointRoundingMode.roundTowardsNegativeInfinity =>
+            false,
+          FloatingPointRoundingMode.roundTowardsInfinity => true,
+          FloatingPointRoundingMode.roundNearestTiesAway =>
+            midpointComparison >= 0,
+          FloatingPointRoundingMode.roundNearestEven =>
+            midpointComparison > 0 ||
+                (midpointComparison == 0 && truncated.isOdd),
+        };
+    final significand = increment ? truncated + BigInt.one : truncated;
+
+    return _packRounded(significand, resultExponent,
+        negative: false, wasSubnormal: isSubnormal, roundingMode: roundingMode);
+  }
+
+  static BigInt _integerSquareRoot(BigInt value) {
+    if (value < BigInt.two) {
+      return value;
+    }
+    var estimate = BigInt.one << ((value.bitLength + 1) ~/ 2);
+    while (true) {
+      final next = (estimate + value ~/ estimate) >> 1;
+      if (next >= estimate) {
+        return estimate;
+      }
+      estimate = next;
+    }
+  }
+
+  FpvType _propagateNaN(FloatingPointValue a, FloatingPointValue b) {
+    final source = a.isSignalingNaN
+        ? a
+        : b.isSignalingNaN
+            ? b
+            : a.isNaN
+                ? a
+                : b;
+    return _quietNaNFrom(source);
+  }
+
+  FpvType _quietNaNFrom(FloatingPointValue source) {
+    if (!_unpopulated.supportsSignalingNaNs) {
+      final canonical = _unpopulated.clonePopulator().nan;
+      return ofBigInts(
+          canonical.exponent.toBigInt(), canonical.mantissa.toBigInt(),
+          sign: source.sign.toBool());
+    }
+    final targetFractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    final sourceFractionWidth =
+        source.mantissaWidth - (source.explicitJBit ? 1 : 0);
+    final targetPayloadWidth = max(0, targetFractionWidth - 1);
+    final sourcePayloadWidth = max(0, sourceFractionWidth - 1);
+    final sourcePayloadMask = sourcePayloadWidth == 0
+        ? BigInt.zero
+        : (BigInt.one << sourcePayloadWidth) - BigInt.one;
+    final targetPayloadMask = targetPayloadWidth == 0
+        ? BigInt.zero
+        : (BigInt.one << targetPayloadWidth) - BigInt.one;
+    final payload =
+        source.mantissa.toBigInt() & sourcePayloadMask & targetPayloadMask;
+    final quietMantissa =
+        (explicitJBit ? BigInt.one << (mantissaWidth - 1) : BigInt.zero) |
+            (BigInt.one << targetPayloadWidth) |
+            payload;
+    return ofBigInts((BigInt.one << exponentWidth) - BigInt.one, quietMantissa,
+        sign: source.sign.toBool());
+  }
+
+  static _ExactDyadic _decodeFinite(FloatingPointValue value) {
+    final exact = value.toScaledBigInt();
+    return (significand: exact.significand.abs(), exponent: exact.exponent);
+  }
+
+  FpvType _quantize(_ExactDyadic exact,
+      {required bool negative,
+      required FloatingPointRoundingMode roundingMode}) {
+    if (exact.significand == BigInt.zero) {
+      return _zero(negative);
+    }
+
+    final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    var resultExponent = exact.significand.bitLength - 1 + exact.exponent;
+
+    final isSubnormal = resultExponent < minExponent;
+    if (isSubnormal) {
+      resultExponent = minExponent;
+    }
+
+    final rounded = _roundSignificand(exact,
+        quantumExponent: resultExponent - fractionWidth,
+        negative: negative,
+        roundingMode: roundingMode);
+    final significand = rounded;
+
+    return _packRounded(significand, resultExponent,
+        negative: negative,
+        wasSubnormal: isSubnormal,
+        roundingMode: roundingMode);
+  }
+
+  FpvType _packRounded(BigInt significand, int resultExponent,
+      {required bool negative,
+      required bool wasSubnormal,
+      required FloatingPointRoundingMode roundingMode}) {
+    final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    if (wasSubnormal) {
+      final smallestNormal = BigInt.one << fractionWidth;
+      if (significand < smallestNormal) {
+        if (subNormalAsZero) {
+          return _zero(negative);
+        }
+        return populate(
+            sign: LogicValue.ofBool(negative),
+            exponent: LogicValue.zero.zeroExtend(exponentWidth),
+            mantissa: LogicValue.ofBigInt(significand, mantissaWidth));
+      }
+    }
+
+    final carryLimit = BigInt.one << (fractionWidth + 1);
+    if (significand >= carryLimit) {
+      significand >>= 1;
+      resultExponent++;
+    }
+    if (resultExponent > maxExponent) {
+      return _overflow(negative: negative, roundingMode: roundingMode);
+    }
+
+    final storedMantissa = explicitJBit
+        ? significand
+        : significand & ((BigInt.one << fractionWidth) - BigInt.one);
+    final storedExponent = resultExponent + bias;
+    final largest = _constantComponents(FloatingPointConstants.largestNormal);
+    if (storedExponent > largest.exponent.toInt() ||
+        (storedExponent == largest.exponent.toInt() &&
+            storedMantissa > largest.mantissa.toBigInt())) {
+      return _overflow(negative: negative, roundingMode: roundingMode);
+    }
+
+    return populate(
+        sign: LogicValue.ofBool(negative),
+        exponent: LogicValue.ofInt(storedExponent, exponentWidth),
+        mantissa: LogicValue.ofBigInt(storedMantissa, mantissaWidth));
+  }
+
+  static BigInt _roundSignificand(_ExactDyadic exact,
+      {required int quantumExponent,
+      required bool negative,
+      required FloatingPointRoundingMode roundingMode}) {
+    final shift = exact.exponent - quantumExponent;
+    if (shift >= 0) {
+      return exact.significand << shift;
+    }
+
+    final signedSignificand = negative ? -exact.significand : exact.significand;
+    return roundBigIntByPowerOfTwo(signedSignificand, -shift,
+            roundingMode: roundingMode)
+        .abs();
+  }
+
+  FpvType _overflow(
+      {required bool negative,
+      required FloatingPointRoundingMode roundingMode}) {
+    final roundsToInfinity = switch (roundingMode) {
+      FloatingPointRoundingMode.roundNearestEven ||
+      FloatingPointRoundingMode.roundNearestTiesAway =>
+        true,
+      FloatingPointRoundingMode.roundTowardsInfinity => !negative,
+      FloatingPointRoundingMode.roundTowardsNegativeInfinity => negative,
+      FloatingPointRoundingMode.truncate ||
+      FloatingPointRoundingMode.roundTowardsZero =>
+        false,
+    };
+    return roundsToInfinity
+        ? _infinityOrLargestFinite(
+            negative: negative, roundingMode: roundingMode)
+        : _largestFinite(negative);
+  }
+
+  FpvType _infinityOrLargestFinite(
+      {required bool negative,
+      required FloatingPointRoundingMode roundingMode}) {
+    if (_unpopulated.supportsInfinities) {
+      return ofConstant(negative
+          ? FloatingPointConstants.negativeInfinity
+          : FloatingPointConstants.positiveInfinity);
+    }
+    return _largestFinite(negative);
+  }
+
+  FpvType _largestFinite(bool negative) {
+    final largest = ofConstant(FloatingPointConstants.largestNormal);
+    return negative ? largest.negate() as FpvType : largest;
+  }
+
+  FpvType _zero(bool negative) => ofConstant(negative
+      ? FloatingPointConstants.negativeZero
+      : FloatingPointConstants.positiveZero);
 
   /// Extracts a [FloatingPointValue] from a [FloatingPoint]'s current `value`.
   FpvType ofFloatingPoint(FloatingPoint fp) => populate(
@@ -310,7 +712,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       // Not a Number (NaN)
       case FloatingPointConstants.nan:
         stringComponents =
-            ('0', '1' * exponentWidth, '${'0' * (mantissaWidth - 1)}1');
+            ('0', '1' * exponentWidth, '1${'0' * (mantissaWidth - 1)}');
     }
 
     return (
@@ -320,18 +722,31 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     );
   }
 
+  ({
+    LogicValue sign,
+    LogicValue exponent,
+    LogicValue mantissa
+  }) _constantComponents(FloatingPointConstants constant) =>
+      // ignore: invalid_use_of_visible_for_overriding_member, invalid_use_of_protected_member
+      _unpopulated.getSpecialConstantComponents(constant) ??
+      getConstantComponents(constant);
+
   /// Creates a new [FloatingPointValue] represented by the given
   /// [constantFloatingPoint].
   FpvType ofConstant(FloatingPointConstants constantFloatingPoint) {
     if (explicitJBit) {
-      return ofFloatingPointValue(FloatingPointValue.populator(
+      final implicit = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
-          .ofConstant(constantFloatingPoint)) as FpvType;
+          .ofConstant(constantFloatingPoint);
+      final explicitJBitValue =
+          implicit.isNormal() || implicit.isAnInfinity || implicit.isNaN;
+      return populate(
+          sign: implicit.sign,
+          exponent: implicit.exponent,
+          mantissa: [LogicValue.ofBool(explicitJBitValue), implicit.mantissa]
+              .swizzle());
     }
-    final components =
-        // ignore: invalid_use_of_visible_for_overriding_member, invalid_use_of_protected_member
-        _unpopulated.getSpecialConstantComponents(constantFloatingPoint) ??
-            getConstantComponents(constantFloatingPoint);
+    final components = _constantComponents(constantFloatingPoint);
 
     return populate(
         sign: components.sign,
@@ -365,21 +780,47 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// [FloatingPointConstants.negativeZero].
   FpvType get negativeZero => ofConstant(FloatingPointConstants.negativeZero);
 
-  // TODO(desmonddak): we may have a bug in ofDouble() when
-  //  the FPV is close to the width of the native double:  for LGRS to work
-  //  we need three bits of space to handle the LSB|Guard|Round|Sticky.
-  //  If the FPV is only 2 bits shorter than native, then we know we can round
-  //  with LSB+Guard, but can't fit the round and sticky bits.
-  //  The algorithm needs to extend with zeros and handle.
-
-  /// Convert from double using its native binary representation
+  /// Convert from double using its native binary representation.
+  ///
+  /// The input [inDouble] is decoded bit-exactly (no precision is lost in
+  /// that step, since a Dart [double] is itself an IEEE 754 binary64 value)
+  /// and then rounded exactly once into this format using [roundingMode],
+  /// via the same exact rounding engine used by [add], [multiply],
+  /// [squareRoot], and [ofFloatingPointValueRounded]. All
+  /// [FloatingPointRoundingMode]s are supported.
   FpvType ofDouble(double inDouble,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    if (inDouble.isNaN) {
+      return nan;
+    }
+    if (inDouble.isInfinite) {
+      return _infinityOrLargestFinite(
+          negative: inDouble < 0.0, roundingMode: roundingMode);
+    }
+
+    final fp64 = FloatingPoint64Value.populator().ofDouble(inDouble);
+    return _quantize(_decodeFinite(fp64),
+        negative: fp64.sign.toBool(), roundingMode: roundingMode);
+  }
+
+  /// Convert from double using its native binary representation.
+  ///
+  /// This is the original hand-rolled guard/round/sticky implementation of
+  /// [ofDouble], retained temporarily for reference and back-compatibility
+  /// comparisons. It only supports [FloatingPointRoundingMode.roundNearestEven]
+  /// and [FloatingPointRoundingMode.truncate], and has a known bug for
+  /// formats close to the width of the native double (not enough bits of
+  /// space to hold the guard, round, and sticky bits).
+  @Deprecated('Use ofDouble instead, which supports all rounding modes '
+      'and fixes a rounding bug for formats close to double width.')
+  FpvType ofDoubleLegacy(double inDouble,
       {FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
     if (explicitJBit) {
       return ofFloatingPointValue(FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
-          .ofDouble(inDouble, roundingMode: roundingMode)) as FpvType;
+          .ofDoubleLegacy(inDouble, roundingMode: roundingMode)) as FpvType;
     }
     if (inDouble.isNaN) {
       return nan;
@@ -417,8 +858,6 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     var mantissa = mantissa64n.slice(fp64Mw - (explicitJBit ? 0 : 1),
         fp64Mw - mantissaWidth + (explicitJBit ? 1 : 0));
 
-    // TODO(desmonddak): this should be in a separate function to use
-    //  with a FloatingPointValue converter we need.
     if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
       final stickyPos = fp64Mw - (mantissaWidth + 3);
       final sticky =
@@ -754,23 +1193,22 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     if ((lt == null) & (lte == null)) {
       lte = doGenSubNormal & !doGenNormal
           ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
-          : !excludeInfinity
-              ? cloneConstant(FloatingPointConstants.positiveInfinity)
-              : null;
-      lt = (lte == null) & excludeInfinity
-          ? cloneConstant(FloatingPointConstants.positiveInfinity)
-          : null;
+          : excludeInfinity
+              // Use an inclusive bound at the largest finite value instead of
+              // an exclusive bound at +infinity: this produces the same set
+              // of generatable values but also works for formats (like
+              // e4m3) that cannot represent infinity at all.
+              ? cloneConstant(FloatingPointConstants.largestNormal)
+              : cloneConstant(FloatingPointConstants.positiveInfinity);
     }
     if ((gt == null) & (gte == null)) {
       gte = doGenSubNormal & !doGenNormal
           ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
               .negate() as FpvType
-          : !excludeInfinity
-              ? cloneConstant(FloatingPointConstants.negativeInfinity)
-              : null;
-      gt = (gte == null) & excludeInfinity
-          ? cloneConstant(FloatingPointConstants.negativeInfinity)
-          : null;
+          : excludeInfinity
+              ? cloneConstant(FloatingPointConstants.largestNormal).negate()
+                  as FpvType
+              : cloneConstant(FloatingPointConstants.negativeInfinity);
     }
 
     // Take the tightest constraints and assign as local variables.

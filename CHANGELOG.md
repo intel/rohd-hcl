@@ -1,3 +1,95 @@
+## Unreleased
+
+### Breaking Changes
+
+- `FixedPointValue`, its factory, and its populator now default to `signed: true`, matching `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>). Pass `signed: false` where the previous unsigned default is required.
+
+### New Features
+
+#### IEEE Rounding Compatibility
+
+- Added all `FloatingPointRoundingMode`s to floating-point value and logic operations, including adders, multipliers, converters, square root, `FixedToFloat`, and `FloatToFixed` (<https://github.com/intel/rohd-hcl/issues/191>).
+- Added `roundingMode` to `FixedToFloat` and `FloatToFixed`, retaining their previous defaults of `roundNearestEven` and `truncate`, respectively.
+- Unified fixed- and floating-point value rounding APIs (<https://github.com/intel/rohd-hcl/issues/173>).
+
+#### Conversions
+
+- Added exact, host-`double`-independent conversion between `FloatingPointValue` and `FixedPointValue`, with automatic-width lossless methods and width-constrained populator methods (<https://github.com/intel/rohd-hcl/issues/112>).
+- Added `toLogic()` conversion from `FixedPointValue` and `FloatingPointValue` to constant corresponding signal types (<https://github.com/intel/rohd-hcl/issues/200>).
+
+#### Arithmetic Signal Operations
+
+- Added typed `add`, `subtract`, and `multiply` methods and direct `+`, `-`, and `*` operators to `FixedPoint` and `FloatingPoint` signals (<https://github.com/intel/rohd-hcl/issues/199>).
+
+#### Integer Arithmetic Components
+
+- Added an optional `carryIn` to `SignMagnitudeAdder`.
+- Added configurable `outputWidth` to `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `MultiplyOnly`.
+- Added `GenericMultiplyAccumulate`, which composes configurable multiplier and adder generators.
+
+#### Parameterized Configuration
+
+- Added generic `StaticOrRuntimeValue<T>` support for statically configured values or multi-bit runtime `Logic` inputs while preserving `StaticOrRuntimeParameter` as the boolean specialization.
+
+### Bug Fixes
+
+#### IEEE Rounding Compatibility Bugs
+
+- Corrected round-nearest-even sticky-bit handling in `FloatingPointMultiplierSimple` near the subnormal boundary (<https://github.com/intel/rohd-hcl/issues/194>).
+- Replaced `FixedToFloat`'s custom rounding with the shared `FloatingPointRounder`.
+- Verified round-nearest-even behavior across mantissa widths and subnormal boundaries (<https://github.com/intel/rohd-hcl/issues/190>).
+
+#### Conversion Fixes
+
+- Fixed `FloatingPointConverter` when narrowing the mantissa and widening the exponent of a subnormal value (<https://github.com/intel/rohd-hcl/issues/241>).
+- Fixed `FloatToFixed` conversion from explicit-j-bit formats.
+- Fixed `FloatToFixed` overflow detection for reduced precision and the exact negative power-of-two boundary.
+- Fixed wide `FloatingPointValue.toString(integer: true)` conversions.
+
+#### NaN and Special Values
+
+- Corrected IEEE-754 NaN comparisons and added `hasSameEncoding()` (<https://github.com/intel/rohd-hcl/issues/252>).
+- Fixed explicit-j-bit infinity and NaN encodings and quiet/signaling NaN classification.
+- Fixed E4M3 exponent limits and prevented finite results from rounding into its reserved NaN encoding (<https://github.com/intel/rohd-hcl/issues/115>).
+- Fixed `FloatingPointValuePopulator.random(excludeInfinity: true)` for formats without infinity.
+- Fixed `FloatingPointValue.isLegalValue()` accepting explicit-j-bit unnormal encodings.
+
+#### Subnormal Handling
+
+- Fixed `FloatingPointValue.ulp()` for subnormal values and removed its dependency on host `double` precision (<https://github.com/intel/rohd-hcl/issues/206>).
+- Fixed zero multiplication with a widened output exponent in `FloatingPointMultiplierSimple` (<https://github.com/intel/rohd-hcl/issues/194>).
+
+#### Fixed-Point Fixes
+
+- Fixed `FixedPoint.operator *` to produce a correctly signed, full-width product.
+- Fixed `FixedPointValuePopulator.canStore()` to use the rounded value and the asymmetric two's-complement range.
+
+#### Integer Arithmetic Components Fixes
+
+- Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending unsigned products in uneven reduction trees. Static and runtime operand signedness now control partial-sum extension.
+
+#### Floating-Point Arithmetic
+
+- Made `FloatingPointValue.operator /` exact and correctly rounded for arbitrary widths, removing its host-`double` dependency (<https://github.com/intel/rohd-hcl/issues/113>).
+- Fixed `FloatingPointMultiplierSimple` when the output format is narrower than its inputs (<https://github.com/intel/rohd-hcl/issues/194>).
+- Fixed `FloatingPointValue()` forwarding of the `signed` argument.
+
+### Verification and Maintenance
+
+- Added common smoke coverage for all `FloatingPointValue` formats (<https://github.com/intel/rohd-hcl/issues/133>).
+- Expanded exhaustive coverage for conversions, rounding, floating-point arithmetic, fixed-point multiplication, and multiply-accumulate widths.
+- Re-enabled `previousFloatingPointValue` regressions after the upstream ROHD fix (<https://github.com/intel/rohd/pull/565>).
+- Resolved stale arithmetic TODOs where exhaustive testing confirmed the existing implementation.
+
+### Known Issues
+
+- Implicit-j-bit to implicit-j-bit `FloatingPointConverter` conversions still have subnormal edge cases.
+- Berkeley TestFloat integration remains unimplemented (<https://github.com/intel/rohd-hcl/issues/135>).
+- `MultiCycleDivider` improvements (<https://github.com/intel/rohd-hcl/issues/139>) and a 4:2 `ColumnCompressor` (<https://github.com/intel/rohd-hcl/issues/120>) remain in stale pull requests.
+- `Sum` and `Counter` still generate avoidable overflow/underflow logic (<https://github.com/intel/rohd-hcl/issues/90>).
+- `CompressionTreeMultiplyAccumulate` can discard precision when `c` exceeds its natural accumulation width; `GenericMultiplyAccumulate` does not.
+- Potential optimizations remain in compact sign extension, `FixedToFloat` exponent prediction, and the dual-path floating-point adder N-path.
+
 ## 0.2.1
 
 - New Components:

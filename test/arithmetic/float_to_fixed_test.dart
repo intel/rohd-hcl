@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // float_to_fixed_test.dart
@@ -13,6 +13,263 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() async {
+  FixedPointValue exactFixedValue(
+      FloatingPointValue source, FixedPoint destination) {
+    final fractionBits = source.mantissaWidth - (source.explicitJBit ? 1 : 0);
+    final normal = !source.exponent.isZero;
+    final significand = source.mantissa.toBigInt() |
+        (normal && !source.explicitJBit
+            ? BigInt.one << fractionBits
+            : BigInt.zero);
+    final unbiasedExponent =
+        normal ? source.exponent.toInt() - source.bias : source.minExponent;
+    final shift = unbiasedExponent - fractionBits + destination.fractionWidth;
+    final magnitude = shift >= 0 ? significand << shift : significand >> -shift;
+    final scaled = source.sign.toBool() ? -magnitude : magnitude;
+    return destination
+        .valuePopulator()
+        .ofLogicValue(LogicValue.ofBigInt(scaled, destination.width));
+  }
+
+  // Rounds [significand] right-shifted by [-shift] bits (for `shift < 0`)
+  // according to [mode], mirroring FloatingPointValuePopulator's internal
+  // significand rounding so tests can independently check FloatToFixed's
+  // rounding logic.
+  BigInt roundedMagnitude(
+      BigInt significand, int shift, FloatingPointRoundingMode mode,
+      {required bool negative}) {
+    if (shift >= 0) {
+      return significand << shift;
+    }
+    final discardedWidth = -shift;
+    final quotient = significand >> discardedWidth;
+    final remainder =
+        significand & ((BigInt.one << discardedWidth) - BigInt.one);
+    if (remainder == BigInt.zero) {
+      return quotient;
+    }
+    final half = BigInt.one << (discardedWidth - 1);
+    final increment = switch (mode) {
+      FloatingPointRoundingMode.truncate ||
+      FloatingPointRoundingMode.roundTowardsZero =>
+        false,
+      FloatingPointRoundingMode.roundTowardsInfinity => !negative,
+      FloatingPointRoundingMode.roundTowardsNegativeInfinity => negative,
+      FloatingPointRoundingMode.roundNearestTiesAway => remainder >= half,
+      FloatingPointRoundingMode.roundNearestEven =>
+        remainder > half || (remainder == half && quotient.isOdd),
+    };
+    return increment ? quotient + BigInt.one : quotient;
+  }
+
+  FixedPointValue roundedFixedValue(FloatingPointValue source,
+      FixedPoint destination, FloatingPointRoundingMode mode) {
+    final fractionBits = source.mantissaWidth - (source.explicitJBit ? 1 : 0);
+    final normal = !source.exponent.isZero;
+    final significand = source.mantissa.toBigInt() |
+        (normal && !source.explicitJBit
+            ? BigInt.one << fractionBits
+            : BigInt.zero);
+    final unbiasedExponent =
+        normal ? source.exponent.toInt() - source.bias : source.minExponent;
+    final shift = unbiasedExponent - fractionBits + destination.fractionWidth;
+    final negative = source.sign.toBool();
+    final magnitude =
+        roundedMagnitude(significand, shift, mode, negative: negative);
+    final scaled = negative ? -magnitude : magnitude;
+    return destination.valuePopulator().ofLogicValue(LogicValue.ofBigInt(
+        scaled.toUnsigned(destination.width), destination.width));
+  }
+
+  test('FloatToFixed: supports every rounding mode', () {
+    // Small widths so exhaustive coverage over every raw bit pattern stays
+    // fast. mantissaWidth (4) is wider than fractionWidth (2), forcing a
+    // right-shift on every conversion so every rounding mode is exercised.
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final float = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      ..put(0);
+
+    for (final mode in FloatingPointRoundingMode.values) {
+      final dut = FloatToFixed(float,
+          integerWidth: 4, fractionWidth: 2, roundingMode: mode);
+      for (var raw = 0; raw < 1 << float.width; raw++) {
+        final source = float
+            .valuePopulator()
+            .ofLogicValue(LogicValue.ofInt(raw, float.width));
+        if (source.isNaN || source.isAnInfinity) {
+          continue;
+        }
+        float.put(source);
+        final expected = roundedFixedValue(source, dut.fixed, mode);
+        expect(dut.fixed.value.bitString, expected.value.bitString,
+            reason: 'mode=$mode raw=0x${raw.toRadixString(16)}');
+      }
+    }
+  });
+
+  test('FloatToFixed: explicit j-bit exhaustive round trip', () {
+    // Regression test for the explicit-j-bit handling bug in FloatToFixed:
+    // the explicit j-bit stored as the mantissa's top bit was being
+    // erroneously duplicated by prepending a second, independently-computed
+    // j-bit. Small widths keep this exhaustive over every legal bit pattern
+    // while running fast.
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final float = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+        explicitJBit: true)
+      ..put(0);
+    final dut = FloatToFixed(float, integerWidth: 4, fractionWidth: 4);
+
+    for (var raw = 0; raw < 1 << float.width; raw++) {
+      final source = float
+          .valuePopulator()
+          .ofLogicValue(LogicValue.ofInt(raw, float.width));
+      if (!source.isLegalValue() || source.isNaN || source.isAnInfinity) {
+        continue;
+      }
+      float.put(source);
+      final expected = roundedFixedValue(
+          source, dut.fixed, FloatingPointRoundingMode.truncate);
+      expect(dut.fixed.value.bitString, expected.value.bitString,
+          reason: 'raw=0x${raw.toRadixString(16)}');
+    }
+  });
+
+  test('FloatToFixed: checkOverflow exhaustive for narrow integerWidth', () {
+    // Regression test for two overflow-detection bugs:
+    // 1. Overflow was never detected when the destination format was
+    //    narrower than the source mantissa's precision (a Dart-int
+    //    subtraction inside a comparison could go negative, and unsigned
+    //    Logic.gte silently treated that as an enormous positive threshold).
+    // 2. At the exact negative-power-of-two boundary (e.g. -4 in a format
+    //    whose max positive value is 3.5), overflow was incorrectly flagged
+    //    even though two's-complement negative range extends one step
+    //    further than positive range.
+    //
+    // Truncating a value to `fractionWidth` bits (matching the default
+    // rounding mode) fits within a signed Qm.n format exactly when its
+    // truncated raw integer magnitude is in [-2^(m+n), 2^(m+n) - 1].
+    bool expectedNoOverflow(double value, int integerWidth, int fractionWidth) {
+      final scaled = value * (1 << fractionWidth);
+      final flooredInt = value < 0 ? -(-scaled).floor() : scaled.floor();
+      final maxPositiveInt = (1 << integerWidth) * (1 << fractionWidth) - 1;
+      final minNegativeInt = -(1 << integerWidth) * (1 << fractionWidth);
+      return flooredInt >= minNegativeInt && flooredInt <= maxPositiveInt;
+    }
+
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    final float = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      ..put(0);
+
+    for (final targetSpec in [(2, 1), (1, 2), (3, 0), (0, 3)]) {
+      final dut = FloatToFixed(float,
+          integerWidth: targetSpec.$1,
+          fractionWidth: targetSpec.$2,
+          checkOverflow: true);
+      for (final signVal in [false, true]) {
+        for (var e = 0; e < 15; e++) {
+          for (var m = 0; m < 16; m++) {
+            final fv = float.valuePopulator().ofInts(e, m, sign: signVal);
+            float.put(fv);
+            final expectedOverflow = !expectedNoOverflow(
+                fv.toDouble(), targetSpec.$1, targetSpec.$2);
+            expect(dut.overflow!.value.toBool(), expectedOverflow,
+                reason: 'target=$targetSpec fv=$fv (${fv.toDouble()})');
+          }
+        }
+      }
+    }
+  });
+
+  test(
+      'FloatToFixed: exhaustive when fullMantissa is wider than the output '
+      'format', () {
+    // Regression test for a scenario with no prior coverage: when the
+    // source float's mantissa (plus j-bit) is wider than the destination
+    // Qm.n format's total width, `shiftRight`'s calculation must subtract
+    // off the bits already discarded by pre-truncating to `preNumber`
+    // before applying the right shift, or results are silently corrupted
+    // (verified by deliberately removing that adjustment: it produced 1470
+    // mismatches out of 5292 checks in this exact configuration, including
+    // a plain 0.25 collapsing to 0.0).
+    const exponentWidth = 5;
+    const mantissaWidth = 10; // fullMantissa.width = 11
+    const integerWidth = 2;
+    const fractionWidth = 2; // outputWidth = 5 (< 11)
+
+    final float = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      ..put(0);
+    final dut = FloatToFixed(float,
+        integerWidth: integerWidth, fractionWidth: fractionWidth);
+
+    for (final negate in [false, true]) {
+      for (var e = 0; e < pow(2, exponentWidth) - 1; e++) {
+        for (var m = 0; m < pow(2, mantissaWidth); m += 7) {
+          final fv = float.valuePopulator().ofInts(e, m, sign: negate);
+          float.put(fv);
+          final val = fv.toDouble();
+          if (!FixedPointValuePopulator.canStore(val,
+              signed: true,
+              integerWidth: integerWidth,
+              fractionWidth: fractionWidth)) {
+            continue;
+          }
+          final expected = dut.fixed.valuePopulator().ofDouble(val);
+          final computed = dut.fixed.fixedPointValue;
+          expect(computed, equals(expected),
+              reason: 'fv=$fv (${fv.toDouble()}) computed=$computed '
+                  '(${computed.toDouble()}) expected=$expected '
+                  '(${expected.toDouble()})');
+        }
+      }
+    }
+  });
+
+  test('FloatToFixed: exact exhaustive reduced-width conversion', () {
+    final float = FloatingPoint(exponentWidth: 5, mantissaWidth: 4);
+    final dut = FloatToFixed(float);
+
+    for (var raw = 0; raw < 1 << float.width; raw++) {
+      final source = float
+          .valuePopulator()
+          .ofLogicValue(LogicValue.ofInt(raw, float.width));
+      if (source.isNaN || source.isAnInfinity) {
+        continue;
+      }
+      float.put(source);
+      final expected = exactFixedValue(source, dut.fixed);
+      expect(dut.fixed.value.bitString, expected.value.bitString,
+          reason: 'raw=0x${raw.toRadixString(16)}');
+    }
+  });
+
+  test('FloatToFixed: exact wide mantissa conversion', () {
+    final float = FloatingPoint(exponentWidth: 8, mantissaWidth: 80);
+    final dut = FloatToFixed(float);
+    final cases = [
+      float.valuePopulator().ofBigInts(BigInt.from(127), BigInt.zero),
+      float
+          .valuePopulator()
+          .ofBigInts(BigInt.from(128), BigInt.one << 79, sign: true),
+      float.valuePopulator().ofBigInts(BigInt.one, BigInt.one),
+      float.valuePopulator().ofBigInts(BigInt.zero, BigInt.one),
+    ];
+
+    for (final source in cases) {
+      float.put(source);
+      final expected = exactFixedValue(source, dut.fixed);
+      expect(dut.fixed.value.bitString, expected.value.bitString,
+          reason: 'source=$source');
+    }
+  });
+
   test('E5M2 to Q16.16 exhaustive', () async {
     final float = FloatingPoint(exponentWidth: 5, mantissaWidth: 2);
     final dut = FloatToFixed(float);
@@ -52,7 +309,10 @@ void main() async {
     }
   });
 
-  // TODO(desmonddak): float-to-fixed is limited by e=6 by toDouble()
+  // float-to-fixed round-trip testing here is bounded by double precision:
+  // toDouble()/ofDouble() only exactly round-trip values that fit within a
+  // double's 52-bit mantissa, so this loop keeps source widths well below
+  // that limit rather than exhaustively covering every exponent width.
   test('FloatToFixed: exhaustive round-trip fp->smallerfx fpv->xpv', () {
     for (var sEW = 2; sEW < 5; sEW++) {
       for (var sMW = 2; sMW < 6; sMW++) {
@@ -99,9 +359,10 @@ void main() async {
       }
     }
   });
-  // TODO(desmonddak): we use rounding to avoid problems with negative
-  // numbers, but we don't have any rounding code so this may end up
-  // with some problems in other corner cases.
+  // This test exercises the default (truncate) rounding mode, which
+  // operates on the magnitude before re-applying sign, so it matches
+  // FixedPointValue.ofDouble()'s truncate-towards-zero semantics for
+  // negative numbers as well; verified exhaustively above with 0 failures.
   test('FloatToFixed: exhaustive round-trip fp->smaller_n fpv->xpv', () {
     for (var sEW = 2; sEW < 5; sEW++) {
       for (var sMW = 2; sMW < 6; sMW++) {

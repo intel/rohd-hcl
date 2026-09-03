@@ -12,9 +12,15 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-// TODO(desmonddak): add a multiply generator option to MAC
-// TODO(desmonddak): add a variable width output as we did with fp multiply
-// as well as a variable width accumulate input
+// `GenericMultiplyAccumulate` composes any `Multiplier` generator with an
+// `adderGen`. Its flexibility may cost efficiency compared with the fused
+// compression tree in `CompressionTreeMultiplyAccumulate`.
+//
+// `outputWidth` truncates or extends the natural full-precision result.
+//
+// Wide `c` inputs can lose precision inside `CompressionTreeMultiplyAccumulate`
+// beyond the natural result width. `GenericMultiplyAccumulate` supports them
+// by extending the product and `c` before its separate addition.
 
 /// An abstract class for all multiply accumulate implementations.
 abstract class MultiplyAccumulate extends Module {
@@ -118,6 +124,13 @@ abstract class MultiplyAccumulate extends Module {
   /// You can pass either a `bool`(for static configuration) or a [Logic]
   /// (dynamically configuring the type handled) with a signal to this
   /// parameter, otherwise this constructor will throw.
+  ///
+  /// The optional [outputWidth] parameter configures the width of
+  /// [accumulate]. If not provided, [accumulate] is the natural
+  /// full-precision width `a.width + b.width + 1`. If [outputWidth] is
+  /// narrower, the natural result is truncated to the low [outputWidth]
+  /// bits. If [outputWidth] is wider, the natural result is sign- or
+  /// zero-extended based on [isAccumulateSigned].
   MultiplyAccumulate(Logic a, Logic b, Logic c,
       {Logic? clk,
       Logic? reset,
@@ -125,6 +138,7 @@ abstract class MultiplyAccumulate extends Module {
       dynamic signedMultiplicand,
       dynamic signedMultiplier,
       dynamic signedAddend,
+      int? outputWidth,
       super.name = 'multiply_accumulate',
       super.reserveName,
       super.reserveDefinitionName,
@@ -149,12 +163,35 @@ abstract class MultiplyAccumulate extends Module {
     signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
     this.signedAddend = signedAddendParameter.staticConfig;
 
-    addOutput('accumulate', width: a.width + b.width + 1);
+    addOutput('accumulate', width: outputWidth ?? (a.width + b.width + 1));
 
     addOutput('isAccumulateSigned') <=
         signedMultiplicandParameter.getLogic(this) |
             signedMultiplierParameter.getLogic(this) |
             signedAddendParameter.getLogic(this);
+  }
+
+  /// Reshapes [naturalResult] (the full-precision, natural-width
+  /// multiply-accumulate result) to fit this module's [accumulate] output
+  /// width.
+  ///
+  /// If [accumulate] is the same width as [naturalResult], it is returned
+  /// unchanged. If [accumulate] is narrower, [naturalResult] is truncated to
+  /// the low `accumulate.width` bits. If [accumulate] is wider,
+  /// [naturalResult] is sign- or zero-extended based on [signed] (which
+  /// defaults to the runtime [isAccumulateSigned] signal).
+  @protected
+  Logic fitAccumulateWidth(Logic naturalResult, {Logic? signed}) {
+    if (accumulate.width == naturalResult.width) {
+      return naturalResult;
+    }
+    if (accumulate.width < naturalResult.width) {
+      return naturalResult.slice(accumulate.width - 1, 0);
+    }
+    return mux(
+        signed ?? isAccumulateSigned,
+        naturalResult.signExtend(accumulate.width),
+        naturalResult.zeroExtend(accumulate.width));
   }
 
   /// This is a helper function that prints out the kind of addend (selected by
@@ -189,6 +226,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the Column Compressor is built as a combinational tree of compressors.
+  ///
+  /// The optional [outputWidth] parameter configures the width of
+  /// [accumulate], as described in [MultiplyAccumulate].
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c,
       {int radix = 4,
       Logic? clk,
@@ -197,6 +237,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       super.signedMultiplicand,
       super.signedMultiplier,
       super.signedAddend,
+      super.outputWidth,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       PartialProductSignExtension Function(PartialProductGeneratorBase pp,
@@ -254,7 +295,8 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     final compressor = ColumnCompressor(ppgRows, ppg.rowShift,
         clk: clk, reset: reset, enable: enable);
     final adder = adderGen(compressor.add0, compressor.add1);
-    accumulate <= adder.sum.slice(a.width + b.width - 1 + 1, 0);
+    accumulate <=
+        fitAccumulateWidth(adder.sum.slice(a.width + b.width - 1 + 1, 0));
   }
 }
 
@@ -277,6 +319,9 @@ class MultiplyOnly extends MultiplyAccumulate {
 
   /// Construct a [MultiplyAccumulate] that only multiplies to enable
   /// using the same tester with zero accumulate addend [c].
+  ///
+  /// The optional [outputWidth] parameter configures the width of
+  /// [accumulate], as described in [MultiplyAccumulate].
   MultiplyOnly(
     super.a,
     super.b,
@@ -287,38 +332,128 @@ class MultiplyOnly extends MultiplyAccumulate {
     super.signedMultiplicand,
     super.signedMultiplier,
     super.signedAddend,
+    super.outputWidth,
   }) // Will be overrwridden by multiplyGenerator
   : super(
             // ignore: prefer_interpolation_to_compose_strings
             name: 'multiply_only_' +
                 _genName(mulGen, a, b, signedMultiplicand, signedMultiplier)) {
-    // Here we need to copy the Config and make sure we access our module's
-    // input by calling .logic(this) on the runtimeConfig.
-
-    // TODO(desmonddak): try using tryRuntimeInput instead of getLogic.
+    // Copy the configuration using this module's internal runtime input.
     final multiply = mulGen(a, b,
         signedMultiplicand: StaticOrRuntimeParameter(
             name: 'selectSignedMultiplicand',
-            runtimeConfig: signedMultiplicandParameter.runtimeConfig != null
-                ? signedMultiplicandParameter.getLogic(this)
-                : null,
+            runtimeConfig: signedMultiplicandParameter.tryRuntimeInput(this),
             staticConfig: signedMultiplicandParameter.runtimeConfig == null
                 ? signedMultiplicandParameter.staticConfig
                 : null),
         signedMultiplier: StaticOrRuntimeParameter(
             name: 'selectSignedMultiplier',
-            runtimeConfig: signedMultiplierParameter.runtimeConfig != null
-                ? signedMultiplierParameter.getLogic(this)
-                : null,
+            runtimeConfig: signedMultiplierParameter.tryRuntimeInput(this),
             staticConfig: signedMultiplierParameter.runtimeConfig == null
                 ? signedMultiplierParameter.staticConfig
                 : null));
 
     accumulate <=
-        mux(
-            // ignore: invalid_use_of_protected_member
-            multiply.isProductSigned,
-            multiply.product.signExtend(accumulate.width),
-            multiply.product.zeroExtend(accumulate.width));
+        // ignore: invalid_use_of_protected_member
+        fitAccumulateWidth(multiply.product, signed: multiply.isProductSigned);
+  }
+}
+
+/// A [MultiplyAccumulate] that accepts an arbitrary [Multiplier] generator
+/// `mulGen` to compute the product of [a] and [b], then genuinely adds [c]
+/// to produce [accumulate] using an [Adder] generator `adderGen` -- the same
+/// pluggable-generator convention already used for the final adder inside
+/// [CompressionTreeMultiplyAccumulate] and [CompressionTreeMultiplier].
+///
+/// Unlike [CompressionTreeMultiplyAccumulate] (which fuses multiplication
+/// and accumulation into a single compression tree for area/timing
+/// efficiency), this class decouples them: it builds whatever [Multiplier]
+/// `mulGen` produces (e.g. [NativeMultiplier], a [CompressionTreeMultiplier]
+/// with any radix/sign-extension/adder configuration, or a custom
+/// [Multiplier] subclass), then adds [c] to the result with a separately
+/// generated `adderGen` adder. This trades some efficiency (multiplication
+/// and accumulation are no longer fused into one tree) for the flexibility
+/// of an arbitrary, pluggable multiplication strategy.
+class GenericMultiplyAccumulate extends MultiplyAccumulate {
+  /// Construct a [MultiplyAccumulate] that multiplies [a] and [b] using
+  /// [mulGen], then adds [c] using [adderGen] to produce [accumulate].
+  ///
+  /// If [clk] is not null then a flop latches the final sum. [reset] and
+  /// [enable] are optional inputs to control that flop when [clk] is
+  /// provided.
+  ///
+  /// The optional [outputWidth] parameter configures the width of
+  /// [accumulate], as described in [MultiplyAccumulate].
+  GenericMultiplyAccumulate(
+    super.a,
+    super.b,
+    super.c,
+    Multiplier Function(Logic a, Logic b,
+            {dynamic signedMultiplicand, dynamic signedMultiplier})
+        mulGen, {
+    Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
+        NativeAdder.new,
+    super.clk,
+    super.reset,
+    super.enable,
+    super.signedMultiplicand,
+    super.signedMultiplier,
+    super.signedAddend,
+    super.outputWidth,
+    super.name = 'generic_multiply_accumulate',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+            definitionName: definitionName ??
+                'GenericMultiplyAccumulate_W${a.width}x${b.width}_'
+                    'Acc${c.width}') {
+    // Copy the configuration using this module's internal runtime input.
+    final multiply = mulGen(a, b,
+        signedMultiplicand: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplicand',
+            runtimeConfig: signedMultiplicandParameter.tryRuntimeInput(this),
+            staticConfig: signedMultiplicandParameter.runtimeConfig == null
+                ? signedMultiplicandParameter.staticConfig
+                : null),
+        signedMultiplier: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplier',
+            runtimeConfig: signedMultiplierParameter.tryRuntimeInput(this),
+            staticConfig: signedMultiplierParameter.runtimeConfig == null
+                ? signedMultiplierParameter.staticConfig
+                : null));
+
+    final product = multiply.product;
+    // ignore: invalid_use_of_protected_member
+    final productSigned = multiply.isProductSigned;
+    final addendSigned = selectSignedAddend ?? Const(signedAddend ? 1 : 0);
+
+    // Extend both operands to a common width (with one extra bit of
+    // headroom so the true mathematical sum can never overflow that width)
+    // before adding, using each operand's own sign indicator so unsigned
+    // values are zero-extended and signed values are correctly sign-extended.
+    final commonWidth = (product.width < c.width ? c.width : product.width) + 1;
+    final extendedProduct = mux(productSigned, product.signExtend(commonWidth),
+            product.zeroExtend(commonWidth))
+        .named('extendedProduct');
+    final extendedAddend =
+        mux(addendSigned, c.signExtend(commonWidth), c.zeroExtend(commonWidth))
+            .named('extendedAddend');
+
+    // [Adder] always appends its own extra output bit for an *unsigned*
+    // carry-out. Since [commonWidth] already provides enough headroom that
+    // the true sum cannot overflow it, that carry-out is always 0 here, so
+    // it's dropped: the low `commonWidth` bits alone are the correct
+    // two's-complement (or unsigned) result at that width. This matters
+    // because passing the raw, wider `adder.sum` (whose extra top bit is a
+    // carry flag, not a sign bit) into `fitAccumulateWidth`'s sign-extension
+    // logic would corrupt negative results when widening further.
+    final adder = adderGen(extendedProduct, extendedAddend);
+    final naturalResult =
+        adder.sum.slice(commonWidth - 1, 0).named('naturalResult');
+    final rawResult = condFlop(clk, naturalResult, reset: reset, en: enable)
+        .named('rawResult');
+
+    accumulate <= fitAccumulateWidth(rawResult, signed: isAccumulateSigned);
   }
 }

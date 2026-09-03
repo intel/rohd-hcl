@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder_test.dart
@@ -71,10 +71,9 @@ void main() {
         final fv1 = test.$1;
         final fv2 = test.$2;
 
-        final doubleProduct = fv1.toDouble() + fv2.toDouble();
         final partWay = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .ofDouble(doubleProduct);
+            .add(fv1, fv2);
         final roundTrip = partWay.toDouble();
 
         fp1.put(fv1.value);
@@ -94,7 +93,7 @@ void main() {
 
         final partWayU = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .ofDoubleUnrounded(doubleProduct);
+            .add(fv1, fv2, roundingMode: FloatingPointRoundingMode.truncate);
         final roundTripU = partWay.toDouble();
         expect(fpOut.floatingPointValue.isNaN, equals(partWayU.isNaN));
         if (!fpOut.floatingPointValue.isNaN) {

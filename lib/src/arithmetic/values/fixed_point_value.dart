@@ -46,16 +46,17 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   factory FixedPointValue(
           {required LogicValue integer,
           required LogicValue fraction,
-          bool signed = false}) =>
+          bool signed = true}) =>
       populator(
               integerWidth: integer.width - (signed ? 1 : 0),
-              fractionWidth: fraction.width)
+              fractionWidth: fraction.width,
+              signed: signed)
           .populate(integer: integer, fraction: fraction);
 
   /// Creates an unpopulated version of a [FixedPointValue], intended to be
   /// called with the [populator].
   @protected
-  FixedPointValue.uninitialized({this.signed = false});
+  FixedPointValue.uninitialized({this.signed = true});
 
   /// Creates a [FixedPointValuePopulator] with the provided [integerWidth]
   /// and [fractionWidth], which can then be used to complete construction of
@@ -63,7 +64,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   static FixedPointValuePopulator populator(
           {required int integerWidth,
           required int fractionWidth,
-          bool signed = false}) =>
+          bool signed = true}) =>
       FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
         ..integerWidth = integerWidth
         ..fractionWidth = fractionWidth);
@@ -206,6 +207,49 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return isNegative() ? -value : value;
   }
 
+  /// Returns this exact value as `significand * 2^exponent`.
+  ({BigInt significand, int exponent}) toScaledBigInt() {
+    if (!value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
+    var significand = value.toBigInt();
+    if (isNegative()) {
+      significand -= BigInt.one << value.width;
+    }
+    return (significand: significand, exponent: -fractionWidth);
+  }
+
+  /// Losslessly converts this value to a minimal generic [FloatingPointValue].
+  FloatingPointValue toFloatingPointValue() {
+    final exact = toScaledBigInt();
+    if (exact.significand == BigInt.zero) {
+      return FloatingPointValue.populator(exponentWidth: 2, mantissaWidth: 1)
+          .ofScaledBigInt(BigInt.zero, 0);
+    }
+
+    var significand = exact.significand;
+    var exponent = exact.exponent;
+    while (significand.isEven) {
+      significand >>= 1;
+      exponent++;
+    }
+
+    final magnitudeWidth = significand.abs().bitLength;
+    final valueExponent = exponent + magnitudeWidth - 1;
+    var exponentWidth = 2;
+    while (valueExponent < -(BigInt.one << (exponentWidth - 1)).toInt() + 2 ||
+        valueExponent > (BigInt.one << (exponentWidth - 1)).toInt() - 1) {
+      exponentWidth++;
+    }
+    return FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: max(1, magnitudeWidth - 1))
+        .ofScaledBigInt(significand, exponent);
+  }
+
+  /// Converts this value to a constant [FixedPoint] signal.
+  FixedPoint toLogic({String? name}) => FixedPoint.constant(this, name: name);
+
   /// Negate operation for [FixedPointValue].
   FixedPointValue negate() => clonePopulator().ofLogicValue((~value) + 1);
 
@@ -241,19 +285,18 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (!value.isValid | !other.value.isValid) {
       throw RohdHclException('Inputs must be valid.');
     }
-    const s = true;
+    // Subtraction can produce a negative result regardless of the operands'
+    // signedness, so the result is always signed (matching the
+    // [FixedPointValue.populator] default).
     final nr = max(fractionWidth, other.fractionWidth);
     final mr = max(integerWidth, other.integerWidth) + 1;
-    final val1 = FixedPointValue.populator(
-            integerWidth: mr, fractionWidth: nr, signed: s)
+    final val1 = FixedPointValue.populator(integerWidth: mr, fractionWidth: nr)
         .widen(this)
         .value;
-    final val2 = FixedPointValue.populator(
-            integerWidth: mr, fractionWidth: nr, signed: s)
+    final val2 = FixedPointValue.populator(integerWidth: mr, fractionWidth: nr)
         .widen(other)
         .value;
-    return FixedPointValue.populator(
-            integerWidth: mr, fractionWidth: nr, signed: s)
+    return FixedPointValue.populator(integerWidth: mr, fractionWidth: nr)
         .ofLogicValue(val1 - val2);
   }
 
