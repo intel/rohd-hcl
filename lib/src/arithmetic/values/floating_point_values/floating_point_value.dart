@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_value.dart
@@ -72,6 +72,9 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Indicates whether [FloatingPointConstants.positiveInfinity] and
   /// [FloatingPointConstants.negativeInfinity] representations are supported.
   bool get supportsInfinities => true;
+
+  /// Indicates whether signaling and quiet NaNs have distinct encodings.
+  bool get supportsSignalingNaNs => true;
 
   /// Constructor for a [FloatingPointValue] with the provided [sign],
   /// [exponent], and [mantissa].
@@ -152,29 +155,53 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
           null;
 
   @override
-  int get hashCode => sign.hashCode ^ exponent.hashCode ^ mantissa.hashCode;
+  int get hashCode {
+    if (isExponentAllZeros && isMantissaAllZeroes) {
+      return 0;
+    }
+    if (isNaN) {
+      return Object.hash(sign, exponent, mantissa, explicitJBit);
+    }
+    final canonical = canonicalize();
+    final canonicalMantissa = canonical.explicitJBit
+        ? canonical.mantissa.getRange(0, -1)
+        : canonical.mantissa;
+    return Object.hash(canonical.sign, canonical.exponent, canonicalMantissa);
+  }
 
-  /// Floating point comparison to implement [Comparable].
-  @override
-  int compareTo(Object other) {
+  FloatingPointValue _validateComparable(Object other) {
     if (other is! FloatingPointValue) {
-      throw Exception('Input must be of type FloatingPointValue ');
+      throw RohdHclException('Input must be of type FloatingPointValue.');
     }
     if ((exponent.width != other.exponent.width) |
         (mantissa.width - (explicitJBit ? 1 : 0) !=
             other.mantissa.width - (other.explicitJBit ? 1 : 0))) {
-      throw Exception('FloatingPointValue widths must match for comparison');
+      throw RohdHclException(
+          'FloatingPointValue widths must match for comparison.');
+    }
+    return other;
+  }
+
+  /// Compares two ordered values to implement [Comparable].
+  ///
+  /// Throws if either operand is NaN because IEEE 754 ordinary comparisons
+  /// define NaNs as unordered.
+  @override
+  int compareTo(Object other) {
+    final comparable = _validateComparable(other);
+    if (isNaN || comparable.isNaN) {
+      throw RohdHclException('NaN values are unordered.');
     }
 
     // IEEE 754: -0 an +0 are considered equal
     if ((exponent.isZero && mantissa.isZero) &&
-        (other.exponent.isZero && other.mantissa.isZero)) {
+        (comparable.exponent.isZero && comparable.mantissa.isZero)) {
       return 0;
     }
-    final signCompare = -sign.compareTo(other.sign);
+    final signCompare = -sign.compareTo(comparable.sign);
 
     final canonical = canonicalize();
-    final otherCanonical = other.canonicalize();
+    final otherCanonical = comparable.canonicalize();
 
     final canonicalMantissa = canonical.explicitJBit
         ? canonical.mantissa.getRange(0, -1)
@@ -189,8 +216,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if ((signCompare != 0) &&
         !(exponent.isZero &&
             mantissa.isZero &&
-            other.exponent.isZero &&
-            other.mantissa.isZero)) {
+            comparable.exponent.isZero &&
+            comparable.mantissa.isZero)) {
       return signCompare; // IEEE 754: -0 and +0 are considered equal.
     }
     if (expCompare != 0) {
@@ -213,17 +240,48 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return compareTo(other) == 0;
   }
 
+  /// Whether this and [other] have identical formats and bit encodings.
+  ///
+  /// Unlike numerical equality, this can be used to compare NaN payloads,
+  /// signaling bits, and signed zeros in tests.
+  bool hasSameEncoding(FloatingPointValue other) =>
+      exponentWidth == other.exponentWidth &&
+      mantissaWidth == other.mantissaWidth &&
+      explicitJBit == other.explicitJBit &&
+      subNormalAsZero == other.subNormalAsZero &&
+      sign == other.sign &&
+      exponent == other.exponent &&
+      mantissa == other.mantissa;
+
+  /// Whether an IEEE quiet comparison with [other] signals invalid.
+  bool comparisonInvalid(FloatingPointValue other) {
+    _validateComparable(other);
+    return isSignalingNaN || other.isSignalingNaN;
+  }
+
   /// Less-than operator for [FloatingPointValue].
-  bool operator <(FloatingPointValue other) => compareTo(other) < 0;
+  bool operator <(FloatingPointValue other) {
+    _validateComparable(other);
+    return !(isNaN || other.isNaN) && compareTo(other) < 0;
+  }
 
   /// Less-than-or-equal operator for [FloatingPointValue].
-  bool operator <=(FloatingPointValue other) => compareTo(other) <= 0;
+  bool operator <=(FloatingPointValue other) {
+    _validateComparable(other);
+    return !(isNaN || other.isNaN) && compareTo(other) <= 0;
+  }
 
   /// Greater-than operator for [FloatingPointValue].
-  bool operator >(FloatingPointValue other) => compareTo(other) > 0;
+  bool operator >(FloatingPointValue other) {
+    _validateComparable(other);
+    return !(isNaN || other.isNaN) && compareTo(other) > 0;
+  }
 
   /// Greater-than-or-equal operator for [FloatingPointValue].
-  bool operator >=(FloatingPointValue other) => compareTo(other) >= 0;
+  bool operator >=(FloatingPointValue other) {
+    _validateComparable(other);
+    return !(isNaN || other.isNaN) && compareTo(other) >= 0;
+  }
 
   /// Test if exponent is all '1's.
   bool get isExponentAllOnes => exponent.and() == LogicValue.one;
@@ -234,9 +292,26 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Test if mantissa is all '0's.
   bool get isMantissaAllZeroes => mantissa.or() == LogicValue.zero;
 
+  /// Test if the fractional portion of [mantissa] is all zeroes.
+  bool get isFractionAllZeroes {
+    final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    return fractionWidth == 0 ||
+        mantissa.slice(fractionWidth - 1, 0).or() == LogicValue.zero;
+  }
+
   /// Return `true` if the represented floating point number is considered
   /// NaN or "Not a Number".
-  bool get isNaN => isExponentAllOnes && !isMantissaAllZeroes;
+  bool get isNaN => isExponentAllOnes && !isFractionAllZeroes;
+
+  /// Return `true` if this is a signaling NaN.
+  bool get isSignalingNaN =>
+      supportsSignalingNaNs &&
+      isNaN &&
+      mantissaWidth > (explicitJBit ? 1 : 0) &&
+      !mantissa[explicitJBit ? -2 : -1].toBool();
+
+  /// Return `true` if this is a quiet NaN.
+  bool get isQuietNaN => isNaN && !isSignalingNaN;
 
   /// Return `true` if the represented floating point number is considered
   /// "subnormal", including [isAZero].
@@ -245,7 +320,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Return `true` if the represented floating point number is considered
   ///  infinity or negative infinity.
   bool get isAnInfinity =>
-      supportsInfinities && isExponentAllOnes && isMantissaAllZeroes;
+      supportsInfinities && isExponentAllOnes && isFractionAllZeroes;
 
   /// Return `true` if the represented floating point number is zero. Note
   /// that the equality operator will treat
@@ -286,6 +361,62 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return doubleVal;
   }
 
+  /// Returns this exact finite value as `significand * 2^exponent`.
+  ///
+  /// Throws for NaN and infinity, which have no finite dyadic representation.
+  ({BigInt significand, int exponent}) toScaledBigInt() {
+    if (isNaN || isAnInfinity) {
+      throw RohdHclException(
+          'NaN and infinity have no finite scaled-integer representation.');
+    }
+    if (subNormalAsZero && isSubnormal()) {
+      return (significand: BigInt.zero, exponent: 0);
+    }
+
+    final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    final normal = !exponent.isZero;
+    var significand = mantissa.toBigInt() |
+        (normal && !explicitJBit ? BigInt.one << fractionWidth : BigInt.zero);
+    if (sign.toBool()) {
+      significand = -significand;
+    }
+    final unbiasedExponent = normal ? exponent.toInt() - bias : minExponent;
+    return (
+      significand: significand,
+      exponent: unbiasedExponent - fractionWidth
+    );
+  }
+
+  /// Losslessly converts this finite value to a [FixedPointValue].
+  FixedPointValue toFixedPointValue() {
+    final exact = toScaledBigInt();
+    var significand = exact.significand;
+    var exponent = exact.exponent;
+    if (significand == BigInt.zero) {
+      return FixedPointValue.populator(integerWidth: 0, fractionWidth: 0)
+          .ofScaledBigInt(BigInt.zero, 0);
+    }
+    while (significand.isEven) {
+      significand >>= 1;
+      exponent++;
+    }
+
+    final fractionWidth = max(0, -exponent);
+    final scaled = exponent > 0 ? significand << exponent : significand;
+    final requiredSignedWidth = scaled.isNegative
+        ? (scaled.abs() - BigInt.one).bitLength + 1
+        : scaled.bitLength + 1;
+    final totalWidth = max(fractionWidth + 1, requiredSignedWidth);
+    return FixedPointValue.populator(
+            integerWidth: totalWidth - fractionWidth - 1,
+            fractionWidth: fractionWidth)
+        .ofScaledBigInt(significand, exponent);
+  }
+
+  /// Converts this value to a constant [FloatingPoint] signal.
+  FloatingPoint toLogic({String? name}) =>
+      FloatingPoint.constant(this, name: name);
+
   /// Return `true` if this [FloatingPointValue] contains a normal
   /// number, defined as having mantissa in the range `[1,2)`.
   bool isNormal() {
@@ -309,13 +440,14 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     if (explicitJBit) {
       final e = exponent.toInt();
       final m = mantissa.toInt();
-      // TODO(desmonddak): We need to check this with bit-pattern testing
-      // of legal mantissas and that exponents are compatible with those.
-      // Basically, if e > 0 then we expect a 1 somewhere.  If e == 0 then
-      // we expect anything except a leading 1 in the mantissas.
+      // For a subnormal/zero exponent (e == 0), the explicit j-bit (the
+      // mantissa's MSB) must be 0. For a normal exponent (e > 0), the
+      // explicit j-bit must be 1: this is the entire purpose of storing the
+      // j-bit explicitly, so any other bit pattern is not a legal encoding.
       final normMantissa = 1 << (mantissa.width - 1);
 
-      return ((e == 0) && (m < normMantissa)) || ((e > 0) && (m >= 1));
+      return ((e == 0) && (m < normMantissa)) ||
+          ((e > 0) && (m >= normMantissa));
     }
     return true;
   }
@@ -333,9 +465,11 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   @override
   String toString({bool integer = false}) {
     if (integer) {
-      return '(${sign.toInt()}'
-          ' ${exponent.toInt()}'
-          ' ${mantissa.toInt()})';
+      // Use toBigInt() rather than toInt(): exponent/mantissa can exceed 64
+      // bits, and LogicValue.toInt() throws in that case.
+      return '(${sign.toBigInt()}'
+          ' ${exponent.toBigInt()}'
+          ' ${mantissa.toBigInt()})';
     } else {
       return '${sign.toString(includeWidth: false)}'
           ' ${exponent.toString(includeWidth: false)}'
@@ -343,72 +477,30 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     }
   }
 
-  // TODO(desmonddak): what about floating point representations >> 64 bits?
-
-  /// Performs an operation [op] between this [FloatingPointValue] and another
-  /// [FloatingPointValue] [other].
-  FloatingPointValue _performOp(
-      FloatingPointValue other, double Function(double a, double b) op) {
-    // make sure multiplicand has the same sizes as this
+  void _validateArithmeticFormat(FloatingPointValue other) {
     if (mantissa.width != other.mantissa.width ||
-        exponent.width != other.exponent.width) {
-      throw RohdHclException('FloatingPointValue: '
-          'multiplicand must have the same mantissa and exponent widths');
+        exponent.width != other.exponent.width ||
+        explicitJBit != other.explicitJBit) {
+      throw RohdHclException('FloatingPointValue: operands must have the same '
+          'mantissa and exponent widths and J-bit representation');
     }
-    if (isNaN | other.isNaN) {
-      return clonePopulator().nan;
-    }
-
-    return clonePopulator().ofDouble(op(toDouble(), other.toDouble()));
   }
 
   /// Multiply operation for [FloatingPointValue].
   FloatingPointValue operator *(FloatingPointValue multiplicand) {
-    if (isAnInfinity) {
-      if (multiplicand.isAnInfinity) {
-        return sign != multiplicand.sign
-            ? clonePopulator().negativeInfinity
-            : clonePopulator().positiveInfinity;
-      } else if (multiplicand.isAZero) {
-        return clonePopulator().nan;
-      } else {
-        return this;
-      }
-    } else if (multiplicand.isAnInfinity) {
-      if (isAZero) {
-        return clonePopulator().nan;
-      } else {
-        return multiplicand;
-      }
-    }
-    return _performOp(multiplicand, (a, b) => a * b);
+    _validateArithmeticFormat(multiplicand);
+    return clonePopulator().multiply(this, multiplicand);
   }
 
   /// Addition operation for [FloatingPointValue].
   FloatingPointValue operator +(FloatingPointValue addend) {
-    if (isNaN | addend.isNaN) {
-      return clonePopulator().nan;
-    }
-    if (isAnInfinity) {
-      if (addend.isAnInfinity) {
-        if (sign != addend.sign) {
-          return clonePopulator().nan;
-        } else {
-          return sign.toBool()
-              ? clonePopulator().negativeInfinity
-              : clonePopulator().positiveInfinity;
-        }
-      } else {
-        return this;
-      }
-    } else if (addend.isAnInfinity) {
-      return addend;
-    }
-    return _performOp(addend, (a, b) => a + b);
+    _validateArithmeticFormat(addend);
+    return clonePopulator().add(this, addend);
   }
 
   /// Divide operation for [FloatingPointValue].
   FloatingPointValue operator /(FloatingPointValue divisor) {
+    _validateArithmeticFormat(divisor);
     if (isAnInfinity) {
       if (divisor.isAnInfinity | divisor.isAZero) {
         return clonePopulator().nan;
@@ -422,23 +514,13 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
             : clonePopulator().positiveInfinity;
       }
     }
-    return _performOp(divisor, (a, b) => a / b);
+    return clonePopulator().divide(this, divisor);
   }
 
   /// Subtract operation for [FloatingPointValue].
   FloatingPointValue operator -(FloatingPointValue subend) {
-    if (isAnInfinity & subend.isAnInfinity) {
-      if (sign == subend.sign) {
-        return clonePopulator().nan;
-      } else {
-        return this;
-      }
-    } else if (subend.isAnInfinity) {
-      return subend.negate();
-    } else if (isAnInfinity) {
-      return this;
-    }
-    return _performOp(subend, (a, b) => a - b);
+    _validateArithmeticFormat(subend);
+    return clonePopulator().add(this, subend.negate());
   }
 
   /// Negate operation for [FloatingPointValue].
@@ -457,6 +539,12 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Return `true` if the other [FloatingPointValue] is within a rounding error
   /// of this value.
   bool withinRounding(FloatingPointValue other) {
+    if (isNaN || other.isNaN) {
+      return false;
+    }
+    if (isAnInfinity || other.isAnInfinity) {
+      return this == other;
+    }
     if (this != other) {
       final diff = (abs() - other.abs()).abs();
       if (diff.compareTo(ulp()) == 1) {
@@ -466,19 +554,31 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     return true;
   }
 
-  // TODO(desmonddak): https://github.com/intel/rohd-hcl/issues/206 subnormal is
-  // inaccurate.
-
   /// Compute the unit in the last place for the given [FloatingPointValue].
   FloatingPointValue ulp() {
-    if (exponent.toInt() > mantissa.width) {
-      final newExponent =
-          LogicValue.ofInt(exponent.toInt() - mantissa.width, exponent.width);
-      return clonePopulator().ofBinaryStrings(
-          sign.bitString, newExponent.bitString, '0' * (mantissa.width));
-    } else {
-      return clonePopulator().ofBinaryStrings(
-          sign.bitString, exponent.bitString, '${'0' * (mantissa.width - 1)}1');
+    if (isNaN || isAnInfinity) {
+      return abs();
     }
+
+    final populator = clonePopulator();
+    if (exponent.isZero) {
+      return populator.ofConstant(subNormalAsZero
+          ? FloatingPointConstants.smallestPositiveNormal
+          : FloatingPointConstants.smallestPositiveSubnormal);
+    }
+
+    final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+    final encodedExponent = exponent.toInt();
+    if (encodedExponent <= fractionWidth) {
+      if (subNormalAsZero) {
+        return populator
+            .ofConstant(FloatingPointConstants.smallestPositiveNormal);
+      }
+      return populator.ofBigInts(
+          BigInt.zero, BigInt.one << (encodedExponent - 1));
+    }
+
+    return populator.ofBigInts(BigInt.from(encodedExponent - fractionWidth),
+        explicitJBit ? BigInt.one << fractionWidth : BigInt.zero);
   }
 }

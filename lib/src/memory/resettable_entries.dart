@@ -32,33 +32,15 @@ mixin ResettableEntries on Module {
   @protected
   List<Logic> makeResetValues(dynamic resetValue,
       {required int numEntries, required int entryWidth}) {
-    if (resetValue == null) {
-      return List.generate(numEntries, (_) => Const(0, width: entryWidth));
-    } else if (resetValue is Logic) {
-      _validateResetValue(resetValue, entryWidth: entryWidth);
-      final resetValueInput = addTypedInput('resetValue', resetValue);
-      return List.generate(numEntries, (_) => resetValueInput);
-    } else if (resetValue is List) {
+    if (resetValue is List) {
       if (resetValue.length != numEntries) {
         throw RohdHclException('resetValue list length (${resetValue.length})'
             ' does not match numEntries ($numEntries)');
       }
-
-      for (final resetVal in resetValue) {
-        _validateResetValue(resetVal, entryWidth: entryWidth);
-      }
-
-      // TODO(mkorbel1): it would be nice to use the `StaticOrDynamicParameter`
-      //  instead of recreating it for int here, but it needs upgrades
-
       return [
         for (final (i, resetVal) in resetValue.indexed)
-          if (resetVal is Logic)
-            addTypedInput('resetValue_$i', resetVal)
-          else if (resetVal == null)
-            Const(0, width: entryWidth)
-          else
-            Const(resetVal, width: entryWidth)
+          _makeResetValue(resetVal,
+              name: 'resetValue_$i', entryWidth: entryWidth)
       ];
     } else if (resetValue is Map<int, dynamic>) {
       if (resetValue.keys.any((key) => key < 0 || key >= numEntries)) {
@@ -66,23 +48,25 @@ mixin ResettableEntries on Module {
             ' range (0 to ${numEntries - 1})');
       }
 
-      for (final resetVal in resetValue.values) {
-        _validateResetValue(resetVal, entryWidth: entryWidth);
-      }
-
       return [
         for (var i = 0; i < numEntries; i++)
-          if (resetValue[i] is Logic)
-            addTypedInput('resetValue_$i', resetValue[i] as Logic)
-          else if (resetValue[i] == null)
-            Const(0, width: entryWidth)
-          else
-            Const(resetValue[i], width: entryWidth)
+          _makeResetValue(resetValue[i],
+              name: 'resetValue_$i', entryWidth: entryWidth)
       ];
-    } else {
-      return List.generate(
-          numEntries, (_) => Const(resetValue, width: entryWidth));
     }
+
+    final commonResetValue =
+        _makeResetValue(resetValue, name: 'resetValue', entryWidth: entryWidth);
+    return List.generate(numEntries, (_) => commonResetValue);
+  }
+
+  Logic _makeResetValue(dynamic resetValue,
+      {required String name, required int entryWidth}) {
+    _validateResetValue(resetValue, entryWidth: entryWidth);
+    final parameter = StaticOrRuntimeValue<dynamic>.ofDynamic(resetValue,
+        name: name, defaultValue: 0, convertStatic: (value) => value);
+    return parameter.resolve(this,
+        staticToLogic: (value) => Const(value, width: entryWidth));
   }
 
   void _validateResetValue(dynamic resetVal, {required int entryWidth}) {

@@ -5,6 +5,7 @@ Below is a list of components grouped by category. Ones with links are documente
 
 Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there are not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
 
+- [Static or Runtime Parameters](./static_or_runtime_parameters.md)
 - Encoders & Decoders
   - [1-hot to Binary](./components/onehot.md)
   - [Binary to 1-hot](./components/onehot.md)

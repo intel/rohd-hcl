@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_logic.dart
@@ -8,6 +8,8 @@
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
+
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -55,6 +57,12 @@ class FloatingPoint extends LogicStructure {
             subNormalAsZero,
             name: name);
 
+  /// Constructs a constant [FloatingPoint] from [value].
+  factory FloatingPoint.constant(FloatingPointValue value, {String? name}) =>
+      FloatingPoint._(Const(value.sign), Const(value.exponent),
+          Const(value.mantissa), value.explicitJBit, value.subNormalAsZero,
+          name: name);
+
   /// [FloatingPoint] internal constructor.
   FloatingPoint._(this.sign, this.exponent, this.mantissa, this.explicitJBit,
       this.subNormalAsZero,
@@ -85,6 +93,14 @@ class FloatingPoint extends LogicStructure {
 
   /// Return `true` if subnormal numbers are represented as zero.
   final bool subNormalAsZero;
+
+  /// Whether this format represents positive and negative infinity.
+  bool get supportsInfinities =>
+      valuePopulator().positiveZero.supportsInfinities;
+
+  /// Whether this format distinguishes signaling and quiet NaNs.
+  bool get supportsSignalingNaNs =>
+      valuePopulator().positiveZero.supportsSignalingNaNs;
 
   /// Convert the current [FloatingPoint] to a new [FloatingPoint] but with the
   /// mantissa resolved if not [isNormal] and [subNormalAsZero] is `true`.
@@ -118,24 +134,39 @@ class FloatingPoint extends LogicStructure {
       .neq(LogicValue.zero.zeroExtend(exponent.width))
       .named(_nameJoin('isNormal', name), naming: Naming.mergeable);
 
+  late final Logic _fraction = explicitJBit
+      ? (mantissa.width > 1 ? mantissa.slice(mantissa.width - 2, 0) : Const(0))
+      : mantissa;
+
   /// Return a [Logic] `1`if this [FloatingPoint] is Not a Number (NaN)
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a non-zero mantissa.
-  late final isNaN = exponent.eq(valuePopulator().nan.exponent) &
-      mantissa.or().named(
-            _nameJoin('isNaN', name),
-            naming: Naming.mergeable,
-          );
+  late final Logic isNaN = (supportsSignalingNaNs
+          ? exponent.eq(valuePopulator().nan.exponent) & _fraction.or()
+          : exponent.eq(valuePopulator().nan.exponent) &
+              mantissa.eq(valuePopulator().nan.mantissa))
+      .named(_nameJoin('isNaN', name), naming: Naming.mergeable);
+
+  /// Return `1` if this is a signaling NaN.
+  late final Logic isSignalingNaN =
+      (supportsSignalingNaNs && _fraction.width > 0
+              ? isNaN & ~_fraction[-1]
+              : Const(0))
+          .named(_nameJoin('isSignalingNaN', name), naming: Naming.mergeable);
+
+  /// Return `1` if this is a quiet NaN.
+  late final Logic isQuietNaN = (isNaN & ~isSignalingNaN)
+      .named(_nameJoin('isQuietNaN', name), naming: Naming.mergeable);
 
   /// Return a [Logic] `1` if this [FloatingPoint] is an infinity
   /// by having its exponent field set to the NaN value (typically all
   /// ones) and a zero mantissa.
-  late final isAnInfinity = (floatingPointValue.supportsInfinities
+  late final isAnInfinity = (supportsInfinities
           ? exponent.isIn([
                 valuePopulator().positiveInfinity.exponent,
                 valuePopulator().negativeInfinity.exponent,
               ]) &
-              ~mantissa.or()
+              ~_fraction.or()
           : Const(0))
       .named(_nameJoin('isAnInfinity', name), naming: Naming.mergeable);
 
@@ -164,15 +195,78 @@ class FloatingPoint extends LogicStructure {
       .named(_nameJoin('bias', name), naming: Naming.mergeable);
 
   /// Construct a [FloatingPoint] that represents infinity for this FP type.
-  FloatingPoint inf({Logic? sign, bool negative = false}) => FloatingPoint.inf(
-      exponentWidth: exponent.width,
-      mantissaWidth: mantissa.width,
-      sign: sign,
-      negative: negative);
+  FloatingPoint inf({Logic? sign, bool negative = false}) {
+    final value = valuePopulator().ofConstant(supportsInfinities
+        ? (negative
+            ? FloatingPointConstants.negativeInfinity
+            : FloatingPointConstants.positiveInfinity)
+        : FloatingPointConstants.largestNormal);
+    return _constant(value, sign: sign ?? Const(negative));
+  }
 
   /// Construct a [FloatingPoint] that represents NaN for this FP type.
-  late final nan = FloatingPoint.nan(
-      exponentWidth: exponent.width, mantissaWidth: mantissa.width);
+  late final FloatingPoint nan = _constant(valuePopulator().nan);
+
+  /// Construct the largest finite value with the provided [sign].
+  FloatingPoint largestFinite({Logic? sign, bool negative = false}) =>
+      _constant(
+          valuePopulator().ofConstant(FloatingPointConstants.largestNormal),
+          sign: sign ?? Const(negative));
+
+  /// Quiet and convert the NaN payload and sign from [source] into this format.
+  FloatingPoint quietNaNFrom(FloatingPoint source) {
+    if (!supportsSignalingNaNs) {
+      return _constant(valuePopulator().nan, sign: source.sign);
+    }
+
+    final targetFractionWidth = mantissa.width - (explicitJBit ? 1 : 0);
+    final sourceFractionWidth =
+        source.mantissa.width - (source.explicitJBit ? 1 : 0);
+    final targetPayloadWidth = max(0, targetFractionWidth - 1);
+    final sourcePayloadWidth = max(0, sourceFractionWidth - 1);
+    late final Logic quietMantissa;
+    if (targetFractionWidth == 0) {
+      quietMantissa = Const(1, width: mantissa.width);
+    } else {
+      Logic payload;
+      if (sourcePayloadWidth == 0) {
+        payload = Const(0, width: targetPayloadWidth);
+      } else {
+        payload = source.mantissa.getRange(0, sourcePayloadWidth);
+        payload = payload.width > targetPayloadWidth
+            ? payload.getRange(0, targetPayloadWidth)
+            : payload.zeroExtend(targetPayloadWidth);
+      }
+      quietMantissa = [
+        if (explicitJBit) Const(1),
+        Const(1),
+        if (targetPayloadWidth > 0) payload
+      ].swizzle();
+    }
+    final quiet = clone(name: 'quietNaN');
+    quiet.sign <= source.sign;
+    quiet.exponent <= Const(valuePopulator().nan.exponent);
+    quiet.mantissa <= quietMantissa;
+    return quiet;
+  }
+
+  /// Propagate the first signaling NaN, otherwise the first quiet NaN.
+  FloatingPoint propagateNaN(FloatingPoint first, FloatingPoint second) {
+    final selectSecond = (~first.isSignalingNaN &
+            (second.isSignalingNaN | (~first.isNaN & second.isNaN)))
+        .named('selectSecondNaN');
+    final selected = first.clone(name: 'selectedNaN')
+      ..gets(mux(selectSecond, second, first));
+    return quietNaNFrom(selected);
+  }
+
+  FloatingPoint _constant(FloatingPointValue value, {Logic? sign}) {
+    final constant = clone(name: 'specialConstant');
+    constant.sign <= (sign ?? Const(value.sign));
+    constant.exponent <= Const(value.exponent);
+    constant.mantissa <= Const(value.mantissa);
+    return constant;
+  }
 
   @override
   void put(dynamic val, {bool fill = false}) {
@@ -217,7 +311,8 @@ class FloatingPoint extends LogicStructure {
       bool subNormalAsZero = false}) {
     final signLogic = Const(0);
     final exponent = Const(1, width: exponentWidth, fill: true);
-    final mantissa = Const(1, width: mantissaWidth);
+    final mantissa =
+        Const(BigInt.one << (mantissaWidth - 1), width: mantissaWidth);
     return FloatingPoint._(
         signLogic, exponent, mantissa, explicitJBit, subNormalAsZero);
   }
@@ -248,14 +343,72 @@ class FloatingPoint extends LogicStructure {
   /// Negate the [FloatingPoint].
   FloatingPoint operator -() => negate();
 
+  /// Adds [other] using a single-path adder.
+  FloatingPoint add(dynamic other,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    final comparable = _validateComparable(other);
+    return FloatingPointAdderSinglePath<FloatingPoint, FloatingPoint>(
+            this, comparable,
+            roundingMode: roundingMode)
+        .sum;
+  }
+
+  /// Subtracts [other] using a single-path adder.
+  FloatingPoint subtract(dynamic other,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    final comparable = _validateComparable(other);
+    return FloatingPointAdderSinglePath<FloatingPoint, FloatingPoint>(
+            this, comparable.negate(),
+            roundingMode: roundingMode)
+        .sum;
+  }
+
+  /// Multiplies by [other] using a simple floating-point multiplier.
+  FloatingPoint multiply(dynamic other,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven}) {
+    final comparable = _validateComparable(other);
+    return FloatingPointMultiplierSimple<FloatingPoint, FloatingPoint>(
+            this, comparable,
+            roundingMode: roundingMode)
+        .product;
+  }
+
+  /// Addition operator.
+  @override
+  FloatingPoint operator +(dynamic other) => add(other);
+
+  /// Subtraction operator.
+  @override
+  FloatingPoint operator -(dynamic other) => subtract(other);
+
+  /// Multiplication operator.
+  @override
+  FloatingPoint operator *(dynamic other) => multiply(other);
+
   @override
   Logic operator >(dynamic other) => gt(other);
   @override
   Logic operator >=(dynamic other) => gte(other);
 
-  /// Verify if comparable:  return `1` if comparable, throw exception
-  /// on mismatch.
-  Logic _verifyComparable(dynamic other) {
+  /// Modulo is not defined for [FloatingPoint].
+  @override
+  Logic operator %(dynamic other) =>
+      throw UnimplementedError('Operator not implemented.');
+
+  /// Division does not yet have a signal-level implementation.
+  @override
+  Logic operator /(dynamic other) =>
+      throw UnimplementedError('Operator not implemented.');
+
+  /// Power does not yet have a signal-level implementation.
+  @override
+  Logic pow(dynamic exponent) =>
+      throw UnimplementedError('Operator not implemented.');
+
+  FloatingPoint _validateComparable(dynamic other) {
     if (other is! FloatingPoint) {
       throw RohdHclException('Input must be floating point signal.');
     }
@@ -264,39 +417,58 @@ class FloatingPoint extends LogicStructure {
         other.explicitJBit != explicitJBit) {
       throw RohdHclException('FloatingPoint width or J-bit does not match');
     }
-    return ~(isNaN | other.isNaN);
+    return other;
   }
 
-  /// Equal
-  @override
-  Logic eq(dynamic other) =>
-      mux(_verifyComparable(other), super.eq(other), Const(0));
+  Logic _areOrdered(dynamic other) {
+    final comparable = _validateComparable(other);
+    return ~(isNaN | comparable.isNaN);
+  }
 
-  /// Not Equal
+  /// Whether an IEEE quiet comparison with [other] signals invalid.
+  Logic comparisonInvalid(dynamic other) {
+    final comparable = _validateComparable(other);
+    return isSignalingNaN | comparable.isSignalingNaN;
+  }
+
+  /// IEEE quiet equality.
+  @override
+  Logic eq(dynamic other) {
+    final comparable = _validateComparable(other);
+    final bothZero = isAZero & comparable.isAZero;
+    return mux(
+        _areOrdered(comparable), bothZero | super.eq(comparable), Const(0));
+  }
+
+  /// IEEE quiet inequality.
   @override
   Logic neq(dynamic other) => ~eq(other);
 
-  /// Less-than.
+  /// IEEE quiet less-than.
   @override
   Logic lt(dynamic other) {
-    final otherSign = (other as FloatingPoint).sign;
+    final comparable = _validateComparable(other);
+    final otherSign = comparable.sign;
+    final bothZero = isAZero & comparable.isAZero;
     return mux(
-        _verifyComparable(other),
-        mux(sign, mux(otherSign, super.gt(other), Const(1)),
-            mux(otherSign, Const(0), super.lt(other))),
+        _areOrdered(comparable),
+        mux(
+            bothZero,
+            Const(0),
+            mux(sign, mux(otherSign, super.gt(comparable), Const(1)),
+                mux(otherSign, Const(0), super.lt(comparable)))),
         Const(0));
   }
 
+  /// IEEE quiet less-than-or-equal.
   @override
   Logic lte(dynamic other) => lt(other) | eq(other);
 
-  // For Greather-than operators, reverse the operands
-  /// Greater-than.
+  /// IEEE quiet greater-than.
   @override
-  Logic gt(dynamic other) =>
-      mux(_verifyComparable(other), ~lte(other), Const(0));
+  Logic gt(dynamic other) => _validateComparable(other).lt(this);
 
-  /// Greater-than-or-equal-to.
+  /// IEEE quiet greater-than-or-equal.
   @override
-  Logic gte(dynamic other) => gt(other) | eq(other);
+  Logic gte(dynamic other) => _validateComparable(other).lte(this);
 }

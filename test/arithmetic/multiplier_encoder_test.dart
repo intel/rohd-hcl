@@ -156,10 +156,6 @@ void checkPartialProduct(PartialProductGeneratorBase pp, BigInt iX, BigInt iY) {
 }
 
 void main() {
-  tearDown(() async {
-    await Simulator.reset();
-  });
-
   group('PartialProduct: fixed sign variants', () {
     for (final signedMultiplicand in [false, true]) {
       for (final signedMultiplier in [false, true]) {

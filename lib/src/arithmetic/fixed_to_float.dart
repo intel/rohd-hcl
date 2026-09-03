@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_to_float.dart
@@ -38,9 +38,12 @@ class FixedToFloat extends Module {
   /// the input fixed-point number. A [LeadingDigitAnticipate] module can be
   /// used to provide this value from two inputs to an adder producing the
   /// fixed-point value input to this converter.
+  /// [roundingMode] selects how discarded precision is rounded.
   FixedToFloat(FixedPoint fixed, this.outFloat,
       {bool signed = true,
       Logic? leadingDigitPredict,
+      FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven,
       super.name = 'FixedToFloat',
       super.reserveName,
       super.reserveDefinitionName,
@@ -53,9 +56,9 @@ class FixedToFloat extends Module {
 
     final fixedAsLogic = fixed.packed;
     final exponentWidth = outFloat.exponent.width;
-    final mantissaWidth = outFloat.mantissa.width;
-    _convertedFloat = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    _convertedFloat = outFloat.clone();
+    final mantissaWidth =
+        outFloat.mantissa.width - (outFloat.explicitJBit ? 1 : 0);
     // Create a typed output and drive it from the internal converted float.
     final typedFloatOut = addTypedOutput('float', _convertedFloat.clone);
     typedFloatOut <= _convertedFloat;
@@ -71,7 +74,7 @@ class FixedToFloat extends Module {
     final bias = float.floatingPointValue.bias;
     final eMax = pow(2, float.exponent.width) - 2;
     final iWidth = (1 +
-            max(log2Ceil(fixed.fractionWidth),
+            max(log2Ceil(max(1, fixed.fractionWidth)),
                 max(log2Ceil(fixed.width), float.exponent.width)))
         .toInt();
 
@@ -112,10 +115,10 @@ class FixedToFloat extends Module {
               Const(0, width: leadingDigitPredict.width))
           .named('estimatedJBit');
       // Shift by current preJ to inspect leading bit
-      if (absValue.width < float.mantissa.width + 2) {
+      if (absValue.width < mantissaWidth + 2) {
         absValueShifted = ([
                   absValue,
-                  Const(0, width: float.mantissa.width + 2 - absValue.width)
+                  Const(0, width: mantissaWidth + 2 - absValue.width)
                 ].swizzle() <<
                 estimatedJBit)
             .named('absValueShifted');
@@ -151,10 +154,10 @@ class FixedToFloat extends Module {
         jBit <= exactJBit;
       }
       // Align mantissa
-      if (absValue.width < float.mantissa.width + 2) {
+      if (absValue.width < mantissaWidth + 2) {
         absValueShifted = ([
                   absValue,
-                  Const(0, width: float.mantissa.width + 2 - absValue.width)
+                  Const(0, width: mantissaWidth + 2 - absValue.width)
                 ].swizzle() <<
                 jBit)
             .named('absValueShifted');
@@ -162,23 +165,29 @@ class FixedToFloat extends Module {
         absValueShifted = (absValue << jBit).named('absValueShiftedJ');
       }
     }
-    // TODO(desmonddak): refactor to use the roundRNE component.  Also:
-    // https://github.com/intel/rohd-hcl/issues/191
-
     // Extract mantissa
-    final mantissa = Logic(name: 'mantissa', width: float.mantissa.width);
+    final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
     final guard = Logic(name: 'guardBit');
     final sticky = Logic(name: 'stickyBit');
-    mantissa <= absValueShifted.getRange(-float.mantissa.width - 1, -1);
-    guard <=
-        absValueShifted.getRange(
-            -float.mantissa.width - 2, -float.mantissa.width - 1);
-    sticky <= absValueShifted.getRange(0, -float.mantissa.width - 2).or();
+    mantissa <= absValueShifted.getRange(-mantissaWidth - 1, -1);
+    guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
+    sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
 
-    /// Round to nearest even: mantissa | guard sticky
-    final roundUp = (guard & (sticky | mantissa[0])).named('roundUp');
+    final rounder = FloatingPointRounder.fromGRS(
+        retainedLsb: mantissa[0],
+        guard: guard,
+        sticky: sticky,
+        roundingMode: roundingMode,
+        sign: _convertedFloat.sign);
     final mantissaRounded =
-        mux(roundUp, mantissa + 1, mantissa).named('roundedMantissa');
+        mux(rounder.doRound, mantissa + 1, mantissa).named('roundedMantissa');
+    final subnormalMantissa = mantissaRounded
+        .zeroExtend(_convertedFloat.mantissa.width)
+        .named('subnormalMantissa');
+    final normalMantissa = (outFloat.explicitJBit
+            ? [Const(1), mantissaRounded].swizzle()
+            : mantissaRounded)
+        .named('normalMantissa');
 
     // Calculate biased exponent
     final eRaw = mux(
@@ -191,8 +200,8 @@ class FixedToFloat extends Module {
     // TODO(desmonddak): potential optimization --
     //  we may be able to predict this from absValue instead of after
     //  mantissa increment.
-    final eRawRne =
-        mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw).named('eRawRNE');
+    final eRawRne = mux(rounder.doRound & ~mantissaRounded.or(), eRaw + 1, eRaw)
+        .named('eRawRNE');
 
     // Select output handling corner cases
     final expoLessThanOne =
@@ -215,12 +224,12 @@ class FixedToFloat extends Module {
         ElseIf(expoLessThanOne, [
           // Subnormal
           _convertedFloat.exponent < Const(0, width: exponentWidth),
-          _convertedFloat.mantissa < mantissaRounded
+          _convertedFloat.mantissa < subnormalMantissa
         ]),
         Else([
           // Normal
           _convertedFloat.exponent < eRawRne.slice(exponentWidth - 1, 0),
-          _convertedFloat.mantissa < mantissaRounded
+          _convertedFloat.mantissa < normalMantissa
         ])
       ])
     ]);

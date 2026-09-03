@@ -12,35 +12,76 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A general configuration class for specifying parameters that are
-/// for both static or runtime configurations of a component feature.
-class StaticOrRuntimeParameter {
-  /// The runtime configuration logic that can be used to configure the
-  /// component at runtime
+/// A value that can be configured statically or supplied by [Logic] at runtime.
+///
+/// [T] is the type of the static value. Use [resolve] to obtain this module's
+/// internal runtime input or to convert the static value into [Logic].
+class StaticOrRuntimeValue<T> {
+  /// The runtime configuration signal, if this value is runtime-configurable.
   final Logic? runtimeConfig;
 
-  /// The static configuration flag that indicates whether the
-  /// feature is statically configured or not.
-  late final bool staticConfig;
+  /// The static value used when [runtimeConfig] is null.
+  final T staticConfig;
 
-  /// The name of the configuration, especially needed for runtime to add as
-  /// a module input.
+  /// The module input name used for [runtimeConfig].
   final String name;
 
-  /// Creates a new [StaticOrRuntimeParameter] instance. Note that
-  /// [runtimeConfig] overrides [staticConfig].  Also, it is presumed that
-  /// [staticConfig] has a default value of `false` if not provided.
-  StaticOrRuntimeParameter(
-      {required this.name, this.runtimeConfig, bool? staticConfig = false}) {
-    if (runtimeConfig == null && staticConfig != null) {
-      this.staticConfig = staticConfig;
-    } else {
-      this.staticConfig = false;
+  /// Creates a static or runtime value.
+  ///
+  /// When [runtimeConfig] is provided, it takes precedence over [staticConfig].
+  const StaticOrRuntimeValue(
+      {required this.name, required this.staticConfig, this.runtimeConfig});
+
+  /// Creates a value from either a runtime [Logic] or a static value.
+  ///
+  /// A null [config] selects [defaultValue]. Other static inputs are converted
+  /// to [T] with [convertStatic].
+  factory StaticOrRuntimeValue.ofDynamic(dynamic config,
+      {required String name,
+      required T defaultValue,
+      required T Function(dynamic value) convertStatic}) {
+    if (config is Logic) {
+      return StaticOrRuntimeValue(
+          name: name, staticConfig: defaultValue, runtimeConfig: config);
     }
+    return StaticOrRuntimeValue(
+        name: name,
+        staticConfig: config == null ? defaultValue : convertStatic(config));
   }
 
-  /// Factory constructor to create a [StaticOrRuntimeParameter] instance from a
-  /// dynamic.
+  /// Whether this value is supplied at runtime.
+  bool get isRuntime => runtimeConfig != null;
+
+  /// Constructs and returns the internal input when runtime-configured.
+  Logic? getRuntimeInput(Module module) => (runtimeConfig != null)
+      ? tryRuntimeInput(module) ??
+          module.addInput(name, runtimeConfig!, width: runtimeConfig!.width)
+      : null;
+
+  /// Returns the existing internal runtime input on [module], if any.
+  Logic? tryRuntimeInput(Module module) =>
+      runtimeConfig != null ? module.tryInput(name) : null;
+
+  /// Resolves this value to [Logic] within [module].
+  ///
+  /// Runtime values become module inputs. Static values are converted by
+  /// [staticToLogic].
+  Logic resolve(Module module,
+          {required Logic Function(T value) staticToLogic}) =>
+      getRuntimeInput(module) ?? staticToLogic(staticConfig);
+}
+
+/// A boolean configuration that can be selected statically or at runtime.
+class StaticOrRuntimeParameter extends StaticOrRuntimeValue<bool> {
+  /// Creates a new [StaticOrRuntimeParameter] instance.
+  ///
+  /// [runtimeConfig] overrides [staticConfig]. A missing static value defaults
+  /// to `false`.
+  StaticOrRuntimeParameter(
+      {required super.name, super.runtimeConfig, bool? staticConfig = false})
+      : super(staticConfig: runtimeConfig == null && (staticConfig ?? false));
+
+  /// Factory constructor to create a [StaticOrRuntimeParameter] from a dynamic.
   factory StaticOrRuntimeParameter.ofDynamic(dynamic config) {
     if (config is StaticOrRuntimeParameter) {
       return config;
@@ -70,17 +111,7 @@ class StaticOrRuntimeParameter {
   /// Return the internal [Logic] signal that represents the configuration,
   /// either static or runtime.
   Logic getLogic(Module module) =>
-      staticConfig ? Const(1) : (getRuntimeInput(module) ?? Const(0));
-
-  /// Construct and return a [Logic]? that is a `true` input to the [module]
-  /// if this is a runtime configuration signal.
-  Logic? getRuntimeInput(Module module) => (runtimeConfig != null)
-      ? tryRuntimeInput(module) ?? module.addInput(name, runtimeConfig!)
-      : null;
-
-  /// Returns a [Logic]? that represents the module internalruntime input.
-  Logic? tryRuntimeInput(Module module) =>
-      runtimeConfig != null ? module.tryInput(name) : null;
+      resolve(module, staticToLogic: (value) => Const(value ? 1 : 0));
 }
 
 /// A configuration class for boolean configurations, which can be used to
