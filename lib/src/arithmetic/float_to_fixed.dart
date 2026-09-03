@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // float_to_fixed.dart
@@ -137,22 +137,9 @@ class FloatToFixed extends Module {
               Const(noLossN - this.fractionWidth, width: eWidth)
                   .named('deltaN');
     }
-    // Note: this cannot simply be replaced with the reusable [SignedShifter]
-    // (`mux(shift[-1], preNumber >>> shift.abs(), preNumber << shift)`),
-    // because [preNumber] below is only the top `outputWidth` bits of
-    // [fullMantissa] whenever [fullMantissa] is wider than the output
-    // (dropping its low `fullMantissa.width - outputWidth` bits before any
-    // shifting happens, as a hardware-cost optimization so the shifter only
-    // needs to be `outputWidth` bits wide instead of
-    // `fullMantissa.width` bits wide). That pre-truncation is itself
-    // equivalent to an implicit right-shift-and-discard of
-    // `fullMantissa.width - outputWidth` positions, so the *remaining*
-    // right-shift actually needed on [preNumber] is the true magnitude
-    // shift minus that already-applied amount -- double-counting it (as a
-    // naive [SignedShifter] swap would) was verified empirically to corrupt
-    // results (e.g. silently shifting a correct 0.25 result down to 0.0) in
-    // exactly the scenario this adjustment exists for, which had no
-    // existing regression test until one was added alongside this comment.
+    // [preNumber] is pre-truncated to output width, so subtract that implicit
+    // right shift from the remaining shift amount. A [SignedShifter] would
+    // double-count it.
     final shiftRight = ((fullMantissa.width > outputWidth)
             ? (~shift + 1) - (fullMantissa.width - outputWidth)
             : (~shift + 1))
@@ -168,14 +155,8 @@ class FloatToFixed extends Module {
       final fShift = shift.zeroExtend(sWidth).named('wideShift');
       final leadOne = leadDetect.out.zeroExtend(sWidth).named('leadOne');
 
-      // At the exact overflow threshold, a negative value that rounds down
-      // to an exact power of two still fits, since two's-complement negative
-      // range extends one step further than positive range (e.g. -4 fits in
-      // a signed format whose maximum positive value is only 3.5). Since
-      // truncation always discards the low `discardedBits` bits regardless
-      // of their value, whether the result is an exact power of two depends
-      // only on the *retained* higher bits being all zero; the number of
-      // discarded bits is a compile-time constant at this exact threshold.
+      // At the threshold, an exact negative power of two still fits in the
+      // asymmetric two's-complement range.
       final threshold = outputWidth - fractionBitsWidth - 1;
       final discardedBits = (-threshold).clamp(0, fractionBitsWidth);
       final atThresholdIsExactPowerOfTwo = discardedBits < fractionBitsWidth
@@ -209,14 +190,8 @@ class FloatToFixed extends Module {
         mux(shift[-1], preNumber >>> shiftRight, preNumber << shift)
             .named('unroundedNumber');
 
-    // Rounding support for the right-shift (fraction-truncating) path: a
-    // left shift never discards bits, so only the right-shifted magnitude
-    // can lose precision. A single extra zero bit is appended below
-    // [fullMantissa] so that shifting the buffered value reveals the guard
-    // bit that [preNumber] alone would otherwise silently discard; any bits
-    // shifted below that position (including a shift wide enough to empty
-    // the buffer entirely) are captured as sticky via a complementary left
-    // shift of the pre-shift buffered value.
+    // Buffer a guard bit below the mantissa; all pre-truncated and shifted-out
+    // bits contribute to sticky.
     final bufferedFullMantissa =
         [fullMantissa, Const(0)].swizzle().named('bufferedFullMantissa');
     final bufferedOutputWidth = outputWidth + 1;
@@ -231,10 +206,17 @@ class FloatToFixed extends Module {
     final safeShiftRight = mux(shiftRight.gte(bufferedPreNumber.width),
             Const(bufferedPreNumber.width, width: shiftRight.width), shiftRight)
         .named('safeShiftRight');
-    final sticky = (bufferedPreNumber <<
-            (Const(bufferedPreNumber.width, width: safeShiftRight.width) -
-                safeShiftRight))
-        .or()
+    final preTruncationSticky = bufferedFullMantissa.width > bufferedOutputWidth
+        ? bufferedFullMantissa
+            .getRange(0, bufferedFullMantissa.width - bufferedOutputWidth)
+            .or()
+        : Const(0);
+    final sticky = ((bufferedPreNumber <<
+                    (Const(bufferedPreNumber.width,
+                            width: safeShiftRight.width) -
+                        safeShiftRight))
+                .or() |
+            preTruncationSticky)
         .named('rightShiftSticky');
     final rounder = FloatingPointRounder.fromGRS(
         retainedLsb: unroundedNumber[0],

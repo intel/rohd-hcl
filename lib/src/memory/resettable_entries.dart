@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // entry_resettable.dart
@@ -63,7 +63,7 @@ mixin ResettableEntries on Module {
   Logic _makeResetValue(dynamic resetValue,
       {required String name, required int entryWidth}) {
     _validateResetValue(resetValue, entryWidth: entryWidth);
-    final parameter = StaticOrRuntimeValue<dynamic>.ofDynamic(resetValue,
+    final parameter = StaticOrRuntimeControl<dynamic>.ofDynamic(resetValue,
         name: name, defaultValue: 0, convertStatic: (value) => value);
     return parameter.resolve(this,
         staticToLogic: (value) => Const(value, width: entryWidth));

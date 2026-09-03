@@ -270,13 +270,18 @@ MultiplyAccumulateCallback curryNativeMultiplierAsMultiplyAccumulate({
         b,
         c,
         signedMultiplicand: selectSignedMultiplicand != null
-            ? RuntimeConfig(selectSignedMultiplicand,
-                name: 'selectSignedMultiplicand')
-            : BooleanConfig(staticConfig: signedMultiplicand),
+            ? StaticOrRuntimeParameter(
+                name: 'selectSignedMultiplicand',
+                runtimeConfig: selectSignedMultiplicand)
+            : StaticOrRuntimeParameter(
+                name: 'selectSignedMultiplicand',
+                staticConfig: signedMultiplicand),
         signedMultiplier: selectSignedMultiplier != null
-            ? RuntimeConfig(selectSignedMultiplier,
-                name: 'selectSignedMultiplier')
-            : BooleanConfig(staticConfig: signedMultiplier),
+            ? StaticOrRuntimeParameter(
+                name: 'selectSignedMultiplier',
+                runtimeConfig: selectSignedMultiplier)
+            : StaticOrRuntimeParameter(
+                name: 'selectSignedMultiplier', staticConfig: signedMultiplier),
         (a, b, {signedMultiplicand, signedMultiplier}) => NativeMultiplier(a, b,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier,
@@ -477,10 +482,10 @@ void main() {
     final mod = CompressionTreeMultiplier(a, b,
         clk: clk,
         adderGen: ParallelPrefixAdder.new,
-        signedMultiplicand:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplicand'),
-        signedMultiplier:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplier'));
+        signedMultiplicand: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplicand', runtimeConfig: signedSelect),
+        signedMultiplier: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplier', runtimeConfig: signedSelect));
     unawaited(Simulator.run());
     a.put(bA);
     b.put(bB);
@@ -513,11 +518,12 @@ void main() {
     final mod = CompressionTreeMultiplyAccumulate(a, b, c,
         clk: clk,
         adderGen: ParallelPrefixAdder.new,
-        signedMultiplicand:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplicand'),
-        signedMultiplier:
-            RuntimeConfig(signedSelect, name: 'selectSignedMultiplier'),
-        signedAddend: RuntimeConfig(signedSelect, name: 'selectSignedAddend'));
+        signedMultiplicand: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplicand', runtimeConfig: signedSelect),
+        signedMultiplier: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplier', runtimeConfig: signedSelect),
+        signedAddend: StaticOrRuntimeParameter(
+            name: 'selectSignedAddend', runtimeConfig: signedSelect));
     unawaited(Simulator.run());
     a.put(bA);
     b.put(bB);
@@ -597,10 +603,10 @@ void main() {
         Logic(),
         (a, b, {signedMultiplicand, signedMultiplier}) =>
             SimpleMultiplier(a, b, signedMultiplicand, signedMultiplier),
-        signedMultiplicand:
-            RuntimeConfig(signedOperands, name: 'selectSignedMultiplicand'),
-        signedMultiplier:
-            RuntimeConfig(signedOperands, name: 'selectSignedMultiplier'));
+        signedMultiplicand: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplicand', runtimeConfig: signedOperands),
+        signedMultiplier: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplier', runtimeConfig: signedOperands));
 
     checkMultiplyAccumulate(mod, av, bv, BigInt.zero);
   });
@@ -626,12 +632,12 @@ void main() {
       c.put(bC);
 
       final mod = CompressionTreeMultiplyAccumulate(a, b, c,
-          signedMultiplicand:
-              RuntimeConfig(signedOperands, name: 'selectSignedMultiplicand'),
-          signedMultiplier:
-              RuntimeConfig(signedOperands, name: 'selectSignedMultiplier'),
-          signedAddend:
-              RuntimeConfig(signedOperands, name: 'selectSignedAddend'));
+          signedMultiplicand: StaticOrRuntimeParameter(
+              name: 'selectSignedMultiplicand', runtimeConfig: signedOperands),
+          signedMultiplier: StaticOrRuntimeParameter(
+              name: 'selectSignedMultiplier', runtimeConfig: signedOperands),
+          signedAddend: StaticOrRuntimeParameter(
+              name: 'selectSignedAddend', runtimeConfig: signedOperands));
 
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
@@ -659,9 +665,12 @@ void main() {
       c.put(bC);
 
       final mod = CompressionTreeMultiplyAccumulate(a, b, c,
-          signedMultiplicand: BooleanConfig(staticConfig: signed),
-          signedMultiplier: BooleanConfig(staticConfig: signed),
-          signedAddend: BooleanConfig(staticConfig: signed));
+          signedMultiplicand: StaticOrRuntimeParameter(
+              name: 'selectSignedMultiplicand', staticConfig: signed),
+          signedMultiplier: StaticOrRuntimeParameter(
+              name: 'selectSignedMultiplier', staticConfig: signed),
+          signedAddend: StaticOrRuntimeParameter(
+              name: 'selectSignedAddend', staticConfig: signed));
       checkMultiplyAccumulate(mod, bA, bB, bC);
     }
   });
@@ -679,7 +688,9 @@ void main() {
     c.put(5);
 
     final multiplier = CompressionTreeMultiplyAccumulate(a, b, c,
-        radix: radix, signedMultiplier: BooleanConfig(staticConfig: true));
+        radix: radix,
+        signedMultiplier: StaticOrRuntimeParameter(
+            name: 'selectSignedMultiplier', staticConfig: true));
     final accumulate = multiplier.accumulate;
     expect(accumulate.value.toBigInt(), equals(BigInt.from(15 * 3 + 5)));
   });
@@ -707,8 +718,10 @@ void main() {
       c.put(bC);
 
       final multiplier = CompressionTreeMultiplyAccumulate(a, b, c,
-          signedMultiplicand: BooleanConfig(staticConfig: signed),
-          signedMultiplier: BooleanConfig(staticConfig: signed));
+          signedMultiplicand: StaticOrRuntimeParameter(
+              name: 'selectSignedMultiplicand', staticConfig: signed),
+          signedMultiplier: StaticOrRuntimeParameter(
+              name: 'selectSignedMultiplier', staticConfig: signed));
 
       final accumulate = multiplier.accumulate;
       expect(accumulate.value.toBigInt(), equals(golden));

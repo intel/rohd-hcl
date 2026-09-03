@@ -39,13 +39,43 @@ void main() {
     }
   });
 
+  test('GenericMultiplyAccumulate rejects non-positive output widths', () {
+    for (final outputWidth in [0, -1]) {
+      final expectedMessage =
+          'outputWidth must be positive when provided, got $outputWidth.';
+      expect(
+          () => GenericMultiplyAccumulate(
+              Logic(name: 'a', width: 3),
+              Logic(name: 'b', width: 3),
+              Logic(name: 'c', width: 6),
+              NativeMultiplier.new,
+              outputWidth: outputWidth),
+          throwsA(isA<RohdHclException>()
+              .having((e) => e.message, 'message', expectedMessage)));
+    }
+  });
+
+  test('StaticOrRuntimeParameter rejects wide runtime configurations', () {
+    for (final config in [
+      () => StaticOrRuntimeParameter(
+          name: 'directConfig', runtimeConfig: Logic(width: 2)),
+      () => StaticOrRuntimeParameter.ofDynamic(Logic(width: 2)),
+    ]) {
+      expect(
+          config,
+          throwsA(isA<RohdHclException>().having(
+              (e) => e.message, 'message', contains('must be 1 bit wide'))));
+    }
+  });
+
   test('GenericMultiplyAccumulate forwards runtime signedness', () {
     const width = 3;
     final a = Logic(name: 'a', width: width)..put(7);
     final b = Logic(name: 'b', width: width)..put(2);
     final c = Logic(name: 'c', width: width * 2)..put(63);
     final signedOperands = Logic(name: 'signedOperands')..put(0);
-    final signedConfig = RuntimeConfig(signedOperands, name: 'signedOperands');
+    final signedConfig = StaticOrRuntimeParameter(
+        name: 'signedOperands', runtimeConfig: signedOperands);
     final mac = GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
         signedMultiplicand: signedConfig,
         signedMultiplier: signedConfig,
