@@ -623,6 +623,50 @@ expected: $fpv
     }
   });
 
+  test('FP: implicit-j-bit subnormal conversion matches rounding oracle', () {
+    // Exercise source subnormals and results that underflow to subnormal in
+    // both exponent-narrowing and exponent-widening conversions.
+    for (final formats in [
+      (sourceExponentWidth: 5, destinationExponentWidth: 3),
+      (sourceExponentWidth: 3, destinationExponentWidth: 5),
+    ]) {
+      for (final mode in FloatingPointRoundingMode.values) {
+        final source = FloatingPoint(
+            exponentWidth: formats.sourceExponentWidth, mantissaWidth: 6);
+        final destination = FloatingPoint(
+            exponentWidth: formats.destinationExponentWidth, mantissaWidth: 3);
+        final converter =
+            FloatingPointConverter(source, destination, roundingMode: mode);
+
+        for (final sign in [false, true]) {
+          for (var exponent = 0;
+              exponent < (1 << source.exponent.width) - 1;
+              exponent++) {
+            for (var mantissa = 0;
+                mantissa < 1 << source.mantissa.width;
+                mantissa++) {
+              final input = source
+                  .valuePopulator()
+                  .ofInts(exponent, mantissa, sign: sign);
+              final expected = destination
+                  .valuePopulator()
+                  .ofFloatingPointValueRounded(input, roundingMode: mode);
+              if (!input.isSubnormal() && !expected.isSubnormal()) {
+                continue;
+              }
+              source.put(input);
+              expect(converter.destination.value.bitString,
+                  equals(expected.value.bitString),
+                  reason: 'source=E${formats.sourceExponentWidth}M6 '
+                      'destination=E${formats.destinationExponentWidth}M3 '
+                      'mode=$mode input=$input');
+            }
+          }
+        }
+      }
+    }
+  });
+
   test('FP: E4M3 identity conversion preserves every encoding', () {
     final source = FloatingPoint8E4M3();
     final converter = FloatingPointConverter(source, FloatingPoint8E4M3());

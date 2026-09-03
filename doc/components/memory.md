@@ -34,8 +34,8 @@ Runtime reset values become module inputs and must match the entry width. Static
 values are converted to constants of the entry width. Lists must contain exactly
 one value per entry, and map keys must be valid entry indices.
 
-This behavior uses `StaticOrRuntimeValue<T>`, the generalized static-or-runtime
-parameter abstraction. Boolean component options use its
+This behavior uses `StaticOrRuntimeControl<T>`, the generalized static-or-runtime
+control abstraction. Boolean component options use its
 `StaticOrRuntimeParameter` specialization.
 
 [RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)

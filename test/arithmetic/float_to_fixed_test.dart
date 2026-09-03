@@ -232,6 +232,38 @@ void main() async {
     }
   });
 
+  test('FloatToFixed: rounding preserves sticky bits discarded before shifting',
+      () {
+    // The source significand has one more bit than the output plus its guard
+    // bit. This exercises cases where that pre-truncated bit is the only
+    // sticky contribution, which must affect non-truncating rounding modes.
+    const exponentWidth = 4;
+    const mantissaWidth = 6;
+    final float = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      ..put(0);
+
+    for (final mode in FloatingPointRoundingMode.values) {
+      final dut = FloatToFixed(float,
+          integerWidth: 2, fractionWidth: 2, roundingMode: mode);
+      for (var raw = 0; raw < 1 << float.width; raw++) {
+        final source = float
+            .valuePopulator()
+            .ofLogicValue(LogicValue.ofInt(raw, float.width));
+        if (source.isNaN || source.isAnInfinity) {
+          continue;
+        }
+        if (source.toDouble().abs() >= 2) {
+          continue;
+        }
+        float.put(source);
+        final expected = roundedFixedValue(source, dut.fixed, mode);
+        expect(dut.fixed.value.bitString, expected.value.bitString,
+            reason: 'mode=$mode raw=0x${raw.toRadixString(16)}');
+      }
+    }
+  });
+
   test('FloatToFixed: exact exhaustive reduced-width conversion', () {
     final float = FloatingPoint(exponentWidth: 5, mantissaWidth: 4);
     final dut = FloatToFixed(float);

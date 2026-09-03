@@ -83,7 +83,6 @@
 
 ### Known Issues
 
-- Implicit-j-bit to implicit-j-bit `FloatingPointConverter` conversions still have subnormal edge cases.
 - Berkeley TestFloat integration remains unimplemented (<https://github.com/intel/rohd-hcl/issues/135>).
 - `MultiCycleDivider` improvements (<https://github.com/intel/rohd-hcl/issues/139>) and a 4:2 `ColumnCompressor` (<https://github.com/intel/rohd-hcl/issues/120>) remain in stale pull requests.
 - `Sum` and `Counter` still generate avoidable overflow/underflow logic (<https://github.com/intel/rohd-hcl/issues/90>).

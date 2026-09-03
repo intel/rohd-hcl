@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier_accumulate.dart
@@ -147,6 +147,11 @@ abstract class MultiplyAccumulate extends Module {
             definitionName: definitionName ??
                 'MultiplyAccumulate_W${a.width}x${b.width}_'
                     'Acc${c.width}') {
+    if (outputWidth != null && outputWidth <= 0) {
+      throw RohdHclException(
+          'outputWidth must be positive when provided, got $outputWidth.');
+    }
+
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;

@@ -1,7 +1,7 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// static_or_runtime_parameter.dart
+// static_or_runtime_control.dart
 // Configuration classes for managing parameters that can be set statically or
 // at runtime.
 //
@@ -12,11 +12,12 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A value that can be configured statically or supplied by [Logic] at runtime.
+/// A component control that is configured statically or supplied by [Logic] at
+/// runtime.
 ///
 /// [T] is the type of the static value. Use [resolve] to obtain this module's
 /// internal runtime input or to convert the static value into [Logic].
-class StaticOrRuntimeValue<T> {
+class StaticOrRuntimeControl<T> {
   /// The runtime configuration signal, if this value is runtime-configurable.
   final Logic? runtimeConfig;
 
@@ -26,25 +27,25 @@ class StaticOrRuntimeValue<T> {
   /// The module input name used for [runtimeConfig].
   final String name;
 
-  /// Creates a static or runtime value.
+  /// Creates a statically or runtime-configured control.
   ///
   /// When [runtimeConfig] is provided, it takes precedence over [staticConfig].
-  const StaticOrRuntimeValue(
+  const StaticOrRuntimeControl(
       {required this.name, required this.staticConfig, this.runtimeConfig});
 
-  /// Creates a value from either a runtime [Logic] or a static value.
+  /// Creates a control from either a runtime [Logic] or a static value.
   ///
   /// A null [config] selects [defaultValue]. Other static inputs are converted
   /// to [T] with [convertStatic].
-  factory StaticOrRuntimeValue.ofDynamic(dynamic config,
+  factory StaticOrRuntimeControl.ofDynamic(dynamic config,
       {required String name,
       required T defaultValue,
       required T Function(dynamic value) convertStatic}) {
     if (config is Logic) {
-      return StaticOrRuntimeValue(
+      return StaticOrRuntimeControl(
           name: name, staticConfig: defaultValue, runtimeConfig: config);
     }
-    return StaticOrRuntimeValue(
+    return StaticOrRuntimeControl(
         name: name,
         staticConfig: config == null ? defaultValue : convertStatic(config));
   }
@@ -72,25 +73,35 @@ class StaticOrRuntimeValue<T> {
 }
 
 /// A boolean configuration that can be selected statically or at runtime.
-class StaticOrRuntimeParameter extends StaticOrRuntimeValue<bool> {
+///
+/// A runtime configuration must be a 1-bit [Logic] signal.
+class StaticOrRuntimeParameter extends StaticOrRuntimeControl<bool> {
   /// Creates a new [StaticOrRuntimeParameter] instance.
   ///
-  /// [runtimeConfig] overrides [staticConfig]. A missing static value defaults
-  /// to `false`.
+  /// [runtimeConfig] overrides [staticConfig] and must be 1 bit wide. A missing
+  /// static value defaults to `false`.
   StaticOrRuntimeParameter(
       {required super.name, super.runtimeConfig, bool? staticConfig = false})
-      : super(staticConfig: runtimeConfig == null && (staticConfig ?? false));
+      : super(staticConfig: runtimeConfig == null && (staticConfig ?? false)) {
+    final runtimeBooleanConfig = runtimeConfig;
+    if (runtimeBooleanConfig != null && runtimeBooleanConfig.width != 1) {
+      throw RohdHclException(
+          'Runtime boolean configuration "$name" must be 1 bit wide, '
+          'got ${runtimeBooleanConfig.width}.');
+    }
+  }
 
   /// Factory constructor to create a [StaticOrRuntimeParameter] from a dynamic.
   factory StaticOrRuntimeParameter.ofDynamic(dynamic config) {
     if (config is StaticOrRuntimeParameter) {
       return config;
     } else if (config is bool) {
-      return BooleanConfig(staticConfig: config);
+      return StaticOrRuntimeParameter(
+          name: 'boolean_config', staticConfig: config);
     } else if (config == null) {
-      return BooleanConfig(staticConfig: null);
+      return StaticOrRuntimeParameter(name: 'boolean_config');
     } else if (config is Logic) {
-      return RuntimeConfig(config, name: config.name);
+      return StaticOrRuntimeParameter(name: config.name, runtimeConfig: config);
     } else {
       throw RohdHclException(
           'Unsupported configuration type: ${config.runtimeType}');
@@ -114,17 +125,25 @@ class StaticOrRuntimeParameter extends StaticOrRuntimeValue<bool> {
       resolve(module, staticToLogic: (value) => Const(value ? 1 : 0));
 }
 
-/// A configuration class for boolean configurations, which can be used to
-/// statically enable or disable features in a component.
+/// A deprecated convenience wrapper for static boolean configurations.
+///
+/// Use [StaticOrRuntimeParameter] with [StaticOrRuntimeParameter.staticConfig]
+/// instead.
+@Deprecated('Use StaticOrRuntimeParameter instead.')
 class BooleanConfig extends StaticOrRuntimeParameter {
   /// Creates a new [BooleanConfig] instance.
+  @Deprecated('Use StaticOrRuntimeParameter instead.')
   BooleanConfig({super.staticConfig}) : super(name: 'boolean_config');
 }
 
-/// A configuration class for runtime configurations, which can be used to
-/// dynamically configure a component at runtime.
+/// A deprecated convenience wrapper for 1-bit runtime boolean configurations.
+///
+/// Use [StaticOrRuntimeParameter] with
+/// [StaticOrRuntimeParameter.runtimeConfig] instead.
+@Deprecated('Use StaticOrRuntimeParameter instead.')
 class RuntimeConfig extends StaticOrRuntimeParameter {
   /// Creates a new [RuntimeConfig] instance.
+  @Deprecated('Use StaticOrRuntimeParameter instead.')
   RuntimeConfig(Logic runtimeConfig, {required super.name})
       : super(runtimeConfig: runtimeConfig, staticConfig: null);
 }
