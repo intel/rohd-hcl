@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sign_magnitude_adder.dart
@@ -105,7 +105,7 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
     final adder = OnesComplementAdder(
         mux(_sign & sub, ~a, a), mux(_sign & sub, ~b, b),
         generateEndAroundCarry: largestMagnitudeFirst & generateEndAroundCarry,
-        subtractIn: sub,
+        subtract: sub,
         carryIn: carryIn,
         adderGen: adderGen);
     sum <= adder.sum;

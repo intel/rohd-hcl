@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // compound_adder_test.dart
@@ -146,8 +146,7 @@ void main() {
           widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
 
       final refAdder = OnesComplementAdder(a, b,
-          generateEndAroundCarry: true,
-          subtractIn: doSubtract ? Const(1) : Const(0));
+          generateEndAroundCarry: true, subtract: doSubtract);
 
       final expectedVal = doSubtract ? ai - bi : ai + bi;
       final expectedValP1 = expectedVal + 1;
@@ -182,17 +181,18 @@ void main() {
       for (final subtract in (useLogic == null) ? [false, true] : [false]) {
         final doSubtract =
             (useLogic == null) ? subtract : useLogic.value.toBool();
+        final subtractConfig = useLogic == null
+            ? subtract
+            : StaticOrRuntimeParameter(
+                name: 'subtract', runtimeConfig: useLogic);
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-            subtractIn: useLogic,
-            subtract: subtract,
+            subtract: subtractConfig,
             generateCarryOut: true,
             generateCarryOutP1: true,
             widthGen:
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
         final refAdder = OnesComplementAdder(a, b,
-            generateEndAroundCarry: true,
-            subtractIn: useLogic,
-            subtract: subtract);
+            generateEndAroundCarry: true, subtract: subtractConfig);
         for (var ai = 0; ai < pow(2, width); ai++) {
           for (var bi = 0; bi < pow(2, width); bi++) {
             final av = LogicValue.ofInt(ai, width);
@@ -303,7 +303,7 @@ void main() {
       b.put(t.bMag);
 
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-          subtractIn: t.subtractIn,
+          subtract: t.subtractIn,
           generateCarryOut: t.carry,
           generateCarryOutP1: t.carryP1);
 

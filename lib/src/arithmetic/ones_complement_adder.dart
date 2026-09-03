@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // ones_complement_adder.dart
@@ -28,19 +28,19 @@ class OnesComplementAdder extends Adder {
   @protected
   Logic _sign = Logic();
 
-  /// Subtraction is happening
+  /// Configuration for static or runtime subtraction.
   @protected
-  late final Logic? subtractIn;
+  late final StaticOrRuntimeParameter subtractParameter;
 
   /// Generate an endAroundCarry signal instead of adding it to the
   /// [sum].
   final bool generateEndAroundCarry;
 
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
-  /// - A subtractor is created if [subtract] is set to `true`.  Alternatively,
-  /// if [subtract] configuration is `false`, and a Lgic control signal
-  /// [subtractIn] is provided, then subtraction can be dynamically selected.
-  /// Otherwise an adder is constructed.
+  /// - [subtract] configures subtraction statically with a `bool` or at runtime
+  /// with a 1-bit [Logic]. It defaults to addition.
+  /// - [subtractIn] is a deprecated runtime subtraction control. Do not provide
+  /// it with [subtract].
   /// - If [generateEndAroundCarry] is `true`, then the end-around
   /// carry is not performed and is provided as output [endAroundCarry]. If
   ///   [generateEndAroundCarry] is `false`, extra hardware takes care of adding
@@ -53,10 +53,10 @@ class OnesComplementAdder extends Adder {
   OnesComplementAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      Logic? subtractIn,
+      @Deprecated('Use subtract with a 1-bit Logic instead.') Logic? subtractIn,
       this.generateEndAroundCarry = false,
       super.carryIn,
-      bool subtract = false,
+      dynamic subtract,
       bool chainable = false,
       super.reserveName,
       super.reserveDefinitionName,
@@ -68,19 +68,20 @@ class OnesComplementAdder extends Adder {
     if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
-    if ((subtractIn != null) & subtract) {
+    if (subtractIn != null && subtract != null) {
       throw RohdHclException(
-          "either provide a Logic signal 'subtractIn' for runtime "
-          " configuration, or a boolean parameter 'subtract' for "
-          'generation time configuration, but not both.');
+          "Provide either deprecated 'subtractIn' or 'subtract', "
+          'but not both.');
     }
-    this.subtractIn =
-        (subtractIn != null) ? addInput('subtractIn', subtractIn) : null;
+    subtractParameter = subtractIn != null
+        ? StaticOrRuntimeParameter(
+            name: 'subtractIn', runtimeConfig: subtractIn)
+        : StaticOrRuntimeParameter.ofDynamic(subtract);
     _sign = addOutput('sign');
 
-    final doSubtract =
-        (this.subtractIn ?? (subtract ? Const(subtract) : Const(0)))
-            .named('dosubtract', naming: Naming.mergeable);
+    final doSubtract = subtractParameter
+        .getLogic(this)
+        .named('dosubtract', naming: Naming.mergeable);
 
     final adderSum =
         adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0))

@@ -176,7 +176,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
-        subtractIn: effectiveSubtractionFlopped,
+        subtract: effectiveSubtractionFlopped,
         generateCarryOut: true,
         generateCarryOutP1: true,
         adderGen: adderGen,
@@ -424,29 +424,12 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final smallOperandNPath =
         (smallShift >>> (a.exponent[0] ^ b.exponent[0])).named('smallOperand');
 
-    // Note: the end-around-carry here cannot be avoided by simply
-    // "reversing the operands," because `larger`/`smaller` above are sorted
-    // by *exponent* only (`signDelta` from a plain exponent subtraction, not
-    // a magnitude comparison). N-path is selected exactly when the exponent
-    // delta is 0 or 1 (see `isR` below); when delta==0, equal exponents with
-    // differing mantissas give no guarantee that `larger`'s mantissa is
-    // actually the bigger operand, so some mechanism to resolve that
-    // ambiguity at runtime is unavoidable here.
-    //
-    // A `dual-adder` (subtracting in both directions in parallel and muxing
-    // on whichever direction doesn't carry, skipping any internal
-    // increment step entirely -- see [SignMagnitudeDualAdder]) would trade
-    // this stage's current sequential critical path (one full subtract,
-    // whose result then feeds a data-dependent [ParallelPrefixIncr] for the
-    // end-around-carry, i.e. two sequential arithmetic stages, at roughly
-    // one subtractor's area) for a shorter, single-stage critical path (two
-    // independent subtracts computed simultaneously) at roughly double the
-    // subtractor area. This is a genuine area-vs-latency trade-off with no
-    // universally correct answer absent target-specific area/timing
-    // constraints, so it was not applied here without such a driver.
+    // Exponent ordering cannot determine mantissa magnitude on the N-path, so
+    // end-around carry resolves ambiguous subtraction.
+    // A dual adder could shorten the critical path at roughly double the area.
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
-        subtractIn: effectiveSubtraction,
+        subtract: effectiveSubtraction,
         adderGen: adderGen,
         name: 'npath_significand_sub');
 
@@ -478,7 +461,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final expCalcNPath = OnesComplementAdder(
         largerExpFlopped, leadOneNPath.zeroExtend(exponentWidth),
-        subtractIn: Const(1), adderGen: adderGen, name: 'npath_expcalc');
+        subtract: Const(1), adderGen: adderGen, name: 'npath_expcalc');
 
     final preExpNPath =
         expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExpNpath');
