@@ -29,7 +29,7 @@
 
 #### Parameterized Configuration
 
-- Added generic `StaticOrRuntimeValue<T>` support for statically configured values or multi-bit runtime `Logic` inputs while preserving `StaticOrRuntimeParameter` as the boolean specialization.
+- Added generic `StaticOrRuntimeControl<T>` support for statically configured values or multi-bit runtime `Logic` inputs while preserving `StaticOrRuntimeParameter` as the boolean specialization.
 
 ### Bug Fixes
 
