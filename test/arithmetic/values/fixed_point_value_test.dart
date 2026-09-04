@@ -1,5 +1,6 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+// ignore_for_file: deprecated_member_use_from_same_package
 //
 // fixed_point_value_test.dart
 // Tests of fixed-point value representation
@@ -23,14 +24,23 @@ void main() {
         reason: reason);
   }
 
-  test('FixedPointValue: default signed matches FixedPoint default', () {
-    // Regression test for issue #249: FixedPoint and FixedPointValue must
-    // agree on their default `signed` value (both default to `true`).
+  test('FixedPointValue: legacy and replacement signed defaults', () {
     expect(FixedPoint(integerWidth: 3, fractionWidth: 2).signed, isTrue);
     expect(FixedPointValue.populator(integerWidth: 3, fractionWidth: 2).signed,
+        isFalse);
+    expect(
+        FixedPointValue.populatorWithSignedness(
+                integerWidth: 3, fractionWidth: 2)
+            .signed,
         isTrue);
     expect(
         FixedPointValue(
+                integer: LogicValue.ofInt(3, 4),
+                fraction: LogicValue.ofInt(0, 2))
+            .signed,
+        isFalse);
+    expect(
+        FixedPointValue.withSignedness(
                 integer: LogicValue.ofInt(3, 4),
                 fraction: LogicValue.ofInt(0, 2))
             .signed,
@@ -38,14 +48,12 @@ void main() {
   });
 
   test('FixedPointValue: factory constructor honors the signed argument', () {
-    // Regression test: the `signed` argument to the `FixedPointValue()`
-    // factory constructor must actually be applied to the constructed value.
-    final signedValue = FixedPointValue(
+    final signedValue = FixedPointValue.withSignedness(
         integer: LogicValue.ofInt(3, 4), fraction: LogicValue.ofInt(0, 2));
     expect(signedValue.signed, isTrue);
     expect(signedValue.integerWidth, 3);
 
-    final unsignedValue = FixedPointValue(
+    final unsignedValue = FixedPointValue.withSignedness(
         integer: LogicValue.ofInt(3, 4),
         fraction: LogicValue.ofInt(0, 2),
         signed: false);
@@ -62,7 +70,7 @@ void main() {
       (LogicValue.filled(128, LogicValue.one), false, 128, 0, 128),
     ];
     for (var c = 0; c < corners.length; c++) {
-      final pop = FixedPointValue.populator(
+      final pop = FixedPointValue.populatorWithSignedness(
           integerWidth: corners[c].$3,
           fractionWidth: corners[c].$4,
           signed: corners[c].$2);
@@ -90,13 +98,13 @@ void main() {
       ('1100', true, 3, 0, true, 4, 2, '1110000'),
     ];
     for (var c = 0; c < corners.length; c++) {
-      final fxp = FixedPointValue.populator(
+      final fxp = FixedPointValue.populatorWithSignedness(
               integerWidth: corners[c].$3,
               fractionWidth: corners[c].$4,
               signed: corners[c].$2)
           .ofLogicValue(LogicValue.ofString(corners[c].$1));
 
-      final value = FixedPointValue.populator(
+      final value = FixedPointValue.populatorWithSignedness(
               integerWidth: corners[c].$6,
               fractionWidth: corners[c].$7,
               signed: corners[c].$5)
@@ -124,12 +132,12 @@ void main() {
       ('10000', true, 2, 2, '0111000', true, 3, 3, lessThan(0)),
     ];
     for (var c = 0; c < corners.length; c++) {
-      final fxp1 = FixedPointValue.populator(
+      final fxp1 = FixedPointValue.populatorWithSignedness(
               integerWidth: corners[c].$3,
               fractionWidth: corners[c].$4,
               signed: corners[c].$2)
           .ofLogicValue(LogicValue.ofString(corners[c].$1));
-      final fxp2 = FixedPointValue.populator(
+      final fxp2 = FixedPointValue.populatorWithSignedness(
               integerWidth: corners[c].$7,
               fractionWidth: corners[c].$8,
               signed: corners[c].$6)
@@ -151,7 +159,7 @@ void main() {
     ];
     for (var c = 0; c < corners.length; c++) {
       final number = corners[c].$4;
-      final fxp = FixedPointValue.populator(
+      final fxp = FixedPointValue.populatorWithSignedness(
               integerWidth: corners[c].$2, fractionWidth: corners[c].$3)
           .ofDouble(number);
 
@@ -169,7 +177,7 @@ void main() {
       ]);
     for (var c = 0; c < corners.length; c++) {
       final number = corners[c].$4;
-      final fxp = FixedPointValue.populator(
+      final fxp = FixedPointValue.populatorWithSignedness(
               integerWidth: corners[c].$2,
               fractionWidth: corners[c].$3,
               signed: false)
@@ -181,7 +189,7 @@ void main() {
     for (var i = 0; i < pow(2, 4); i++) {
       for (var m = 0; m < 5; m++) {
         final n = 4 - m;
-        final fxp = FixedPointValue.populator(
+        final fxp = FixedPointValue.populatorWithSignedness(
                 integerWidth: m, fractionWidth: n, signed: false)
             .ofLogicValue(LogicValue.ofInt(i, 4));
         expect(fxp.value.width, 4);
@@ -211,12 +219,12 @@ void main() {
     };
 
     for (final mode in FloatingPointRoundingMode.values) {
-      final positive =
-          FixedPointValue.populator(integerWidth: 2, fractionWidth: 2)
-              .ofDouble(1.125, roundingMode: mode);
-      final negative =
-          FixedPointValue.populator(integerWidth: 2, fractionWidth: 2)
-              .ofDouble(-1.125, roundingMode: mode);
+      final positive = FixedPointValue.populatorWithSignedness(
+              integerWidth: 2, fractionWidth: 2)
+          .ofDouble(1.125, roundingMode: mode);
+      final negative = FixedPointValue.populatorWithSignedness(
+              integerWidth: 2, fractionWidth: 2)
+          .ofDouble(-1.125, roundingMode: mode);
       expect(positive.toScaledBigInt().significand,
           BigInt.from(expectedPositive[mode]!),
           reason: 'positive mode=$mode');
@@ -246,30 +254,32 @@ void main() {
         FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 10)
             .ofDouble(1.125);
     for (final mode in FloatingPointRoundingMode.values) {
-      final fromFloatingPoint =
-          FixedPointValue.populator(integerWidth: 2, fractionWidth: 2)
-              .ofFloatingPointValue(source, roundingMode: mode);
-      final fromDouble =
-          FixedPointValue.populator(integerWidth: 2, fractionWidth: 2)
-              .ofDouble(1.125, roundingMode: mode);
+      final fromFloatingPoint = FixedPointValue.populatorWithSignedness(
+              integerWidth: 2, fractionWidth: 2)
+          .ofFloatingPointValue(source, roundingMode: mode);
+      final fromDouble = FixedPointValue.populatorWithSignedness(
+              integerWidth: 2, fractionWidth: 2)
+          .ofDouble(1.125, roundingMode: mode);
       expect(fromFloatingPoint, fromDouble, reason: 'mode=$mode');
     }
 
     expect(
-        () => FixedPointValue.populator(integerWidth: 1, fractionWidth: 2)
+        () => FixedPointValue.populatorWithSignedness(
+                integerWidth: 1, fractionWidth: 2)
             .ofFloatingPointValue(FloatingPointValue.populator(
                     exponentWidth: 5, mantissaWidth: 10)
                 .ofDouble(2)),
         throwsA(isA<RohdHclException>()));
     expect(
-        () => FixedPointValue.populator(
+        () => FixedPointValue.populatorWithSignedness(
                 integerWidth: 2, fractionWidth: 2, signed: false)
             .ofFloatingPointValue(FloatingPointValue.populator(
                     exponentWidth: 5, mantissaWidth: 10)
                 .ofDouble(-0.25)),
         throwsA(isA<RohdHclException>()));
     expect(
-        () => FixedPointValue.populator(integerWidth: 2, fractionWidth: 2)
+        () => FixedPointValue.populatorWithSignedness(
+                integerWidth: 2, fractionWidth: 2)
             .ofFloatingPointValue(FloatingPointValue.populator(
                     exponentWidth: 5, mantissaWidth: 10)
                 .nan),
@@ -286,7 +296,8 @@ void main() {
         throwsA(isA<RohdHclException>()));
 
     expect(
-        () => FixedPointValue.populator(integerWidth: 1, fractionWidth: 1)
+        () => FixedPointValue.populatorWithSignedness(
+                integerWidth: 1, fractionWidth: 1)
             .ofDouble(1.75,
                 roundingMode: FloatingPointRoundingMode.roundNearestEven),
         throwsA(isA<RohdHclException>()));
@@ -318,7 +329,7 @@ void main() {
       for (var fractionWidth = 0; fractionWidth <= 7; fractionWidth++) {
         final integerWidth = signed ? 7 - fractionWidth : 8 - fractionWidth;
         for (var raw = 0; raw < 256; raw++) {
-          final fixed = FixedPointValue.populator(
+          final fixed = FixedPointValue.populatorWithSignedness(
                   integerWidth: integerWidth,
                   fractionWidth: fractionWidth,
                   signed: signed)
@@ -339,7 +350,7 @@ void main() {
   // A mantissa wider than a host double must survive direct conversion.
   test('FixedPointValue: wide direct conversion avoids host double', () {
     final significand = (BigInt.one << 100) + (BigInt.one << 47) + BigInt.one;
-    final fixed = FixedPointValue.populator(
+    final fixed = FixedPointValue.populatorWithSignedness(
             integerWidth: 30, fractionWidth: 80, signed: false)
         .ofScaledBigInt(significand, -80);
     final floating =
@@ -352,7 +363,8 @@ void main() {
   // E4M3 reserves its top encoding for NaN, so finite overflow must saturate
   // rather than accidentally producing that encoding.
   test('FixedPointValue: direct E4M3 conversion avoids reserved NaN', () {
-    final fixed = FixedPointValue.populator(integerWidth: 9, fractionWidth: 0)
+    final fixed = FixedPointValue.populatorWithSignedness(
+            integerWidth: 9, fractionWidth: 0)
         .ofScaledBigInt(BigInt.from(472), 0);
     final converted =
         FloatingPoint8E4M3Value.populator().ofFixedPointValue(fixed);
@@ -367,7 +379,7 @@ void main() {
 
   test('Comparison operators', () {
     FixedPointValuePopulator populator({bool signed = false}) =>
-        FixedPointValue.populator(
+        FixedPointValue.populatorWithSignedness(
             integerWidth: 4, fractionWidth: 2, signed: signed);
     expect(
         populator(signed: true).ofDouble(14.432) ==
@@ -390,7 +402,8 @@ void main() {
     const m = 3;
     const n = 4;
     for (var i = 0; i < pow(2, width); i++) {
-      final fxv = FixedPointValue.populator(integerWidth: m, fractionWidth: n)
+      final fxv = FixedPointValue.populatorWithSignedness(
+              integerWidth: m, fractionWidth: n)
           .ofLogicValue(LogicValue.ofInt(i, width));
       final dbl = fxv.toDouble();
       if (!FixedPointValuePopulator.canStore(dbl,
@@ -399,7 +412,8 @@ void main() {
           fractionWidth: fxv.fractionWidth)) {
         throw RohdHclException('generated a value that we cannot store');
       }
-      final fxv2 = FixedPointValue.populator(integerWidth: m, fractionWidth: n)
+      final fxv2 = FixedPointValue.populatorWithSignedness(
+              integerWidth: m, fractionWidth: n)
           .ofDouble(dbl);
 
       expect(fxv, equals(fxv2));
@@ -411,14 +425,14 @@ void main() {
     const n = 2;
     final rv = Random(57);
     for (final signed in [false, true]) {
-      final lowerBound = FixedPointValue.populator(
+      final lowerBound = FixedPointValue.populatorWithSignedness(
               signed: signed, integerWidth: m, fractionWidth: n)
           .ofDouble(0);
-      final upperBound = FixedPointValue.populator(
+      final upperBound = FixedPointValue.populatorWithSignedness(
               signed: signed, integerWidth: m, fractionWidth: n)
           .ofDouble(0.5);
       for (var i = 0; i < 1000; i++) {
-        final fxv = FixedPointValue.populator(
+        final fxv = FixedPointValue.populatorWithSignedness(
                 signed: signed, integerWidth: m, fractionWidth: n)
             .random(rv, gt: lowerBound, lt: upperBound);
         final dbl = fxv.toDouble();
@@ -426,7 +440,7 @@ void main() {
         expect(dbl < upperBound.toDouble(), isTrue);
       }
       for (var i = 0; i < 1000; i++) {
-        final fxv = FixedPointValue.populator(
+        final fxv = FixedPointValue.populatorWithSignedness(
                 signed: signed, integerWidth: m, fractionWidth: n)
             .random(rv, gte: lowerBound, lte: upperBound);
         expect(fxv.gteBool(lowerBound), isTrue);
@@ -448,11 +462,11 @@ void main() {
               for (var s2 = 0; s2 < 2; s2++) {
                 final n1 = s1 == 0 ? w - m1 - 1 : w - m1;
                 final n2 = s2 == 0 ? w - m2 - 1 : w - m2;
-                fxp1 = FixedPointValue.populator(
+                fxp1 = FixedPointValue.populatorWithSignedness(
                         integerWidth: m1, fractionWidth: n1, signed: s1 == 0)
                     .ofLogicValue(LogicValue.ofInt(i1, w));
 
-                fxp2 = FixedPointValue.populator(
+                fxp2 = FixedPointValue.populatorWithSignedness(
                         integerWidth: m2, fractionWidth: n2, signed: s2 == 0)
                     .ofLogicValue(LogicValue.ofInt(i2, w));
 

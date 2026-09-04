@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_test.dart
@@ -20,7 +20,8 @@ void main() async {
           1.23,
         );
     final val2 = fx2.valuePopulator().ofDouble(3.45);
-    final val3 = FixedPointValue.populator(integerWidth: 10, fractionWidth: 10)
+    final val3 = FixedPointValue.populatorWithSignedness(
+            integerWidth: 10, fractionWidth: 10)
         .ofDouble(1.23);
 
     fx1.put(val1);
@@ -76,7 +77,7 @@ void main() async {
 
     final sum = fx1 + fx2;
     final difference = fx1 - fx2;
-    final product = fx1 * fx2;
+    final product = fx1.multiply(fx2);
 
     expect(sum.fixedPointValue.toDouble(), 9.75);
     expect(sum.integerWidth, 5);
@@ -85,8 +86,24 @@ void main() async {
     expect(product.fixedPointValue.toDouble(), 16.875);
   });
 
+  test('legacy multiply operator retains unsigned result behavior', () {
+    final fx1 = FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    final fx2 = FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    fx1.put(fx1.valuePopulator().ofDouble(2));
+    fx2.put(fx2.valuePopulator().ofDouble(3));
+
+    // ignore: deprecated_member_use_from_same_package
+    final product = fx1 * fx2;
+
+    expect(product.signed, isFalse);
+    expect(product.integerWidth, 8);
+    expect(product.fractionWidth, 8);
+    expect(product.fixedPointValue.toDouble(), 6);
+  });
+
   test('FixedPointValue creates a constant FixedPoint', () {
-    final value = FixedPointValue.populator(integerWidth: 4, fractionWidth: 4)
+    final value = FixedPointValue.populatorWithSignedness(
+            integerWidth: 4, fractionWidth: 4)
         .ofDouble(-2.25);
     final constant = value.toLogic(name: 'constantFixedPoint');
 
@@ -117,7 +134,7 @@ void main() async {
       for (final v2 in vals) {
         fx1.put(fx1.valuePopulator().ofDouble(v1));
         fx2.put(fx2.valuePopulator().ofDouble(v2));
-        final product = fx1 * fx2;
+        final product = fx1.multiply(fx2);
         expect(product.fixedPointValue.toDouble(), closeTo(v1 * v2, 1e-6),
             reason: '$v1 * $v2');
         expect(product.integerWidth, 9);
@@ -133,7 +150,7 @@ void main() async {
       for (final v2 in vals) {
         fx1.put(fx1.valuePopulator().ofDouble(v1));
         fx2.put(fx2.valuePopulator().ofDouble(v2));
-        final product = fx1 * fx2;
+        final product = fx1.multiply(fx2);
         expect(product.fixedPointValue.toDouble(), closeTo(v1 * v2, 1e-6),
             reason: '$v1 * $v2');
       }

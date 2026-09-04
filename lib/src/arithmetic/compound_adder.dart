@@ -222,6 +222,11 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   @protected
   late final StaticOrRuntimeParameter subtractParameter;
 
+  /// The deprecated runtime subtraction input, if configured.
+  @protected
+  @Deprecated('Use subtractParameter instead.')
+  Logic? get subtractIn => subtractParameter.tryRuntimeInput(this);
+
   /// Constructs a [CarrySelectCompoundAdder] using a set of
   /// [OnesComplementAdder] in a carry-select configuration. Adds (or subtracts)
   /// [a] and [b] to produce [sum] and [sumP1] (sum plus 1).

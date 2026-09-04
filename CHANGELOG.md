@@ -1,8 +1,20 @@
 ## Unreleased
 
-### Breaking Changes
+### Deprecated APIs
 
-- `FixedPointValue`, its factory, and its populator now default to `signed: true`, matching `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>). Pass `signed: false` where the previous unsigned default is required.
+- Deprecated the unsigned-default `FixedPointValue` constructor and
+  `FixedPointValue.populator` while preserving their existing behavior. Use
+  `FixedPointValue.withSignedness` and
+  `FixedPointValue.populatorWithSignedness`, which default to `signed: true` to
+  match `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>).
+- Deprecated `FixedPoint.operator *` while preserving its previous unsigned
+  result width and behavior. Use `FixedPoint.multiply` for a correctly signed,
+  full-width product.
+- Deprecated the `static_or_runtime_parameter.dart` import path. Import
+  `static_or_runtime_control.dart` instead.
+- Deprecated the `subtractIn` constructor parameter and protected member on
+  `OnesComplementAdder` and `CarrySelectOnesComplementCompoundAdder`. Use
+  `subtract` and `subtractParameter`, respectively.
 
 ### New Features
 
@@ -19,7 +31,9 @@
 
 #### Arithmetic Signal Operations
 
-- Added typed `add`, `subtract`, and `multiply` methods and direct `+`, `-`, and `*` operators to `FixedPoint` and `FloatingPoint` signals (<https://github.com/intel/rohd-hcl/issues/199>).
+- Added typed `add`, `subtract`, and `multiply` methods and direct `+` and `-`
+  operators to `FixedPoint` signals, and arithmetic methods and operators to
+  `FloatingPoint` signals (<https://github.com/intel/rohd-hcl/issues/199>).
 
 #### Integer Arithmetic Components
 
@@ -61,7 +75,7 @@
 
 #### Fixed-Point Fixes
 
-- Fixed `FixedPoint.operator *` to produce a correctly signed, full-width product.
+- Added `FixedPoint.multiply` to produce a correctly signed, full-width product.
 - Fixed `FixedPointValuePopulator.canStore()` to use the rounded value and the asymmetric two's-complement range.
 
 #### Integer Arithmetic Components Fixes
