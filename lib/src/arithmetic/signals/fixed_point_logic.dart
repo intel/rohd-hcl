@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_logic.dart
@@ -63,8 +63,11 @@ class FixedPoint extends LogicStructure {
   /// A [FixedPointValuePopulator] for values associated with this
   /// [FloatingPoint] type.
   @mustBeOverridden
-  FixedPointValuePopulator valuePopulator() => FixedPointValue.populator(
-      integerWidth: integerWidth, fractionWidth: fractionWidth, signed: signed);
+  FixedPointValuePopulator valuePopulator() =>
+      FixedPointValue.populatorWithSignedness(
+          integerWidth: integerWidth,
+          fractionWidth: fractionWidth,
+          signed: signed);
 
   /// Clone for I/O ports.
   @override
@@ -166,6 +169,15 @@ class FixedPoint extends LogicStructure {
         fractionWidth: 2 * fractionWidth);
   }
 
+  FixedPoint _legacyMultiply(dynamic other) {
+    final comparable = _verifyCompatible(other);
+    final product = NativeMultiplier(this, comparable).product;
+    return FixedPoint.of(product,
+        signed: false,
+        integerWidth: 2 * integerWidth,
+        fractionWidth: 2 * fractionWidth);
+  }
+
   /// Adds [other] and returns a full-precision [FixedPoint].
   FixedPoint add(dynamic other) {
     final comparable = _verifyCompatible(other);
@@ -223,7 +235,8 @@ class FixedPoint extends LogicStructure {
 
   /// Multiply operator.
   @override
-  FixedPoint operator *(dynamic other) => multiply(other);
+  @Deprecated('Use multiply instead.')
+  FixedPoint operator *(dynamic other) => _legacyMultiply(other);
 
   /// Equality operator.
   @override

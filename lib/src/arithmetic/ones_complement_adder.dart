@@ -32,6 +32,11 @@ class OnesComplementAdder extends Adder {
   @protected
   late final StaticOrRuntimeParameter subtractParameter;
 
+  /// The deprecated runtime subtraction input, if configured.
+  @protected
+  @Deprecated('Use subtractParameter instead.')
+  Logic? get subtractIn => subtractParameter.tryRuntimeInput(this);
+
   /// Generate an endAroundCarry signal instead of adding it to the
   /// [sum].
   final bool generateEndAroundCarry;

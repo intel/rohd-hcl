@@ -393,7 +393,8 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
     var significand = exact.significand;
     var exponent = exact.exponent;
     if (significand == BigInt.zero) {
-      return FixedPointValue.populator(integerWidth: 0, fractionWidth: 0)
+      return FixedPointValue.populatorWithSignedness(
+              integerWidth: 0, fractionWidth: 0)
           .ofScaledBigInt(BigInt.zero, 0);
     }
     while (significand.isEven) {
@@ -407,7 +408,7 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
         ? (scaled.abs() - BigInt.one).bitLength + 1
         : scaled.bitLength + 1;
     final totalWidth = max(fractionWidth + 1, requiredSignedWidth);
-    return FixedPointValue.populator(
+    return FixedPointValue.populatorWithSignedness(
             integerWidth: totalWidth - fractionWidth - 1,
             fractionWidth: fractionWidth)
         .ofScaledBigInt(significand, exponent);
