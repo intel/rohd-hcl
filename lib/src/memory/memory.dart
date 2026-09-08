@@ -45,7 +45,20 @@ class MaskedDataPortInterface extends DataPortInterface {
 /// An interface to a simple memory that only needs enable, address, and data.
 ///
 /// Can be used for either read or write direction by grouping signals using
-/// [DataPortGroup].
+/// [DataPortGroup]. Drive [en], [addr], and [data] on a write port. Drive [en]
+/// and [addr] on a read port; [data] is returned by the memory.
+///
+/// ```dart
+/// final clk = SimpleClockGenerator(10).clk;
+/// final reset = Logic();
+/// final wrPort = DataPortInterface(32, 5);
+/// final rdPort = DataPortInterface(32, 5);
+/// RegisterFile(clk, reset, [wrPort], [rdPort], numEntries: 20);
+///
+/// wrPort.en.put(1);
+/// wrPort.addr.put(3);
+/// wrPort.data.put(0xdeadbeef);
+/// ```
 class DataPortInterface extends Interface<DataPortGroup> {
   /// The width of data in the memory.
   final int dataWidth;
