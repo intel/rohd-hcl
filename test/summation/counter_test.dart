@@ -474,7 +474,9 @@ void main() {
               if (intf.hasEnable) {
                 intf.enable!.inject(0);
               }
-              intf.amount.inject(0);
+              if (intf.fixedAmount == null) {
+                intf.amount.inject(0);
+              }
             }
             await clk.waitCycles(3);
             reset.inject(0);

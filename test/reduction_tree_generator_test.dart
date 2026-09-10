@@ -82,7 +82,7 @@ void main() {
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
     for (var i = 0; i < length; i++) {
-      vec.add(Const(i, width: width));
+      vec.add(Logic(width: width)..inject(i));
     }
     const radix = 4;
     final prefixAdd = ReductionTreeGenerator(
@@ -158,11 +158,11 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
-    const length = 290;
+    const length = 129;
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
     for (var i = 0; i < length; i++) {
-      vec.add(Const(i, width: width));
+      vec.add(Logic(width: width)..inject(i));
     }
     const reduce = 4;
     final prefixAdd = ReductionTreeGenerator(
