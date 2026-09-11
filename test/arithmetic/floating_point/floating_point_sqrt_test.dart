@@ -1,5 +1,5 @@
-// Copyright (C) 2025 Intel Corporation
-// SPDX-License-Indentifier: BSD-3-Clause
+// Copyright (C) 2025-2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_sqrt.dart
 // An abstract base class defining the API for floating-point square root.
@@ -11,13 +11,31 @@
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/arithmetic/arithmetic.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+  test('FP: square-root subnormal normalization', () {
+    final significand = Logic(width: 5)..put(1);
+    final leadingOne = RecursiveModulePriorityEncoder(significand.reversed).out;
+    expect(leadingOne.value.toInt(), 4);
+    final normalized = significand << leadingOne;
+    expect(normalized.value.toInt(), 16);
+    final fixed = FixedPoint(signed: false, integerWidth: 3, fractionWidth: 9)
+      ..gets(Const(1 << 9, width: 12));
+    expect(FixedPointSqrt(fixed).sqrt.value.toInt(), 1 << 9);
+  });
+
+  test('FP: square root rejects explicit-J-bit inputs', () {
+    final fp =
+        FloatingPoint(exponentWidth: 4, mantissaWidth: 4, explicitJBit: true);
+
+    expect(() => FloatingPointSqrtSimple(fp), throwsA(isA<RohdHclException>()));
+  });
+
   test('FP: square root with non-FP numbers', () {
     // building with 16-bit FP representation
     const exponentWidth = 3;
@@ -149,6 +167,64 @@ ${expError.value} expected''');
     }
   });
 
+  test('FP: square root supports every rounding mode and subnormals', () {
+    const exponentWidth = 4;
+    const mantissaWidth = 4;
+    FloatingPointValuePopulator populator() => FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final random = Random(0x754);
+
+    for (final mode in FloatingPointRoundingMode.values) {
+      final fp = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final sqrtDut = FloatingPointSqrtSimple(fp, roundingMode: mode);
+      final positiveZero =
+          populator().ofConstant(FloatingPointConstants.positiveZero);
+      final values = [
+        for (final mantissa in [1, 2, 7, 15]) populator().ofInts(0, mantissa),
+        for (var iteration = 0; iteration < 100; iteration++)
+          populator().random(random, gte: positiveZero, excludeInfinity: true),
+      ];
+
+      for (final value in values) {
+        fp.put(value);
+        final expected = populator().squareRoot(value, roundingMode: mode);
+        final actual = sqrtDut.sqrt.floatingPointValue;
+        expect(actual.isNaN, expected.isNaN, reason: 'mode=$mode value=$value');
+        if (!expected.isNaN) {
+          expect(actual, expected, reason: 'mode=$mode value=$value');
+        }
+      }
+
+      final negativeInfinity =
+          populator().ofConstant(FloatingPointConstants.negativeInfinity);
+      fp.put(negativeInfinity);
+      expect(sqrtDut.sqrt.floatingPointValue.isNaN, isTrue,
+          reason: 'mode=$mode');
+      expect(sqrtDut.error.value.toBool(), isTrue, reason: 'mode=$mode');
+    }
+  });
+
+  test('FP: square root preserves E3M5 subnormal output exponent', () {
+    const exponentWidth = 3;
+    const mantissaWidth = 5;
+    final inputPopulator = FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final input = inputPopulator.ofInts(0, 1);
+    final expected = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .squareRoot(input);
+    final fp = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final sqrtDut = FloatingPointSqrtSimple(fp);
+
+    fp.put(input);
+    expect(sqrtDut.sqrt.floatingPointValue, equals(expected));
+    expect(sqrtDut.sqrt.exponent.value.toInt(), equals(0));
+    expect(sqrtDut.status.underflow.value.toBool(), isTrue);
+    expect(sqrtDut.status.inexact.value.toBool(), isTrue);
+  });
+
   test('FP: random number sqrt', () {
     const exponentWidth = 3;
     const mantissaWidth = 5;
@@ -172,11 +248,10 @@ ${expError.value} expected''');
       final compResult = sqrtDUT.sqrt;
       final compError = sqrtDUT.error;
 
-      final expResult = fp.valuePopulator().ofDouble(sqrt(fv.toDouble()));
+      final expResult = fp.valuePopulator().squareRoot(fv);
       final expError = Const(0);
 
-      expect(compResult.floatingPointValue.withinRounding(expResult), true,
-          reason: '''
+      expect(compResult.floatingPointValue, expResult, reason: '''
   ${fp.floatingPointValue} (${fp.floatingPointValue.toDouble()}) =
   ${compResult.floatingPointValue} (${compResult.floatingPointValue.toDouble()}) actual
   $expResult (${expResult.toDouble()}) expected''');

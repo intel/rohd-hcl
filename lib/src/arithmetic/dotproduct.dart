@@ -155,6 +155,9 @@ class GeneralDotProduct extends DotProductBase {
   final Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
       adderGen;
 
+  late final bool _signedProduct;
+  late final Logic? _selectSignedProduct;
+
   /// Construct a [GeneralDotProduct] with a [List] of [multiplicands] and
   /// [multipliers], a [multiplierGen] for constructing products, and an
   /// [adderGen] function to generate [Adder]s for use in a [ReductionTree] for
@@ -178,6 +181,16 @@ class GeneralDotProduct extends DotProductBase {
       : super(
             definitionName: definitionName ??
                 'DotProductNative_W${multipliers[0].width}_') {
+    final hasRuntimeSign = signedMultiplicandParameter.runtimeConfig != null ||
+        signedMultiplierParameter.runtimeConfig != null;
+    _signedProduct = !hasRuntimeSign &&
+        (signedMultiplicandParameter.staticConfig ||
+            signedMultiplierParameter.staticConfig);
+    _selectSignedProduct = hasRuntimeSign
+        ? signedMultiplicandParameter.getLogic(this) |
+            signedMultiplierParameter.getLogic(this)
+        : null;
+
     final dotResults = [
       for (var i = 0; i < multipliers.length; i++)
         multiplierGen(multiplicands[i], multipliers[i],
@@ -186,11 +199,8 @@ class GeneralDotProduct extends DotProductBase {
             .product
     ];
 
-    // TODO(desmonddak): add sign extension option for use with unsigned
-    // multipliers and multiplicands.
-
     final prefixAdd = ReductionTree(dotResults, addReduceAdders,
-        signExtend: true,
+        signExtend: _selectSignedProduct ?? _signedProduct,
         radix: treeRadix,
         name: 'dotproduct_reduction_tree',
         definitionName: 'DotProductReductionTree_W${multiplicands[0].width}_'
@@ -201,18 +211,35 @@ class GeneralDotProduct extends DotProductBase {
   /// Reduction tree adder generator for the final addition.
   Logic addReduceAdders(List<Logic> inputs,
       {int? depth, Logic? control, String name = 'prefix'}) {
-    if (inputs.length < 4) {
-      return inputs.reduce((v, e) => v + e);
-    } else {
-      final add0 = adderGen(inputs[0], inputs[1], name: '${name}_add0');
-      final add1 = adderGen(inputs[2], inputs[3], name: '${name}_add1');
-      final addf =
-          adderGen(add0.sum, add1.sum, name: '${name}_addf_${depth ?? 0}');
-      return addf.sum;
-    }
-  }
-}
+    var level = inputs;
+    var stage = 0;
+    while (level.length > 1) {
+      final nextLevel = <Logic>[];
+      for (var i = 0; i < level.length; i += 2) {
+        if (i + 1 == level.length) {
+          nextLevel.add(level[i]);
+          continue;
+        }
 
-// TODO(desmonddak): reduction tree needs dynamic sign extension control.
-// TODO(desmonddak):  dynamic parameter:  we should be able to pass the
-// null, bool, Logic() or the parameter itself to the constructor.
+        final inputWidth = level[i].width > level[i + 1].width
+            ? level[i].width
+            : level[i + 1].width;
+        final resultWidth = inputWidth + 1;
+        final a = _extendForSum(level[i], resultWidth);
+        final b = _extendForSum(level[i + 1], resultWidth);
+        final sum = adderGen(a, b, name: '${name}_s${stage}_add${i ~/ 2}').sum;
+        nextLevel.add(sum.slice(resultWidth - 1, 0));
+      }
+      level = nextLevel;
+      stage++;
+    }
+    return level.single;
+  }
+
+  Logic _extendForSum(Logic value, int width) => _selectSignedProduct == null
+      ? _signedProduct
+          ? value.signExtend(width)
+          : value.zeroExtend(width)
+      : mux(_selectSignedProduct!, value.signExtend(width),
+          value.zeroExtend(width));
+}

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sign_magnitude_adder.dart
@@ -31,7 +31,8 @@ abstract class SignMagnitudeAdderBase extends Adder {
   /// Inputs are (sign, magnitude) pairs: ([aSign], [a]) and ([bSign], [b]). If
   /// the caller can guarantee that the larger magnitude value is provided first
   SignMagnitudeAdderBase(this.aSign, super.a, this.bSign, super.b,
-      {super.reserveName,
+      {super.carryIn,
+      super.reserveName,
       super.reserveDefinitionName,
       String? definitionName,
       super.name = 'sign_magnitude_adder'})
@@ -72,12 +73,15 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
   ///   positive the [endAroundCarry] will hold that final +1 that needs to be
   ///   added. For subtractions that go negative, the [endAroundCarry] will be
   ///   '0'.
-  // TODO(desmonddak): this adder may need a carry-in for rounding
+  /// - [carryIn], if provided, is injected as an additional carry into the
+  ///   internal magnitude computation (e.g. to inject a rounding increment
+  ///   computed from bits discarded prior to this addition).
   SignMagnitudeAdder(super.aSign, super.a, super.bSign, super.b,
       {Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       this.largestMagnitudeFirst = false,
       bool generateEndAroundCarry = false,
+      super.carryIn,
       super.name = 'sign_magnitude_adder',
       super.reserveName,
       super.reserveDefinitionName,
@@ -101,7 +105,8 @@ class SignMagnitudeAdder extends SignMagnitudeAdderBase {
     final adder = OnesComplementAdder(
         mux(_sign & sub, ~a, a), mux(_sign & sub, ~b, b),
         generateEndAroundCarry: largestMagnitudeFirst & generateEndAroundCarry,
-        subtractIn: sub,
+        subtract: sub,
+        carryIn: carryIn,
         adderGen: adderGen);
     sum <= adder.sum;
     if (generateEndAroundCarry) {

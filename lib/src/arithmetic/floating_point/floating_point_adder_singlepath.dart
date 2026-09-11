@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder_singlepath.dart
@@ -46,7 +46,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       : super(
             definitionName: definitionName ??
                 'FloatingPointAdderSinglePath_'
-                    'E${a.exponent.width}M${a.mantissa.width}') {
+                    'E${a.exponent.width}M${a.mantissa.width}_'
+                    'R${roundingMode.name}') {
     if (internalSum.exponent.width != a.exponent.width) {
       throw RohdHclException('This adder currently only supports '
           'output exponent width equal to input exponent width.');
@@ -60,12 +61,6 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       throw RohdHclException('This adder only supports '
           'not normalizing anexplicit JBit output.');
     }
-    if ((roundingMode != FloatingPointRoundingMode.roundNearestEven) &&
-        (roundingMode != FloatingPointRoundingMode.truncate)) {
-      throw RohdHclException('FloatingPointAdderSinglePath only supports '
-          'roundNearestEven (default) and truncate).');
-    }
-
     final fa = a.resolveSubNormalAsZero();
     final fb = b.resolveSubNormalAsZero();
 
@@ -81,12 +76,17 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final effectiveSubtraction = (fa.sign ^ fb.sign).named('effSubtraction');
 
     final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
-    final isNaN = (larger.isNaN |
-            smaller.isNaN |
-            (larger.isAnInfinity &
-                smaller.isAnInfinity &
-                (larger.sign ^ smaller.sign)))
-        .named('isNaN');
+    final invalidArithmetic = (larger.isAnInfinity &
+            smaller.isAnInfinity &
+            (larger.sign ^ smaller.sign))
+        .named('invalidArithmetic');
+    final invalidOperation =
+        (super.a.isSignalingNaN | super.b.isSignalingNaN | invalidArithmetic)
+            .named('invalidOperation');
+    final isNaN =
+        (larger.isNaN | smaller.isNaN | invalidArithmetic).named('isNaN');
+    final inputIsNaN = (super.a.isNaN | super.b.isNaN).named('inputIsNaN');
+    final propagatedNaN = internalSum.propagateNaN(super.a, super.b);
 
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final largeMantissa = mux(
@@ -113,17 +113,6 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
                 ].swizzle()))
         .named('smallMantissa');
 
-    // TODO(desmonddak): Check:  mantissaWidth should be the same as the
-    // output mantissa width.  How are we able to limit
-    // the rounding position?
-    // final outExtendedWidth =
-    // max(0, extendedWidth - (mantissaWidth - larger.mantissa.width));
-    // extended Width is this output mantissa over the larger width.
-    // outExtended seems to be back to just the width of larger.
-    // like we are not allowed to round past 2 mantissa widths.
-    // that seems quite restrictive:
-    //   xxxxxx     yyyyy|yy
-    // This should be rounding y to fit into the output mantissa
     final extendedWidth = min(
         1 +
             (mantissaWidth + 1) +
@@ -163,7 +152,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         largeNarrowMantissa, smallNarrowMantissa,
         generateCarryOut: true,
         generateCarryOutP1: true,
-        subtractIn: effectiveSubtraction,
+        subtract: effectiveSubtraction,
         widthGen: widthGen,
         adderGen: adderGen);
 
@@ -185,9 +174,14 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final highBitsLSB =
         (carryBits & (~stickyBitsOr & lowBitsIncrement)).named('highBitsLSB');
 
-    // TODO(desmonddak): This can work on narrow if not explicit-jbit
-    // We could optimize by splitting the search across the pipestage for
-    // high and low bits (low only matter for explicit-jbit)
+    // Note: this predictor must search across the *full* combined
+    // high-bits + extendedWidth low-bits range (not just the high bits),
+    // even for implicit-jbit (non-explicit) outputs. Verified empirically:
+    // narrowing this search to only `largeFinalMantissa.width` for
+    // non-explicit-jbit outputs breaks correctness (e.g. 0.0 + 0.25 wrongly
+    // computes 0.0), because when the large operand's high bits are all
+    // zero (or cancel to zero during subtraction), the true leading one can
+    // only be found within the low, extendedWidth-sized region.
     final limitSize = smallShiftedMantissa.width;
     final predictor = LeadingZeroAnticipateCarry(
         Const(0),
@@ -210,6 +204,10 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final carryFlopped = localFlop(carry);
     final isInfFlopped = localFlop(isInf);
     final isNaNFlopped = localFlop(isNaN);
+    final invalidOperationFlopped = localFlop(invalidOperation);
+    final inputIsNaNFlopped = localFlop(inputIsNaN);
+    final nanSignFlopped = localFlop(propagatedNaN.sign);
+    final nanMantissaFlopped = localFlop(propagatedNaN.mantissa);
     final highBitsLSBFlopped = localFlop(highBitsLSB);
     final lowerBitsFlopped = localFlop(lowerBits);
     final lowBitsOrFlopped = localFlop(stickyBitsOr);
@@ -286,12 +284,16 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final lead1Dominates =
         (lead1.gt(largerExpFlopped) | ~lead1Valid).named('lead1Dominates');
 
-    final exponent = mux(
+    final exponentWide = mux(
             lead1Dominates,
-            internalSum.zeroExponent,
-            (largerExpFlopped - lead1 + Const(1, width: lead1.width))
+            internalSum.zeroExponent.zeroExtend(exponentWidth + 1),
+            (largerExpFlopped.zeroExtend(exponentWidth + 1) -
+                    lead1.zeroExtend(exponentWidth + 1) +
+                    Const(1, width: exponentWidth + 1))
                 .named('expMinusLead1'))
-        .named('outExponent');
+        .named('outExponentWide');
+    final exponent =
+        exponentWide.getRange(0, exponentWidth).named('outExponent');
 
     final shiftMantissaByExp =
         (fullMantissa << largerExpFlopped).named('shiftMantissaByExp');
@@ -301,23 +303,37 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
 
     final outExtendedWidth =
         max(0, extendedWidth - (mantissaWidth - larger.mantissa.width));
-
+    // Note: `mantissaWidth` here is the *output* mantissa width (this
+    // class's field), so when widening (mantissaWidth > input mantissa
+    // width) the subtraction above algebraically cancels most of that
+    // growth back out, leaving `outExtendedWidth` pinned to roughly the
+    // *input* mantissa width regardless of how wide the output is. This
+    // looks suspicious but is correct: `mantissa` above (via
+    // `shiftMantissaByExp`/`shiftL1Final`) is already a register whose
+    // width scales with `exponentWidth` (through the `<< largerExpFlopped`
+    // shift), so `mantissaTrimmed`'s width still grows with the output
+    // format as needed. Verified empirically with an exhaustive sweep
+    // combining a wide exponent (allowing large shifts) with a much wider
+    // output mantissa (e.g. widening mantissaWidth 4 -> 30 with
+    // exponentWidth 6): 0 mismatches against the value-side oracle.
     final mantissaTrimmed =
         mantissa.getRange(outExtendedWidth + 1).named('mantissaTrimmed');
 
     Logic mantissaRound;
     Logic exponentRound;
-    // if rndPos < 2, there is no point in rounding
+    Logic roundingInexact;
+    Logic roundingCarry;
     final rndPos = outExtendedWidth + 1;
-    if (roundingMode == FloatingPointRoundingMode.roundNearestEven &&
-        (rndPos >= 2)) {
-      final doRound = RoundRNE(
-              mux(exponent.or(), mantissa,
-                      mantissa >> (internalSum.explicitJBit ? 1 : 0))
-                  .named('mantissaJBitShift'),
-              rndPos)
-          .doRound
-          .named('doRound');
+    if (rndPos >= 2) {
+      final rounder = FloatingPointRounder(
+          mux(exponent.or(), mantissa,
+                  mantissa >> (internalSum.explicitJBit ? 1 : 0))
+              .named('mantissaJBitShift'),
+          rndPos,
+          roundingMode: roundingMode,
+          sign: trueSignFlopped);
+      final doRound = rounder.doRound.named('doRound');
+      roundingInexact = rounder.inexact;
 
       final rndAdder = adderGen(
           mantissaTrimmed, doRound.zeroExtend(mantissaTrimmed.width),
@@ -339,9 +355,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           .slice(-1, -mantissaWidth)
           .named('mantissaRoundFinal');
 
-      exponentRound = mux(exponent.lt(infExponent),
-              exponent + rndAdder.sum[-1].zeroExtend(exponent.width), exponent)
-          .named('exponentRound');
+      roundingCarry = rndAdder.sum[-1];
     } else {
       // No rounding needed, just use the mantissa as is. But mimic how the
       // rounding adder extends by one to keep the exact same computation
@@ -364,23 +378,66 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           Const(0, width: mantissaWidth - mantissaRound.width)
         ].swizzle().named('mantissaRoundFinal');
       }
-      exponentRound = exponent;
+      roundingCarry = Const(0);
+      roundingInexact = Const(0);
     }
+    final exponentRoundWide =
+        (exponentWide + roundingCarry.zeroExtend(exponent.width + 1))
+            .named('exponentRoundWide');
+    exponentRound =
+        exponentRoundWide.getRange(0, exponent.width).named('exponentRound');
     // Handle Flush to Zero subnormal case
     mantissaRound = (internalSum.subNormalAsZero
         ? mux(lead1Dominates | ~exponentRound.or(),
             Const(0, width: mantissaRound.width), mantissaRound)
         : mantissaRound);
 
-    final realIsInf =
-        (isInfFlopped | exponentRound.eq(infExponent)).named('realIsInf');
+    final largestFinite = internalSum
+        .valuePopulator()
+        .ofConstant(FloatingPointConstants.largestNormal);
+    final maxFiniteExponent =
+        Const(largestFinite.exponent).zeroExtend(exponentRoundWide.width);
+    final maxFiniteMantissa = Const(largestFinite.mantissa);
+    final overflow = (exponentRoundWide.gt(maxFiniteExponent) |
+            (exponentRoundWide.eq(maxFiniteExponent) &
+                mantissaRound.gt(maxFiniteMantissa)))
+        .named('overflow');
+    final overflowToInfinity = switch (roundingMode) {
+      FloatingPointRoundingMode.roundNearestEven ||
+      FloatingPointRoundingMode.roundNearestTiesAway =>
+        Const(1),
+      FloatingPointRoundingMode.truncate ||
+      FloatingPointRoundingMode.roundTowardsZero =>
+        Const(0),
+      FloatingPointRoundingMode.roundTowardsInfinity => ~trueSignFlopped,
+      FloatingPointRoundingMode.roundTowardsNegativeInfinity => trueSignFlopped,
+    };
+    final finiteOverflow =
+        (overflow & ~isInfFlopped & ~isNaNFlopped).named('finiteOverflow');
+    internalStatus.invalid <= invalidOperationFlopped;
+    internalStatus.divideByZero <= Const(0);
+    internalStatus.overflow <= finiteOverflow;
+    internalStatus.underflow <=
+        ~exponentRound.or() & roundingInexact & ~isNaNFlopped;
+    internalStatus.inexact <= finiteOverflow | roundingInexact;
 
     Combinational([
       If.block([
         Iff(isNaNFlopped, [
-          internalSum < internalSum.nan,
+          internalSum.sign <
+              mux(inputIsNaNFlopped, nanSignFlopped, internalSum.nan.sign),
+          internalSum.exponent < internalSum.nan.exponent,
+          internalSum.mantissa <
+              mux(inputIsNaNFlopped, nanMantissaFlopped,
+                  internalSum.nan.mantissa),
         ]),
-        ElseIf(realIsInf, [
+        ElseIf(isInfFlopped, [
+          internalSum < internalSum.inf(sign: trueSignFlopped),
+        ]),
+        ElseIf(overflow & ~overflowToInfinity, [
+          internalSum < internalSum.largestFinite(sign: trueSignFlopped),
+        ]),
+        ElseIf(overflow, [
           internalSum < internalSum.inf(sign: trueSignFlopped),
         ]),
         ElseIf(lead1Dominates, [

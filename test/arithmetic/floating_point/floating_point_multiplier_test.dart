@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_multiplier_test.dart
@@ -14,6 +14,13 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
+
+/// Computes the exact truncated product of [fv1] and [fv2] in [fpOut]'s format.
+FloatingPointValue _expectedProduct(
+        FloatingPoint fpOut, FloatingPointValue fv1, FloatingPointValue fv2) =>
+    fpOut
+        .valuePopulator()
+        .multiply(fv1, fv2, roundingMode: FloatingPointRoundingMode.truncate);
 
 void main() {
   tearDown(() async {
@@ -37,9 +44,7 @@ void main() {
         for (var e2 = 0; e2 < expLimit; e2++) {
           final fv1 = fp1.valuePopulator().ofInts(e1, 0);
           final fv2 = fp2.valuePopulator().ofInts(e2, 0);
-          final expected = fp1
-              .valuePopulator()
-              .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+          final expected = _expectedProduct(fp1, fv1, fv2);
 
           fp1.put(fv1.value);
           fp2.put(fv2.value);
@@ -108,9 +113,7 @@ void main() {
         final fv1 = test.$1;
         final fv2 = test.$2;
 
-        final expected = fp1
-            .valuePopulator()
-            .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+        final expected = _expectedProduct(fp1, fv1, fv2);
 
         fp1.put(fv1.value);
         fp2.put(fv2.value);
@@ -124,6 +127,55 @@ void main() {
       $computed (${computed.toDouble()})\tcomputed
       $expected (${expected.toDouble()})\texpected
 ''');
+        }
+      }
+    });
+
+    test('FP: multiplier special values do not report inexact', () {
+      final a = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+      final b = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+      final multiplier = FloatingPointMultiplierSimple(a, b);
+
+      a.put(a.valuePopulator().positiveInfinity);
+      b.put(b.valuePopulator().one);
+      expect(multiplier.product.floatingPointValue.isAnInfinity, isTrue);
+      expect(multiplier.status.inexact.value.toBool(), isFalse);
+
+      a.put(a.valuePopulator().nan);
+      b.put(b.valuePopulator().one);
+      expect(multiplier.product.floatingPointValue.isNaN, isTrue);
+      expect(multiplier.status.inexact.value.toBool(), isFalse);
+    });
+
+    test('FP: simple multiplier supports every rounding mode', () {
+      const exponentWidth = 5;
+      const mantissaWidth = 6;
+      FloatingPointValuePopulator populator() => FloatingPointValue.populator(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final random = Random(0x754);
+
+      for (final mode in FloatingPointRoundingMode.values) {
+        final a = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final b = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final multiplier =
+            FloatingPointMultiplierSimple(a, b, roundingMode: mode);
+
+        for (var iteration = 0; iteration < 150; iteration++) {
+          final aValue = populator().random(random);
+          final bValue = populator().random(random);
+          a.put(aValue);
+          b.put(bValue);
+
+          final actual = multiplier.product.floatingPointValue;
+          final expected =
+              populator().multiply(aValue, bValue, roundingMode: mode);
+          expect(actual.isNaN, expected.isNaN,
+              reason: 'mode=$mode a=$aValue b=$bValue');
+          if (!expected.isNaN) {
+            expect(actual, expected, reason: 'mode=$mode a=$aValue b=$bValue');
+          }
         }
       }
     });
@@ -151,9 +203,7 @@ void main() {
                 final fv2 =
                     fp2.valuePopulator().ofInts(e2, m2, sign: subtract == 1);
 
-                final expected = fp1
-                    .valuePopulator()
-                    .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+                final expected = _expectedProduct(fp1, fv1, fv2);
 
                 fp1.put(fv1.value);
                 fp2.put(fv2.value);
@@ -194,9 +244,7 @@ void main() {
         fp1.put(fv1);
         fp2.put(fv2);
 
-        final expected = fp1
-            .valuePopulator()
-            .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+        final expected = _expectedProduct(fp1, fv1, fv2);
         final computed = multiplier.product.floatingPointValue;
         expect(computed.isNaN, equals(expected.isNaN));
         if (!computed.isNaN) {
@@ -234,9 +282,7 @@ void main() {
         fp1.put(fv1);
         fp2.put(fv2);
 
-        final expected = fp1
-            .valuePopulator()
-            .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+        final expected = _expectedProduct(fp1, fv1, fv2);
         final computed = multiplier.product.floatingPointValue;
         expect(computed.isNaN, equals(expected.isNaN));
         if (!computed.isNaN) {
@@ -262,8 +308,7 @@ void main() {
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
       final fv2 = fp2.valuePopulator().ofBinaryStrings('1', '1100', '0000');
 
-      final doubleProduct = fv1.toDouble() * fv2.toDouble();
-      final expected = fp1.valuePopulator().ofDoubleUnrounded(doubleProduct);
+      final expected = _expectedProduct(fp1, fv1, fv2);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
@@ -291,12 +336,12 @@ void main() {
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
       final fv2 = fp2.valuePopulator().ofBinaryStrings('1', '0001', '0001');
 
-      final doubleProduct = fv1.toDouble() * fv2.toDouble();
-
       final fpOut =
           FloatingPoint(exponentWidth: 5, mantissaWidth: mantissaWidth * 5);
 
-      final expected = fpOut.valuePopulator().ofDoubleUnrounded(doubleProduct);
+      final expected = fpOut
+          .valuePopulator()
+          .multiply(fv1, fv2, roundingMode: FloatingPointRoundingMode.truncate);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
@@ -327,11 +372,11 @@ void main() {
       final fv2 =
           fp2.valuePopulator().ofBinaryStrings('1', '01100010', '1110000');
 
-      final doubleProduct = fv1.toDouble() * fv2.toDouble();
-
       final fpOut = FloatingPoint(exponentWidth: 8, mantissaWidth: 14);
 
-      final expected = fpOut.valuePopulator().ofDoubleUnrounded(doubleProduct);
+      final expected = fpOut
+          .valuePopulator()
+          .multiply(fv1, fv2, roundingMode: FloatingPointRoundingMode.truncate);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
@@ -342,7 +387,7 @@ void main() {
       await multiply.build();
       final computed = multiply.product.floatingPointValue;
 
-      expect(computed.withinRounding(expected), true, reason: '''
+      expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
@@ -364,13 +409,14 @@ void main() {
 
       expect(
           result.floatingPointValue,
-          out.valuePopulator().ofDouble(a.floatingPointValue.toDouble() *
-              b.floatingPointValue.toDouble()));
+          out.valuePopulator().multiply(
+              a.floatingPointValue, b.floatingPointValue,
+              roundingMode: FloatingPointRoundingMode.truncate));
     });
 
     test('FP: simple multiplier wide random', () async {
-      const exponentWidth = 8;
-      const mantissaWidth = 7;
+      const exponentWidth = 5;
+      const mantissaWidth = 5;
 
       final fp1 = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -396,13 +442,11 @@ void main() {
         fp1.put(fv1);
         fp2.put(fv2);
 
-        final expected = fpofpOutt
-            .valuePopulator()
-            .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+        final expected = _expectedProduct(fpofpOutt, fv1, fv2);
         final computed = multiplier.product.floatingPointValue;
         expect(computed.isNaN, equals(expected.isNaN));
         if (!computed.isNaN) {
-          expect(computed.withinRounding(expected), true, reason: '''
+          expect(computed, equals(expected), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
@@ -441,9 +485,7 @@ void main() {
             fp1.put(fv1);
             fp2.put(fv2);
 
-            final expected = fpOut
-                .valuePopulator()
-                .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+            final expected = _expectedProduct(fpOut, fv1, fv2);
             final computed = multiplier.product.floatingPointValue;
             expect(computed.isNaN, equals(expected.isNaN));
             if (!computed.isNaN) {
@@ -458,6 +500,112 @@ void main() {
           }
         }
       }
+    });
+
+    test('FP: simple multiplier narrows to smaller exponent and mantissa', () {
+      // Regression test for issue #194: the product format may be narrower
+      // than the inputs in both exponent and mantissa width.
+      const exponentWidth = 5;
+      const mantissaWidth = 6;
+
+      final fp1 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fp2 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      fp1.put(0);
+      fp2.put(0);
+
+      for (final outSpec in [(3, 2), (3, 4), (4, 3)]) {
+        for (final mode in FloatingPointRoundingMode.values) {
+          final fpOut = FloatingPoint(
+              exponentWidth: outSpec.$1, mantissaWidth: outSpec.$2);
+          // ignore: cascade_invocations
+          fpOut.put(0);
+          final multiplier = FloatingPointMultiplierSimple(fp1, fp2,
+              outProduct: fpOut, roundingMode: mode);
+
+          final rand = Random(2024);
+          for (var iteration = 0; iteration < 100; iteration++) {
+            final fv1 = fp1.valuePopulator().random(rand);
+            final fv2 = fp2.valuePopulator().random(rand);
+            fp1.put(fv1);
+            fp2.put(fv2);
+
+            final expected =
+                fpOut.valuePopulator().multiply(fv1, fv2, roundingMode: mode);
+            final computed = multiplier.product.floatingPointValue;
+            expect(computed.isNaN, equals(expected.isNaN),
+                reason: 'outSpec=$outSpec mode=$mode fv1=$fv1 fv2=$fv2');
+            if (!computed.isNaN) {
+              expect(computed, equals(expected), reason: '''
+outSpec=$outSpec mode=$mode
+      $fv1 (${fv1.toDouble()})\t*
+      $fv2 (${fv2.toDouble()})\t=
+      $computed (${computed.toDouble()})\tcomputed
+      $expected (${expected.toDouble()})\texpected
+''');
+            }
+          }
+        }
+      }
+    });
+
+    test(
+        'FP: simple multiplier by exact zero produces exact zero '
+        'with wider output exponent', () {
+      // Regression test: multiplying by an exact zero operand must produce
+      // an exact-zero result (mantissa and exponent both zero) even when
+      // the product's exponent field is wider than the inputs'.
+      const exponentWidth = 5;
+      const mantissaWidth = 6;
+
+      final fp1 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fp2 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fv1 = fp1.valuePopulator().ofBinaryStrings('1', '00000', '000000');
+      final fv2 = fp2.valuePopulator().ofBinaryStrings('0', '01110', '110001');
+      fp1.put(0);
+      fp2.put(0);
+
+      for (final outExpWidth in [3, 4, 5, 6, 7, 8]) {
+        final fpOut =
+            FloatingPoint(exponentWidth: outExpWidth, mantissaWidth: 6);
+        // ignore: cascade_invocations
+        fpOut.put(0);
+        final multiplier =
+            FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpOut);
+        fp1.put(fv1);
+        fp2.put(fv2);
+
+        final computed = multiplier.product.floatingPointValue;
+        expect(computed.isAZero, isTrue,
+            reason: 'outExpWidth=$outExpWidth computed=$computed');
+        expect(computed.sign.toBool(), isTrue,
+            reason: 'outExpWidth=$outExpWidth computed=$computed');
+      }
+    });
+
+    test(
+        'FP: simple multiplier subnormal rounding tracks all shifted-out '
+        'sticky bits', () {
+      const exponentWidth = 5;
+      const mantissaWidth = 6;
+
+      final fp1 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fp2 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final multiplier = FloatingPointMultiplierSimple(fp1, fp2,
+          roundingMode: FloatingPointRoundingMode.roundNearestEven);
+      final fv1 = fp1.valuePopulator().ofBinaryStrings('0', '00100', '100001');
+      final fv2 = fp2.valuePopulator().ofBinaryStrings('0', '00100', '010101');
+      fp1.put(fv1);
+      fp2.put(fv2);
+
+      final expected = fp1.valuePopulator().multiply(fv1, fv2,
+          roundingMode: FloatingPointRoundingMode.roundNearestEven);
+      expect(multiplier.product.floatingPointValue, equals(expected));
     });
 
     test('FP: simple multiplier singleton pipelined', () async {
@@ -475,7 +623,7 @@ void main() {
 
       final expected = fp1
           .valuePopulator()
-          .ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+          .multiply(fv1, fv2, roundingMode: FloatingPointRoundingMode.truncate);
 
       fp1.put(fv1.value);
       fp2.put(fv2.value);
@@ -510,22 +658,16 @@ void main() {
         fp2.put(fv2);
         final computed = dut.product.floatingPointValue;
 
-        final expectedDouble = fp1.floatingPointValue.toDouble() *
-            fp2.floatingPointValue.toDouble();
-        final expectedNoRound =
-            FloatingPoint32Value.populator().ofDoubleUnrounded(expectedDouble);
+        final expectedNoRound = _expectedProduct(fp1, fv1, fv2);
         expect(computed.isNaN, equals(expectedNoRound.isNaN));
 
-        if (computed.isNaN) {
-          // If the error is due to a rounding error, then ignore
-          if (!computed.withinRounding(expectedNoRound)) {
-            expect(computed, equals(expectedNoRound), reason: '''
+        if (!computed.isNaN) {
+          expect(computed, equals(expectedNoRound), reason: '''
       $fv1 (${fv1.toDouble()})\t*
       $fv2 (${fv2.toDouble()})\t=
       $computed (${computed.toDouble()})\tcomputed
       $expectedNoRound (${expectedNoRound.toDouble()})\texpected
 ''');
-          }
         }
       }
     });
@@ -543,8 +685,9 @@ void main() {
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fv2 = fp2.valuePopulator().ofBinaryStrings('0', '1101', '0101');
 
-    final expected =
-        fp1.valuePopulator().ofDoubleUnrounded(fv1.toDouble() * fv2.toDouble());
+    final expected = fp1
+        .valuePopulator()
+        .multiply(fv1, fv2, roundingMode: FloatingPointRoundingMode.truncate);
 
     fp1.put(fv1.value);
     fp2.put(fv2.value);

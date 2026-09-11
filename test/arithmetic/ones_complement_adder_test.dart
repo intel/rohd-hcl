@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // ones_complement_adder_test.dart
@@ -164,7 +164,7 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              subtractIn: subtractIn,
+              subtract: subtractIn,
               generateEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
           final carry = adder.endAroundCarry!;
