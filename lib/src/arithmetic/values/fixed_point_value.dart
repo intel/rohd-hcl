@@ -97,8 +97,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
           bool signed = true}) =>
       FixedPointValuePopulator(
           FixedPointValue.uninitializedWithSignedness(signed: signed)
-        ..integerWidth = integerWidth
-        ..fractionWidth = fractionWidth);
+            ..integerWidth = integerWidth
+            ..fractionWidth = fractionWidth);
 
   /// Creates a [FixedPointValuePopulator] for the same type as `this` and
   /// with the same widths.
@@ -107,9 +107,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// [FixedPointValuePopulator] is returned for generating equivalent types
   /// of [FixedPointValue]s.
   @mustBeOverridden
-  FixedPointValuePopulator clonePopulator() =>
-      FixedPointValuePopulator(
-          FixedPointValue.uninitializedWithSignedness(signed: signed)
+  FixedPointValuePopulator clonePopulator() => FixedPointValuePopulator(
+      FixedPointValue.uninitializedWithSignedness(signed: signed)
         ..integerWidth = integerWidth
         ..fractionWidth = fractionWidth);
 
