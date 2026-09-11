@@ -137,17 +137,68 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final roundedMantissa = mux(roundIncExp, roundedSignificand.slice(-2, 1),
             roundedSignificand.slice(-3, 0))
         .named('roundedMantissa');
-    final resultExponent =
+    final roundedExponent =
         (shiftedExp + bias + roundIncExp.zeroExtend(exponentCalcWidth))
-            .getRange(0, exponentWidth)
-            .named('resultExponent');
+            .named('roundedExponent');
+
+    // A negative biased exponent cannot be represented in the exponent field.
+    // Shift the unrounded significand into the subnormal range and round it
+    // there instead of truncating the negative exponent to its low bits.
+    final isSubnormal = roundedExponent[-1].named('isSubnormal');
+    final subnormalShift =
+        (Const(1, width: exponentCalcWidth) - roundedExponent)
+            .named('subnormalShift');
+    final subnormalShiftLimit =
+        Const(a.mantissa.width + 1, width: exponentCalcWidth);
+    final selectedSubnormalShift = mux(subnormalShift.gt(subnormalShiftLimit),
+            subnormalShiftLimit, subnormalShift)
+        .named('selectedSubnormalShift');
+    final subnormalCandidates =
+        <({Logic mantissa, Logic carry, Logic inexact})>[];
+    for (var shift = 1; shift <= a.mantissa.width + 1; shift++) {
+      final subnormalInput = [Const(0, width: shift), retainedSignificand]
+          .swizzle()
+          .named('subnormalInput$shift');
+      final subnormalRounder = FloatingPointRounder(subnormalInput, shift,
+          roundingMode: roundingMode, sign: a.sign, extraSticky: inexact);
+      final retained =
+          subnormalInput.slice(shift + a.mantissa.width - 1, shift);
+      final rounded = (retained.zeroExtend(retained.width + 1) +
+              subnormalRounder.doRound.zeroExtend(retained.width + 1))
+          .named('subnormalRounded$shift');
+      subnormalCandidates.add((
+        mantissa: rounded.slice(a.mantissa.width - 1, 0),
+        carry: rounded[-1],
+        inexact: subnormalRounder.inexact
+      ));
+    }
+    var subnormalMantissa = subnormalCandidates.last.mantissa;
+    var subnormalCarry = subnormalCandidates.last.carry;
+    var subnormalInexact = subnormalCandidates.last.inexact;
+    for (var shift = subnormalCandidates.length - 1; shift >= 1; shift--) {
+      final candidate = subnormalCandidates[shift - 1];
+      final selected =
+          selectedSubnormalShift.eq(Const(shift, width: exponentCalcWidth));
+      subnormalMantissa = mux(selected, candidate.mantissa, subnormalMantissa);
+      subnormalCarry = mux(selected, candidate.carry, subnormalCarry);
+      subnormalInexact = mux(selected, candidate.inexact, subnormalInexact);
+    }
+    final resultExponent = mux(
+            isSubnormal,
+            subnormalCarry.zeroExtend(exponentWidth),
+            roundedExponent.getRange(0, exponentWidth))
+        .named('resultExponent');
+    final resultMantissa = mux(isSubnormal, subnormalMantissa,
+            roundedMantissa.slice(a.mantissa.width - 1, 0))
+        .named('resultMantissa');
     final invalidOperation = (a.isSignalingNaN | (a.sign & ~isZero & ~isNaN))
         .named('invalidOperation');
     internalStatus.invalid <= invalidOperation;
     internalStatus.divideByZero <= Const(0);
     internalStatus.overflow <= Const(0);
     internalStatus.underflow <= Const(0);
-    internalStatus.inexact <= inexact & ~isInf & ~isNaN & ~a.sign;
+    internalStatus.inexact <=
+        mux(isSubnormal, subnormalInexact, inexact) & ~isInf & ~isNaN & ~a.sign;
 
     // final calculation results
     Combinational([
@@ -175,7 +226,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
         Else([
           outputSqrt.sign < a.sign,
           outputSqrt.exponent < resultExponent,
-          outputSqrt.mantissa < roundedMantissa,
+          outputSqrt.mantissa < resultMantissa,
         ])
       ])
     ]);

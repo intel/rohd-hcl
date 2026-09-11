@@ -954,6 +954,20 @@ void main() {
     expect(populator().ofInts(1, 1).isLegalValue(), isFalse);
   });
 
+  test('FPV: explicit j-bit NaN includes a quiet payload bit', () {
+    final populator = FloatingPointValue.populator(
+        exponentWidth: 4, mantissaWidth: 4, explicitJBit: true);
+    final nan = populator.ofConstant(FloatingPointConstants.nan);
+
+    expect(nan.isNaN, isTrue);
+    expect(nan.isQuietNaN, isTrue);
+    expect(nan.mantissa.toInt(), equals(12));
+    expect(
+        () => FloatingPointValue.populator(
+            exponentWidth: 4, mantissaWidth: 1, explicitJBit: true),
+        throwsArgumentError);
+  });
+
   group('FPV: j-bit conversion', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;

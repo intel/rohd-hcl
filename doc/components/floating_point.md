@@ -123,14 +123,17 @@ A second `FloatingPointAdderDualPath` component is available which is optimized 
 
 ## FloatingPointSqrt
 
-A very basic [FloatingPointSqrtSimple] component is available which does not perform any
-rounding and does not support DeNorm numbers. It also only operates on variable mantissas of an odd value (1,3,5,etc.) but these odd mantissas can be of variable length up to 51. It takes one
-[FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) and
-performs a square root on it, returning the [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) value on the output.
-
-Currently, the [FloatingPointSqrtSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointSqrtSimple-class.html) is close in accuracy (as it has no rounding) and is not
-optimized for circuit performance, but provides the key functionalities of floating-point square root. Still, this component is a starting point for more realistic
-floating-point components that leverage the the logical [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) and literal [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) type abstractions.
+The [FloatingPointSqrtSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointSqrtSimple-class.html)
+component computes a square root with the selected `FloatingPointRoundingMode`.
+It accepts normal and subnormal inputs, produces correctly rounded normal or
+subnormal outputs, and supports both odd and even mantissa widths. It also
+handles the floating-point special values defined by the input format. The
+component is not optimized for circuit performance, but provides the key
+functional behavior of floating-point square root using the logical
+[FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html)
+and literal
+[FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html)
+type abstractions.
 
 ## FloatingPointMultiplier
 

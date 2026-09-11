@@ -458,7 +458,10 @@ class GenericMultiplyAccumulate extends MultiplyAccumulate {
         adder.sum.slice(commonWidth - 1, 0).named('naturalResult');
     final rawResult = condFlop(clk, naturalResult, reset: reset, en: enable)
         .named('rawResult');
+    final rawIsAccumulateSigned =
+        condFlop(clk, isAccumulateSigned, reset: reset, en: enable)
+            .named('rawIsAccumulateSigned');
 
-    accumulate <= fitAccumulateWidth(rawResult, signed: isAccumulateSigned);
+    accumulate <= fitAccumulateWidth(rawResult, signed: rawIsAccumulateSigned);
   }
 }

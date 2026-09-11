@@ -198,6 +198,24 @@ ${expError.value} expected''');
     }
   });
 
+  test('FP: square root preserves E3M5 subnormal output exponent', () {
+    const exponentWidth = 3;
+    const mantissaWidth = 5;
+    final inputPopulator = FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final input = inputPopulator.ofInts(0, 1);
+    final expected = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .squareRoot(input);
+    final fp = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final sqrtDut = FloatingPointSqrtSimple(fp);
+
+    fp.put(input);
+    expect(sqrtDut.sqrt.floatingPointValue, equals(expected));
+    expect(sqrtDut.sqrt.exponent.value.toInt(), equals(0));
+  });
+
   test('FP: random number sqrt', () {
     const exponentWidth = 3;
     const mantissaWidth = 5;

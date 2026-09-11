@@ -234,8 +234,8 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   ///   [OnesComplementAdder].
   /// - [subtract] configures subtraction statically with a `bool` or at runtime
   ///   with a 1-bit [Logic]. It defaults to addition.
-  /// - [subtractIn] is a deprecated runtime subtraction control. Do not provide
-  ///   it with [subtract].
+  /// - [subtractIn] is a deprecated runtime subtraction control. It may be
+  ///   provided with an explicit `subtract: false` for compatibility.
   /// - [generateCarryOut] set to `true` will create output [carryOut] and
   ///   employ the ones-complement optimization of not adding '1' to convert
   ///   back to 2s complement during subtraction on the [sum].
@@ -261,7 +261,9 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       : super(
             definitionName: definitionName ??
                 'CarrySelectOnesComplementCompoundAdder_W${a.width}') {
-    if (subtractIn != null && subtract != null) {
+    final subtractIsActive =
+        subtract != null && (subtract is! bool || subtract);
+    if (subtractIn != null && subtractIsActive) {
       throw RohdHclException(
           "Provide either deprecated 'subtractIn' or 'subtract', "
           'but not both.');
