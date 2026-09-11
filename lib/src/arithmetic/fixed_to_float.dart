@@ -51,7 +51,8 @@ class FixedToFloat extends Module {
       : super(
             definitionName: definitionName ??
                 'Fixed${fixed.width}ToFloat_E${outFloat.exponent.width}'
-                    'M${outFloat.mantissa.width}') {
+                    'M${outFloat.mantissa.width}_'
+                    'R${roundingMode.name}') {
     fixed = addTypedInput('fixed', fixed);
 
     final fixedAsLogic = fixed.packed;

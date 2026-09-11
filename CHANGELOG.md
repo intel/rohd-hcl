@@ -5,6 +5,10 @@
 - `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an implicit-J-bit format or normalize the input before connecting it to the square-root component.
 - Explicit-J-bit NaN construction now requires at least one payload bit in addition to the J bit. Formats with a one-bit explicit mantissa are rejected because they cannot encode a quiet-NaN payload.
 - Automatic definition names for `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now include the effective `outputWidth`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `FixedToFloat` definition names now include `roundingMode` so
+  converters with different rounding logic cannot share an HDL definition.
+- Automatic `FloatingPointAdderSinglePath` definition names now include
+  `roundingMode` for the same reason.
 
 ### Deprecated APIs
 

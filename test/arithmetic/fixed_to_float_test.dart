@@ -41,6 +41,16 @@ void main() async {
     }
   });
 
+  test('FixedToFloat definition names include rounding mode', () {
+    final fixed = FixedPoint(integerWidth: 2, fractionWidth: 4);
+    final output = FloatingPoint(exponentWidth: 4, mantissaWidth: 2);
+    final nearest = FixedToFloat(fixed, output);
+    final towardsZero = FixedToFloat(fixed, output,
+        roundingMode: FloatingPointRoundingMode.roundTowardsZero);
+
+    expect(nearest.definitionName, isNot(towardsZero.definitionName));
+  });
+
   test('FixedToFloat: exact signed and unsigned layout coverage', () {
     for (final signed in [false, true]) {
       final layouts = signed

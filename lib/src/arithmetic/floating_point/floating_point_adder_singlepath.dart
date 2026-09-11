@@ -46,7 +46,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       : super(
             definitionName: definitionName ??
                 'FloatingPointAdderSinglePath_'
-                    'E${a.exponent.width}M${a.mantissa.width}') {
+                    'E${a.exponent.width}M${a.mantissa.width}_'
+                    'R${roundingMode.name}') {
     if (internalSum.exponent.width != a.exponent.width) {
       throw RohdHclException('This adder currently only supports '
           'output exponent width equal to input exponent width.');
