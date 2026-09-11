@@ -159,4 +159,49 @@ void main() {
     }
     await Simulator.endSimulation();
   });
+
+  test('GenericMultiplyAccumulate pipelines runtime signedness with result',
+      () async {
+    const width = 3;
+    const outputWidth = 8;
+    final a = Logic(name: 'a', width: width);
+    final b = Logic(name: 'b', width: width);
+    final c = Logic(name: 'c', width: width * 2);
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic(name: 'reset');
+    final signedOperands = Logic(name: 'signedOperands');
+    final signedConfig = StaticOrRuntimeParameter(
+        name: 'signedOperands', runtimeConfig: signedOperands);
+    final mac = GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
+        clk: clk,
+        reset: reset,
+        outputWidth: outputWidth,
+        signedAddend: signedConfig);
+    await mac.build();
+
+    unawaited(Simulator.run());
+
+    reset.put(1);
+    signedOperands.put(0);
+    await clk.nextPosedge;
+    reset.put(0);
+
+    a.put(7);
+    b.put(7);
+    c.put(15);
+    signedOperands.put(0);
+    await clk.nextPosedge;
+    await clk.nextNegedge;
+    expect(mac.accumulate.value.toInt(), equals(64));
+
+    // Change the mode after the result register updates. The current result
+    // must retain the mode that was active when it was captured.
+    signedOperands.put(1);
+    expect(mac.accumulate.value.toInt(), equals(64));
+    await clk.nextPosedge;
+    await clk.nextNegedge;
+    expect(mac.accumulate.value.toInt(), equals(192));
+
+    await Simulator.endSimulation();
+  });
 }
