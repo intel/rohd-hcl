@@ -208,6 +208,23 @@ class FixedToFloat extends Module {
         (eRawRne[-1] | ~eRawRne.or()).named('expLessThanOne');
     final expoMoreThanMax =
         (~eRawRne[-1] & (eRawRne.gt(eMax))).named('expMoreThanMax');
+    final overflowToInfinity = outFloat.supportsInfinities
+        ? switch (roundingMode) {
+            FloatingPointRoundingMode.roundNearestEven ||
+            FloatingPointRoundingMode.roundNearestTiesAway =>
+              Const(1),
+            FloatingPointRoundingMode.truncate ||
+            FloatingPointRoundingMode.roundTowardsZero =>
+              Const(0),
+            FloatingPointRoundingMode.roundTowardsInfinity =>
+              ~_convertedFloat.sign,
+            FloatingPointRoundingMode.roundTowardsNegativeInfinity =>
+              _convertedFloat.sign,
+          }
+        : Const(0);
+    final largestFinite = _convertedFloat
+        .valuePopulator()
+        .ofConstant(FloatingPointConstants.largestNormal);
     Combinational([
       If.block([
         Iff(~absValue.or(), [
@@ -215,11 +232,14 @@ class FixedToFloat extends Module {
           _convertedFloat.exponent < Const(0, width: exponentWidth),
           _convertedFloat.mantissa < Const(0, width: float.mantissa.width),
         ]),
-        ElseIf(expoMoreThanMax, [
-          // Infinity
+        ElseIf(expoMoreThanMax & overflowToInfinity, [
           _convertedFloat.exponent <
               LogicValue.filled(exponentWidth, LogicValue.one),
           _convertedFloat.mantissa < Const(0, width: float.mantissa.width),
+        ]),
+        ElseIf(expoMoreThanMax, [
+          _convertedFloat.exponent < Const(largestFinite.exponent),
+          _convertedFloat.mantissa < Const(largestFinite.mantissa),
         ]),
         ElseIf(expoLessThanOne, [
           // Subnormal

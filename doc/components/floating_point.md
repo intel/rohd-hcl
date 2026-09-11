@@ -128,8 +128,9 @@ component computes a square root with the selected `FloatingPointRoundingMode`.
 It accepts normal and subnormal inputs, produces correctly rounded normal or
 subnormal outputs, and supports both odd and even mantissa widths. It also
 handles the floating-point special values defined by the input format. The
-component is not optimized for circuit performance, but provides the key
-functional behavior of floating-point square root using the logical
+component currently requires the implicit-J-bit representation; explicit-J-bit
+inputs are not supported. It is not optimized for circuit performance, but
+provides the key functional behavior of floating-point square root using the logical
 [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html)
 and literal
 [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html)
