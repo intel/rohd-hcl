@@ -55,6 +55,26 @@ void main() {
     }
   });
 
+  test('MAC definition names include the effective output width', () {
+    final a = Logic(width: 3);
+    final b = Logic(width: 3);
+    final c = Logic(width: 6);
+
+    final genericNarrow = GenericMultiplyAccumulate(
+        a, b, c, NativeMultiplier.new,
+        outputWidth: 7);
+    final genericWide = GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
+        outputWidth: 8);
+    final compressionNarrow =
+        CompressionTreeMultiplyAccumulate(a, b, c, outputWidth: 7);
+    final compressionWide =
+        CompressionTreeMultiplyAccumulate(a, b, c, outputWidth: 8);
+
+    expect(genericNarrow.definitionName, isNot(genericWide.definitionName));
+    expect(compressionNarrow.definitionName,
+        isNot(compressionWide.definitionName));
+  });
+
   test('StaticOrRuntimeParameter rejects wide runtime configurations', () {
     for (final config in [
       () => StaticOrRuntimeParameter(
@@ -200,7 +220,7 @@ void main() {
     expect(mac.accumulate.value.toInt(), equals(64));
     await clk.nextPosedge;
     await clk.nextNegedge;
-    expect(mac.accumulate.value.toInt(), equals(192));
+    expect(mac.accumulate.value.toInt(), equals(64));
 
     await Simulator.endSimulation();
   });

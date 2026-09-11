@@ -146,7 +146,8 @@ abstract class MultiplyAccumulate extends Module {
       : super(
             definitionName: definitionName ??
                 'MultiplyAccumulate_W${a.width}x${b.width}_'
-                    'Acc${c.width}') {
+                    'Acc${c.width}_Out'
+                    '${outputWidth ?? (a.width + b.width + 1)}') {
     if (outputWidth != null && outputWidth <= 0) {
       throw RohdHclException(
           'outputWidth must be positive when provided, got $outputWidth.');
@@ -255,6 +256,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
       : super(
             definitionName: definitionName ??
                 'CompressionTreeMAC_W${a.width}x${b.width}_Acc${c.width}_'
+                    'Out${outputWidth ?? (a.width + b.width + 1)}_'
                     '${MultiplyAccumulate.signedAD(signedAddend)}') {
     final ppg = PartialProductGenerator(
       a,
@@ -412,7 +414,8 @@ class GenericMultiplyAccumulate extends MultiplyAccumulate {
   }) : super(
             definitionName: definitionName ??
                 'GenericMultiplyAccumulate_W${a.width}x${b.width}_'
-                    'Acc${c.width}') {
+                    'Acc${c.width}_Out'
+                    '${outputWidth ?? (a.width + b.width + 1)}') {
     // Copy the configuration using this module's internal runtime input.
     final multiply = mulGen(a, b,
         signedMultiplicand: StaticOrRuntimeParameter(
@@ -433,11 +436,11 @@ class GenericMultiplyAccumulate extends MultiplyAccumulate {
     final productSigned = multiply.isProductSigned;
     final addendSigned = selectSignedAddend ?? Const(signedAddend ? 1 : 0);
 
-    // Extend both operands to a common width (with one extra bit of
-    // headroom so the true mathematical sum can never overflow that width)
-    // before adding, using each operand's own sign indicator so unsigned
-    // values are zero-extended and signed values are correctly sign-extended.
-    final commonWidth = (product.width < c.width ? c.width : product.width) + 1;
+    // Reserve one bit for each operand's possible unsigned-to-signed
+    // extension, plus one bit for the addition itself. This preserves mixed
+    // signedness sums such as an unsigned product plus a positive signed
+    // addend without turning the valid result into a negative value.
+    final commonWidth = (product.width < c.width ? c.width : product.width) + 2;
     final extendedProduct = mux(productSigned, product.signExtend(commonWidth),
             product.zeroExtend(commonWidth))
         .named('extendedProduct');

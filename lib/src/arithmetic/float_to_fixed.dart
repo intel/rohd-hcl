@@ -145,42 +145,6 @@ class FloatToFixed extends Module {
             : (~shift + 1))
         .named('shiftRight');
 
-    if (checkOverflow &
-        ((this.integerWidth < noLossM) | (this.fractionWidth < noLossN))) {
-      final overflow = Logic(name: 'overflow');
-      final leadDetect = RecursiveModulePriorityEncoder(fullMantissa.reversed,
-          name: 'leadone_detector');
-
-      final sWidth = max(eWidth, leadDetect.out.width);
-      final fShift = shift.zeroExtend(sWidth).named('wideShift');
-      final leadOne = leadDetect.out.zeroExtend(sWidth).named('leadOne');
-
-      // At the threshold, an exact negative power of two still fits in the
-      // asymmetric two's-complement range.
-      final threshold = outputWidth - fractionBitsWidth - 1;
-      final discardedBits = (-threshold).clamp(0, fractionBitsWidth);
-      final atThresholdIsExactPowerOfTwo = discardedBits < fractionBitsWidth
-          ? ~mantissaFractionBits
-              .getRange(discardedBits, fractionBitsWidth)
-              .or()
-          : Const(1);
-
-      Combinational([
-        If(jBit, then: [
-          overflow <
-              (_signedGtConst(shift, threshold) |
-                  (shift.eq(Const(threshold, width: shift.width)) &
-                      ~(float.sign & atThresholdIsExactPowerOfTwo))),
-        ], orElse: [
-          If(fShift.gt(leadOne), then: [
-            overflow < _signedGteConst(fShift - leadOne, threshold),
-          ], orElse: [
-            overflow < Const(0),
-          ]),
-        ]),
-      ]);
-      addOutput('overflow') <= overflow;
-    }
     final preNumber = ((outputWidth >= fullMantissa.width)
             ? fullMantissa.zeroExtend(outputWidth)
             : fullMantissa.slice(-1, fullMantissa.width - outputWidth))
@@ -225,9 +189,71 @@ class FloatToFixed extends Module {
         roundingMode: roundingMode,
         sign: float.sign);
 
-    final number = (unroundedNumber +
-            (shift[-1] & rounder.doRound).zeroExtend(unroundedNumber.width))
-        .named('number');
+    final roundingIncrement = (shift[-1] & rounder.doRound)
+        .zeroExtend(unroundedNumber.width + 1)
+        .named('roundingIncrement');
+    final roundedNumber =
+        (unroundedNumber.zeroExtend(unroundedNumber.width + 1) +
+                roundingIncrement)
+            .named('roundedNumber');
+
+    if (checkOverflow &
+        ((this.integerWidth < noLossM) | (this.fractionWidth < noLossN))) {
+      final overflow = Logic(name: 'overflow');
+      final leadDetect = RecursiveModulePriorityEncoder(fullMantissa.reversed,
+          name: 'leadone_detector');
+
+      final sWidth = max(eWidth, leadDetect.out.width);
+      final fShift = shift.zeroExtend(sWidth).named('wideShift');
+      final leadOne = leadDetect.out.zeroExtend(sWidth).named('leadOne');
+
+      // At the threshold, an exact negative power of two still fits in the
+      // asymmetric two's-complement range.
+      final threshold = outputWidth - fractionBitsWidth - 1;
+      final discardedBits = (-threshold).clamp(0, fractionBitsWidth);
+      final atThresholdIsExactPowerOfTwo = discardedBits < fractionBitsWidth
+          ? ~mantissaFractionBits
+              .getRange(discardedBits, fractionBitsWidth)
+              .or()
+          : Const(1);
+
+      final unroundedOverflow = Logic(name: 'unroundedOverflow');
+      Combinational([
+        If(jBit, then: [
+          unroundedOverflow <
+              (_signedGtConst(shift, threshold) |
+                  (shift.eq(Const(threshold, width: shift.width)) &
+                      ~(float.sign & atThresholdIsExactPowerOfTwo))),
+        ], orElse: [
+          If(fShift.gt(leadOne), then: [
+            unroundedOverflow < _signedGteConst(fShift - leadOne, threshold),
+          ], orElse: [
+            unroundedOverflow < Const(0),
+          ]),
+        ]),
+      ]);
+
+      // Rounding can carry a largest representable magnitude into the next
+      // integer. Include that carry in the signed destination range check.
+      final maxPositive = Const((BigInt.one << (outputWidth - 1)) - BigInt.one,
+          width: outputWidth + 1);
+      final maxNegativeMagnitude =
+          Const(BigInt.one << (outputWidth - 1), width: outputWidth + 1);
+      final roundingOverflow = shift[-1] &
+          rounder.doRound &
+          ((~float.sign &
+                  unroundedNumber.zeroExtend(outputWidth + 1).eq(maxPositive)) |
+              (float.sign &
+                  unroundedNumber
+                      .zeroExtend(outputWidth + 1)
+                      .eq(maxNegativeMagnitude)));
+
+      overflow <= unroundedOverflow | roundingOverflow;
+      addOutput('overflow') <= overflow;
+    }
+
+    final number =
+        roundedNumber.slice(unroundedNumber.width - 1, 0).named('number');
 
     _fixed <= mux(float.sign, ~number + 1, number).named('signedNumber');
     final typedFixedOut = addTypedOutput('fixed', _fixed.clone);

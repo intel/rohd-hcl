@@ -31,6 +31,11 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
                 'FloatingPointSquareRootSimple_'
                     'E${a.exponent.width}M${a.mantissa.width}_'
                     'R${roundingMode.name}') {
+    if (a.explicitJBit) {
+      throw RohdHclException(
+          'FloatingPointSqrtSimple does not support explicit-J-bit inputs.');
+    }
+
     final outputSqrt = a.clone(name: 'sqrt') as FpType;
     output('sqrt') <= outputSqrt;
     late final error = output('error');
@@ -196,7 +201,12 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     internalStatus.invalid <= invalidOperation;
     internalStatus.divideByZero <= Const(0);
     internalStatus.overflow <= Const(0);
-    internalStatus.underflow <= Const(0);
+    internalStatus.underflow <=
+        mux(isSubnormal, subnormalInexact, Const(0)) &
+            ~isInf &
+            ~isNaN &
+            ~isZero &
+            ~a.sign;
     internalStatus.inexact <=
         mux(isSubnormal, subnormalInexact, inexact) & ~isInf & ~isNaN & ~a.sign;
 

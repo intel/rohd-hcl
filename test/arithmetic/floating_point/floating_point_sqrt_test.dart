@@ -29,6 +29,13 @@ void main() {
     expect(FixedPointSqrt(fixed).sqrt.value.toInt(), 1 << 9);
   });
 
+  test('FP: square root rejects explicit-J-bit inputs', () {
+    final fp =
+        FloatingPoint(exponentWidth: 4, mantissaWidth: 4, explicitJBit: true);
+
+    expect(() => FloatingPointSqrtSimple(fp), throwsA(isA<RohdHclException>()));
+  });
+
   test('FP: square root with non-FP numbers', () {
     // building with 16-bit FP representation
     const exponentWidth = 3;
@@ -214,6 +221,8 @@ ${expError.value} expected''');
     fp.put(input);
     expect(sqrtDut.sqrt.floatingPointValue, equals(expected));
     expect(sqrtDut.sqrt.exponent.value.toInt(), equals(0));
+    expect(sqrtDut.status.underflow.value.toBool(), isTrue);
+    expect(sqrtDut.status.inexact.value.toBool(), isTrue);
   });
 
   test('FP: random number sqrt', () {
