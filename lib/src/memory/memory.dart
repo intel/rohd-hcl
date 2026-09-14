@@ -48,6 +48,22 @@ class MaskedDataPortInterface extends DataPortInterface {
 /// [DataPortGroup]. Drive [en], [addr], and [data] on a write port. Drive [en]
 /// and [addr] on a read port; [data] is returned by the memory.
 ///
+/// In hardware, connect [Logic]s with `<=`:
+/// ```dart
+/// final wrPort = DataPortInterface(32, 5);
+/// final rdPort = DataPortInterface(32, 5);
+/// RegisterFile(clk, reset, [wrPort], [rdPort], numEntries: 20);
+///
+/// wrPort.en <= writeEnable;
+/// wrPort.addr <= writeAddr;
+/// wrPort.data <= writeData;
+///
+/// rdPort.en <= readEnable;
+/// rdPort.addr <= readAddr;
+/// final readData = rdPort.data;
+/// ```
+///
+/// In a testbench, `.put` values onto the same ports:
 /// ```dart
 /// final clk = SimpleClockGenerator(10).clk;
 /// final reset = Logic();
