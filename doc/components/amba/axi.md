@@ -18,9 +18,13 @@ For code examples of how to work with both individual channel interfaces and clu
 
 ## HW
 
-There are no current HW implementations for AXI-based controllers. This will be done in future work.
+### AXI-S Controller
 
-Note that part of the difficulty is in defining what the "other side" of the controller's interface looks like.
+Implementations of generic HW for both sending and receiving arbitrary data on an AXI-S interface are included. Primarily, the complexity of such components is in breaking out or aggregating arbitrarily long data into or from flits on the interface over time while overlaying the correct metadata into/from the other stream signals.
+
+The implementations can be found in `lib/src/protocols/amba5/axi_s/*.dart`.
+
+For code examples of how to work with stream controllers, see `test/protocols/amba5/axi_s/axi_s_interface_*_test.dart`.
 
 ## Validation
 
