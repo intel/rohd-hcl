@@ -126,13 +126,7 @@ abstract class Multiplier extends Module {
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
   static String signedMD(dynamic mdConfig) =>
-      ((mdConfig is! StaticOrRuntimeParameter) | (mdConfig == null))
-          ? 'UD'
-          : ((mdConfig as StaticOrRuntimeParameter).runtimeConfig != null)
-              ? 'SSD'
-              : mdConfig.staticConfig
-                  ? 'SD'
-                  : 'UD';
+      _signedConfigName(mdConfig, unsigned: 'UD', signed: 'SD', runtime: 'SSD');
 
   /// This is a helper function that prints out the kind of multiplier (selected
   /// by a [Logic] or set statically via `bool`).)
@@ -140,19 +134,27 @@ abstract class Multiplier extends Module {
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.
   static String signedML(dynamic mlConfig) =>
-      ((mlConfig is! StaticOrRuntimeParameter) | (mlConfig == null))
-          ? 'UM'
-          : (mlConfig as StaticOrRuntimeParameter).runtimeConfig != null
-              ? 'SSM'
-              : mlConfig.staticConfig
-                  ? 'SM'
-                  : 'UM';
+      _signedConfigName(mlConfig, unsigned: 'UM', signed: 'SM', runtime: 'SSM');
+
+  static String _signedConfigName(
+    dynamic config, {
+    required String unsigned,
+    required String signed,
+    required String runtime,
+  }) {
+    final parameter = StaticOrRuntimeParameter.ofDynamic(config);
+    return parameter.isRuntime
+        ? runtime
+        : parameter.staticConfig
+            ? signed
+            : unsigned;
+  }
 }
 
 /// A class which wraps the native '*' operator so that it can be passed
 /// into other modules as a parameter for using the native operation.
 class NativeMultiplier extends Multiplier {
-  /// The width of input [a] and [b] must be the same.
+  /// Inputs [a] and [b] may have independent widths.
   NativeMultiplier(super.a, super.b,
       {super.clk,
       super.reset,
@@ -168,9 +170,6 @@ class NativeMultiplier extends Multiplier {
                 'NativeMultiplier_W${a.width}x'
                     '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
                     '${Multiplier.signedML(signedMultiplier)}') {
-    if (a.width != b.width) {
-      throw RohdHclException('inputs of a and b should have same width.');
-    }
     final pW = a.width + b.width;
 
     final Logic extendedMultiplicand;
