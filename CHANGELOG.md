@@ -2,9 +2,17 @@
 
 ### Breaking Changes
 
-- `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an implicit-J-bit format or normalize the input before connecting it to the square-root component.
-- Explicit-J-bit NaN construction now requires at least one payload bit in addition to the J bit. Formats with a one-bit explicit mantissa are rejected because they cannot encode a quiet-NaN payload.
-- Automatic definition names for `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now include the effective `outputWidth`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an
+  implicit-J-bit format or normalize the input before connecting it to the
+  square-root component.
+- Explicit-J-bit NaN construction now requires at least one payload bit in
+  addition to the J bit. Formats with a one-bit explicit mantissa are rejected
+  because they cannot encode a quiet-NaN payload.
+- Automatic definition names for `MultiplyAccumulate`,
+  `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now
+  include the effective `outputWidth`. Consumers that reference generated HDL
+  definition names must update those names; explicitly supplied
+  `definitionName` values are unchanged.
 - Automatic `FixedToFloat` definition names now include `roundingMode` so
   converters with different rounding logic cannot share an HDL definition.
 - Automatic `FloatingPointAdderSinglePath` definition names now include
@@ -48,8 +56,13 @@
 #### Integer Arithmetic Components
 
 - Added an optional `carryIn` to `SignMagnitudeAdder`.
-- Added configurable `outputWidth` to `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `MultiplyOnly`.
-- Added `GenericMultiplyAccumulate`, which composes configurable multiplier and adder generators.
+- Added configurable `outputWidth` to `MultiplyAccumulate`,
+  `CompressionTreeMultiplyAccumulate`, and `MultiplyOnly`.
+- Added `GenericMultiplyAccumulate`, which composes configurable multiplier
+  and adder generators.
+- Added independent multiplicand and multiplier widths to `NativeMultiplier`
+  and `GeneralDotProduct`; `CompressionTreeDotProduct` retains its equal-width
+  fused-partial-product contract.
 
 #### Parameterized Configuration
 
@@ -92,7 +105,16 @@
 
 #### Integer Arithmetic Components Fixes
 
-- Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending unsigned products in uneven reduction trees. Static and runtime operand signedness now control partial-sum extension.
+- Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending
+  unsigned products in uneven reduction trees. Static and runtime operand
+  signedness now control partial-sum extension.
+- Fixed `GeneralDotProduct` passing static signedness to child multipliers as
+  constant-valued runtime ports, and strengthened automatic definition names
+  with lane count, operand widths, radix, implementation identity, and
+  signedness.
+- Fixed runtime-signed `GeneralDotProduct` synthesis by keeping its
+  signed-extension control inside the inline reduction generator rather than
+  capturing a parent signal across a reduction-module hierarchy boundary.
 
 #### Floating-Point Arithmetic
 
