@@ -49,6 +49,15 @@ class MyFieldCsr extends CsrConfig {
               access: CsrFieldAccess.readWriteLegal,
               legalValues: const [0x0, 0x1]),
 
+          // example of a write-only field, in the otherwise-reserved gap
+          // that only exists for wider register widths
+          if (width > 8)
+            CsrFieldConfig(
+                start: 4,
+                width: 4,
+                name: 'field5',
+                access: CsrFieldAccess.writeOnly),
+
           // example of a field with dynamic start and width
           CsrFieldConfig(
               start: width ~/ 2,
@@ -630,6 +639,144 @@ void main() {
     back1.wrEn!.inject(0);
     expect(csr1.getField('field4_0').value, LogicValue.one);
     expect(csr1.getField('field4_7').value, LogicValue.one);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('writeOnly field always frontdoor reads as its reset value', () async {
+    const csrWidth = 32;
+
+    final csrBlockCfg = MyRegisterBlock(baseAddr: 0x0);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final rIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+    rIntf.en.put(0);
+    rIntf.addr.put(0);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    // field5 (bits 7:4) resets to 0xf, matching csr1's overall reset value
+    expect(csr1.getField('field5').value, LogicValue.ofInt(0xf, 4));
+
+    // a frontdoor write targeting field5's bits is accepted (no error),
+    // but a subsequent frontdoor read still returns the reset value
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0x50);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr1Cfg.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value.getRange(4, 8), LogicValue.ofInt(0xf, 4));
+    expect(csr1.getField('field5').value, LogicValue.ofInt(0xf, 4));
+
+    // a backdoor write to field5 also has no effect on its storage
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0xf0);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field5').value, LogicValue.ofInt(0xf, 4));
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test(
+      'writeOnly field backdoor read pulses the frontdoor write value '
+      'and otherwise shows the reset value', () async {
+    const csrWidth = 32;
+
+    final csrBlockCfg = MyRegisterBlock(baseAddr: 0x0);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: null,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    // no frontdoor write this cycle: backdoor read shows the reset value
+    expect(back1.rdData!.value.getRange(4, 8), LogicValue.ofInt(0xf, 4));
+
+    // a frontdoor write combinationally pulses onto the backdoor read
+    // for the same cycle as the write, before the write is even clocked in
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0xa0);
+    await clk.nextNegedge;
+    expect(back1.rdData!.value.getRange(4, 8), LogicValue.ofInt(0xa, 4));
+
+    // once the write is no longer happening, the pulse disappears and the
+    // backdoor read reverts to the reset value
+    wIntf.en.inject(0);
+    await clk.nextNegedge;
+    expect(back1.rdData!.value.getRange(4, 8), LogicValue.ofInt(0xf, 4));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;

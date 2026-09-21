@@ -171,9 +171,11 @@ class Csr extends LogicStructure {
           continue;
         }
 
-        // if the given field is read only
-        // take the current value instead of the new value
-        final chk2 = fields[currField].access == CsrFieldAccess.readOnly;
+        // if the given field is read only or write only,
+        // take the current value instead of the new value:
+        // neither retains a written value as persistent storage.
+        final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
+            fields[currField].access == CsrFieldAccess.writeOnly;
         if (chk2) {
           finalWd = finalWd.withSet(currIdx, elements[i]);
           currField++;
@@ -222,5 +224,42 @@ class Csr extends LogicStructure {
       }
       return finalWd;
     }
+  }
+
+  /// Computes the value to drive on this CSR's backdoor read port.
+  ///
+  /// For [CsrFieldAccess.writeOnly] fields, this combinationally reflects
+  /// the current cycle's frontdoor write: [frontdoorWriteDataFull] where
+  /// [frontdoorWriteValidFull] indicates a frontdoor write occurred to that
+  /// bit this cycle, otherwise the field's reset value. All other bits pass
+  /// through the register's current stored value unchanged.
+  Logic getBackdoorReadData(
+      Logic frontdoorWriteValidFull, Logic frontdoorWriteDataFull) {
+    if (fields.isEmpty) {
+      return this;
+    }
+
+    Logic finalRd = this;
+    var currIdx = 0;
+    var currField = 0;
+    for (var i = 0; i < elements.length; i++) {
+      if (rsvdIndices.contains(i)) {
+        currIdx += elements[i].width;
+        continue;
+      }
+
+      if (fields[currField].access == CsrFieldAccess.writeOnly) {
+        final width = elements[i].width;
+        final valid =
+            frontdoorWriteValidFull.getRange(currIdx, currIdx + width).or();
+        final written =
+            frontdoorWriteDataFull.getRange(currIdx, currIdx + width);
+        finalRd = finalRd.withSet(currIdx, mux(valid, written, elements[i]));
+      }
+
+      currField++;
+      currIdx += elements[i].width;
+    }
+    return finalRd;
   }
 }

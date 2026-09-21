@@ -90,8 +90,11 @@ At the CSR field granularity, the access modes, defined in the Enum `CsrFieldAcc
 - Read/write
 - Write ones clear (read only from the frontdoor's perspective, but writing 1 has a side effect)
 - Read/write legal (can only write a legal value)
+- Write only (no persistent storage; frontdoor reads always return the reset value)
 
 Note that field access rules apply to both frontdoor and backdoor accesses of the register. The one exception is "write ones clear": a frontdoor (software) write of `1` clears the corresponding bit, while a backdoor (hardware) write of `1` instead sets the bit, allowing hardware to raise a flag that software later clears.
+
+A "write only" field has no persistent storage of its own: frontdoor writes never change what is stored, so frontdoor reads always return the field's reset value regardless of what was last written. Instead, a frontdoor write is combinationally reflected on the field's backdoor read for that same cycle, letting hardware observe the written value without adding a new port; on any cycle without such a write, the backdoor read shows the field's reset value.
 
 To support the read/write legal mode, the configuration must provide a non-empty list of legal values to check against. In the hardware's logic construction, if a write is attempting to place an illegal value in the field, this write data is remapped to a legal value per the `transformIllegalValue()` method. This method can be custom defined in a derived class of `CsrFieldConfig` but has a default implementation that can be used as is.
 
