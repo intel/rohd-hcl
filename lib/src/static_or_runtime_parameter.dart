@@ -41,7 +41,13 @@ class StaticOrRuntimeParameter {
 
   /// Factory constructor to create a [StaticOrRuntimeParameter] instance from a
   /// dynamic.
-  factory StaticOrRuntimeParameter.ofDynamic(dynamic config) {
+  ///
+  /// When [config] is a [Logic] its own name is used for the module input.  An
+  /// unnamed [Logic] has no meaningful name of its own -- every one of them
+  /// reports the same placeholder -- so [name] is used instead when provided.
+  /// Without it, two unnamed [Logic] parameters on the same component would
+  /// both ask for an input of the same name and collide.
+  factory StaticOrRuntimeParameter.ofDynamic(dynamic config, {String? name}) {
     if (config is StaticOrRuntimeParameter) {
       return config;
     } else if (config is bool) {
@@ -49,7 +55,10 @@ class StaticOrRuntimeParameter {
     } else if (config == null) {
       return BooleanConfig(staticConfig: null);
     } else if (config is Logic) {
-      return RuntimeConfig(config, name: config.name);
+      return RuntimeConfig(config,
+          name: config.naming == Naming.unnamed && name != null
+              ? name
+              : config.name);
     } else {
       throw RohdHclException(
           'Unsupported configuration type: ${config.runtimeType}');
