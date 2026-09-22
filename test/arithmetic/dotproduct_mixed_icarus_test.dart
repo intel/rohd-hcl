@@ -7,12 +7,10 @@
 // 2026 September 19
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-@TestOn('vm')
 library;
 
-import 'dart:io';
-
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
@@ -31,16 +29,7 @@ void main() {
       multiplierIdentity: 'compressionTreeR4',
     );
     await dotProduct.build();
-    final directory =
-        Directory.systemTemp.createTempSync('rohd_hcl_mixed_dot_');
-    final path = '${directory.path}/mixed_dot.sv';
-    try {
-      File(path).writeAsStringSync(dotProduct.generateSynth());
-      final result = Process.runSync('iverilog', ['-g2012', '-tnull', path]);
-      expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
-    } finally {
-      directory.deleteSync(recursive: true);
-    }
+    SimCompare.checkIverilogVector(dotProduct, const [], buildOnly: true);
   });
 }
 
