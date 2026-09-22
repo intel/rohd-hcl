@@ -176,18 +176,24 @@ abstract class MemoryStorage {
         final lineAddr = int.parse(line.substring(1), radix: 16);
         final lineAddrLv =
             LogicValue.ofInt(lineAddr - lineAddr % addrIncrPerLine, addrWidth);
-        if (getData(lineAddrLv) != null) {
-          // must reconstruct the bytes array ending at the provided address
-          final endOff = lineAddr % addrIncrPerLine;
-          final origData = getData(lineAddrLv);
-          chunks.clear();
 
-          if (endOff != 0) {
-            chunks.add(origData!
-                .getRange(0, endOff * bitsPerAddress)
-                .toInt()
-                .toRadixString(radix));
-          }
+        // if the address is not word-aligned, pre-fill the lower byte
+        // positions so that new data lands at the correct byte offset within
+        // the word.  When the word already has data (e.g. written by the
+        // previous section), preserve those lower bytes; otherwise use zeros.
+        final endOff = lineAddr % addrIncrPerLine;
+        if (endOff != 0) {
+          final lowerBytesCharsCount = endOff * bitsPerAddress ~/ bitsPerChar;
+          final origData = getData(lineAddrLv);
+          final lowerStr = origData != null
+              ? origData
+                  .getRange(0, endOff * bitsPerAddress)
+                  .toInt()
+                  .toRadixString(radix)
+                  .padLeft(lowerBytesCharsCount, '0')
+              : '0' * lowerBytesCharsCount;
+          chunks.add(lowerStr);
+          chunksLength += lowerStr.length;
         }
 
         address = lineAddrLv.toInt();

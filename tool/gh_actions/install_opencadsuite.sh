@@ -14,7 +14,6 @@ set -euo pipefail
 sudo apt-get update
 sudo apt-get install -y \
 	git \
-	npm \
 	python3-pip
 
 cd /

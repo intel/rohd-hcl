@@ -109,9 +109,10 @@ class ApbBfmTest extends Test {
 
     LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
           for (var i = 0; i < 4; i++)
-            strobe[i].toBool()
-                ? originalData.getRange(i * 8, i * 8 + 8)
-                : LogicValue.filled(8, LogicValue.zero)
+            if (strobe[i].toBool())
+              originalData.getRange(i * 8, i * 8 + 8)
+            else
+              LogicValue.filled(8, LogicValue.zero)
         ].rswizzle();
 
     // normal writes
