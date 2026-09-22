@@ -14,6 +14,7 @@ set -euo pipefail
 sudo apt-get update
 sudo apt-get install -y \
 	git \
+	iverilog \
 	npm \
 	python3-pip
 
