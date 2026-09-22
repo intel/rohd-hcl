@@ -201,6 +201,8 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
                 (roundedExp.eq(maxFiniteExponent) &
                     finalMantissa.gt(maxFiniteMantissa))))
         .named('finiteOverflow');
+    final finiteRounderInexact = (rounder.inexact & ~isInfLatch & ~isNaNLatch)
+        .named('finiteRounderInexact');
     final resultSign = (aSignLatch ^ bSignLatch).named('resultSign');
     final overflowToInfinity = switch (roundingMode) {
       FloatingPointRoundingMode.roundNearestEven ||
@@ -216,9 +218,9 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     internalStatus.divideByZero <= Const(0);
     internalStatus.overflow <= finiteOverflow & ~isInfLatch & ~isNaNLatch;
     internalStatus.underflow <=
-        (roundedExp[-1] | ~roundedExp.or()) & rounder.inexact & ~isNaNLatch;
+        (roundedExp[-1] | ~roundedExp.or()) & finiteRounderInexact;
     internalStatus.inexact <=
-        (finiteOverflow & ~isInfLatch & ~isNaNLatch) | rounder.inexact;
+        (finiteOverflow & ~isInfLatch & ~isNaNLatch) | finiteRounderInexact;
 
     Combinational([
       If(isNaNLatch, then: [

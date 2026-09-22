@@ -103,14 +103,19 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// and [mantissaWidth], which can then be used to complete construction of
   /// a [FloatingPointValue] using population functions.
   static FloatingPointValuePopulator populator(
-          {required int exponentWidth,
-          required int mantissaWidth,
-          bool explicitJBit = false,
-          bool subNormalAsZero = false}) =>
-      FloatingPointValuePopulator(FloatingPointValue.uninitialized(
-          explicitJBit: explicitJBit, subNormalAsZero: subNormalAsZero)
-        .._exponentWidth = exponentWidth
-        .._mantissaWidth = mantissaWidth);
+      {required int exponentWidth,
+      required int mantissaWidth,
+      bool explicitJBit = false,
+      bool subNormalAsZero = false}) {
+    if (explicitJBit && mantissaWidth < 2) {
+      throw ArgumentError.value(mantissaWidth, 'mantissaWidth',
+          'explicit-J-bit formats require a NaN payload bit');
+    }
+    return FloatingPointValuePopulator(FloatingPointValue.uninitialized(
+        explicitJBit: explicitJBit, subNormalAsZero: subNormalAsZero)
+      .._exponentWidth = exponentWidth
+      .._mantissaWidth = mantissaWidth);
+  }
 
   /// Creates a [FloatingPointValuePopulator] for the same type as `this` and
   /// with the same widths.

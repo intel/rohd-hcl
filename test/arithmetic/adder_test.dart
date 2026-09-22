@@ -289,6 +289,25 @@ void main() {
     }
   });
 
+  test('ones complement accepts an explicit legacy false subtract value', () {
+    final a = Logic(width: 2);
+    final b = Logic(width: 2);
+    final subtractIn = Logic();
+
+    expect(
+        () => OnesComplementAdder(a, b,
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: false),
+        returnsNormally);
+    expect(
+        () => OnesComplementAdder(a, b,
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: true),
+        throwsA(isA<RohdHclException>()));
+  });
+
   test('trivial sign magnitude with onescomplement adder test', () async {
     const width = 8;
     final aSign = Logic(name: 'aSign');

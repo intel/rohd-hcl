@@ -29,6 +29,13 @@ void main() {
     expect(FixedPointSqrt(fixed).sqrt.value.toInt(), 1 << 9);
   });
 
+  test('FP: square root rejects explicit-J-bit inputs', () {
+    final fp =
+        FloatingPoint(exponentWidth: 4, mantissaWidth: 4, explicitJBit: true);
+
+    expect(() => FloatingPointSqrtSimple(fp), throwsA(isA<RohdHclException>()));
+  });
+
   test('FP: square root with non-FP numbers', () {
     // building with 16-bit FP representation
     const exponentWidth = 3;
@@ -196,6 +203,26 @@ ${expError.value} expected''');
           reason: 'mode=$mode');
       expect(sqrtDut.error.value.toBool(), isTrue, reason: 'mode=$mode');
     }
+  });
+
+  test('FP: square root preserves E3M5 subnormal output exponent', () {
+    const exponentWidth = 3;
+    const mantissaWidth = 5;
+    final inputPopulator = FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final input = inputPopulator.ofInts(0, 1);
+    final expected = FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+        .squareRoot(input);
+    final fp = FloatingPoint(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final sqrtDut = FloatingPointSqrtSimple(fp);
+
+    fp.put(input);
+    expect(sqrtDut.sqrt.floatingPointValue, equals(expected));
+    expect(sqrtDut.sqrt.exponent.value.toInt(), equals(0));
+    expect(sqrtDut.status.underflow.value.toBool(), isTrue);
+    expect(sqrtDut.status.inexact.value.toBool(), isTrue);
   });
 
   test('FP: random number sqrt', () {

@@ -20,6 +20,16 @@ void main() {
     await Simulator.reset();
   });
 
+  test('FP: single-path adder definition names include rounding mode', () {
+    final a = FloatingPoint(exponentWidth: 4, mantissaWidth: 4);
+    final b = FloatingPoint(exponentWidth: 4, mantissaWidth: 4);
+    final nearest = FloatingPointAdderSinglePath(a, b);
+    final towardsZero = FloatingPointAdderSinglePath(a, b,
+        roundingMode: FloatingPointRoundingMode.roundTowardsZero);
+
+    expect(nearest.definitionName, isNot(towardsZero.definitionName));
+  });
+
   test('FP: simple wide singleton test', () async {
     const exponentWidth = 4;
     const mantissaWidth = 18;

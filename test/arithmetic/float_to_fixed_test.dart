@@ -187,6 +187,20 @@ void main() async {
     }
   });
 
+  test('FloatToFixed: detects overflow caused by rounding carry', () {
+    final float = FloatingPoint(exponentWidth: 4, mantissaWidth: 4)..put(0);
+    final dut = FloatToFixed(float,
+        integerWidth: 2,
+        fractionWidth: 0,
+        checkOverflow: true,
+        roundingMode: FloatingPointRoundingMode.roundTowardsInfinity);
+
+    float.put(float.valuePopulator().ofDouble(3.5));
+
+    expect(dut.overflow!.value.toBool(), isTrue);
+    expect(dut.fixed.value.toInt(), equals(4));
+  });
+
   test(
       'FloatToFixed: exhaustive when fullMantissa is wider than the output '
       'format', () {

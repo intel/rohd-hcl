@@ -68,6 +68,22 @@ void main() {
         a.valuePopulator().ofSpacedBinaryString('0 00100 100101'));
   });
 
+  test('FP: dual-path special values do not report inexact', () {
+    final a = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+    final b = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+    final adder = FloatingPointAdderDualPath(a, b);
+
+    a.put(a.valuePopulator().positiveInfinity);
+    b.put(b.valuePopulator().one);
+    expect(adder.sum.floatingPointValue.isAnInfinity, isTrue);
+    expect(adder.status.inexact.value.toBool(), isFalse);
+
+    a.put(a.valuePopulator().nan);
+    b.put(b.valuePopulator().one);
+    expect(adder.sum.floatingPointValue.isNaN, isTrue);
+    expect(adder.status.inexact.value.toBool(), isFalse);
+  });
+
   test('FP: dual-path native rounding is exhaustive at reduced width', () {
     const exponentWidth = 3;
     const mantissaWidth = 2;

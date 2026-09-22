@@ -131,6 +131,22 @@ void main() {
       }
     });
 
+    test('FP: multiplier special values do not report inexact', () {
+      final a = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+      final b = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+      final multiplier = FloatingPointMultiplierSimple(a, b);
+
+      a.put(a.valuePopulator().positiveInfinity);
+      b.put(b.valuePopulator().one);
+      expect(multiplier.product.floatingPointValue.isAnInfinity, isTrue);
+      expect(multiplier.status.inexact.value.toBool(), isFalse);
+
+      a.put(a.valuePopulator().nan);
+      b.put(b.valuePopulator().one);
+      expect(multiplier.product.floatingPointValue.isNaN, isTrue);
+      expect(multiplier.status.inexact.value.toBool(), isFalse);
+    });
+
     test('FP: simple multiplier supports every rounding mode', () {
       const exponentWidth = 5;
       const mantissaWidth = 6;

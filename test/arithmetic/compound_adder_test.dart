@@ -78,6 +78,25 @@ void main() {
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4)));
   });
 
+  test('compound adder accepts an explicit legacy false subtract value', () {
+    final a = Logic(width: 2);
+    final b = Logic(width: 2);
+    final subtractIn = Logic();
+
+    expect(
+        () => CarrySelectOnesComplementCompoundAdder(a, b,
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: false),
+        returnsNormally);
+    expect(
+        () => CarrySelectOnesComplementCompoundAdder(a, b,
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: true),
+        throwsA(isA<RohdHclException>()));
+  });
+
   test('trivial compound adder test', () async {
     const width = 6;
     final a = Logic(name: 'a', width: width);

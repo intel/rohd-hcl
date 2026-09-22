@@ -138,7 +138,7 @@ void main() {
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
     for (var i = 0; i < length; i++) {
-      vec.add(Logic(width: width)..put(i));
+      vec.add(Logic(width: width)..inject(i));
     }
     const radix = 4;
     final prefixAdd = ReductionTree(
@@ -188,7 +188,7 @@ void main() {
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
     for (var i = 0; i < length; i++) {
-      vec.add(Logic(width: width)..put(i));
+      vec.add(Logic(width: width)..inject(i));
     }
     const reduce = 4;
     final prefixAdd = ReductionTree(

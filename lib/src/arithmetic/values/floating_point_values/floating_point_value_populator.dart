@@ -735,6 +735,20 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// [constantFloatingPoint].
   FpvType ofConstant(FloatingPointConstants constantFloatingPoint) {
     if (explicitJBit) {
+      if (mantissaWidth < 2) {
+        throw ArgumentError.value(mantissaWidth, 'mantissaWidth',
+            'explicit-J-bit formats require a NaN payload bit');
+      }
+      if (constantFloatingPoint == FloatingPointConstants.nan) {
+        return populate(
+            sign: LogicValue.zero,
+            exponent: LogicValue.filled(exponentWidth, LogicValue.one),
+            mantissa: [
+              LogicValue.one,
+              LogicValue.one,
+              LogicValue.filled(mantissaWidth - 2, LogicValue.zero)
+            ].swizzle());
+      }
       final implicit = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
           .ofConstant(constantFloatingPoint);

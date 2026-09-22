@@ -342,6 +342,40 @@ void main() {
     }
   });
 
+  test('Native multiplier supports independent operand widths', () {
+    final a = Logic(width: 4);
+    final b = Logic(width: 3);
+
+    for (final signedA in [false, true]) {
+      for (final signedB in [false, true]) {
+        final multiplier = NativeMultiplier(
+          a,
+          b,
+          signedMultiplicand: signedA,
+          signedMultiplier: signedB,
+        );
+        for (var aValue = 0; aValue < 16; aValue++) {
+          for (var bValue = 0; bValue < 8; bValue++) {
+            a.put(aValue);
+            b.put(bValue);
+            final expected =
+                BigInt.from(aValue).toCondSigned(4, signed: signedA) *
+                    BigInt.from(bValue).toCondSigned(3, signed: signedB);
+            final actual = multiplier.product.value.toBigInt().toCondSigned(
+                  multiplier.product.width,
+                  signed: signedA || signedB,
+                );
+            expect(
+              actual,
+              expected,
+              reason: 'a=$aValue b=$bValue signed=[$signedA,$signedB]',
+            );
+          }
+        }
+      }
+    }
+  });
+
   group('Native multiplier check', () {
     for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
       for (final signedMultiplicand

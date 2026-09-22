@@ -569,12 +569,14 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         .named('rPathInexact');
     final operationInexact =
         mux(isR, rPathInexact, nPathRounder.inexact).named('operationInexact');
+    final finiteOperationInexact =
+        (operationInexact & ~isInfFlopped & ~isNaNFlopped)
+            .named('finiteOperationInexact');
     internalStatus.invalid <= invalidOperationFlopped;
     internalStatus.divideByZero <= Const(0);
     internalStatus.overflow <= finiteOverflow;
-    internalStatus.underflow <=
-        ~selectedExponent.or() & operationInexact & ~isNaNFlopped;
-    internalStatus.inexact <= finiteOverflow | operationInexact;
+    internalStatus.underflow <= ~selectedExponent.or() & finiteOperationInexact;
+    internalStatus.inexact <= finiteOverflow | finiteOperationInexact;
 
     Combinational([
       If(isNaNFlopped, then: [
