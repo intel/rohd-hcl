@@ -7,8 +7,6 @@
 // 2026 September 19
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-library;
-
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
