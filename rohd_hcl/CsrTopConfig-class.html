@@ -260,9 +260,8 @@ This is important for interface data width validation.
 <dd>
   Method to determine the minimum number of address bits
 needed to address all registers across all blocks. This is
-based on the maximum block base address. Note that we independently
-validate the block size relative to the base addresses
-so we can trust the simpler analysis here.
+based on the highest address reachable in any block (its base
+address plus its effective size).
   
 
 </dd>
