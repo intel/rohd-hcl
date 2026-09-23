@@ -118,6 +118,8 @@ In addition, the following attributes and methods are exposed:
 
 A CSR block is a `Module` that wraps a collection of `Csr` objects, making them accessible to reads and writes. The class in HW to create a CSR block is called `CsrBlock`. It is constructed by passing a configuration object of type `CsrBlockConfig`.
 
+The `CsrBlock` constructor also accepts an `asyncReset` flag that defaults to `false`. When `asyncReset` is `true`, the block's registers treat `reset` as asynchronous. When `false`, `reset` is treated as synchronous.
+
 ### CsrBlockConfig
 
 The `CsrBlockConfig` defines the contents of a register block. As such, it is constructed by passing a list of `CsrInstanceConfig`s which defines the registers contained within the block. In addition to the register instance configurations, the block configuration offers the following functionality:
@@ -211,6 +213,7 @@ The `CsrTopConfig` defines the contents of the top module. As such, it is constr
 - Validation to check for configuration correctness and consistency.
 - A method `minAddrBits()` that returns the minimum number of address bits required to uniquely address every register instance in every block. The return value is based on both the largest block `baseAddr` and its largest `minAddrBits`.
 - A method `maxRegWidth()` that returns the number of bits in the largest register instance across all blocks.
+- An `asyncReset` flag (default `false`) that is propagated down to every `CsrBlock` in the module, controlling whether each block's registers treat `reset` as asynchronous or synchronous. See [CSR Block Definition](#csr-block-definition) for details.
 
 #### Validation of CsrTopConfig
 
@@ -234,7 +237,7 @@ If an access drives an address that doesn't map to any block, writes are NOPs an
 
 On module build, the width of the address signal on both `DataPortInterface`s is checked to ensure that it is at least as wide as the module's `minAddrBits`. On module build, the width of the input and output data signals on the `DataPortInterface`s are checked to ensure that they are at least as wide as the module's `maxRegWidth`.
 
-Note that the same parameters `allowLargerRegisters` and `logicalRegisterIncrement` that are found in `CsrBlock` can be passed at the top and propagated down to all blocks within the module.
+Note that the same parameters `allowLargerRegisters` and `logicalRegisterIncrement` that are found in `CsrBlock` can be passed at the top and propagated down to all blocks within the module. The top-level `asyncReset` flag (see [CsrTopConfig](#csrtopconfig)) is likewise propagated down to every block.
 
 ### Backdoor CSR Access - Top
 

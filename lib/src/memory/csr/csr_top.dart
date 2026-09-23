@@ -126,7 +126,8 @@ class CsrTop extends CsrContainer {
           reset: reset,
           frontWrite: blockFdWrite,
           frontRead: blockFdRead,
-          allowLargerRegisters: allowLargerRegisters));
+          allowLargerRegisters: allowLargerRegisters,
+          asyncReset: config.asyncReset));
     }
 
     for (var i = 0; i < blocks.length; i++) {
