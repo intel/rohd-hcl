@@ -7,6 +7,11 @@
 // 2026 September 19
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+@TestOn('vm')
+library;
+
+import 'dart:io';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -28,7 +33,16 @@ void main() {
     );
     await dotProduct.build();
     SimCompare.checkIverilogVector(dotProduct, const [], buildOnly: true);
-  });
+  }, skip: _iverilogUnavailableReason());
+}
+
+String? _iverilogUnavailableReason() {
+  try {
+    final result = Process.runSync('iverilog', const ['-V']);
+    return result.exitCode == 0 ? null : 'Icarus Verilog is unavailable.';
+  } on ProcessException {
+    return 'Icarus Verilog is not installed.';
+  }
 }
 
 Multiplier _compressionTreeMultiplier(
