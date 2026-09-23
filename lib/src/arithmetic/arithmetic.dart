@@ -12,6 +12,7 @@ export 'fixed_to_float.dart';
 export 'float_to_fixed.dart';
 export 'floating_point/floating_point.dart';
 export 'leading_digit_anticipate.dart';
+export 'multi_cycle_divider_base.dart';
 export 'multiplier.dart';
 export 'multiplier_components/mulitiplier_components.dart';
 export 'multiply_accumulate.dart';
