@@ -430,7 +430,7 @@ class MultiCycleDividerTest extends Test {
 
 class TopTB {
   // Instance of the DUT
-  late final MultiCycleDivider divider;
+  late final TwosComplementDivider divider;
 
   // A constant value for the width to use in this testbench
   static const int width = 32;
@@ -440,17 +440,17 @@ class TopTB {
     intf.clk <= SimpleClockGenerator(10).clk;
 
     // Create the DUT, passing it our interface
-    divider = MultiCycleDivider(intf, computeRemainder: computeRemainder);
+    divider = TwosComplementDivider(intf, computeRemainder: computeRemainder);
   }
 }
 
 class TopTBNarrow {
-  late final MultiCycleDivider divider;
+  late final TwosComplementDivider divider;
   static const int width = 8;
 
   TopTBNarrow(MultiCycleDividerInterface intf, {bool computeRemainder = true}) {
     intf.clk <= SimpleClockGenerator(10).clk;
-    divider = MultiCycleDivider(intf, computeRemainder: computeRemainder);
+    divider = TwosComplementDivider(intf, computeRemainder: computeRemainder);
   }
 }
 
@@ -1156,7 +1156,7 @@ void main() {
         final divisor = Logic(name: 'divisor', width: 32);
         final isSigned = Logic(name: 'isSigned');
         final readyOut = Logic(name: 'readyOut');
-        final div = MultiCycleDivider.ofLogics(
+        final div = TwosComplementDivider.ofLogics(
             clk: clk,
             reset: reset,
             validIn: validIn,
