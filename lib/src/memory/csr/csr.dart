@@ -137,7 +137,13 @@ class Csr extends LogicStructure {
   /// Given some arbitrary data [wd] to write to this CSR,
   /// return the data that should actually be written based
   /// on the access control of the CSR and its fields.
-  Logic getWriteData(Logic wd) {
+  ///
+  /// [isBackdoorWrite] distinguishes a backdoor write from a frontdoor
+  /// write. It only affects [CsrFieldAccess.writeOnesClear] fields:
+  /// frontdoor writes of `1` clear the bit, while backdoor writes of `1`
+  /// set it (so a backdoor writer can raise a flag that a frontdoor
+  /// writer later clears).
+  Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
     // if the whole register is ready only, return the current value
     if (access == CsrAccess.readOnly) {
       return this;
@@ -167,10 +173,21 @@ class Csr extends LogicStructure {
 
         // if the given field is read only
         // take the current value instead of the new value
-        final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
-            fields[currField].access == CsrFieldAccess.writeOnesClear;
+        final chk2 = fields[currField].access == CsrFieldAccess.readOnly;
         if (chk2) {
           finalWd = finalWd.withSet(currIdx, elements[i]);
+          currField++;
+          currIdx += elements[i].width;
+          continue;
+        }
+
+        // if the given field is write-ones-clear: frontdoor writes of 1
+        // clear the bit; backdoor writes of 1 set the bit instead.
+        final chk3 = fields[currField].access == CsrFieldAccess.writeOnesClear;
+        if (chk3) {
+          final wdField = wd.getRange(currIdx, currIdx + elements[i].width);
+          finalWd = finalWd.withSet(currIdx,
+              isBackdoorWrite ? elements[i] | wdField : elements[i] & ~wdField);
           currField++;
           currIdx += elements[i].width;
           continue;
