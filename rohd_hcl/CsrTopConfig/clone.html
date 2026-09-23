@@ -63,6 +63,7 @@
 <span class="name ">clone</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="clone-param-name"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.13.4/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
 <li><span class="parameter" id="clone-param-blockSize"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.13.4/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">blockSize</span>, </span></li>
 <li><span class="parameter" id="clone-param-blocks"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span>?</span> <span class="parameter-name">blocks</span>, </span></li>
+<li><span class="parameter" id="clone-param-asyncReset"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.13.4/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">asyncReset</span>, </span></li>
 </ol>})
 
       
@@ -82,11 +83,13 @@ CsrTopConfig clone({
   String? name,
   int? blockSize,
   List&lt;CsrBlockConfig&gt;? blocks,
+  bool? asyncReset,
 }) =&gt;
     CsrTopConfig(
       name: name ?? this.name,
       blockSize: blockSize ?? this.blockSize,
       blocks: blocks ?? this.blocks,
+      asyncReset: asyncReset ?? this.asyncReset,
     );</code></pre>
 </section>
 

@@ -110,6 +110,7 @@ bool operator ==(Object other) {
   return other is CsrTopConfig &amp;&amp;
       super == other &amp;&amp;
       blockSize == other.blockSize &amp;&amp;
+      asyncReset == other.asyncReset &amp;&amp;
       blocks.length == other.blocks.length &amp;&amp;
       const ListEquality&lt;CsrBlockConfig&gt;().equals(blocks, other.blocks);
 }</code></pre>

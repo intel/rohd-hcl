@@ -107,6 +107,7 @@ like <a href="https://api.dart.dev/stable/3.13.4/dart-collection/HashSet-class.h
 int get hashCode =&gt;
     super.hashCode ^
     blockSize.hashCode ^
+    asyncReset.hashCode ^
     const ListEquality&lt;CsrBlockConfig&gt;().hash(blocks);</code></pre>
 </section>
 
