@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_bfm_test.dart
@@ -1244,6 +1244,73 @@ class Axi4ReadComplianceEvilTest extends Test {
   void check() {}
 }
 
+/// Verifies that a multi-beat INCR write burst stores each beat's data at its
+/// own address, not just the last beat's data at every address.
+class Axi4BfmMultiBeatDataIntegrityTest extends Axi4BfmTest {
+  static const int _startAddr = 0x100;
+  static const int _numBeats = 4;
+
+  final List<int> _writtenData = [];
+
+  Axi4BfmMultiBeatDataIntegrityTest(super.name);
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+    await resetFlow();
+
+    const laneId = 0;
+    final wIntfC = lanes[laneId].write.wIntf;
+    const transLen = _numBeats - 1;
+    const transSize = 2; // 32-bit word per beat
+
+    final pData = List.generate(_numBeats, (i) => 0x11111111 * (i + 1));
+    final pStrobes = List.generate(_numBeats,
+        (_) => LogicValue.filled(wIntfC.strbWidth, LogicValue.one).toInt());
+
+    _writtenData
+      ..clear()
+      ..addAll(pData);
+
+    final wrPkts = genWrPacket(
+      laneId,
+      addr: _startAddr,
+      data: pData,
+      len: transLen,
+      size: transSize,
+      strb: pStrobes,
+      burst: Axi4BurstField.incr,
+      lock: false,
+    );
+    mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
+    mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
+
+    await wrPkts.$1.completed;
+    await wrPkts.$2.completed;
+
+    obj.drop();
+  }
+
+  @override
+  void check() {
+    const increment = 4; // bytes per 32-bit beat (size=2)
+    for (var i = 0; i < _writtenData.length; i++) {
+      final addr = LogicValue.ofInt(_startAddr + i * increment, addrWidth);
+      final stored = storage.readData(addr).toInt();
+      expect(
+        stored,
+        equals(_writtenData[i]),
+        reason:
+            'Beat $i at 0x${(_startAddr + i * increment).toRadixString(16)}: '
+            'expected 0x${_writtenData[i].toRadixString(16)}, '
+            'got 0x${stored.toRadixString(16)}',
+      );
+    }
+  }
+}
+
 void main() {
   tearDown(() async {
     await Test.reset();
@@ -1351,5 +1418,9 @@ void main() {
     } on Exception catch (e) {
       expect(e.toString(), contains('Test failed'));
     }
+  });
+
+  test('multi-beat write burst stores each beat at its own address', () async {
+    await runTest(Axi4BfmMultiBeatDataIntegrityTest('multiBeatDataIntegrity'));
   });
 }
