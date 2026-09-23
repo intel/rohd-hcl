@@ -122,9 +122,9 @@ abstract class MultiCycleDividerBase extends Module {
           MultiCycleDividerStates.process,
           events: {
             specialCase |
-                    ~tmpShift.or() |
-                    tmpDifference[-1] |
-                    ~tmpDifference.or(): MultiCycleDividerStates.accumulate,
+                ~tmpShift.or() |
+                tmpDifference[-1] |
+                ~tmpDifference.or(): MultiCycleDividerStates.accumulate,
           },
           actions: [
             tmpShift < (bBuf << currIndex),
@@ -187,10 +187,12 @@ abstract class MultiCycleDividerBase extends Module {
           signNum < 0,
         ]),
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
-          aBuf < mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-              negate(extDividendIn), extDividendIn),
-          bBuf < mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
-              negate(extDivisorIn), extDivisorIn),
+          aBuf <
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
+                  negate(extDividendIn), extDividendIn),
+          bBuf <
+              mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
+                  negate(extDivisorIn), extDivisorIn),
           signOut <
               (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
                   intf.isSigned,
@@ -368,10 +370,12 @@ abstract class MultiCycleDividerBase extends Module {
           bitIdx < bitIdxInit,
         ]),
         ElseIf(inState(MultiCycleDividerStates.ready) & intf.validIn, [
-          aBuf < mux(extDividendIn[dataWidth - 1] & intf.isSigned,
-              negate(extDividendIn), extDividendIn),
-          bBuf < mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
-              negate(extDivisorIn), extDivisorIn),
+          aBuf <
+              mux(extDividendIn[dataWidth - 1] & intf.isSigned,
+                  negate(extDividendIn), extDividendIn),
+          bBuf <
+              mux(extDivisorIn[dataWidth - 1] & intf.isSigned,
+                  negate(extDivisorIn), extDivisorIn),
           signOut <
               (intf.dividend[dataWidth - 1] ^ intf.divisor[dataWidth - 1]) &
                   intf.isSigned,
