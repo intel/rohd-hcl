@@ -98,6 +98,11 @@ class Axi4SubordinateMemoryAgent extends Agent {
   final List<List<Axi4DataPacket>> _writeDataQueue = [];
   final List<bool> _writeReadyToOccur = [];
 
+  // per-channel countdown of remaining cycles to delay the response
+  // currently at the head of the queue, keyed by channel (mapIdx)
+  final Map<int, int> _readResponseDelayRemaining = {};
+  final Map<int, int> _writeResponseDelayRemaining = {};
+
   // capture mapping of channel ID to TB object index
   final Map<int, int> _readAddrToChannel = {};
   final Map<int, int> _writeAddrToChannel = {};
@@ -162,11 +167,13 @@ class Axi4SubordinateMemoryAgent extends Agent {
         _dataReadResponseDataQueue[_readAddrToChannel[i]!].clear();
         // _dataReadResponseErrorQueue[_readAddrToChannel[i]!].clear();
         _dataReadResponseIndex[_readAddrToChannel[i]!] = 0;
+        _readResponseDelayRemaining.remove(_readAddrToChannel[i]);
 
         // write side reset
         _writeMetadataQueue[_writeAddrToChannel[i]!].clear();
         _writeDataQueue[_writeAddrToChannel[i]!].clear();
         _writeReadyToOccur[_writeAddrToChannel[i]!] = false;
+        _writeResponseDelayRemaining.remove(_writeAddrToChannel[i]);
       }
     });
 
@@ -353,6 +360,19 @@ class Axi4SubordinateMemoryAgent extends Agent {
         _dataReadResponseErrorQueue[mapIdx].isNotEmpty*/
         ) {
       final packet = _dataReadResponseMetadataQueue[mapIdx][0];
+
+      // hold off responding until the requested delay has elapsed for
+      // this channel's response
+      if (readResponseDelay != null) {
+        final remaining = _readResponseDelayRemaining.putIfAbsent(
+            mapIdx, () => readResponseDelay!(packet));
+        if (remaining > 0) {
+          _readResponseDelayRemaining[mapIdx] = remaining - 1;
+          return;
+        }
+        _readResponseDelayRemaining.remove(mapIdx);
+      }
+
       // final reqSideError = _dataReadResponseErrorQueue[mapIdx][0];
       final currData = _dataReadResponseDataQueue[mapIdx][0]
           .map((d) => d.zeroExtend(rIntf.dataWidth))
@@ -377,14 +397,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
               (ranges[region].isPrivileged &&
                   ((packet.prot.toInt() & Axi4ProtField.privileged.value) ==
                       0)));
-
-      // TODO(kimmeljo): how to deal with delays??
-      // if (readResponseDelay != null) {
-      //   final delayCycles = readResponseDelay!(packet);
-      //   if (delayCycles > 0) {
-      //     await sIntf.clk.waitCycles(delayCycles);
-      //   }
-      // }
 
       // for security, must 0 out data when an error occurs
       final rdData = error || accessError
@@ -487,6 +499,18 @@ class Axi4SubordinateMemoryAgent extends Agent {
     if (_writeReadyToOccur[mapIdx]) {
       final packet = _writeMetadataQueue[mapIdx][0];
 
+      // hold off responding until the requested delay has elapsed for
+      // this channel's response
+      if (writeResponseDelay != null) {
+        final remaining = _writeResponseDelayRemaining.putIfAbsent(
+            mapIdx, () => writeResponseDelay!(packet));
+        if (remaining > 0) {
+          _writeResponseDelayRemaining[mapIdx] = remaining - 1;
+          return;
+        }
+        _writeResponseDelayRemaining.remove(mapIdx);
+      }
+
       // determine if the address falls in a region
       var addrToWrite = packet.addr;
       final region = _checkRegion(addrToWrite);
@@ -579,14 +603,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
           id: packet.id,
           resp: rVal,
           user: LogicValue.ofInt(0, bIntf.userWidth)));
-
-      // TODO(kimmeljo): how to deal with delays??
-      // if (readResponseDelay != null) {
-      //   final delayCycles = readResponseDelay!(packet);
-      //   if (delayCycles > 0) {
-      //     await sIntf.clk.waitCycles(delayCycles);
-      //   }
-      // }
 
       // generic model does not handle the following write request fields:
       //  cache
