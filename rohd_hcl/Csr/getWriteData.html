@@ -55,8 +55,9 @@
     <section class="multi-line-signature">
       
 <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">getWriteData</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getWriteData-param-wd"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">wd</span></span></li>
-</ol>)
+<span class="name ">getWriteData</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="getWriteData-param-wd"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">wd</span>, {</span></li>
+<li><span class="parameter" id="getWriteData-param-isBackdoorWrite"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.13.4/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBackdoorWrite</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
 
       
 
@@ -66,13 +67,18 @@
   <p>Given some arbitrary data <code>wd</code> to write to this CSR,
 return the data that should actually be written based
 on the access control of the CSR and its fields.</p>
+<p><code>isBackdoorWrite</code> distinguishes a backdoor write from a frontdoor
+write. It only affects <a href="../../rohd_hcl/CsrFieldAccess.html">CsrFieldAccess.writeOnesClear</a> fields:
+frontdoor writes of <code>1</code> clear the bit, while backdoor writes of <code>1</code>
+set it (so a backdoor writer can raise a flag that a frontdoor
+writer later clears).</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic getWriteData(Logic wd) {
+  <pre class="language-dart"><code class="language-dart">Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
   &#47;&#47; if the whole register is ready only, return the current value
   if (access == CsrAccess.readOnly) {
     return this;
@@ -102,10 +108,21 @@ on the access control of the CSR and its fields.</p>
 
       &#47;&#47; if the given field is read only
       &#47;&#47; take the current value instead of the new value
-      final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
-          fields[currField].access == CsrFieldAccess.writeOnesClear;
+      final chk2 = fields[currField].access == CsrFieldAccess.readOnly;
       if (chk2) {
         finalWd = finalWd.withSet(currIdx, elements[i]);
+        currField++;
+        currIdx += elements[i].width;
+        continue;
+      }
+
+      &#47;&#47; if the given field is write-ones-clear: frontdoor writes of 1
+      &#47;&#47; clear the bit; backdoor writes of 1 set the bit instead.
+      final chk3 = fields[currField].access == CsrFieldAccess.writeOnesClear;
+      if (chk3) {
+        final wdField = wd.getRange(currIdx, currIdx + elements[i].width);
+        finalWd = finalWd.withSet(currIdx,
+            isBackdoorWrite ? elements[i] | wdField : elements[i] &amp; ~wdField);
         currField++;
         currIdx += elements[i].width;
         continue;
