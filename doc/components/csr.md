@@ -88,10 +88,10 @@ At the CSR field granularity, the access modes, defined in the Enum `CsrFieldAcc
 
 - Read only
 - Read/write
-- Write ones clear (read only, but writing it has a side effect)
+- Write ones clear (read only from the frontdoor's perspective, but writing 1 has a side effect)
 - Read/write legal (can only write a legal value)
 
-Note that field access rules apply to both frontdoor and backdoor accesses of the register.
+Note that field access rules apply to both frontdoor and backdoor accesses of the register. The one exception is "write ones clear": a frontdoor (software) write of `1` clears the corresponding bit, while a backdoor (hardware) write of `1` instead sets the bit, allowing hardware to raise a flag that software later clears.
 
 To support the read/write legal mode, the configuration must provide a non-empty list of legal values to check against. In the hardware's logic construction, if a write is attempting to place an illegal value in the field, this write data is remapped to a legal value per the `transformIllegalValue()` method. This method can be custom defined in a derived class of `CsrFieldConfig` but has a default implementation that can be used as is.
 
@@ -117,6 +117,8 @@ In addition, the following attributes and methods are exposed:
 ## CSR Block Definition
 
 A CSR block is a `Module` that wraps a collection of `Csr` objects, making them accessible to reads and writes. The class in HW to create a CSR block is called `CsrBlock`. It is constructed by passing a configuration object of type `CsrBlockConfig`.
+
+The `CsrBlock` constructor also accepts an `asyncReset` flag that defaults to `false`. When `asyncReset` is `true`, the block's registers treat `reset` as asynchronous. When `false`, `reset` is treated as synchronous.
 
 ### CsrBlockConfig
 
@@ -211,6 +213,7 @@ The `CsrTopConfig` defines the contents of the top module. As such, it is constr
 - Validation to check for configuration correctness and consistency.
 - A method `minAddrBits()` that returns the minimum number of address bits required to uniquely address every register instance in every block. The return value is based on both the largest block `baseAddr` and its largest `minAddrBits`.
 - A method `maxRegWidth()` that returns the number of bits in the largest register instance across all blocks.
+- An `asyncReset` flag (default `false`) that is propagated down to every `CsrBlock` in the module, controlling whether each block's registers treat `reset` as asynchronous or synchronous. See [CSR Block Definition](#csr-block-definition) for details.
 
 #### Validation of CsrTopConfig
 
@@ -234,7 +237,7 @@ If an access drives an address that doesn't map to any block, writes are NOPs an
 
 On module build, the width of the address signal on both `DataPortInterface`s is checked to ensure that it is at least as wide as the module's `minAddrBits`. On module build, the width of the input and output data signals on the `DataPortInterface`s are checked to ensure that they are at least as wide as the module's `maxRegWidth`.
 
-Note that the same parameters `allowLargerRegisters` and `logicalRegisterIncrement` that are found in `CsrBlock` can be passed at the top and propagated down to all blocks within the module.
+Note that the same parameters `allowLargerRegisters` and `logicalRegisterIncrement` that are found in `CsrBlock` can be passed at the top and propagated down to all blocks within the module. The top-level `asyncReset` flag (see [CsrTopConfig](#csrtopconfig)) is likewise propagated down to every block.
 
 ### Backdoor CSR Access - Top
 

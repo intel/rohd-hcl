@@ -175,6 +175,94 @@ class MyHeterogeneousCsrModule extends CsrTopConfig {
         );
 }
 
+/// A CSR module where a block's base address is not aligned to a
+/// power-of-two boundary derived from its size.
+///
+/// - block_a: baseAddr 0x0, default blockSize 8.
+/// - block_b: baseAddr 0x8, overrides blockSize to 16 (0x10). 0x8 is not a
+///   multiple of 16, so block_b's base address is not power-of-two aligned
+///   relative to its size.
+class MyMisalignedCsrModule extends CsrTopConfig {
+  MyMisalignedCsrModule()
+      : super(
+          name: 'myMisalignedCsrModule',
+          blockSize: 8, // default for blocks without their own override
+          blocks: [
+            MyRegisterBlock(
+              baseAddr: 0x0,
+              name: 'block_a',
+              numNoFieldCsrs: 2,
+            ),
+            CsrBlockConfig(
+              name: 'block_b',
+              baseAddr: 0x8,
+              blockSize: 0x10,
+              registers: [
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readWrite,
+                    name: 'bReg0',
+                    fields: const [],
+                  ),
+                  addr: 0x0,
+                  width: 32,
+                ),
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'bReg1',
+                    fields: const [],
+                  ),
+                  addr: 0xF,
+                  width: 32,
+                  resetValue: 0xCAFEF00D,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
+/// A CSR module with a single block whose size exactly fills the address
+/// space implied by its own offset width (baseAddr 0x0, blockSize 8 ==
+/// 2^3), to test that block range matching does not overflow in that case.
+class MyFullSpanCsrModule extends CsrTopConfig {
+  MyFullSpanCsrModule()
+      : super(
+          name: 'myFullSpanCsrModule',
+          blockSize: 8,
+          blocks: [
+            CsrBlockConfig(
+              name: 'block_full',
+              baseAddr: 0x0,
+              registers: [
+                for (var i = 0; i < 7; i++)
+                  CsrInstanceConfig(
+                    arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg$i',
+                      fields: const [],
+                    ),
+                    addr: i,
+                    width: 32,
+                  ),
+                // read-only register at the highest address in the block
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'reg7',
+                    fields: const [],
+                  ),
+                  addr: 7,
+                  width: 32,
+                  resetValue: 0xFEEDFACE,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
 // to test potentially issues with CsrTop port propagation
 class DummyCsrTopModule extends Module {
   late final Logic _clk;
@@ -242,8 +330,10 @@ void main() {
     // check the write data
     // only some of what we're trying to write should
     // given the field access rules
+    // (field4_1 is write-ones-clear at bit 7; wd = 0xab has bit7 = 1,
+    // so that bit clears to 0, giving 0x63 instead of a literal copy)
     final wd2 = csr2.getWriteData(Const(0xab, width: dataWidth2));
-    expect(wd2.value, LogicValue.ofInt(0xe3, dataWidth2));
+    expect(wd2.value, LogicValue.ofInt(0x63, dataWidth2));
 
     // check grabbing individual fields
     final f1 = csr2.getField('field1');
@@ -402,7 +492,144 @@ void main() {
     back1.wrData!.inject(0xbeefdead);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
-    expect(back1.rdData!.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
+    expect(back1.rdData!.value, LogicValue.ofInt(0xbeef00f3, rIntf.dataWidth));
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('writeOnesClear field clears only on write of 1', () async {
+    const csrWidth = 8;
+
+    // csr1's reset value (0xff) sets every bit including the
+    // writeOnesClear fields (field4_0/field4_1) to 1.
+    final csrBlockCfg = MyRegisterBlock(
+      baseAddr: 0x0,
+      csrWidth: csrWidth,
+    );
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: null,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    // both writeOnesClear bits reset to 1
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_1').value, LogicValue.one);
+
+    // writing 0 to the writeOnesClear bits leaves them unchanged
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0x00);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_1').value, LogicValue.one);
+
+    // writing 1 to the writeOnesClear bits clears them to 0
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0xc0); // bits 6 (field4_0) and 7 (field4_1)
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.zero);
+    expect(csr1.getField('field4_1').value, LogicValue.zero);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('writeOnesClear field is set only by a backdoor write of 1', () async {
+    // csr1's writeOnesClear fields (field4_0..field4_7) occupy the upper
+    // byte (bits 31:24), which reset to 0 since csr1's reset value (0xff)
+    // only sets the low byte.
+    final csrBlockCfg = MyRegisterBlock(baseAddr: 0x0);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: null,
+        frontRead: null);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    expect(csr1.getField('field4_0').value, LogicValue.zero);
+    expect(csr1.getField('field4_7').value, LogicValue.zero);
+
+    // a backdoor write of 1 sets the writeOnesClear bits
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0xff000000);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_7').value, LogicValue.one);
+
+    // a subsequent backdoor write of 0 leaves the now-set bits unchanged
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0x00000000);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_7').value, LogicValue.one);
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
@@ -508,7 +735,7 @@ void main() {
     back1.wrData!.inject(0xdeadbeef);
     await clk.nextNegedge;
     back1.wrData!.inject(0);
-    expect(back1.rdData!.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
+    expect(back1.rdData!.value, LogicValue.ofInt(0xdead00f3, rIntf.dataWidth));
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
@@ -638,6 +865,187 @@ void main() {
     await clk.nextNegedge;
     rIntf.en.inject(1);
     rIntf.addr.inject(addrSmall0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('CSR top with non-power-of-two-aligned block base address', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyMisalignedCsrModule();
+
+    // block_b's highest address (0x8 + 0x10 - 1 = 0x17) needs 5 bits, even
+    // though its base address (0x8) alone only needs 4
+    expect(csrTopCfg.minAddrBits(), 5);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 32);
+    final rIntf = DataPortInterface(csrWidth, 32);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final blockA = csrTop.getBlockByName('block_a');
+    final blockB = csrTop.getBlockByName('block_b');
+    final aCsr1 = blockA.getRegisterByName('csr1');
+    final bReg0 = blockB.getRegisterByName('bReg0');
+    final bReg1 = blockB.getRegisterByName('bReg1');
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read block_b's read-only register (reset value 0xCAFEF00D); block_b's
+    // base address (0x8) is not aligned to its size (0x10), so this only
+    // returns the correct value if the block's address range is matched
+    // instead of a power-of-two-aligned bitmask
+    final addrBReg1 = blockB.baseAddr + bReg1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrBReg1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(bReg1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to block_b's read-write register (bReg0) and verify
+    final addrBReg0 = blockB.baseAddr + bReg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrBReg0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrBReg0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // confirm block_a (aligned, at base address 0x0) is still reachable and
+    // unaffected by block_b's misaligned base address
+    final addrACsr1 = blockA.baseAddr + aCsr1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrACsr1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(aCsr1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('CSR top with a block that spans the full address space', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyFullSpanCsrModule();
+
+    // block's baseAddr(0) + blockSize(8) == 2^3, exactly filling the
+    // address space implied by a 3-bit address
+    expect(csrTopCfg.minAddrBits(), 3);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 3);
+    final rIntf = DataPortInterface(csrWidth, 3);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final block = csrTop.getBlockByName('block_full');
+    final reg0 = block.getRegisterByName('reg0');
+    final reg7 = block.getRegisterByName('reg7');
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read the register at the highest address in the block (reset value
+    // 0xFEEDFACE); only reachable if the block's range match doesn't
+    // overflow when baseAddr + blockSize == 2^addrWidth
+    final addrReg7 = block.baseAddr + reg7.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrReg7);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(reg7.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to the register at the lowest address in the block and verify
+    final addrReg0 = block.baseAddr + reg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrReg0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrReg0);
     await clk.nextNegedge;
     rIntf.en.inject(0);
     expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
@@ -883,5 +1291,54 @@ void main() {
               ],
             ),
         throwsA(isA<CsrValidationException>()));
+  });
+
+  test('CsrBlock honors asyncReset without waiting for a clock edge', () async {
+    final csrBlockCfg = MyRegisterBlock(
+      baseAddr: 0x0,
+      numNoFieldCsrs: 2,
+    );
+
+    // tie the clock off entirely: with a synchronous reset, the register
+    // would never receive its reset value since there is no clock edge to
+    // sample `reset` on. With an asynchronous reset, the register should
+    // reset immediately upon `reset` being asserted, independent of `clk`.
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(32, 8);
+    final rIntf = DataPortInterface(32, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: Const(0),
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true,
+        asyncReset: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+    rIntf.en.put(0);
+    rIntf.addr.put(0);
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    final csr1 = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1);
+
+    // assert reset with no clock ever ticking.
+    reset.inject(1);
+    await Simulator.tick();
+
+    // register should already reflect its reset value.
+    expect(csrBlock.csrs[csr1Idx].value,
+        LogicValue.ofInt(csr1.resetValue, csr1.width));
+
+    reset.inject(0);
+    await Simulator.tick();
+    await Simulator.endSimulation();
   });
 }

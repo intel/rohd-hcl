@@ -142,8 +142,11 @@ class Csr extends LogicStructure {
   /// [CsrAccess.readOnly] register is still backdoor writeable when the
   /// configuration says so, which is what makes a status register useful.
   /// Set [isBackdoorWrite] for such a write to skip that check.  Field level
-  /// access rules apply to frontdoor and backdoor writes alike, so they are
-  /// enforced either way.
+  /// access rules are enforced for both paths, except that
+  /// [CsrFieldAccess.writeOnesClear] distinguishes the write source:
+  /// frontdoor writes of `1` clear the bit, while backdoor writes of `1`
+  /// set it (so a backdoor writer can raise a flag that a frontdoor
+  /// writer later clears).
   Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
     // if the whole register is ready only, return the current value
     if (!isBackdoorWrite && access == CsrAccess.readOnly) {
@@ -174,10 +177,21 @@ class Csr extends LogicStructure {
 
         // if the given field is read only
         // take the current value instead of the new value
-        final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
-            fields[currField].access == CsrFieldAccess.writeOnesClear;
+        final chk2 = fields[currField].access == CsrFieldAccess.readOnly;
         if (chk2) {
           finalWd = finalWd.withSet(currIdx, elements[i]);
+          currField++;
+          currIdx += elements[i].width;
+          continue;
+        }
+
+        // if the given field is write-ones-clear: frontdoor writes of 1
+        // clear the bit; backdoor writes of 1 set the bit instead.
+        final chk3 = fields[currField].access == CsrFieldAccess.writeOnesClear;
+        if (chk3) {
+          final wdField = wd.getRange(currIdx, currIdx + elements[i].width);
+          finalWd = finalWd.withSet(currIdx,
+              isBackdoorWrite ? elements[i] | wdField : elements[i] & ~wdField);
           currField++;
           currIdx += elements[i].width;
           continue;
