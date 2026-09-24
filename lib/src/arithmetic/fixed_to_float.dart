@@ -73,7 +73,6 @@ class FixedToFloat extends Module {
         : null;
 
     final bias = float.floatingPointValue.bias;
-    final eMax = pow(2, float.exponent.width) - 2;
     final iWidth = (1 +
             max(log2Ceil(max(1, fixed.fractionWidth)),
                 max(log2Ceil(fixed.width), float.exponent.width)))
@@ -207,8 +206,16 @@ class FixedToFloat extends Module {
     // Select output handling corner cases
     final expoLessThanOne =
         (eRawRne[-1] | ~eRawRne.or()).named('expLessThanOne');
-    final expoMoreThanMax =
-        (~eRawRne[-1] & (eRawRne.gt(eMax))).named('expMoreThanMax');
+    final largestFinite = _convertedFloat
+        .valuePopulator()
+        .ofConstant(FloatingPointConstants.largestNormal);
+    final maxFiniteExponent =
+        Const(largestFinite.exponent).zeroExtend(eRawRne.width);
+    final expoMoreThanMax = (~eRawRne[-1] &
+            (eRawRne.gt(maxFiniteExponent) |
+                (eRawRne.eq(maxFiniteExponent) &
+                    normalMantissa.gt(Const(largestFinite.mantissa)))))
+        .named('expMoreThanMax');
     final overflowToInfinity = outFloat.supportsInfinities
         ? switch (roundingMode) {
             FloatingPointRoundingMode.roundNearestEven ||
@@ -223,9 +230,6 @@ class FixedToFloat extends Module {
               _convertedFloat.sign,
           }
         : Const(0);
-    final largestFinite = _convertedFloat
-        .valuePopulator()
-        .ofConstant(FloatingPointConstants.largestNormal);
     Combinational([
       If.block([
         Iff(~absValue.or(), [

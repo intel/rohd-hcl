@@ -59,9 +59,35 @@ class FloatingPoint extends LogicStructure {
 
   /// Constructs a constant [FloatingPoint] from [value].
   factory FloatingPoint.constant(FloatingPointValue value, {String? name}) =>
-      FloatingPoint._(Const(value.sign), Const(value.exponent),
-          Const(value.mantissa), value.explicitJBit, value.subNormalAsZero,
-          name: name);
+      switch (value) {
+      FloatingPoint16Value() => FloatingPoint16.constant(value, name: name),
+      FloatingPoint32Value() => FloatingPoint32.constant(value, name: name),
+      FloatingPoint64Value() => FloatingPoint64.constant(value, name: name),
+      FloatingPointBF16Value() =>
+        FloatingPointBF16.constant(value, name: name),
+      FloatingPoint8E5M2Value() =>
+        FloatingPoint8E5M2.constant(value, name: name),
+      FloatingPoint8E4M3Value() =>
+        FloatingPoint8E4M3.constant(value, name: name),
+      FloatingPointTF32Value() =>
+        FloatingPointTF32.constant(value, name: name),
+      _ => FloatingPoint._(
+          Const(value.sign),
+          Const(value.exponent),
+          Const(value.mantissa),
+          value.explicitJBit,
+          value.subNormalAsZero,
+          name: name),
+      };
+
+  /// Creates a [FloatingPoint] from its component signals.
+  FloatingPoint.fromComponents(
+      Logic sign, Logic exponent, Logic mantissa,
+      {required bool explicitJBit,
+      required bool subNormalAsZero,
+      String? name})
+      : this._(sign, exponent, mantissa, explicitJBit, subNormalAsZero,
+            name: name);
 
   /// [FloatingPoint] internal constructor.
   FloatingPoint._(this.sign, this.exponent, this.mantissa, this.explicitJBit,

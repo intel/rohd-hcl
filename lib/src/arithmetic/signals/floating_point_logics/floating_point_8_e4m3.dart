@@ -9,6 +9,7 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Eight-bit floating point representation for deep learning: E4M3.
@@ -18,6 +19,18 @@ class FloatingPoint8E4M3 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPoint8E4M3Value.populator().mantissaWidth,
             exponentWidth: FloatingPoint8E4M3Value.populator().exponentWidth);
+
+  /// Constructs an E4M3 constant from [value].
+  factory FloatingPoint8E4M3.constant(FloatingPoint8E4M3Value value,
+          {String? name}) =>
+      FloatingPoint8E4M3._(
+          Const(value.sign), Const(value.exponent), Const(value.mantissa),
+          name: name);
+
+  FloatingPoint8E4M3._(super.sign, super.exponent, super.mantissa,
+      {super.name})
+      : super.fromComponents(
+            explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);

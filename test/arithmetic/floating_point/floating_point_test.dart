@@ -279,6 +279,15 @@ void main() {
     expect(constant.exponent, isA<Const>());
     expect(constant.mantissa, isA<Const>());
     expect(constant.floatingPointValue, value);
+    expect(constant, isA<FloatingPoint32>());
+  });
+
+  test('FloatingPointValue creates a constant in its concrete format', () {
+    final value = FloatingPoint8E4M3Value.populator().ofDouble(1.5);
+    final constant = value.toLogic();
+
+    expect(constant, isA<FloatingPoint8E4M3>());
+    expect(constant.floatingPointValue, value);
   });
 
   test('FP Comparison Random', () {
