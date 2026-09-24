@@ -95,11 +95,13 @@ Future&lt;void&gt; run(Phase phase) async {
       _dataReadResponseDataQueue[_readAddrToChannel[i]!].clear();
       &#47;&#47; _dataReadResponseErrorQueue[_readAddrToChannel[i]!].clear();
       _dataReadResponseIndex[_readAddrToChannel[i]!] = 0;
+      _readResponseDelayRemaining.remove(_readAddrToChannel[i]);
 
       &#47;&#47; write side reset
       _writeMetadataQueue[_writeAddrToChannel[i]!].clear();
       _writeDataQueue[_writeAddrToChannel[i]!].clear();
       _writeReadyToOccur[_writeAddrToChannel[i]!] = false;
+      _writeResponseDelayRemaining.remove(_writeAddrToChannel[i]);
     }
   });
 
