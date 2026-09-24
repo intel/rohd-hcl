@@ -138,14 +138,18 @@ class Csr extends LogicStructure {
   /// return the data that should actually be written based
   /// on the access control of the CSR and its fields.
   ///
-  /// [isBackdoorWrite] distinguishes a backdoor write from a frontdoor
-  /// write. It only affects [CsrFieldAccess.writeOnesClear] fields:
+  /// Register level access rules apply only to frontdoor writes: a
+  /// [CsrAccess.readOnly] register is still backdoor writeable when the
+  /// configuration says so, which is what makes a status register useful.
+  /// Set [isBackdoorWrite] for such a write to skip that check.  Field level
+  /// access rules are enforced for both paths, except that
+  /// [CsrFieldAccess.writeOnesClear] distinguishes the write source:
   /// frontdoor writes of `1` clear the bit, while backdoor writes of `1`
   /// set it (so a backdoor writer can raise a flag that a frontdoor
   /// writer later clears).
   Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
     // if the whole register is ready only, return the current value
-    if (access == CsrAccess.readOnly) {
+    if (!isBackdoorWrite && access == CsrAccess.readOnly) {
       return this;
     }
     // register can be written, but still need to look at the fields...
