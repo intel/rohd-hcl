@@ -27,10 +27,8 @@ class FloatingPointBF16 extends FloatingPoint {
           Const(value.sign), Const(value.exponent), Const(value.mantissa),
           name: name);
 
-  FloatingPointBF16._(super.sign, super.exponent, super.mantissa,
-      {super.name})
-      : super.fromComponents(
-            explicitJBit: false, subNormalAsZero: false);
+  FloatingPointBF16._(super.sign, super.exponent, super.mantissa, {super.name})
+      : super.fromComponents(explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPointBF16 clone({String? name}) => FloatingPointBF16(name: name);

@@ -28,8 +28,7 @@ class FloatingPoint32 extends FloatingPoint {
           name: name);
 
   FloatingPoint32._(super.sign, super.exponent, super.mantissa, {super.name})
-      : super.fromComponents(
-            explicitJBit: false, subNormalAsZero: false);
+      : super.fromComponents(explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPoint32 clone({String? name}) => FloatingPoint32(name: name);

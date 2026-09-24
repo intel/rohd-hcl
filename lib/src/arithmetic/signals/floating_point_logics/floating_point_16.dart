@@ -28,8 +28,7 @@ class FloatingPoint16 extends FloatingPoint {
           name: name);
 
   FloatingPoint16._(super.sign, super.exponent, super.mantissa, {super.name})
-      : super.fromComponents(
-            explicitJBit: false, subNormalAsZero: false);
+      : super.fromComponents(explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPoint16 clone({String? name}) => FloatingPoint16(name: name);
