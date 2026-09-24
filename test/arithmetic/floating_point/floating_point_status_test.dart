@@ -121,6 +121,7 @@ void main() {
     expectEncoding(converter.destination, converted);
     expectEncoding(sqrt.sqrt, quieted);
     expect(converter.status.invalid.value.toBool(), isTrue);
+    expect(converter.status.inexact.value.toBool(), isFalse);
     expect(sqrt.status.invalid.value.toBool(), isTrue);
   });
 
@@ -182,5 +183,21 @@ void main() {
     expectEncoding(converter.destination,
         FloatingPoint8E4M3Value.populator().ofInts(15, 7, sign: true));
     expect(converter.destination.sign.value.toBool(), isTrue);
+  });
+
+  test('FP: E4M3 conversion accepts its finite exponent-15 encodings', () {
+    final source = FloatingPoint8E4M3();
+    final destination = FloatingPoint8E4M3();
+    final converter = FloatingPointConverter(source, destination);
+
+    source.put(source.valuePopulator().ofInts(15, 0));
+    expectEncoding(
+        converter.destination, destination.valuePopulator().ofInts(15, 0));
+    expect(converter.status.overflow.value.toBool(), isFalse);
+
+    source.put(source.valuePopulator().ofInts(15, 6));
+    expectEncoding(
+        converter.destination, destination.valuePopulator().ofInts(15, 6));
+    expect(converter.status.overflow.value.toBool(), isFalse);
   });
 }

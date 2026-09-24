@@ -51,6 +51,20 @@ void main() async {
     expect(nearest.definitionName, isNot(towardsZero.definitionName));
   });
 
+  test('FixedToFloat: E4M3 retains representable exponent-15 values', () {
+    final fixed =
+        FixedPoint(signed: false, integerWidth: 10, fractionWidth: 0);
+    final output = FloatingPoint8E4M3();
+    final dut = FixedToFloat(fixed, output, signed: false);
+
+    fixed.put(fixed
+        .valuePopulator()
+        .ofLogicValue(LogicValue.ofInt(256, fixed.width)));
+
+    expect(dut.float.floatingPointValue,
+        equals(output.valuePopulator().ofDouble(256)));
+  });
+
   test('FixedToFloat: exact signed and unsigned layout coverage', () {
     for (final signed in [false, true]) {
       final layouts = signed

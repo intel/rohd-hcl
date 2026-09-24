@@ -9,6 +9,7 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Eight-bit floating point representation for deep learning: E5M2.
@@ -18,6 +19,18 @@ class FloatingPoint8E5M2 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPoint8E5M2Value.populator().mantissaWidth,
             exponentWidth: FloatingPoint8E5M2Value.populator().exponentWidth);
+
+  /// Constructs an E5M2 constant from [value].
+  factory FloatingPoint8E5M2.constant(FloatingPoint8E5M2Value value,
+          {String? name}) =>
+      FloatingPoint8E5M2._(
+          Const(value.sign), Const(value.exponent), Const(value.mantissa),
+          name: name);
+
+  FloatingPoint8E5M2._(super.sign, super.exponent, super.mantissa,
+      {super.name})
+      : super.fromComponents(
+            explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPoint8E5M2 clone({String? name}) => FloatingPoint8E5M2(name: name);

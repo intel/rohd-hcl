@@ -122,8 +122,6 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
     if (destExponentWidth >= source.exponent.width) {
       // Narrow to Wide
-      overflow = Const(0);
-
       if (destExponentWidth > source.exponent.width) {
         biasDiff = (dBias - sBias).named('biasDiff');
 
@@ -246,6 +244,15 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       }
       destExponent =
           preExponent.getRange(0, destExponentWidth).named('destExponent');
+
+      final largestFinite = destination
+          .valuePopulator()
+          .ofConstant(FloatingPointConstants.largestNormal);
+      final maxDestExp = Const(largestFinite.exponent, width: maxExpWidth);
+      final maxDestMantissa = Const(largestFinite.mantissa);
+      overflow = destExponent.zeroExtend(maxExpWidth).gt(maxDestExp) |
+          (destExponent.zeroExtend(maxExpWidth).eq(maxDestExp) &
+              destMantissa.gt(maxDestMantissa));
     } else {
       // Wide to Narrow exponent
       final biasDiff = (sBias - dBias).named('biasDiff');
@@ -289,7 +296,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               .named('shiftMantissa');
 
       final shiftedOutSticky =
-          (~tns[-1] & fullMantissa.or() & ~shiftMantissa.or())
+          (~tns[-1] & fullMantissa.neq(shiftMantissa << tns))
               .named('shiftedOutSticky');
 
       final rounder = FloatingPointRounder(
@@ -352,11 +359,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     };
     final finiteOverflow =
         (overflow & ~source.isAnInfinity & ~nan).named('finiteOverflow');
+    final finiteRoundingInexact =
+        (roundingInexact & ~source.isAnInfinity & ~nan)
+            .named('finiteRoundingInexact');
     _status.invalid <= source.isSignalingNaN;
     _status.divideByZero <= Const(0);
     _status.overflow <= finiteOverflow;
-    _status.underflow <= ~destExponent.or() & roundingInexact & ~nan;
-    _status.inexact <= finiteOverflow | roundingInexact;
+    _status.underflow <= ~destExponent.or() & finiteRoundingInexact;
+    _status.inexact <= finiteOverflow | finiteRoundingInexact;
     Combinational([
       If.block([
         Iff(nan, [

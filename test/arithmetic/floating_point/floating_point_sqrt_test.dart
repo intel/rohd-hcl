@@ -223,6 +223,11 @@ ${expError.value} expected''');
     expect(sqrtDut.sqrt.exponent.value.toInt(), equals(0));
     expect(sqrtDut.status.underflow.value.toBool(), isTrue);
     expect(sqrtDut.status.inexact.value.toBool(), isTrue);
+
+    final zeroBiasedInput = fp.valuePopulator().ofInts(0, 2);
+    fp.put(zeroBiasedInput);
+    expect(sqrtDut.sqrt.floatingPointValue,
+        equals(fp.valuePopulator().ofInts(0, 16)));
   });
 
   test('FP: random number sqrt', () {

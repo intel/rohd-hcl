@@ -149,7 +149,8 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     // A negative biased exponent cannot be represented in the exponent field.
     // Shift the unrounded significand into the subnormal range and round it
     // there instead of truncating the negative exponent to its low bits.
-    final isSubnormal = roundedExponent[-1].named('isSubnormal');
+    final isSubnormal =
+        (roundedExponent[-1] | ~roundedExponent.or()).named('isSubnormal');
     final subnormalShift =
         (Const(1, width: exponentCalcWidth) - roundedExponent)
             .named('subnormalShift');
