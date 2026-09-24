@@ -2,37 +2,20 @@
 
 ### Breaking Changes
 
-- `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an
-  implicit-J-bit format or normalize the input before connecting it to the
-  square-root component.
-- Explicit-J-bit NaN construction now requires at least one payload bit in
-  addition to the J bit. Formats with a one-bit explicit mantissa are rejected
-  because they cannot encode a quiet-NaN payload.
-- Automatic definition names for `MultiplyAccumulate`,
-  `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now
-  include the effective `outputWidth`. Consumers that reference generated HDL
-  definition names must update those names; explicitly supplied
-  `definitionName` values are unchanged.
-- Automatic `FixedToFloat` definition names now include `roundingMode` so
-  converters with different rounding logic cannot share an HDL definition.
-- Automatic `FloatingPointAdderSinglePath` definition names now include
-  `roundingMode` for the same reason.
+- `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an implicit-J-bit format or normalize the input before connecting it to the square-root component.
+- Explicit-J-bit NaN construction now requires at least one payload bit in addition to the J bit. Formats with a one-bit explicit mantissa are rejected because they cannot encode a quiet-NaN payload.
+- Automatic definition names for `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now include the effective `outputWidth`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `FixedToFloat` definition names now include `roundingMode` so converters with different rounding logic cannot share an HDL definition.
+- Automatic `FloatingPointAdderSinglePath` definition names now include `roundingMode` for the same reason.
+- Automatic `FloatingPointConverter`, `FloatingPointSqrt`, and `FloatingPointSqrtSimple` definition names now include `roundingMode`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `DotProduct`, `CompressionTreeDotProduct`, and `GeneralDotProduct` definition names now include lane count, operand widths, radix, implementation identity, and signedness. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
 
 ### Deprecated APIs
 
-- Deprecated the unsigned-default `FixedPointValue` constructor and
-  `FixedPointValue.populator` while preserving their existing behavior. Use
-  `FixedPointValue.withSignedness` and
-  `FixedPointValue.populatorWithSignedness`, which default to `signed: true` to
-  match `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>).
-- Deprecated `FixedPoint.operator *` while preserving its previous unsigned
-  result width and behavior. Use `FixedPoint.multiply` for a correctly signed,
-  full-width product.
-- Deprecated the `static_or_runtime_parameter.dart` import path. Import
-  `static_or_runtime_control.dart` instead.
-- Deprecated the `subtractIn` constructor parameter and protected member on
-  `OnesComplementAdder` and `CarrySelectOnesComplementCompoundAdder`. Use
-  `subtract` and `subtractParameter`, respectively.
+- Deprecated the unsigned-default `FixedPointValue` constructor and `FixedPointValue.populator` while preserving their existing behavior. Use `FixedPointValue.withSignedness` and `FixedPointValue.populatorWithSignedness`, which default to `signed: true` to match `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>).
+- Deprecated `FixedPoint.operator *` while preserving its previous unsigned result width and behavior. Use `FixedPoint.multiply` for a correctly signed, full-width product.
+- Deprecated the `static_or_runtime_parameter.dart` import path. Import `static_or_runtime_control.dart` instead.
+- Deprecated the `subtractIn` constructor parameter and protected member on `OnesComplementAdder` and `CarrySelectOnesComplementCompoundAdder`. Use `subtract` and `subtractParameter`, respectively.
 
 ### New Features
 
@@ -49,20 +32,14 @@
 
 #### Arithmetic Signal Operations
 
-- Added typed `add`, `subtract`, and `multiply` methods and direct `+` and `-`
-  operators to `FixedPoint` signals, and arithmetic methods and operators to
-  `FloatingPoint` signals (<https://github.com/intel/rohd-hcl/issues/199>).
+- Added typed `add`, `subtract`, and `multiply` methods and direct `+` and `-` operators to `FixedPoint` signals, and arithmetic methods and operators to `FloatingPoint` signals (<https://github.com/intel/rohd-hcl/issues/199>).
 
 #### Integer Arithmetic Components
 
 - Added an optional `carryIn` to `SignMagnitudeAdder`.
-- Added configurable `outputWidth` to `MultiplyAccumulate`,
-  `CompressionTreeMultiplyAccumulate`, and `MultiplyOnly`.
-- Added `GenericMultiplyAccumulate`, which composes configurable multiplier
-  and adder generators.
-- Added independent multiplicand and multiplier widths to `NativeMultiplier`
-  and `GeneralDotProduct`; `CompressionTreeDotProduct` retains its equal-width
-  fused-partial-product contract.
+- Added configurable `outputWidth` to `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `MultiplyOnly`.
+- Added `GenericMultiplyAccumulate`, which composes configurable multiplier and adder generators.
+- Added independent multiplicand and multiplier widths to `NativeMultiplier` and `GeneralDotProduct`; `CompressionTreeDotProduct` retains its equal-width fused-partial-product contract.
 
 #### Parameterized Configuration
 
@@ -105,16 +82,9 @@
 
 #### Integer Arithmetic Components Fixes
 
-- Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending
-  unsigned products in uneven reduction trees. Static and runtime operand
-  signedness now control partial-sum extension.
-- Fixed `GeneralDotProduct` passing static signedness to child multipliers as
-  constant-valued runtime ports, and strengthened automatic definition names
-  with lane count, operand widths, radix, implementation identity, and
-  signedness.
-- Fixed runtime-signed `GeneralDotProduct` synthesis by keeping its
-  signed-extension control inside the inline reduction generator rather than
-  capturing a parent signal across a reduction-module hierarchy boundary.
+- Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending unsigned products in uneven reduction trees. Static and runtime operand signedness now control partial-sum extension.
+- Fixed `GeneralDotProduct` passing static signedness to child multipliers as constant-valued runtime ports, and strengthened automatic definition names with lane count, operand widths, radix, implementation identity, and signedness.
+- Fixed runtime-signed `GeneralDotProduct` synthesis by keeping its signed-extension control inside the inline reduction generator rather than capturing a parent signal across a reduction-module hierarchy boundary.
 
 #### Floating-Point Arithmetic
 
