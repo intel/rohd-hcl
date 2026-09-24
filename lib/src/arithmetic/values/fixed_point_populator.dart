@@ -73,55 +73,100 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
   static bool canStore(double val,
       {required bool signed,
       required int integerWidth,
-      required int fractionWidth}) {
-    final w = signed
-        ? 1 + integerWidth + fractionWidth
-        : integerWidth + fractionWidth;
-    if (val.isFinite) {
-      final bigIntegerValue = BigInt.from(val * pow(2.0, fractionWidth));
-      final negBigIntegerValue = BigInt.from(-val * pow(2.0, fractionWidth));
-      final l = (val < 0.0)
-          ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
-          : bigIntegerValue.bitLength;
-      return l <= w;
+      required int fractionWidth,
+      FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.truncate}) {
+    if (!val.isFinite) {
+      return false;
     }
-    return false;
+    final exact =
+        FloatingPoint64Value.populator().ofDouble(val).toScaledBigInt();
+    if (!signed && exact.significand.isNegative) {
+      return false;
+    }
+    final shift = exact.exponent + fractionWidth;
+    final scaled = shift >= 0
+        ? exact.significand << shift
+        : roundBigIntByPowerOfTwo(exact.significand, -shift,
+            roundingMode: roundingMode);
+    final width = integerWidth + fractionWidth + (signed ? 1 : 0);
+    if (width < 1) {
+      return false;
+    }
+    final minValue = signed ? -(BigInt.one << (width - 1)) : BigInt.zero;
+    final maxValue = signed
+        ? (BigInt.one << (width - 1)) - BigInt.one
+        : (BigInt.one << width) - BigInt.one;
+    return scaled >= minValue && scaled <= maxValue;
   }
 
-  /// Constructs [FixedPointValue] from a Dart [double] rounding away from zero.
-  FxvType ofDouble(double val) {
-    final signed = _unpopulated.signed;
-    if (!signed & (val < 0)) {
-      throw RohdHclException('Negative input not allowed with unsigned');
+  /// Constructs a [FixedPointValue] from a Dart [double].
+  ///
+  /// [roundingMode] defaults to truncation to preserve the historical behavior
+  /// of this method.
+  FxvType ofDouble(double val,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.truncate}) {
+    if (!val.isFinite) {
+      throw RohdHclException(
+          'NaN and infinity cannot be converted to FixedPointValue.');
     }
-    if (!canStore(val,
-        signed: signed,
-        integerWidth: integerWidth,
-        fractionWidth: fractionWidth)) {
-      throw RohdHclException('Double is too long to store in '
-          'FixedPointValue: $integerWidth, $fractionWidth');
-    }
-    final integerValue = BigInt.from(val * pow(2, fractionWidth));
-    final w = signed
-        ? 1 + integerWidth + fractionWidth
-        : integerWidth + fractionWidth;
-    final v = LogicValue.ofBigInt(integerValue, w);
-    return ofLogicValue(v);
+    final fpv = FloatingPoint64Value.populator().ofDouble(val);
+    return ofFloatingPointValue(fpv, roundingMode: roundingMode);
   }
 
   /// Constructs [FixedPointValue] from a Dart [double] without rounding.
   @internal
   FxvType ofDoubleUnrounded(double val) {
-    final signed = _unpopulated.signed;
     if (!signed & (val < 0)) {
       throw RohdHclException('Negative input not allowed with unsigned');
     }
     final integerValue = BigInt.from(val * pow(2, fractionWidth + 1));
-    final w = signed
-        ? 1 + integerWidth + fractionWidth
-        : integerWidth + fractionWidth;
-    final v = LogicValue.ofBigInt(integerValue >> 1, w);
-    return ofLogicValue(v);
+    final width = integerWidth + fractionWidth + (signed ? 1 : 0);
+    return ofLogicValue(LogicValue.ofBigInt(integerValue >> 1, width));
+  }
+
+  /// Constructs a value equal to [significand] times two to [exponent].
+  ///
+  /// The exact dyadic value is rounded once into this fixed-point format.
+  FxvType ofScaledBigInt(BigInt significand, int exponent,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.truncate}) {
+    if (!signed && significand.isNegative) {
+      throw RohdHclException('Negative input not allowed with unsigned');
+    }
+
+    final shift = exponent + fractionWidth;
+    final scaled = shift >= 0
+        ? significand << shift
+        : roundBigIntByPowerOfTwo(significand, -shift,
+            roundingMode: roundingMode);
+    final width = integerWidth + fractionWidth + (signed ? 1 : 0);
+    if (width < 1) {
+      throw RohdHclException('FixedPointValue width must be positive.');
+    }
+    final minValue = signed ? -(BigInt.one << (width - 1)) : BigInt.zero;
+    final maxValue = signed
+        ? (BigInt.one << (width - 1)) - BigInt.one
+        : (BigInt.one << width) - BigInt.one;
+    if (scaled < minValue || scaled > maxValue) {
+      throw RohdHclException('Value cannot be represented by FixedPointValue '
+          'with integerWidth=$integerWidth, fractionWidth=$fractionWidth, '
+          'signed=$signed.');
+    }
+
+    return ofLogicValue(LogicValue.ofBigInt(scaled, width));
+  }
+
+  /// Converts [fpv] directly into this fixed-point format.
+  ///
+  /// NaN and infinity cannot be represented and cause an exception.
+  FxvType ofFloatingPointValue(FloatingPointValue fpv,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.truncate}) {
+    final exact = fpv.toScaledBigInt();
+    return ofScaledBigInt(exact.significand, exact.exponent,
+        roundingMode: roundingMode);
   }
 
   /// Constructs a [FixedPointValue] from another [FixedPointValue] with

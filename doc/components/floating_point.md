@@ -20,6 +20,8 @@ Conversions from the native `double` are supported, both in rounded and unrounde
 
 Appropriate string representations, comparison operations, and operators are available.  The usefulness of [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) is in the testing of [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) components, where we can leverage the abstraction of a floating-point value type to drive and compare floating-point values operated upon by floating-point components.
 
+A `FloatingPointValue` can be converted to a constant `FloatingPoint` signal with `toLogic()`. `FloatingPoint` signals support direct `+`, `-`, unary `-`, and `*` operators as well as `add`, `subtract`, and `multiply` methods. The named arithmetic methods optionally select a `FloatingPointRoundingMode` and default to round-nearest-even. Comparisons use `eq`, `neq`, `lt`, `lte`, `gt`, and `gte`; `>` and `>=` are also available as operators. ROHD reserves `<` and `<=` for signal assignment, so they cannot be comparison operators.
+
 ### Subnormals As Zero
 
 Both for compatibility and for optimization we provide an option to flag floating-point numbers to be treated as zero when they become subnormal.  On input to a component, this is commonly known as Denormal-as-Zero (or DAZ).  On output from a component this is commonly known as Flush-to-Zero (FTZ).  By setting the boolean on the input `FloatingPoint` called `subNormalAsZero` you indicate DAZ for components that support this mode (our floating-point adders, currently).  By setting the same flag on the output `FloatingPoint`, you indicate FTZ.
@@ -121,14 +123,18 @@ A second `FloatingPointAdderDualPath` component is available which is optimized 
 
 ## FloatingPointSqrt
 
-A very basic [FloatingPointSqrtSimple] component is available which does not perform any
-rounding and does not support DeNorm numbers. It also only operates on variable mantissas of an odd value (1,3,5,etc) but these odd mantissas can be of variable length up to 51. It takes one
-[FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) and
-performs a square root on it, returning the [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) value on the output.
-
-Currently, the [FloatingPointSqrtSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointSqrtSimple-class.html) is close in accuracy (as it has no rounding) and is not
-optimized for circuit performance, but provides the key functionalities of floating-point square root. Still, this component is a starting point for more realistic
-floating-point components that leverage the the logical [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) and literal [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html) type abstractions.
+The [FloatingPointSqrtSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointSqrtSimple-class.html)
+component computes a square root with the selected `FloatingPointRoundingMode`.
+It accepts normal and subnormal inputs, produces correctly rounded normal or
+subnormal outputs, and supports both odd and even mantissa widths. It also
+handles the floating-point special values defined by the input format. The
+component currently requires the implicit-J-bit representation; explicit-J-bit
+inputs are not supported. It is not optimized for circuit performance, but
+provides the key functional behavior of floating-point square root using the logical
+[FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html)
+and literal
+[FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointValue-class.html)
+type abstractions.
 
 ## FloatingPointMultiplier
 

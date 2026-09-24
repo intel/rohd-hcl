@@ -323,10 +323,9 @@ class CompactSignExtension extends PartialProductSignExtension {
     while (m[lastRow].length < alignRow0Sign) {
       m[lastRow].add(Logic());
     }
-    // TODO(desmonddak): this seems unused when looking at Verilog output
-    for (var i = shift - 1; i < m[lastRow].length; i++) {
-      m[lastRow][i] = (lastAddend[i] ^
-              (i < alignRow0Sign ? propagate[lastRow][i] : Const(0)))
+    // Only these last-row values are consumed by the replacement loop below.
+    for (var i = shift - 1; i < alignRow0Sign; i++) {
+      m[lastRow][i] = (lastAddend[i] ^ propagate[lastRow][i])
           .named('m_lastr_c$i', naming: Naming.mergeable);
     }
 

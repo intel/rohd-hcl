@@ -75,6 +75,12 @@ void main() {
       expect(vals.every((e) => e.toInt() == 0xfeedbeef), isTrue);
     });
 
+    test('runtime logic is applied to all', () async {
+      final resetValue = Logic(width: 32)..inject(0xcafef00d);
+      final vals = await setupAndDumpRf(resetValue);
+      expect(vals.every((e) => e.toInt() == 0xcafef00d), isTrue);
+    });
+
     group('list', () {
       test('list applies to corresponding entries', () async {
         final vals = await setupAndDumpRf(

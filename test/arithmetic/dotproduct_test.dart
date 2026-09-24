@@ -51,12 +51,80 @@ void main() {
       expect(e.message, contains('Multiplicands must all have the same width'));
     }
 
-    try {
-      CompressionTreeDotProduct(multiplicands2, multipliers);
-      fail('Should throw on a multiplicand vs multiplier width mismatch');
-    } on RohdHclException catch (e) {
-      expect(e.message,
-          contains('Multiplier and multiplicand have 4 width mismatches.'));
+    expect(
+      () => CompressionTreeDotProduct(multiplicands2, multipliers),
+      throwsA(
+        isA<RohdHclException>().having(
+          (error) => error.message,
+          'message',
+          contains('requires equal multiplicand and multiplier widths'),
+        ),
+      ),
+    );
+    final mixedWidth = GeneralDotProduct(multiplicands2, multipliers);
+    expect(mixedWidth.product.width, 9);
+    expect(
+      mixedWidth.definitionName,
+      contains('GeneralDotProduct_L4_A4_B3_R2_native'),
+    );
+  });
+
+  test('general dot product composes mixed-width compression multipliers', () {
+    final multiplicands = [Logic(width: 4), Logic(width: 4)];
+    final multipliers = [Logic(width: 3), Logic(width: 3)];
+    const leftValues = [0, 1, 7, 8, 15];
+    const rightValues = [0, 1, 3, 7];
+
+    for (final signedMultiplicand in [false, true]) {
+      for (final signedMultiplier in [false, true]) {
+        final dotProduct = GeneralDotProduct(
+          multiplicands,
+          multipliers,
+          signedMultiplicand: signedMultiplicand,
+          signedMultiplier: signedMultiplier,
+          multiplierGen: _compressionTreeMultiplier,
+          multiplierIdentity: 'compressionTreeR4',
+        );
+        for (final left0 in leftValues) {
+          for (final left1 in leftValues) {
+            for (final right0 in rightValues) {
+              for (final right1 in rightValues) {
+                multiplicands[0].put(left0);
+                multiplicands[1].put(left1);
+                multipliers[0].put(right0);
+                multipliers[1].put(right1);
+                final expected = BigInt.from(left0).toCondSigned(
+                          4,
+                          signed: signedMultiplicand,
+                        ) *
+                        BigInt.from(right0).toCondSigned(
+                          3,
+                          signed: signedMultiplier,
+                        ) +
+                    BigInt.from(left1).toCondSigned(
+                          4,
+                          signed: signedMultiplicand,
+                        ) *
+                        BigInt.from(right1).toCondSigned(
+                          3,
+                          signed: signedMultiplier,
+                        );
+                final computed =
+                    dotProduct.product.value.toBigInt().toCondSigned(
+                          dotProduct.product.width,
+                          signed: signedMultiplicand || signedMultiplier,
+                        );
+                expect(
+                  computed,
+                  expected,
+                  reason: 'left=[$left0,$left1] right=[$right0,$right1] '
+                      'signed=[$signedMultiplicand,$signedMultiplier]',
+                );
+              }
+            }
+          }
+        }
+      }
     }
   });
 
@@ -204,6 +272,33 @@ void main() {
     }
   });
 
+  test('general dotproduct dynamically extends partial sums', () {
+    const width = 4;
+    const length = 5;
+    final multiplicands = [
+      for (var i = 0; i < length; i++) Logic(width: width)..put(0xf)
+    ];
+    final multipliers = [
+      for (var i = 0; i < length; i++) Logic(width: width)..put(0xf)
+    ];
+    final signedMultiplicand = Logic(name: 'signedMultiplicand')..put(0);
+    final signedMultiplier = Logic(name: 'signedMultiplier')..put(0);
+    final dotProduct = GeneralDotProduct(
+      multiplicands,
+      multipliers,
+      signedMultiplicand: signedMultiplicand,
+      signedMultiplier: signedMultiplier,
+    );
+
+    expect(dotProduct.product.value.toBigInt(), equals(BigInt.from(1125)),
+        reason: 'unsigned partial sums must be zero-extended');
+
+    signedMultiplicand.put(1);
+    signedMultiplier.put(1);
+    expect(dotProduct.product.value.toBigInt(), equals(BigInt.from(5)),
+        reason: 'signed partial sums must be sign-extended');
+  });
+
   test('dotproduct singleton', () async {
     const widths = [3, 3];
     final depth = widths.length;
@@ -296,3 +391,22 @@ void main() {
     expect(dotProduct.generateSynth(), isNotEmpty);
   });
 }
+
+Multiplier _compressionTreeMultiplier(
+  Logic a,
+  Logic b, {
+  Logic? clk,
+  Logic? reset,
+  Logic? enable,
+  dynamic signedMultiplicand,
+  dynamic signedMultiplier,
+}) =>
+    CompressionTreeMultiplier(
+      a,
+      b,
+      clk: clk,
+      reset: reset,
+      enable: enable,
+      signedMultiplicand: signedMultiplicand,
+      signedMultiplier: signedMultiplier,
+    );

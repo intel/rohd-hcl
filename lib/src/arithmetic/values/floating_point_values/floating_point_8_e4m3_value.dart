@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_8_e4m3_value.dart
@@ -21,6 +21,9 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
 
   @override
   final int mantissaWidth = 3;
+
+  @override
+  int get maxExponent => bias + 1;
 
   /// Constructor for an 8-bit E4M3 floating point value.
   factory FloatingPoint8E4M3Value(
@@ -56,16 +59,10 @@ class FloatingPoint8E4M3Value extends FloatingPointValue {
   bool get supportsInfinities => false;
 
   @override
-  bool get isNaN => (exponent.toInt() == 15) && (mantissa.toInt() == 7);
+  bool get supportsSignalingNaNs => false;
 
-  /// Override the toDouble to avoid NaN
   @override
-  double toDouble() {
-    if (exponent.toInt() == 15) {
-      return 448;
-    }
-    return super.toDouble();
-  }
+  bool get isNaN => (exponent.toInt() == 15) && (mantissa.toInt() == 7);
 
   @override
   @protected

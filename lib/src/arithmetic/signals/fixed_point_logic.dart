@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_logic.dart
@@ -48,6 +48,11 @@ class FixedPoint extends LogicStructure {
             signed,
             name: name);
 
+  /// Constructs a constant [FixedPoint] from [value].
+  factory FixedPoint.constant(FixedPointValue value, {String? name}) =>
+      FixedPoint._(Const(value.integer), Const(value.fraction), value.signed,
+          name: name);
+
   /// [FixedPoint] internal constructor.
   FixedPoint._(this.integer, this.fraction, this.signed, {super.name})
       : super([fraction, integer]);
@@ -58,8 +63,11 @@ class FixedPoint extends LogicStructure {
   /// A [FixedPointValuePopulator] for values associated with this
   /// [FloatingPoint] type.
   @mustBeOverridden
-  FixedPointValuePopulator valuePopulator() => FixedPointValue.populator(
-      integerWidth: integerWidth, fractionWidth: fractionWidth, signed: signed);
+  FixedPointValuePopulator valuePopulator() =>
+      FixedPointValue.populatorWithSignedness(
+          integerWidth: integerWidth,
+          fractionWidth: fractionWidth,
+          signed: signed);
 
   /// Clone for I/O ports.
   @override
@@ -101,7 +109,7 @@ class FixedPoint extends LogicStructure {
   }
 
   /// Check compatibility
-  void _verifyCompatible(dynamic other) {
+  FixedPoint _verifyCompatible(dynamic other) {
     if (other is! FixedPoint) {
       throw RohdHclException('Input must be fixed point signal.');
     }
@@ -110,44 +118,91 @@ class FixedPoint extends LogicStructure {
         (fractionWidth != other.fractionWidth)) {
       throw RohdHclException('Inputs are not comparable.');
     }
+    return other;
   }
 
   /// Less-than.
   @override
   Logic lt(dynamic other) {
-    _verifyCompatible(other);
-    return mux(Const(signed) & this[-1], super.gt(other), super.lt(other));
+    final comparable = _verifyCompatible(other);
+    return mux(
+        Const(signed) & this[-1], super.gt(comparable), super.lt(comparable));
   }
 
   /// Less-than-or-equal-to.
   @override
   Logic lte(dynamic other) {
-    _verifyCompatible(other);
-    return mux(Const(signed) & this[-1], super.gte(other), super.lte(other));
+    final comparable = _verifyCompatible(other);
+    return mux(
+        Const(signed) & this[-1], super.gte(comparable), super.lte(comparable));
   }
 
   /// Greater-than.
   @override
   Logic gt(dynamic other) {
-    _verifyCompatible(other);
-    return mux(Const(signed) & this[-1], super.lt(other), super.gt(other));
+    final comparable = _verifyCompatible(other);
+    return mux(
+        Const(signed) & this[-1], super.lt(comparable), super.gt(comparable));
   }
 
   /// Greater-than.
   @override
   Logic gte(dynamic other) {
-    _verifyCompatible(other);
-    return mux(Const(signed) & this[-1], super.lte(other), super.gte(other));
+    final comparable = _verifyCompatible(other);
+    return mux(
+        Const(signed) & this[-1], super.lte(comparable), super.gte(comparable));
   }
 
   /// Multiply
-  Logic _multiply(dynamic other) {
-    _verifyCompatible(other);
-    final product = Multiply(this, other).out;
+  FixedPoint multiply(dynamic other) {
+    final comparable = _verifyCompatible(other);
+    // ROHD's native `Multiply` gate truncates its output to the input width
+    // and always treats operands as unsigned, so it cannot produce a correct
+    // full-precision signed product. `NativeMultiplier` sign/zero-extends
+    // the operands and produces a full double-width product instead.
+    final product = NativeMultiplier(this, comparable,
+            signedMultiplicand: signed, signedMultiplier: signed)
+        .product;
+    return FixedPoint.of(product,
+        signed: signed,
+        integerWidth: 2 * integerWidth + (signed ? 1 : 0),
+        fractionWidth: 2 * fractionWidth);
+  }
+
+  FixedPoint _legacyMultiply(dynamic other) {
+    final comparable = _verifyCompatible(other);
+    final product = NativeMultiplier(this, comparable).product;
     return FixedPoint.of(product,
         signed: false,
         integerWidth: 2 * integerWidth,
         fractionWidth: 2 * fractionWidth);
+  }
+
+  /// Adds [other] and returns a full-precision [FixedPoint].
+  FixedPoint add(dynamic other) {
+    final comparable = _verifyCompatible(other);
+    final resultWidth = width + 1;
+    final left = signed ? signExtend(resultWidth) : zeroExtend(resultWidth);
+    final right = signed
+        ? comparable.signExtend(resultWidth)
+        : comparable.zeroExtend(resultWidth);
+    return FixedPoint.of(left + right,
+        signed: signed,
+        integerWidth: integerWidth + 1,
+        fractionWidth: fractionWidth);
+  }
+
+  /// Subtracts [other] and returns a full-precision signed [FixedPoint].
+  FixedPoint subtract(dynamic other) {
+    final comparable = _verifyCompatible(other);
+    final resultIntegerWidth = integerWidth + 1;
+    final resultWidth = resultIntegerWidth + fractionWidth + 1;
+    final left = signed ? signExtend(resultWidth) : zeroExtend(resultWidth);
+    final right = signed
+        ? comparable.signExtend(resultWidth)
+        : comparable.zeroExtend(resultWidth);
+    return FixedPoint.of(left - right,
+        integerWidth: resultIntegerWidth, fractionWidth: fractionWidth);
   }
 
   /// Negate the [FixedPoint].
@@ -170,24 +225,31 @@ class FixedPoint extends LogicStructure {
   @override
   Logic operator >=(dynamic other) => gte(other);
 
-  // TODO(desmonddak): These operators below need tests.
+  /// Addition operator.
+  @override
+  FixedPoint operator +(dynamic other) => add(other);
+
+  /// Subtraction operator.
+  @override
+  FixedPoint operator -(dynamic other) => subtract(other);
 
   /// Multiply operator.
   @override
-  Logic operator *(dynamic other) => _multiply(other);
+  @Deprecated('Use multiply instead.')
+  FixedPoint operator *(dynamic other) => _legacyMultiply(other);
 
   /// Equality operator.
   @override
   Logic eq(dynamic other) {
-    _verifyCompatible(other);
-    return super.eq(other);
+    final comparable = _verifyCompatible(other);
+    return super.eq(comparable);
   }
 
   /// Inequality operator.
   @override
   Logic neq(dynamic other) {
-    _verifyCompatible(other);
-    return super.neq(other);
+    final comparable = _verifyCompatible(other);
+    return super.neq(comparable);
   }
 
   /// Modulo operator. Currently unimplemented

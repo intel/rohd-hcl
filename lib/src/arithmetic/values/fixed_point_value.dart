@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_value.dart
@@ -40,33 +40,65 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// Returns `true` if the number is negative.
   bool isNegative() => signed & (value[-1] == LogicValue.one);
 
-  /// Constructs [FixedPointValue] from [integer] and [fraction] values with a
-  /// [signed] option to interpret MSB of [integer] as sign bit with the
-  /// [integer] represented in twos-complement.
+  /// Constructs an unsigned [FixedPointValue] from [integer] and [fraction].
+  ///
+  /// Use [FixedPointValue.withSignedness] for new code.
+  @Deprecated('Use FixedPointValue.withSignedness instead.')
   factory FixedPointValue(
           {required LogicValue integer,
           required LogicValue fraction,
           bool signed = false}) =>
-      populator(
+      FixedPointValue.withSignedness(
+          integer: integer, fraction: fraction, signed: signed);
+
+  /// Constructs [FixedPointValue] from [integer] and [fraction] values with a
+  /// [signed] option to interpret the MSB of [integer] as a two's-complement
+  /// sign bit.
+  factory FixedPointValue.withSignedness(
+          {required LogicValue integer,
+          required LogicValue fraction,
+          bool signed = true}) =>
+      populatorWithSignedness(
               integerWidth: integer.width - (signed ? 1 : 0),
-              fractionWidth: fraction.width)
+              fractionWidth: fraction.width,
+              signed: signed)
           .populate(integer: integer, fraction: fraction);
 
   /// Creates an unpopulated version of a [FixedPointValue], intended to be
   /// called with the [populator].
   @protected
+  @Deprecated('Use FixedPointValue.uninitializedWithSignedness instead.')
   FixedPointValue.uninitialized({this.signed = false});
+
+  /// Creates an unpopulated [FixedPointValue] with the specified signedness.
+  @protected
+  FixedPointValue.uninitializedWithSignedness({this.signed = true});
 
   /// Creates a [FixedPointValuePopulator] with the provided [integerWidth]
   /// and [fractionWidth], which can then be used to complete construction of
   /// a [FixedPointValue] using population functions.
+  ///
+  /// Use [populatorWithSignedness] for new code.
+  @Deprecated('Use FixedPointValue.populatorWithSignedness instead.')
   static FixedPointValuePopulator populator(
           {required int integerWidth,
           required int fractionWidth,
           bool signed = false}) =>
-      FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
-        ..integerWidth = integerWidth
-        ..fractionWidth = fractionWidth);
+      populatorWithSignedness(
+          integerWidth: integerWidth,
+          fractionWidth: fractionWidth,
+          signed: signed);
+
+  /// Creates a [FixedPointValuePopulator] with the provided widths and
+  /// signedness.
+  static FixedPointValuePopulator populatorWithSignedness(
+          {required int integerWidth,
+          required int fractionWidth,
+          bool signed = true}) =>
+      FixedPointValuePopulator(
+          FixedPointValue.uninitializedWithSignedness(signed: signed)
+            ..integerWidth = integerWidth
+            ..fractionWidth = fractionWidth);
 
   /// Creates a [FixedPointValuePopulator] for the same type as `this` and
   /// with the same widths.
@@ -75,8 +107,8 @@ class FixedPointValue implements Comparable<FixedPointValue> {
   /// [FixedPointValuePopulator] is returned for generating equivalent types
   /// of [FixedPointValue]s.
   @mustBeOverridden
-  FixedPointValuePopulator clonePopulator() =>
-      FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
+  FixedPointValuePopulator clonePopulator() => FixedPointValuePopulator(
+      FixedPointValue.uninitializedWithSignedness(signed: signed)
         ..integerWidth = integerWidth
         ..fractionWidth = fractionWidth);
 
@@ -94,14 +126,14 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final s = signed | other.signed;
     final m = max(integerWidth, other.integerWidth);
     final n = max(fractionWidth, other.fractionWidth);
-    final val1 =
-        FixedPointValue.populator(integerWidth: m, fractionWidth: n, signed: s)
-            .widen(this)
-            .value;
-    final val2 =
-        FixedPointValue.populator(integerWidth: m, fractionWidth: n, signed: s)
-            .widen(other)
-            .value;
+    final val1 = FixedPointValue.populatorWithSignedness(
+            integerWidth: m, fractionWidth: n, signed: s)
+        .widen(this)
+        .value;
+    final val2 = FixedPointValue.populatorWithSignedness(
+            integerWidth: m, fractionWidth: n, signed: s)
+        .widen(other)
+        .value;
     final comp = val1.compareTo(val2);
     if (comp == 0) {
       return comp;
@@ -206,6 +238,49 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     return isNegative() ? -value : value;
   }
 
+  /// Returns this exact value as `significand * 2^exponent`.
+  ({BigInt significand, int exponent}) toScaledBigInt() {
+    if (!value.isValid) {
+      throw RohdHclException('Inputs must be valid.');
+    }
+    var significand = value.toBigInt();
+    if (isNegative()) {
+      significand -= BigInt.one << value.width;
+    }
+    return (significand: significand, exponent: -fractionWidth);
+  }
+
+  /// Losslessly converts this value to a minimal generic [FloatingPointValue].
+  FloatingPointValue toFloatingPointValue() {
+    final exact = toScaledBigInt();
+    if (exact.significand == BigInt.zero) {
+      return FloatingPointValue.populator(exponentWidth: 2, mantissaWidth: 1)
+          .ofScaledBigInt(BigInt.zero, 0);
+    }
+
+    var significand = exact.significand;
+    var exponent = exact.exponent;
+    while (significand.isEven) {
+      significand >>= 1;
+      exponent++;
+    }
+
+    final magnitudeWidth = significand.abs().bitLength;
+    final valueExponent = exponent + magnitudeWidth - 1;
+    var exponentWidth = 2;
+    while (valueExponent < -(BigInt.one << (exponentWidth - 1)).toInt() + 2 ||
+        valueExponent > (BigInt.one << (exponentWidth - 1)).toInt() - 1) {
+      exponentWidth++;
+    }
+    return FloatingPointValue.populator(
+            exponentWidth: exponentWidth,
+            mantissaWidth: max(1, magnitudeWidth - 1))
+        .ofScaledBigInt(significand, exponent);
+  }
+
+  /// Converts this value to a constant [FixedPoint] signal.
+  FixedPoint toLogic({String? name}) => FixedPoint.constant(this, name: name);
+
   /// Negate operation for [FixedPointValue].
   FixedPointValue negate() => clonePopulator().ofLogicValue((~value) + 1);
 
@@ -220,15 +295,15 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final s = signed | other.signed;
     final nr = max(fractionWidth, other.fractionWidth);
     final mr = max(integerWidth, other.integerWidth) + 1;
-    final val1 = FixedPointValue.populator(
+    final val1 = FixedPointValue.populatorWithSignedness(
             integerWidth: mr, fractionWidth: nr, signed: s)
         .widen(this)
         .value;
-    final val2 = FixedPointValue.populator(
+    final val2 = FixedPointValue.populatorWithSignedness(
             integerWidth: mr, fractionWidth: nr, signed: s)
         .widen(other)
         .value;
-    return FixedPointValue.populator(
+    return FixedPointValue.populatorWithSignedness(
             integerWidth: mr, fractionWidth: nr, signed: s)
         .ofLogicValue(val1 + val2);
   }
@@ -241,19 +316,20 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (!value.isValid | !other.value.isValid) {
       throw RohdHclException('Inputs must be valid.');
     }
-    const s = true;
+    // Subtraction can produce a negative result regardless of the operands'
+    // signedness, so the result is always signed.
     final nr = max(fractionWidth, other.fractionWidth);
     final mr = max(integerWidth, other.integerWidth) + 1;
-    final val1 = FixedPointValue.populator(
-            integerWidth: mr, fractionWidth: nr, signed: s)
+    final val1 = FixedPointValue.populatorWithSignedness(
+            integerWidth: mr, fractionWidth: nr)
         .widen(this)
         .value;
-    final val2 = FixedPointValue.populator(
-            integerWidth: mr, fractionWidth: nr, signed: s)
+    final val2 = FixedPointValue.populatorWithSignedness(
+            integerWidth: mr, fractionWidth: nr)
         .widen(other)
         .value;
-    return FixedPointValue.populator(
-            integerWidth: mr, fractionWidth: nr, signed: s)
+    return FixedPointValue.populatorWithSignedness(
+            integerWidth: mr, fractionWidth: nr)
         .ofLogicValue(val1 - val2);
   }
 
@@ -270,19 +346,19 @@ class FixedPointValue implements Comparable<FixedPointValue> {
         : integerWidth + other.integerWidth;
     final nr = fractionWidth + other.fractionWidth;
     final tr = mr + nr;
-    final val1 = FixedPointValue.populator(
+    final val1 = FixedPointValue.populatorWithSignedness(
             integerWidth: tr - fractionWidth,
             fractionWidth: fractionWidth,
             signed: s)
         .widen(this)
         .value;
-    final val2 = FixedPointValue.populator(
+    final val2 = FixedPointValue.populatorWithSignedness(
             integerWidth: tr - other.fractionWidth,
             fractionWidth: other.fractionWidth,
             signed: s)
         .widen(other)
         .value;
-    return FixedPointValue.populator(
+    return FixedPointValue.populatorWithSignedness(
             integerWidth: mr, fractionWidth: nr, signed: s)
         .ofLogicValue(val1 * val2);
   }
@@ -303,11 +379,11 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     final mr = m1 + other.fractionWidth;
     final nr = fractionWidth + m2;
     final tr = mr + nr;
-    var val1 = FixedPointValue.populator(
+    var val1 = FixedPointValue.populatorWithSignedness(
             integerWidth: m1, fractionWidth: tr - m1, signed: s)
         .widen(this)
         .value;
-    var val2 = FixedPointValue.populator(
+    var val2 = FixedPointValue.populatorWithSignedness(
             integerWidth: tr - other.fractionWidth,
             fractionWidth: other.fractionWidth,
             signed: s)
@@ -327,7 +403,7 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     if (isNegative() != other.isNegative()) {
       val = (~val) + 1;
     }
-    return FixedPointValue.populator(
+    return FixedPointValue.populatorWithSignedness(
             integerWidth: mr, fractionWidth: nr, signed: s)
         .ofLogicValue(val);
   }

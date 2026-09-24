@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_multiplier_simple.dart
@@ -46,6 +46,9 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   /// The computed [FpTypeOut] product of [a] * [b].
   late final FpTypeOut product;
 
+  /// IEEE 754 exception status for this operation.
+  late final FloatingPointStatus status;
+
   /// The rounding mode to use for the multiplier.
   late final FloatingPointRoundingMode roundingMode;
 
@@ -53,6 +56,10 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   /// multiplication.
   @protected
   late final FpTypeOut internalProduct;
+
+  /// Internal exception status driven by the implementation.
+  @protected
+  late final FloatingPointStatus internalStatus;
 
   /// Multiply two floating point numbers [a] and [b], returning result in
   /// [product].
@@ -96,6 +103,9 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
     product = addTypedOutput(
         'product', internalProduct.clone as FpTypeOut Function({String? name}));
     product <= internalProduct;
+    internalStatus = FloatingPointStatus(name: 'internalStatus');
+    status = addTypedOutput('status', internalStatus.clone);
+    status <= internalStatus;
 
     if (outProduct != null) {
       outProduct <= product;

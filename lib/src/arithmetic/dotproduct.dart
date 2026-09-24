@@ -29,8 +29,10 @@ class DotProductBase extends Module {
   late final StaticOrRuntimeParameter signedMultiplierParameter;
 
   /// Creates a new [DotProductBase] instance given a [List<Logic>] of
-  /// [multiplicands] and a [List<Logic>] of [multipliers].  Currently widths of
-  /// all operands must match.
+  /// [multiplicands] and a [List<Logic>] of [multipliers].
+  ///
+  /// Every multiplicand must have one common width and every multiplier must
+  /// have one common width. The multiplicand and multiplier widths may differ.
   ///
   /// The optional [signedMultiplicand] parameter configures the [multiplicands]
   /// statically using a `bool` to indicate a signed multiplicand (default is
@@ -43,8 +45,8 @@ class DotProductBase extends Module {
   /// something other null, `bool`, or [Logic] will result in a throw.
   ///
   /// The output [product] will be [log2Ceil(multiplicands.length)] wider than
-  /// the sum of the widths of one pair of products to accomadate the increasing
-  /// accumulation value.
+  /// the sum of one multiplicand width and one multiplier width to accommodate
+  /// the increasing accumulation value.
   DotProductBase(List<Logic> multiplicands, List<Logic> multipliers,
       {dynamic signedMultiplicand,
       dynamic signedMultiplier,
@@ -53,8 +55,11 @@ class DotProductBase extends Module {
       super.reserveDefinitionName = false,
       String? definitionName})
       : super(
-            definitionName:
-                definitionName ?? 'DotProduct_W${multipliers[0].width}_') {
+            definitionName: definitionName ??
+                'DotProduct_L${multipliers.length}_'
+                    'A${multiplicands[0].width}_B${multipliers[0].width}_'
+                    '${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}') {
     if (multipliers.length != multiplicands.length) {
       throw RohdHclException(
           'Number of multipliers and multiplicands must be equal.');
@@ -69,14 +74,14 @@ class DotProductBase extends Module {
           '${multiplicands.length - candWidthMiss} '
           "don't match preceding width.");
     }
-    // Enforce square products.
-    final operandWidthMiss = multiplicands
-        .mapIndexed((i, m) => m.width == multipliers[i].width)
+    final multiplierWidthMiss = multipliers
+        .mapIndexed((i, m) => m.width == multipliers[i > 0 ? i - 1 : 0].width)
         .where((w) => w)
         .length;
-    if (operandWidthMiss < multiplicands.length) {
-      throw RohdHclException('Multiplier and multiplicand have '
-          '${multiplicands.length - operandWidthMiss} width mismatches.');
+    if (multiplierWidthMiss < multipliers.length) {
+      throw RohdHclException('Multipliers must all have the same width: '
+          '${multipliers.length - multiplierWidthMiss} '
+          "don't match preceding width.");
     }
 
     signedMultiplicandParameter =
@@ -115,7 +120,17 @@ class CompressionTreeDotProduct extends DotProductBase {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'CompTreeDotProduct_W${multipliers[0].width}_') {
+                'CompressionTreeDotProduct_L${multipliers.length}_'
+                    'A${multiplicands[0].width}_B${multipliers[0].width}_'
+                    'R${productRadix}_'
+                    '${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}') {
+    if (multiplicands.first.width != multipliers.first.width) {
+      throw RohdHclException(
+        'CompressionTreeDotProduct requires equal multiplicand and '
+        'multiplier widths.',
+      );
+    }
     final ppGenerators = [
       for (var i = 0; i < multipliers.length; i++)
         PartialProductGenerator(
@@ -155,6 +170,9 @@ class GeneralDotProduct extends DotProductBase {
   final Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
       adderGen;
 
+  late final bool _signedProduct;
+  late final Logic? _selectSignedProduct;
+
   /// Construct a [GeneralDotProduct] with a [List] of [multiplicands] and
   /// [multipliers], a [multiplierGen] for constructing products, and an
   /// [adderGen] function to generate [Adder]s for use in a [ReductionTree] for
@@ -163,6 +181,7 @@ class GeneralDotProduct extends DotProductBase {
       {super.signedMultiplicand,
       super.signedMultiplier,
       int treeRadix = 2,
+      String multiplierIdentity = 'native',
       this.adderGen = NativeAdder.new,
       Multiplier Function(Logic a, Logic b,
               {Logic? clk,
@@ -177,42 +196,74 @@ class GeneralDotProduct extends DotProductBase {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'DotProductNative_W${multipliers[0].width}_') {
+                'GeneralDotProduct_L${multipliers.length}_'
+                    'A${multiplicands[0].width}_B${multipliers[0].width}_'
+                    'R${treeRadix}_${multiplierIdentity}_'
+                    '${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}') {
+    final hasRuntimeSign = signedMultiplicandParameter.runtimeConfig != null ||
+        signedMultiplierParameter.runtimeConfig != null;
+    _signedProduct = !hasRuntimeSign &&
+        (signedMultiplicandParameter.staticConfig ||
+            signedMultiplierParameter.staticConfig);
+    _selectSignedProduct = hasRuntimeSign
+        ? signedMultiplicandParameter.getLogic(this) |
+            signedMultiplierParameter.getLogic(this)
+        : null;
+
     final dotResults = [
       for (var i = 0; i < multipliers.length; i++)
         multiplierGen(multiplicands[i], multipliers[i],
-                signedMultiplicand: signedMultiplicandParameter.getLogic(this),
-                signedMultiplier: signedMultiplierParameter.getLogic(this))
+                signedMultiplicand: signedMultiplicandParameter.isRuntime
+                    ? signedMultiplicandParameter.getRuntimeInput(this)
+                    : signedMultiplicandParameter.staticConfig,
+                signedMultiplier: signedMultiplierParameter.isRuntime
+                    ? signedMultiplierParameter.getRuntimeInput(this)
+                    : signedMultiplierParameter.staticConfig)
             .product
     ];
 
-    // TODO(desmonddak): add sign extension option for use with unsigned
-    // multipliers and multiplicands.
-
-    final prefixAdd = ReductionTree(dotResults, addReduceAdders,
-        signExtend: true,
-        radix: treeRadix,
-        name: 'dotproduct_reduction_tree',
-        definitionName: 'DotProductReductionTree_W${multiplicands[0].width}_'
-            '${multipliers[0].width}_R$treeRadix');
+    final prefixAdd = ReductionTreeGenerator(
+      dotResults,
+      addReduceAdders,
+      signExtend: _selectSignedProduct ?? _signedProduct,
+      control: _selectSignedProduct,
+      radix: treeRadix,
+    );
     addOutput('product', width: prefixAdd.out.width) <= prefixAdd.out;
   }
 
   /// Reduction tree adder generator for the final addition.
   Logic addReduceAdders(List<Logic> inputs,
       {int? depth, Logic? control, String name = 'prefix'}) {
-    if (inputs.length < 4) {
-      return inputs.reduce((v, e) => v + e);
-    } else {
-      final add0 = adderGen(inputs[0], inputs[1], name: '${name}_add0');
-      final add1 = adderGen(inputs[2], inputs[3], name: '${name}_add1');
-      final addf =
-          adderGen(add0.sum, add1.sum, name: '${name}_addf_${depth ?? 0}');
-      return addf.sum;
-    }
-  }
-}
+    var level = inputs;
+    var stage = 0;
+    while (level.length > 1) {
+      final nextLevel = <Logic>[];
+      for (var i = 0; i < level.length; i += 2) {
+        if (i + 1 == level.length) {
+          nextLevel.add(level[i]);
+          continue;
+        }
 
-// TODO(desmonddak): reduction tree needs dynamic sign extension control.
-// TODO(desmonddak):  dynamic parameter:  we should be able to pass the
-// null, bool, Logic() or the parameter itself to the constructor.
+        final inputWidth = level[i].width > level[i + 1].width
+            ? level[i].width
+            : level[i + 1].width;
+        final resultWidth = inputWidth + 1;
+        final a = _extendForSum(level[i], resultWidth, control);
+        final b = _extendForSum(level[i + 1], resultWidth, control);
+        final sum = adderGen(a, b, name: '${name}_s${stage}_add${i ~/ 2}').sum;
+        nextLevel.add(sum.slice(resultWidth - 1, 0));
+      }
+      level = nextLevel;
+      stage++;
+    }
+    return level.single;
+  }
+
+  Logic _extendForSum(Logic value, int width, Logic? control) => control == null
+      ? _signedProduct
+          ? value.signExtend(width)
+          : value.zeroExtend(width)
+      : mux(control, value.signExtend(width), value.zeroExtend(width));
+}
