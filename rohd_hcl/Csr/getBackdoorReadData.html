@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the getBackdoorReadData method from the Csr class, for the Dart programming language.">
+  <title>getBackdoorReadData method - Csr class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/Csr-class.html">Csr</a></li>
+    <li class="self-crumb">getBackdoorReadData method</li>
+  </ol>
+  <div class="self-name">getBackdoorReadData</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;Csr-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">getBackdoorReadData</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+<span class="name ">getBackdoorReadData</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getBackdoorReadData-param-frontdoorWriteValidFull"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">frontdoorWriteValidFull</span>, </span></li>
+<li><span class="parameter" id="getBackdoorReadData-param-frontdoorWriteDataFull"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">frontdoorWriteDataFull</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Computes the value to drive on this CSR's backdoor read port.</p>
+<p>For <a href="../../rohd_hcl/CsrFieldAccess.html">CsrFieldAccess.writeOnly</a> fields, this combinationally reflects
+the current cycle's frontdoor write: <code>frontdoorWriteDataFull</code> where
+<code>frontdoorWriteValidFull</code> indicates a frontdoor write occurred to that
+bit this cycle, otherwise the field's reset value. All other bits pass
+through the register's current stored value unchanged.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Logic getBackdoorReadData(
+    Logic frontdoorWriteValidFull, Logic frontdoorWriteDataFull) {
+  if (fields.isEmpty) {
+    return this;
+  }
+
+  Logic finalRd = this;
+  var currIdx = 0;
+  var currField = 0;
+  for (var i = 0; i &lt; elements.length; i++) {
+    if (rsvdIndices.contains(i)) {
+      currIdx += elements[i].width;
+      continue;
+    }
+
+    if (fields[currField].access == CsrFieldAccess.writeOnly) {
+      final width = elements[i].width;
+      final valid =
+          frontdoorWriteValidFull.getRange(currIdx, currIdx + width).or();
+      final written =
+          frontdoorWriteDataFull.getRange(currIdx, currIdx + width);
+      finalRd = finalRd.withSet(currIdx, mux(valid, written, elements[i]));
+    }
+
+    currField++;
+    currIdx += elements[i].width;
+  }
+  return finalRd;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/Csr-class.html">Csr</a></li>
+    <li class="self-crumb">getBackdoorReadData method</li>
+</ol>
+
+    <h5>Csr class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

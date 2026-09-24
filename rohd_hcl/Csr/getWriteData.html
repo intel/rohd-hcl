@@ -106,9 +106,11 @@ writer later clears).</p>
         continue;
       }
 
-      &#47;&#47; if the given field is read only
-      &#47;&#47; take the current value instead of the new value
-      final chk2 = fields[currField].access == CsrFieldAccess.readOnly;
+      &#47;&#47; if the given field is read only or write only,
+      &#47;&#47; take the current value instead of the new value:
+      &#47;&#47; neither retains a written value as persistent storage.
+      final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
+          fields[currField].access == CsrFieldAccess.writeOnly;
       if (chk2) {
         finalWd = finalWd.withSet(currIdx, elements[i]);
         currField++;

@@ -140,6 +140,20 @@ but the field itself is read only.</p>
 
 </dd>
 
+            <dt id="writeOnly" class="constant">
+    <span class="name ">writeOnly</span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/CsrFieldAccess.html">CsrFieldAccess</a></span>
+  
+
+</dt>
+<dd>
+  <p>Register field is write only; frontdoor reads always return the
+reset value, and backdoor reads pulse the written value for one
+cycle.</p>
+  
+
+</dd>
+
         </dl>
       </section>
 
