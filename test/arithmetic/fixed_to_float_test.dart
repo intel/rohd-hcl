@@ -52,8 +52,7 @@ void main() async {
   });
 
   test('FixedToFloat: E4M3 retains representable exponent-15 values', () {
-    final fixed =
-        FixedPoint(signed: false, integerWidth: 10, fractionWidth: 0);
+    final fixed = FixedPoint(signed: false, integerWidth: 10, fractionWidth: 0);
     final output = FloatingPoint8E4M3();
     final dut = FixedToFloat(fixed, output, signed: false);
 

@@ -28,8 +28,7 @@ class FloatingPoint64 extends FloatingPoint {
           name: name);
 
   FloatingPoint64._(super.sign, super.exponent, super.mantissa, {super.name})
-      : super.fromComponents(
-            explicitJBit: false, subNormalAsZero: false);
+      : super.fromComponents(explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPoint64 clone({String? name}) => FloatingPoint64(name: name);

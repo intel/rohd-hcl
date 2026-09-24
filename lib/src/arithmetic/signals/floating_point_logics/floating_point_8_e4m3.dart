@@ -27,10 +27,8 @@ class FloatingPoint8E4M3 extends FloatingPoint {
           Const(value.sign), Const(value.exponent), Const(value.mantissa),
           name: name);
 
-  FloatingPoint8E4M3._(super.sign, super.exponent, super.mantissa,
-      {super.name})
-      : super.fromComponents(
-            explicitJBit: false, subNormalAsZero: false);
+  FloatingPoint8E4M3._(super.sign, super.exponent, super.mantissa, {super.name})
+      : super.fromComponents(explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPoint8E4M3 clone({String? name}) => FloatingPoint8E4M3(name: name);
