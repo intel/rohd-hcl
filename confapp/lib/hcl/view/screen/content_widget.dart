@@ -245,6 +245,9 @@ class _SVGeneratorState extends State<SVGenerator>
   /// Rebuild the TabController to match the current set of visible tabs.
   void _rebuildTabController({int? selectLogical}) {
     final visible = _visibleTabs;
+    if (visible.isEmpty) {
+      return;
+    }
     final oldIndex = _tabController.index;
     final oldLogical =
         oldIndex < visible.length ? visible[oldIndex] : visible.first;
@@ -3255,179 +3258,197 @@ class _SVGeneratorState extends State<SVGenerator>
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
         const dividerWidth = 8.0;
-        final leftWidth = (totalWidth * _splitFraction).clamp(
-          150.0,
-          totalWidth - 300.0,
+        const minimumLeftWidth = 150.0;
+        const minimumRightWidth = 300.0;
+        const minimumContentWidth =
+            minimumLeftWidth + dividerWidth + minimumRightWidth;
+        final contentWidth =
+            totalWidth < minimumContentWidth ? minimumContentWidth : totalWidth;
+        final leftWidth = (contentWidth * _splitFraction).clamp(
+          minimumLeftWidth,
+          contentWidth - minimumRightWidth - dividerWidth,
         );
-        final rightWidth = totalWidth - leftWidth - dividerWidth;
+        final rightWidth = contentWidth - leftWidth - dividerWidth;
 
-        return Row(
-          children: [
-            SizedBox(
-              width: leftWidth,
-              child: BlocBuilder<ComponentCubit, Configurator>(
-                builder: (context, component) => Column(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.all(10),
-                        child: Card(
-                          child: Scrollbar(
-                            controller: _configScrollController,
-                            thumbVisibility: true,
-                            child: SingleChildScrollView(
-                              controller: _configScrollController,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // Add a title
-                                      Text(
-                                        component.name,
-                                        style: const TextStyle(
-                                          fontSize: 25,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            width: contentWidth,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: leftWidth,
+                  child: BlocBuilder<ComponentCubit, Configurator>(
+                    builder: (context, component) => Column(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.all(10),
+                            child: Card(
+                              child: Scrollbar(
+                                controller: _configScrollController,
+                                thumbVisibility: true,
+                                child: SingleChildScrollView(
+                                  controller: _configScrollController,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Form(
+                                      key: _formKey,
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          // Add a title
+                                          Text(
+                                            component.name,
+                                            style: const TextStyle(
+                                              fontSize: 25,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          for (final knobEntry
+                                              in component.knobs.entries)
+                                            _generateKnobControl(
+                                              knobEntry.key,
+                                              knobEntry.value,
+                                            ),
+                                          const SizedBox(height: 16),
+                                        ],
                                       ),
-                                      for (final knobEntry
-                                          in component.knobs.entries)
-                                        _generateKnobControl(
-                                          knobEntry.key,
-                                          knobEntry.value,
-                                        ),
-                                      const SizedBox(height: 16),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _genRtlButton(rtlCubit, component),
-                    const SizedBox(height: 8),
-                  ],
-                ),
-              ),
-            ),
-            // ---- Draggable vertical divider ----
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onHorizontalDragUpdate: (details) {
-                setState(() {
-                  _splitFraction =
-                      ((_splitFraction * totalWidth + details.delta.dx) /
-                              totalWidth)
-                          .clamp(
-                    150.0 / totalWidth,
-                    (totalWidth - 300.0) / totalWidth,
-                  );
-                });
-              },
-              child: MouseRegion(
-                cursor: SystemMouseCursors.resizeColumn,
-                child: SizedBox(
-                  width: dividerWidth,
-                  child: Center(
-                    child: Container(
-                      width: 4,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).dividerColor,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                        const SizedBox(height: 8),
+                        _genRtlButton(rtlCubit, component),
+                        const SizedBox(height: 8),
+                      ],
                     ),
                   ),
                 ),
-              ),
-            ),
-            // ---- Right (viewer) pane ----
-            SizedBox(
-              width: rightWidth,
-              child: Card(
-                child: Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Scaffold(
-                    appBar: AppBar(
-                      title: const Text('Generated Outputs'),
-                      actions: [
-                        // Tab-visibility checkboxes
-                        for (var i = 0; i < _tabLabels.length; i++)
-                          Tooltip(
-                            message: _tabTooltips[i],
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(4),
-                              onTap: () {
-                                setState(() {
-                                  _tabEnabled[i] = !_tabEnabled[i];
-                                  _rebuildTabController(
-                                    selectLogical: _tabEnabled[i] ? i : null,
-                                  );
-                                });
-                                // Lazy generation when a tab is enabled.
-                                if (_tabEnabled[i] &&
-                                    _lastBuiltModule != null) {
-                                  unawaited(_lazyGenerate(i));
-                                }
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 2, vertical: 4),
-                                child: Opacity(
-                                  opacity: _tabEnabled[i] ? 1.0 : 0.35,
-                                  child: _tabIconWidget(i),
-                                ),
-                              ),
-                            ),
+                // ---- Draggable vertical divider ----
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onHorizontalDragUpdate: (details) {
+                    setState(() {
+                      _splitFraction =
+                          ((_splitFraction * contentWidth + details.delta.dx) /
+                                  contentWidth)
+                              .clamp(
+                        minimumLeftWidth / contentWidth,
+                        (contentWidth - minimumRightWidth - dividerWidth) /
+                            contentWidth,
+                      );
+                    });
+                  },
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.resizeColumn,
+                    child: SizedBox(
+                      width: dividerWidth,
+                      child: Center(
+                        child: Container(
+                          width: 4,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).dividerColor,
+                            borderRadius: BorderRadius.circular(2),
                           ),
-                        const SizedBox(width: 8),
-                        BlocBuilder<ThemeCubit, material_ui.ThemeMode>(
-                          builder: (context, themeMode) {
-                            final isDark =
-                                themeMode == material_ui.ThemeMode.dark;
-                            return Tooltip(
-                              message: isDark
-                                  ? 'Switch to light theme'
-                                  : 'Switch to dark theme',
-                              child: IconButton(
-                                icon: Text(
-                                  isDark ? '☀️' : '🌙',
-                                  style: const TextStyle(fontSize: 20),
-                                ),
-                                onPressed: () {
-                                  context.read<ThemeCubit>().toggleTheme();
-                                },
-                              ),
-                            );
-                          },
                         ),
-                      ],
-                      bottom: TabBar(
-                        controller: _tabController,
-                        isScrollable: true,
-                        tabs: [
-                          for (final i in _visibleTabs)
-                            Tab(child: _tabLabelWidget(i)),
-                        ],
                       ),
-                    ),
-                    body: IndexedStack(
-                      index: _tabController.index,
-                      children: [
-                        for (final i in _visibleTabs)
-                          _tabContentForIndex(i, screenHeight, screenWidth),
-                      ],
                     ),
                   ),
                 ),
-              ),
+                // ---- Right (viewer) pane ----
+                SizedBox(
+                  width: rightWidth,
+                  child: Card(
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: Scaffold(
+                        appBar: AppBar(
+                          title: const Text('Generated Outputs'),
+                          actions: [
+                            // Tab-visibility checkboxes
+                            for (var i = 0; i < _tabLabels.length; i++)
+                              Tooltip(
+                                message: _tabTooltips[i],
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(4),
+                                  onTap: () {
+                                    if (_tabEnabled[i] &&
+                                        _visibleTabs.length == 1) {
+                                      return;
+                                    }
+                                    setState(() {
+                                      _tabEnabled[i] = !_tabEnabled[i];
+                                      _rebuildTabController(
+                                        selectLogical:
+                                            _tabEnabled[i] ? i : null,
+                                      );
+                                    });
+                                    // Lazy generation when a tab is enabled.
+                                    if (_tabEnabled[i] &&
+                                        _lastBuiltModule != null) {
+                                      unawaited(_lazyGenerate(i));
+                                    }
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2, vertical: 4),
+                                    child: Opacity(
+                                      opacity: _tabEnabled[i] ? 1.0 : 0.35,
+                                      child: _tabIconWidget(i),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(width: 8),
+                            BlocBuilder<ThemeCubit, material_ui.ThemeMode>(
+                              builder: (context, themeMode) {
+                                final isDark =
+                                    themeMode == material_ui.ThemeMode.dark;
+                                return Tooltip(
+                                  message: isDark
+                                      ? 'Switch to light theme'
+                                      : 'Switch to dark theme',
+                                  child: IconButton(
+                                    icon: Text(
+                                      isDark ? '☀️' : '🌙',
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
+                                    onPressed: () {
+                                      context.read<ThemeCubit>().toggleTheme();
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                          bottom: TabBar(
+                            controller: _tabController,
+                            isScrollable: true,
+                            tabs: [
+                              for (final i in _visibleTabs)
+                                Tab(child: _tabLabelWidget(i)),
+                            ],
+                          ),
+                        ),
+                        body: IndexedStack(
+                          index: _tabController.index,
+                          children: [
+                            for (final i in _visibleTabs)
+                              _tabContentForIndex(i, screenHeight, screenWidth),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
