@@ -7,7 +7,7 @@ issue_tracker: https://github.com/intel/rohd-hcl/issues
 documentation: https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html
 
 environment:
-  sdk: ^3.6.0
+  sdk: '>=3.6.0 <4.0.0'
 
 workspace:
   - confapp
