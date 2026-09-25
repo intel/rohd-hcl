@@ -11,6 +11,10 @@
 
 set -euo pipefail
 
-cd confapp
+repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
+
+bash "$repo_root/tool/generate_confapp_assets.sh"
+
+cd "$repo_root/confapp"
 
 flutter analyze --fatal-infos

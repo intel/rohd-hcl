@@ -92,9 +92,6 @@ jobs:
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
 
-      - name: Generate Confapp source assets
-        run: bash tool/generate_confapp_assets.sh
-
       - name: Analyze flutter source
         run: tool/gh_actions/analyze_flutter_source.sh
 
