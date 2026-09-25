@@ -30,10 +30,12 @@ void main() {
   });
 
   test('every indexed source asset exists', () async {
+    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+
     for (final entry in moduleSourceAssets.entries) {
-      await expectLater(
-        rootBundle.loadString(bundledSourceAssetPath(entry.value)),
-        completes,
+      expect(
+        manifest.getAssetVariants(bundledSourceAssetPath(entry.value)),
+        isNotEmpty,
         reason: '${entry.key} maps to unloadable asset ${entry.value}',
       );
     }
