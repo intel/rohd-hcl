@@ -41,6 +41,14 @@ jobs:
           channel: stable
           version: 3.44.0
 
+      - name: Prefer standalone Dart SDK
+        run: echo "$DART_HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Report standalone Dart SDK
+        run: |
+          command -v dart
+          dart --version
+
       - name: Setup Pana source analysis
         run: tool/gh_actions/install_pana.sh
 
