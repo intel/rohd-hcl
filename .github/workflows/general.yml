@@ -39,7 +39,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.44.0
+          version: 3.47.2
 
       - name: Prefer standalone Dart SDK
         run: echo "$DART_HOME/bin" >> "$GITHUB_PATH"
@@ -95,7 +95,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.44.0
+          version: 3.47.2
 
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
@@ -135,7 +135,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.44.0
+          version: 3.47.2
 
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
@@ -168,7 +168,7 @@ jobs:
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.44.0
+          version: 3.47.2
 
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
