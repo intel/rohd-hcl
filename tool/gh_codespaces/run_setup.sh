@@ -17,6 +17,9 @@ tool/gh_codespaces/install_dart.sh
 # Install Flutter
 tool/gh_codespaces/install_flutter.sh
 
+# Make Flutter available to this setup process before resolving dependencies.
+export PATH="/usr/local/flutter/bin:$PATH"
+
 # Install Pub workspace dependencies.
 tool/gh_actions/install_dependencies.sh
 

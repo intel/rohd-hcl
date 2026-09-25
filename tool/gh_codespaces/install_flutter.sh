@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-declare -r flutter_version='3.44.0'
+declare -r flutter_version='3.47.2'
 
 wget -O /tmp/flutter_linux.tar.xz \
   "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${flutter_version}-stable.tar.xz"
