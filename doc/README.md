@@ -137,7 +137,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
 
 ## Adding a New Component
 
-Please refer to [Component](./Component.md.md) for the best practices for creating new components.
+Please refer to [Component](./Component.md) for the best practices for creating new components.
 
 ----------------
 

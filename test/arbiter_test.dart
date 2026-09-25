@@ -16,7 +16,7 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-  test('priority arbiter', () async {
+  test('priority arbiter', () {
     const width = 8;
 
     final vector = Logic(width: width);

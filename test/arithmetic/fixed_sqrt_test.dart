@@ -1,5 +1,5 @@
 // Copyright (C) 2025 Intel Corporation
-// SPDX-License-Indentifier: BSD-3-Clause
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_sqrt_test.dart
 // Tests for fixed-point square root.
@@ -18,7 +18,7 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-  test('sqrt(negative number)', () async {
+  test('sqrt(negative number)', () {
     final fixed = FixedPoint(integerWidth: 3, fractionWidth: 23);
     expect(() => FixedPointSqrt(fixed), throwsException);
   });

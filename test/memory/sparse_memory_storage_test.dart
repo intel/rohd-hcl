@@ -18,6 +18,7 @@ void main() {
     test('can load a simple file (legacy)', () {
       final hex = File('test/example1.hex').readAsStringSync();
       final storage = SparseMemoryStorage(addrWidth: 32, dataWidth: 32)
+        // This test intentionally verifies the deprecated compatibility API.
         // ignore: deprecated_member_use_from_same_package
         ..loadMemHex(hex);
 

@@ -1,0 +1,15 @@
+{
+  "folders": [
+    {
+      "name": "rohd_hcl",
+      "path": "."
+    },
+    {
+      "name": "confapp",
+      "path": "confapp"
+    }
+  ],
+  "settings": {
+    "dart.projectSearchDepth": 8
+  }
+}

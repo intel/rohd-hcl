@@ -7,6 +7,7 @@
 // 2024 September 24
 // Author: Max Korbel <max.korbel@intel.com>
 
+// This executable example prints simulation results for interactive inspection.
 // ignore_for_file: avoid_print
 
 import 'dart:async';

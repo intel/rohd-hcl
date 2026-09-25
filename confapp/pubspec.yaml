@@ -4,27 +4,73 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 0.0.1
 
+resolution: workspace
+
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: ^3.6.0
+  flutter: '>=3.44.0'
 
 dependencies:
+  bloc: ^9.0.0
+  cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
-  rohd: ^0.6.1
-  rohd_hcl:
-    path: ../
-
-  sidebarx: ^0.16.0
-  flutter_bloc: ^8.1.3
-  bloc: ^8.1.2
-  google_fonts: 6.1.0
+  flutter_bloc: ^9.0.0
+  highlight: ^0.7.0
+  material_ui: ^1.1.1
+  rohd: ^0.6.11
+  rohd_hcl: ^0.2.1
+  rohd_schematic_viewer: ^0.1.0
+  rohd_source_navigator: ^0.1.0
+  # 0.5.0 also pulls in its CodeEditor clipboard stack; only highlighting is used.
+  syntax_highlight: ^0.4.0
+  web: ^1.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   test: ^1.20.0
 
-  flutter_lints: ^3.0.1
-
 flutter:
   uses-material-design: true
+  assets:
+    - assets/rohd_src/
+    - assets/rohd_src/arbiters/
+    - assets/rohd_src/arithmetic/
+    - assets/rohd_src/arithmetic/floating_point/
+    - assets/rohd_src/arithmetic/multiplier_components/
+    - assets/rohd_src/arithmetic/signals/
+    - assets/rohd_src/arithmetic/signals/floating_point_logics/
+    - assets/rohd_src/arithmetic/values/
+    - assets/rohd_src/arithmetic/values/floating_point_values/
+    - assets/rohd_src/component_config/
+    - assets/rohd_src/component_config/components/
+    - assets/rohd_src/component_config/config_knobs/
+    - assets/rohd_src/encodings/
+    - assets/rohd_src/error_checking/
+    - assets/rohd_src/gaskets/
+    - assets/rohd_src/gaskets/amba5/
+    - assets/rohd_src/gaskets/spi/
+    - assets/rohd_src/interfaces/
+    - assets/rohd_src/interfaces/amba4/
+    - assets/rohd_src/interfaces/amba5/
+    - assets/rohd_src/memory/
+    - assets/rohd_src/memory/csr/
+    - assets/rohd_src/memory/csr/config/
+    - assets/rohd_src/models/
+    - assets/rohd_src/models/amba/
+    - assets/rohd_src/models/amba/amba4_bfm/
+    - assets/rohd_src/models/amba/amba5_bfm/
+    - assets/rohd_src/models/amba/amba5_bfm/axi/
+    - assets/rohd_src/models/amba/amba5_bfm/axi_s/
+    - assets/rohd_src/models/amba/amba5_bfm/lti/
+    - assets/rohd_src/models/amba/apb_bfm/
+    - assets/rohd_src/models/ready_valid_bfm/
+    - assets/rohd_src/models/spi_bfm/
+    - assets/rohd_src/serialization/
+    - assets/rohd_src/summation/
+    - assets/third_party_notices.md
+    - assets/rohd_icon.png
+    - assets/systemverilog_icon.png
+    - assets/systemc_icon.png
+    - assets/yosys_icon.png

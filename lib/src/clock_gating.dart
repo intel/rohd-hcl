@@ -8,6 +8,7 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:rohd/rohd.dart';
+// ROHD does not expose the uniquifier required by this interface publicly.
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/uniquifier.dart';
 
@@ -271,7 +272,7 @@ class ClockGate extends Module {
     if (_reset != null) {
       // we want to enable the clock during reset so that synchronous resets
       // work properly
-      internalEnable |= _reset!;
+      internalEnable |= _reset;
     }
 
     if (delayControlledSignals) {
@@ -286,6 +287,6 @@ class ClockGate extends Module {
 
     gatedClk <=
         _controlIntf!
-            .gatedClockGenerator(_controlIntf!, _freeClk, internalEnable);
+            .gatedClockGenerator(_controlIntf, _freeClk, internalEnable);
   }
 }

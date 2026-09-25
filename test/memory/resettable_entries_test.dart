@@ -82,7 +82,7 @@ void main() {
         expect(vals.map((e) => e.toInt()).toList(), [0, 1, 5, 0xa5a5]);
       });
 
-      test('missized list throws', () async {
+      test('missized list throws', () {
         expect(setupAndDumpRf([1, 2]), throwsA(isA<RohdHclException>()));
       });
     });
@@ -96,11 +96,11 @@ void main() {
         expect(vals.map((e) => e.toInt()), [0, 1, 0, 2]);
       });
 
-      test('too big key throws', () async {
+      test('too big key throws', () {
         expect(setupAndDumpRf({5: 2}), throwsA(isA<RohdHclException>()));
       });
 
-      test('too small key throws', () async {
+      test('too small key throws', () {
         expect(setupAndDumpRf({-1: 2}), throwsA(isA<RohdHclException>()));
       });
     });

@@ -10,7 +10,7 @@
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-void main() async {
+void main() {
   test('FX Comparison', () {
     final fx1 = FixedPoint(integerWidth: 10, fractionWidth: 10);
     final fx2 = FixedPoint(integerWidth: 10, fractionWidth: 10);

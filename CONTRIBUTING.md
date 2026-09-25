@@ -42,7 +42,10 @@ The [ROHD Forum](https://intel.github.io/rohd-website/forum/rohd-forum/) is a pe
 
 ### Requirements
 
-You must have [Dart](https://dart.dev/) installed on your system to use ROHD and ROHD-HCL. You can find detailed instructions for how to install Dart here: <https://dart.dev/get-dart>
+You must have [Flutter](https://docs.flutter.dev/get-started/install) installed
+to develop ROHD-HCL. Flutter provides the Dart SDK and is required because the
+pub workspace contains both the Dart `rohd_hcl` package and the Flutter
+`confapp` package.
 
 ### Setup Recommendations
 
@@ -78,8 +81,27 @@ Once requirements are installed, you can clone and run the test suite:
 ```shell
 git clone https://github.com/intel/rohd-hcl.git
 cd rohd-hcl
-dart pub get
+flutter pub get
 dart test
+```
+
+The root `pubspec.yaml` defines a pub workspace containing `confapp`, so
+dependency resolution is shared and should be run from the repository root.
+The app includes the root `analysis_options.yaml`, keeping both packages on the
+same analyzer policy while retaining app-specific generated-file exclusions.
+Open `rohd-hcl-multipackage.code-workspace` in VS Code to load both workspace
+packages as top-level folders.
+
+See [confapp/DEVELOPER.md](confapp/DEVELOPER.md) for the local checkout
+assumptions, dependency-source selection, and generated override workflow.
+
+To validate both workspace packages:
+
+```shell
+dart analyze --fatal-infos
+dart test
+(cd confapp && flutter analyze --fatal-infos)
+(cd confapp && flutter test --platform chrome)
 ```
 
 ## How to Contribute
@@ -152,7 +174,13 @@ To add a new component to the library, you can follow the steps below, referenci
    1. Update the component registry in `lib/src/component_config/components/component_registry.dart`.
 1. Add documentation to `doc/components/name.md`.
 
-If you would like to generate and view schematics locally, you'll need to have access to some tools.  You can either use the dev container (via Codespaces or VS Code) or install the software from `tool/gh_actions/install_opencadsuite.sh` and `tool/gh_actions/install_d3_hwschematic.sh`.  Then you can just run `tool/gh_actions/create_htmls.sh`, which will generate component schematic HTML documents in the `build/` directory.
+Run `dart run gen/generate.dart` to generate native ROHD netlists in
+`build/*.rohd.json`. The ROHD schematic viewer loads these netlists directly;
+there is no HTML conversion step. The configuration app also offers a
+synthesized schematic by running Yosys in a web worker. For equivalent
+command-line conversion, install OSS CAD Suite with
+`tool/gh_actions/install_opencadsuite.sh` and run
+`tool/converters/verilog_json.sh <module.sv>`.
 
 The `confapp/` directory contains the source code for the Flutter configuration app, if you would like to run that locally.
 

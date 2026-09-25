@@ -7,6 +7,7 @@
 // 2025 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+// Driver methods schedule protocol actions rather than assign plain properties.
 // ignore_for_file: use_setters_to_change_properties
 
 import 'dart:async';

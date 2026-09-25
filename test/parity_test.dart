@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('parity transmitter', () async {
+  test('parity transmitter', () {
     const width = 8;
 
     final vector = Logic(width: width);
@@ -45,7 +45,7 @@ void main() {
         parityTransmitter.transmission.value, LogicValue.ofString('011111111'));
   });
 
-  test('parity receiver checking', () async {
+  test('parity receiver checking', () {
     const width = 9;
 
     final vector = Logic(width: width);

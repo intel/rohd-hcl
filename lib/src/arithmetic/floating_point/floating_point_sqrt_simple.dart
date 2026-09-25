@@ -1,8 +1,8 @@
 // Copyright (C) 2025 Intel Corporation
-// SPDX-License-Indentifier: BSD-3-Clause
+// SPDX-License-Identifier: BSD-3-Clause
 //
-// floating_point_sqrt.dart
-// An abstract base class defining the API for floating-point square root.
+// floating_point_sqrt_simple.dart
+// A simple implementation of floating-point square root.
 //
 // 2025 March 4
 // Authors: James Farwell <james.c.farwell@intel.com>,

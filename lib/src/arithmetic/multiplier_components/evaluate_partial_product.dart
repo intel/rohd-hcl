@@ -101,9 +101,8 @@ extension EvaluateLivePartialProduct on PartialProductGeneratorBase {
         ..write('=' * (colWidth * maxWidth() + prefixCnt))
         ..write('\n');
     }
-    final sum = Logic(width: maxWidth());
-    // ignore: cascade_invocations
-    sum.put(LogicValue.ofBigInt(evaluate(), maxWidth()));
+    final sum = Logic(width: maxWidth())
+      ..put(LogicValue.ofBigInt(evaluate(), maxWidth()));
     str.write(sum.elements.listString('product',
         prefix: prefixCnt,
         alignHigh: maxWidth(),

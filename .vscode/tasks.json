@@ -1,0 +1,187 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Configure ROHD Dependency",
+            "type": "shell",
+            "command": "bash tool/confapp_dev_mode.sh configure-group rohd ${input:rohdSource} && flutter pub get",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
+                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                }
+            },
+            "problemMatcher": [],
+            "detail": "Choose the source for the core rohd package without changing the other dependency selections."
+        },
+        {
+            "label": "Configure Package Dependencies",
+            "type": "shell",
+            "command": "bash tool/confapp_dev_mode.sh configure-group package ${input:packageSource} && flutter pub get",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
+                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                }
+            },
+            "problemMatcher": [],
+            "detail": "Choose the shared source for rohd_hierarchy and rohd_source_navigator."
+        },
+        {
+            "label": "Configure Widget Dependencies",
+            "type": "shell",
+            "command": "bash tool/confapp_dev_mode.sh configure-group widget ${input:widgetSource} && flutter pub get",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
+                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                }
+            },
+            "problemMatcher": [],
+            "detail": "Choose the shared source for rohd_hierarchy, rohd_devtools_widgets, and rohd_source_navigator."
+        },
+        {
+            "label": "Configure Schematic Dependency",
+            "type": "shell",
+            "command": "bash tool/confapp_dev_mode.sh configure-group schematic ${input:schematicSource} && flutter pub get",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "SCHEMATIC_VIEWER_GIT_REF": "${input:schematicSourceValue}",
+                    "SCHEMATIC_VIEWER_LOCAL_PATH": "${input:schematicSourceValue}"
+                }
+            },
+            "problemMatcher": [],
+            "detail": "Choose the GitHub or local rohd_schematic_viewer source without changing the ROHD selections."
+        },
+        {
+            "label": "Configure All ROHD Dependency Sources",
+            "type": "shell",
+            "command": "bash tool/confapp_dev_mode.sh configure-group all ${input:allDependencySource} && flutter pub get",
+            "options": {
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
+                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                }
+            },
+            "problemMatcher": [],
+            "detail": "Set every published ROHD-family package to hosted or GitHub without changing the schematic dependency."
+        },
+        {
+            "label": "Generate Confapp Assets",
+            "type": "shell",
+            "command": "bash tool/generate_confapp_assets.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "ROHD-HCL Confapp: Web Release WASM",
+            "type": "shell",
+            "command": "flutter pub get && cd confapp && flutter build web --wasm --release --no-pub",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Confapp Assets",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "detail": "Builds with the dependency configuration currently selected at the workspace root."
+        },
+        {
+            "label": "ROHD-HCL Confapp: Web Debug",
+            "type": "shell",
+            "command": "bash tool/confapp_web_debug.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Confapp Assets",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "confapp-web",
+                "pattern": {
+                    "regexp": "^(CONFAPP_TASK_DIAGNOSTIC: .+)$",
+                    "message": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^Launching lib/main\\.dart",
+                    "endsPattern": "is being served at"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            },
+            "detail": "Runs web debug with the dependency configuration currently selected at the workspace root."
+        },
+        {
+            "label": "Show Confapp Dependency Mode",
+            "type": "shell",
+            "command": "bash tool/confapp_dev_mode.sh show",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "rohdSource",
+            "type": "pickString",
+            "description": "Source for rohd",
+            "options": ["hosted", "git", "local"],
+            "default": "hosted"
+        },
+        {
+            "id": "packageSource",
+            "type": "pickString",
+            "description": "Source for rohd_hierarchy and rohd_source_navigator",
+            "options": ["hosted", "git", "local"],
+            "default": "hosted"
+        },
+        {
+            "id": "widgetSource",
+            "type": "pickString",
+            "description": "Source for rohd_hierarchy, rohd_devtools_widgets, and rohd_source_navigator",
+            "options": ["hosted", "git", "local"],
+            "default": "hosted"
+        },
+        {
+            "id": "schematicSource",
+            "type": "pickString",
+            "description": "Source for rohd_schematic_viewer",
+            "options": ["hosted", "git", "local"],
+            "default": "hosted"
+        },
+        {
+            "id": "allDependencySource",
+            "type": "pickString",
+            "description": "Source for every published ROHD-family package",
+            "options": ["hosted", "git", "local"],
+            "default": "hosted"
+        },
+        {
+            "id": "rohdSourceValue",
+            "type": "promptString",
+            "description": "Git ref or local ROHD checkout path (unused for hosted)",
+            "default": ""
+        },
+        {
+            "id": "schematicSourceValue",
+            "type": "promptString",
+            "description": "Git ref or local rohd_schematic_viewer checkout path",
+            "default": ""
+        }
+    ]
+}

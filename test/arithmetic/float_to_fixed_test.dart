@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-void main() async {
+void main() {
   test('E5M2 to Q16.16 exhaustive', () async {
     final float = FloatingPoint(exponentWidth: 5, mantissaWidth: 2);
     final dut = FloatToFixed(float);

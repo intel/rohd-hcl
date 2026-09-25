@@ -27,7 +27,7 @@ void main() {
     final fp2 = fpConstructor();
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
-    test('FP: dual-path adder N path singleton', () async {
+    test('FP: dual-path adder N path singleton', () {
       final fv1 = fpvPopulator().ofInts(0, 0, sign: true);
       final fv2 = fpvPopulator().ofInts(0, 1, sign: true);
 
@@ -47,7 +47,7 @@ void main() {
     // isR is Addition or exponent delta >= 2
     // N path is Subtraction & exponent delta < 2
 
-    test('FP: dual-path adder N path, subtraction, delta < 2', () async {
+    test('FP: dual-path adder N path, subtraction, delta < 2', () {
       final one = fpvPopulator().ofConstant(FloatingPointConstants.one);
       fp1.put(one);
       fp2.put(one);
@@ -122,7 +122,7 @@ void main() {
       await Simulator.endSimulation();
     });
 
-    test('FP: dual-path adder R path exhaustive', () async {
+    test('FP: dual-path adder R path exhaustive', () {
       fp1.put(0);
       fp2.put(0);
       final adder = FloatingPointAdderDualPath(fp1, fp2);
@@ -210,7 +210,7 @@ void main() {
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
 
-    test('FP: dual-path adder singleton merged path', () async {
+    test('FP: dual-path adder singleton merged path', () {
       fp1.put(0);
       fp2.put(0);
       final fv1 = fpvPopulator().ofInts(4, 7);
@@ -457,7 +457,7 @@ void main() {
     });
   });
 
-  test('FP: dual-path adder full random wide', () async {
+  test('FP: dual-path adder full random wide', () {
     const exponentWidth = 11;
     const mantissaWidth = 52;
 

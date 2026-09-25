@@ -28,6 +28,7 @@ abstract class MemoryStorage {
 
   /// Default behavior for [onInvalidWrite].
   static void _defaultOnInvalidWrite() {
+    // The default callback must warn users without requiring a logging setup.
     // ignore: avoid_print
     print('WARNING: Memory was cleared by invalid write!');
   }
@@ -42,6 +43,7 @@ abstract class MemoryStorage {
 
   /// Default behavior for [onInvalidRead].
   static LogicValue _defaultOnInvalidRead(LogicValue addr, int dataWidth) {
+    // The default callback must warn users without requiring a logging setup.
     // ignore: avoid_print
     print('WARNING: reading from address $addr that has no data!');
     return LogicValue.filled(dataWidth, LogicValue.x);

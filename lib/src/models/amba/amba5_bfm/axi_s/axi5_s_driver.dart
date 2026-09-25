@@ -7,6 +7,7 @@
 // 2025 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+// Driver methods schedule protocol actions rather than assign plain properties.
 // ignore_for_file: use_setters_to_change_properties
 
 import 'dart:async';
@@ -91,7 +92,7 @@ class Axi5StreamDriver extends PendingClockedDriver<Axi5StreamPacket> {
     if (_linkUtilizationEnabled) {
       _linkValidCount++;
     }
-    Simulator.injectAction(() async {
+    Simulator.injectAction(() {
       stream.valid.put(1);
       stream.id?.put(packet.id ?? 0);
       stream.user?.put(packet.user ?? 0);

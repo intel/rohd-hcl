@@ -35,8 +35,7 @@ Future<void> main() async {
   }
 
   group('Bitonic Sort', () {
-    test('should return RohdHclException if inputs is not power of two.',
-        () async {
+    test('should return RohdHclException if inputs is not power of two.', () {
       const dataWidth = 8;
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic(name: 'reset');
@@ -44,19 +43,18 @@ Future<void> main() async {
       final toSort =
           List.generate(3, (index) => Const(index + 1, width: dataWidth));
 
-      expect(() async {
+      expect(() {
         BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });
 
-    test('should return RohdHclException if number of elements is 0.',
-        () async {
+    test('should return RohdHclException if number of elements is 0.', () {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic(name: 'reset');
 
       final toSort = <Logic>[];
 
-      expect(() async {
+      expect(() {
         BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });
@@ -83,7 +81,7 @@ Future<void> main() async {
 
     test(
         'should return RohdHclException if width '
-        'is difference between each other in the list.', () async {
+        'is difference between each other in the list.', () {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic(name: 'reset');
 
@@ -94,7 +92,7 @@ Future<void> main() async {
         Const(2, width: 5),
       ];
 
-      expect(() async {
+      expect(() {
         BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });

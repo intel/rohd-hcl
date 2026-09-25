@@ -289,9 +289,14 @@ class MultiplyOnly extends MultiplyAccumulate {
     super.signedAddend,
   }) // Will be overrwridden by multiplyGenerator
   : super(
-            // ignore: prefer_interpolation_to_compose_strings
-            name: 'multiply_only_' +
-                _genName(mulGen, a, b, signedMultiplicand, signedMultiplier)) {
+          name: 'multiply_only_${_genName(
+            mulGen,
+            a,
+            b,
+            signedMultiplicand,
+            signedMultiplier,
+          )}',
+        ) {
     // Here we need to copy the Config and make sure we access our module's
     // input by calling .logic(this) on the runtimeConfig.
 
@@ -316,6 +321,7 @@ class MultiplyOnly extends MultiplyAccumulate {
 
     accumulate <=
         mux(
+            // Signedness is part of the generated multiplier's protected API.
             // ignore: invalid_use_of_protected_member
             multiply.isProductSigned,
             multiply.product.signExtend(accumulate.width),

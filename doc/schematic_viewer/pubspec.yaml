@@ -1,0 +1,26 @@
+name: schematic_viewer
+description: Standalone schematic viewer for ROHD-HCL API documentation.
+publish_to: none
+version: 1.0.0
+
+environment:
+  sdk: '>=3.6.0 <4.0.0'
+  flutter: '>=3.44.0'
+
+dependencies:
+  cupertino_icons: ^1.0.8
+  flutter:
+    sdk: flutter
+  http: ^1.0.0
+  rohd_schematic_viewer:
+    git:
+      url: https://github.com/intel/rohd-schematic-viewer.git
+      ref: main
+  web: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

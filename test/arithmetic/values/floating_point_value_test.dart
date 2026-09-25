@@ -435,7 +435,7 @@ void main() {
         equals(0));
   });
 
-  test('FPV: infinity/NaN conversion tests', () async {
+  test('FPV: infinity/NaN conversion tests', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final infinity = FloatingPointValue.populator(
@@ -465,7 +465,7 @@ void main() {
         equals(true));
   });
 
-  test('FPV: infinity/NaN unrounded conversion tests', () async {
+  test('FPV: infinity/NaN unrounded conversion tests', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final infinity = FloatingPointValue.populator(
@@ -550,7 +550,7 @@ void main() {
       }
     }
   });
-  test('FPV: rounding check', () async {
+  test('FPV: rounding check', () {
     final fpv1 = FloatingPoint32Value.populator().ofDouble(1);
     final fpv2 = FloatingPoint32Value.populator().ofDouble(0.5);
     final fpv3 = FloatingPoint32Value.populator().ofDoubleUnrounded(
@@ -780,7 +780,7 @@ void main() {
     });
   });
 
-  test('FloatingPointValue negation', () async {
+  test('FloatingPointValue negation', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final fp1 = FloatingPoint(
@@ -797,7 +797,7 @@ void main() {
   });
 
   /// Compare two FloatingPointValues differing in jbit
-  test('FloatingPointValue jbit comparison', () async {
+  test('FloatingPointValue jbit comparison', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
 
@@ -819,7 +819,7 @@ void main() {
     expect(val2 > val1, isFalse);
   });
 
-  test('FloatingPointValue comparison operators', () async {
+  test('FloatingPointValue comparison operators', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
 
@@ -859,7 +859,7 @@ void main() {
     }
   });
 
-  test('FloatingPointValue corner case comparisons', () async {
+  test('FloatingPointValue corner case comparisons', () {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final nan = FloatingPointValue.populator(

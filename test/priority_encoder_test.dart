@@ -76,9 +76,7 @@ void main() {
   });
 
   test('PrefixPriorityEncoder simple test', () {
-    final val = Logic(width: 5);
-    // ignore: cascade_invocations
-    val.put(3);
+    final val = Logic(width: 5)..put(3);
     expect(ParallelPrefixPriorityEncoder(val).out.value.toInt(), equals(0));
     expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),
         equals(3));
@@ -88,9 +86,7 @@ void main() {
   });
 
   test('PrefixPriorityEncoder simple test', () {
-    final bitVector = Logic(width: 5);
-    // ignore: cascade_invocations
-    bitVector.put(8);
+    final bitVector = Logic(width: 5)..put(8);
     final encoder = ParallelPrefixPriorityEncoder(bitVector,
         ppGen: BrentKung.new, generateValid: true);
 
@@ -98,9 +94,7 @@ void main() {
   });
 
   test('PrefixPriorityEncoder return beyond width if zero', () {
-    final val = Logic(width: 5);
-    // ignore: cascade_invocations
-    val.put(0);
+    final val = Logic(width: 5)..put(0);
     expect(ParallelPrefixPriorityEncoder(val).out.value.toInt(),
         equals(val.width + 1));
     expect(ParallelPrefixPriorityEncoder(val.reversed).out.value.toInt(),

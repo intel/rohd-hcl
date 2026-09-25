@@ -28,8 +28,10 @@ void checkSignMagnitudeAdder(SignMagnitudeAdder adder, LogicValue aSign,
     LogicValue aMagnitude, LogicValue bSign, LogicValue bMagnitude) {
   adder.aSign.put(aSign);
   adder.bSign.put(bSign);
+  // This white-box helper drives the adder's protected magnitude directly.
   // ignore: invalid_use_of_protected_member
   adder.a.put(aMagnitude);
+  // This white-box helper drives the adder's protected magnitude directly.
   // ignore: invalid_use_of_protected_member
   adder.b.put(bMagnitude);
 
@@ -144,7 +146,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('SignMagnitudeAdder case test', () async {
+  test('SignMagnitudeAdder case test', () {
     const width = 8;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -245,7 +247,7 @@ void main() {
     }
   });
 
-  test('SignMagnitudeAdder: trivial test', () async {
+  test('SignMagnitudeAdder: trivial test', () {
     const width = 4;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -264,7 +266,7 @@ void main() {
     expect(sum.value.toBigInt(), equals(BigInt.from(16)));
   });
 
-  test('SignMagnitudeDualAdder: trivial test', () async {
+  test('SignMagnitudeDualAdder: trivial test', () {
     const width = 64;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -281,7 +283,7 @@ void main() {
     expect(sum.value.toBigInt(), equals(BigInt.from(1)));
   });
 
-  test('SignMagnitudeAdder: four case test', () async {
+  test('SignMagnitudeAdder: four case test', () {
     const width = 6;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);

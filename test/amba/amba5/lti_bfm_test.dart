@@ -340,7 +340,7 @@ void main() {
     await Test.reset();
   });
 
-  setUp(() async {
+  setUp(() {
     // Set the logger level
     Logger.root.level = Level.WARNING;
   });

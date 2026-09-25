@@ -42,7 +42,7 @@ void main() {
           {int? depth, Logic? control, String name = ''}) =>
       inputs.reduce((v, e) => v + e);
 
-  test('reduction tree of add operations -- quick test', () async {
+  test('reduction tree of add operations -- quick test', () {
     const width = 13;
     const length = 79;
     final vec = <Logic>[];
@@ -111,7 +111,7 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  test('reduction tree of adders -- large', () async {
+  test('reduction tree of adders -- large', () {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;

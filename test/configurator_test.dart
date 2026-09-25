@@ -31,11 +31,15 @@ void main() {
 
     cfg.knobs['e']!.value = 5;
     for (final k in (cfg.knobs['e']! as ListOfKnobsKnob).knobs) {
+      // Knob values are dynamic because configurators support mixed
+      // value types.
       // ignore: avoid_dynamic_calls
       k.value += 10;
     }
 
     (cfg.knobs['f']! as GroupOfKnobs).subKnobs.forEach((key, value) {
+      // Knob values are dynamic because configurators support mixed
+      // value types.
       // ignore: avoid_dynamic_calls
       value.value += 'x';
     });
@@ -386,7 +390,7 @@ void main() {
     expect(sv, contains('swizzle'));
   });
 
-  test('sum configurator', () async {
+  test('sum configurator', () {
     final cfg = SumConfigurator();
     cfg.initialValueKnob.value = 6;
     cfg.widthKnob.value = 10;
@@ -396,11 +400,14 @@ void main() {
 
     final mod = cfg.createModule() as Sum;
 
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.initialValueLogic.value.toInt(), 6);
     expect(mod.width, 10);
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.minValueLogic.value.toInt(), 5);
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.maxValueLogic.value.toInt(), 25);
     expect(mod.saturates, true);

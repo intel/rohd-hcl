@@ -10,6 +10,7 @@ import 'package:bloc/bloc.dart';
 
 /// [BlocObserver] observe all state changes in the application.
 class HCLBlocObserver extends BlocObserver {
+  /// Creates an application-wide BLoC observer.
   const HCLBlocObserver();
 
   @override

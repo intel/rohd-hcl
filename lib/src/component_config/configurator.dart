@@ -9,6 +9,7 @@
 import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
+// ROHD does not expose the sanitizer required for generated names publicly.
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/sanitizer.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

@@ -7,6 +7,7 @@
 // 2023 February 17
 // Author: Max Korbel <max.korbel@intel.com>
 
+// This executable example prints generated output for interactive inspection.
 // ignore_for_file: avoid_print
 
 import 'package:rohd/rohd.dart';

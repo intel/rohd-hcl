@@ -37,7 +37,7 @@ void main() {
     return a;
   }
 
-  test('reduction tree of add operations -- quick test', () async {
+  test('reduction tree of add operations -- quick test', () {
     const width = 13;
     const length = 79;
     final vec = <Logic>[];
@@ -54,7 +54,7 @@ void main() {
     }
   });
 
-  test('reduction tree of adders -- large', () async {
+  test('reduction tree of adders -- large', () {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;

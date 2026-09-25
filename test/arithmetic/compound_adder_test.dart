@@ -16,8 +16,10 @@ import 'package:test/test.dart';
 void checkCompoundAdder(CompoundAdder adder, LogicValue av, LogicValue bv) {
   final aB = av.toBigInt();
   final bB = bv.toBigInt();
+  // This white-box helper drives the adder's protected operand directly.
   // ignore: invalid_use_of_protected_member
   adder.a.put(av);
+  // This white-box helper drives the adder's protected operand directly.
   // ignore: invalid_use_of_protected_member
   adder.b.put(bv);
 
@@ -78,7 +80,7 @@ void main() {
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4)));
   });
 
-  test('trivial compound adder test', () async {
+  test('trivial compound adder test', () {
     const width = 6;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -245,7 +247,7 @@ void main() {
     expect(adder.sum.value.toInt(), equals(4));
   });
 
-  test('CarrySelectOnesComplementCompoundAdder case test', () async {
+  test('CarrySelectOnesComplementCompoundAdder case test', () {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);

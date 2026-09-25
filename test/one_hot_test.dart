@@ -64,7 +64,7 @@ void main() {
     ];
 
     for (final ohToBType in ohToBTypes) {
-      test('simple_decode ${ohToBType.name}', () async {
+      test('simple_decode ${ohToBType.name}', () {
         // Compute the first 1 in a binary value
         for (var pos = 0; pos < ohToBType.max; pos++) {
           final val = BigInt.two.pow(pos);

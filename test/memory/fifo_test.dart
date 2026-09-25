@@ -677,7 +677,7 @@ void main() {
     final tracker =
         FifoTracker(fifoTest.fifo, outputFolder: 'tmp_test', dumpTable: false);
 
-    Simulator.registerEndOfSimulationAction(() async => tracker.terminate());
+    Simulator.registerEndOfSimulationAction(tracker.terminate);
 
     await fifoTest.start();
 

@@ -70,6 +70,7 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
       Logic? enable,
       FpTypeOut? outProduct,
       this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
+      // Retained for API compatibility with concrete multiplier variants.
       // ignore: avoid_unused_constructor_parameters
       ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
           KoggeStone.new,

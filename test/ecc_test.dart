@@ -96,7 +96,7 @@ void main() {
     });
   }
 
-  test('Hamming(7,4)', () async {
+  test('Hamming(7,4)', () {
     final tx = HammingEccTransmitter(Logic(width: 4));
     final rx = HammingEccReceiver(tx.transmission);
     expect(tx.transmission.width, 7);

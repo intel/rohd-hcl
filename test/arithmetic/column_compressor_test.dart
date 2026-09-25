@@ -90,7 +90,7 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  test('Column Compressor: single compressor evaluate', () async {
+  test('Column Compressor: single compressor evaluate', () {
     const widthX = 3;
     const widthY = 3;
     final a = Logic(name: 'a', width: widthX);

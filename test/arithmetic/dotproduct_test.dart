@@ -23,7 +23,7 @@ void main() {
     GeneralDotProduct.new
   ];
 
-  test('dotproduct width mismatch test', () async {
+  test('dotproduct width mismatch test', () {
     final multiplicands = [
       Logic(width: 3, name: 'a_0'),
       Logic(width: 4, name: 'a_1'),
@@ -60,7 +60,7 @@ void main() {
     }
   });
 
-  test('dotproduct signed-variants exhaustive', () async {
+  test('dotproduct signed-variants exhaustive', () {
     const widths = [3, 3];
     final depth = widths.length;
     final candValues = List.generate(depth, (_) => BigInt.zero);
@@ -136,7 +136,7 @@ void main() {
     }
   });
 
-  test('dotproduct signed-variants random', () async {
+  test('dotproduct signed-variants random', () {
     const iterations = 100;
 
     const widths = [4, 4, 4, 4, 4];
@@ -204,7 +204,7 @@ void main() {
     }
   });
 
-  test('dotproduct singleton', () async {
+  test('dotproduct singleton', () {
     const widths = [3, 3];
     final depth = widths.length;
     const signedMultiplicand = true;
@@ -255,7 +255,7 @@ void main() {
   ''');
   });
 
-  test('dotproduct trival case', () async {
+  test('dotproduct trival case', () {
     const width = 4;
     final multiplicands = [Logic(width: width), Logic(width: width)];
     final multipliers = [Logic(width: width), Logic(width: width)];

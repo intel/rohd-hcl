@@ -8,8 +8,8 @@
 // 2024 August 9
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-export './column_compressor.dart';
-export './multiplicand_selector.dart';
-export './multiplier_encoder.dart';
-export './partial_product_generator.dart';
-export './partial_product_sign_extend.dart';
+export 'column_compressor.dart';
+export 'multiplicand_selector.dart';
+export 'multiplier_encoder.dart';
+export 'partial_product_generator.dart';
+export 'partial_product_sign_extend.dart';

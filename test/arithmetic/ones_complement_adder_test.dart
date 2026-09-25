@@ -28,7 +28,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('OnesComplementAdder case test', () async {
+  test('OnesComplementAdder case test', () {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -183,7 +183,7 @@ void main() {
     }
   });
 
-  test('OnesComplementAdder: trivial test', () async {
+  test('OnesComplementAdder: trivial test', () {
     const width = 8;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);

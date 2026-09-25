@@ -125,9 +125,8 @@ void main() {
     const normal = 0; // set to zero for subnormal testing
 
     final fp1 = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    // ignore: cascade_invocations
-    fp1.put(0);
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      ..put(0);
     for (var destExponentWidth = exponentWidth;
         destExponentWidth < exponentWidth + 2;
         destExponentWidth++) {
@@ -496,9 +495,8 @@ expected: $expected
       final fp = FloatingPoint(
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      // ignore: cascade_invocations
-      fp.put(0);
+          explicitJBit: true)
+        ..put(0);
 
       for (final expDelta in [-2, 2]) {
         // TODO(desmonddak): fix narrowing bug and improve this test

@@ -99,9 +99,9 @@ class ReadyValidBfmTest extends Test {
 
       final jsonStr =
           File('$outFolder/readyValidTracker.tracker.json').readAsStringSync();
-      final jsonContents = json.decode(jsonStr);
-      // ignore: avoid_dynamic_calls
-      expect(jsonContents['records'].length, numTransfers);
+      final jsonContents = json.decode(jsonStr) as Map<String, dynamic>;
+      final records = jsonContents['records'] as List<Object?>;
+      expect(records.length, numTransfers);
 
       Directory(outFolder).deleteSync(recursive: true);
     });

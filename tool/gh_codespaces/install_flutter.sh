@@ -14,7 +14,10 @@
 
 set -euo pipefail
 
-wget -O /tmp/flutter_linux.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.16.9-stable.tar.xz
+declare -r flutter_version='3.44.0'
+
+wget -O /tmp/flutter_linux.tar.xz \
+  "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${flutter_version}-stable.tar.xz"
 cd /usr/local
 sudo tar -xf /tmp/flutter_linux.tar.xz
 echo 'export PATH="$PATH:/usr/local/flutter/bin"' >> ~/.bashrc

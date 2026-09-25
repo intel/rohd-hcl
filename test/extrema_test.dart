@@ -146,7 +146,7 @@ void main() {
     expect(findMax.index.value.toInt(), equals(0));
   });
 
-  test('Empty List.', () async {
+  test('Empty List.', () {
     // Create a list of Logic objects with
     final logics = List<Logic>.empty();
 
