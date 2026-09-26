@@ -41,6 +41,8 @@ class Axi4BfmTest extends Test {
 
   final bool withRandomRspDelays;
 
+  final int? fixedRspDelayCycles;
+
   final bool withErrors;
 
   final int addrWidth;
@@ -161,6 +163,7 @@ class Axi4BfmTest extends Test {
     this.withStrobes = false,
     this.interTxnDelay = 0,
     this.withRandomRspDelays = false,
+    this.fixedRspDelayCycles,
     this.withErrors = false,
     this.addrWidth = 32,
     this.dataWidth = 32,
@@ -218,15 +221,22 @@ class Axi4BfmTest extends Test {
 
     sIntf.clk <= SimpleClockGenerator(10).clk;
 
+    final int Function(Axi4RequestPacket)? rspDelay;
+    if (fixedRspDelayCycles != null) {
+      rspDelay = (request) => fixedRspDelayCycles!;
+    } else if (withRandomRspDelays) {
+      rspDelay = (request) => Test.random!.nextInt(5);
+    } else {
+      rspDelay = null;
+    }
+
     Axi4SubordinateMemoryAgent(
       sIntf: sIntf,
       lanes: subAgents,
       parent: this,
       storage: storage,
-      readResponseDelay:
-          withRandomRspDelays ? (request) => Test.random!.nextInt(5) : null,
-      writeResponseDelay:
-          withRandomRspDelays ? (request) => Test.random!.nextInt(5) : null,
+      readResponseDelay: rspDelay,
+      writeResponseDelay: rspDelay,
       respondWithError: withErrors ? (request) => true : null,
       supportLocking: supportLocking,
       ranges: ranges,
@@ -406,6 +416,55 @@ class Axi4BfmSimpleWriteReadTest extends Axi4BfmTest {
   // by compliance checker...
   @override
   void check() {}
+}
+
+class Axi4BfmFixedResponseDelayTest extends Axi4BfmTest {
+  /// The number of negedges observed between a write's data phase
+  /// completing and its response arriving.
+  int? observedWriteDelayCycles;
+
+  Future<void> timedWrite(int laneId) async {
+    final wrPkts = genWrPacket(laneId, lock: false);
+    mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
+    mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
+
+    await wrPkts.$1.completed;
+    await wrPkts.$2.completed;
+
+    var negedgeCount = 0;
+    final sub = sIntf.clk.negedge.listen((_) => negedgeCount++);
+    await mainAgents[laneId].writeAgent.respAgent.monitor.stream.first;
+    await sub.cancel();
+
+    observedWriteDelayCycles = negedgeCount;
+  }
+
+  Axi4BfmFixedResponseDelayTest(
+    super.name, {
+    required super.fixedRspDelayCycles,
+    super.numLanes,
+    super.addrWidth,
+    super.dataWidth,
+    super.lenWidth,
+  });
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+
+    await resetFlow();
+    await timedWrite(0);
+
+    obj.drop();
+  }
+
+  @override
+  void check() {
+    expect(
+        observedWriteDelayCycles, greaterThanOrEqualTo(fixedRspDelayCycles!));
+  }
 }
 
 class Axi4BfmWrapWriteReadTest extends Axi4BfmTest {
@@ -812,7 +871,13 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
 
     // wait for the first read response to come back
     final obj = phase.raiseObjection('${name}DataReturnObj$laneId1$laneId2');
-    mainAgents[laneId1].readAgent.dataAgent.monitor!.stream.listen((d) async {
+    late final StreamSubscription<Axi4DataPacket> dataSub;
+    dataSub = mainAgents[laneId1]
+        .readAgent
+        .dataAgent
+        .monitor!
+        .stream
+        .listen((d) async {
       final pData = List.generate(
           d.data.width ~/ wIntf1.dataWidth,
           (i) => dataModifier!(d.data
@@ -845,6 +910,7 @@ class Axi4BfmReadModifyWriteAbortTest extends Axi4BfmTest {
       }
     });
     await obj.dropped;
+    await dataSub.cancel();
   }
 
   Axi4BfmReadModifyWriteAbortTest(
@@ -1244,6 +1310,73 @@ class Axi4ReadComplianceEvilTest extends Test {
   void check() {}
 }
 
+/// Verifies that a multi-beat INCR write burst stores each beat's data at its
+/// own address, not just the last beat's data at every address.
+class Axi4BfmMultiBeatDataIntegrityTest extends Axi4BfmTest {
+  static const int _startAddr = 0x100;
+  static const int _numBeats = 4;
+
+  final List<int> _writtenData = [];
+
+  Axi4BfmMultiBeatDataIntegrityTest(super.name);
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+
+    final obj = phase.raiseObjection('${name}Obj');
+    await resetFlow();
+
+    const laneId = 0;
+    final wIntfC = lanes[laneId].write.wIntf;
+    const transLen = _numBeats - 1;
+    const transSize = 2; // 32-bit word per beat
+
+    final pData = List.generate(_numBeats, (i) => 0x11111111 * (i + 1));
+    final pStrobes = List.generate(_numBeats,
+        (_) => LogicValue.filled(wIntfC.strbWidth, LogicValue.one).toInt());
+
+    _writtenData
+      ..clear()
+      ..addAll(pData);
+
+    final wrPkts = genWrPacket(
+      laneId,
+      addr: _startAddr,
+      data: pData,
+      len: transLen,
+      size: transSize,
+      strb: pStrobes,
+      burst: Axi4BurstField.incr,
+      lock: false,
+    );
+    mainAgents[laneId].writeAgent.reqAgent.sequencer.add(wrPkts.$1);
+    mainAgents[laneId].writeAgent.dataAgent.sequencer!.add(wrPkts.$2);
+
+    await wrPkts.$1.completed;
+    await wrPkts.$2.completed;
+
+    obj.drop();
+  }
+
+  @override
+  void check() {
+    const increment = 4; // bytes per 32-bit beat (size=2)
+    for (var i = 0; i < _writtenData.length; i++) {
+      final addr = LogicValue.ofInt(_startAddr + i * increment, addrWidth);
+      final stored = storage.readData(addr).toInt();
+      expect(
+        stored,
+        equals(_writtenData[i]),
+        reason:
+            'Beat $i at 0x${(_startAddr + i * increment).toRadixString(16)}: '
+            'expected 0x${_writtenData[i].toRadixString(16)}, '
+            'got 0x${stored.toRadixString(16)}',
+      );
+    }
+  }
+}
+
 void main() {
   tearDown(() async {
     await Test.reset();
@@ -1283,6 +1416,11 @@ void main() {
   test('simple writes and reads with response delays', () async {
     await runTest(Axi4BfmSimpleWriteReadTest('simpleResponseDelays',
         withRandomRspDelays: true));
+  });
+
+  test('write response is delayed by the requested number of cycles', () async {
+    await runTest(Axi4BfmFixedResponseDelayTest('fixedResponseDelay',
+        fixedRspDelayCycles: 4));
   });
 
   test('simple writes and read with errors', () async {
@@ -1351,5 +1489,9 @@ void main() {
     } on Exception catch (e) {
       expect(e.toString(), contains('Test failed'));
     }
+  });
+
+  test('multi-beat write burst stores each beat at its own address', () async {
+    await runTest(Axi4BfmMultiBeatDataIntegrityTest('multiBeatDataIntegrity'));
   });
 }

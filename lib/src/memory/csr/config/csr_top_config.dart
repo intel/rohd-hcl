@@ -27,12 +27,23 @@ class CsrTopConfig extends CsrContainerConfig {
   /// Blocks in this module.
   final List<CsrBlockConfig> blocks;
 
+  /// Indicates whether the `reset` signal driving all registers in this
+  /// module should be treated as an asynchronous reset.
+  ///
+  /// If `true`, registers reset as soon as `reset` is asserted, independent
+  /// of `clk`. If `false` (the default), `reset` is treated as synchronous
+  /// and registers only reset on the next active edge of `clk`.
+  bool get asyncReset => _asyncReset;
+  final bool _asyncReset;
+
   /// Construct a new top level configuration.
   CsrTopConfig({
     required super.name,
     required this.blockSize,
     required List<CsrBlockConfig> blocks,
-  }) : blocks = List.unmodifiable(blocks) {
+    bool asyncReset = false,
+  })  : _asyncReset = asyncReset,
+        blocks = List.unmodifiable(blocks) {
     _validate();
   }
 
@@ -128,15 +139,15 @@ class CsrTopConfig extends CsrContainerConfig {
 
   /// Method to determine the minimum number of address bits
   /// needed to address all registers across all blocks. This is
-  /// based on the maximum block base address. Note that we independently
-  /// validate the block size relative to the base addresses
-  /// so we can trust the simpler analysis here.
+  /// based on the highest address reachable in any block (its base
+  /// address plus its effective size).
   @override
   int minAddrBits() {
     var maxAddr = 0;
     for (final block in blocks) {
-      if (block.baseAddr > maxAddr) {
-        maxAddr = block.baseAddr;
+      final highestBlockAddr = block.baseAddr + blockSizeForBlock(block) - 1;
+      if (highestBlockAddr > maxAddr) {
+        maxAddr = highestBlockAddr;
       }
     }
     return maxAddr.bitLength;
@@ -161,11 +172,13 @@ class CsrTopConfig extends CsrContainerConfig {
     String? name,
     int? blockSize,
     List<CsrBlockConfig>? blocks,
+    bool? asyncReset,
   }) =>
       CsrTopConfig(
         name: name ?? this.name,
         blockSize: blockSize ?? this.blockSize,
         blocks: blocks ?? this.blocks,
+        asyncReset: asyncReset ?? this.asyncReset,
       );
 
   @override
@@ -177,6 +190,7 @@ class CsrTopConfig extends CsrContainerConfig {
     return other is CsrTopConfig &&
         super == other &&
         blockSize == other.blockSize &&
+        asyncReset == other.asyncReset &&
         blocks.length == other.blocks.length &&
         const ListEquality<CsrBlockConfig>().equals(blocks, other.blocks);
   }
@@ -185,5 +199,6 @@ class CsrTopConfig extends CsrContainerConfig {
   int get hashCode =>
       super.hashCode ^
       blockSize.hashCode ^
+      asyncReset.hashCode ^
       const ListEquality<CsrBlockConfig>().hash(blocks);
 }
