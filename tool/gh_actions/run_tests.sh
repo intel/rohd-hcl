@@ -15,7 +15,7 @@ repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
 bash "$repo_root/tool/generate_confapp_assets.sh"
 
-flutter test test
+dart test test
 
 cd "$repo_root/confapp"
 flutter test
