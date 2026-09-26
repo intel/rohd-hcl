@@ -11,6 +11,7 @@
 
 set -euo pipefail
 
-# Dependencies are resolved with Flutter because the workspace includes
-# confapp. Invoke package:test directly for this package's pure-Dart tests.
-dart run test:test
+# Match the Dart SDK used by Flutter to resolve this workspace, while invoking
+# package:test directly for this package's pure-Dart tests.
+flutter_bin_dir="$(dirname "$(readlink -f "$(command -v flutter)")")"
+"$flutter_bin_dir/dart" run test:test
