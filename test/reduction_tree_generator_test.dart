@@ -158,7 +158,8 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
-    const length = 129;
+    // Smallest length that exercises four radix-4 reduction levels.
+    const length = 65;
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
     for (var i = 0; i < length; i++) {
