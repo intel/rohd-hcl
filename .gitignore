@@ -16,6 +16,10 @@ tmp*
 *.vcd
 .vscode/*
 confapp/.vscode/*
+confapp/assets/rohd_src/
+/pubspec_overrides.yaml
+/pubspec_overrides.yaml.disabled*
+/.confapp_dependency_sources
 *tracker.json
 *tracker.log
 devtools_options.yaml
@@ -23,5 +27,6 @@ devtools_options.yaml
 
 # Exceptions
 !.vscode/extensions.json
+!.vscode/tasks.json
 !confapp/.vscode/extensions.json
 !confapp/.vscode/launch.json

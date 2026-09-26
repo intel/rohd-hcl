@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // hcl_bloc_observer.dart
@@ -10,6 +10,7 @@ import 'package:bloc/bloc.dart';
 
 /// [BlocObserver] observe all state changes in the application.
 class HCLBlocObserver extends BlocObserver {
+  /// Creates an application-wide BLoC observer.
   const HCLBlocObserver();
 
   @override

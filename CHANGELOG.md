@@ -1,3 +1,47 @@
+## Unreleased
+
+### Breaking changes
+
+- The minimum supported Dart SDK is now 3.6.0. Applications using Dart 3.0 through 3.5 must upgrade their SDK before resolving ROHD-HCL.
+- Corrected AXI5 signal widths to match the configured protocol widths. Generated interfaces for affected `MMUSID`, `MMUSSID`, and `SUBSYSID` signals may have different port widths; designs that connect to those signals must use the corrected widths (<https://github.com/intel/rohd-hcl/pull/280>).
+
+### New and enhanced components
+
+- Refactored AMBA support to add AXI4-Lite, AXI4-Stream, ACE, and ACE-Lite protocol variants while preserving the existing AXI APIs (<https://github.com/intel/rohd-hcl/pull/251>).
+- Added an abstract `ApbCompleter` and an `ApbCsrCompleter` implementation for connecting APB transactions to CSR blocks (<https://github.com/intel/rohd-hcl/pull/270>).
+- Added `AsyncFifo` for safely transferring data between clock domains (<https://github.com/intel/rohd-hcl/issues/168>, <https://github.com/intel/rohd-hcl/pull/279>).
+- Added `ReadyValidInterface`, `ReadyValidFifo`, and `Cam` capabilities in preparation for cache componentry (<https://github.com/intel/rohd-hcl/pull/281>).
+- Added the `Counter.upDown` convenience constructor for incrementing and decrementing by one (<https://github.com/intel/rohd-hcl/pull/271>).
+- Added the `RegisterFile.setData` testbench hook for directly initializing register contents (<https://github.com/intel/rohd-hcl/pull/273>).
+- Added optional early termination to `Serializer` and `Deserializer` for dynamically sized inputs (<https://github.com/intel/rohd-hcl/issues/277>, <https://github.com/intel/rohd-hcl/pull/278>).
+- Exposed the module `name` argument on round-robin and related arbiters (<https://github.com/intel/rohd-hcl/pull/255>).
+- Expanded CSR support with heterogeneous block sizes (<https://github.com/intel/rohd-hcl/pull/285>), configurable asynchronous reset through `CsrTopConfig` (<https://github.com/intel/rohd-hcl/pull/310>), and write-only fields for command, trigger, and pulse semantics (<https://github.com/intel/rohd-hcl/issues/308>, <https://github.com/intel/rohd-hcl/pull/313>).
+
+### Configuration application and schematics
+
+- Migrated the configuration application and generated API-documentation schematics from the legacy D3 flow to `rohd_schematic_viewer`. The new flow renders native ROHD netlists, retains Yosys-based synthesized schematics, and redirects existing component schematic URLs to the new viewer.
+- Added selectable ROHD schematic, ROHD source, generated SystemVerilog, and synthesized schematic views, including syntax highlighting, downloadable generated artifacts, configurable schematic expansion, and split-pane output.
+- Migrated the configuration application to `material_ui`, including light and dark themes, and removed its legacy Flutter Material dependencies.
+- Converted the root package and configuration application to a Pub workspace and added package-by-package hosted, Git, and local dependency-source selection for development.
+
+### Bug fixes
+
+- Corrected AXI5 mixin signal widths to match the protocol specification (<https://github.com/intel/rohd-hcl/pull/280>).
+- Ensured the `Serializer` counter has a valid width for single-element inputs (<https://github.com/intel/rohd-hcl/pull/284>).
+- Fixed `loadMemString` data loss across discontinuous sections whose starting addresses are not word-aligned (<https://github.com/intel/rohd-hcl/pull/293>).
+- Prevented `FifoChecker` from reading an invalid previous error value and crashing the simulator (<https://github.com/intel/rohd-hcl/pull/292>).
+- Fixed AXI4 memory-subordinate multi-beat writes so each beat is stored at its corresponding address and stale queued data cannot leak across bursts (<https://github.com/intel/rohd-hcl/pull/289>).
+- Fixed CSR frontdoor decoding for non-power-of-two-aligned block base addresses and corrected the minimum required address width calculation (<https://github.com/intel/rohd-hcl/issues/294>, <https://github.com/intel/rohd-hcl/pull/309>).
+- Implemented the documented write-ones-clear CSR behavior, with software writes clearing bits and backdoor hardware writes setting them (<https://github.com/intel/rohd-hcl/issues/296>, <https://github.com/intel/rohd-hcl/pull/311>).
+- Enabled independent AXI4 subordinate read and write response-delay callbacks and corrected their timing behavior (<https://github.com/intel/rohd-hcl/issues/303>, <https://github.com/intel/rohd-hcl/pull/312>).
+
+### Tooling and compatibility
+
+- Updated analysis settings and added `pana` validation for pub.dev scoring (<https://github.com/intel/rohd-hcl/issues/262>, <https://github.com/intel/rohd-hcl/pull/263>).
+- Updated source and analysis configuration for newer Dart lints (<https://github.com/intel/rohd-hcl/pull/282>, <https://github.com/intel/rohd-hcl/pull/300>).
+- Updated GitHub workflows to Node.js 24 (<https://github.com/intel/rohd-hcl/pull/288>).
+- Updated compatibility to ROHD 0.6.11 and set the Dart SDK range to `^3.6.0`.
+
 ## 0.2.1
 
 - New Components:

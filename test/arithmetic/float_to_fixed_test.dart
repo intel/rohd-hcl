@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // float_to_fixed_test.dart
@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-void main() async {
+void main() {
   test('E5M2 to Q16.16 exhaustive', () async {
     final float = FloatingPoint(exponentWidth: 5, mantissaWidth: 2);
     final dut = FloatToFixed(float);

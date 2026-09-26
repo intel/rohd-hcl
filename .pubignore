@@ -30,4 +30,4 @@ devtools_options.yaml
 
 # Special things for .pubignore
 confapp
-doc/d3-hwschematic
+doc/schematic_viewer

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier_test.dart
@@ -7,6 +7,7 @@
 // 2024 August 7
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// These white-box tests drive protected multiplier signals and inspect state.
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:async';
@@ -254,7 +255,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('Native multiplier sweep with signage test', () async {
+  test('Native multiplier sweep with signage test', () {
     const width = 5;
     final a = Logic(width: width);
     final b = Logic(width: width);
@@ -519,7 +520,7 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  test('single multiplier', () async {
+  test('single multiplier', () {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -562,7 +563,7 @@ void main() {
     }
   });
 
-  test('trivial instantiated multiplier', () async {
+  test('trivial instantiated multiplier', () {
     // Using this to find trace errors when instantiating multipliers
     const dataWidth = 5;
     final av = BigInt.from(-16).toSigned(dataWidth);
@@ -571,9 +572,7 @@ void main() {
     final multA = Logic(name: 'multA', width: dataWidth);
     final multB = Logic(name: 'multB', width: dataWidth);
 
-    final signedOperands = Logic(name: 'signedOperands');
-    // ignore: cascade_invocations
-    signedOperands.put(1);
+    final signedOperands = Logic(name: 'signedOperands')..put(1);
     multA.put(av);
     multB.put(bv);
 
@@ -591,7 +590,7 @@ void main() {
     checkMultiplyAccumulate(mod, av, bv, BigInt.zero);
   });
 
-  test('single mac', () async {
+  test('single mac', () {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -604,9 +603,7 @@ void main() {
       final bB = SignedBigInt.fromSignedInt(bv, width, signed: signed);
       final bC = SignedBigInt.fromSignedInt(cv, width * 2, signed: signed);
 
-      final signedOperands = Logic(name: 'signedOperands');
-      // ignore: cascade_invocations
-      signedOperands.put(1);
+      final signedOperands = Logic(name: 'signedOperands')..put(1);
 
       // Set these so that printing inside module build will have Logic values
       a.put(bA);
@@ -625,7 +622,7 @@ void main() {
     }
   });
 
-  test('single rectangular mac', () async {
+  test('single rectangular mac', () {
     const widthA = 8;
     const widthB = 8;
     const widthC = widthA + widthB;
@@ -654,7 +651,7 @@ void main() {
     }
   });
 
-  test('trivial compression tree multiply-accumulate test', () async {
+  test('trivial compression tree multiply-accumulate test', () {
     const widthA = 6;
     const widthB = 6;
     const radix = 8;
@@ -672,7 +669,7 @@ void main() {
     expect(accumulate.value.toBigInt(), equals(BigInt.from(15 * 3 + 5)));
   });
 
-  test('trivial compression MAC signed', () async {
+  test('trivial compression MAC signed', () {
     const widthA = 6;
     const widthB = 6;
     const widthC = widthA + widthB;
@@ -703,7 +700,7 @@ void main() {
     }
   });
 
-  test('Multiplier Components exhaustive', () async {
+  test('Multiplier Components exhaustive', () {
     const width = 4;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -736,13 +733,11 @@ void main() {
     }
   });
 
-  test('setting PPG', () async {
+  test('setting PPG', () {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
-    final select = Logic(name: 'select');
-    // ignore: cascade_invocations
-    select.put(0);
+    final select = Logic(name: 'select')..put(0);
     a.put(6);
     b.put(3);
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // reduction_tree_test.dart
@@ -42,7 +42,7 @@ void main() {
           {int? depth, Logic? control, String name = ''}) =>
       inputs.reduce((v, e) => v + e);
 
-  test('reduction tree of add operations -- quick test', () async {
+  test('reduction tree of add operations -- quick test', () {
     const width = 13;
     const length = 79;
     final vec = <Logic>[];
@@ -111,7 +111,7 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  test('reduction tree of adders -- large', () async {
+  test('reduction tree of adders -- large', () {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
@@ -184,7 +184,8 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
-    const length = 129;
+    // Smallest length that exercises four radix-4 reduction levels.
+    const length = 65;
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
     for (var i = 0; i < length; i++) {

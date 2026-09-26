@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_to_float_test.dart
@@ -12,8 +12,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-void main() async {
-  test('FixedToFloat: singleton', () async {
+void main() {
+  test('FixedToFloat: singleton', () {
     final fixed = FixedPoint(integerWidth: 34, fractionWidth: 33);
     const inDouble = -2.0;
     fixed.put(fixed.valuePopulator().ofDouble(inDouble));
@@ -59,7 +59,7 @@ void main() async {
     }
   });
 
-  test('FixedToFloat addition with Anticipate: signed singleton', () async {
+  test('FixedToFloat addition with Anticipate: signed singleton', () {
     const width = 8;
     final val1 = LogicValue.ofInt(0, width);
     final val2 = LogicValue.ofInt(192, width);
@@ -93,7 +93,7 @@ void main() async {
 ''');
   });
 
-  test('FixedToFloat: Add with Anticipate: exhaustive', () async {
+  test('FixedToFloat: Add with Anticipate: exhaustive', () {
     const width = 8;
     final a = Logic(width: width)..put(0);
     final b = Logic(width: width)..put(0);
@@ -140,7 +140,7 @@ void main() async {
     }
   });
 
-  test('FixedToFloat: leadingDigit smoke test', () async {
+  test('FixedToFloat: leadingDigit smoke test', () {
     const width = 68;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -171,12 +171,10 @@ void main() async {
     expect(fpv2, equals(fpv));
   });
 
-  test('FixedToFloat: leadingDigit exhaustive', () async {
+  test('FixedToFloat: leadingDigit exhaustive', () {
     const width = 16;
 
-    final leadPredictIn = Logic(width: width);
-    // ignore: cascade_invocations
-    leadPredictIn.put(0);
+    final leadPredictIn = Logic(width: width)..put(0);
     final leadZeroCounter = RecursiveModulePriorityEncoder(
         leadPredictIn.reversed,
         generateValid: true);

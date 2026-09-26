@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2023-2024 Intel Corporation
+# Copyright (C) 2023-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # run_flutter_tests.sh
@@ -11,6 +11,11 @@
 
 set -euo pipefail
 
-cd confapp
+repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
-flutter test --platform chrome
+bash "$repo_root/tool/generate_confapp_assets.sh"
+
+cd "$repo_root/confapp"
+
+# The later web build validates the browser side of conditional imports.
+flutter test

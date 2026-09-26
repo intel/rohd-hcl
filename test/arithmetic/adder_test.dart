@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // adder_test.dart
@@ -7,6 +7,7 @@
 // 2024 April 4
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// These white-box tests drive protected adder signals to verify each topology.
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:math';
@@ -31,7 +32,7 @@ void checkAdder(Adder adder, LogicValue av, LogicValue bv, LogicValue cv) {
 }
 
 void testAdderRandomIter(int n, int nSamples, Adder adder) {
-  test('random ci: ${adder.name}_W${n}_I$nSamples', () async {
+  test('random ci: ${adder.name}_W${n}_I$nSamples', () {
     for (var i = 0; i < nSamples; i++) {
       final aa = Random().nextLogicValue(width: n);
       final bb = Random().nextLogicValue(width: n);
@@ -44,7 +45,7 @@ void testAdderRandomIter(int n, int nSamples, Adder adder) {
 void testAdderExhaustiveIter(int n, Adder mod) {
   test(
       'exhaustive cin: ${mod.name}_W$n'
-      '_G${mod.name}', () async {
+      '_G${mod.name}', () {
     for (var aa = 0; aa < (1 << n); aa++) {
       for (var bb = 0; bb < (1 << n); bb++) {
         for (var cc = 0; cc < 2; cc++) {
@@ -143,7 +144,7 @@ void main() {
     testAdderExhaustive(4, (a, b, {carryIn}) => CarrySelectCompoundAdder(a, b));
   });
 
-  test('trivial parallel prefix adder test', () async {
+  test('trivial parallel prefix adder test', () {
     const width = 6;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -157,7 +158,7 @@ void main() {
     expect(sum.value.toBigInt(), equals(BigInt.from(18 + 24)));
   });
 
-  test('trivial sign magnitude adder test', () async {
+  test('trivial sign magnitude adder test', () {
     const width = 6;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -289,7 +290,7 @@ void main() {
     }
   });
 
-  test('trivial sign magnitude with onescomplement adder test', () async {
+  test('trivial sign magnitude with onescomplement adder test', () {
     const width = 8;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);

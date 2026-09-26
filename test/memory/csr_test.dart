@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_test.dart
@@ -277,6 +277,7 @@ class DummyCsrTopModule extends Module {
   late final Logic _clk;
   late final Logic _reset;
 
+  // Retaining the child module establishes the hierarchy under test.
   // ignore: unused_field
   late final CsrTop _top;
   late final DataPortInterface _fdr;
@@ -307,7 +308,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('simple individual CSRs', () async {
+  test('simple individual CSRs', () {
     const dataWidth1 = 32;
     const dataWidth2 = 8;
 
@@ -1231,7 +1232,7 @@ void main() {
     });
   });
 
-  test('CSR validation failures', () async {
+  test('CSR validation failures', () {
     // illegal individual field - no legal values
     expect(
         () => CsrFieldConfig(
@@ -1324,7 +1325,7 @@ void main() {
         throwsA(isA<CsrValidationException>()));
   });
 
-  test('CSR block and top validation failures', () async {
+  test('CSR block and top validation failures', () {
     // illegal block - empty
     expect(
         () => CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: const []),

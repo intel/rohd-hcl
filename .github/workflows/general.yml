@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Lint Markdown files
         uses: DavidAnson/markdownlint-cli2-action@v11
@@ -32,17 +32,22 @@ jobs:
       #     use-quiet-mode: yes # output is too noisy, see https://github.com/gaurav-nelson/github-action-markdown-link-check/issues/121
       #     config-file: .github/configs/mlc_config.json
 
-      # get submodules *after* checking markdown, we dont care about markdown errors in submodules
-      - name: Checkout submodules
-        run: git submodule update --init --recursive
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.47.2
+
+      - name: Prefer standalone Dart SDK
+        run: echo "$DART_HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Report standalone Dart SDK
+        run: |
+          command -v dart
+          dart --version
 
       - name: Setup Pana source analysis
         run: tool/gh_actions/install_pana.sh
@@ -62,23 +67,17 @@ jobs:
       - name: Check project documentation
         run: tool/gh_actions/generate_documentation.sh
 
-      - name: Run project tests
+      - name: Run root package tests
         run: tool/gh_actions/run_tests.sh
-      
-      - name: Install CAD Suite (includes yosys)
-        run: tool/gh_actions/install_opencadsuite.sh
 
-      - name: Install D3 Schematic viewer
-        run: tool/gh_actions/install_d3_hwschematic.sh
+      - name: Generate component netlists
+        run: dart run gen/generate.dart
 
-      - name: Generate HTML for examples
-        run: tool/gh_actions/create_htmls.sh
-      
       - name: Check temporary test files
         run: tool/gh_actions/check_tmp_test.sh
 
       # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
-      - name: Build dev container and run tests in it
+      - name: Build dev container and run root tests in it
         uses: devcontainers/ci@v0.3
         with:
           runCmd: tool/gh_actions/run_tests.sh
@@ -90,28 +89,36 @@ jobs:
     runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+        uses: actions/checkout@v4
 
       - name: Setup Flutter SDK
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.27.0
-      
+          version: 3.47.2
+
+      - name: Install project dependencies
+        run: tool/gh_actions/install_dependencies.sh
+
       - name: Analyze flutter source
         run: tool/gh_actions/analyze_flutter_source.sh
-      
-      - name: Run flutter tests
+
+      - name: Run confapp tests
         run: tool/gh_actions/run_flutter_tests.sh
-      
+
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh
 
+      - name: Analyze schematic viewer
+        working-directory: doc/schematic_viewer
+        run: flutter analyze --fatal-infos
+
+      - name: Build schematic viewer
+        run: tool/gh_actions/build_schematic_viewer.sh
+
   deploy-documentation:
     name: Deploy Documentation
-    needs: run-checks
+    needs: [run-checks, run-flutter-checks]
     if: github.event_name == 'push'
     permissions:
       contents: write # required for "JamesIves/github-pages-deploy-action"
@@ -119,32 +126,25 @@ jobs:
     runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
+        uses: actions/checkout@v4
 
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
 
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.47.2
+
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
-
-      - name: Install CAD Suite (includes yosys)
-        run: tool/gh_actions/install_opencadsuite.sh
-
-      - name: Install D3 Schematic viewer
-        run: tool/gh_actions/install_d3_hwschematic.sh
 
       - name: Generate project documentation
         run: tool/gh_actions/generate_documentation.sh
 
-      - name: Generate HTML for examples
-        run: tool/gh_actions/create_htmls.sh
+      - name: Generate schematic pages
+        run: tool/gh_actions/create_schematic_pages.sh
 
       - name: Deploy generated documentation
         uses: JamesIves/github-pages-deploy-action@v4
@@ -162,18 +162,22 @@ jobs:
     runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+        uses: actions/checkout@v4
 
       - name: Setup Flutter SDK
         uses: flutter-actions/setup-flutter@v2
         with:
           channel: stable
-          version: 3.27.0
-      
+          version: 3.47.2
+
+      - name: Install project dependencies
+        run: tool/gh_actions/install_dependencies.sh
+
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh
+
+      - name: Build schematic viewer
+        run: tool/gh_actions/build_schematic_viewer.sh
 
       - name: Deploy the generated site to website branch
         uses: JamesIves/github-pages-deploy-action@v4
@@ -182,3 +186,11 @@ jobs:
           target-folder: confapp
           branch: website
           clean: false  # goes in after the documentation, which does a clean
+
+      - name: Deploy schematic viewer to website branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: doc/schematic_viewer/build/web
+          target-folder: schematic_viewer
+          branch: website
+          clean: false

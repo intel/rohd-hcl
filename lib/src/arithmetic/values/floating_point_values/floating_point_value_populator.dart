@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_value_populator.dart
@@ -71,6 +71,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       ..sign = sign
       ..exponent = exponent
       ..mantissa = mantissa
+      // This package helper finalizes the otherwise protected value lifecycle.
       // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_overriding_member
       ..validate();
   }
@@ -329,6 +330,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           .ofConstant(constantFloatingPoint)) as FpvType;
     }
     final components =
+        // This package helper supplies fallback data for the protected hook.
         // ignore: invalid_use_of_visible_for_overriding_member, invalid_use_of_protected_member
         _unpopulated.getSpecialConstantComponents(constantFloatingPoint) ??
             getConstantComponents(constantFloatingPoint);

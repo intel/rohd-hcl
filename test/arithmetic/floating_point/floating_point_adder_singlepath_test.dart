@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_singlepath_test.dart
@@ -20,7 +20,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('FP: simple wide singleton test', () async {
+  test('FP: simple wide singleton test', () {
     const exponentWidth = 4;
     const mantissaWidth = 18;
     FloatingPoint fpConstructor() => FloatingPoint(
@@ -541,7 +541,7 @@ void main() {
     });
   });
 
-  test('FP: adder simple wide mantissa singleton', () async {
+  test('FP: adder simple wide mantissa singleton', () {
     const exponentWidth = 2;
     const mantissaWidth = 20;
     FloatingPoint fpConstructor() => FloatingPoint(

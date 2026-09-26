@@ -1,3 +1,12 @@
+// Copyright (C) 2024-2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_tracker.dart
+// A tracker for packets transferred over a ready/valid protocol.
+//
+// 2024 January 8
+// Author: Max Korbel <max.korbel@intel.com>
+
 import 'package:rohd_hcl/src/models/models.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier_encoder_test.dart
@@ -48,7 +48,7 @@ void testPartialProductExhaustive(PartialProductGeneratorBase pp) {
       'SD=${pp.signedMultiplicand ? 1 : 0} '
       'SM=${pp.signedMultiplier ? 1 : 0} '
       'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () async {
+      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () {
     for (var i = 0; i < limitX; i++) {
       for (var j = 0; j < limitY; j++) {
         for (final multiplicandSign in multiplicandSigns) {
@@ -92,7 +92,7 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
       'SD=${pp.signedMultiplicand ? 1 : 0} '
       'SM=${pp.signedMultiplier ? 1 : 0} '
       'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () async {
+      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () {
     final rand = Random(47);
     for (var i = 0; i < iterations; i++) {
       for (final multiplicandSign in multiplicandSigns) {
@@ -126,7 +126,7 @@ void testPartialProductSingle(
       'SD=${pp.signedMultiplicand ? 1 : 0} '
       'SM=${pp.signedMultiplier ? 1 : 0} '
       'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () async {
+      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () {
     if (pp.selectSignedMultiplicand != null) {
       pp.selectSignedMultiplicand!.put(X.isNegative ? 1 : 0);
     }
@@ -451,7 +451,7 @@ void main() {
     File('compress.sv').writeAsStringSync(compress.generateSynth());
   });
 
-  test('single MAC partial product test', () async {
+  test('single MAC partial product test', () {
     final encoder = RadixEncoder(16);
     const widthX = 8;
     const widthY = 18;
@@ -498,7 +498,7 @@ void main() {
     expect(pp.evaluate(), equals(product));
   });
 
-  test('single MAC partial product sign extension test', () async {
+  test('single MAC partial product sign extension test', () {
     final encoder = RadixEncoder(16);
     const widthX = 8;
     const widthY = 18;
@@ -545,7 +545,7 @@ void main() {
     expect(pp.evaluate(), equals(product));
   });
 
-  test('majority function', () async {
+  test('majority function', () {
     expect(LogicValue.ofBigInt(BigInt.from(7), 5).majority(), true);
     expect(LogicValue.ofBigInt(BigInt.from(7) << 1, 5).majority(), true);
     expect(LogicValue.ofBigInt(BigInt.from(11) << 1, 5).majority(), true);

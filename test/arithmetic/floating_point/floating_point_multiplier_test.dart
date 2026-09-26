@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_multiplier_test.dart
@@ -174,7 +174,7 @@ void main() {
       }
     });
 
-    test('FP: simple multiplier full random', () async {
+    test('FP: simple multiplier full random', () {
       const exponentWidth = 4;
       const mantissaWidth = 4;
 
@@ -211,8 +211,7 @@ void main() {
       }
     });
 
-    test('FP: simple multiplier full random with compression tree mult',
-        () async {
+    test('FP: simple multiplier full random with compression tree mult', () {
       const exponentWidth = 4;
       const mantissaWidth = 4;
 
@@ -368,7 +367,7 @@ void main() {
               b.floatingPointValue.toDouble()));
     });
 
-    test('FP: simple multiplier wide random', () async {
+    test('FP: simple multiplier wide random', () {
       const exponentWidth = 8;
       const mantissaWidth = 7;
 
@@ -381,10 +380,9 @@ void main() {
 
       const expOutWidth = 8;
       const mantOutWidth = 23;
-      final fpofpOutt = FloatingPoint(
-          exponentWidth: expOutWidth, mantissaWidth: mantOutWidth);
-      // ignore: cascade_invocations
-      fpofpOutt.put(0);
+      final fpofpOutt =
+          FloatingPoint(exponentWidth: expOutWidth, mantissaWidth: mantOutWidth)
+            ..put(0);
       final multiplier =
           FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpofpOutt);
 
@@ -413,7 +411,7 @@ void main() {
       }
     });
 
-    test('FP: simple multiplier sweep wide random', () async {
+    test('FP: simple multiplier sweep wide random', () {
       const exponentWidth = 3;
       const mantissaWidth = 3;
 
@@ -427,9 +425,8 @@ void main() {
       for (var expOutWidth = 3; expOutWidth < 5; expOutWidth++) {
         for (var mantOutWidth = 3; mantOutWidth < 16; mantOutWidth += 4) {
           final fpOut = FloatingPoint(
-              exponentWidth: expOutWidth, mantissaWidth: mantOutWidth);
-          // ignore: cascade_invocations
-          fpOut.put(0);
+              exponentWidth: expOutWidth, mantissaWidth: mantOutWidth)
+            ..put(0);
           final multiplier =
               FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpOut);
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_gaskets_test.dart
@@ -60,9 +60,9 @@ class SpiMainTest extends Test {
       const numTransfers = 4;
       final jsonStr =
           File('$outFolder/spiTracker.tracker.json').readAsStringSync();
-      final jsonContents = json.decode(jsonStr);
-      // ignore: avoid_dynamic_calls
-      expect(jsonContents['records'].length, 2 * numTransfers);
+      final jsonContents = json.decode(jsonStr) as Map<String, dynamic>;
+      final records = jsonContents['records'] as List<Object?>;
+      expect(records.length, 2 * numTransfers);
 
       Directory(outFolder).deleteSync(recursive: true);
     });

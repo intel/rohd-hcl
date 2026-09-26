@@ -27,15 +27,26 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>"/>
 
-  <title>confapp</title>
+  <title>⚙️ ROHD-HCL Configurator</title>
   <link rel="manifest" href="manifest.json">
 
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+
+  <!-- Schematic-viewer-owned ELK distribution and invocation adapter. -->
+  <script src="assets/packages/rohd_schematic_viewer/assets/js/elk.bundled.js"></script>
+  <script src="assets/packages/rohd_schematic_viewer/assets/js/elk_layout_only_native.js"></script>
 </head>
 <body>
+  <script>
+    // Disable browser context menu so the ROHD schematic viewer's
+    // own right-click menu can work.
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
