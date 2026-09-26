@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.0.0
+  material_ui: ^1.1.1
   rohd_schematic_viewer:
     git:
       url: https://github.com/intel/rohd-schematic-viewer.git

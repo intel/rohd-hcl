@@ -7,32 +7,37 @@
 // 2026 September 13
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:async' show unawaited;
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:material_ui/material_ui.dart';
 import 'package:rohd_schematic_viewer/schematic_viewer.dart';
 import 'package:web/web.dart' as web;
 
+/// Runs the standalone schematic viewer application.
 void main() {
   runApp(const SchematicViewerApp());
 }
 
+/// The root application for the standalone schematic viewer.
 class SchematicViewerApp extends StatelessWidget {
+  /// Creates the standalone schematic viewer application.
   const SchematicViewerApp({super.key});
 
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'ROHD Schematic',
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.system,
         theme: ThemeData.light(useMaterial3: true),
         darkTheme: ThemeData.dark(useMaterial3: true),
         home: const SchematicPage(),
       );
 }
 
+/// Loads and displays the schematic selected by the `json` query parameter.
 class SchematicPage extends StatefulWidget {
+  /// Creates a page for the selected schematic.
   const SchematicPage({super.key});
 
   @override
@@ -47,7 +52,7 @@ class _SchematicPageState extends State<SchematicPage> {
   @override
   void initState() {
     super.initState();
-    _loadSchematic();
+    unawaited(_loadSchematic());
   }
 
   Future<void> _loadSchematic() async {
