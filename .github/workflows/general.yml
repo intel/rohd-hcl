@@ -67,7 +67,7 @@ jobs:
       - name: Check project documentation
         run: tool/gh_actions/generate_documentation.sh
 
-      - name: Run project tests
+      - name: Run root package tests
         run: tool/gh_actions/run_tests.sh
 
       - name: Generate component netlists
@@ -77,7 +77,7 @@ jobs:
         run: tool/gh_actions/check_tmp_test.sh
 
       # https://github.com/devcontainers/ci/blob/main/docs/github-action.md
-      - name: Build dev container and run tests in it
+      - name: Build dev container and run root tests in it
         uses: devcontainers/ci@v0.3
         with:
           runCmd: tool/gh_actions/run_tests.sh
@@ -103,7 +103,7 @@ jobs:
       - name: Analyze flutter source
         run: tool/gh_actions/analyze_flutter_source.sh
 
-      - name: Run flutter tests
+      - name: Run confapp tests
         run: tool/gh_actions/run_flutter_tests.sh
 
       - name: Build static site

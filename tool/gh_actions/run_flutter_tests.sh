@@ -11,7 +11,11 @@
 
 set -euo pipefail
 
-cd confapp
+repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
-# The following web build validates the browser side of conditional imports.
+bash "$repo_root/tool/generate_confapp_assets.sh"
+
+cd "$repo_root/confapp"
+
+# The later web build validates the browser side of conditional imports.
 flutter test
