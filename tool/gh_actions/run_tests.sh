@@ -11,4 +11,6 @@
 
 set -euo pipefail
 
-dart test
+# Dependencies are resolved with Flutter because the workspace includes
+# confapp. Invoke package:test directly for this package's pure-Dart tests.
+dart run test:test
