@@ -29,6 +29,23 @@ rsync -a --delete --include='*/' --include='*.dart' --exclude='*' \
 copied=$(find "$ASSET_DIR" -name '*.dart' | wc -l)
 echo "Synced $copied .dart files from lib/src/ -> confapp/assets/rohd_src/"
 
+MODULE_SOURCE_ASSETS="$REPO_ROOT/confapp/lib/hcl/module_source_assets.dart"
+missing_assets=0
+while IFS= read -r source_asset; do
+  if [[ ! -f "$REPO_ROOT/confapp/assets/$source_asset" ]]; then
+    echo "Missing generated ROHD source asset: $source_asset" >&2
+    missing_assets=1
+  fi
+done < <(
+  grep -oE "'rohd_src/[^']+'" "$MODULE_SOURCE_ASSETS" |
+    tr -d "'" |
+    sort -u
+)
+
+if [[ "$missing_assets" -ne 0 ]]; then
+  exit 1
+fi
+
 PUBSPEC="$REPO_ROOT/confapp/pubspec.yaml"
 
 rohd_entries=$(find "$ASSET_DIR" -type d \

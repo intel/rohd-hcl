@@ -8,7 +8,6 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:confapp/hcl/module_source_assets.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 // The test verifies every registry entry, which requires the internal registry.
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
@@ -25,18 +24,6 @@ void main() {
         reason:
             '${configurator.name} creates ${module.runtimeType}, which has no '
             'ROHD source asset',
-      );
-    }
-  });
-
-  test('every indexed source asset exists', () async {
-    final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-
-    for (final entry in moduleSourceAssets.entries) {
-      expect(
-        manifest.getAssetVariants(bundledSourceAssetPath(entry.value)),
-        isNotEmpty,
-        reason: '${entry.key} maps to unloadable asset ${entry.value}',
       );
     }
   });

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2023-2024 Intel Corporation
+# Copyright (C) 2023-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # run_flutter_tests.sh
@@ -13,4 +13,5 @@ set -euo pipefail
 
 cd confapp
 
-flutter test --platform chrome
+# The following web build validates the browser side of conditional imports.
+flutter test

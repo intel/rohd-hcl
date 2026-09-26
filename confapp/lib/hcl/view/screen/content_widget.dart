@@ -7,13 +7,12 @@
 // 2023 December
 
 import 'dart:async' show unawaited;
-import 'dart:convert';
-import 'dart:js_interop';
 
 import 'package:confapp/hcl/cubit/component_cubit.dart';
 import 'package:confapp/hcl/cubit/system_verilog_cubit.dart';
 import 'package:confapp/hcl/cubit/theme_cubit.dart';
 import 'package:confapp/hcl/module_source_assets.dart';
+import 'package:confapp/hcl/view/screen/browser_interop.dart';
 import 'package:confapp/hcl/view/screen/dart_syntax_code_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +24,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:rohd/rohd.dart' show Module, NetlistSynthesizer, SynthBuilder;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_schematic_viewer/schematic_viewer.dart';
-import 'package:web/web.dart' as web;
 
 /// Maps Module runtimeType names to their asset source file paths.
 const _rohdIconAsset = 'assets/rohd_icon.png';
@@ -378,7 +376,7 @@ class _SVGeneratorState extends State<SVGenerator>
     });
   }
 
-  final yosysWorker = web.Worker('yosysWorker.js'.toJS);
+  final yosysWorker = YosysWorker('yosysWorker.js');
   String? _rohdNetlistJson;
   String? _yosysJson;
   bool _synthSchematicLoading = false;
@@ -1961,6 +1959,7 @@ class _SVGeneratorState extends State<SVGenerator>
     required FocusNode focusNode,
     required ScrollController verticalScrollController,
     required ScrollController horizontalScrollController,
+    Key? fieldKey,
     int? highlightLine,
     String? sourceFile,
   }) {
@@ -1983,7 +1982,7 @@ class _SVGeneratorState extends State<SVGenerator>
           );
         }
       },
-      child: _BrowserContextMenuSuppressor(
+      child: browserContextMenuSuppressor(
         child: LayoutBuilder(
           builder: (context, constraints) {
             final availableCodeWidth = constraints.maxWidth.isFinite
@@ -2050,6 +2049,7 @@ class _SVGeneratorState extends State<SVGenerator>
                           child: Stack(
                             children: [
                               TextField(
+                                key: fieldKey,
                                 controller: controller,
                                 focusNode: focusNode,
                                 readOnly: true,
@@ -2364,12 +2364,7 @@ class _SVGeneratorState extends State<SVGenerator>
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      final bytes = base64Encode(code.codeUnits);
-                      final uri = 'data:application/octet-stream;base64,$bytes';
-                      web.HTMLAnchorElement()
-                        ..href = uri
-                        ..download = fileName
-                        ..click();
+                      downloadFile(content: code, fileName: fileName);
                     },
                     child: const Text('Download'),
                   ),
@@ -2412,6 +2407,7 @@ class _SVGeneratorState extends State<SVGenerator>
                       focusNode: _svFocusNode,
                       verticalScrollController: _svScrollController,
                       horizontalScrollController: _svHorizontalScrollController,
+                      fieldKey: const Key('generatedSV'),
                       highlightLine: _highlightedSvLine,
                     ),
                   ),
@@ -2860,18 +2856,15 @@ class _SVGeneratorState extends State<SVGenerator>
     setState(() {
       _synthSchematicLoading = true;
     });
-    yosysWorker.postMessage({'module': moduleName, 'verilog': rtlRes}.jsify());
+    yosysWorker.postMessage({'module': moduleName, 'verilog': rtlRes});
     unawaited(
-      web.EventStreamProviders.messageEvent
-          .forTarget(yosysWorker)
-          .first
-          .then((msg) {
+      yosysWorker.nextMessage().then((message) {
         if (!mounted || requestId != _synthSchematicRequestId) {
           return;
         }
         setState(() {
           _synthSchematicLoading = false;
-          _yosysJson = msg.data.dartify()! as String;
+          _yosysJson = message;
         });
       }),
     );
@@ -3191,6 +3184,7 @@ class _SVGeneratorState extends State<SVGenerator>
     _rohdFilePendingScrolls.clear();
     _rohdFileFutures.clear();
     _rohdSourceViewFutures.clear();
+    _rohdSourceController = null;
     _subtabViewKey = null;
     _rohdSourceTabController = null;
 
@@ -3218,7 +3212,6 @@ class _SVGeneratorState extends State<SVGenerator>
     _tabController.dispose();
     _svController?.dispose();
     _scController?.dispose();
-    _rohdSourceController?.dispose();
     _svFocusNode.dispose();
     _scFocusNode.dispose();
     _rohdSourceFocusNode.dispose();
@@ -3460,61 +3453,7 @@ class _SVGeneratorState extends State<SVGenerator>
     properties
       ..add(DiagnosticsProperty<ButtonStyle>('btnStyle', btnStyle))
       ..add(
-        DiagnosticsProperty<web.Worker>('yosysWorker', yosysWorker),
+        DiagnosticsProperty<YosysWorker>('yosysWorker', yosysWorker),
       );
   }
-}
-
-/// Prevents the browser's native context menu from appearing over its child.
-///
-/// Uses a capturing listener on the document body so the browser never shows
-/// its default right-click menu over the Flutter canvas.  A single shared
-/// listener is ref-counted across all instances.
-class _BrowserContextMenuSuppressor extends StatefulWidget {
-  const _BrowserContextMenuSuppressor({required this.child});
-
-  final Widget child;
-
-  /// Shared ref-count so we add/remove only once.
-  static int _refCount = 0;
-  static web.EventListener? _listener;
-
-  static void _attach() {
-    if (_refCount == 0) {
-      _listener = ((web.Event e) => e.preventDefault()).toJS;
-      web.document.body?.addEventListener('contextmenu', _listener, true.toJS);
-    }
-    _refCount++;
-  }
-
-  static void _detach() {
-    _refCount--;
-    if (_refCount == 0 && _listener != null) {
-      web.document.body
-          ?.removeEventListener('contextmenu', _listener, true.toJS);
-      _listener = null;
-    }
-  }
-
-  @override
-  State<_BrowserContextMenuSuppressor> createState() =>
-      _BrowserContextMenuSuppressorState();
-}
-
-class _BrowserContextMenuSuppressorState
-    extends State<_BrowserContextMenuSuppressor> {
-  @override
-  void initState() {
-    super.initState();
-    _BrowserContextMenuSuppressor._attach();
-  }
-
-  @override
-  void dispose() {
-    _BrowserContextMenuSuppressor._detach();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.child;
 }
