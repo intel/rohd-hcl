@@ -22,20 +22,8 @@ import 'package:highlight/languages/verilog.dart' as highlight_verilog;
 import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:material_ui/material_ui.dart';
 import 'package:rohd/rohd.dart' show Module, NetlistSynthesizer, SynthBuilder;
-import 'package:rohd_devtools_widgets/rohd_devtools_widgets.dart'
-    show
-        LocalCrossProbeChannel,
-        LocalCrossProbeService,
-        RohdExtensionClient,
-        RohdFormatInfo,
-        RohdModuleInfo,
-        RohdSourceFormat;
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hierarchy/rohd_hierarchy.dart'
-    show HierarchyOccurrence, HierarchyService, NetlistHierarchyAdapter;
 import 'package:rohd_schematic_viewer/schematic_viewer.dart';
-import 'package:rohd_source_navigator/rohd_source_navigator.dart'
-    show FlcData, FlcEntry, FlcFrame;
 
 const _rohdIconAsset = 'assets/rohd_icon.png';
 const _systemVerilogIconAsset = 'assets/systemverilog_icon.png';
@@ -2511,12 +2499,13 @@ class _SVGeneratorState extends State<SVGenerator>
                             onPointerDown: (event) {
                               _lastPointerPosition = event.position;
                             },
-                            child: EmbeddedSchematicViewer.fromJson(
-                              schematicJson: _yosysJson!,
-                              themeMode: isDark
+                            child: EmbeddedSchematicViewer(
+                              key: ValueKey(('synth', _expansionMode)),
+                              schematicJson: _yosysJson,
+                              initialThemeMode: isDark
                                   ? SchematicThemeMode.dark
                                   : SchematicThemeMode.light,
-                              expansionMode: _expansionMode,
+                              initialExpansionMode: _expansionMode,
                               crossProbeService:
                                   _synthSchematicCrossProbeService,
                               onGoToSourceCallback: _onGoToSourceFormat,
@@ -2619,12 +2608,13 @@ class _SVGeneratorState extends State<SVGenerator>
                             onPointerDown: (event) {
                               _lastPointerPosition = event.position;
                             },
-                            child: EmbeddedSchematicViewer.fromJson(
-                              schematicJson: _rohdNetlistJson!,
-                              themeMode: isDark
+                            child: EmbeddedSchematicViewer(
+                              key: ValueKey(('rohd', _expansionMode)),
+                              schematicJson: _rohdNetlistJson,
+                              initialThemeMode: isDark
                                   ? SchematicThemeMode.dark
                                   : SchematicThemeMode.light,
-                              expansionMode: _expansionMode,
+                              initialExpansionMode: _expansionMode,
                               crossProbeService:
                                   _rohdSchematicCrossProbeService,
                               onGoToSourceCallback: _onGoToSourceFormat,
