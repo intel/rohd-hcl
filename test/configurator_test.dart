@@ -72,6 +72,33 @@ void main() {
       expect(rotate.knobs.values.toList()[2], isA<IntConfigKnob>());
     });
 
+    test('type-valued choice knobs provide stable display labels', () {
+      final oneHot = OneHotConfigurator();
+
+      expect(oneHot.directionKnob.labelFor(BinaryToOneHot), 'BinaryToOneHot');
+      expect(oneHot.directionKnob.labelFor(OneHotToBinary), 'OneHotToBinary');
+    });
+
+    test('type-valued choice knobs require stable labels', () {
+      expect(
+        () => ChoiceConfigKnob<Type>(
+          [BinaryToOneHot, OneHotToBinary],
+          value: OneHotToBinary,
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('type-valued choice knobs use stable JSON values', () {
+      final oneHot = OneHotConfigurator()..directionKnob.value = BinaryToOneHot;
+
+      expect(oneHot.directionKnob.toJson(), {'value': 'BinaryToOneHot'});
+
+      final loaded = OneHotConfigurator()
+        ..directionKnob.loadJson({'value': 'BinaryToOneHot'});
+      expect(loaded.directionKnob.value, BinaryToOneHot);
+    });
+
     test('should return RotateRight module when generate() with default value',
         () async {
       final rotate = RotateConfigurator();

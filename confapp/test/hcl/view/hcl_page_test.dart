@@ -93,6 +93,27 @@ void main() {
     expect(observeOutput(tester), contains('RotateLeft'));
   });
 
+  testWidgets('shows stable labels for type-valued choices', (tester) async {
+    await pumpHclPage(tester);
+
+    await tester.tap(find.text('One-hot Converter'));
+    await tester.pump();
+
+    final directionKnob = find.byKey(const Key('Direction'));
+    expect(
+      find.descendant(
+        of: directionKnob,
+        matching: find.text('OneHotToBinary'),
+      ),
+      findsOneWidget,
+    );
+
+    await tester.tap(directionKnob);
+    await tester.pump();
+
+    expect(find.text('BinaryToOneHot').last, findsOneWidget);
+  });
+
   testWidgets('should transit to another component when clicked on sidebar',
       (tester) async {
     await pumpHclPage(tester);

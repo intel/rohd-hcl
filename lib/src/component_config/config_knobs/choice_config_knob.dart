@@ -18,12 +18,54 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
   /// restrictive.
   List<T> choices;
 
+  /// Stable display labels for choices whose string representation is not
+  /// suitable for user interfaces.
+  final Map<T, String> choiceLabels;
+
   /// Creates a new knob to with the specified default [value] of the available
   /// [choices].
-  ChoiceConfigKnob(this.choices, {required super.value}) {
+  ChoiceConfigKnob(
+    this.choices, {
+    required super.value,
+    this.choiceLabels = const {},
+  }) {
     if (!choices.contains(value)) {
       throw RohdHclException('Default value should be one of the choices.');
     }
+    if (!choiceLabels.keys.every(choices.contains)) {
+      throw RohdHclException('Choice labels should correspond to choices.');
+    }
+    if (choices
+        .whereType<Type>()
+        .any((choice) => !choiceLabels.containsKey(choice))) {
+      throw RohdHclException(
+          'Type choices require stable labels for minified builds.');
+    }
+  }
+
+  /// Returns the user-facing label for [choice].
+  String labelFor(T choice) {
+    final label = choiceLabels[choice];
+    if (label != null) {
+      return label;
+    }
+    if (choice is Type) {
+      throw RohdHclException(
+          'Type choices require stable labels for minified builds.');
+    }
+    return choice is Enum ? choice.name : choice.toString();
+  }
+
+  String _serializedValue(T choice) {
+    final label = choiceLabels[choice];
+    if (label != null) {
+      return label;
+    }
+    if (choice is Type) {
+      throw RohdHclException(
+          'Type choices require stable labels for minified builds.');
+    }
+    return choice.toString();
   }
 
   @override
@@ -38,9 +80,12 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
   @override
   void loadJson(Map<String, dynamic> decodedJson) {
     value = choices.firstWhere(
-        (element) => element.toString() == decodedJson['value'] as String);
+      (element) => _serializedValue(element) == decodedJson['value'] as String,
+    );
   }
 
   @override
-  Map<String, dynamic> toJson() => {'value': value.toString()};
+  Map<String, dynamic> toJson() => {
+        'value': _serializedValue(value),
+      };
 }

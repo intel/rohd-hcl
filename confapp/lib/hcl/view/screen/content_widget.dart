@@ -25,7 +25,6 @@ import 'package:rohd/rohd.dart' show Module, NetlistSynthesizer, SynthBuilder;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_schematic_viewer/schematic_viewer.dart';
 
-/// Maps Module runtimeType names to their asset source file paths.
 const _rohdIconAsset = 'assets/rohd_icon.png';
 const _systemVerilogIconAsset = 'assets/systemverilog_icon.png';
 const _yosysIconAsset = 'assets/yosys_icon.png';
@@ -2182,12 +2181,17 @@ class _SVGeneratorState extends State<SVGenerator>
     } else if (knob is ChoiceConfigKnob) {
       selector = DropdownButtonFormField(
         key: key,
+        isExpanded: true,
         decoration: decoration,
         items: knob.choices
             .map(
               (choice) => DropdownMenuItem(
                 value: choice,
-                child: Text(choice.toString().split('.').last),
+                child: Text(
+                  knob.labelFor(choice),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             )
             .toList(),
