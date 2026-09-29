@@ -22,8 +22,20 @@ import 'package:highlight/languages/verilog.dart' as highlight_verilog;
 import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:material_ui/material_ui.dart';
 import 'package:rohd/rohd.dart' show Module, NetlistSynthesizer, SynthBuilder;
+import 'package:rohd_devtools_widgets/rohd_devtools_widgets.dart'
+    show
+        LocalCrossProbeChannel,
+        LocalCrossProbeService,
+        RohdExtensionClient,
+        RohdFormatInfo,
+        RohdModuleInfo,
+        RohdSourceFormat;
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hierarchy/rohd_hierarchy.dart'
+    show HierarchyOccurrence, HierarchyService, NetlistHierarchyAdapter;
 import 'package:rohd_schematic_viewer/schematic_viewer.dart';
+import 'package:rohd_source_navigator/rohd_source_navigator.dart'
+    show FlcData, FlcEntry, FlcFrame;
 
 const _rohdIconAsset = 'assets/rohd_icon.png';
 const _systemVerilogIconAsset = 'assets/systemverilog_icon.png';
@@ -310,7 +322,7 @@ class _SVGeneratorState extends State<SVGenerator>
     _tabController.addListener(_onTabChanged);
 
     // Listen for cross-probe events from viewers and highlight editors.
-    _crossProbeBus.addListener(_onCrossProbeSignals);
+    _editorCrossProbeService.incomingSignals.addListener(_onCrossProbeSignals);
 
     // Clear generated outputs when the selected component changes.
     final componentCubit = context.read<ComponentCubit>();
@@ -504,11 +516,14 @@ class _SVGeneratorState extends State<SVGenerator>
   /// Set temporarily when "Show Signal in Schematic" triggers the bus.
   bool _suppressCrossProbeNav = false;
 
-  /// Cross-probe bus: signal paths shared between all panes.
-  /// Schematic/wave viewers write to this via `onSendSignals`; editors
-  /// and viewers listen via `addListener` / `incomingSignalPaths`.
-  final ValueNotifier<List<String>?> _crossProbeBus =
-      ValueNotifier<List<String>?>(null);
+  /// Cross-probe services shared between schematic viewers and editors.
+  final LocalCrossProbeChannel _crossProbeChannel = LocalCrossProbeChannel();
+  late final LocalCrossProbeService _rohdSchematicCrossProbeService =
+      LocalCrossProbeService(_crossProbeChannel, source: 'rohd-schematic');
+  late final LocalCrossProbeService _synthSchematicCrossProbeService =
+      LocalCrossProbeService(_crossProbeChannel, source: 'synth-schematic');
+  late final LocalCrossProbeService _editorCrossProbeService =
+      LocalCrossProbeService(_crossProbeChannel, source: 'editor');
 
   /// The shared text style used in all CodeField widgets.
   ///
@@ -1215,11 +1230,14 @@ class _SVGeneratorState extends State<SVGenerator>
         // Resolve the signal to its full occurrence path using the hierarchy.
         final occPath = _resolveOccurrencePath(resolvedWord!);
         if (occPath != null) {
-          _crossProbeBus.value = [occPath];
+          _editorCrossProbeService.send([occPath], source: 'editor');
         } else {
           // Fallback: prefix with top module name for single-level case.
           final prefix = _moduleName.isNotEmpty ? '$_moduleName/' : '';
-          _crossProbeBus.value = ['$prefix$resolvedWord'];
+          _editorCrossProbeService.send(
+            ['$prefix$resolvedWord'],
+            source: 'editor',
+          );
         }
         _suppressCrossProbeNav = false;
       case 'goToRohd':
@@ -1893,7 +1911,7 @@ class _SVGeneratorState extends State<SVGenerator>
     if (_suppressCrossProbeNav) {
       return;
     }
-    final paths = _crossProbeBus.value;
+    final paths = _editorCrossProbeService.incomingSignals.value;
     if (paths == null || paths.isEmpty || _flcData == null) {
       return;
     }
@@ -2493,18 +2511,15 @@ class _SVGeneratorState extends State<SVGenerator>
                             onPointerDown: (event) {
                               _lastPointerPosition = event.position;
                             },
-                            child: EmbeddedSchematicViewer(
-                              key: ValueKey('synth-schematic-$_expansionMode'),
-                              schematicJson: _yosysJson,
-                              initialThemeMode: isDark
+                            child: EmbeddedSchematicViewer.fromJson(
+                              schematicJson: _yosysJson!,
+                              themeMode: isDark
                                   ? SchematicThemeMode.dark
                                   : SchematicThemeMode.light,
-                              initialExpansionMode: _expansionMode,
-                              onSendSignals: (paths) {
-                                _crossProbeBus.value = paths;
-                              },
+                              expansionMode: _expansionMode,
+                              crossProbeService:
+                                  _synthSchematicCrossProbeService,
                               onGoToSourceCallback: _onGoToSourceFormat,
-                              incomingSignalPaths: _crossProbeBus,
                               extensionClient: _sourceFormatClient,
                             ),
                           );
@@ -2604,19 +2619,15 @@ class _SVGeneratorState extends State<SVGenerator>
                             onPointerDown: (event) {
                               _lastPointerPosition = event.position;
                             },
-                            child: EmbeddedSchematicViewer(
-                              // Force re-render when expansion mode changes.
-                              key: ValueKey('rohd-schematic-$_expansionMode'),
-                              schematicJson: _rohdNetlistJson,
-                              initialThemeMode: isDark
+                            child: EmbeddedSchematicViewer.fromJson(
+                              schematicJson: _rohdNetlistJson!,
+                              themeMode: isDark
                                   ? SchematicThemeMode.dark
                                   : SchematicThemeMode.light,
-                              initialExpansionMode: _expansionMode,
-                              onSendSignals: (paths) {
-                                _crossProbeBus.value = paths;
-                              },
+                              expansionMode: _expansionMode,
+                              crossProbeService:
+                                  _rohdSchematicCrossProbeService,
                               onGoToSourceCallback: _onGoToSourceFormat,
-                              incomingSignalPaths: _crossProbeBus,
                               extensionClient: _sourceFormatClient,
                             ),
                           );
@@ -3295,8 +3306,13 @@ class _SVGeneratorState extends State<SVGenerator>
       fn.dispose();
     }
     _rohdSourceTabController?.dispose();
-    _crossProbeBus.removeListener(_onCrossProbeSignals);
-    _crossProbeBus.dispose();
+    _editorCrossProbeService.incomingSignals.removeListener(
+      _onCrossProbeSignals,
+    );
+    _rohdSchematicCrossProbeService.dispose();
+    _synthSchematicCrossProbeService.dispose();
+    _editorCrossProbeService.dispose();
+    _crossProbeChannel.dispose();
     _sourceFormatClient.dispose();
     super.dispose();
   }

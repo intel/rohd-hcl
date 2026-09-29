@@ -19,6 +19,8 @@ confapp/.vscode/*
 confapp/assets/rohd_src/
 /pubspec_overrides.yaml
 /pubspec_overrides.yaml.disabled*
+/confapp/pubspec_overrides.yaml
+/confapp/pubspec_overrides.yaml.disabled*
 /.confapp_dependency_sources
 *tracker.json
 *tracker.log

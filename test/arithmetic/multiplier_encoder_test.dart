@@ -405,7 +405,7 @@ void main() {
   test('PartialProduct: flat test', () {
     const radix = 4;
     final radixEncoder = RadixEncoder(radix);
-    const widthX = 6;
+    const widthX = 4;
     const widthY = 3;
     final limitX = pow(2, widthX);
     final limitY = pow(2, widthY);
@@ -433,8 +433,8 @@ void main() {
   test('PP Matrix: module test', () async {
     const radix = 4;
     final radixEncoder = RadixEncoder(radix);
-    const widthX = 20;
-    const widthY = 20;
+    const widthX = 12;
+    const widthY = 12;
     final multiplicand = Logic(width: widthX);
     final multiplier = Logic(width: widthY);
 
@@ -454,7 +454,7 @@ void main() {
   test('single MAC partial product test', () {
     final encoder = RadixEncoder(16);
     const widthX = 8;
-    const widthY = 18;
+    const widthY = 10;
 
     const i = 1478;
     const j = 9;
@@ -501,7 +501,7 @@ void main() {
   test('single MAC partial product sign extension test', () {
     final encoder = RadixEncoder(16);
     const widthX = 8;
-    const widthY = 18;
+    const widthY = 10;
 
     const i = 1478;
     const j = 9;

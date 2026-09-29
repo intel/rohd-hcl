@@ -99,9 +99,9 @@ class _SchematicPageState extends State<SchematicPage> {
         (final error?, _) => Center(
             child: Text(error, style: const TextStyle(fontSize: 16)),
           ),
-        (_, final jsonData?) => EmbeddedSchematicViewer(
+        (_, final jsonData?) => EmbeddedSchematicViewer.fromJson(
             schematicJson: jsonData,
-            initialThemeMode:
+            themeMode:
                 isDark ? SchematicThemeMode.dark : SchematicThemeMode.light,
           ),
         _ => const Center(child: CircularProgressIndicator()),

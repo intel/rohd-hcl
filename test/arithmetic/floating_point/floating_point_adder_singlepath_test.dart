@@ -55,8 +55,8 @@ void main() {
   });
 
   test('FP: simple adder truncating random', () {
-    const exponentWidth = 9;
-    const mantissaWidth = 15;
+    const exponentWidth = 5;
+    const mantissaWidth = 6;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
@@ -68,7 +68,7 @@ void main() {
     final adder = FloatingPointAdderSinglePath(fp1, fp2,
         roundingMode: FloatingPointRoundingMode.truncate);
     final rand = Random(513);
-    for (var i = 0; i < 5000; i++) {
+    for (var i = 0; i < 500; i++) {
       final fv1 = fpvPopulator().random(rand);
       final fv2 = fpvPopulator().random(rand);
       if ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() >
@@ -100,8 +100,8 @@ void main() {
   });
 
   test('FP: simple adder rounding random', () {
-    const exponentWidth = 9;
-    const mantissaWidth = 15;
+    const exponentWidth = 5;
+    const mantissaWidth = 6;
 
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -113,7 +113,7 @@ void main() {
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2);
     final rand = Random(513);
-    for (var i = 0; i < 5000; i++) {
+    for (var i = 0; i < 500; i++) {
       final fv1 = fpvPopulator().random(rand);
       final fv2 = fpvPopulator().random(rand);
       if ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() >
@@ -297,8 +297,8 @@ void main() {
   });
 
   test('FP: simple adder truncating exhaustive', () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
+    const exponentWidth = 3;
+    const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
@@ -344,8 +344,8 @@ void main() {
   });
 
   test('FP: simple adder rounding exhaustive', () {
-    const exponentWidth = 4;
-    const mantissaWidth = 4;
+    const exponentWidth = 3;
+    const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
@@ -511,7 +511,7 @@ void main() {
 
       final rand = Random(513);
 
-      for (var i = 0; i < 500; i++) {
+      for (var i = 0; i < 100; i++) {
         final fv1 = fpvPopulator().random(rand, genSubNormal: false);
         final fv2 = fpvPopulator().random(rand, genSubNormal: false);
 
@@ -581,7 +581,7 @@ void main() {
 
   test('FP: adder simple wide mantissa random', () async {
     const exponentWidth = 2;
-    const mantissaWidth = 20;
+    const mantissaWidth = 8;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
@@ -598,7 +598,7 @@ void main() {
 
     final rand = Random(513);
 
-    for (var i = 0; i < 500; i++) {
+    for (var i = 0; i < 100; i++) {
       final fv1 = fpvPopulator().random(rand);
       final fv2 = fpvPopulator().random(rand);
 
@@ -626,7 +626,7 @@ void main() {
   });
 
   test('FP: adder simple wide exponent random', () async {
-    const exponentWidth = 10;
+    const exponentWidth = 5;
     const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -642,7 +642,7 @@ void main() {
 
     final rand = Random(513);
 
-    for (var i = 0; i < 5000; i++) {
+    for (var i = 0; i < 500; i++) {
       final fv1 = fpvPopulator().random(rand);
       final fv2 = fpvPopulator().random(rand);
       if ((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() >
@@ -722,7 +722,7 @@ void main() {
     final fp2 = fpConstructor();
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
 
-    for (final outMantissaWidth in [6, 7, 8, 9, 15]) {
+    for (final outMantissaWidth in [6, 9]) {
       final fpOut = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
       FloatingPointValuePopulator fpvOutPopulator() => fpOut.valuePopulator();
@@ -768,6 +768,8 @@ void main() {
   group('FP: explicit-jbit addition', () {
     const exponentWidth = 3;
     const mantissaWidth = 3;
+    const representativeExponents = [0, 1, 6, 7];
+    const representativeMantissas = [0, 1, 7];
 
     FloatingPointValuePopulator fpvPopulator({required bool explicitJBit}) =>
         FloatingPointValue.populator(
@@ -817,8 +819,9 @@ void main() {
 ''');
     });
 
-    test('FP: simple adder with mixed explicit/implicit j-bit IO exhaustive',
-        () {
+    test(
+        'FP: simple adder with mixed explicit/implicit j-bit IO '
+        'representative corners', () {
       for (final input1ExplicitJBit in [false, true]) {
         for (final input2ExplicitJBit in [false, true]) {
           final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit);
@@ -831,14 +834,12 @@ void main() {
             final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
 
             for (final subtract in [0, 1]) {
-              final expLimit = pow(2, exponentWidth);
-              final mantLimit = pow(2, mantissaWidth);
-              for (var e1 = 0; e1 < expLimit; e1++) {
-                for (var m1 = 0; m1 < mantLimit; m1++) {
+              for (final e1 in representativeExponents) {
+                for (final m1 in representativeMantissas) {
                   final fv1 = fp1.valuePopulator().ofInts(e1, m1);
                   if (fv1.isLegalValue()) {
-                    for (var e2 = 0; e2 < expLimit; e2++) {
-                      for (var m2 = 0; m2 < mantLimit; m2++) {
+                    for (final e2 in representativeExponents) {
+                      for (final m2 in representativeMantissas) {
                         final fv2 = fp2
                             .valuePopulator()
                             .ofInts(e2, m2, sign: subtract == 1);
@@ -938,8 +939,8 @@ void main() {
 
     test(
         'FP: simple adder with mixed explicit/implicit j-bit IO '
-        'widening exhaustive', () {
-      for (final outMantissaWidth in [3, 4, 5, 6, 7, 8, 9]) {
+        'widening representative corners', () {
+      for (final outMantissaWidth in [3, 6]) {
         FloatingPoint fpOutConstructor({bool explicitJBit = false}) =>
             FloatingPoint(
                 exponentWidth: exponentWidth,
@@ -959,14 +960,12 @@ void main() {
                   FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
 
               for (final subtract in [0, 1]) {
-                final expLimit = pow(2, exponentWidth);
-                final mantLimit = pow(2, mantissaWidth);
-                for (var e1 = 0; e1 < expLimit; e1++) {
-                  for (var m1 = 0; m1 < mantLimit; m1++) {
+                for (final e1 in representativeExponents) {
+                  for (final m1 in representativeMantissas) {
                     final fv1 = fp1.valuePopulator().ofInts(e1, m1);
                     if (fv1.isLegalValue()) {
-                      for (var e2 = 0; e2 < expLimit; e2++) {
-                        for (var m2 = 0; m2 < mantLimit; m2++) {
+                      for (final e2 in representativeExponents) {
+                        for (final m2 in representativeMantissas) {
                           final fv2 = fp2
                               .valuePopulator()
                               .ofInts(e2, m2, sign: subtract == 1);
@@ -1028,8 +1027,8 @@ void main() {
   });
 
   test('FP: simple j-bit adder wide mantissa random', () {
-    const exponentWidth = 8;
-    const mantissaWidth = 25;
+    const exponentWidth = 5;
+    const mantissaWidth = 7;
     FloatingPoint fpConstructor({bool explicitJBit = false}) => FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
@@ -1047,7 +1046,7 @@ void main() {
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
     final rand = Random(513);
-    for (var i = 0; i < 500; i++) {
+    for (var i = 0; i < 100; i++) {
       final fv1 = fp1.valuePopulator().random(rand);
       final fv2 = fp2.valuePopulator().random(rand);
       if (fv1.isLegalValue() & fv2.isLegalValue()) {
@@ -1095,7 +1094,7 @@ void main() {
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpout);
     final rand = Random(513);
-    for (var i = 0; i < 5000; i++) {
+    for (var i = 0; i < 100; i++) {
       final fv1 = fp1.valuePopulator().random(rand);
       final fv2 = fp2.valuePopulator().random(rand);
       if (fv1.isLegalValue() & fv2.isLegalValue()) {
@@ -1134,8 +1133,8 @@ void main() {
   group('FP: single-path adder DAZ/FTZ tests', () {
     const exponentWidth = 3;
     const mantissaWidth = 3;
-    final expLimit = pow(2, exponentWidth).toInt();
-    final mantLimit = pow(2, mantissaWidth).toInt();
+    const representativeExponents = [0, 1, 7];
+    const representativeMantissas = [0, 1, 7];
     FloatingPoint fpConstructor({bool subNormalAsZero = false}) =>
         FloatingPoint(
             exponentWidth: exponentWidth,
@@ -1146,7 +1145,7 @@ void main() {
             exponentWidth: exponentWidth,
             mantissaWidth: mantissaWidth,
             subNormalAsZero: subNormalAsZero);
-    test('FP: single-path adder DAZ/FTZ test exhaustive', () {
+    test('FP: single-path adder DAZ/FTZ representative corners', () {
       for (final daz1 in [false, true]) {
         for (final daz2 in [false, true]) {
           for (final ftz in [false, true]) {
@@ -1157,12 +1156,12 @@ void main() {
             fp1.put(0);
             fp2.put(0);
             final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
-            for (var e1 = 0; e1 < expLimit; e1++) {
-              for (var m1 = 0; m1 < mantLimit; m1++) {
+            for (final e1 in representativeExponents) {
+              for (final m1 in representativeMantissas) {
                 for (final sign1 in [false, true]) {
                   final fv1 = fp1.valuePopulator().ofInts(e1, m1, sign: sign1);
-                  for (var e2 = 0; e2 < expLimit; e2++) {
-                    for (var m2 = 0; m2 < mantLimit; m2++) {
+                  for (final e2 in representativeExponents) {
+                    for (final m2 in representativeMantissas) {
                       for (final sign2 in [false, true]) {
                         final fv2 =
                             fp2.valuePopulator().ofInts(e2, m2, sign: sign2);

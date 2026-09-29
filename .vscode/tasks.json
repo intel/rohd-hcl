@@ -8,9 +8,14 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
-                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                    "CONFAPP_PROMPT_SOURCE_VALUE": "1"
                 }
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
             },
             "problemMatcher": [],
             "detail": "Choose the source for the core rohd package without changing the other dependency selections."
@@ -22,9 +27,14 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
-                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                    "CONFAPP_PROMPT_SOURCE_VALUE": "1"
                 }
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
             },
             "problemMatcher": [],
             "detail": "Choose the shared source for rohd_hierarchy and rohd_source_navigator."
@@ -36,9 +46,14 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
-                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                    "CONFAPP_PROMPT_SOURCE_VALUE": "1"
                 }
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
             },
             "problemMatcher": [],
             "detail": "Choose the shared source for rohd_hierarchy, rohd_devtools_widgets, and rohd_source_navigator."
@@ -50,9 +65,14 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "SCHEMATIC_VIEWER_GIT_REF": "${input:schematicSourceValue}",
-                    "SCHEMATIC_VIEWER_LOCAL_PATH": "${input:schematicSourceValue}"
+                    "CONFAPP_PROMPT_SOURCE_VALUE": "1"
                 }
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
             },
             "problemMatcher": [],
             "detail": "Choose the GitHub or local rohd_schematic_viewer source without changing the ROHD selections."
@@ -64,9 +84,14 @@
             "options": {
                 "cwd": "${workspaceFolder}",
                 "env": {
-                    "ROHD_GIT_REF": "${input:rohdSourceValue}",
-                    "ROHD_LOCAL_PATH": "${input:rohdSourceValue}"
+                    "CONFAPP_PROMPT_SOURCE_VALUE": "1"
                 }
+            },
+            "presentation": {
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "clear": true
             },
             "problemMatcher": [],
             "detail": "Set every published ROHD-family package to hosted or GitHub without changing the schematic dependency."
@@ -210,18 +235,6 @@
             "description": "Source for every published ROHD-family package",
             "options": ["hosted", "git", "local"],
             "default": "hosted"
-        },
-        {
-            "id": "rohdSourceValue",
-            "type": "promptString",
-            "description": "Git ref or local ROHD checkout path (unused for hosted)",
-            "default": ""
-        },
-        {
-            "id": "schematicSourceValue",
-            "type": "promptString",
-            "description": "Git ref or local rohd_schematic_viewer checkout path",
-            "default": ""
         }
     ]
 }

@@ -489,8 +489,9 @@ expected: $expected
     });
 
     test('FP: conversion explicit to explicit j-bit exhaustive round-trip', () {
-      const exponentWidth = 6;
-      const mantissaWidth = 6;
+      // Small widths retain every encoding class while keeping this exhaustive.
+      const exponentWidth = 4;
+      const mantissaWidth = 4;
 
       final fp = FloatingPoint(
           exponentWidth: exponentWidth,

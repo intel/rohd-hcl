@@ -9,15 +9,22 @@ dependencies from the repository root:
 flutter pub get
 ```
 
-The workspace has one root `pubspec.lock`, `.dart_tool/package_config.json`,
-and optional `pubspec_overrides.yaml`. Do not create
-`confapp/pubspec_overrides.yaml`.
+The workspace has one root `pubspec.lock` and
+`.dart_tool/package_config.json`. Overrides are stored beside the manifest
+that owns the direct dependency.
+
+Each workspace member still owns a `pubspec.yaml` and declares only its direct
+dependencies. The root `rohd_hcl` package depends directly on `rohd`, while
+the Flutter, schematic-viewer, hierarchy, widget, and source-navigator
+dependencies belong to `confapp/pubspec.yaml`. Pub resolves both manifests
+together. The helper writes the shared `rohd` override at the workspace root
+and confapp-only overrides in `confapp/pubspec_overrides.yaml`.
 
 ## Dependency sources
 
 The checked-in manifests use hosted release constraints. The helper generates
-the ignored root `pubspec_overrides.yaml` when a dependency source differs
-from its manifest entry:
+ignored override files beside the owning manifests when a dependency source
+differs from its manifest entry:
 
 ```bash
 # Set the ROHD-family packages and viewer independently.
@@ -35,6 +42,11 @@ removes that package from the override so Pub uses its `pubspec.yaml`
 constraint. Prefer one source for the ROHD companion packages unless
 deliberately validating a mixed graph.
 
+Before a Configure task replaces or disables an existing override, it moves
+the file to a sibling `pubspec_overrides.yaml.disabled`. If that backup already
+exists, the task uses `.disabled.1`, `.disabled.2`, and so on. This applies to
+both generated and manually maintained override files.
+
 The common local shortcuts are:
 
 ```bash
@@ -51,10 +63,16 @@ Use **Configure All ROHD Dependency Sources** to set the four published
 ROHD-family packages at once. The web build and run tasks use the selected
 source configuration without changing it.
 
-Each **Configure** task collects the source and one empty source-value field in
-VS Code Quick Input. For Git, enter the ref (or leave it empty for `main`).
-For Local, enter the checkout path (or leave it empty for `~/max/rohd` or
-`~/true-release/rohd-schematic-viewer`). The value is ignored for Hosted.
+Each **Configure** task first collects the source in VS Code Quick Input. Git
+and Local selections then open an editable terminal prompt. The prompt is
+prefilled from that repository area's current saved configuration. Without
+saved state, Git defaults to `github.com/intel/rohd:main` or
+`github.com/intel/rohd-schematic-viewer:main`, and Local defaults to
+`~/max/rohd` or `~/true-release/rohd-schematic-viewer`. For Git, enter the
+repository and ref together, separated by the final colon. GitHub shorthand is
+normalized to an HTTPS URL. Hosted does not open a second prompt. The helper
+persists the separate ROHD and schematic-viewer Git repositories, refs, and
+local paths so configuring one dependency group does not reset another.
 
 ## Running Confapp
 
