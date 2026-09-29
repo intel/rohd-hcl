@@ -18,12 +18,36 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
   /// restrictive.
   List<T> choices;
 
-  /// Stable display labels for choices whose string representation is not
-  /// suitable for user interfaces.
+  /// Stable labels used for both display and JSON serialization.
+  ///
+  /// Every choice that is a Dart [Type] must have an entry because
+  /// `Type.toString()` is not stable in minified builds. Other choice kinds
+  /// may also provide labels to override their default string representation.
+  ///
+  /// When migrating existing [Type] choices, use labels matching their
+  /// previous unminified names to preserve compatibility with saved JSON.
   final Map<T, String> choiceLabels;
 
   /// Creates a new knob to with the specified default [value] of the available
   /// [choices].
+  ///
+  /// If any member of [choices] is a Dart [Type], [choiceLabels] must contain
+  /// a stable label for every such member. These labels are used as both
+  /// user-facing text and serialized JSON values:
+  ///
+  /// ```dart
+  /// ChoiceConfigKnob<Type>(
+  ///   [BinaryToOneHot, OneHotToBinary],
+  ///   value: OneHotToBinary,
+  ///   choiceLabels: const {
+  ///     BinaryToOneHot: 'BinaryToOneHot',
+  ///     OneHotToBinary: 'OneHotToBinary',
+  ///   },
+  /// );
+  /// ```
+  ///
+  /// Matching labels to the previous unminified `Type.toString()` values
+  /// preserves compatibility with existing saved configurations.
   ChoiceConfigKnob(
     this.choices, {
     required super.value,

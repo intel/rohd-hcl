@@ -4,6 +4,20 @@
 
 - The minimum supported Dart SDK is now 3.6.0. Applications using Dart 3.0 through 3.5 must upgrade their SDK before resolving ROHD-HCL.
 - Corrected AXI5 signal widths to match the configured protocol widths. Generated interfaces for affected `MMUSID`, `MMUSSID`, and `SUBSYSID` signals may have different port widths; designs that connect to those signals must use the corrected widths (<https://github.com/intel/rohd-hcl/pull/280>).
+- `ChoiceConfigKnob<Type>` now requires a stable label for every choice, including on the Dart VM, because `Type.toString()` is not stable in minified builds. The labels are used as both display text and serialized JSON values. Existing custom configurators must migrate to the `choiceLabels` construction pattern:
+
+  ```dart
+  ChoiceConfigKnob<Type>(
+    [BinaryToOneHot, OneHotToBinary],
+    value: OneHotToBinary,
+    choiceLabels: const {
+      BinaryToOneHot: 'BinaryToOneHot',
+      OneHotToBinary: 'OneHotToBinary',
+    },
+  );
+  ```
+
+  Labels matching the previous unminified type names, as used by the built-in configurators, preserve compatibility with existing saved values.
 
 ### New and enhanced components
 
