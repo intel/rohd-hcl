@@ -113,4 +113,22 @@ void main() {
 
     expect(observeOutput(tester), contains('PriorityArbiter'));
   });
+
+  testWidgets('discards generation when the selected component changes',
+      (tester) async {
+    await pumpHclPage(tester);
+    await showOnlyGeneratedSv(tester);
+
+    await tester.tap(find.byKey(const Key('generateRTL')));
+    await tester.pump(const Duration(milliseconds: 20));
+    await tester.tap(find.text('Priority Arbiter'));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byKey(const Key('generateRTL')));
+    await pumpUntilOutputContains(tester, 'PriorityArbiter');
+
+    expect(observeOutput(tester), contains('PriorityArbiter'));
+  });
 }

@@ -68,6 +68,12 @@ Use **ROHD-HCL Confapp: Web Debug** for the current source configuration. If
 port `8080` is in use, set `CONFAPP_WEB_PORT`; do not stop another developer's
 server merely to reuse its port.
 
+Use **ROHD-HCL Confapp: Web Release** to build and serve the supported
+JavaScript release target. It uses the same port setting.
+
+Use **ROHD-HCL Confapp: Web Release WASM** to build and serve the experimental
+WASM target on port `8081`. Set `CONFAPP_WASM_WEB_PORT` to override that port.
+
 ## Browser validation
 
 Open the forwarded web-server URL in VS Code's integrated browser and enable
@@ -90,7 +96,8 @@ Flutter reports a Wasm dry-run incompatibility.
 ## Validation
 
 ```bash
-bash -n tool/confapp_dev_mode.sh tool/confapp_web_debug.sh
+bash -n tool/confapp_dev_mode.sh tool/confapp_web_debug.sh \
+  tool/confapp_web_release.sh tool/confapp_web_wasm.sh
 python3 -m json.tool .vscode/tasks.json >/dev/null
 flutter pub get
 dart analyze --fatal-infos

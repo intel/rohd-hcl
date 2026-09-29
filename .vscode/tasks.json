@@ -84,18 +84,58 @@
             }
         },
         {
-            "label": "ROHD-HCL Confapp: Web Release WASM",
+            "label": "ROHD-HCL Confapp: Web Release",
             "type": "shell",
-            "command": "flutter pub get && cd confapp && flutter build web --wasm --release --no-pub",
+            "command": "bash tool/confapp_web_release.sh",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
             "dependsOn": "Generate Confapp Assets",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "confapp-web-release",
+                "pattern": {
+                    "regexp": "^(CONFAPP_TASK_DIAGNOSTIC: .+)$",
+                    "message": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^Launching lib/main\\.dart",
+                    "endsPattern": "is being served at"
+                }
+            },
             "presentation": {
                 "reveal": "always",
                 "panel": "dedicated"
             },
-            "detail": "Builds with the dependency configuration currently selected at the workspace root."
+            "detail": "Builds and serves the JavaScript release with the dependency configuration currently selected at the workspace root."
+        },
+        {
+            "label": "ROHD-HCL Confapp: Web Release WASM",
+            "type": "shell",
+            "command": "bash tool/confapp_web_wasm.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "Generate Confapp Assets",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "confapp-web-wasm",
+                "pattern": {
+                    "regexp": "^(CONFAPP_TASK_DIAGNOSTIC: .+)$",
+                    "message": 1
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^Launching lib/main\\.dart",
+                    "endsPattern": "is being served at"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "detail": "Builds and serves the experimental WASM release on CONFAPP_WASM_WEB_PORT (default 8081)."
         },
         {
             "label": "ROHD-HCL Confapp: Web Debug",

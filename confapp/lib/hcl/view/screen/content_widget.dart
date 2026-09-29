@@ -6,7 +6,7 @@
 //
 // 2023 December
 
-import 'dart:async' show unawaited;
+import 'dart:async' show StreamSubscription, unawaited;
 
 import 'package:confapp/hcl/cubit/component_cubit.dart';
 import 'package:confapp/hcl/cubit/system_verilog_cubit.dart';
@@ -141,6 +141,7 @@ class _SVGeneratorState extends State<SVGenerator>
 
   late TabController _tabController;
   late final _ConfappRohdExtensionClient _sourceFormatClient;
+  late final StreamSubscription<Configurator> _componentSubscription;
 
   /// Labels for each logical tab index.
   static const _tabLabels = [
@@ -315,7 +316,8 @@ class _SVGeneratorState extends State<SVGenerator>
     // Clear generated outputs when the selected component changes.
     final componentCubit = context.read<ComponentCubit>();
     final rtlCubit = context.read<SystemVerilogCubit>();
-    componentCubit.stream.listen((component) {
+    _componentSubscription = componentCubit.stream.listen((component) {
+      _generationRequestId++;
       rtlCubit.initializeData();
       _disposeRohdSubtabs();
       setState(() {
@@ -351,11 +353,7 @@ class _SVGeneratorState extends State<SVGenerator>
   /// the FLC JSON is loaded by [_buildCrossProbeAndHighlight].
   void _initPrimaryRohdSubtab(Configurator component) {
     final mod = component.createModule();
-    final rawType = mod.runtimeType.toString();
-    final typeName = rawType.contains('<')
-        ? rawType.substring(0, rawType.indexOf('<'))
-        : rawType;
-    final primaryAsset = moduleSourceAssets[typeName];
+    final primaryAsset = moduleSourceAsset(mod);
     if (primaryAsset == null) {
       return;
     }
@@ -381,7 +379,11 @@ class _SVGeneratorState extends State<SVGenerator>
   String? _yosysJson;
   bool _synthSchematicLoading = false;
   int _synthSchematicRequestId = 0;
+  int _generationRequestId = 0;
   String _moduleName = '';
+
+  bool _isCurrentGeneration(int requestId) =>
+      mounted && requestId == _generationRequestId;
 
   /// Hierarchy service built from the ROHD netlist JSON, used to resolve
   /// signal names into full occurrence paths for cross-probe.
@@ -2640,14 +2642,11 @@ class _SVGeneratorState extends State<SVGenerator>
               : BlocBuilder<ComponentCubit, Configurator>(
                   builder: (context, component) {
                     final mod = component.createModule();
-                    final rawType = mod.runtimeType.toString();
-                    final typeName = rawType.contains('<')
-                        ? rawType.substring(0, rawType.indexOf('<'))
-                        : rawType;
-                    final assetPath = moduleSourceAssets[typeName];
+                    final assetPath = moduleSourceAsset(mod);
                     if (assetPath == null) {
                       return Center(
-                        child: Text('No source available for $typeName'),
+                        child:
+                            Text('No source available for ${mod.runtimeType}'),
                       );
                     }
                     return _rohdSourceFileView(assetPath);
@@ -2813,9 +2812,15 @@ class _SVGeneratorState extends State<SVGenerator>
 
   /// Step: Build the module and generate SystemVerilog (base output).
   /// Populates [_lastBuiltModule], generated text, and module name.
-  Future<void> _generateBase(Configurator component) async {
+  Future<bool> _generateBase(
+    Configurator component, {
+    required int generationRequestId,
+  }) async {
     final mod = component.createModule();
     await mod.build();
+    if (!_isCurrentGeneration(generationRequestId)) {
+      return false;
+    }
     final moduleName = mod.definitionName;
     final rtlRes = mod.generateSynth();
 
@@ -2823,17 +2828,24 @@ class _SVGeneratorState extends State<SVGenerator>
     _lastRtlRes = rtlRes;
     _lastScRes = 'SystemC generation is unavailable with this ROHD version.';
     _lastModuleName = moduleName;
+    return true;
   }
 
   /// Step: Generate ROHD netlist JSON → Tab 0 (ROHD Schematic).
-  Future<void> _generateRohdSchematic() async {
+  Future<void> _generateRohdSchematic({
+    int? generationRequestId,
+  }) async {
+    final requestId = generationRequestId ?? _generationRequestId;
     final mod = _lastBuiltModule;
-    if (mod == null) {
+    if (mod == null || !_isCurrentGeneration(requestId)) {
       return;
     }
     final synthesizer = NetlistSynthesizer();
     final builder = SynthBuilder(mod, synthesizer);
     final netlistJson = synthesizer.generateCombinedJson(builder, mod);
+    if (!_isCurrentGeneration(requestId)) {
+      return;
+    }
     setState(() {
       _rohdNetlistJson = netlistJson;
       _moduleName = _lastModuleName ?? mod.definitionName;
@@ -2883,10 +2895,16 @@ class _SVGeneratorState extends State<SVGenerator>
   }
 
   /// Step: Generate FLC trace data → Tab 1 (ROHD Source / cross-probe).
-  Future<void> _generateFlcTrace(Configurator component) async {
+  Future<void> _generateFlcTrace(
+    Configurator component, {
+    int? generationRequestId,
+  }) async {
+    final requestId = generationRequestId ?? _generationRequestId;
     final rtlRes = _lastRtlRes;
     final moduleName = _lastModuleName;
-    if (rtlRes == null || moduleName == null) {
+    if (rtlRes == null ||
+        moduleName == null ||
+        !_isCurrentGeneration(requestId)) {
       return;
     }
 
@@ -2897,6 +2915,7 @@ class _SVGeneratorState extends State<SVGenerator>
       rtlRes,
       moduleName,
       flcJson: flcJson,
+      generationRequestId: requestId,
     );
   }
 
@@ -2949,6 +2968,7 @@ class _SVGeneratorState extends State<SVGenerator>
             onPressed: isLoading
                 ? null
                 : () async {
+                    final generationRequestId = ++_generationRequestId;
                     try {
                       rtlCubit.setLoading();
 
@@ -2956,6 +2976,9 @@ class _SVGeneratorState extends State<SVGenerator>
                       await Future<void>.delayed(
                         const Duration(milliseconds: 10),
                       );
+                      if (!_isCurrentGeneration(generationRequestId)) {
+                        return;
+                      }
 
                       // Validate and save form state.
                       if (_formKey.currentState!.validate()) {
@@ -2964,11 +2987,21 @@ class _SVGeneratorState extends State<SVGenerator>
 
                       // Base: always build the module and generate
                       // SystemVerilog.
-                      await _generateBase(component);
+                      if (!await _generateBase(
+                        component,
+                        generationRequestId: generationRequestId,
+                      )) {
+                        return;
+                      }
 
                       // Tab 0: ROHD Schematic
                       if (_tabEnabled[0]) {
-                        await _generateRohdSchematic();
+                        await _generateRohdSchematic(
+                          generationRequestId: generationRequestId,
+                        );
+                        if (!_isCurrentGeneration(generationRequestId)) {
+                          return;
+                        }
                       }
 
                       // Tab 4: Synth Schematic (Yosys)
@@ -2982,7 +3015,22 @@ class _SVGeneratorState extends State<SVGenerator>
 
                       // Tab 1: ROHD Source (FLC/cross-probe)
                       if (_tabEnabled[1]) {
-                        await _generateFlcTrace(component);
+                        await _generateFlcTrace(
+                          component,
+                          generationRequestId: generationRequestId,
+                        );
+                        if (!_isCurrentGeneration(generationRequestId)) {
+                          return;
+                        }
+                      }
+
+                      final rtlRes = _lastRtlRes;
+                      final scRes = _lastScRes;
+                      final moduleName = _lastModuleName;
+                      if (rtlRes == null ||
+                          scRes == null ||
+                          moduleName == null) {
+                        return;
                       }
 
                       // allow some time for registration to happen
@@ -2990,15 +3038,21 @@ class _SVGeneratorState extends State<SVGenerator>
                       await Future<void>.delayed(
                         const Duration(milliseconds: 200),
                       );
+                      if (!_isCurrentGeneration(generationRequestId)) {
+                        return;
+                      }
 
                       rtlCubit.setRTL(
-                        _lastRtlRes!,
-                        _lastScRes!,
+                        rtlRes,
+                        scRes,
                         component.sanitaryName,
-                        _lastModuleName!,
+                        moduleName,
                       );
                       _scheduleSourceFormatRefresh();
                     } on Exception catch (e) {
+                      if (!_isCurrentGeneration(generationRequestId)) {
+                        return;
+                      }
                       var message = e.toString();
                       if (e is RohdHclException) {
                         message = e.message;
@@ -3030,14 +3084,12 @@ class _SVGeneratorState extends State<SVGenerator>
     String svText,
     String moduleName, {
     Map<String, Object>? flcJson,
+    int? generationRequestId,
   }) async {
+    final requestId = generationRequestId ?? _generationRequestId;
     // Resolve the ROHD source asset path for this component.
     final mod = component.createModule();
-    final rawType = mod.runtimeType.toString();
-    final typeName = rawType.contains('<')
-        ? rawType.substring(0, rawType.indexOf('<'))
-        : rawType;
-    final primaryAsset = moduleSourceAssets[typeName];
+    final primaryAsset = moduleSourceAsset(mod);
     if (primaryAsset == null) {
       return;
     }
@@ -3045,6 +3097,9 @@ class _SVGeneratorState extends State<SVGenerator>
     try {
       final rohdSource =
           await rootBundle.loadString(bundledSourceAssetPath(primaryAsset));
+      if (!_isCurrentGeneration(requestId)) {
+        return;
+      }
       _lastRohdSource = rohdSource;
 
       // Build FlcData from the directly-generated hierarchy JSON.
@@ -3209,6 +3264,7 @@ class _SVGeneratorState extends State<SVGenerator>
 
   @override
   void dispose() {
+    unawaited(_componentSubscription.cancel());
     _tabController.dispose();
     _svController?.dispose();
     _scController?.dispose();

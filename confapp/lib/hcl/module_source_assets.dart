@@ -8,9 +8,11 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Maps configurable module runtime types to bundled ROHD source assets.
 const moduleSourceAssets = <String, String>{
+  'BinaryToOneHot': 'rohd_src/encodings/binary_to_one_hot.dart',
   'BinaryToGrayConverter': 'rohd_src/binary_gray.dart',
   'BitonicSort': 'rohd_src/sort.dart',
   'CarrySaveMultiplier': 'rohd_src/arithmetic/multiplier.dart',
@@ -49,18 +51,63 @@ const moduleSourceAssets = <String, String>{
   'RippleCarryAdder': 'rohd_src/arithmetic/ripple_carry_adder.dart',
   'RotateLeft': 'rohd_src/rotate.dart',
   'RotateRight': 'rohd_src/rotate.dart',
+  'RotateRoundRobinArbiter':
+      'rohd_src/arbiters/rotate_round_robin_arbiter.dart',
   'Serializer': 'rohd_src/serialization/serialization.dart',
   'Sum': 'rohd_src/summation/sum.dart',
+  'TreeOneHotToBinary': 'rohd_src/encodings/tree_one_hot_to_binary.dart',
 };
 
 /// Returns the bundled ROHD source asset for [module], if one is indexed.
-String? moduleSourceAsset(Module module) {
-  final rawType = module.runtimeType.toString();
-  final typeName = rawType.contains('<')
-      ? rawType.substring(0, rawType.indexOf('<'))
-      : rawType;
-  return moduleSourceAssets[typeName];
-}
+String? moduleSourceAsset(Module module) => switch (module) {
+      BinaryToOneHot() => moduleSourceAssets['BinaryToOneHot'],
+      BinaryToGrayConverter() => moduleSourceAssets['BinaryToGrayConverter'],
+      BitonicSort() => moduleSourceAssets['BitonicSort'],
+      CarrySaveMultiplier() => moduleSourceAssets['CarrySaveMultiplier'],
+      CarrySelectCompoundAdder() =>
+        moduleSourceAssets['CarrySelectCompoundAdder'],
+      CaseOneHotToBinary() => moduleSourceAssets['CaseOneHotToBinary'],
+      CompressionTreeMultiplier() =>
+        moduleSourceAssets['CompressionTreeMultiplier'],
+      GatedCounter() => moduleSourceAssets['GatedCounter'],
+      Counter() => moduleSourceAssets['Counter'],
+      Deserializer() => moduleSourceAssets['Deserializer'],
+      EdgeDetector() => moduleSourceAssets['EdgeDetector'],
+      Extrema() => moduleSourceAssets['Extrema'],
+      Fifo() => moduleSourceAssets['Fifo'],
+      Find() => moduleSourceAssets['Find'],
+      FixedPointSqrt() => moduleSourceAssets['FixedPointSqrt'],
+      FixedToFloat() => moduleSourceAssets['FixedToFloat'],
+      FloatToFixed() => moduleSourceAssets['FloatToFixed'],
+      FloatingPointAdderDualPath() =>
+        moduleSourceAssets['FloatingPointAdderDualPath'],
+      FloatingPointAdderSinglePath() =>
+        moduleSourceAssets['FloatingPointAdderSinglePath'],
+      FloatingPointMultiplierSimple() =>
+        moduleSourceAssets['FloatingPointMultiplierSimple'],
+      FloatingPointSqrtSimple() =>
+        moduleSourceAssets['FloatingPointSqrtSimple'],
+      GrayToBinaryConverter() => moduleSourceAssets['GrayToBinaryConverter'],
+      HammingEccReceiver() => moduleSourceAssets['HammingEccReceiver'],
+      LeadingDigitAnticipate() => moduleSourceAssets['LeadingDigitAnticipate'],
+      LeadingZeroAnticipate() => moduleSourceAssets['LeadingZeroAnticipate'],
+      LeadingZeroAnticipateCarry() =>
+        moduleSourceAssets['LeadingZeroAnticipateCarry'],
+      MaskRoundRobinArbiter() => moduleSourceAssets['MaskRoundRobinArbiter'],
+      NativeMultiplier() => moduleSourceAssets['NativeMultiplier'],
+      ParallelPrefixAdder() => moduleSourceAssets['ParallelPrefixAdder'],
+      PriorityArbiter() => moduleSourceAssets['PriorityArbiter'],
+      RegisterFile() => moduleSourceAssets['RegisterFile'],
+      RippleCarryAdder() => moduleSourceAssets['RippleCarryAdder'],
+      RotateLeft() => moduleSourceAssets['RotateLeft'],
+      RotateRight() => moduleSourceAssets['RotateRight'],
+      RotateRoundRobinArbiter() =>
+        moduleSourceAssets['RotateRoundRobinArbiter'],
+      Serializer() => moduleSourceAssets['Serializer'],
+      Sum() => moduleSourceAssets['Sum'],
+      TreeOneHotToBinary() => moduleSourceAssets['TreeOneHotToBinary'],
+      _ => null,
+    };
 
 /// Converts a logical ROHD source path to its Flutter asset-bundle key.
 String bundledSourceAssetPath(String sourceAsset) => 'assets/$sourceAsset';

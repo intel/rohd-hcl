@@ -20,5 +20,5 @@ bash "$repo_root/tool/generate_confapp_assets.sh"
 cd "$repo_root/confapp"
 
 # Use profile instead of release to avoid certain module names being replaced.
-# Keep the production site on the WASM-compatible web target.
-flutter build web --wasm --profile --base-href /rohd-hcl/confapp/
+# JavaScript is required by the confapp's browser integrations.
+flutter build web --profile --base-href /rohd-hcl/confapp/
