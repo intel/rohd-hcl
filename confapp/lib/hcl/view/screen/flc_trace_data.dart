@@ -151,7 +151,8 @@ class EmbeddedFlcSourceNavigation {
   static List<Map<String, dynamic>> _sourceFrameMaps(
     FlcEntry entry, {
     required String signalName,
-  }) => [
+  }) =>
+      [
         for (final frame in entry.frames.reversed)
           _sourceFrameMap(frame, signalName),
         for (final frame in entry.outputFrames)
