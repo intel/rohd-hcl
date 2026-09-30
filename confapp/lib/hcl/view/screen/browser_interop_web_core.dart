@@ -22,11 +22,15 @@ class YosysWorker {
     _messageSubscription = web.EventStreamProviders.messageEvent
         .forTarget(_worker)
         .listen(_handleMessage);
+    _errorSubscription = web.EventStreamProviders.errorWorkerEvent
+        .forTarget(_worker)
+        .listen(_handleError);
   }
 
   final web.Worker _worker;
   late final SerializedWorkerRequestQueue<String> _requests;
   late final StreamSubscription<web.MessageEvent> _messageSubscription;
+  late final StreamSubscription<web.Event> _errorSubscription;
 
   /// Synthesizes the RTL described by [message].
   ///
@@ -55,10 +59,30 @@ class YosysWorker {
     }
   }
 
+  void _handleError(web.Event event) {
+    event.preventDefault();
+    final errorEvent = event as web.ErrorEvent;
+    final message = errorEvent.message.trim();
+    final filename = errorEvent.filename.trim();
+    final location = filename.isEmpty
+        ? ''
+        : ' ($filename'
+            '${errorEvent.lineno > 0 ? ':${errorEvent.lineno}' : ''}'
+            '${errorEvent.colno > 0 ? ':${errorEvent.colno}' : ''})';
+    _requests.failAll(
+      StateError(
+        'Yosys worker failed: '
+        '${message.isEmpty ? 'unknown worker error' : message}$location',
+      ),
+    );
+    _worker.terminate();
+  }
+
   /// Releases the worker and fails any requests that are still pending.
   void dispose() {
     _requests.dispose();
     unawaited(_messageSubscription.cancel());
+    unawaited(_errorSubscription.cancel());
     _worker.terminate();
   }
 }

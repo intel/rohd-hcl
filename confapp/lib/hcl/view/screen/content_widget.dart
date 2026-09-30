@@ -14,6 +14,7 @@ import 'package:confapp/hcl/cubit/theme_cubit.dart';
 import 'package:confapp/hcl/module_source_assets.dart';
 import 'package:confapp/hcl/view/screen/browser_interop.dart';
 import 'package:confapp/hcl/view/screen/dart_syntax_code_controller.dart';
+import 'package:confapp/hcl/view/screen/flc_trace_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -336,7 +337,7 @@ class _SVGeneratorState extends State<SVGenerator>
         _lastRtlRes = null;
         _lastScRes = null;
         _lastModuleName = null;
-        _lastFlcJson = null;
+        _lastEmbeddedFlcData = null;
         _highlightedScLine = null;
       });
       // Set up the primary ROHD source subtab (no FLC until Generate).
@@ -476,7 +477,13 @@ class _SVGeneratorState extends State<SVGenerator>
   String? _lastRtlRes;
   String? _lastScRes;
   String? _lastModuleName;
-  Map<String, Object>? _lastFlcJson;
+
+  /// Trace data cached from a trace-enabled ROHD netlist.
+  ///
+  /// The stable ROHD 0.6.11 dependency does not emit this data. Keeping the
+  /// cache separate from [_flcData] lets a future trace-enabled netlist retain
+  /// its data until the ROHD Source tab is opened.
+  FlcData? _lastEmbeddedFlcData;
 
   // ── End tab visibility checkboxes ─────────────────────────────────────
 
@@ -1240,11 +1247,7 @@ class _SVGeneratorState extends State<SVGenerator>
     if (flcData != null) {
       return flcData;
     }
-    final flcJson = _lastFlcJson;
-    if (flcJson == null) {
-      return null;
-    }
-    return FlcData.fromJson(flcJson.cast<String, dynamic>());
+    return _lastEmbeddedFlcData;
   }
 
   /// Return source format identifiers available for [module].
@@ -1375,11 +1378,10 @@ class _SVGeneratorState extends State<SVGenerator>
         'type': frame.type,
       };
 
-  /// Ensure FLC data is available for source navigation.
+  /// Ensure embedded FLC data is available for source navigation.
   ///
-  /// The ROHD Source tab is optional and disabled by default, but source
-  /// navigation from the schematic still needs FLC data. Lazily build it from
-  /// the last generated module when needed.
+  /// Trace-enabled future ROHD versions embed this data in their netlist.
+  /// Stable ROHD 0.6.11 leaves source navigation unavailable.
   Future<bool> _ensureFlcDataLoaded() async {
     if (_flcData != null && !_flcData!.isEmpty) {
       return true;
@@ -1392,16 +1394,7 @@ class _SVGeneratorState extends State<SVGenerator>
     }
 
     final component = context.read<ComponentCubit>().state;
-    if (_lastFlcJson != null) {
-      await _buildCrossProbeAndHighlight(
-        component,
-        _lastRtlRes!,
-        _lastModuleName!,
-        flcJson: _lastFlcJson,
-      );
-    } else {
-      await _generateFlcTrace(component);
-    }
+    await _generateFlcTrace(component);
     return _flcData != null && !_flcData!.isEmpty;
   }
 
@@ -2125,7 +2118,7 @@ class _SVGeneratorState extends State<SVGenerator>
       _lastRtlRes = null;
       _lastScRes = null;
       _lastModuleName = null;
-      _lastFlcJson = null;
+      _lastEmbeddedFlcData = null;
       _moduleName = '';
     });
     _initPrimaryRohdSubtab(component);
@@ -2829,6 +2822,11 @@ class _SVGeneratorState extends State<SVGenerator>
     final moduleName = mod.definitionName;
     final rtlRes = mod.generateSynth();
 
+    _rohdNetlistJson = null;
+    _hierarchyService = null;
+    _flcData = null;
+    _flcModuleName = null;
+    _lastEmbeddedFlcData = null;
     _lastBuiltModule = mod;
     _lastRtlRes = rtlRes;
     _lastScRes = 'SystemC generation is unavailable with this ROHD version.';
@@ -2919,19 +2917,34 @@ class _SVGeneratorState extends State<SVGenerator>
     }
   }
 
-  /// Capture FLC trace JSON while `SourceTraceRegistry` data is still live.
-  Map<String, Object>? _captureFlcTraceJson() {
-    final mod = _lastBuiltModule;
-    final moduleName = _lastModuleName;
-    if (mod == null || moduleName == null) {
+  /// Cache source trace data embedded by a trace-enabled ROHD netlist.
+  ///
+  /// ROHD 0.6.11 does not provide a runtime trace registry. Future ROHD
+  /// versions can embed `rohd.src_trace` attributes in the generated netlist,
+  /// which keeps this integration dormant but functional when data is present.
+  FlcData? _captureEmbeddedFlcData() {
+    final cached = _lastEmbeddedFlcData;
+    if (cached != null) {
+      return cached;
+    }
+    final netlistJson = _rohdNetlistJson;
+    if (netlistJson == null) {
       return null;
     }
 
-    _lastFlcJson = null;
-    return null;
+    final flcData = embeddedFlcDataFromNetlistJson(netlistJson);
+    _lastEmbeddedFlcData = flcData;
+    if (flcData != null) {
+      debugPrint(
+        '[FlcData] Loaded embedded netlist trace '
+        '(${flcData.files.length} files, '
+        'modules: ${flcData.moduleNames.join(', ')})',
+      );
+    }
+    return flcData;
   }
 
-  /// Step: Generate FLC trace data → Tab 1 (ROHD Source / cross-probe).
+  /// Step: Load embedded FLC trace data → Tab 1 (ROHD Source / cross-probe).
   Future<void> _generateFlcTrace(
     Configurator component, {
     int? generationRequestId,
@@ -2945,13 +2958,19 @@ class _SVGeneratorState extends State<SVGenerator>
       return;
     }
 
-    final flcJson = _captureFlcTraceJson();
+    if (_rohdNetlistJson == null) {
+      await _generateRohdSchematic(generationRequestId: requestId);
+      if (!_isCurrentGeneration(requestId)) {
+        return;
+      }
+    }
+    final flcData = _captureEmbeddedFlcData();
 
     await _buildCrossProbeAndHighlight(
       component,
       rtlRes,
       moduleName,
-      flcJson: flcJson,
+      capturedFlcData: flcData,
       generationRequestId: requestId,
     );
   }
@@ -2983,7 +3002,7 @@ class _SVGeneratorState extends State<SVGenerator>
           await _generateRohdSchematic();
         }
       case 1:
-        if (_lastFlcJson == null) {
+        if (_flcData == null) {
           final component = context.read<ComponentCubit>().state;
           await _generateFlcTrace(component);
         }
@@ -3046,9 +3065,9 @@ class _SVGeneratorState extends State<SVGenerator>
                         _generateSynthSchematic();
                       }
 
-                      // Capture FLC while traces are still live so schematic
-                      // source navigation works when the source tab is off.
-                      _captureFlcTraceJson();
+                      // Retain embedded trace data, when supplied by a future
+                      // trace-enabled ROHD netlist, even if Source is hidden.
+                      _captureEmbeddedFlcData();
 
                       // Tab 1: ROHD Source (FLC/cross-probe)
                       if (_tabEnabled[1]) {
@@ -3114,13 +3133,12 @@ class _SVGeneratorState extends State<SVGenerator>
         },
       );
 
-  /// Build [FlcData] from the directly-generated FLC JSON, load the ROHD
-  /// source, and populate the ROHD source subtabs.
+  /// Load the ROHD source and populate its subtabs from embedded [FlcData].
   Future<void> _buildCrossProbeAndHighlight(
     Configurator component,
     String svText,
     String moduleName, {
-    Map<String, Object>? flcJson,
+    FlcData? capturedFlcData,
     int? generationRequestId,
   }) async {
     final requestId = generationRequestId ?? _generationRequestId;
@@ -3139,20 +3157,18 @@ class _SVGeneratorState extends State<SVGenerator>
       }
       _lastRohdSource = rohdSource;
 
-      // Build FlcData from the directly-generated hierarchy JSON.
-      FlcData flcData;
-      if (flcJson != null) {
-        flcData = FlcData.fromJson(
-          flcJson.cast<String, dynamic>(),
-        );
+      final flcData = capturedFlcData ?? FlcData.empty();
+      if (capturedFlcData != null) {
         debugPrint(
-          '[FlcData] Built from traced hierarchy '
+          '[FlcData] Built from embedded netlist trace '
           '(${flcData.files.length} files, '
           'modules: ${flcData.moduleNames.join(', ')})',
         );
       } else {
-        flcData = FlcData.empty();
-        debugPrint('[FlcData] No trace data available');
+        debugPrint(
+          '[FlcData] No embedded trace data available; '
+          'ROHD 0.6.11 does not emit source traces',
+        );
       }
 
       // Build the set of available rohd_src asset paths from the FLC files.

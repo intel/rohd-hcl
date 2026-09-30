@@ -37,8 +37,10 @@ The registry supplies the Confapp sidebar through
 
 Map every concrete module runtime type that the configurator can create in
 [`moduleSourceAssets`](lib/hcl/module_source_assets.dart). This enables the
-ROHD Source view and source cross-probing. Point to the source path beneath
-`lib/src/`, using the `rohd_src/` asset prefix.
+ROHD Source view. Source cross-probing is also enabled when a trace-capable
+future ROHD release embeds `rohd.src_trace` data in the generated netlist.
+The current ROHD 0.6.11 dependency does not emit that data. Point to the source
+path beneath `lib/src/`, using the `rohd_src/` asset prefix.
 
 Run the source asset generator from the repository root after source changes:
 
@@ -56,12 +58,14 @@ Confapp builds the selected module and generates:
 - native ROHD netlist JSON for `rohd_schematic_viewer`;
 - generated SystemVerilog;
 - a Yosys synthesized schematic when enabled; and
-- source-navigation data when the ROHD Source view is enabled.
+- embedded source-navigation data when supplied by a trace-enabled ROHD
+  netlist.
 
 Exercise the default configurator values and representative knob values in the
-running app. Confirm source navigation reaches the mapped asset and that
+running app. Confirm the ROHD Source view reaches the mapped asset and that
 schematic generation does not rely on external signals crossing a module
-boundary.
+boundary. When testing with a trace-enabled future ROHD dependency, also
+confirm source navigation resolves its embedded trace locations.
 
 ### 5. Add regression coverage
 

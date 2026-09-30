@@ -18,12 +18,14 @@ class SerializedWorkerRequestQueue<Response> {
   final Queue<_PendingWorkerRequest<Response>> _waiting = Queue();
 
   _PendingWorkerRequest<Response>? _active;
-  bool _disposed = false;
+  Object? _terminalError;
+  StackTrace? _terminalStackTrace;
 
   /// Enqueues [send] and returns the eventual response to that request.
   Future<Response> add(void Function() send) {
-    if (_disposed) {
-      return Future.error(StateError('The worker request queue is disposed.'));
+    final terminalError = _terminalError;
+    if (terminalError != null) {
+      return Future.error(terminalError, _terminalStackTrace);
     }
 
     final pending = _PendingWorkerRequest<Response>(send);
@@ -34,6 +36,9 @@ class SerializedWorkerRequestQueue<Response> {
 
   /// Completes the active request with [response] and dispatches the next one.
   void complete(Response response) {
+    if (_terminalError != null) {
+      return;
+    }
     final active = _takeActive();
     active.completer.complete(response);
     _sendNext();
@@ -41,20 +46,23 @@ class SerializedWorkerRequestQueue<Response> {
 
   /// Fails the active request with [error] and dispatches the next one.
   void completeError(Object error, [StackTrace? stackTrace]) {
+    if (_terminalError != null) {
+      return;
+    }
     final active = _takeActive();
     active.completer.completeError(error, stackTrace ?? StackTrace.current);
     _sendNext();
   }
 
   /// Fails all requests and prevents additional requests from being queued.
-  void dispose() {
-    if (_disposed) {
+  void failAll(Object error, [StackTrace? stackTrace]) {
+    if (_terminalError != null) {
       return;
     }
-    _disposed = true;
+    final effectiveStackTrace = stackTrace ?? StackTrace.current;
+    _terminalError = error;
+    _terminalStackTrace = effectiveStackTrace;
 
-    final error = StateError('The worker request queue was disposed.');
-    final stackTrace = StackTrace.current;
     final pending = [
       if (_active case final active?) active,
       ..._waiting,
@@ -62,8 +70,13 @@ class SerializedWorkerRequestQueue<Response> {
     _active = null;
     _waiting.clear();
     for (final request in pending) {
-      request.completer.completeError(error, stackTrace);
+      request.completer.completeError(error, effectiveStackTrace);
     }
+  }
+
+  /// Fails all requests because the worker request queue is no longer used.
+  void dispose() {
+    failAll(StateError('The worker request queue was disposed.'));
   }
 
   _PendingWorkerRequest<Response> _takeActive() {
@@ -76,7 +89,7 @@ class SerializedWorkerRequestQueue<Response> {
   }
 
   void _sendNext() {
-    if (_disposed || _active != null || _waiting.isEmpty) {
+    if (_terminalError != null || _active != null || _waiting.isEmpty) {
       return;
     }
 

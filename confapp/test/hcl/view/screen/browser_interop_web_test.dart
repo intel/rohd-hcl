@@ -56,6 +56,52 @@ void main() {
     expect(await second, 'second:1');
   });
 
+  test('Yosys worker errors fail active and queued requests', () async {
+    const workerScript = '''
+      onmessage = function() {
+        throw new Error('intentional worker failure');
+      };
+    ''';
+    final workerBlob = web.Blob(
+      <JSAny>[workerScript.toJS].toJS,
+      web.BlobPropertyBag(type: 'text/javascript'),
+    );
+    final workerUrl = web.URL.createObjectURL(workerBlob);
+    final worker = YosysWorker(workerUrl);
+    addTearDown(() {
+      worker.dispose();
+      web.URL.revokeObjectURL(workerUrl);
+    });
+
+    final first = worker.synthesize({
+      'module': 'FirstModule',
+      'verilog': 'first',
+    });
+    final second = worker.synthesize({
+      'module': 'SecondModule',
+      'verilog': 'second',
+    });
+    final matcher = throwsA(
+      isA<StateError>().having(
+        (error) => error.message,
+        'message',
+        contains('intentional worker failure'),
+      ),
+    );
+
+    await Future.wait([
+      expectLater(first, matcher),
+      expectLater(second, matcher),
+    ]);
+    await expectLater(
+      worker.synthesize({
+        'module': 'ThirdModule',
+        'verilog': 'third',
+      }),
+      matcher,
+    );
+  });
+
   test('download uses the requested filename and UTF-8 bytes', () async {
     const content = 'ROHD π';
     const fileName = 'generated-π.sv';

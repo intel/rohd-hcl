@@ -42,4 +42,22 @@ void main() {
     queue.complete('second response');
     expect(await second, 'second response');
   });
+
+  test('terminal errors fail active, queued, and future requests', () async {
+    final dispatched = <String>[];
+    final queue = SerializedWorkerRequestQueue<String>();
+    final failure = StateError('worker failed');
+
+    final first = queue.add(() => dispatched.add('first'));
+    final second = queue.add(() => dispatched.add('second'));
+    queue.failAll(failure);
+
+    await expectLater(first, throwsA(same(failure)));
+    await expectLater(second, throwsA(same(failure)));
+    await expectLater(
+      queue.add(() => dispatched.add('third')),
+      throwsA(same(failure)),
+    );
+    expect(dispatched, ['first']);
+  });
 }
