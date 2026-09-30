@@ -5,6 +5,7 @@
 // Tests for the app
 //
 // 2023 December
+// Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:confapp/hcl/hcl.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,6 +67,42 @@ void main() {
       find.text('Click "Generate" to see the ROHD schematic'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('keeps horizontally scrolled source below its scrollbar',
+      (tester) async {
+    await pumpHclPage(tester);
+    await showOnlyGeneratedSv(tester);
+
+    await tester.tap(find.byKey(const Key('generateRTL')));
+    await pumpUntilOutputContains(tester, 'module');
+
+    final generatedSv = find.byKey(const Key('generatedSV'));
+    final horizontalScrollbar = find.ancestor(
+      of: generatedSv,
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Scrollbar &&
+            widget.scrollbarOrientation == ScrollbarOrientation.top,
+      ),
+    );
+    expect(horizontalScrollbar, findsOneWidget);
+
+    final scrollbar = tester.widget<Scrollbar>(horizontalScrollbar);
+    final scrollController = scrollbar.controller!;
+    expect(scrollController.position.maxScrollExtent, greaterThan(0));
+
+    scrollController.jumpTo(scrollController.position.maxScrollExtent / 2);
+    await tester.pump();
+
+    const materialScrollbarMargin = 2.0;
+    const minimumContentGap = 2.0;
+    final minimumClearance =
+        scrollbar.thickness! + materialScrollbarMargin + minimumContentGap;
+    final actualClearance = tester.getTopLeft(generatedSv).dy -
+        tester.getTopLeft(horizontalScrollbar).dy;
+
+    expect(actualClearance, greaterThanOrEqualTo(minimumClearance));
   });
 
   testWidgets('should return changes when fields is manipulated',

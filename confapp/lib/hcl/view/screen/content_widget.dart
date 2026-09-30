@@ -5,6 +5,7 @@
 // Implementation of the widget for viewing the main content
 //
 // 2023 December
+// Author: Max Korbel <max.korbel@intel.com>
 
 import 'dart:async' show StreamSubscription, unawaited;
 
@@ -561,6 +562,11 @@ class _SVGeneratorState extends State<SVGenerator>
   static const _codeTopPad = 13.0;
   static const _minimumCodeColumns = 80;
   static const _codeHorizontalEndPad = 96.0;
+  static const _codeScrollbarThickness = 10.0;
+
+  /// The Material scrollbar paints over its child, including a 2px margin.
+  /// Reserve a fixed lane plus a small gap so its top thumb never covers code.
+  static const _codeScrollbarClearance = 16.0;
 
   /// Cache of measured scroll widths keyed by editor text so that rebuilds
   /// triggered by highlight changes don't re-measure every line.
@@ -1911,94 +1917,99 @@ class _SVGeneratorState extends State<SVGenerator>
               thumbVisibility: true,
               trackVisibility: true,
               interactive: true,
-              thickness: 10,
+              thickness: _codeScrollbarThickness,
               radius: const Radius.circular(4),
               scrollbarOrientation: ScrollbarOrientation.top,
               notificationPredicate: (notification) =>
                   notification.metrics.axis == Axis.horizontal,
-              child: SingleChildScrollView(
-                controller: verticalScrollController,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ── Custom gutter ──────────────────────────────────────
-                    Padding(
-                      padding: const EdgeInsets.only(top: _codeTopPad, left: 8),
-                      child: SizedBox(
-                        width: 40,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: List.generate(
-                              lineCount,
-                              (i) => SizedBox(
-                                    height: _lineHeight,
-                                    child: Text(
-                                      '${i + 1}',
-                                      style: _codeTextStyle.copyWith(
-                                          color: Colors.grey),
-                                      textAlign: TextAlign.right,
-                                    ),
-                                  )),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    // ── Code + highlight overlay ───────────────────────────
-                    // Keep the viewport near 80 columns, while the scroll child
-                    // is as wide as the longest line so long generated
-                    // assignments can be reached horizontally without adding
-                    // visual rows.  The horizontal Scrollbar wraps the vertical
-                    // viewport, so its top track stays pinned while vertical
-                    // scrolling moves the code content underneath it.
-                    SizedBox(
-                      width: viewportWidth,
-                      child: SingleChildScrollView(
-                        controller: horizontalScrollController,
-                        scrollDirection: Axis.horizontal,
+              child: Padding(
+                padding: const EdgeInsets.only(top: _codeScrollbarClearance),
+                child: SingleChildScrollView(
+                  controller: verticalScrollController,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ── Custom gutter ──────────────────────────────────────
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: _codeTopPad, left: 8),
                         child: SizedBox(
-                          width: scrollExtentWidth,
-                          child: Stack(
-                            children: [
-                              TextField(
-                                key: fieldKey,
-                                controller: controller,
-                                focusNode: focusNode,
-                                readOnly: true,
-                                maxLines: null,
-                                scrollPhysics:
-                                    const NeverScrollableScrollPhysics(),
-                                smartDashesType: SmartDashesType.disabled,
-                                smartQuotesType: SmartQuotesType.disabled,
-                                style: _codeTextStyle,
-                                decoration: const InputDecoration(
-                                  isCollapsed: true,
-                                  contentPadding:
-                                      EdgeInsets.symmetric(vertical: 16),
-                                  disabledBorder: InputBorder.none,
-                                  border: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                              ),
-                              if (highlightLine != null)
-                                Positioned(
-                                  top: _codeTopPad +
-                                      (highlightLine - 1) * _lineHeight,
-                                  left: 0,
-                                  right: 0,
-                                  height: _lineHeight,
-                                  child: IgnorePointer(
-                                    child: Container(
-                                      // semi-transparent amber
-                                      color: const Color(0x44FFC107),
-                                    ),
-                                  ),
-                                ),
-                            ],
+                          width: 40,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: List.generate(
+                                lineCount,
+                                (i) => SizedBox(
+                                      height: _lineHeight,
+                                      child: Text(
+                                        '${i + 1}',
+                                        style: _codeTextStyle.copyWith(
+                                            color: Colors.grey),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    )),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      // ── Code + highlight overlay ───────────────────────
+                      // Keep the viewport near 80 columns. The scroll child is
+                      // as wide as the longest line. Long generated
+                      // assignments remain reachable without adding visual
+                      // rows. The
+                      // horizontal Scrollbar wraps the vertical
+                      // viewport so its top track stays pinned, while the outer
+                      // clearance keeps vertically scrolling code below it.
+                      SizedBox(
+                        width: viewportWidth,
+                        child: SingleChildScrollView(
+                          controller: horizontalScrollController,
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: scrollExtentWidth,
+                            child: Stack(
+                              children: [
+                                TextField(
+                                  key: fieldKey,
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  readOnly: true,
+                                  maxLines: null,
+                                  scrollPhysics:
+                                      const NeverScrollableScrollPhysics(),
+                                  smartDashesType: SmartDashesType.disabled,
+                                  smartQuotesType: SmartQuotesType.disabled,
+                                  style: _codeTextStyle,
+                                  decoration: const InputDecoration(
+                                    isCollapsed: true,
+                                    contentPadding:
+                                        EdgeInsets.symmetric(vertical: 16),
+                                    disabledBorder: InputBorder.none,
+                                    border: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                  ),
+                                ),
+                                if (highlightLine != null)
+                                  Positioned(
+                                    top: _codeTopPad +
+                                        (highlightLine - 1) * _lineHeight,
+                                    left: 0,
+                                    right: 0,
+                                    height: _lineHeight,
+                                    child: IgnorePointer(
+                                      child: Container(
+                                        // semi-transparent amber
+                                        color: const Color(0x44FFC107),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
