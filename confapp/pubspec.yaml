@@ -20,7 +20,7 @@ dependencies:
   material_ui: ^1.1.1
   rohd: ^0.6.11
   rohd_devtools_widgets: ^0.1.1
-  rohd_hcl: ^0.2.1
+  rohd_hcl: ^0.3.0
   rohd_hierarchy: ^0.1.0
   rohd_schematic_viewer: 0.2.0
   rohd_source_navigator: ^0.1.0
