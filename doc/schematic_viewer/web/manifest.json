@@ -1,0 +1,11 @@
+{
+  "name": "ROHD-HCL Schematic Viewer",
+  "short_name": "ROHD Schematic",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0175C2",
+  "theme_color": "#0175C2",
+  "description": "ROHD-HCL netlist schematic viewer",
+  "orientation": "landscape-primary",
+  "prefer_related_applications": false
+}

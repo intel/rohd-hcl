@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi5_bfm_test.dart
@@ -350,9 +350,25 @@ class SimpleAxi5StreamSubordinateBfm extends Agent {
       if (r.last ?? true) {
         logger.info('Stream with ID ${r.id ?? 0} has completed - dropping.');
         for (var j = 0; j < _streams.length; j++) {
-          logger.info('Stream beat $j data: '
-              // ignore: lines_longer_than_80_chars
-              '${_strobeData(LogicValue.filled(sub.stream.dataWidth, LogicValue.zero), LogicValue.ofBigInt(_streams[j].data, sub.stream.dataWidth), LogicValue.ofInt(_streams[j].strb ?? LogicValue.filled(sub.stream.strbWidth, LogicValue.one).toInt(), sub.stream.strbWidth))}.');
+          final zeros = LogicValue.filled(
+            sub.stream.dataWidth,
+            LogicValue.zero,
+          );
+          final data = LogicValue.ofBigInt(
+            _streams[j].data,
+            sub.stream.dataWidth,
+          );
+          final strobe = LogicValue.ofInt(
+            _streams[j].strb ??
+                LogicValue.filled(
+                  sub.stream.strbWidth,
+                  LogicValue.one,
+                ).toInt(),
+            sub.stream.strbWidth,
+          );
+          logger.info(
+            'Stream beat $j data: ${_strobeData(zeros, data, strobe)}.',
+          );
         }
         _streams.clear();
       }
@@ -640,7 +656,7 @@ void main() {
     await Test.reset();
   });
 
-  setUp(() async {
+  setUp(() {
     // Set the logger level
     Logger.root.level = Level.WARNING;
   });

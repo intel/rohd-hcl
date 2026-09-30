@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // column_compressor_test.dart
@@ -90,7 +90,7 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  test('Column Compressor: single compressor evaluate', () async {
+  test('Column Compressor: single compressor evaluate', () {
     const widthX = 3;
     const widthY = 3;
     final a = Logic(name: 'a', width: widthX);

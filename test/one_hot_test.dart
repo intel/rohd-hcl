@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // one_hot_test.dart
@@ -64,7 +64,7 @@ void main() {
     ];
 
     for (final ohToBType in ohToBTypes) {
-      test('simple_decode ${ohToBType.name}', () async {
+      test('simple_decode ${ohToBType.name}', () {
         // Compute the first 1 in a binary value
         for (var pos = 0; pos < ohToBType.max; pos++) {
           final val = BigInt.two.pow(pos);

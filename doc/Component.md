@@ -56,7 +56,7 @@ common protocol such as the `ApbInterface`. See
 examples of key general interface types that you can inherit from are the
 `PairInterface` and the `DataPortInterface`.  the `Memory` module has a good
 example of how `DataPortInterface`s are cloned internally using its `connectIO`
-method.  
+method.
 The `Fifo` has a good example of using an `Interface` to wrap a `LogicStructure`.
 
 When wrapping `LogicStructure` with `Interface`, don't name the `LogicStructure`
@@ -130,7 +130,7 @@ void main() {
 
       await Simulator.endSimulation();
     });
-    
+
     test('MyComponent second test', () async {
       final clk = SimpleClockGenerator(10).clk;
 
@@ -162,3 +162,32 @@ While creating unit tests, you can just run the tests for your component instead
 of running the entire suite of ROHD-HCL tests.  The entire regression suite
 takes quite a long time and is only necessary if you make changes to some core
 functionality.
+
+## ROHD-HCL Component Integration
+
+After implementing a component, export it from the appropriate library barrel
+and `lib/rohd_hcl.dart`. Add focused tests under `test/`, including a
+nested-parent build test for every composable module.
+
+If the component should appear in the configuration application, create a
+`Configurator` under `lib/src/component_config/components/` and register it in
+`lib/src/component_config/components/component_registry.dart`. The registry
+drives both the configuration app and documentation netlist generation.
+
+Complete the Confapp source-asset, generated-view, and regression-test work
+described in [the Confapp README](../confapp/README.md). Application setup and
+dependency-source selection are documented in
+[confapp/DEVELOPER.md](../confapp/DEVELOPER.md).
+
+## Component Validation
+
+Run focused validation while iterating:
+
+```bash
+dart format lib test
+dart analyze --fatal-infos
+dart test test/path/to/component_test.dart
+```
+
+Before submitting a component change, run the applicable broader test suite and
+verify that the component builds when instantiated beneath a parent module.

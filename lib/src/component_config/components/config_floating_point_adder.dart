@@ -59,8 +59,16 @@ class FloatingPointAdderConfigurator extends Configurator {
   };
 
   /// Controls the type of [ParallelPrefix] tree used in the other functions.
-  final prefixTreeKnob =
-      ChoiceConfigKnob(treeGeneratorMap.keys.toList(), value: KoggeStone);
+  final prefixTreeKnob = ChoiceConfigKnob(
+    treeGeneratorMap.keys.toList(),
+    value: KoggeStone,
+    choiceLabels: const {
+      Ripple: 'Ripple',
+      Sklansky: 'Sklansky',
+      KoggeStone: 'KoggeStone',
+      BrentKung: 'BrentKung',
+    },
+  );
 
   /// Controls the width of the exponent.
   final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 4);

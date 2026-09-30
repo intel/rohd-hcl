@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2022-2024 Intel Corporation
+# Copyright (C) 2022-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # run_tests.sh
@@ -11,4 +11,7 @@
 
 set -euo pipefail
 
-dart test
+# Match the Dart SDK used by Flutter to resolve this workspace, while invoking
+# package:test directly for this package's pure-Dart tests.
+flutter_bin_dir="$(dirname "$(readlink -f "$(command -v flutter)")")"
+"$flutter_bin_dir/dart" run test:test

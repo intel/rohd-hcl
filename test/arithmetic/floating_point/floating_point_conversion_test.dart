@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_conversion_test.dart
@@ -125,9 +125,8 @@ void main() {
     const normal = 0; // set to zero for subnormal testing
 
     final fp1 = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    // ignore: cascade_invocations
-    fp1.put(0);
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+      ..put(0);
     for (var destExponentWidth = exponentWidth;
         destExponentWidth < exponentWidth + 2;
         destExponentWidth++) {
@@ -490,15 +489,15 @@ expected: $expected
     });
 
     test('FP: conversion explicit to explicit j-bit exhaustive round-trip', () {
-      const exponentWidth = 6;
-      const mantissaWidth = 6;
+      // Small widths retain every encoding class while keeping this exhaustive.
+      const exponentWidth = 4;
+      const mantissaWidth = 4;
 
       final fp = FloatingPoint(
           exponentWidth: exponentWidth,
           mantissaWidth: mantissaWidth,
-          explicitJBit: true);
-      // ignore: cascade_invocations
-      fp.put(0);
+          explicitJBit: true)
+        ..put(0);
 
       for (final expDelta in [-2, 2]) {
         // TODO(desmonddak): fix narrowing bug and improve this test

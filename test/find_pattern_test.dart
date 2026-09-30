@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // find_pattern_test.dart
@@ -15,25 +15,25 @@ import 'package:test/test.dart';
 
 void main() {
   group('From start, find first pattern with n as null', () {
-    test('at 0th position', () async {
+    test('at 0th position', () {
       final bus = Const(bin('10000001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final findPattern = FindPattern(bus, pattern);
       expect(findPattern.index.value.toInt(), equals(0));
     });
-    test('at random position', () async {
+    test('at random position', () {
       final bus = Const(bin('11011111'), width: 8);
       final pattern = Const(bin('101'), width: 3);
       final findPattern = FindPattern(bus, pattern);
       expect(findPattern.index.value.toInt(), equals(4));
     });
-    test('at last position', () async {
+    test('at last position', () {
       final bus = Const(bin('11101010'), width: 8);
       final pattern = Const(bin('11101'), width: 5);
       final findPattern = FindPattern(bus, pattern);
       expect(findPattern.index.value.toInt(), equals(3));
     });
-    test('when pattern not present', () async {
+    test('when pattern not present', () {
       final bus = Const(bin('00000000'), width: 8);
       final pattern = Const(bin('111'), width: 3);
       final findPattern = FindPattern(bus, pattern, generateError: true);
@@ -42,25 +42,25 @@ void main() {
   });
 
   group('From end, find first pattern with n as null', () {
-    test('at 0th position', () async {
+    test('at 0th position', () {
       final bus = Const(bin('11101010'), width: 8);
       final pattern = Const(bin('11101'), width: 5);
       final findPattern = FindPattern(bus, pattern, fromStart: false);
       expect(findPattern.index.value.toInt(), equals(0));
     });
-    test('at random position', () async {
+    test('at random position', () {
       final bus = Const(bin('11011111'), width: 8);
       final pattern = Const(bin('101'), width: 3);
       final findPattern = FindPattern(bus, pattern, fromStart: false);
       expect(findPattern.index.value.toInt(), equals(1));
     });
-    test('at last position', () async {
+    test('at last position', () {
       final bus = Const(bin('10000001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final findPattern = FindPattern(bus, pattern, fromStart: false);
       expect(findPattern.index.value.toInt(), equals(6));
     });
-    test('Pattern not present', () async {
+    test('Pattern not present', () {
       final bus = Const(bin('00000000'), width: 8);
       final pattern = Const(bin('111'), width: 3);
       final findPattern =
@@ -70,21 +70,21 @@ void main() {
   });
 
   group('From start, find nth pattern', () {
-    test('where n is 0', () async {
+    test('where n is 0', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final n = Const(0, width: log2Ceil(8) + 1);
       final findPattern = FindPattern(bus, pattern, n: n);
       expect(findPattern.index.value.toInt(), equals(0));
     });
-    test('where n is 2 (find the 3rd occurrence, n is zero-index)', () async {
+    test('where n is 2 (find the 3rd occurrence, n is zero-index)', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final n = Const(2, width: log2Ceil(8) + 1);
       final findPattern = FindPattern(bus, pattern, n: n);
       expect(findPattern.index.value.toInt(), equals(5));
     });
-    test('where n is outside bound', () async {
+    test('where n is outside bound', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final n = Const(5, width: log2Ceil(8) + 1);
@@ -94,21 +94,21 @@ void main() {
   });
 
   group('From end, find nth pattern', () {
-    test('where n is 0', () async {
+    test('where n is 0', () {
       final bus = Const(bin('01010110'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final n = Const(0, width: log2Ceil(8) + 1);
       final findPattern = FindPattern(bus, pattern, fromStart: false, n: n);
       expect(findPattern.index.value.toInt(), equals(0));
     });
-    test('where n is 2 (find the 3rd occurrence, n is zero-index)', () async {
+    test('where n is 2 (find the 3rd occurrence, n is zero-index)', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final n = Const(2, width: log2Ceil(8) + 1);
       final findPattern = FindPattern(bus, pattern, fromStart: false, n: n);
       expect(findPattern.index.value.toInt(), equals(6));
     });
-    test('where n is outside bound', () async {
+    test('where n is outside bound', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
       final n = Const(5, width: log2Ceil(8) + 1);
@@ -119,7 +119,7 @@ void main() {
   });
 
   group('Dynamic input', () {
-    test('where n is null, from start', () async {
+    test('where n is null, from start', () {
       final bus = Logic(width: 8);
       final pattern = Logic(width: 2);
       final findPattern = FindPattern(bus, pattern, generateError: true);
@@ -139,7 +139,7 @@ void main() {
       expect(findPattern.error!.value.toInt(), equals(1));
     });
 
-    test('where n is defined, from start', () async {
+    test('where n is defined, from start', () {
       final bus = Logic(width: 8);
       final pattern = Logic(width: 2);
       final n = Logic(width: log2Ceil(8) + 1);
@@ -163,7 +163,7 @@ void main() {
       expect(findPattern.error!.value.toInt(), equals(1));
     });
 
-    test('where n is null, from end', () async {
+    test('where n is null, from end', () {
       final bus = Logic(width: 8);
       final pattern = Logic(width: 2);
       final findPattern =
@@ -184,7 +184,7 @@ void main() {
       expect(findPattern.error!.value.toInt(), equals(1));
     });
 
-    test('where n is defined, from end', () async {
+    test('where n is defined, from end', () {
       final bus = Logic(width: 8);
       final pattern = Logic(width: 2);
       final n = Logic(width: log2Ceil(8) + 1);

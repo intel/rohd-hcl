@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi5_driver.dart
@@ -7,6 +7,7 @@
 // 2025 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
 
+// Driver methods schedule protocol actions rather than assign plain properties.
 // ignore_for_file: use_setters_to_change_properties
 
 import 'dart:async';
@@ -525,7 +526,7 @@ class Axi5RChannelDriver extends PendingClockedDriver<Axi5RChannelPacket> {
       if (_linkUtilizationEnabled) {
         _linkValidCount++;
       }
-      Simulator.injectAction(() async {
+      Simulator.injectAction(() {
         r.valid.put(1);
         r.data.put(packet.data[i].data);
         r.last?.put(packet.data[i].last ?? 1);

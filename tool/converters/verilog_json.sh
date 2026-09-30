@@ -1,28 +1,29 @@
 #!/bin/bash
 
-# Copyright (C) 2023-2025 Intel Corporation
+# Copyright (C) 2023-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
-# verilogToJSON.sh
-# Run yosys to convert Verilog to JSON
+# verilog_json.sh
+# Convert SystemVerilog to a Yosys JSON netlist.
 #
 # 2023 May 09
 # Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-# Executes synthesis given a module name
-# Assumes .v extension
-# Outputs <module>.json
+set -euo pipefail
 
-if !(test 1 -eq $#); then
-    echo One argument required: module
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <module.sv>" >&2
     exit 1
-fi;
+fi
 
-yosys_bin=/oss-cad-suite/bin/yosys
-module=`basename $1 .sv`
-$yosys_bin -Q -T -q <<EOF
-read_verilog -sv $module.sv
+input=$1
+module=$(basename "$input" .sv)
+output="${input%.sv}.json"
+yosys_bin=${YOSYS_BIN:-/oss-cad-suite/bin/yosys}
+
+"$yosys_bin" -Q -T -q <<EOF
+read_verilog -sv "$input"
 hierarchy -top $module
 proc; opt
-write_json -compat-int $module.json
+write_json -compat-int "$output"
 EOF

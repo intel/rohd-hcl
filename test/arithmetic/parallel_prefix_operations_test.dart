@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // parallel_prefix_operations.dart
@@ -109,7 +109,7 @@ void main() {
   });
 
   group('largest_pow2_less_than', () {
-    test('largest_pow2_less_than', () async {
+    test('largest_pow2_less_than', () {
       expect(largestPow2LessThan(5), equals(4));
       expect(largestPow2LessThan(4), equals(2));
       expect(largestPow2LessThan(3), equals(2));

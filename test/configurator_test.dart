@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // configurator_test.dart
@@ -31,11 +31,15 @@ void main() {
 
     cfg.knobs['e']!.value = 5;
     for (final k in (cfg.knobs['e']! as ListOfKnobsKnob).knobs) {
+      // Knob values are dynamic because configurators support mixed
+      // value types.
       // ignore: avoid_dynamic_calls
       k.value += 10;
     }
 
     (cfg.knobs['f']! as GroupOfKnobs).subKnobs.forEach((key, value) {
+      // Knob values are dynamic because configurators support mixed
+      // value types.
       // ignore: avoid_dynamic_calls
       value.value += 'x';
     });
@@ -66,6 +70,75 @@ void main() {
           isA<ChoiceConfigKnob<RotateDirection>>());
       expect(rotate.knobs.values.toList()[1], isA<IntConfigKnob>());
       expect(rotate.knobs.values.toList()[2], isA<IntConfigKnob>());
+    });
+
+    test('type-valued choice knobs provide stable display labels', () {
+      final oneHot = OneHotConfigurator();
+
+      expect(oneHot.directionKnob.labelFor(BinaryToOneHot), 'BinaryToOneHot');
+      expect(oneHot.directionKnob.labelFor(OneHotToBinary), 'OneHotToBinary');
+    });
+
+    test('type-valued choice knobs require stable labels', () {
+      expect(
+        () => ChoiceConfigKnob<Type>(
+          [BinaryToOneHot, OneHotToBinary],
+          value: OneHotToBinary,
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('choice knobs reject duplicate serialized labels', () {
+      expect(
+        () => ChoiceConfigKnob<Type>(
+          [BinaryToOneHot, OneHotToBinary],
+          value: OneHotToBinary,
+          choiceLabels: const {
+            BinaryToOneHot: 'converter',
+            OneHotToBinary: 'converter',
+          },
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('choice labels cannot collide with default serialized values', () {
+      expect(
+        () => ChoiceConfigKnob<Object>(
+          const [1, 'one'],
+          value: 1,
+          choiceLabels: const {1: 'one'},
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('choice labels are stored as an unmodifiable copy', () {
+      final labels = <int, String>{1: 'one', 2: 'two'};
+      final knob = ChoiceConfigKnob<int>(
+        const [1, 2],
+        value: 1,
+        choiceLabels: labels,
+      );
+
+      labels[1] = 'two';
+
+      expect(knob.toJson(), {'value': 'one'});
+      expect(
+        () => knob.choiceLabels[1] = 'two',
+        throwsUnsupportedError,
+      );
+    });
+
+    test('type-valued choice knobs use stable JSON values', () {
+      final oneHot = OneHotConfigurator()..directionKnob.value = BinaryToOneHot;
+
+      expect(oneHot.directionKnob.toJson(), {'value': 'BinaryToOneHot'});
+
+      final loaded = OneHotConfigurator()
+        ..directionKnob.loadJson({'value': 'BinaryToOneHot'});
+      expect(loaded.directionKnob.value, BinaryToOneHot);
     });
 
     test('should return RotateRight module when generate() with default value',
@@ -386,7 +459,7 @@ void main() {
     expect(sv, contains('swizzle'));
   });
 
-  test('sum configurator', () async {
+  test('sum configurator', () {
     final cfg = SumConfigurator();
     cfg.initialValueKnob.value = 6;
     cfg.widthKnob.value = 10;
@@ -396,11 +469,14 @@ void main() {
 
     final mod = cfg.createModule() as Sum;
 
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.initialValueLogic.value.toInt(), 6);
     expect(mod.width, 10);
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.minValueLogic.value.toInt(), 5);
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.maxValueLogic.value.toInt(), 25);
     expect(mod.saturates, true);

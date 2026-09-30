@@ -137,9 +137,9 @@ Some in-development items will have opened issues, as well. Feel free to create 
 
 ## Adding a New Component
 
-Please refer to [Component](./Component.md.md) for the best practices for creating new components.
+Please refer to [Component](./Component.md) for the best practices for creating new components.
 
 ----------------
 
-Copyright (C) 2023-2025 Intel Corporation  
+Copyright (C) 2023-2026 Intel Corporation
 SPDX-License-Identifier: BSD-3-Clause

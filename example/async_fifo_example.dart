@@ -7,6 +7,7 @@
 // 2026 January 13
 // Author: Maifee Ul Asad <maifeeulasad@gmail.com>
 
+// This executable example prints simulation results for interactive inspection.
 // ignore_for_file: avoid_print
 
 import 'dart:async';

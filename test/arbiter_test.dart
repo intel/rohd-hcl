@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arbiter_test.dart
@@ -16,7 +16,7 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-  test('priority arbiter', () async {
+  test('priority arbiter', () {
     const width = 8;
 
     final vector = Logic(width: width);

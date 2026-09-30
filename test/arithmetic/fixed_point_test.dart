@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_point_test.dart
@@ -10,7 +10,7 @@
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-void main() async {
+void main() {
   test('FX Comparison', () {
     final fx1 = FixedPoint(integerWidth: 10, fractionWidth: 10);
     final fx2 = FixedPoint(integerWidth: 10, fractionWidth: 10);
