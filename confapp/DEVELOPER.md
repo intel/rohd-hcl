@@ -104,7 +104,7 @@ is the integration gate:
 
 ```bash
 cd confapp
-flutter test test/hcl/view/output_pane_tabs_test.dart
+flutter test test/hcl/view/hcl_page_test.dart
 flutter build web --debug --no-pub
 ```
 

@@ -15,7 +15,7 @@ const moduleSourceAssets = <String, String>{
   'BinaryToOneHot': 'rohd_src/encodings/binary_to_one_hot.dart',
   'BinaryToGrayConverter': 'rohd_src/binary_gray.dart',
   'BitonicSort': 'rohd_src/sort.dart',
-  'CarrySaveMultiplier': 'rohd_src/arithmetic/multiplier.dart',
+  'CarrySaveMultiplier': 'rohd_src/arithmetic/carry_save_mutiplier.dart',
   'CarrySelectCompoundAdder': 'rohd_src/arithmetic/compound_adder.dart',
   'CaseOneHotToBinary': 'rohd_src/encodings/case_one_hot_to_binary.dart',
   'CompressionTreeMultiplier': 'rohd_src/arithmetic/multiplier.dart',

@@ -16,19 +16,15 @@ class YosysWorker {
 
   final String _scriptPath;
 
-  /// Reports that [message] cannot be sent from the VM.
-  void postMessage(Map<String, String> message) {
-    throw UnsupportedError(
-      'Yosys synthesis via $_scriptPath is only available on web.',
-    );
-  }
-
-  /// Reports that the browser worker is unavailable on the VM.
-  Future<String> nextMessage() => Future.error(
+  /// Reports that Yosys synthesis is unavailable on the VM.
+  Future<String> synthesize(Map<String, String> message) => Future.error(
         UnsupportedError(
           'Yosys synthesis via $_scriptPath is only available on web.',
         ),
       );
+
+  /// Releases worker resources.
+  void dispose() {}
 }
 
 /// Reports that downloading [content] to [fileName] requires a browser.

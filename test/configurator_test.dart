@@ -89,6 +89,31 @@ void main() {
       );
     });
 
+    test('choice knobs reject duplicate serialized labels', () {
+      expect(
+        () => ChoiceConfigKnob<Type>(
+          [BinaryToOneHot, OneHotToBinary],
+          value: OneHotToBinary,
+          choiceLabels: const {
+            BinaryToOneHot: 'converter',
+            OneHotToBinary: 'converter',
+          },
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('choice labels cannot collide with default serialized values', () {
+      expect(
+        () => ChoiceConfigKnob<Object>(
+          const [1, 'one'],
+          value: 1,
+          choiceLabels: const {1: 'one'},
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
     test('type-valued choice knobs use stable JSON values', () {
       final oneHot = OneHotConfigurator()..directionKnob.value = BinaryToOneHot;
 

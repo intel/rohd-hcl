@@ -27,7 +27,7 @@ class HCLPage extends StatelessWidget {
   Widget build(BuildContext context) => MultiBlocProvider(
         providers: [
           BlocProvider(
-            // Look pretty ungly using static, not sure how to improve this
+            // Look pretty ugly using static, not sure how to improve this
             create: (context) => ComponentCubit(components),
           ),
           BlocProvider(

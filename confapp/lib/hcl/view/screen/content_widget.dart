@@ -2873,18 +2873,50 @@ class _SVGeneratorState extends State<SVGenerator>
     setState(() {
       _synthSchematicLoading = true;
     });
-    yosysWorker.postMessage({'module': moduleName, 'verilog': rtlRes});
     unawaited(
-      yosysWorker.nextMessage().then((message) {
-        if (!mounted || requestId != _synthSchematicRequestId) {
-          return;
-        }
-        setState(() {
-          _synthSchematicLoading = false;
-          _yosysJson = message;
-        });
-      }),
+      _runYosysSynthesis(
+        requestId: requestId,
+        moduleName: moduleName,
+        rtl: rtlRes,
+      ),
     );
+  }
+
+  Future<void> _runYosysSynthesis({
+    required int requestId,
+    required String moduleName,
+    required String rtl,
+  }) async {
+    try {
+      final message = await yosysWorker.synthesize({
+        'module': moduleName,
+        'verilog': rtl,
+      });
+      if (!mounted || requestId != _synthSchematicRequestId) {
+        return;
+      }
+      setState(() {
+        _synthSchematicLoading = false;
+        _yosysJson = message;
+      });
+    } on Object catch (error, stackTrace) {
+      if (!mounted || requestId != _synthSchematicRequestId) {
+        return;
+      }
+      setState(() {
+        _synthSchematicLoading = false;
+      });
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stackTrace,
+          library: 'confapp',
+          context: ErrorDescription(
+            'while synthesizing a schematic with Yosys',
+          ),
+        ),
+      );
+    }
   }
 
   /// Capture FLC trace JSON while `SourceTraceRegistry` data is still live.
@@ -3304,6 +3336,7 @@ class _SVGeneratorState extends State<SVGenerator>
     _editorCrossProbeService.dispose();
     _crossProbeChannel.dispose();
     _sourceFormatClient.dispose();
+    yosysWorker.dispose();
     super.dispose();
   }
 

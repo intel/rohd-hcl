@@ -30,6 +30,16 @@ void main() {
     }
   });
 
+  test('carry-save multiplier uses its implementation source asset', () {
+    final module = CarrySaveMultiplierConfigurator().createModule();
+
+    expect(module, isA<CarrySaveMultiplier>());
+    expect(
+      moduleSourceAsset(module),
+      'rohd_src/arithmetic/carry_save_mutiplier.dart',
+    );
+  });
+
   test('nondefault module implementations have indexed source assets', () {
     final variants = <({String name, Module module, String asset})>[
       (

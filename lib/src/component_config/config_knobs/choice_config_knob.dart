@@ -47,7 +47,10 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
   /// ```
   ///
   /// Matching labels to the previous unminified `Type.toString()` values
-  /// preserves compatibility with existing saved configurations.
+  /// preserves compatibility with existing saved configurations. Every choice
+  /// must resolve to a unique serialized value; duplicate labels and labels
+  /// that collide with an unlabeled choice's string representation are
+  /// rejected.
   ChoiceConfigKnob(
     this.choices, {
     required super.value,
@@ -64,6 +67,11 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
         .any((choice) => !choiceLabels.containsKey(choice))) {
       throw RohdHclException(
           'Type choices require stable labels for minified builds.');
+    }
+    final serializedValues = choices.map(_serializedValue).toList();
+    if (serializedValues.toSet().length != serializedValues.length) {
+      throw RohdHclException(
+          'Choices must have unique serialized values and labels.');
     }
   }
 

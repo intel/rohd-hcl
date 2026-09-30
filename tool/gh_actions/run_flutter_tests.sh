@@ -17,5 +17,8 @@ bash "$repo_root/tool/generate_confapp_assets.sh"
 
 cd "$repo_root/confapp"
 
-# The later web build validates the browser side of conditional imports.
 flutter test
+flutter_bin_dir="$(dirname "$(readlink -f "$(command -v flutter)")")"
+"$flutter_bin_dir/dart" run test:test \
+  --platform chrome \
+  test/hcl/view/screen/browser_interop_web_test.dart
