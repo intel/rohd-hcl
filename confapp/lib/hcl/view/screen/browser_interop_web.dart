@@ -35,7 +35,7 @@ class YosysWorker {
 
 /// Downloads [content] through a browser anchor using [fileName].
 void downloadFile({required String content, required String fileName}) {
-  final bytes = base64Encode(content.codeUnits);
+  final bytes = base64Encode(utf8.encode(content));
   final uri = 'data:application/octet-stream;base64,$bytes';
   web.HTMLAnchorElement()
     ..href = uri
