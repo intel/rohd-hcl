@@ -255,7 +255,7 @@ void main() {
   ''');
   });
 
-  test('dotproduct trival case', () {
+  test('dotproduct trivial case', () {
     const width = 4;
     final multiplicands = [Logic(width: width), Logic(width: width)];
     final multipliers = [Logic(width: width), Logic(width: width)];

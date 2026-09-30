@@ -10,10 +10,21 @@
 import 'dart:async' show unawaited;
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:material_ui/material_ui.dart';
 import 'package:rohd_schematic_viewer/schematic_viewer.dart';
-import 'package:web/web.dart' as web;
+import 'package:schematic_viewer/browser_location.dart';
+
+/// Loads schematic JSON from [uri].
+typedef SchematicJsonLoader = Future<String> Function(Uri uri);
+
+/// Builds the rendered schematic after its JSON has been loaded and validated.
+typedef SchematicContentBuilder = Widget Function(
+  BuildContext context,
+  String schematicJson,
+  SchematicThemeMode themeMode,
+);
 
 /// Runs the standalone schematic viewer application.
 void main() {
@@ -38,10 +49,44 @@ class SchematicViewerApp extends StatelessWidget {
 /// Loads and displays the schematic selected by the `json` query parameter.
 class SchematicPage extends StatefulWidget {
   /// Creates a page for the selected schematic.
-  const SchematicPage({super.key});
+  const SchematicPage({
+    this.location,
+    this.loadJson,
+    this.schematicBuilder,
+    super.key,
+  });
+
+  /// Page location containing the `json` query parameter.
+  ///
+  /// Defaults to the current browser location.
+  final Uri? location;
+
+  /// Loads the selected schematic JSON.
+  ///
+  /// Defaults to an HTTP read.
+  final SchematicJsonLoader? loadJson;
+
+  /// Builds the schematic content after a successful load.
+  ///
+  /// Defaults to [EmbeddedSchematicViewer].
+  final SchematicContentBuilder? schematicBuilder;
 
   @override
   State<SchematicPage> createState() => _SchematicPageState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty<Uri>('location', location))
+      ..add(ObjectFlagProperty<SchematicJsonLoader>.has('loadJson', loadJson))
+      ..add(
+        ObjectFlagProperty<SchematicContentBuilder>.has(
+          'schematicBuilder',
+          schematicBuilder,
+        ),
+      );
+  }
 }
 
 class _SchematicPageState extends State<SchematicPage> {
@@ -56,8 +101,8 @@ class _SchematicPageState extends State<SchematicPage> {
   }
 
   Future<void> _loadSchematic() async {
-    final jsonPath =
-        Uri.parse(web.window.location.href).queryParameters['json'];
+    final location = widget.location ?? currentBrowserLocation();
+    final jsonPath = location.queryParameters['json'];
     if (jsonPath == null || jsonPath.isEmpty) {
       setState(() {
         _error = 'No schematic specified. '
@@ -72,8 +117,14 @@ class _SchematicPageState extends State<SchematicPage> {
     });
 
     try {
-      final response = await http.read(Uri.base.resolve(jsonPath));
-      jsonDecode(response);
+      final loader = widget.loadJson ?? http.read;
+      final response = await loader(location.resolve(jsonPath));
+      final decoded = jsonDecode(response);
+      if (decoded is! Map) {
+        throw const FormatException(
+          'Schematic JSON must contain an object.',
+        );
+      }
       if (!mounted) {
         return;
       }
@@ -99,10 +150,19 @@ class _SchematicPageState extends State<SchematicPage> {
         (final error?, _) => Center(
             child: Text(error, style: const TextStyle(fontSize: 16)),
           ),
-        (_, final jsonData?) => EmbeddedSchematicViewer(
-            schematicJson: jsonData,
-            initialThemeMode:
-                isDark ? SchematicThemeMode.dark : SchematicThemeMode.light,
+        (_, final jsonData?) => (widget.schematicBuilder ??
+              (
+                context,
+                schematicJson,
+                themeMode,
+              ) =>
+                  EmbeddedSchematicViewer(
+                    schematicJson: schematicJson,
+                    initialThemeMode: themeMode,
+                  ))(
+            context,
+            jsonData,
+            isDark ? SchematicThemeMode.dark : SchematicThemeMode.light,
           ),
         _ => const Center(child: CircularProgressIndicator()),
       },
