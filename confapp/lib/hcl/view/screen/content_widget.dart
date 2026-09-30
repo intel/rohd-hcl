@@ -23,8 +23,20 @@ import 'package:highlight/languages/verilog.dart' as highlight_verilog;
 import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:material_ui/material_ui.dart';
 import 'package:rohd/rohd.dart' show Module, NetlistSynthesizer, SynthBuilder;
+import 'package:rohd_devtools_widgets/rohd_devtools_widgets.dart'
+    show
+        LocalCrossProbeChannel,
+        LocalCrossProbeService,
+        RohdExtensionClient,
+        RohdFormatInfo,
+        RohdModuleInfo,
+        RohdSourceFormat;
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hierarchy/rohd_hierarchy.dart'
+    show HierarchyOccurrence, HierarchyService, NetlistHierarchyAdapter;
 import 'package:rohd_schematic_viewer/schematic_viewer.dart';
+import 'package:rohd_source_navigator/flc_data.dart'
+    show FlcData, FlcEntry, FlcFrame;
 
 const _rohdIconAsset = 'assets/rohd_icon.png';
 const _systemVerilogIconAsset = 'assets/systemverilog_icon.png';
@@ -1250,133 +1262,32 @@ class _SVGeneratorState extends State<SVGenerator>
     return _lastEmbeddedFlcData;
   }
 
-  /// Return source format identifiers available for [module].
-  ///
-  /// Mirrors the local FlcService used by ROHD DevTools: scan both signals
-  /// and block/instance entries for ROHD stack frames and output-language
-  /// frames (`sv`, `sc`, etc.), then fall back to the instance name when the
-  /// schematic queried by definition name but FLC data is keyed by instance.
+  EmbeddedFlcSourceNavigation get _flcSourceNavigation =>
+      EmbeddedFlcSourceNavigation(
+        _currentFlcData(),
+        primaryModule: _flcModuleName ?? _lastModuleName,
+      );
+
+  bool get _canReceiveSourceCrossProbe =>
+      EmbeddedFlcSourceNavigation(_flcData).isAvailable;
+
   Future<Set<String>> _getModuleFormats(
     String module, {
     List<String>? instancePath,
-  }) async {
-    var formats = _formatsForModule(module);
-    if (formats.isNotEmpty) {
-      return formats;
-    }
-
-    if (instancePath != null) {
-      final instanceName = instancePath.lastWhere(
-        (segment) => segment.isNotEmpty,
-        orElse: () => '',
+  }) async =>
+      _flcSourceNavigation.formatsForModule(
+        module,
+        instancePath: instancePath,
       );
-      if (instanceName.isNotEmpty && instanceName != module) {
-        formats = _formatsForModule(instanceName);
-        if (formats.isNotEmpty) {
-          return formats;
-        }
-      }
-    }
-
-    final primaryModule = _flcModuleName ?? _lastModuleName;
-    if (primaryModule != null && primaryModule != module) {
-      return _formatsForModule(primaryModule);
-    }
-
-    return const {};
-  }
-
-  Set<String> _formatsForModule(String moduleName) {
-    final flcData = _currentFlcData();
-    if (flcData == null) {
-      return const {};
-    }
-
-    final formats = <String>{};
-    void addEntryFormats(FlcEntry? entry) {
-      if (entry == null) {
-        return;
-      }
-      if (entry.frames.isNotEmpty) {
-        formats.add('rohd');
-      }
-      for (final outputFrame in entry.outputFrames) {
-        if (outputFrame.type.isNotEmpty) {
-          formats.add(outputFrame.type);
-        }
-      }
-    }
-
-    for (final signal in flcData.signalNamesFor(moduleName)) {
-      addEntryFormats(flcData.lookupSignalEntry(moduleName, signal));
-      if (formats.containsAll(['rohd', 'sv', 'sc'])) {
-        return formats;
-      }
-    }
-    for (final instance in flcData.instanceNamesFor(moduleName)) {
-      addEntryFormats(flcData.lookupInstanceEntry(moduleName, instance));
-      if (formats.containsAll(['rohd', 'sv', 'sc'])) {
-        return formats;
-      }
-    }
-    return formats;
-  }
 
   Future<List<Map<String, dynamic>>> _lookupSignalFrames({
     required List<Map<String, String>> signals,
     String? format,
-  }) async {
-    final frames = <Map<String, dynamic>>[];
-    final flcData = _currentFlcData();
-    if (flcData == null) {
-      return frames;
-    }
-
-    for (final signal in signals) {
-      final module = signal['module'] ?? _flcModuleName ?? _lastModuleName;
-      final name = signal['name'];
-      if (module == null || name == null) {
-        continue;
-      }
-      final entry = flcData.lookupSignalEntry(module, name) ??
-          flcData.lookupInstanceEntry(module, name);
-      if (entry == null) {
-        continue;
-      }
-      frames.addAll(_entryToSourceFrameMaps(entry, signalName: name));
-    }
-
-    if (format == null) {
-      return frames;
-    }
-    return frames.where((frame) => frame['type'] == format).toList();
-  }
-
-  List<Map<String, dynamic>> _entryToSourceFrameMaps(
-    FlcEntry entry, {
-    String? signalName,
-  }) {
-    final frames = <Map<String, dynamic>>[];
-    for (final frame in entry.frames.reversed) {
-      frames.add(_frameToSourceMap(frame, signalName: signalName));
-    }
-    for (final frame in entry.outputFrames) {
-      frames.add(_frameToSourceMap(frame, signalName: signalName));
-    }
-    return frames;
-  }
-
-  Map<String, dynamic> _frameToSourceMap(
-    FlcFrame frame, {
-    String? signalName,
-  }) =>
-      {
-        'file': frame.file,
-        'line': frame.line,
-        'col': frame.column,
-        'desc': signalName,
-        'type': frame.type,
-      };
+  }) async =>
+      _flcSourceNavigation.lookupSignalFrames(
+        signals: signals,
+        format: format,
+      );
 
   /// Ensure embedded FLC data is available for source navigation.
   ///
@@ -2492,15 +2403,21 @@ class _SVGeneratorState extends State<SVGenerator>
                             onPointerDown: (event) {
                               _lastPointerPosition = event.position;
                             },
-                            child: EmbeddedSchematicViewer(
-                              key: ValueKey(('synth', _expansionMode)),
-                              schematicJson: _yosysJson,
-                              initialThemeMode: isDark
+                            child: EmbeddedSchematicViewer.fromJson(
+                              key: ValueKey(
+                                (
+                                  'synth-schematic',
+                                  _canReceiveSourceCrossProbe,
+                                ),
+                              ),
+                              schematicJson: _yosysJson!,
+                              themeMode: isDark
                                   ? SchematicThemeMode.dark
                                   : SchematicThemeMode.light,
-                              initialExpansionMode: _expansionMode,
-                              crossProbeService:
-                                  _synthSchematicCrossProbeService,
+                              expansionMode: _expansionMode,
+                              crossProbeService: _canReceiveSourceCrossProbe
+                                  ? _synthSchematicCrossProbeService
+                                  : null,
                               onGoToSourceCallback: _onGoToSourceFormat,
                               extensionClient: _sourceFormatClient,
                             ),
@@ -2601,15 +2518,21 @@ class _SVGeneratorState extends State<SVGenerator>
                             onPointerDown: (event) {
                               _lastPointerPosition = event.position;
                             },
-                            child: EmbeddedSchematicViewer(
-                              key: ValueKey(('rohd', _expansionMode)),
-                              schematicJson: _rohdNetlistJson,
-                              initialThemeMode: isDark
+                            child: EmbeddedSchematicViewer.fromJson(
+                              key: ValueKey(
+                                (
+                                  'rohd-schematic',
+                                  _canReceiveSourceCrossProbe,
+                                ),
+                              ),
+                              schematicJson: _rohdNetlistJson!,
+                              themeMode: isDark
                                   ? SchematicThemeMode.dark
                                   : SchematicThemeMode.light,
-                              initialExpansionMode: _expansionMode,
-                              crossProbeService:
-                                  _rohdSchematicCrossProbeService,
+                              expansionMode: _expansionMode,
+                              crossProbeService: _canReceiveSourceCrossProbe
+                                  ? _rohdSchematicCrossProbeService
+                                  : null,
                               onGoToSourceCallback: _onGoToSourceFormat,
                               extensionClient: _sourceFormatClient,
                             ),

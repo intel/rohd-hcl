@@ -581,7 +581,8 @@ void main() {
 
   test('FP: adder simple wide mantissa random', () async {
     const exponentWidth = 2;
-    const mantissaWidth = 8;
+    const mantissaWidth = 20;
+    const randomSamples = 20;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
@@ -598,7 +599,7 @@ void main() {
 
     final rand = Random(513);
 
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < randomSamples; i++) {
       final fv1 = fpvPopulator().random(rand);
       final fv2 = fpvPopulator().random(rand);
 
@@ -1027,8 +1028,9 @@ void main() {
   });
 
   test('FP: simple j-bit adder wide mantissa random', () {
-    const exponentWidth = 5;
-    const mantissaWidth = 7;
+    const exponentWidth = 8;
+    const mantissaWidth = 25;
+    const randomSamples = 20;
     FloatingPoint fpConstructor({bool explicitJBit = false}) => FloatingPoint(
         exponentWidth: exponentWidth,
         mantissaWidth: mantissaWidth,
@@ -1046,7 +1048,7 @@ void main() {
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
     final rand = Random(513);
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < randomSamples; i++) {
       final fv1 = fp1.valuePopulator().random(rand);
       final fv2 = fp2.valuePopulator().random(rand);
       if (fv1.isLegalValue() & fv2.isLegalValue()) {

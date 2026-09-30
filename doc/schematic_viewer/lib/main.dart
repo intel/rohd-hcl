@@ -156,9 +156,9 @@ class _SchematicPageState extends State<SchematicPage> {
                 schematicJson,
                 themeMode,
               ) =>
-                  EmbeddedSchematicViewer(
+                  EmbeddedSchematicViewer.fromJson(
                     schematicJson: schematicJson,
-                    initialThemeMode: themeMode,
+                    themeMode: themeMode,
                   ))(
             context,
             jsonData,
