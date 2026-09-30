@@ -16,6 +16,9 @@ tmp*
 *.vcd
 .vscode/*
 confapp/.vscode/*
+/pubspec_overrides.yaml
+/pubspec_overrides.yaml.disabled*
+/.confapp_dependency_sources
 *tracker.json
 *tracker.log
 devtools_options.yaml

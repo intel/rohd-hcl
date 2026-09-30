@@ -70,6 +70,7 @@ The below button will allow you to create a GitHub Codespace with ROHD-HCL alrea
 To run the component Configurator, especially useful for visualizing the RTL output of your component using different parameters:
 
 ```shell
+bash tool/generate_confapp_assets.sh
 cd confapp
 flutter run --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
 ```
@@ -98,6 +99,7 @@ assumptions, dependency-source selection, and generated override workflow.
 To validate both workspace packages:
 
 ```shell
+bash tool/generate_confapp_assets.sh
 dart analyze --fatal-infos
 dart test
 (cd confapp && flutter analyze --fatal-infos)

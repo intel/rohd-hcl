@@ -114,6 +114,23 @@ void main() {
       );
     });
 
+    test('choice labels are stored as an unmodifiable copy', () {
+      final labels = <int, String>{1: 'one', 2: 'two'};
+      final knob = ChoiceConfigKnob<int>(
+        const [1, 2],
+        value: 1,
+        choiceLabels: labels,
+      );
+
+      labels[1] = 'two';
+
+      expect(knob.toJson(), {'value': 'one'});
+      expect(
+        () => knob.choiceLabels[1] = 'two',
+        throwsUnsupportedError,
+      );
+    });
+
     test('type-valued choice knobs use stable JSON values', () {
       final oneHot = OneHotConfigurator()..directionKnob.value = BinaryToOneHot;
 

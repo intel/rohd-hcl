@@ -26,6 +26,9 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
   ///
   /// When migrating existing [Type] choices, use labels matching their
   /// previous unminified names to preserve compatibility with saved JSON.
+  ///
+  /// The provided map is copied and exposed as unmodifiable so these
+  /// serialized values cannot change after construction.
   final Map<T, String> choiceLabels;
 
   /// Creates a new knob to with the specified default [value] of the available
@@ -54,17 +57,17 @@ class ChoiceConfigKnob<T> extends ConfigKnob<T> {
   ChoiceConfigKnob(
     this.choices, {
     required super.value,
-    this.choiceLabels = const {},
-  }) {
+    Map<T, String> choiceLabels = const {},
+  }) : choiceLabels = Map<T, String>.unmodifiable(choiceLabels) {
     if (!choices.contains(value)) {
       throw RohdHclException('Default value should be one of the choices.');
     }
-    if (!choiceLabels.keys.every(choices.contains)) {
+    if (!this.choiceLabels.keys.every(choices.contains)) {
       throw RohdHclException('Choice labels should correspond to choices.');
     }
     if (choices
         .whereType<Type>()
-        .any((choice) => !choiceLabels.containsKey(choice))) {
+        .any((choice) => !this.choiceLabels.containsKey(choice))) {
       throw RohdHclException(
           'Type choices require stable labels for minified builds.');
     }

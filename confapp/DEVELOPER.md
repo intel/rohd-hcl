@@ -77,6 +77,7 @@ local paths so configuring one dependency group does not reset another.
 ## Running Confapp
 
 ```bash
+bash tool/generate_confapp_assets.sh
 flutter pub get
 cd confapp
 flutter run --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
@@ -108,8 +109,9 @@ flutter test test/hcl/view/hcl_page_test.dart
 flutter build web --debug --no-pub
 ```
 
-The app imports `dart:html`, so JavaScript is the supported web target even if
-Flutter reports a Wasm dry-run incompatibility.
+Confapp's browser implementation uses `dart:js_interop` and `package:web`.
+JavaScript remains the supported target; the separately documented Wasm
+launcher is experimental.
 
 ## Validation
 
