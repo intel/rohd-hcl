@@ -77,32 +77,6 @@ class ClockGateControlInterface extends PairInterface {
           ...?additionalPorts,
         ]);
 
-  /// Creates a clone of [otherInterface] with the same configuration,
-  /// including
-  /// any `additionalPorts` and `gatedClockGenerator` function. This should be
-  /// used to replicate interface configuration through hierarchies to carry
-  /// configuration information.
-  ///
-  /// If [isPresent] is provided, then it will override the [isPresent] value
-  /// from [otherInterface].
-  ///
-  /// If a [gatedClockGenerator] is provided, then it will override the
-  /// [gatedClockGenerator] function from [otherInterface].
-  @Deprecated('Use Instance-based `clone()` instead.')
-  ClockGateControlInterface.clone(
-    ClockGateControlInterface super.otherInterface, {
-    bool? isPresent,
-    Logic Function(
-      ClockGateControlInterface intf,
-      Logic clk,
-      Logic enable,
-    )? gatedClockGenerator,
-  })  : hasEnableOverride = otherInterface.hasEnableOverride,
-        isPresent = isPresent ?? otherInterface.isPresent,
-        gatedClockGenerator =
-            gatedClockGenerator ?? otherInterface.gatedClockGenerator,
-        super.clone();
-
   /// Creates a clone of with the same configuration, including any
   /// `additionalPorts` and `gatedClockGenerator` function. This should be used
   /// to replicate interface configuration through hierarchies to carry

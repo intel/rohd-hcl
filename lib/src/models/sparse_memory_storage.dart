@@ -247,23 +247,6 @@ abstract class MemoryStorage {
     return memString.toString();
   }
 
-  /// Reads a verilog-compliant hex file and preloads memory with it.
-  ///
-  /// Example input format:
-  /// ```text
-  /// @80000000
-  /// B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
-  /// 6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
-  /// 23 20 53 00 6F 00 00 00
-  /// @80000040
-  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  /// ```
-  @Deprecated('Use `loadMemString` instead.')
-  void loadMemHex(String hexMemContents) {
-    loadMemString(hexMemContents);
-  }
-
   /// Resets all memory to initial state.
   void reset();
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi.dart
@@ -35,12 +35,6 @@ class SpiInterface extends PairInterface {
           Logic.port('CSB'),
           Logic.port('SCLK')
         ]);
-
-  /// Clones this [SpiInterface].
-  @Deprecated('Use Instance-based `clone()` instead.')
-  SpiInterface.clone(SpiInterface super.otherInterface)
-      : dataLength = otherInterface.dataLength,
-        super.clone();
 
   @override
   SpiInterface clone() => SpiInterface(dataLength: dataLength);

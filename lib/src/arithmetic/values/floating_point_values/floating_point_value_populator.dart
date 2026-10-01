@@ -599,16 +599,6 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// represent:a general [FloatingPointValue] has a mantissa in `[0,2)` with `0
   /// <= exponent <= maxExponent()`.
   ///
-  /// If [normal] is `true`, this method will only generate mantissas in the
-  /// range of `[1,2)` and `minExponent() <= exponent <= maxExponent()`,
-  /// otherwise if [subNormal] is `true`, it will only generate mantissas in the
-  /// range of `[0,1)` and `exponent == 0`. If both are `false`, it will
-  /// generate mantissas in the range of `[0,2)` and `minExponent() <= exponent
-  /// <= maxExponent()`.
-  ///
-  /// The [normal] and [subNormal] parameters are deprecated, please use
-  /// [genNormal] and [genSubNormal] instead.
-  ///
   /// If [genNormal] is `true`, this method will generate normal numbers, and if
   /// [genSubNormal] is `true`, it will generate subnormal numbers. If both
   /// are `false`, an exception will be thrown. Note that the range of numbers
@@ -634,12 +624,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// - [lte]: generate a value in the range `(-∞, [lte]]`
   /// - none: generate a value in the range `(-∞, ∞)`
   FpvType random(Random rv,
-      {@Deprecated('use genNormal/genSubNormal instead')
-      bool normal = false, // if true, generate only normal numbers
-      @Deprecated('use genNormal/genSubNormal instead')
-      bool subNormal = false, // if true generate only subnormal numbers
-      // These are the new parameters to replace normal/subNormal.
-      bool genNormal = true,
+      {bool genNormal = true,
       bool genSubNormal = true,
       bool excludeInfinity = false,
       FpvType? gt,
@@ -648,29 +633,6 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       FpvType? lte}) {
     FpvType cloneConstant(FloatingPointConstants c) =>
         _unpopulated.clonePopulator().ofConstant(c) as FpvType;
-    // DEPRECATION: these checks are for the deprecated parameters.
-    if (normal & subNormal) {
-      throw RohdHclException(
-          'FloatingPointValuePopulator.random: cannot have both normal and '
-          'subNormal be true');
-    }
-    if (normal & !genNormal) {
-      throw RohdHclException(
-          'FloatingPointValuePopulator.random: cannot have both normal and '
-          'genNormal be false -- normal will be deprecated, use genNormal');
-    }
-    if (subNormal & !genSubNormal) {
-      throw RohdHclException(
-          'FloatingPointValuePopulator.random: cannot have both subNormal and '
-          'genSubNormal be false -- subNormal will be deprecated, use '
-          'genSubNormal');
-    }
-    if (subNormal & subNormalAsZero) {
-      throw RohdHclException(
-          'FloatingPointValuePopulator.random: cannot have both subNormal and '
-          'subNormalAsZero be true');
-    }
-    // End DEPRECATION region.
     _checkMatching('gt', gt);
     _checkMatching('lt', lt);
     _checkMatching('gte', gte);
@@ -706,20 +668,8 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       }
     }
 
-    // Manage the old parameters-- this will not be necessary after deprecation.
-    final bool doGenNormal;
-    final bool doGenSubNormal;
-    if (normal) {
-      doGenNormal = true;
-      doGenSubNormal = false;
-    } else if (subNormal) {
-      doGenNormal = false;
-      doGenSubNormal = true;
-    } else {
-      doGenNormal = genNormal;
-      doGenSubNormal = genSubNormal;
-    }
-    // End Manage the old parameters.
+    final doGenNormal = genNormal;
+    final doGenSubNormal = genSubNormal;
     if (!doGenNormal & !doGenSubNormal) {
       throw RohdHclException(
           'FloatingPointValuePopulator.random: cannot have both genNormal and '
