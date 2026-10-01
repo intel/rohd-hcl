@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb"><span class="deprecated">operator <=</span> method</li>
+    <li class="self-crumb">operator <= method</li>
   </ol>
   <div class="self-name">operator &lt;=</div>
   <form class="search navbar-right" role="search">
@@ -54,13 +54,8 @@
 
     <section class="multi-line-signature">
       
-  <div>
-    <ol class="annotation-list">
-        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;This operator will be replaced with a boolean return in the future. &#39; &#39;Use .lteBool(other) for the time being.&#39;)</li>
-    </ol>
-  </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span>
-<span class="name deprecated">operator &lt;=</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="<=-param-other"><span class="type-annotation"><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">other</span></span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+<span class="name ">operator &lt;=</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="<=-param-other"><span class="type-annotation"><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
       
@@ -68,18 +63,14 @@
     </section>
     
 <section class="desc markdown">
-  <p>Less-than operation that returns a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>.</p>
+  <p>Less-than-or-equal operation.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">@Deprecated(
-    &#39;This operator will be replaced with a boolean return in the future. &#39;
-    &#39;Use .lteBool(other) for the time being.&#39;)
-LogicValue operator &lt;=(FixedPointValue other) =&gt;
-    compareTo(other) &lt;= 0 ? LogicValue.one : LogicValue.zero;</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool operator &lt;=(FixedPointValue other) =&gt; compareTo(other) &lt;= 0;</code></pre>
 </section>
 
 
@@ -95,7 +86,7 @@ LogicValue operator &lt;=(FixedPointValue other) =&gt;
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb"><span class="deprecated">operator <=</span> method</li>
+    <li class="self-crumb">operator <= method</li>
 </ol>
 
     <h5>FixedPointValue class</h5>
@@ -107,7 +98,7 @@ LogicValue operator &lt;=(FixedPointValue other) =&gt;
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.2.1
+      0.3.0
   </span>
   
 </footer>

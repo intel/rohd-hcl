@@ -56,8 +56,6 @@
       
 <span class="returntype">FpvType</span>
 <span class="name ">random</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span></li>
-<li><span class="parameter" id="random-param-normal"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;use genNormal&#47;genSubNormal instead&#39;)</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normal</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="random-param-subNormal"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;use genNormal&#47;genSubNormal instead&#39;)</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormal</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="random-param-genNormal"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genNormal</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="random-param-genSubNormal"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genSubNormal</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="random-param-excludeInfinity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">excludeInfinity</span> = <span class="default-value">false</span>, </span></li>
@@ -77,13 +75,6 @@ range, if provided. The distribution of values is uniform across the
 combined bitfield of exponent and mantissa.</p>
 <p>This generates a valid <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> anywhere in the range it can
 represent:a general <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> has a mantissa in <code>[0,2)</code> with <code>0 &lt;= exponent &lt;= maxExponent()</code>.</p>
-<p>If <code>normal</code> is <code>true</code>, this method will only generate mantissas in the
-range of <code>[1,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExponent()</code>,
-otherwise if <code>subNormal</code> is <code>true</code>, it will only generate mantissas in the
-range of <code>[0,1)</code> and <code>exponent == 0</code>. If both are <code>false</code>, it will
-generate mantissas in the range of <code>[0,2)</code> and <code>minExponent() &lt;= exponent &lt;= maxExponent()</code>.</p>
-<p>The <code>normal</code> and <code>subNormal</code> parameters are deprecated, please use
-<code>genNormal</code> and <code>genSubNormal</code> instead.</p>
 <p>If <code>genNormal</code> is <code>true</code>, this method will generate normal numbers, and if
 <code>genSubNormal</code> is <code>true</code>, it will generate subnormal numbers. If both
 are <code>false</code>, an exception will be thrown. Note that the range of numbers
@@ -114,12 +105,7 @@ generated. NaN values are never generated.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FpvType random(Random rv,
-    {@Deprecated(&#39;use genNormal&#47;genSubNormal instead&#39;)
-    bool normal = false, &#47;&#47; if true, generate only normal numbers
-    @Deprecated(&#39;use genNormal&#47;genSubNormal instead&#39;)
-    bool subNormal = false, &#47;&#47; if true generate only subnormal numbers
-    &#47;&#47; These are the new parameters to replace normal&#47;subNormal.
-    bool genNormal = true,
+    {bool genNormal = true,
     bool genSubNormal = true,
     bool excludeInfinity = false,
     FpvType? gt,
@@ -128,29 +114,6 @@ generated. NaN values are never generated.</p>
     FpvType? lte}) {
   FpvType cloneConstant(FloatingPointConstants c) =&gt;
       _unpopulated.clonePopulator().ofConstant(c) as FpvType;
-  &#47;&#47; DEPRECATION: these checks are for the deprecated parameters.
-  if (normal &amp; subNormal) {
-    throw RohdHclException(
-        &#39;FloatingPointValuePopulator.random: cannot have both normal and &#39;
-        &#39;subNormal be true&#39;);
-  }
-  if (normal &amp; !genNormal) {
-    throw RohdHclException(
-        &#39;FloatingPointValuePopulator.random: cannot have both normal and &#39;
-        &#39;genNormal be false -- normal will be deprecated, use genNormal&#39;);
-  }
-  if (subNormal &amp; !genSubNormal) {
-    throw RohdHclException(
-        &#39;FloatingPointValuePopulator.random: cannot have both subNormal and &#39;
-        &#39;genSubNormal be false -- subNormal will be deprecated, use &#39;
-        &#39;genSubNormal&#39;);
-  }
-  if (subNormal &amp; subNormalAsZero) {
-    throw RohdHclException(
-        &#39;FloatingPointValuePopulator.random: cannot have both subNormal and &#39;
-        &#39;subNormalAsZero be true&#39;);
-  }
-  &#47;&#47; End DEPRECATION region.
   _checkMatching(&#39;gt&#39;, gt);
   _checkMatching(&#39;lt&#39;, lt);
   _checkMatching(&#39;gte&#39;, gte);
@@ -186,20 +149,8 @@ generated. NaN values are never generated.</p>
     }
   }
 
-  &#47;&#47; Manage the old parameters-- this will not be necessary after deprecation.
-  final bool doGenNormal;
-  final bool doGenSubNormal;
-  if (normal) {
-    doGenNormal = true;
-    doGenSubNormal = false;
-  } else if (subNormal) {
-    doGenNormal = false;
-    doGenSubNormal = true;
-  } else {
-    doGenNormal = genNormal;
-    doGenSubNormal = genSubNormal;
-  }
-  &#47;&#47; End Manage the old parameters.
+  final doGenNormal = genNormal;
+  final doGenSubNormal = genSubNormal;
   if (!doGenNormal &amp; !doGenSubNormal) {
     throw RohdHclException(
         &#39;FloatingPointValuePopulator.random: cannot have both genNormal and &#39;
@@ -466,7 +417,7 @@ generated. NaN values are never generated.</p>
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.2.1
+      0.3.0
   </span>
   
 </footer>

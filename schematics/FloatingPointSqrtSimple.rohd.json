@@ -16487,59 +16487,7 @@
             ]
           }
         },
-        "struct_unpack_0_sqrt": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "sqrt",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "fraction",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8,
-            "FIELD_1_NAME": "integer_",
-            "FIELD_1_OFFSET": 8,
-            "FIELD_1_WIDTH": 3
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "fraction": "output",
-            "integer_": "output"
-          },
-          "connections": {
-            "A": [
-              267,
-              268,
-              269,
-              270,
-              271,
-              272,
-              273,
-              274,
-              275,
-              276,
-              277
-            ],
-            "fraction": [
-              278,
-              279,
-              280,
-              281,
-              282,
-              283,
-              284,
-              285
-            ],
-            "integer_": [
-              286,
-              287,
-              288
-            ]
-          }
-        },
-        "struct_unpack_1_float": {
+        "struct_unpack_0_float": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -16598,6 +16546,58 @@
             ],
             "sign": [
               373
+            ]
+          }
+        },
+        "struct_unpack_1_sqrt": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "sqrt",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "fraction",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "integer_",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 3
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "fraction": "output",
+            "integer_": "output"
+          },
+          "connections": {
+            "A": [
+              267,
+              268,
+              269,
+              270,
+              271,
+              272,
+              273,
+              274,
+              275,
+              276,
+              277
+            ],
+            "fraction": [
+              278,
+              279,
+              280,
+              281,
+              282,
+              283,
+              284,
+              285
+            ],
+            "integer_": [
+              286,
+              287,
+              288
             ]
           }
         },
@@ -18146,7 +18146,7 @@
             "computed": 1
           }
         },
-        "struct_unpack_1_float_exponent": {
+        "struct_unpack_0_float_exponent": {
           "bits": [
             369,
             370,
@@ -18156,7 +18156,7 @@
           "hide_name": 1,
           "attributes": {}
         },
-        "struct_unpack_1_float_sign": {
+        "struct_unpack_0_float_sign": {
           "bits": [
             373
           ],
