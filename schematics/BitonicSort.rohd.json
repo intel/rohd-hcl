@@ -1,0 +1,3359 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.0.1",
+  "modules": {
+    "_CompareSwap_W2": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "_in0__toSort0_lessthan_toSort1": "input",
+            "toSort1": "input",
+            "toSort0": "input",
+            "clk": "input",
+            "swapped0": "output",
+            "swapped1": "output"
+          },
+          "connections": {
+            "_in0__toSort0_lessthan_toSort1": [
+              20
+            ],
+            "toSort1": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "clk": [
+              2
+            ],
+            "swapped0": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "swapped1": [
+              16,
+              17,
+              18,
+              19
+            ]
+          }
+        },
+        "lessthan": {
+          "hide_name": 0,
+          "type": "$lt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "B": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "Y": [
+              20
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped0": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped1": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__toSort0_lessthan_toSort1": {
+          "bits": [
+            20
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "_CompareSwap_W2_0": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "_in0__toSort0_greaterThan_toSort1": "input",
+            "toSort1": "input",
+            "toSort0": "input",
+            "clk": "input",
+            "swapped0": "output",
+            "swapped1": "output"
+          },
+          "connections": {
+            "_in0__toSort0_greaterThan_toSort1": [
+              20
+            ],
+            "toSort1": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "clk": [
+              2
+            ],
+            "swapped0": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "swapped1": [
+              16,
+              17,
+              18,
+              19
+            ]
+          }
+        },
+        "greaterThan": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "B": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "Y": [
+              20
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped0": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped1": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__toSort0_greaterThan_toSort1": {
+          "bits": [
+            20
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "_BitonicMerge_W2": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "bitonicSequence0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "bitonicSequence1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "merge_left": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "sorted_0": [
+              12,
+              13,
+              14,
+              15
+            ]
+          }
+        },
+        "compare_swap_0_1": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W2",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "toSort1": "input",
+            "swapped0": "output",
+            "swapped1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "toSort1": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "swapped0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "swapped1": [
+              24,
+              25,
+              26,
+              27
+            ]
+          }
+        },
+        "merge_right": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              24,
+              25,
+              26,
+              27
+            ],
+            "sorted_0": [
+              16,
+              17,
+              18,
+              19
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bitonicSequence0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_0": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_1": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped0": {
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped1": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "_BitonicMerge_W2_0": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "bitonicSequence0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "bitonicSequence1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "merge_left": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "sorted_0": [
+              12,
+              13,
+              14,
+              15
+            ]
+          }
+        },
+        "compare_swap_0_1": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W2_0",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "toSort1": "input",
+            "swapped0": "output",
+            "swapped1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "toSort1": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "swapped0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "swapped1": [
+              24,
+              25,
+              26,
+              27
+            ]
+          }
+        },
+        "merge_right": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              24,
+              25,
+              26,
+              27
+            ],
+            "sorted_0": [
+              16,
+              17,
+              18,
+              19
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bitonicSequence0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_0": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_1": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped0": {
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped1": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "_CompareSwap_W4": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort2": {
+          "direction": "input",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort3": {
+          "direction": "input",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [
+            38,
+            39,
+            40,
+            41
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped2": {
+          "direction": "output",
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped3": {
+          "direction": "output",
+          "bits": [
+            42,
+            43,
+            44,
+            45
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "_in0__toSort0_greaterThan_toSort2": "input",
+            "toSort2": "input",
+            "toSort0": "input",
+            "clk": "input",
+            "swapped0": "output",
+            "swapped2": "output"
+          },
+          "connections": {
+            "_in0__toSort0_greaterThan_toSort2": [
+              36
+            ],
+            "toSort2": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "clk": [
+              2
+            ],
+            "swapped0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "swapped2": [
+              28,
+              29,
+              30,
+              31
+            ]
+          }
+        },
+        "greaterThan": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "B": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "Y": [
+              36
+            ]
+          }
+        },
+        "passthrough_buf_0": {
+          "hide_name": 0,
+          "type": "$buf",
+          "parameters": {
+            "WIDTH": 4
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "Y": [
+              38,
+              39,
+              40,
+              41
+            ]
+          }
+        },
+        "passthrough_buf_1": {
+          "hide_name": 0,
+          "type": "$buf",
+          "parameters": {
+            "WIDTH": 4
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              16,
+              17,
+              18,
+              19
+            ],
+            "Y": [
+              42,
+              43,
+              44,
+              45
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort2": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort3": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped0": {
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped1": {
+          "bits": [
+            38,
+            39,
+            40,
+            41
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped2": {
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped3": {
+          "bits": [
+            42,
+            43,
+            44,
+            45
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__toSort0_greaterThan_toSort2": {
+          "bits": [
+            36
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "_CompareSwap_W4_0": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort2": {
+          "direction": "input",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort3": {
+          "direction": "input",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped0": {
+          "direction": "output",
+          "bits": [
+            38,
+            39,
+            40,
+            41
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped1": {
+          "direction": "output",
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped2": {
+          "direction": "output",
+          "bits": [
+            42,
+            43,
+            44,
+            45
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "swapped3": {
+          "direction": "output",
+          "bits": [
+            32,
+            33,
+            34,
+            35
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "_in0__toSort1_greaterThan_toSort3": "input",
+            "toSort3": "input",
+            "toSort1": "input",
+            "clk": "input",
+            "swapped1": "output",
+            "swapped3": "output"
+          },
+          "connections": {
+            "_in0__toSort1_greaterThan_toSort3": [
+              36
+            ],
+            "toSort3": [
+              16,
+              17,
+              18,
+              19
+            ],
+            "toSort1": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "clk": [
+              2
+            ],
+            "swapped1": [
+              24,
+              25,
+              26,
+              27
+            ],
+            "swapped3": [
+              32,
+              33,
+              34,
+              35
+            ]
+          }
+        },
+        "greaterThan": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "B": [
+              16,
+              17,
+              18,
+              19
+            ],
+            "Y": [
+              36
+            ]
+          }
+        },
+        "passthrough_buf_0": {
+          "hide_name": 0,
+          "type": "$buf",
+          "parameters": {
+            "WIDTH": 4
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "Y": [
+              38,
+              39,
+              40,
+              41
+            ]
+          }
+        },
+        "passthrough_buf_1": {
+          "hide_name": 0,
+          "type": "$buf",
+          "parameters": {
+            "WIDTH": 4
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "Y": [
+              42,
+              43,
+              44,
+              45
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort2": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort3": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped0": {
+          "bits": [
+            38,
+            39,
+            40,
+            41
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped1": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped2": {
+          "bits": [
+            42,
+            43,
+            44,
+            45
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped3": {
+          "bits": [
+            32,
+            33,
+            34,
+            35
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__toSort1_greaterThan_toSort3": {
+          "bits": [
+            36
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "BitonicSort_W2": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "bitonic_merge": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "bitonicSequence1": [
+              24,
+              25,
+              26,
+              27
+            ],
+            "sorted_0": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "sorted_1": [
+              16,
+              17,
+              18,
+              19
+            ]
+          }
+        },
+        "sort_left_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "sorted_0": [
+              20,
+              21,
+              22,
+              23
+            ]
+          }
+        },
+        "sort_right_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "sorted_0": [
+              24,
+              25,
+              26,
+              27
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_0": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_1": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence0": {
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence1": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "BitonicSort_W2_0": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "bitonic_merge": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2_0",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "bitonicSequence1": [
+              24,
+              25,
+              26,
+              27
+            ],
+            "sorted_0": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "sorted_1": [
+              16,
+              17,
+              18,
+              19
+            ]
+          }
+        },
+        "sort_left_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "sorted_0": [
+              20,
+              21,
+              22,
+              23
+            ]
+          }
+        },
+        "sort_right_1": {
+          "hide_name": 0,
+          "type": "BitonicSort_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "sorted_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "sorted_0": [
+              24,
+              25,
+              26,
+              27
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_0": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_1": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence0": {
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence1": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "_BitonicMerge_W4": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "bitonicSequence0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "bitonicSequence1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "bitonicSequence2": {
+          "direction": "input",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "bitonicSequence3": {
+          "direction": "input",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_2": {
+          "direction": "output",
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_3": {
+          "direction": "output",
+          "bits": [
+            32,
+            33,
+            34,
+            35
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "merge_left": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2_0",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              36,
+              37,
+              38,
+              39
+            ],
+            "bitonicSequence1": [
+              40,
+              41,
+              42,
+              43
+            ],
+            "sorted_0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "sorted_1": [
+              24,
+              25,
+              26,
+              27
+            ]
+          }
+        },
+        "compare_swap_1_3": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W4_0",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "toSort1": "input",
+            "toSort2": "input",
+            "toSort3": "input",
+            "swapped0": "output",
+            "swapped1": "output",
+            "swapped2": "output",
+            "swapped3": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              44,
+              45,
+              46,
+              47
+            ],
+            "toSort1": [
+              48,
+              49,
+              50,
+              51
+            ],
+            "toSort2": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "toSort3": [
+              56,
+              57,
+              58,
+              59
+            ],
+            "swapped0": [
+              36,
+              37,
+              38,
+              39
+            ],
+            "swapped1": [
+              40,
+              41,
+              42,
+              43
+            ],
+            "swapped2": [
+              60,
+              61,
+              62,
+              63
+            ],
+            "swapped3": [
+              64,
+              65,
+              66,
+              67
+            ]
+          }
+        },
+        "compare_swap_0_2": {
+          "hide_name": 0,
+          "type": "_CompareSwap_W4",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "toSort1": "input",
+            "toSort2": "input",
+            "toSort3": "input",
+            "swapped0": "output",
+            "swapped1": "output",
+            "swapped2": "output",
+            "swapped3": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "toSort1": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "toSort2": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "toSort3": [
+              16,
+              17,
+              18,
+              19
+            ],
+            "swapped0": [
+              44,
+              45,
+              46,
+              47
+            ],
+            "swapped1": [
+              48,
+              49,
+              50,
+              51
+            ],
+            "swapped2": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "swapped3": [
+              56,
+              57,
+              58,
+              59
+            ]
+          }
+        },
+        "merge_right": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W2_0",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              60,
+              61,
+              62,
+              63
+            ],
+            "bitonicSequence1": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "sorted_0": [
+              28,
+              29,
+              30,
+              31
+            ],
+            "sorted_1": [
+              32,
+              33,
+              34,
+              35
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bitonicSequence0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence2": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence3": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_0": {
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_1": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_2": {
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_3": {
+          "bits": [
+            32,
+            33,
+            34,
+            35
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped0": {
+          "bits": [
+            36,
+            37,
+            38,
+            39
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped1": {
+          "bits": [
+            40,
+            41,
+            42,
+            43
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            44,
+            45,
+            46,
+            47
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            48,
+            49,
+            50,
+            51
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort2": {
+          "bits": [
+            52,
+            53,
+            54,
+            55
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort3": {
+          "bits": [
+            56,
+            57,
+            58,
+            59
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped2": {
+          "bits": [
+            60,
+            61,
+            62,
+            63
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "swapped3": {
+          "bits": [
+            64,
+            65,
+            66,
+            67
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "BitonicSort": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "toSort0": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort1": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort2": {
+          "direction": "input",
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "toSort3": {
+          "direction": "input",
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_0": {
+          "direction": "output",
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_1": {
+          "direction": "output",
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_2": {
+          "direction": "output",
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sorted_3": {
+          "direction": "output",
+          "bits": [
+            32,
+            33,
+            34,
+            35
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        }
+      },
+      "cells": {
+        "bitonic_merge": {
+          "hide_name": 0,
+          "type": "_BitonicMerge_W4",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "bitonicSequence0": "input",
+            "bitonicSequence1": "input",
+            "bitonicSequence2": "input",
+            "bitonicSequence3": "input",
+            "sorted_0": "output",
+            "sorted_1": "output",
+            "sorted_2": "output",
+            "sorted_3": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "bitonicSequence0": [
+              36,
+              37,
+              38,
+              39
+            ],
+            "bitonicSequence1": [
+              40,
+              41,
+              42,
+              43
+            ],
+            "bitonicSequence2": [
+              44,
+              45,
+              46,
+              47
+            ],
+            "bitonicSequence3": [
+              48,
+              49,
+              50,
+              51
+            ],
+            "sorted_0": [
+              20,
+              21,
+              22,
+              23
+            ],
+            "sorted_1": [
+              24,
+              25,
+              26,
+              27
+            ],
+            "sorted_2": [
+              28,
+              29,
+              30,
+              31
+            ],
+            "sorted_3": [
+              32,
+              33,
+              34,
+              35
+            ]
+          }
+        },
+        "sort_left_2": {
+          "hide_name": 0,
+          "type": "BitonicSort_W2_0",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "toSort1": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "toSort1": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "sorted_0": [
+              36,
+              37,
+              38,
+              39
+            ],
+            "sorted_1": [
+              40,
+              41,
+              42,
+              43
+            ]
+          }
+        },
+        "sort_right_2": {
+          "hide_name": 0,
+          "type": "BitonicSort_W2",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "toSort0": "input",
+            "toSort1": "input",
+            "sorted_0": "output",
+            "sorted_1": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "toSort0": [
+              12,
+              13,
+              14,
+              15
+            ],
+            "toSort1": [
+              16,
+              17,
+              18,
+              19
+            ],
+            "sorted_0": [
+              44,
+              45,
+              46,
+              47
+            ],
+            "sorted_1": [
+              48,
+              49,
+              50,
+              51
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "toSort0": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort1": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort2": {
+          "bits": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "toSort3": {
+          "bits": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_0": {
+          "bits": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_1": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_2": {
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sorted_3": {
+          "bits": [
+            32,
+            33,
+            34,
+            35
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence0": {
+          "bits": [
+            36,
+            37,
+            38,
+            39
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence1": {
+          "bits": [
+            40,
+            41,
+            42,
+            43
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence2": {
+          "bits": [
+            44,
+            45,
+            46,
+            47
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "bitonicSequence3": {
+          "bits": [
+            48,
+            49,
+            50,
+            51
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        }
+      }
+    }
+  }
+}

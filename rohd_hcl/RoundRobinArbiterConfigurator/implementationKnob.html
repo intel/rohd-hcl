@@ -55,7 +55,7 @@
     
       <section class="multi-line-signature">
         
-        <a href="../../rohd_hcl/ChoiceConfigKnob-class.html">ChoiceConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.dart.dev/stable/3.13.4/dart-core/Type-class.html">Type</a></span>&gt;</span>
+        <a href="../../rohd_hcl/ChoiceConfigKnob-class.html">ChoiceConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>&gt;</span>
         <span class="name ">implementationKnob</span>
         <div class="features"><span class="feature">final</span></div>
 
@@ -69,8 +69,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">final ChoiceConfigKnob&lt;Type&gt; implementationKnob = ChoiceConfigKnob(
-    [MaskRoundRobinArbiter, RotateRoundRobinArbiter],
-    value: MaskRoundRobinArbiter);</code></pre>
+  [MaskRoundRobinArbiter, RotateRoundRobinArbiter],
+  value: MaskRoundRobinArbiter,
+  choiceLabels: const {
+    MaskRoundRobinArbiter: &#39;MaskRoundRobinArbiter&#39;,
+    RotateRoundRobinArbiter: &#39;RotateRoundRobinArbiter&#39;,
+  },
+);</code></pre>
 </section>
 
 

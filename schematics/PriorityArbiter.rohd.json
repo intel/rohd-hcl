@@ -1,0 +1,437 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.0.1",
+  "modules": {
+    "PriorityArbiter": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "request_0": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "request_1": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "request_2": {
+          "direction": "input",
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "request_3": {
+          "direction": "input",
+          "bits": [
+            5
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "request_4": {
+          "direction": "input",
+          "bits": [
+            6
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "request_5": {
+          "direction": "input",
+          "bits": [
+            7
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "request_6": {
+          "direction": "input",
+          "bits": [
+            8
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "request_7": {
+          "direction": "input",
+          "bits": [
+            9
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_0": {
+          "direction": "output",
+          "bits": [
+            10
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_1": {
+          "direction": "output",
+          "bits": [
+            11
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_2": {
+          "direction": "output",
+          "bits": [
+            12
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_3": {
+          "direction": "output",
+          "bits": [
+            13
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_4": {
+          "direction": "output",
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_5": {
+          "direction": "output",
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_6": {
+          "direction": "output",
+          "bits": [
+            16
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "grant_7": {
+          "direction": "output",
+          "bits": [
+            17
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "combinational": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "_in0__swizzled": "input",
+            "grant_0": "output",
+            "grant_1": "output",
+            "grant_2": "output",
+            "grant_3": "output",
+            "grant_4": "output",
+            "grant_5": "output",
+            "grant_6": "output",
+            "grant_7": "output"
+          },
+          "connections": {
+            "_in0__swizzled": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25
+            ],
+            "grant_0": [
+              10
+            ],
+            "grant_1": [
+              11
+            ],
+            "grant_2": [
+              12
+            ],
+            "grant_3": [
+              13
+            ],
+            "grant_4": [
+              14
+            ],
+            "grant_5": [
+              15
+            ],
+            "grant_6": [
+              16
+            ],
+            "grant_7": [
+              17
+            ]
+          }
+        },
+        "swizzle": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1,
+            "IN4_WIDTH": 1,
+            "IN5_WIDTH": 1,
+            "IN6_WIDTH": 1,
+            "IN7_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "[4]": "input",
+            "[5]": "input",
+            "[6]": "input",
+            "[7]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              2
+            ],
+            "[1]": [
+              3
+            ],
+            "[2]": [
+              4
+            ],
+            "[3]": [
+              5
+            ],
+            "[4]": [
+              6
+            ],
+            "[5]": [
+              7
+            ],
+            "[6]": [
+              8
+            ],
+            "[7]": [
+              9
+            ],
+            "Y": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "request_0": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "request_1": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "request_2": {
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "request_3": {
+          "bits": [
+            5
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "request_4": {
+          "bits": [
+            6
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "request_5": {
+          "bits": [
+            7
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "request_6": {
+          "bits": [
+            8
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "request_7": {
+          "bits": [
+            9
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_0": {
+          "bits": [
+            10
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_1": {
+          "bits": [
+            11
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_2": {
+          "bits": [
+            12
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_3": {
+          "bits": [
+            13
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_4": {
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_5": {
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_6": {
+          "bits": [
+            16
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "grant_7": {
+          "bits": [
+            17
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__swizzled": {
+          "bits": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        }
+      }
+    }
+  }
+}

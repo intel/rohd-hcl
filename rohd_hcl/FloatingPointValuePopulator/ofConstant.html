@@ -78,6 +78,7 @@
         .ofConstant(constantFloatingPoint)) as FpvType;
   }
   final components =
+      &#47;&#47; This package helper supplies fallback data for the protected hook.
       &#47;&#47; ignore: invalid_use_of_visible_for_overriding_member, invalid_use_of_protected_member
       _unpopulated.getSpecialConstantComponents(constantFloatingPoint) ??
           getConstantComponents(constantFloatingPoint);

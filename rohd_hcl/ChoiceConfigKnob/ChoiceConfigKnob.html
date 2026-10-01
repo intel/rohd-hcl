@@ -54,23 +54,59 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ChoiceConfigKnob&lt;<wbr><span class="type-parameter">T</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-choices"><span class="type-annotation"><a href="https://api.dart.dev/stable/3.13.4/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">choices</span>, {</span></li>
+      <span class="name ">ChoiceConfigKnob&lt;<wbr><span class="type-parameter">T</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-choices"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">choices</span>, {</span></li>
 <li><span class="parameter" id="param-value"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">value</span>, </span></li>
+<li><span class="parameter" id="param-choiceLabels"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">choiceLabels</span> = <span class="default-value">const {}</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
   <p>Creates a new knob to with the specified default <code>value</code> of the available
 <code>choices</code>.</p>
+<p>If any member of <code>choices</code> is a Dart <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a>, <code>choiceLabels</code> must contain
+a stable label for every such member. These labels are used as both
+user-facing text and serialized JSON values:</p>
+<pre class="language-dart"><code class="language-dart">ChoiceConfigKnob&lt;Type&gt;(
+  [BinaryToOneHot, OneHotToBinary],
+  value: OneHotToBinary,
+  choiceLabels: const {
+    BinaryToOneHot: 'BinaryToOneHot',
+    OneHotToBinary: 'OneHotToBinary',
+  },
+);
+</code></pre>
+<p>Matching labels to the previous unminified <code>Type.toString()</code> values
+preserves compatibility with existing saved configurations. Every choice
+must resolve to a unique serialized value; duplicate labels and labels
+that collide with an unlabeled choice's string representation are
+rejected.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ChoiceConfigKnob(this.choices, {required super.value}) {
+  <pre class="language-dart"><code class="language-dart">ChoiceConfigKnob(
+  this.choices, {
+  required super.value,
+  Map&lt;T, String&gt; choiceLabels = const {},
+}) : choiceLabels = Map&lt;T, String&gt;.unmodifiable(choiceLabels) {
   if (!choices.contains(value)) {
     throw RohdHclException(&#39;Default value should be one of the choices.&#39;);
+  }
+  if (!this.choiceLabels.keys.every(choices.contains)) {
+    throw RohdHclException(&#39;Choice labels should correspond to choices.&#39;);
+  }
+  if (choices
+      .whereType&lt;Type&gt;()
+      .any((choice) =&gt; !this.choiceLabels.containsKey(choice))) {
+    throw RohdHclException(
+        &#39;Type choices require stable labels for minified builds.&#39;);
+  }
+  final serializedValues = choices.map(_serializedValue).toList();
+  if (serializedValues.toSet().length != serializedValues.length) {
+    throw RohdHclException(
+        &#39;Choices must have unique serialized values and labels.&#39;);
   }
 }</code></pre>
 </section>

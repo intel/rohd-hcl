@@ -89,9 +89,14 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
   super.signedAddend,
 }) &#47;&#47; Will be overrwridden by multiplyGenerator
 : super(
-          &#47;&#47; ignore: prefer_interpolation_to_compose_strings
-          name: &#39;multiply_only_&#39; +
-              _genName(mulGen, a, b, signedMultiplicand, signedMultiplier)) {
+        name: &#39;multiply_only_${_genName(
+          mulGen,
+          a,
+          b,
+          signedMultiplicand,
+          signedMultiplier,
+        )}&#39;,
+      ) {
   &#47;&#47; Here we need to copy the Config and make sure we access our module&#39;s
   &#47;&#47; input by calling .logic(this) on the runtimeConfig.
 
@@ -116,6 +121,7 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
 
   accumulate &lt;=
       mux(
+          &#47;&#47; Signedness is part of the generated multiplier&#39;s protected API.
           &#47;&#47; ignore: invalid_use_of_protected_member
           multiply.isProductSigned,
           multiply.product.signExtend(accumulate.width),

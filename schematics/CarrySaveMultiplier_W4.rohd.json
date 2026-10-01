@@ -1,0 +1,8317 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.0.1",
+  "modules": {
+    "FullAdder_W1": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "b": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "carryIn": {
+          "direction": "input",
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "sum": {
+          "direction": "output",
+          "bits": [
+            5,
+            6
+          ],
+          "logic_type": {
+            "width": 2
+          }
+        }
+      },
+      "cells": {
+        "swizzle": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              7
+            ],
+            "B": [
+              8
+            ],
+            "Y": [
+              5,
+              6
+            ]
+          }
+        },
+        "xor_": {
+          "hide_name": 0,
+          "type": "$xor",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              9
+            ],
+            "B": [
+              4
+            ],
+            "Y": [
+              7
+            ]
+          }
+        },
+        "xor__0": {
+          "hide_name": 0,
+          "type": "$xor",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2
+            ],
+            "B": [
+              3
+            ],
+            "Y": [
+              9
+            ]
+          }
+        },
+        "or_": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              10
+            ],
+            "B": [
+              11
+            ],
+            "Y": [
+              8
+            ]
+          }
+        },
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4
+            ],
+            "B": [
+              12
+            ],
+            "Y": [
+              10
+            ]
+          }
+        },
+        "xor__1": {
+          "hide_name": 0,
+          "type": "$xor",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2
+            ],
+            "B": [
+              3
+            ],
+            "Y": [
+              12
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2
+            ],
+            "B": [
+              3
+            ],
+            "Y": [
+              11
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "a": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carryIn": {
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum": {
+          "bits": [
+            5,
+            6
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in0": {
+          "bits": [
+            7
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1": {
+          "bits": [
+            8
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__a_xor_b": {
+          "bits": [
+            9
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__carryIn_and__a_xor_b": {
+          "bits": [
+            10
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__a_and_b": {
+          "bits": [
+            11
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__a_xor_b": {
+          "bits": [
+            12
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "RippleCarryAdder_W4": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "a": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "b": {
+          "direction": "input",
+          "bits": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "sum": {
+          "direction": "output",
+          "bits": [
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 5
+          }
+        }
+      },
+      "cells": {
+        "swizzle": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1,
+            "IN4_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "[4]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              15
+            ],
+            "[1]": [
+              16
+            ],
+            "[2]": [
+              17
+            ],
+            "[3]": [
+              18
+            ],
+            "[4]": [
+              19
+            ],
+            "Y": [
+              10,
+              11,
+              12,
+              13,
+              14
+            ]
+          }
+        },
+        "bussubset": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              20,
+              21
+            ],
+            "Y": [
+              15
+            ]
+          }
+        },
+        "full_adder": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              22
+            ],
+            "b": [
+              23
+            ],
+            "carryIn": [
+              24
+            ],
+            "sum": [
+              20,
+              21
+            ]
+          }
+        },
+        "bussubset_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "Y": [
+              22
+            ]
+          }
+        },
+        "bussubset_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              23
+            ]
+          }
+        },
+        "bussubset_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              20,
+              21
+            ],
+            "Y": [
+              25
+            ]
+          }
+        },
+        "full_adder_0": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              26
+            ],
+            "b": [
+              27
+            ],
+            "carryIn": [
+              25
+            ],
+            "sum": [
+              28,
+              29
+            ]
+          }
+        },
+        "bussubset_3": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              28,
+              29
+            ],
+            "Y": [
+              30
+            ]
+          }
+        },
+        "full_adder_1": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              31
+            ],
+            "b": [
+              32
+            ],
+            "carryIn": [
+              30
+            ],
+            "sum": [
+              33,
+              34
+            ]
+          }
+        },
+        "bussubset_4": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              33,
+              34
+            ],
+            "Y": [
+              35
+            ]
+          }
+        },
+        "full_adder_2": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              36
+            ],
+            "b": [
+              37
+            ],
+            "carryIn": [
+              35
+            ],
+            "sum": [
+              38,
+              39
+            ]
+          }
+        },
+        "bussubset_5": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              38,
+              39
+            ],
+            "Y": [
+              19
+            ]
+          }
+        },
+        "bussubset_6": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              38,
+              39
+            ],
+            "Y": [
+              18
+            ]
+          }
+        },
+        "bussubset_7": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "Y": [
+              36
+            ]
+          }
+        },
+        "bussubset_8": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              37
+            ]
+          }
+        },
+        "bussubset_9": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              33,
+              34
+            ],
+            "Y": [
+              17
+            ]
+          }
+        },
+        "bussubset_10": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "Y": [
+              31
+            ]
+          }
+        },
+        "bussubset_11": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              32
+            ]
+          }
+        },
+        "bussubset_12": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              28,
+              29
+            ],
+            "Y": [
+              16
+            ]
+          }
+        },
+        "bussubset_13": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "Y": [
+              26
+            ]
+          }
+        },
+        "bussubset_14": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              27
+            ]
+          }
+        },
+        "const_0_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              24
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "a": {
+          "bits": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b": {
+          "bits": [
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sum": {
+          "bits": [
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 5
+          },
+          "attributes": {}
+        },
+        "_in0": {
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1": {
+          "bits": [
+            16
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in2": {
+          "bits": [
+            17
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in3": {
+          "bits": [
+            18
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in4": {
+          "bits": [
+            19
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0": {
+          "bits": [
+            20,
+            21
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "a_0": {
+          "bits": [
+            22
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_0": {
+          "bits": [
+            23
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carryIn": {
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_1": {
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_1": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3": {
+          "bits": [
+            28,
+            29
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "carryIn_0": {
+          "bits": [
+            30
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_2": {
+          "bits": [
+            31
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_2": {
+          "bits": [
+            32
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2": {
+          "bits": [
+            33,
+            34
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "carryIn_1": {
+          "bits": [
+            35
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_3": {
+          "bits": [
+            36
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_3": {
+          "bits": [
+            37
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1": {
+          "bits": [
+            38,
+            39
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "const_0_1_h0": {
+          "bits": [
+            24
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    },
+    "CarrySaveMultiplier_W4": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "a": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "b": {
+          "direction": "input",
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "product": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "isProductSigned": {
+          "direction": "output",
+          "bits": [
+            688
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "bussubset": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 9,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29
+            ],
+            "Y": [
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19
+            ]
+          }
+        },
+        "swizzle": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1,
+            "IN4_WIDTH": 1,
+            "IN5_WIDTH": 1,
+            "IN6_WIDTH": 1,
+            "IN7_WIDTH": 1,
+            "IN8_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "[4]": "input",
+            "[5]": "input",
+            "[6]": "input",
+            "[7]": "input",
+            "[8]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              30
+            ],
+            "[1]": [
+              362
+            ],
+            "[2]": [
+              360
+            ],
+            "[3]": [
+              358
+            ],
+            "[4]": [
+              378
+            ],
+            "[5]": [
+              379
+            ],
+            "[6]": [
+              380
+            ],
+            "[7]": [
+              381
+            ],
+            "[8]": [
+              382
+            ],
+            "Y": [
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29
+            ]
+          }
+        },
+        "comb_stage5": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "productWide": "output",
+            "a_stage5_i": "input",
+            "b_stage5_i": "input",
+            "carry_3_stage5_i": "input",
+            "sum_3_stage5_i": "input",
+            "carry_2_stage5_i": "input",
+            "sum_2_stage5_i": "input",
+            "carry_1_stage5_i": "input",
+            "sum_1_stage5_i": "input",
+            "carry_0_stage5_i": "input",
+            "sum_0_stage5_i": "input",
+            "carry_4_stage5_i": "input",
+            "sum_4_stage5_i": "input",
+            "carry_5_stage5_i": "input",
+            "sum_5_stage5_i": "input",
+            "carry_6_stage5_i": "input",
+            "sum_6_stage5_i": "input",
+            "rcarry_a_stage5_i": "input",
+            "rcarry_b_stage5_i": "input",
+            "a_stage5_o": "output",
+            "b_stage5_o": "output",
+            "carry_3_stage5_o": "output",
+            "carry_2_stage5_o": "output",
+            "carry_1_stage5_o": "output",
+            "carry_0_stage5_o": "output",
+            "carry_4_stage5_o": "output",
+            "sum_4_stage5_o": "output",
+            "carry_5_stage5_o": "output",
+            "sum_5_stage5_o": "output",
+            "carry_6_stage5_o": "output",
+            "sum_6_stage5_o": "output",
+            "rcarry_a_stage5_o": "output",
+            "rcarry_b_stage5_o": "output"
+          },
+          "connections": {
+            "productWide": [
+              21,
+              22,
+              23,
+              24
+            ],
+            "a_stage5_i": [
+              31,
+              32,
+              33,
+              34
+            ],
+            "b_stage5_i": [
+              329,
+              330,
+              331,
+              332
+            ],
+            "carry_3_stage5_i": [
+              141
+            ],
+            "sum_3_stage5_i": [
+              151
+            ],
+            "carry_2_stage5_i": [
+              290
+            ],
+            "sum_2_stage5_i": [
+              162
+            ],
+            "carry_1_stage5_i": [
+              307
+            ],
+            "sum_1_stage5_i": [
+              173
+            ],
+            "carry_0_stage5_i": [
+              321
+            ],
+            "sum_0_stage5_i": [
+              184
+            ],
+            "carry_4_stage5_i": [
+              115
+            ],
+            "sum_4_stage5_i": [
+              211
+            ],
+            "carry_5_stage5_i": [
+              125
+            ],
+            "sum_5_stage5_i": [
+              195
+            ],
+            "carry_6_stage5_i": [
+              134
+            ],
+            "sum_6_stage5_i": [
+              204
+            ],
+            "rcarry_a_stage5_i": [
+              244,
+              245,
+              246,
+              247
+            ],
+            "rcarry_b_stage5_i": [
+              272,
+              273,
+              274,
+              275
+            ],
+            "a_stage5_o": [
+              349,
+              350,
+              351,
+              352
+            ],
+            "b_stage5_o": [
+              353,
+              354,
+              355,
+              356
+            ],
+            "carry_3_stage5_o": [
+              357
+            ],
+            "carry_2_stage5_o": [
+              359
+            ],
+            "carry_1_stage5_o": [
+              361
+            ],
+            "carry_0_stage5_o": [
+              363
+            ],
+            "carry_4_stage5_o": [
+              364
+            ],
+            "sum_4_stage5_o": [
+              365
+            ],
+            "carry_5_stage5_o": [
+              366
+            ],
+            "sum_5_stage5_o": [
+              367
+            ],
+            "carry_6_stage5_o": [
+              368
+            ],
+            "sum_6_stage5_o": [
+              369
+            ],
+            "rcarry_a_stage5_o": [
+              370,
+              371,
+              372,
+              373
+            ],
+            "rcarry_b_stage5_o": [
+              374,
+              375,
+              376,
+              377
+            ]
+          }
+        },
+        "ff_a": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "a_stage0": "input",
+            "a_stage1_o": "input",
+            "a_stage2_o": "input",
+            "a_stage3_o": "input",
+            "a_stage4_o": "input",
+            "clk": "input",
+            "a_stage1_i": "output",
+            "a_stage2_i": "output",
+            "a_stage3_i": "output",
+            "a_stage4_i": "output",
+            "a_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "a_stage0": [
+              35,
+              36,
+              37,
+              38
+            ],
+            "a_stage1_o": [
+              47,
+              48,
+              49,
+              50
+            ],
+            "a_stage2_o": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "a_stage3_o": [
+              82,
+              83,
+              84,
+              85
+            ],
+            "a_stage4_o": [
+              101,
+              102,
+              103,
+              104
+            ],
+            "clk": [
+              2
+            ],
+            "a_stage1_i": [
+              325,
+              326,
+              327,
+              328
+            ],
+            "a_stage2_i": [
+              313,
+              314,
+              315,
+              316
+            ],
+            "a_stage3_i": [
+              298,
+              299,
+              300,
+              301
+            ],
+            "a_stage4_i": [
+              280,
+              281,
+              282,
+              283
+            ],
+            "a_stage5_i": [
+              31,
+              32,
+              33,
+              34
+            ]
+          }
+        },
+        "bussubset_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              35,
+              36,
+              37,
+              38
+            ],
+            "Y": [
+              404
+            ]
+          }
+        },
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              404
+            ],
+            "B": [
+              405
+            ],
+            "Y": [
+              406
+            ]
+          }
+        },
+        "full_adder": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              407
+            ],
+            "b": [
+              406
+            ],
+            "carryIn": [
+              408
+            ],
+            "sum": [
+              409,
+              410
+            ]
+          }
+        },
+        "comb_stage0": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "sum_21": "input",
+            "sum": "input",
+            "sum_7": "input",
+            "sum_8": "input",
+            "a": "input",
+            "b": "input",
+            "carry_3": "input",
+            "sum_3": "input",
+            "carry_2": "input",
+            "sum_2": "input",
+            "carry_1": "input",
+            "sum_1": "input",
+            "carry_0": "input",
+            "sum_0": "input",
+            "a_stage0": "output",
+            "b_stage0_o": "output",
+            "carry_3_stage0": "output",
+            "sum_3_stage0": "output",
+            "carry_2_stage0": "output",
+            "sum_2_stage0": "output",
+            "carry_1_stage0": "output",
+            "sum_1_stage0": "output",
+            "carry_0_stage0": "output",
+            "sum_0_stage0": "output",
+            "carry_3_stage0_o": "output",
+            "sum_3_stage0_o": "output",
+            "carry_2_stage0_o": "output",
+            "sum_2_stage0_o": "output",
+            "carry_1_stage0_o": "output",
+            "sum_1_stage0_o": "output",
+            "carry_0_stage0_o": "output",
+            "sum_0_stage0_o": "output"
+          },
+          "connections": {
+            "sum_21": [
+              409,
+              410
+            ],
+            "sum": [
+              419,
+              420
+            ],
+            "sum_7": [
+              421,
+              422
+            ],
+            "sum_8": [
+              423,
+              424
+            ],
+            "a": [
+              4,
+              5,
+              6,
+              7
+            ],
+            "b": [
+              8,
+              9,
+              10,
+              11
+            ],
+            "carry_3": [
+              341
+            ],
+            "sum_3": [
+              342
+            ],
+            "carry_2": [
+              343
+            ],
+            "sum_2": [
+              344
+            ],
+            "carry_1": [
+              345
+            ],
+            "sum_1": [
+              346
+            ],
+            "carry_0": [
+              347
+            ],
+            "sum_0": [
+              348
+            ],
+            "a_stage0": [
+              35,
+              36,
+              37,
+              38
+            ],
+            "b_stage0_o": [
+              39,
+              40,
+              41,
+              42
+            ],
+            "carry_3_stage0": [
+              333
+            ],
+            "sum_3_stage0": [
+              334
+            ],
+            "carry_2_stage0": [
+              335
+            ],
+            "sum_2_stage0": [
+              336
+            ],
+            "carry_1_stage0": [
+              337
+            ],
+            "sum_1_stage0": [
+              338
+            ],
+            "carry_0_stage0": [
+              339
+            ],
+            "sum_0_stage0": [
+              340
+            ],
+            "carry_3_stage0_o": [
+              142
+            ],
+            "sum_3_stage0_o": [
+              152
+            ],
+            "carry_2_stage0_o": [
+              291
+            ],
+            "sum_2_stage0_o": [
+              163
+            ],
+            "carry_1_stage0_o": [
+              308
+            ],
+            "sum_1_stage0_o": [
+              174
+            ],
+            "carry_0_stage0_o": [
+              322
+            ],
+            "sum_0_stage0_o": [
+              185
+            ]
+          }
+        },
+        "bussubset_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              39,
+              40,
+              41,
+              42
+            ],
+            "Y": [
+              405
+            ]
+          }
+        },
+        "bussubset_3": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              39,
+              40,
+              41,
+              42
+            ],
+            "Y": [
+              425
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              426
+            ],
+            "B": [
+              425
+            ],
+            "Y": [
+              427
+            ]
+          }
+        },
+        "full_adder_0": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              428
+            ],
+            "b": [
+              427
+            ],
+            "carryIn": [
+              429
+            ],
+            "sum": [
+              419,
+              420
+            ]
+          }
+        },
+        "bussubset_6": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              35,
+              36,
+              37,
+              38
+            ],
+            "Y": [
+              426
+            ]
+          }
+        },
+        "bussubset_7": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              39,
+              40,
+              41,
+              42
+            ],
+            "Y": [
+              430
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              431
+            ],
+            "B": [
+              430
+            ],
+            "Y": [
+              432
+            ]
+          }
+        },
+        "full_adder_1": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              433
+            ],
+            "b": [
+              432
+            ],
+            "carryIn": [
+              434
+            ],
+            "sum": [
+              421,
+              422
+            ]
+          }
+        },
+        "bussubset_10": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              35,
+              36,
+              37,
+              38
+            ],
+            "Y": [
+              431
+            ]
+          }
+        },
+        "bussubset_11": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              39,
+              40,
+              41,
+              42
+            ],
+            "Y": [
+              435
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              436
+            ],
+            "B": [
+              435
+            ],
+            "Y": [
+              437
+            ]
+          }
+        },
+        "full_adder_2": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              438
+            ],
+            "b": [
+              437
+            ],
+            "carryIn": [
+              439
+            ],
+            "sum": [
+              423,
+              424
+            ]
+          }
+        },
+        "bussubset_14": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              35,
+              36,
+              37,
+              38
+            ],
+            "Y": [
+              436
+            ]
+          }
+        },
+        "ff_b": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "b_stage0_o": "input",
+            "b_stage1_o": "input",
+            "b_stage2_o": "input",
+            "b_stage3_o": "input",
+            "b_stage4_o": "input",
+            "clk": "input",
+            "b_stage1_i": "output",
+            "b_stage2_i": "output",
+            "b_stage3_i": "output",
+            "b_stage4_i": "output",
+            "b_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "b_stage0_o": [
+              39,
+              40,
+              41,
+              42
+            ],
+            "b_stage1_o": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "b_stage2_o": [
+              69,
+              70,
+              71,
+              72
+            ],
+            "b_stage3_o": [
+              87,
+              88,
+              89,
+              90
+            ],
+            "b_stage4_o": [
+              105,
+              106,
+              107,
+              108
+            ],
+            "clk": [
+              2
+            ],
+            "b_stage1_i": [
+              43,
+              44,
+              45,
+              46
+            ],
+            "b_stage2_i": [
+              317,
+              318,
+              319,
+              320
+            ],
+            "b_stage3_i": [
+              302,
+              303,
+              304,
+              305
+            ],
+            "b_stage4_i": [
+              284,
+              285,
+              286,
+              287
+            ],
+            "b_stage5_i": [
+              329,
+              330,
+              331,
+              332
+            ]
+          }
+        },
+        "comb_stage1": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "sum_9": "input",
+            "sum_10": "input",
+            "sum_11": "input",
+            "sum_12": "input",
+            "a_stage1_i": "input",
+            "b_stage1_i": "input",
+            "carry_3_stage1_i": "input",
+            "sum_3_stage1_i": "input",
+            "carry_2_stage1_i": "input",
+            "sum_2_stage1_i": "input",
+            "carry_1_stage1_i": "input",
+            "sum_1_stage1_i": "input",
+            "carry_0_stage1_i": "input",
+            "sum_0_stage1_i": "input",
+            "carry_4_stage1_i": "input",
+            "sum_4_stage1_i": "input",
+            "a_stage1_o": "output",
+            "b_stage1_o": "output",
+            "carryIn": "output",
+            "sum_3_stage1": "output",
+            "carry_2_stage1": "output",
+            "sum_2_stage1": "output",
+            "carry_1_stage1": "output",
+            "sum_1_stage1": "output",
+            "carry_0_stage1_o": "output",
+            "sum_0_stage1_o": "output",
+            "carry_4_stage1": "output",
+            "sum_4_stage1": "output",
+            "carry_4_stage1_o": "output",
+            "sum_4_stage1_o": "output",
+            "carry_3_stage1_o": "output",
+            "sum_3_stage1_o": "output",
+            "carry_2_stage1_o": "output",
+            "sum_2_stage1_o": "output",
+            "carry_1_stage1_o": "output",
+            "sum_1_stage1_o": "output"
+          },
+          "connections": {
+            "sum_9": [
+              469,
+              470
+            ],
+            "sum_10": [
+              471,
+              472
+            ],
+            "sum_11": [
+              473,
+              474
+            ],
+            "sum_12": [
+              475,
+              476
+            ],
+            "a_stage1_i": [
+              325,
+              326,
+              327,
+              328
+            ],
+            "b_stage1_i": [
+              43,
+              44,
+              45,
+              46
+            ],
+            "carry_3_stage1_i": [
+              137
+            ],
+            "sum_3_stage1_i": [
+              147
+            ],
+            "carry_2_stage1_i": [
+              97
+            ],
+            "sum_2_stage1_i": [
+              158
+            ],
+            "carry_1_stage1_i": [
+              79
+            ],
+            "sum_1_stage1_i": [
+              169
+            ],
+            "carry_0_stage1_i": [
+              62
+            ],
+            "sum_0_stage1_i": [
+              180
+            ],
+            "carry_4_stage1_i": [
+              111
+            ],
+            "sum_4_stage1_i": [
+              207
+            ],
+            "a_stage1_o": [
+              47,
+              48,
+              49,
+              50
+            ],
+            "b_stage1_o": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "carryIn": [
+              51
+            ],
+            "sum_3_stage1": [
+              56
+            ],
+            "carry_2_stage1": [
+              57
+            ],
+            "sum_2_stage1": [
+              58
+            ],
+            "carry_1_stage1": [
+              59
+            ],
+            "sum_1_stage1": [
+              60
+            ],
+            "carry_0_stage1_o": [
+              61
+            ],
+            "sum_0_stage1_o": [
+              186
+            ],
+            "carry_4_stage1": [
+              323
+            ],
+            "sum_4_stage1": [
+              324
+            ],
+            "carry_4_stage1_o": [
+              117
+            ],
+            "sum_4_stage1_o": [
+              213
+            ],
+            "carry_3_stage1_o": [
+              143
+            ],
+            "sum_3_stage1_o": [
+              153
+            ],
+            "carry_2_stage1_o": [
+              292
+            ],
+            "sum_2_stage1_o": [
+              164
+            ],
+            "carry_1_stage1_o": [
+              309
+            ],
+            "sum_1_stage1_o": [
+              175
+            ]
+          }
+        },
+        "bussubset_15": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              47,
+              48,
+              49,
+              50
+            ],
+            "Y": [
+              477
+            ]
+          }
+        },
+        "and__3": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              477
+            ],
+            "B": [
+              478
+            ],
+            "Y": [
+              479
+            ]
+          }
+        },
+        "full_adder_3": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              480
+            ],
+            "b": [
+              479
+            ],
+            "carryIn": [
+              51
+            ],
+            "sum": [
+              469,
+              470
+            ]
+          }
+        },
+        "bussubset_18": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "Y": [
+              478
+            ]
+          }
+        },
+        "bussubset_19": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "Y": [
+              481
+            ]
+          }
+        },
+        "and__4": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              482
+            ],
+            "B": [
+              481
+            ],
+            "Y": [
+              483
+            ]
+          }
+        },
+        "full_adder_4": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              56
+            ],
+            "b": [
+              483
+            ],
+            "carryIn": [
+              57
+            ],
+            "sum": [
+              471,
+              472
+            ]
+          }
+        },
+        "bussubset_22": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              47,
+              48,
+              49,
+              50
+            ],
+            "Y": [
+              482
+            ]
+          }
+        },
+        "bussubset_23": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "Y": [
+              484
+            ]
+          }
+        },
+        "and__5": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              485
+            ],
+            "B": [
+              484
+            ],
+            "Y": [
+              486
+            ]
+          }
+        },
+        "full_adder_5": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              58
+            ],
+            "b": [
+              486
+            ],
+            "carryIn": [
+              59
+            ],
+            "sum": [
+              473,
+              474
+            ]
+          }
+        },
+        "bussubset_26": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              47,
+              48,
+              49,
+              50
+            ],
+            "Y": [
+              485
+            ]
+          }
+        },
+        "bussubset_27": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              52,
+              53,
+              54,
+              55
+            ],
+            "Y": [
+              487
+            ]
+          }
+        },
+        "and__6": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              488
+            ],
+            "B": [
+              487
+            ],
+            "Y": [
+              489
+            ]
+          }
+        },
+        "full_adder_6": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              60
+            ],
+            "b": [
+              489
+            ],
+            "carryIn": [
+              61
+            ],
+            "sum": [
+              475,
+              476
+            ]
+          }
+        },
+        "ff_carry_0": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "carry_0_stage0_o": "input",
+            "carry_0_stage1_o": "input",
+            "carry_0_stage2_o": "input",
+            "carry_0_stage3_o": "input",
+            "carry_0_stage4_o": "input",
+            "clk": "input",
+            "carry_0_stage1_i": "output",
+            "carry_0_stage2_i": "output",
+            "carry_0_stage3_i": "output",
+            "carry_0_stage4_i": "output",
+            "carry_0_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "carry_0_stage0_o": [
+              322
+            ],
+            "carry_0_stage1_o": [
+              61
+            ],
+            "carry_0_stage2_o": [
+              310
+            ],
+            "carry_0_stage3_o": [
+              295
+            ],
+            "carry_0_stage4_o": [
+              178
+            ],
+            "clk": [
+              2
+            ],
+            "carry_0_stage1_i": [
+              62
+            ],
+            "carry_0_stage2_i": [
+              63
+            ],
+            "carry_0_stage3_i": [
+              306
+            ],
+            "carry_0_stage4_i": [
+              289
+            ],
+            "carry_0_stage5_i": [
+              321
+            ]
+          }
+        },
+        "comb_stage2": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "sum_13": "input",
+            "sum_14": "input",
+            "sum_15": "input",
+            "sum_16": "input",
+            "a_stage2_i": "input",
+            "b_stage2_i": "input",
+            "carry_3_stage2_i": "input",
+            "sum_3_stage2_i": "input",
+            "carry_2_stage2_i": "input",
+            "sum_2_stage2_i": "input",
+            "carry_1_stage2_i": "input",
+            "sum_1_stage2_i": "input",
+            "carry_0_stage2_i": "input",
+            "sum_0_stage2_i": "input",
+            "carry_4_stage2_i": "input",
+            "sum_4_stage2_i": "input",
+            "carry_5_stage2_i": "input",
+            "sum_5_stage2_i": "input",
+            "a_stage2_o": "output",
+            "b_stage2_o": "output",
+            "carry_3_stage2": "output",
+            "sum_3_stage2": "output",
+            "carry_2_stage2": "output",
+            "sum_2_stage2": "output",
+            "carry_1_stage2_o": "output",
+            "sum_1_stage2_o": "output",
+            "carry_0_stage2_o": "output",
+            "sum_0_stage2_o": "output",
+            "carry_4_stage2": "output",
+            "sum_4_stage2": "output",
+            "carry_5_stage2": "output",
+            "sum_5_stage2": "output",
+            "carry_5_stage2_o": "output",
+            "sum_5_stage2_o": "output",
+            "carry_4_stage2_o": "output",
+            "sum_4_stage2_o": "output",
+            "carry_3_stage2_o": "output",
+            "sum_3_stage2_o": "output",
+            "carry_2_stage2_o": "output",
+            "sum_2_stage2_o": "output"
+          },
+          "connections": {
+            "sum_13": [
+              504,
+              505
+            ],
+            "sum_14": [
+              506,
+              507
+            ],
+            "sum_15": [
+              508,
+              509
+            ],
+            "sum_16": [
+              510,
+              511
+            ],
+            "a_stage2_i": [
+              313,
+              314,
+              315,
+              316
+            ],
+            "b_stage2_i": [
+              317,
+              318,
+              319,
+              320
+            ],
+            "carry_3_stage2_i": [
+              138
+            ],
+            "sum_3_stage2_i": [
+              148
+            ],
+            "carry_2_stage2_i": [
+              98
+            ],
+            "sum_2_stage2_i": [
+              159
+            ],
+            "carry_1_stage2_i": [
+              80
+            ],
+            "sum_1_stage2_i": [
+              170
+            ],
+            "carry_0_stage2_i": [
+              63
+            ],
+            "sum_0_stage2_i": [
+              181
+            ],
+            "carry_4_stage2_i": [
+              112
+            ],
+            "sum_4_stage2_i": [
+              208
+            ],
+            "carry_5_stage2_i": [
+              122
+            ],
+            "sum_5_stage2_i": [
+              192
+            ],
+            "a_stage2_o": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "b_stage2_o": [
+              69,
+              70,
+              71,
+              72
+            ],
+            "carry_3_stage2": [
+              74
+            ],
+            "sum_3_stage2": [
+              75
+            ],
+            "carry_2_stage2": [
+              76
+            ],
+            "sum_2_stage2": [
+              77
+            ],
+            "carry_1_stage2_o": [
+              78
+            ],
+            "sum_1_stage2_o": [
+              176
+            ],
+            "carry_0_stage2_o": [
+              310
+            ],
+            "sum_0_stage2_o": [
+              187
+            ],
+            "carry_4_stage2": [
+              68
+            ],
+            "sum_4_stage2": [
+              73
+            ],
+            "carry_5_stage2": [
+              311
+            ],
+            "sum_5_stage2": [
+              312
+            ],
+            "carry_5_stage2_o": [
+              127
+            ],
+            "sum_5_stage2_o": [
+              197
+            ],
+            "carry_4_stage2_o": [
+              118
+            ],
+            "sum_4_stage2_o": [
+              214
+            ],
+            "carry_3_stage2_o": [
+              144
+            ],
+            "sum_3_stage2_o": [
+              154
+            ],
+            "carry_2_stage2_o": [
+              293
+            ],
+            "sum_2_stage2_o": [
+              165
+            ]
+          }
+        },
+        "bussubset_30": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "Y": [
+              512
+            ]
+          }
+        },
+        "and__7": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              512
+            ],
+            "B": [
+              513
+            ],
+            "Y": [
+              514
+            ]
+          }
+        },
+        "full_adder_7": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              515
+            ],
+            "b": [
+              514
+            ],
+            "carryIn": [
+              68
+            ],
+            "sum": [
+              504,
+              505
+            ]
+          }
+        },
+        "bussubset_33": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69,
+              70,
+              71,
+              72
+            ],
+            "Y": [
+              513
+            ]
+          }
+        },
+        "bussubset_34": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69,
+              70,
+              71,
+              72
+            ],
+            "Y": [
+              516
+            ]
+          }
+        },
+        "and__8": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              517
+            ],
+            "B": [
+              516
+            ],
+            "Y": [
+              518
+            ]
+          }
+        },
+        "full_adder_8": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              73
+            ],
+            "b": [
+              518
+            ],
+            "carryIn": [
+              74
+            ],
+            "sum": [
+              506,
+              507
+            ]
+          }
+        },
+        "bussubset_37": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "Y": [
+              517
+            ]
+          }
+        },
+        "bussubset_38": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69,
+              70,
+              71,
+              72
+            ],
+            "Y": [
+              519
+            ]
+          }
+        },
+        "and__9": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              520
+            ],
+            "B": [
+              519
+            ],
+            "Y": [
+              521
+            ]
+          }
+        },
+        "full_adder_9": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              75
+            ],
+            "b": [
+              521
+            ],
+            "carryIn": [
+              76
+            ],
+            "sum": [
+              508,
+              509
+            ]
+          }
+        },
+        "bussubset_41": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "Y": [
+              520
+            ]
+          }
+        },
+        "bussubset_42": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69,
+              70,
+              71,
+              72
+            ],
+            "Y": [
+              522
+            ]
+          }
+        },
+        "and__10": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              523
+            ],
+            "B": [
+              522
+            ],
+            "Y": [
+              524
+            ]
+          }
+        },
+        "full_adder_10": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              77
+            ],
+            "b": [
+              524
+            ],
+            "carryIn": [
+              78
+            ],
+            "sum": [
+              510,
+              511
+            ]
+          }
+        },
+        "ff_carry_1": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "carry_1_stage0_o": "input",
+            "carry_1_stage1_o": "input",
+            "carry_1_stage2_o": "input",
+            "carry_1_stage3_o": "input",
+            "carry_1_stage4_o": "input",
+            "clk": "input",
+            "carry_1_stage1_i": "output",
+            "carry_1_stage2_i": "output",
+            "carry_1_stage3_i": "output",
+            "carry_1_stage4_i": "output",
+            "carry_1_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "carry_1_stage0_o": [
+              308
+            ],
+            "carry_1_stage1_o": [
+              309
+            ],
+            "carry_1_stage2_o": [
+              78
+            ],
+            "carry_1_stage3_o": [
+              294
+            ],
+            "carry_1_stage4_o": [
+              167
+            ],
+            "clk": [
+              2
+            ],
+            "carry_1_stage1_i": [
+              79
+            ],
+            "carry_1_stage2_i": [
+              80
+            ],
+            "carry_1_stage3_i": [
+              81
+            ],
+            "carry_1_stage4_i": [
+              288
+            ],
+            "carry_1_stage5_i": [
+              307
+            ]
+          }
+        },
+        "comb_stage3": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "sum_17": "input",
+            "sum_18": "input",
+            "sum_19": "input",
+            "sum_20": "input",
+            "a_stage3_i": "input",
+            "b_stage3_i": "input",
+            "carry_3_stage3_i": "input",
+            "sum_3_stage3_i": "input",
+            "carry_2_stage3_i": "input",
+            "sum_2_stage3_i": "input",
+            "carry_1_stage3_i": "input",
+            "sum_1_stage3_i": "input",
+            "carry_0_stage3_i": "input",
+            "sum_0_stage3_i": "input",
+            "carry_4_stage3_i": "input",
+            "sum_4_stage3_i": "input",
+            "carry_5_stage3_i": "input",
+            "sum_5_stage3_i": "input",
+            "carry_6_stage3_i": "input",
+            "sum_6_stage3_i": "input",
+            "a_stage3_o": "output",
+            "b_stage3_o": "output",
+            "carry_3_stage3": "output",
+            "sum_3_stage3": "output",
+            "carry_2_stage3_o": "output",
+            "sum_2_stage3_o": "output",
+            "carry_1_stage3_o": "output",
+            "sum_1_stage3_o": "output",
+            "carry_0_stage3_o": "output",
+            "sum_0_stage3_o": "output",
+            "carry_4_stage3": "output",
+            "sum_4_stage3": "output",
+            "carry_5_stage3": "output",
+            "sum_5_stage3": "output",
+            "carry_6_stage3": "output",
+            "sum_6_stage3": "output",
+            "carry_6_stage3_o": "output",
+            "sum_6_stage3_o": "output",
+            "carry_5_stage3_o": "output",
+            "sum_5_stage3_o": "output",
+            "carry_4_stage3_o": "output",
+            "sum_4_stage3_o": "output",
+            "carry_3_stage3_o": "output",
+            "sum_3_stage3_o": "output"
+          },
+          "connections": {
+            "sum_17": [
+              539,
+              540
+            ],
+            "sum_18": [
+              541,
+              542
+            ],
+            "sum_19": [
+              543,
+              544
+            ],
+            "sum_20": [
+              545,
+              546
+            ],
+            "a_stage3_i": [
+              298,
+              299,
+              300,
+              301
+            ],
+            "b_stage3_i": [
+              302,
+              303,
+              304,
+              305
+            ],
+            "carry_3_stage3_i": [
+              139
+            ],
+            "sum_3_stage3_i": [
+              149
+            ],
+            "carry_2_stage3_i": [
+              99
+            ],
+            "sum_2_stage3_i": [
+              160
+            ],
+            "carry_1_stage3_i": [
+              81
+            ],
+            "sum_1_stage3_i": [
+              171
+            ],
+            "carry_0_stage3_i": [
+              306
+            ],
+            "sum_0_stage3_i": [
+              182
+            ],
+            "carry_4_stage3_i": [
+              113
+            ],
+            "sum_4_stage3_i": [
+              209
+            ],
+            "carry_5_stage3_i": [
+              123
+            ],
+            "sum_5_stage3_i": [
+              193
+            ],
+            "carry_6_stage3_i": [
+              132
+            ],
+            "sum_6_stage3_i": [
+              202
+            ],
+            "a_stage3_o": [
+              82,
+              83,
+              84,
+              85
+            ],
+            "b_stage3_o": [
+              87,
+              88,
+              89,
+              90
+            ],
+            "carry_3_stage3": [
+              94
+            ],
+            "sum_3_stage3": [
+              95
+            ],
+            "carry_2_stage3_o": [
+              96
+            ],
+            "sum_2_stage3_o": [
+              166
+            ],
+            "carry_1_stage3_o": [
+              294
+            ],
+            "sum_1_stage3_o": [
+              177
+            ],
+            "carry_0_stage3_o": [
+              295
+            ],
+            "sum_0_stage3_o": [
+              188
+            ],
+            "carry_4_stage3": [
+              92
+            ],
+            "sum_4_stage3": [
+              93
+            ],
+            "carry_5_stage3": [
+              86
+            ],
+            "sum_5_stage3": [
+              91
+            ],
+            "carry_6_stage3": [
+              296
+            ],
+            "sum_6_stage3": [
+              297
+            ],
+            "carry_6_stage3_o": [
+              136
+            ],
+            "sum_6_stage3_o": [
+              206
+            ],
+            "carry_5_stage3_o": [
+              128
+            ],
+            "sum_5_stage3_o": [
+              198
+            ],
+            "carry_4_stage3_o": [
+              119
+            ],
+            "sum_4_stage3_o": [
+              215
+            ],
+            "carry_3_stage3_o": [
+              145
+            ],
+            "sum_3_stage3_o": [
+              155
+            ]
+          }
+        },
+        "bussubset_45": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              82,
+              83,
+              84,
+              85
+            ],
+            "Y": [
+              547
+            ]
+          }
+        },
+        "and__11": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              547
+            ],
+            "B": [
+              548
+            ],
+            "Y": [
+              549
+            ]
+          }
+        },
+        "full_adder_11": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              550
+            ],
+            "b": [
+              549
+            ],
+            "carryIn": [
+              86
+            ],
+            "sum": [
+              539,
+              540
+            ]
+          }
+        },
+        "bussubset_48": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              87,
+              88,
+              89,
+              90
+            ],
+            "Y": [
+              548
+            ]
+          }
+        },
+        "bussubset_49": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              87,
+              88,
+              89,
+              90
+            ],
+            "Y": [
+              551
+            ]
+          }
+        },
+        "and__12": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              552
+            ],
+            "B": [
+              551
+            ],
+            "Y": [
+              553
+            ]
+          }
+        },
+        "full_adder_12": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              91
+            ],
+            "b": [
+              553
+            ],
+            "carryIn": [
+              92
+            ],
+            "sum": [
+              541,
+              542
+            ]
+          }
+        },
+        "bussubset_52": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              82,
+              83,
+              84,
+              85
+            ],
+            "Y": [
+              552
+            ]
+          }
+        },
+        "bussubset_53": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              87,
+              88,
+              89,
+              90
+            ],
+            "Y": [
+              554
+            ]
+          }
+        },
+        "and__13": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              555
+            ],
+            "B": [
+              554
+            ],
+            "Y": [
+              556
+            ]
+          }
+        },
+        "full_adder_13": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              93
+            ],
+            "b": [
+              556
+            ],
+            "carryIn": [
+              94
+            ],
+            "sum": [
+              543,
+              544
+            ]
+          }
+        },
+        "bussubset_56": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              82,
+              83,
+              84,
+              85
+            ],
+            "Y": [
+              555
+            ]
+          }
+        },
+        "bussubset_57": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              87,
+              88,
+              89,
+              90
+            ],
+            "Y": [
+              557
+            ]
+          }
+        },
+        "and__14": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              558
+            ],
+            "B": [
+              557
+            ],
+            "Y": [
+              559
+            ]
+          }
+        },
+        "full_adder_14": {
+          "hide_name": 0,
+          "type": "FullAdder_W1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "carryIn": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              95
+            ],
+            "b": [
+              559
+            ],
+            "carryIn": [
+              96
+            ],
+            "sum": [
+              545,
+              546
+            ]
+          }
+        },
+        "ff_carry_2": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "carry_2_stage0_o": "input",
+            "carry_2_stage1_o": "input",
+            "carry_2_stage2_o": "input",
+            "carry_2_stage3_o": "input",
+            "carry_2_stage4_o": "input",
+            "clk": "input",
+            "carry_2_stage1_i": "output",
+            "carry_2_stage2_i": "output",
+            "carry_2_stage3_i": "output",
+            "carry_2_stage4_i": "output",
+            "carry_2_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "carry_2_stage0_o": [
+              291
+            ],
+            "carry_2_stage1_o": [
+              292
+            ],
+            "carry_2_stage2_o": [
+              293
+            ],
+            "carry_2_stage3_o": [
+              96
+            ],
+            "carry_2_stage4_o": [
+              156
+            ],
+            "clk": [
+              2
+            ],
+            "carry_2_stage1_i": [
+              97
+            ],
+            "carry_2_stage2_i": [
+              98
+            ],
+            "carry_2_stage3_i": [
+              99
+            ],
+            "carry_2_stage4_i": [
+              100
+            ],
+            "carry_2_stage5_i": [
+              290
+            ]
+          }
+        },
+        "comb_stage4": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "_in36__swizzled": "output",
+            "_in38__swizzled": "output",
+            "a_stage4_i": "input",
+            "b_stage4_i": "input",
+            "carry_3_stage4_i": "input",
+            "sum_3_stage4_i": "input",
+            "carry_2_stage4_i": "input",
+            "sum_2_stage4_i": "input",
+            "carry_1_stage4_i": "input",
+            "sum_1_stage4_i": "input",
+            "carry_0_stage4_i": "input",
+            "sum_0_stage4_i": "input",
+            "carry_4_stage4_i": "input",
+            "sum_4_stage4_i": "input",
+            "carry_5_stage4_i": "input",
+            "sum_5_stage4_i": "input",
+            "carry_6_stage4_i": "input",
+            "sum_6_stage4_i": "input",
+            "rcarry_a_stage4_i": "input",
+            "rcarry_b_stage4_i": "input",
+            "a_stage4_o": "output",
+            "b_stage4_o": "output",
+            "sum_3_stage4_o": "output",
+            "carry_2_stage4_o": "output",
+            "sum_2_stage4_o": "output",
+            "carry_1_stage4_o": "output",
+            "sum_1_stage4_o": "output",
+            "carry_0_stage4_o": "output",
+            "sum_0_stage4_o": "output",
+            "rcarry_a_stage4": "output",
+            "rcarry_b_stage4": "output",
+            "rcarry_a_stage4_o": "output",
+            "rcarry_b_stage4_o": "output"
+          },
+          "connections": {
+            "_in36__swizzled": [
+              566,
+              567,
+              568
+            ],
+            "_in38__swizzled": [
+              570,
+              571,
+              572,
+              573
+            ],
+            "a_stage4_i": [
+              280,
+              281,
+              282,
+              283
+            ],
+            "b_stage4_i": [
+              284,
+              285,
+              286,
+              287
+            ],
+            "carry_3_stage4_i": [
+              140
+            ],
+            "sum_3_stage4_i": [
+              150
+            ],
+            "carry_2_stage4_i": [
+              100
+            ],
+            "sum_2_stage4_i": [
+              161
+            ],
+            "carry_1_stage4_i": [
+              288
+            ],
+            "sum_1_stage4_i": [
+              172
+            ],
+            "carry_0_stage4_i": [
+              289
+            ],
+            "sum_0_stage4_i": [
+              183
+            ],
+            "carry_4_stage4_i": [
+              114
+            ],
+            "sum_4_stage4_i": [
+              210
+            ],
+            "carry_5_stage4_i": [
+              124
+            ],
+            "sum_5_stage4_i": [
+              194
+            ],
+            "carry_6_stage4_i": [
+              133
+            ],
+            "sum_6_stage4_i": [
+              203
+            ],
+            "rcarry_a_stage4_i": [
+              240,
+              241,
+              242,
+              243
+            ],
+            "rcarry_b_stage4_i": [
+              268,
+              269,
+              270,
+              271
+            ],
+            "a_stage4_o": [
+              101,
+              102,
+              103,
+              104
+            ],
+            "b_stage4_o": [
+              105,
+              106,
+              107,
+              108
+            ],
+            "sum_3_stage4_o": [
+              146
+            ],
+            "carry_2_stage4_o": [
+              156
+            ],
+            "sum_2_stage4_o": [
+              157
+            ],
+            "carry_1_stage4_o": [
+              167
+            ],
+            "sum_1_stage4_o": [
+              168
+            ],
+            "carry_0_stage4_o": [
+              178
+            ],
+            "sum_0_stage4_o": [
+              179
+            ],
+            "rcarry_a_stage4": [
+              216,
+              217,
+              218,
+              219
+            ],
+            "rcarry_b_stage4": [
+              220,
+              221,
+              222,
+              223
+            ],
+            "rcarry_a_stage4_o": [
+              224,
+              225,
+              226,
+              227
+            ],
+            "rcarry_b_stage4_o": [
+              252,
+              253,
+              254,
+              255
+            ]
+          }
+        },
+        "ff_carry_4": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "carry_4": "input",
+            "carry_4_stage1_o": "input",
+            "carry_4_stage2_o": "input",
+            "carry_4_stage3_o": "input",
+            "carry_4_stage4_o": "input",
+            "clk": "input",
+            "carry_4_stage1_i": "output",
+            "carry_4_stage2_i": "output",
+            "carry_4_stage3_i": "output",
+            "carry_4_stage4_i": "output",
+            "carry_4_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "carry_4": [
+              116
+            ],
+            "carry_4_stage1_o": [
+              117
+            ],
+            "carry_4_stage2_o": [
+              118
+            ],
+            "carry_4_stage3_o": [
+              119
+            ],
+            "carry_4_stage4_o": [
+              110
+            ],
+            "clk": [
+              2
+            ],
+            "carry_4_stage1_i": [
+              111
+            ],
+            "carry_4_stage2_i": [
+              112
+            ],
+            "carry_4_stage3_i": [
+              113
+            ],
+            "carry_4_stage4_i": [
+              114
+            ],
+            "carry_4_stage5_i": [
+              115
+            ]
+          }
+        },
+        "ff_carry_5": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "carry_5": "input",
+            "carry_5_stage1_o": "input",
+            "carry_5_stage2_o": "input",
+            "carry_5_stage3_o": "input",
+            "carry_5_stage4_o": "input",
+            "clk": "input",
+            "carry_5_stage1_o__out12_carry_5_stage1_i": "output",
+            "carry_5_stage2_i": "output",
+            "carry_5_stage3_i": "output",
+            "carry_5_stage4_i": "output",
+            "carry_5_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "carry_5": [
+              126
+            ],
+            "carry_5_stage1_o": [
+              121
+            ],
+            "carry_5_stage2_o": [
+              127
+            ],
+            "carry_5_stage3_o": [
+              128
+            ],
+            "carry_5_stage4_o": [
+              120
+            ],
+            "clk": [
+              2
+            ],
+            "carry_5_stage1_o__out12_carry_5_stage1_i": [
+              121
+            ],
+            "carry_5_stage2_i": [
+              122
+            ],
+            "carry_5_stage3_i": [
+              123
+            ],
+            "carry_5_stage4_i": [
+              124
+            ],
+            "carry_5_stage5_i": [
+              125
+            ]
+          }
+        },
+        "ff_carry_6": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "carry_6": "input",
+            "carry_6_stage1_o": "input",
+            "carry_6_stage2_o": "input",
+            "carry_6_stage3_o": "input",
+            "carry_6_stage4_o": "input",
+            "clk": "input",
+            "carry_6_stage1_o__out12_carry_6_stage1_i": "output",
+            "carry_6_stage2_o__out13_carry_6_stage2_i": "output",
+            "carry_6_stage3_i": "output",
+            "carry_6_stage4_i": "output",
+            "carry_6_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "carry_6": [
+              135
+            ],
+            "carry_6_stage1_o": [
+              130
+            ],
+            "carry_6_stage2_o": [
+              131
+            ],
+            "carry_6_stage3_o": [
+              136
+            ],
+            "carry_6_stage4_o": [
+              129
+            ],
+            "clk": [
+              2
+            ],
+            "carry_6_stage1_o__out12_carry_6_stage1_i": [
+              130
+            ],
+            "carry_6_stage2_o__out13_carry_6_stage2_i": [
+              131
+            ],
+            "carry_6_stage3_i": [
+              132
+            ],
+            "carry_6_stage4_i": [
+              133
+            ],
+            "carry_6_stage5_i": [
+              134
+            ]
+          }
+        },
+        "ff_carry_3": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "carry_3_stage0_o": "input",
+            "carry_3_stage1_o": "input",
+            "carry_3_stage2_o": "input",
+            "carry_3_stage3_o": "input",
+            "carry_3_stage4_o": "input",
+            "clk": "input",
+            "carry_3_stage1_i": "output",
+            "carry_3_stage2_i": "output",
+            "carry_3_stage3_i": "output",
+            "carry_3_stage4_i": "output",
+            "carry_3_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "carry_3_stage0_o": [
+              142
+            ],
+            "carry_3_stage1_o": [
+              143
+            ],
+            "carry_3_stage2_o": [
+              144
+            ],
+            "carry_3_stage3_o": [
+              145
+            ],
+            "carry_3_stage4_o": [
+              109
+            ],
+            "clk": [
+              2
+            ],
+            "carry_3_stage1_i": [
+              137
+            ],
+            "carry_3_stage2_i": [
+              138
+            ],
+            "carry_3_stage3_i": [
+              139
+            ],
+            "carry_3_stage4_i": [
+              140
+            ],
+            "carry_3_stage5_i": [
+              141
+            ]
+          }
+        },
+        "ff_sum_3": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "sum_3_stage0_o": "input",
+            "sum_3_stage1_o": "input",
+            "sum_3_stage2_o": "input",
+            "sum_3_stage3_o": "input",
+            "sum_3_stage4_o": "input",
+            "clk": "input",
+            "sum_3_stage1_i": "output",
+            "sum_3_stage2_i": "output",
+            "sum_3_stage3_i": "output",
+            "sum_3_stage4_i": "output",
+            "sum_3_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "sum_3_stage0_o": [
+              152
+            ],
+            "sum_3_stage1_o": [
+              153
+            ],
+            "sum_3_stage2_o": [
+              154
+            ],
+            "sum_3_stage3_o": [
+              155
+            ],
+            "sum_3_stage4_o": [
+              146
+            ],
+            "clk": [
+              2
+            ],
+            "sum_3_stage1_i": [
+              147
+            ],
+            "sum_3_stage2_i": [
+              148
+            ],
+            "sum_3_stage3_i": [
+              149
+            ],
+            "sum_3_stage4_i": [
+              150
+            ],
+            "sum_3_stage5_i": [
+              151
+            ]
+          }
+        },
+        "ff_sum_2": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "sum_2_stage0_o": "input",
+            "sum_2_stage1_o": "input",
+            "sum_2_stage2_o": "input",
+            "sum_2_stage3_o": "input",
+            "sum_2_stage4_o": "input",
+            "clk": "input",
+            "sum_2_stage1_i": "output",
+            "sum_2_stage2_i": "output",
+            "sum_2_stage3_i": "output",
+            "sum_2_stage4_i": "output",
+            "sum_2_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "sum_2_stage0_o": [
+              163
+            ],
+            "sum_2_stage1_o": [
+              164
+            ],
+            "sum_2_stage2_o": [
+              165
+            ],
+            "sum_2_stage3_o": [
+              166
+            ],
+            "sum_2_stage4_o": [
+              157
+            ],
+            "clk": [
+              2
+            ],
+            "sum_2_stage1_i": [
+              158
+            ],
+            "sum_2_stage2_i": [
+              159
+            ],
+            "sum_2_stage3_i": [
+              160
+            ],
+            "sum_2_stage4_i": [
+              161
+            ],
+            "sum_2_stage5_i": [
+              162
+            ]
+          }
+        },
+        "ff_sum_1": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "sum_1_stage0_o": "input",
+            "sum_1_stage1_o": "input",
+            "sum_1_stage2_o": "input",
+            "sum_1_stage3_o": "input",
+            "sum_1_stage4_o": "input",
+            "clk": "input",
+            "sum_1_stage1_i": "output",
+            "sum_1_stage2_i": "output",
+            "sum_1_stage3_i": "output",
+            "sum_1_stage4_i": "output",
+            "sum_1_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "sum_1_stage0_o": [
+              174
+            ],
+            "sum_1_stage1_o": [
+              175
+            ],
+            "sum_1_stage2_o": [
+              176
+            ],
+            "sum_1_stage3_o": [
+              177
+            ],
+            "sum_1_stage4_o": [
+              168
+            ],
+            "clk": [
+              2
+            ],
+            "sum_1_stage1_i": [
+              169
+            ],
+            "sum_1_stage2_i": [
+              170
+            ],
+            "sum_1_stage3_i": [
+              171
+            ],
+            "sum_1_stage4_i": [
+              172
+            ],
+            "sum_1_stage5_i": [
+              173
+            ]
+          }
+        },
+        "ff_sum_0": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "sum_0_stage0_o": "input",
+            "sum_0_stage1_o": "input",
+            "sum_0_stage2_o": "input",
+            "sum_0_stage3_o": "input",
+            "sum_0_stage4_o": "input",
+            "clk": "input",
+            "sum_0_stage1_i": "output",
+            "sum_0_stage2_i": "output",
+            "sum_0_stage3_i": "output",
+            "sum_0_stage4_i": "output",
+            "sum_0_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "sum_0_stage0_o": [
+              185
+            ],
+            "sum_0_stage1_o": [
+              186
+            ],
+            "sum_0_stage2_o": [
+              187
+            ],
+            "sum_0_stage3_o": [
+              188
+            ],
+            "sum_0_stage4_o": [
+              179
+            ],
+            "clk": [
+              2
+            ],
+            "sum_0_stage1_i": [
+              180
+            ],
+            "sum_0_stage2_i": [
+              181
+            ],
+            "sum_0_stage3_i": [
+              182
+            ],
+            "sum_0_stage4_i": [
+              183
+            ],
+            "sum_0_stage5_i": [
+              184
+            ]
+          }
+        },
+        "ff_sum_5": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "sum_5": "input",
+            "sum_5_stage1_o": "input",
+            "sum_5_stage2_o": "input",
+            "sum_5_stage3_o": "input",
+            "sum_5_stage4_o": "input",
+            "clk": "input",
+            "sum_5_stage1_o__out12_sum_5_stage1_i": "output",
+            "sum_5_stage2_i": "output",
+            "sum_5_stage3_i": "output",
+            "sum_5_stage4_i": "output",
+            "sum_5_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "sum_5": [
+              196
+            ],
+            "sum_5_stage1_o": [
+              191
+            ],
+            "sum_5_stage2_o": [
+              197
+            ],
+            "sum_5_stage3_o": [
+              198
+            ],
+            "sum_5_stage4_o": [
+              190
+            ],
+            "clk": [
+              2
+            ],
+            "sum_5_stage1_o__out12_sum_5_stage1_i": [
+              191
+            ],
+            "sum_5_stage2_i": [
+              192
+            ],
+            "sum_5_stage3_i": [
+              193
+            ],
+            "sum_5_stage4_i": [
+              194
+            ],
+            "sum_5_stage5_i": [
+              195
+            ]
+          }
+        },
+        "ff_sum_6": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "sum_6": "input",
+            "sum_6_stage1_o": "input",
+            "sum_6_stage2_o": "input",
+            "sum_6_stage3_o": "input",
+            "sum_6_stage4_o": "input",
+            "clk": "input",
+            "sum_6_stage1_o__out12_sum_6_stage1_i": "output",
+            "sum_6_stage2_o__out13_sum_6_stage2_i": "output",
+            "sum_6_stage3_i": "output",
+            "sum_6_stage4_i": "output",
+            "sum_6_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "sum_6": [
+              205
+            ],
+            "sum_6_stage1_o": [
+              200
+            ],
+            "sum_6_stage2_o": [
+              201
+            ],
+            "sum_6_stage3_o": [
+              206
+            ],
+            "sum_6_stage4_o": [
+              199
+            ],
+            "clk": [
+              2
+            ],
+            "sum_6_stage1_o__out12_sum_6_stage1_i": [
+              200
+            ],
+            "sum_6_stage2_o__out13_sum_6_stage2_i": [
+              201
+            ],
+            "sum_6_stage3_i": [
+              202
+            ],
+            "sum_6_stage4_i": [
+              203
+            ],
+            "sum_6_stage5_i": [
+              204
+            ]
+          }
+        },
+        "ff_sum_4": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "sum_4": "input",
+            "sum_4_stage1_o": "input",
+            "sum_4_stage2_o": "input",
+            "sum_4_stage3_o": "input",
+            "sum_4_stage4_o": "input",
+            "clk": "input",
+            "sum_4_stage1_i": "output",
+            "sum_4_stage2_i": "output",
+            "sum_4_stage3_i": "output",
+            "sum_4_stage4_i": "output",
+            "sum_4_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "sum_4": [
+              212
+            ],
+            "sum_4_stage1_o": [
+              213
+            ],
+            "sum_4_stage2_o": [
+              214
+            ],
+            "sum_4_stage3_o": [
+              215
+            ],
+            "sum_4_stage4_o": [
+              189
+            ],
+            "clk": [
+              2
+            ],
+            "sum_4_stage1_i": [
+              207
+            ],
+            "sum_4_stage2_i": [
+              208
+            ],
+            "sum_4_stage3_i": [
+              209
+            ],
+            "sum_4_stage4_i": [
+              210
+            ],
+            "sum_4_stage5_i": [
+              211
+            ]
+          }
+        },
+        "ff_rcarry_a": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "rcarry_a": "input",
+            "rcarry_a_stage1_o": "input",
+            "rcarry_a_stage2_o": "input",
+            "rcarry_a_stage3_o": "input",
+            "rcarry_a_stage4_o": "input",
+            "clk": "input",
+            "rcarry_a_stage1_o__out12_rcarry_a_stage1_i": "output",
+            "rcarry_a_stage2_o__out13_rcarry_a_stage2_i": "output",
+            "rcarry_a_stage3_o__out14_rcarry_a_stage3_i": "output",
+            "rcarry_a_stage4_i": "output",
+            "rcarry_a_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "rcarry_a": [
+              248,
+              249,
+              250,
+              251
+            ],
+            "rcarry_a_stage1_o": [
+              228,
+              229,
+              230,
+              231
+            ],
+            "rcarry_a_stage2_o": [
+              232,
+              233,
+              234,
+              235
+            ],
+            "rcarry_a_stage3_o": [
+              236,
+              237,
+              238,
+              239
+            ],
+            "rcarry_a_stage4_o": [
+              224,
+              225,
+              226,
+              227
+            ],
+            "clk": [
+              2
+            ],
+            "rcarry_a_stage1_o__out12_rcarry_a_stage1_i": [
+              228,
+              229,
+              230,
+              231
+            ],
+            "rcarry_a_stage2_o__out13_rcarry_a_stage2_i": [
+              232,
+              233,
+              234,
+              235
+            ],
+            "rcarry_a_stage3_o__out14_rcarry_a_stage3_i": [
+              236,
+              237,
+              238,
+              239
+            ],
+            "rcarry_a_stage4_i": [
+              240,
+              241,
+              242,
+              243
+            ],
+            "rcarry_a_stage5_i": [
+              244,
+              245,
+              246,
+              247
+            ]
+          }
+        },
+        "ff_rcarry_b": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "rcarry_b": "input",
+            "rcarry_b_stage1_o": "input",
+            "rcarry_b_stage2_o": "input",
+            "rcarry_b_stage3_o": "input",
+            "rcarry_b_stage4_o": "input",
+            "clk": "input",
+            "rcarry_b_stage1_o__out12_rcarry_b_stage1_i": "output",
+            "rcarry_b_stage2_o__out13_rcarry_b_stage2_i": "output",
+            "rcarry_b_stage3_o__out14_rcarry_b_stage3_i": "output",
+            "rcarry_b_stage4_i": "output",
+            "rcarry_b_stage5_i": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "rcarry_b": [
+              276,
+              277,
+              278,
+              279
+            ],
+            "rcarry_b_stage1_o": [
+              256,
+              257,
+              258,
+              259
+            ],
+            "rcarry_b_stage2_o": [
+              260,
+              261,
+              262,
+              263
+            ],
+            "rcarry_b_stage3_o": [
+              264,
+              265,
+              266,
+              267
+            ],
+            "rcarry_b_stage4_o": [
+              252,
+              253,
+              254,
+              255
+            ],
+            "clk": [
+              2
+            ],
+            "rcarry_b_stage1_o__out12_rcarry_b_stage1_i": [
+              256,
+              257,
+              258,
+              259
+            ],
+            "rcarry_b_stage2_o__out13_rcarry_b_stage2_i": [
+              260,
+              261,
+              262,
+              263
+            ],
+            "rcarry_b_stage3_o__out14_rcarry_b_stage3_i": [
+              264,
+              265,
+              266,
+              267
+            ],
+            "rcarry_b_stage4_i": [
+              268,
+              269,
+              270,
+              271
+            ],
+            "rcarry_b_stage5_i": [
+              272,
+              273,
+              274,
+              275
+            ]
+          }
+        },
+        "bussubset_60": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              82,
+              83,
+              84,
+              85
+            ],
+            "Y": [
+              558
+            ]
+          }
+        },
+        "bussubset_61": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "Y": [
+              523
+            ]
+          }
+        },
+        "bussubset_62": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              47,
+              48,
+              49,
+              50
+            ],
+            "Y": [
+              488
+            ]
+          }
+        },
+        "ripple_carry_adder_carry_in": {
+          "hide_name": 0,
+          "type": "RippleCarryAdder_W4",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "a": "input",
+            "b": "input",
+            "sum": "output"
+          },
+          "connections": {
+            "a": [
+              370,
+              371,
+              372,
+              373
+            ],
+            "b": [
+              374,
+              375,
+              376,
+              377
+            ],
+            "sum": [
+              683,
+              684,
+              685,
+              686,
+              687
+            ]
+          }
+        },
+        "bussubset_64": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 4,
+            "A_WIDTH": 5,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              683,
+              684,
+              685,
+              686,
+              687
+            ],
+            "Y": [
+              382
+            ]
+          }
+        },
+        "bussubset_65": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 5,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              683,
+              684,
+              685,
+              686,
+              687
+            ],
+            "Y": [
+              381
+            ]
+          }
+        },
+        "bussubset_66": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 5,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              683,
+              684,
+              685,
+              686,
+              687
+            ],
+            "Y": [
+              380
+            ]
+          }
+        },
+        "bussubset_67": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 5,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              683,
+              684,
+              685,
+              686,
+              687
+            ],
+            "Y": [
+              379
+            ]
+          }
+        },
+        "bussubset_68": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 5,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              683,
+              684,
+              685,
+              686,
+              687
+            ],
+            "Y": [
+              378
+            ]
+          }
+        },
+        "const_0_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              407
+            ]
+          }
+        },
+        "const_1_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              408
+            ]
+          }
+        },
+        "const_2_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              428
+            ]
+          }
+        },
+        "const_3_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              429
+            ]
+          }
+        },
+        "const_4_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              433
+            ]
+          }
+        },
+        "const_5_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              434
+            ]
+          }
+        },
+        "const_6_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              438
+            ]
+          }
+        },
+        "const_7_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              439
+            ]
+          }
+        },
+        "const_8_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              480
+            ]
+          }
+        },
+        "const_9_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              515
+            ]
+          }
+        },
+        "const_10_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              550
+            ]
+          }
+        },
+        "const_12_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              688
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a": {
+          "bits": [
+            4,
+            5,
+            6,
+            7
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b": {
+          "bits": [
+            8,
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "product": {
+          "bits": [
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "isProductSigned": {
+          "bits": [
+            688
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "productWide": {
+          "bits": [
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29
+          ],
+          "logic_type": {
+            "width": 9
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "a_stage5_i": {
+          "bits": [
+            31,
+            32,
+            33,
+            34
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "a_stage0": {
+          "bits": [
+            35,
+            36,
+            37,
+            38
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage0_o": {
+          "bits": [
+            39,
+            40,
+            41,
+            42
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage1_i": {
+          "bits": [
+            43,
+            44,
+            45,
+            46
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "a_stage1_o": {
+          "bits": [
+            47,
+            48,
+            49,
+            50
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carryIn": {
+          "bits": [
+            51
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_stage1_o": {
+          "bits": [
+            52,
+            53,
+            54,
+            55
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sum_3_stage1": {
+          "bits": [
+            56
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage1": {
+          "bits": [
+            57
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage1": {
+          "bits": [
+            58
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage1": {
+          "bits": [
+            59
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage1": {
+          "bits": [
+            60
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage1_o": {
+          "bits": [
+            61
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage1_i": {
+          "bits": [
+            62
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage2_i": {
+          "bits": [
+            63
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_stage2_o": {
+          "bits": [
+            64,
+            65,
+            66,
+            67
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_4_stage2": {
+          "bits": [
+            68
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_stage2_o": {
+          "bits": [
+            69,
+            70,
+            71,
+            72
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sum_4_stage2": {
+          "bits": [
+            73
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage2": {
+          "bits": [
+            74
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage2": {
+          "bits": [
+            75
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage2": {
+          "bits": [
+            76
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage2": {
+          "bits": [
+            77
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage2_o": {
+          "bits": [
+            78
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage1_i": {
+          "bits": [
+            79
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage2_i": {
+          "bits": [
+            80
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage3_i": {
+          "bits": [
+            81
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_stage3_o": {
+          "bits": [
+            82,
+            83,
+            84,
+            85
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_5_stage3": {
+          "bits": [
+            86
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_stage3_o": {
+          "bits": [
+            87,
+            88,
+            89,
+            90
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sum_5_stage3": {
+          "bits": [
+            91
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage3": {
+          "bits": [
+            92
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage3": {
+          "bits": [
+            93
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage3": {
+          "bits": [
+            94
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage3": {
+          "bits": [
+            95
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage3_o": {
+          "bits": [
+            96
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage1_i": {
+          "bits": [
+            97
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage2_i": {
+          "bits": [
+            98
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage3_i": {
+          "bits": [
+            99
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage4_i": {
+          "bits": [
+            100
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_stage4_o": {
+          "bits": [
+            101,
+            102,
+            103,
+            104
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage4_o": {
+          "bits": [
+            105,
+            106,
+            107,
+            108
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_4_stage1_i": {
+          "bits": [
+            111
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage2_i": {
+          "bits": [
+            112
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage3_i": {
+          "bits": [
+            113
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage4_i": {
+          "bits": [
+            114
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage5_i": {
+          "bits": [
+            115
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage1_o": {
+          "bits": [
+            117
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage2_o": {
+          "bits": [
+            118
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage3_o": {
+          "bits": [
+            119
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage1_o": {
+          "bits": [
+            121
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage2_i": {
+          "bits": [
+            122
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage3_i": {
+          "bits": [
+            123
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage4_i": {
+          "bits": [
+            124
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage5_i": {
+          "bits": [
+            125
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage2_o": {
+          "bits": [
+            127
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage3_o": {
+          "bits": [
+            128
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage1_o": {
+          "bits": [
+            130
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage2_o": {
+          "bits": [
+            131
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage3_i": {
+          "bits": [
+            132
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage4_i": {
+          "bits": [
+            133
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage5_i": {
+          "bits": [
+            134
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage3_o": {
+          "bits": [
+            136
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage1_i": {
+          "bits": [
+            137
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage2_i": {
+          "bits": [
+            138
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage3_i": {
+          "bits": [
+            139
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage4_i": {
+          "bits": [
+            140
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage5_i": {
+          "bits": [
+            141
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage0_o": {
+          "bits": [
+            142
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage1_o": {
+          "bits": [
+            143
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage2_o": {
+          "bits": [
+            144
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_3_stage3_o": {
+          "bits": [
+            145
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage4_o": {
+          "bits": [
+            146
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage1_i": {
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage2_i": {
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage3_i": {
+          "bits": [
+            149
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage4_i": {
+          "bits": [
+            150
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage5_i": {
+          "bits": [
+            151
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage0_o": {
+          "bits": [
+            152
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage1_o": {
+          "bits": [
+            153
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage2_o": {
+          "bits": [
+            154
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage3_o": {
+          "bits": [
+            155
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage4_o": {
+          "bits": [
+            156
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage4_o": {
+          "bits": [
+            157
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage1_i": {
+          "bits": [
+            158
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage2_i": {
+          "bits": [
+            159
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage3_i": {
+          "bits": [
+            160
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage4_i": {
+          "bits": [
+            161
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage5_i": {
+          "bits": [
+            162
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage0_o": {
+          "bits": [
+            163
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage1_o": {
+          "bits": [
+            164
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage2_o": {
+          "bits": [
+            165
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage3_o": {
+          "bits": [
+            166
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage4_o": {
+          "bits": [
+            167
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage4_o": {
+          "bits": [
+            168
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage1_i": {
+          "bits": [
+            169
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage2_i": {
+          "bits": [
+            170
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage3_i": {
+          "bits": [
+            171
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage4_i": {
+          "bits": [
+            172
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage5_i": {
+          "bits": [
+            173
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage0_o": {
+          "bits": [
+            174
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage1_o": {
+          "bits": [
+            175
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage2_o": {
+          "bits": [
+            176
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage3_o": {
+          "bits": [
+            177
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage4_o": {
+          "bits": [
+            178
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage4_o": {
+          "bits": [
+            179
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage1_i": {
+          "bits": [
+            180
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage2_i": {
+          "bits": [
+            181
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage3_i": {
+          "bits": [
+            182
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage4_i": {
+          "bits": [
+            183
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage5_i": {
+          "bits": [
+            184
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage0_o": {
+          "bits": [
+            185
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage1_o": {
+          "bits": [
+            186
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage2_o": {
+          "bits": [
+            187
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage3_o": {
+          "bits": [
+            188
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage1_o": {
+          "bits": [
+            191
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage2_i": {
+          "bits": [
+            192
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage3_i": {
+          "bits": [
+            193
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage4_i": {
+          "bits": [
+            194
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage5_i": {
+          "bits": [
+            195
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage2_o": {
+          "bits": [
+            197
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage3_o": {
+          "bits": [
+            198
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage1_o": {
+          "bits": [
+            200
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage2_o": {
+          "bits": [
+            201
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage3_i": {
+          "bits": [
+            202
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage4_i": {
+          "bits": [
+            203
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage5_i": {
+          "bits": [
+            204
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage3_o": {
+          "bits": [
+            206
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage1_i": {
+          "bits": [
+            207
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage2_i": {
+          "bits": [
+            208
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage3_i": {
+          "bits": [
+            209
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage4_i": {
+          "bits": [
+            210
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage5_i": {
+          "bits": [
+            211
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage1_o": {
+          "bits": [
+            213
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage2_o": {
+          "bits": [
+            214
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage3_o": {
+          "bits": [
+            215
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage4": {
+          "bits": [
+            216,
+            217,
+            218,
+            219
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage4": {
+          "bits": [
+            220,
+            221,
+            222,
+            223
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage4_o": {
+          "bits": [
+            224,
+            225,
+            226,
+            227
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage1_o": {
+          "bits": [
+            228,
+            229,
+            230,
+            231
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage2_o": {
+          "bits": [
+            232,
+            233,
+            234,
+            235
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage3_o": {
+          "bits": [
+            236,
+            237,
+            238,
+            239
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage4_i": {
+          "bits": [
+            240,
+            241,
+            242,
+            243
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage5_i": {
+          "bits": [
+            244,
+            245,
+            246,
+            247
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage4_o": {
+          "bits": [
+            252,
+            253,
+            254,
+            255
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage1_o": {
+          "bits": [
+            256,
+            257,
+            258,
+            259
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage2_o": {
+          "bits": [
+            260,
+            261,
+            262,
+            263
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage3_o": {
+          "bits": [
+            264,
+            265,
+            266,
+            267
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage4_i": {
+          "bits": [
+            268,
+            269,
+            270,
+            271
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage5_i": {
+          "bits": [
+            272,
+            273,
+            274,
+            275
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "a_stage4_i": {
+          "bits": [
+            280,
+            281,
+            282,
+            283
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage4_i": {
+          "bits": [
+            284,
+            285,
+            286,
+            287
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_1_stage4_i": {
+          "bits": [
+            288
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage4_i": {
+          "bits": [
+            289
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage5_i": {
+          "bits": [
+            290
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage0_o": {
+          "bits": [
+            291
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage1_o": {
+          "bits": [
+            292
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage2_o": {
+          "bits": [
+            293
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage3_o": {
+          "bits": [
+            294
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage3_o": {
+          "bits": [
+            295
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage3": {
+          "bits": [
+            296
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage3": {
+          "bits": [
+            297
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_stage3_i": {
+          "bits": [
+            298,
+            299,
+            300,
+            301
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage3_i": {
+          "bits": [
+            302,
+            303,
+            304,
+            305
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_0_stage3_i": {
+          "bits": [
+            306
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage5_i": {
+          "bits": [
+            307
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage0_o": {
+          "bits": [
+            308
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage1_o": {
+          "bits": [
+            309
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage2_o": {
+          "bits": [
+            310
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage2": {
+          "bits": [
+            311
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage2": {
+          "bits": [
+            312
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_stage2_i": {
+          "bits": [
+            313,
+            314,
+            315,
+            316
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage2_i": {
+          "bits": [
+            317,
+            318,
+            319,
+            320
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_0_stage5_i": {
+          "bits": [
+            321
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage0_o": {
+          "bits": [
+            322
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage1": {
+          "bits": [
+            323
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage1": {
+          "bits": [
+            324
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_stage1_i": {
+          "bits": [
+            325,
+            326,
+            327,
+            328
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage5_i": {
+          "bits": [
+            329,
+            330,
+            331,
+            332
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_3_stage0": {
+          "bits": [
+            333
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_3_stage0": {
+          "bits": [
+            334
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage0": {
+          "bits": [
+            335
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_2_stage0": {
+          "bits": [
+            336
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage0": {
+          "bits": [
+            337
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_1_stage0": {
+          "bits": [
+            338
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage0": {
+          "bits": [
+            339
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_0_stage0": {
+          "bits": [
+            340
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "a_stage5_o": {
+          "bits": [
+            349,
+            350,
+            351,
+            352
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "b_stage5_o": {
+          "bits": [
+            353,
+            354,
+            355,
+            356
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "carry_3_stage5_o": {
+          "bits": [
+            357
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_2_stage5_o": {
+          "bits": [
+            359
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_1_stage5_o": {
+          "bits": [
+            361
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_0_stage5_o": {
+          "bits": [
+            363
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_4_stage5_o": {
+          "bits": [
+            364
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_4_stage5_o": {
+          "bits": [
+            365
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_5_stage5_o": {
+          "bits": [
+            366
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_5_stage5_o": {
+          "bits": [
+            367
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "carry_6_stage5_o": {
+          "bits": [
+            368
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_6_stage5_o": {
+          "bits": [
+            369
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "rcarry_a_stage5_o": {
+          "bits": [
+            370,
+            371,
+            372,
+            373
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "rcarry_b_stage5_o": {
+          "bits": [
+            374,
+            375,
+            376,
+            377
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in4": {
+          "bits": [
+            378
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in5": {
+          "bits": [
+            379
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in6": {
+          "bits": [
+            380
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in7": {
+          "bits": [
+            381
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in8": {
+          "bits": [
+            382
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_3_3_a_stage0": {
+          "bits": [
+            404
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_0_0_b_stage0": {
+          "bits": [
+            405
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_0": {
+          "bits": [
+            406
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_21": {
+          "bits": [
+            409,
+            410
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum": {
+          "bits": [
+            419,
+            420
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_7": {
+          "bits": [
+            421,
+            422
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_8": {
+          "bits": [
+            423,
+            424
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_subset_0_0_b_stage0": {
+          "bits": [
+            425
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_2_2_a_stage0": {
+          "bits": [
+            426
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_1": {
+          "bits": [
+            427
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_0_0_b_stage0_0": {
+          "bits": [
+            430
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_1_1_a_stage0": {
+          "bits": [
+            431
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_2": {
+          "bits": [
+            432
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_0_0_b_stage0_1": {
+          "bits": [
+            435
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_0_0_a_stage0": {
+          "bits": [
+            436
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_3": {
+          "bits": [
+            437
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_9": {
+          "bits": [
+            469,
+            470
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_10": {
+          "bits": [
+            471,
+            472
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_11": {
+          "bits": [
+            473,
+            474
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_12": {
+          "bits": [
+            475,
+            476
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in0__subset_3_3_a_stage1": {
+          "bits": [
+            477
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_1_1_b_stage1": {
+          "bits": [
+            478
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_4": {
+          "bits": [
+            479
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_1_1_b_stage1": {
+          "bits": [
+            481
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_2_2_a_stage1": {
+          "bits": [
+            482
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_5": {
+          "bits": [
+            483
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_1_1_b_stage1_0": {
+          "bits": [
+            484
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_1_1_a_stage1": {
+          "bits": [
+            485
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_6": {
+          "bits": [
+            486
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_1_1_b_stage1_1": {
+          "bits": [
+            487
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_0_0_a_stage1": {
+          "bits": [
+            488
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_7": {
+          "bits": [
+            489
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_13": {
+          "bits": [
+            504,
+            505
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_14": {
+          "bits": [
+            506,
+            507
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_15": {
+          "bits": [
+            508,
+            509
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_16": {
+          "bits": [
+            510,
+            511
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in0__subset_3_3_a_stage2": {
+          "bits": [
+            512
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_2_2_b_stage2": {
+          "bits": [
+            513
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_8": {
+          "bits": [
+            514
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_2_2_b_stage2": {
+          "bits": [
+            516
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_2_2_a_stage2": {
+          "bits": [
+            517
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_9": {
+          "bits": [
+            518
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_2_2_b_stage2_0": {
+          "bits": [
+            519
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_1_1_a_stage2": {
+          "bits": [
+            520
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_10": {
+          "bits": [
+            521
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_2_2_b_stage2_1": {
+          "bits": [
+            522
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_0_0_a_stage2": {
+          "bits": [
+            523
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_11": {
+          "bits": [
+            524
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "sum_17": {
+          "bits": [
+            539,
+            540
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_18": {
+          "bits": [
+            541,
+            542
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_19": {
+          "bits": [
+            543,
+            544
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "sum_20": {
+          "bits": [
+            545,
+            546
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in0__subset_3_3_a_stage3": {
+          "bits": [
+            547
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_3_3_b_stage3": {
+          "bits": [
+            548
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_12": {
+          "bits": [
+            549
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_3_3_b_stage3": {
+          "bits": [
+            551
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_2_2_a_stage3": {
+          "bits": [
+            552
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_13": {
+          "bits": [
+            553
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_3_3_b_stage3_0": {
+          "bits": [
+            554
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_1_1_a_stage3": {
+          "bits": [
+            555
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_14": {
+          "bits": [
+            556
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__subset_3_3_b_stage3_1": {
+          "bits": [
+            557
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_0_0_a_stage3": {
+          "bits": [
+            558
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "b_15": {
+          "bits": [
+            559
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in36__swizzled": {
+          "bits": [
+            566,
+            567,
+            568,
+            569
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in38__swizzled": {
+          "bits": [
+            570,
+            571,
+            572,
+            573
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "sum_22": {
+          "bits": [
+            683,
+            684,
+            685,
+            686,
+            687
+          ],
+          "logic_type": {
+            "width": 5
+          },
+          "attributes": {}
+        },
+        "const_0_1_h0": {
+          "bits": [
+            407
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_1_h0": {
+          "bits": [
+            408
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_1_h0": {
+          "bits": [
+            428
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h0": {
+          "bits": [
+            429
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_1_h0": {
+          "bits": [
+            433
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_1_h0": {
+          "bits": [
+            434
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_6_1_h0": {
+          "bits": [
+            438
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_7_1_h0": {
+          "bits": [
+            439
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_8_1_h0": {
+          "bits": [
+            480
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_9_1_h0": {
+          "bits": [
+            515
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_10_1_h0": {
+          "bits": [
+            550
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_12_1_h0": {
+          "bits": [
+            688
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    }
+  }
+}

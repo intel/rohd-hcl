@@ -1,0 +1,99 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.0.1",
+  "modules": {
+    "OneHotToBinary": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "onehot": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "binary": {
+          "direction": "output",
+          "bits": [
+            10,
+            11,
+            12
+          ],
+          "logic_type": {
+            "width": 3
+          }
+        }
+      },
+      "cells": {
+        "combinational": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "onehot": "input",
+            "binary": "output"
+          },
+          "connections": {
+            "onehot": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "binary": [
+              10,
+              11,
+              12
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "onehot": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "binary": {
+          "bits": [
+            10,
+            11,
+            12
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {}
+        }
+      }
+    }
+  }
+}
