@@ -57,5 +57,4 @@ class ParityReceiver extends ErrorCheckingReceiver {
   @override
   @protected
   Logic calculateUncorrectableError() => ~originalData.xor().eq(code);
-
 }
