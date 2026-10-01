@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // compound_adder.dart
@@ -64,22 +64,6 @@ class CarrySelectCompoundAdder extends CompoundAdder {
   /// [adderWidth] is a whole width of adder.
   static List<int> splitSelectAdderAlgorithmSingleBlock(int adderWidth) {
     final splitData = <int>[adderWidth];
-    return splitData;
-  }
-
-  /// Adder  block size computation algorithm.
-  /// Generates 4 bit carry-select blocks with 1st entry width adjusted down.
-  /// Return list of block sizes starting from
-  /// the LSB connected one.
-  /// [adderWidth] is a whole width of adder.
-  @Deprecated('use splitSelectAdderAlgorithmNBit instead')
-  static List<int> splitSelectAdderAlgorithm4Bit(int adderWidth) {
-    final blockNb = (adderWidth / 4.0).ceil();
-    final firstBlockSize = adderWidth - (blockNb - 1) * 4;
-    final splitData = <int>[firstBlockSize];
-    for (var i = 1; i < blockNb; ++i) {
-      splitData.add(4);
-    }
     return splitData;
   }
 

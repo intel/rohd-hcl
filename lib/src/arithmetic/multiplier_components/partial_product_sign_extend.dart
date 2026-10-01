@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // partial_product_test_sign_extend.dart
@@ -172,11 +172,6 @@ class PartialProductGenerator extends PartialProductGeneratorBase {
       super.selectSignedMultiplier,
       super.name = 'none'}) {
     extender = NoneSignExtension(this);
-    signExtend();
-  }
-
-  @override
-  void signExtend() {
     extender.signExtend();
   }
 }
@@ -224,33 +219,6 @@ class BruteSignExtension extends PartialProductSignExtension {
     partialProducts.add(List.generate(selector.width, (i) => Const(0)));
     partialProducts.last.insert(0, SignBit(signs[rows - 2]));
     rowShift.add((rows - 2) * shift);
-  }
-}
-
-/// A wrapper class for [BruteSignExtension] we used
-/// during refactoring to be compatible with old calls.
-@Deprecated('Use BruteSignExtension class after PartialProductGeneratorBasic')
-class PartialProductGeneratorBruteSignExtension
-    extends PartialProductGeneratorBase {
-  /// The extension routine we will be using.
-  late final PartialProductSignExtension extender;
-
-  /// Construct a compact rect sign extending Partial Product Generator
-  @Deprecated('Use BruteSignExtension class after PartialProductGeneratorBasic')
-  PartialProductGeneratorBruteSignExtension(
-      super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signedMultiplicand,
-      super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
-      super.name = 'brute'}) {
-    extender = BruteSignExtension(this);
-    signExtend();
-  }
-
-  @override
-  void signExtend() {
-    extender.signExtend();
   }
 }
 
@@ -386,34 +354,6 @@ class CompactSignExtension extends PartialProductSignExtension {
   }
 }
 
-/// A wrapper class for [CompactSignExtension] we used
-/// during refactoring to be compatible with old calls.
-@Deprecated('Use CompactSignExtension class after PartialProductGeneratorBasic')
-class PartialProductGeneratorCompactSignExtension
-    extends PartialProductGeneratorBase {
-  /// The extension routine we will be using.
-  late final PartialProductSignExtension extender;
-
-  /// Construct a compact sign extending Partial Product Generator
-  @Deprecated(
-      'Use CompactSignExtension class after PartialProductGeneratorBasic')
-  PartialProductGeneratorCompactSignExtension(
-      super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signedMultiplicand,
-      super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
-      super.name = 'compact'}) {
-    extender = CompactSignExtension(this);
-    signExtend();
-  }
-
-  @override
-  void signExtend() {
-    extender.signExtend();
-  }
-}
-
 /// A StopBits Sign Extension.
 class StopBitsSignExtension extends PartialProductSignExtension {
   /// Construct a stop bits sign extendsion class.
@@ -498,63 +438,6 @@ class StopBitsSignExtension extends PartialProductSignExtension {
             partialProducts.last, SignBit(Const(1), inverted: true));
       }
     }
-  }
-}
-
-/// Stop-bits based sign extension
-@Deprecated(
-    'Use StopBitsSignExtension class after PartialProductGeneratorBasic')
-class PartialProductGeneratorStopBitsSignExtension
-    extends PartialProductGeneratorBase {
-  /// The extension routine we will be using.
-  late final PartialProductSignExtension extender;
-
-  /// Construct a stop bits sign extending Partial Product Generator
-  @Deprecated(
-      'Use StopBitsSignExtension class after PartialProductGeneratorBasic')
-  PartialProductGeneratorStopBitsSignExtension(
-      super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signedMultiplicand,
-      super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
-      super.name = 'stop_bits'}) {
-    extender = StopBitsSignExtension(this);
-    signExtend();
-  }
-
-  @override
-  void signExtend() {
-    extender.signExtend();
-  }
-}
-
-/// A wrapper class for [CompactRectSignExtension] we used
-/// during refactoring to be compatible with old calls.
-@Deprecated(
-    'Use CompactRectSignExtension class after PartialProductGeneratorBasic')
-class PartialProductGeneratorCompactRectSignExtension
-    extends PartialProductGeneratorBase {
-  /// The extension routine we will be using.
-  late final PartialProductSignExtension extender;
-
-  /// Construct a compact rect sign extending Partial Product Generator
-  @Deprecated(
-      'Use CompactRectSignExtension class after PartialProductGeneratorBasic')
-  PartialProductGeneratorCompactRectSignExtension(
-      super.multiplicand, super.multiplier, super.radixEncoder,
-      {super.signedMultiplicand,
-      super.signedMultiplier,
-      super.selectSignedMultiplicand,
-      super.selectSignedMultiplier,
-      super.name = 'compact_rect'}) {
-    extender = CompactRectSignExtension(this);
-    signExtend();
-  }
-
-  @override
-  void signExtend() {
-    extender.signExtend();
   }
 }
 

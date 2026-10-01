@@ -3,6 +3,7 @@
 ### Breaking changes
 
 - The minimum supported Dart SDK is now 3.6.0. Applications using Dart 3.0 through 3.5 must upgrade their SDK before resolving ROHD-HCL.
+- Removed APIs deprecated before v0.3.0. Migrate `splitSelectAdderAlgorithm4Bit` to `splitSelectAdderAlgorithmNBit(4)`, legacy interface clone and divider match constructors to instance `clone()`, partial-product sign-extension wrappers to the corresponding `PartialProductSignExtension` strategy, `FixedPointValue.eq`/`neq` to `==`/`!=`, floating-point random `normal`/`subNormal` arguments to `genNormal`/`genSubNormal`, `Count.index` to `count`, legacy parity getters to `code`/`error`/`originalData`, and `loadMemHex` to `loadMemString`. The `FixedPointValue` comparison operators now return `bool`.
 - Corrected AXI5 signal widths to match the configured protocol widths. Generated interfaces for affected `MMUSID`, `MMUSSID`, and `SUBSYSID` signals may have different port widths; designs that connect to those signals must use the corrected widths (<https://github.com/intel/rohd-hcl/pull/280>).
 - `ChoiceConfigKnob<Type>` now requires a stable label for every choice, including on the Dart VM, because `Type.toString()` is not stable in minified builds. The labels are used as both display text and serialized JSON values. Existing custom configurators must migrate to the `choiceLabels` construction pattern:
 

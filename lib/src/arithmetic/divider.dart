@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // divider.dart
@@ -90,11 +90,6 @@ class MultiCycleDividerInterface extends PairInterface {
           Logic.port('validOut'),
           Logic.port('readyIn'),
         ]);
-
-  /// A match constructor for the divider interface.
-  @Deprecated('Use clone() instead.')
-  MultiCycleDividerInterface.match(MultiCycleDividerInterface other)
-      : this(dataWidth: other.dataWidth);
 
   /// Clones this [MultiCycleDividerInterface].
   @override
