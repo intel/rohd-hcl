@@ -140,13 +140,16 @@ abstract class MultiplyAccumulate extends Module {
     b = addInput('b', b, width: b.width);
     c = addInput('c', c, width: c.width);
 
-    signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+    signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplicand,
+        name: 'signedMultiplicand');
     this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-    signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+    signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplier,
+        name: 'signedMultiplier');
     this.signedMultiplier = signedMultiplierParameter.staticConfig;
-    signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
+    signedAddendParameter =
+        StaticOrRuntimeParameter.ofDynamic(signedAddend, name: 'signedAddend');
     this.signedAddend = signedAddendParameter.staticConfig;
 
     addOutput('accumulate', width: a.width + b.width + 1);

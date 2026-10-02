@@ -79,10 +79,12 @@ class DotProductBase extends Module {
           '${multiplicands.length - operandWidthMiss} width mismatches.');
     }
 
-    signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
-    signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+    signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplicand,
+        name: 'signedMultiplicand');
+    signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplier,
+        name: 'signedMultiplier');
 
     this.multiplicands = multiplicands
         .mapIndexed((i, multiplicand) => addInput(
