@@ -18,6 +18,12 @@ class Counter extends SummationBase {
   /// The output value of the counter.
   Logic get count => output('count');
 
+  /// The value that [count] will take on the next cycle.
+  ///
+  /// This is the output of the same [Sum] that drives [count], so using it
+  /// costs no extra summation hardware.
+  Logic get nextCount => output('nextCount');
+
   /// The main clock signal.
   @visibleForTesting
   @protected
@@ -83,6 +89,7 @@ class Counter extends SummationBase {
     }
 
     addOutput('count', width: width);
+    addOutput('nextCount', width: width);
 
     _buildLogic();
   }
@@ -101,6 +108,8 @@ class Counter extends SummationBase {
 
   /// Builds the internal logic for the counter.
   void _buildLogic() {
+    nextCount <= summer.sum;
+
     buildFlops();
 
     // need to flop these since value is flopped
