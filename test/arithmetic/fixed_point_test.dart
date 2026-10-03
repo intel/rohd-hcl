@@ -86,6 +86,21 @@ void main() {
     expect(product.fixedPointValue.toDouble(), 16.875);
   });
 
+  test('FX unsigned subtraction adds only one sign bit', () {
+    final fx1 = FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    final fx2 = FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    final difference = fx1.subtract(fx2);
+
+    expect(difference.signed, isTrue);
+    expect(difference.integerWidth, 4);
+    expect(difference.fractionWidth, 4);
+    expect(difference.width, fx1.width + 1);
+
+    fx1.put(fx1.valuePopulator().ofDouble(0));
+    fx2.put(fx2.valuePopulator().ofDouble(15.9375));
+    expect(difference.fixedPointValue.toDouble(), -15.9375);
+  });
+
   test('legacy multiply operator retains unsigned result behavior', () {
     final fx1 = FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
     final fx2 = FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);

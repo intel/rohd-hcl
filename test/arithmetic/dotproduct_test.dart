@@ -23,6 +23,28 @@ void main() {
     GeneralDotProduct.new
   ];
 
+  test('dot product definition names include adder identity', () {
+    final multiplicands = [Logic(width: 4), Logic(width: 4)];
+    final multipliers = [Logic(width: 4), Logic(width: 4)];
+
+    final compressionNative =
+        CompressionTreeDotProduct(multiplicands, multipliers);
+    final compressionRipple = CompressionTreeDotProduct(
+        multiplicands, multipliers,
+        adderGen: RippleCarryAdder.new, adderIdentity: 'rippleCarry');
+    final generalNative = GeneralDotProduct(multiplicands, multipliers);
+    final generalRipple = GeneralDotProduct(multiplicands, multipliers,
+        adderGen: RippleCarryAdder.new, adderIdentity: 'rippleCarry');
+
+    expect(compressionNative.definitionName, contains('Addnative'));
+    expect(compressionRipple.definitionName, contains('AddrippleCarry'));
+    expect(compressionNative.definitionName,
+        isNot(compressionRipple.definitionName));
+    expect(generalNative.definitionName, contains('Addnative'));
+    expect(generalRipple.definitionName, contains('AddrippleCarry'));
+    expect(generalNative.definitionName, isNot(generalRipple.definitionName));
+  });
+
   test('dotproduct width mismatch test', () {
     final multiplicands = [
       Logic(width: 3, name: 'a_0'),

@@ -221,7 +221,7 @@ void main() {
   test('GenericMultiplyAccumulate pipelines runtime signedness with result',
       () async {
     const width = 3;
-    const outputWidth = 8;
+    const outputWidth = 12;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     final c = Logic(name: 'c', width: width * 2);
@@ -240,25 +240,25 @@ void main() {
     unawaited(Simulator.run());
 
     reset.put(1);
-    signedOperands.put(0);
+    signedOperands.put(1);
     await clk.nextPosedge;
     reset.put(0);
 
-    a.put(7);
-    b.put(7);
-    c.put(15);
-    signedOperands.put(0);
+    a.put(0);
+    b.put(0);
+    c.put(63);
+    signedOperands.put(1);
     await clk.nextPosedge;
     await clk.nextNegedge;
-    expect(mac.accumulate.value.toInt(), equals(64));
+    expect(mac.accumulate.value, LogicValue.ofInt(-1, outputWidth));
 
     // Change the mode after the result register updates. The current result
     // must retain the mode that was active when it was captured.
-    signedOperands.put(1);
-    expect(mac.accumulate.value.toInt(), equals(64));
+    signedOperands.put(0);
+    expect(mac.accumulate.value, LogicValue.ofInt(-1, outputWidth));
     await clk.nextPosedge;
     await clk.nextNegedge;
-    expect(mac.accumulate.value.toInt(), equals(64));
+    expect(mac.accumulate.value, LogicValue.ofInt(63, outputWidth));
 
     await Simulator.endSimulation();
   });

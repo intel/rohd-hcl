@@ -198,7 +198,7 @@ class FixedPoint extends LogicStructure {
   /// Subtracts [other] and returns a full-precision signed [FixedPoint].
   FixedPoint subtract(dynamic other) {
     final comparable = _verifyCompatible(other);
-    final resultIntegerWidth = integerWidth + 1;
+    final resultIntegerWidth = integerWidth + (signed ? 1 : 0);
     final resultWidth = resultIntegerWidth + fractionWidth + 1;
     final left = signed ? signExtend(resultWidth) : zeroExtend(resultWidth);
     final right = signed

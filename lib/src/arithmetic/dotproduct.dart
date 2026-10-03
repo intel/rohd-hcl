@@ -108,12 +108,17 @@ class CompressionTreeDotProduct extends DotProductBase {
   /// is used on the tall array of partial products, the final addition is
   /// accomplished using the specified [adderGen] (default is
   /// [NativeAdder.new]).
+  ///
+  /// [adderIdentity] must stably identify the generated adder configuration so
+  /// automatic definition names remain unique when a custom [adderGen] is
+  /// used.
   CompressionTreeDotProduct(super.multiplicands, super.multipliers,
       {super.signedMultiplicand,
       super.signedMultiplier,
       int productRadix = 4,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
+      String adderIdentity = 'native',
       super.name = 'compression_tree_dotproduct',
       super.reserveName = false,
       super.reserveDefinitionName = false,
@@ -122,7 +127,7 @@ class CompressionTreeDotProduct extends DotProductBase {
             definitionName: definitionName ??
                 'CompressionTreeDotProduct_L${multipliers.length}_'
                     'A${multiplicands[0].width}_B${multipliers[0].width}_'
-                    'R${productRadix}_'
+                    'R${productRadix}_Add${adderIdentity}_'
                     '${Multiplier.signedMD(signedMultiplicand)}_'
                     '${Multiplier.signedML(signedMultiplier)}') {
     if (multiplicands.first.width != multipliers.first.width) {
@@ -177,11 +182,16 @@ class GeneralDotProduct extends DotProductBase {
   /// [multipliers], a [multiplierGen] for constructing products, and an
   /// [adderGen] function to generate [Adder]s for use in a [ReductionTree] for
   /// the final addition of the products.
+  ///
+  /// [multiplierIdentity] and [adderIdentity] must stably identify the
+  /// generated multiplier and adder configurations so automatic definition
+  /// names remain unique when custom generators are used.
   GeneralDotProduct(super.multiplicands, super.multipliers,
       {super.signedMultiplicand,
       super.signedMultiplier,
       int treeRadix = 2,
       String multiplierIdentity = 'native',
+      String adderIdentity = 'native',
       this.adderGen = NativeAdder.new,
       Multiplier Function(Logic a, Logic b,
               {Logic? clk,
@@ -199,6 +209,7 @@ class GeneralDotProduct extends DotProductBase {
                 'GeneralDotProduct_L${multipliers.length}_'
                     'A${multiplicands[0].width}_B${multipliers[0].width}_'
                     'R${treeRadix}_${multiplierIdentity}_'
+                    'Add${adderIdentity}_'
                     '${Multiplier.signedMD(signedMultiplicand)}_'
                     '${Multiplier.signedML(signedMultiplier)}') {
     final hasRuntimeSign = signedMultiplicandParameter.runtimeConfig != null ||
