@@ -515,9 +515,8 @@ void main() {
       for (final outSpec in [(3, 2), (3, 4), (4, 3)]) {
         for (final mode in FloatingPointRoundingMode.values) {
           final fpOut = FloatingPoint(
-              exponentWidth: outSpec.$1, mantissaWidth: outSpec.$2);
-          // ignore: cascade_invocations
-          fpOut.put(0);
+              exponentWidth: outSpec.$1, mantissaWidth: outSpec.$2)
+            ..put(0);
           final multiplier = FloatingPointMultiplierSimple(fp1, fp2,
               outProduct: fpOut, roundingMode: mode);
 
@@ -567,9 +566,7 @@ outSpec=$outSpec mode=$mode
 
       for (final outExpWidth in [3, 4, 5, 6, 7, 8]) {
         final fpOut =
-            FloatingPoint(exponentWidth: outExpWidth, mantissaWidth: 6);
-        // ignore: cascade_invocations
-        fpOut.put(0);
+            FloatingPoint(exponentWidth: outExpWidth, mantissaWidth: 6)..put(0);
         final multiplier =
             FloatingPointMultiplierSimple(fp1, fp2, outProduct: fpOut);
         fp1.put(fv1);

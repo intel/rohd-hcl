@@ -9,6 +9,9 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// The legacy converter remains for compatibility and regression testing.
+// ignore_for_file: remove_deprecations_in_breaking_versions
+
 import 'dart:math';
 
 import 'package:meta/meta.dart';
@@ -728,6 +731,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     LogicValue exponent,
     LogicValue mantissa
   }) _constantComponents(FloatingPointConstants constant) =>
+      // Special constants may require subtype-specific protected hooks.
       // ignore: invalid_use_of_visible_for_overriding_member, invalid_use_of_protected_member
       _unpopulated.getSpecialConstantComponents(constant) ??
       getConstantComponents(constant);

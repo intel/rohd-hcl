@@ -92,6 +92,7 @@ void main() {
     fx1.put(fx1.valuePopulator().ofDouble(2));
     fx2.put(fx2.valuePopulator().ofDouble(3));
 
+    // This regression test intentionally exercises the legacy operator.
     // ignore: deprecated_member_use_from_same_package
     final product = fx1 * fx2;
 

@@ -8,6 +8,9 @@
 // Authors:
 //  Soner Yaldiz <soner.yaldiz@intel.com>
 
+// Deprecated unsigned-default APIs remain for source compatibility.
+// ignore_for_file: remove_deprecations_in_breaking_versions
+
 import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';

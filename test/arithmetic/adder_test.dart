@@ -297,12 +297,14 @@ void main() {
 
     expect(
         () => OnesComplementAdder(a, b,
+            // This test intentionally exercises the compatibility input.
             // ignore: deprecated_member_use_from_same_package
             subtractIn: subtractIn,
             subtract: false),
         returnsNormally);
     expect(
         () => OnesComplementAdder(a, b,
+            // This test verifies conflicting legacy and current inputs.
             // ignore: deprecated_member_use_from_same_package
             subtractIn: subtractIn,
             subtract: true),

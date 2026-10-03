@@ -7,6 +7,7 @@
 // 2026 September 4
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// This test intentionally imports the deprecated compatibility path.
 // ignore: deprecated_member_use_from_same_package
 import 'package:rohd_hcl/src/static_or_runtime_parameter.dart';
 import 'package:test/test.dart';

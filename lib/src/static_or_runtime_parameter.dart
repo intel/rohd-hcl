@@ -7,6 +7,9 @@
 // 2026 September 4
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// This file intentionally preserves the deprecated legacy import path.
+// ignore_for_file: remove_deprecations_in_breaking_versions
+
 /// Legacy import path for static-or-runtime controls.
 ///
 /// Import `static_or_runtime_control.dart` instead.

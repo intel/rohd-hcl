@@ -7,6 +7,9 @@
 // 2024 October 24
 // Author: Soner Yaldiz <soner.yaldiz@intel.com>
 
+// The legacy multiply operator remains for source compatibility.
+// ignore_for_file: remove_deprecations_in_breaking_versions
+
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

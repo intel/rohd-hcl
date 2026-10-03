@@ -366,6 +366,7 @@ class MultiplyOnly extends MultiplyAccumulate {
                 : null));
 
     accumulate <=
+        // The wrapper needs the generated multiplier's signedness metadata.
         // ignore: invalid_use_of_protected_member
         fitAccumulateWidth(multiply.product, signed: multiply.isProductSigned);
   }
@@ -437,6 +438,7 @@ class GenericMultiplyAccumulate extends MultiplyAccumulate {
                 : null));
 
     final product = multiply.product;
+    // The wrapper needs the generated multiplier's signedness metadata.
     // ignore: invalid_use_of_protected_member
     final productSigned = multiply.isProductSigned;
     final addendSigned = selectSignedAddend ?? Const(signedAddend ? 1 : 0);
