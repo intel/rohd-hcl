@@ -26,7 +26,7 @@ export 'src/rotate.dart';
 export 'src/serialization/serialization.dart';
 export 'src/signed_shifter.dart';
 export 'src/sort.dart';
-export 'src/static_or_runtime_parameter.dart';
+export 'src/static_or_runtime_control.dart';
 export 'src/summation/summation.dart';
 export 'src/synchronizer.dart';
 export 'src/toggle_gate.dart';

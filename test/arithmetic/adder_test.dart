@@ -270,7 +270,7 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              subtractIn: subtractIn,
+              subtract: subtractIn,
               // endAroundCarry: carry,
               generateEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
@@ -288,6 +288,27 @@ void main() {
         }
       }
     }
+  });
+
+  test('ones complement accepts an explicit legacy false subtract value', () {
+    final a = Logic(width: 2);
+    final b = Logic(width: 2);
+    final subtractIn = Logic();
+
+    expect(
+        () => OnesComplementAdder(a, b,
+            // This test intentionally exercises the compatibility input.
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: false),
+        returnsNormally);
+    expect(
+        () => OnesComplementAdder(a, b,
+            // This test verifies conflicting legacy and current inputs.
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: true),
+        throwsA(isA<RohdHclException>()));
   });
 
   test('trivial sign magnitude with onescomplement adder test', () {

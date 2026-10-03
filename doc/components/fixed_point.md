@@ -8,7 +8,7 @@ A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-cl
 
 ## FixedPointValue Populator
 
-A `FixedPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FixedPointValue` predictably across different special subtypes. The general pattern is to call the `populator` static function on a `FixedPointValue` (or special subtype), then subsequently call one of the population methods on the provided populator to receive a completed object.
+A `FixedPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FixedPointValue` predictably across different special subtypes. The general pattern is to call `FixedPointValue.populatorWithSignedness`, then subsequently call one of the population methods on the provided populator to receive a completed object. The deprecated `FixedPointValue.populator` remains available with its historical unsigned default.
 
 Included in the `FixedPointValuePopulator` is a `random()` floating-point value generator that can generate `FixedPointValue`s in a constrained range such as
 
@@ -23,8 +23,11 @@ or any other variants of $<$, $<=$, $>$, and $>=$. An example of its use is
 ```dart
 const m = 4;
 const n = 4;
-FixedPointValuePopulator populator() => FixedPointValue.populator(signed: true,
-        integerWidth: m, fractionWidth: n);
+FixedPointValuePopulator populator() =>
+    FixedPointValue.populatorWithSignedness(
+      integerWidth: m,
+      fractionWidth: n,
+    );
 
 final lt = populator().ofDouble(0.0);
 final gt = populator().ofDouble(0.5);
@@ -36,6 +39,15 @@ This example produces random `FixedPointValue` `fxv`s in the range $0.0 < fxv.to
 ## FixedPoint
 
 The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html) type is an extension of [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.  
+
+`FixedPoint` supports direct `+`, `-`, and unary `-` operators as well as
+`add`, `subtract`, and `multiply` methods. Addition, subtraction, and
+`multiply` return full-precision results. The deprecated `*` operator retains
+its historical unsigned result behavior; new code should use `multiply`.
+Comparisons use `eq`, `neq`, `lt`, `lte`, `gt`, and `gte`; `>` and `>=` are
+also available as operators. ROHD reserves `<` and `<=` for signal assignment,
+so they cannot be comparison operators. A `FixedPointValue` can be converted
+to a constant `FixedPoint` signal with `toLogic()`.
 
 ## FixedToFloat
 
