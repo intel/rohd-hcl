@@ -42,6 +42,8 @@ void main() {
     a.put(a.valuePopulator().positiveInfinity);
     b.put(b.valuePopulator().negativeInfinity);
     expect(single.status.invalid.value.toBool(), isTrue);
+    expect(single.status.inexact.value.toBool(), isFalse);
+    expect(single.status.underflow.value.toBool(), isFalse);
     expect(dual.status.invalid.value.toBool(), isTrue);
 
     a.put(a.valuePopulator().ofConstant(FloatingPointConstants.largestNormal));
@@ -50,6 +52,33 @@ void main() {
     expect(single.status.inexact.value.toBool(), isTrue);
     expect(dual.status.overflow.value.toBool(), isTrue);
     expect(dual.status.inexact.value.toBool(), isTrue);
+  });
+
+  test('FP: single-path special results do not report finite inexactness', () {
+    final a = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);
+    final b = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);
+    final adder = FloatingPointAdderSinglePath(a, b);
+    final specialValues = [
+      a.valuePopulator().positiveInfinity,
+      a.valuePopulator().nan,
+    ];
+
+    for (final special in specialValues) {
+      a.put(special);
+      for (final sign in [false, true]) {
+        for (var exponent = 0; exponent < 7; exponent++) {
+          for (var mantissa = 0; mantissa < 8; mantissa++) {
+            b.put(b.valuePopulator().ofInts(exponent, mantissa, sign: sign));
+            expect(adder.status.inexact.value.toBool(), isFalse,
+                reason: 'special=$special sign=$sign '
+                    'exponent=$exponent mantissa=$mantissa');
+            expect(adder.status.underflow.value.toBool(), isFalse,
+                reason: 'special=$special sign=$sign '
+                    'exponent=$exponent mantissa=$mantissa');
+          }
+        }
+      }
+    }
   });
 
   test('FP: multiplier reports invalid and underflow status', () {

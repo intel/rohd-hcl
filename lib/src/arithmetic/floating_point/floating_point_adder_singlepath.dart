@@ -414,12 +414,14 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     };
     final finiteOverflow =
         (overflow & ~isInfFlopped & ~isNaNFlopped).named('finiteOverflow');
+    final finiteRoundingInexact =
+        (roundingInexact & ~isInfFlopped & ~isNaNFlopped)
+            .named('finiteRoundingInexact');
     internalStatus.invalid <= invalidOperationFlopped;
     internalStatus.divideByZero <= Const(0);
     internalStatus.overflow <= finiteOverflow;
-    internalStatus.underflow <=
-        ~exponentRound.or() & roundingInexact & ~isNaNFlopped;
-    internalStatus.inexact <= finiteOverflow | roundingInexact;
+    internalStatus.underflow <= ~exponentRound.or() & finiteRoundingInexact;
+    internalStatus.inexact <= finiteOverflow | finiteRoundingInexact;
 
     Combinational([
       If.block([

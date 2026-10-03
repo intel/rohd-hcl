@@ -1155,7 +1155,7 @@ void main() {
 
     final fp1 = fpConstructor(explicitJBit: true);
     final fp2 = fpConstructor(explicitJBit: true);
-    final     fpOut = fpConstructor();
+    final fpOut = fpConstructor();
     fp1.put(0);
     fp2.put(0);
     final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);

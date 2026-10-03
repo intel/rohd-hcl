@@ -35,6 +35,22 @@ Logic _signedGtConst(Logic a, int threshold) {
       : mux(a[-1], a.gt(thresholdBits), Const(1));
 }
 
+int _fractionBitsWidth(FloatingPoint float) =>
+    float.mantissa.width - (float.explicitJBit ? 1 : 0);
+
+int _floatingPointBias(FloatingPoint float) => float.valuePopulator().bias;
+
+int _defaultIntegerWidth(FloatingPoint float) {
+  final bias = _floatingPointBias(float);
+  final fractionBitsWidth = _fractionBitsWidth(float);
+  return float.exponent.width == 4 && fractionBitsWidth == 3
+      ? bias + 2
+      : bias + 1;
+}
+
+int _defaultFractionWidth(FloatingPoint float) =>
+    _floatingPointBias(float) + _fractionBitsWidth(float) - 1;
+
 /// [FloatToFixed] converts a floating point input to a signed
 /// fixed-point output following Q notation (Qm.n format) as introduced by
 /// (Texas Instruments): (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
@@ -88,27 +104,27 @@ class FloatToFixed extends Module {
       : super(
             definitionName: definitionName ??
                 'FloatE${float.exponent.width}'
-                    'M${float.mantissa.width}ToFixed') {
+                    'M${float.mantissa.width}'
+                    'J${float.explicitJBit ? 1 : 0}ToFixed_'
+                    'I${integerWidth ?? _defaultIntegerWidth(float)}_'
+                    'F${fractionWidth ?? _defaultFractionWidth(float)}_'
+                    'R${roundingMode.name}_'
+                    'O${checkOverflow ? 1 : 0}') {
     float = addTypedInput('float', float);
-
-    final bias = float.floatingPointValue.bias;
 
     // [float.mantissa] includes the explicit j-bit as its top bit when
     // [FloatingPoint.explicitJBit] is set; separate it out here so the rest
     // of this component can work uniformly with just the fraction bits and
     // its own independently-computed [jBit], matching the implicit-j-bit
     // convention used throughout.
-    final fractionBitsWidth =
-        float.mantissa.width - (float.explicitJBit ? 1 : 0);
+    final fractionBitsWidth = _fractionBitsWidth(float);
     final mantissaFractionBits = float.explicitJBit
         ? float.mantissa.slice(fractionBitsWidth - 1, 0)
         : float.mantissa;
 
     // E4M3 expands the max exponent by 1.
-    final noLossM = ((float.exponent.width == 4) & (fractionBitsWidth == 3))
-        ? bias + 2
-        : bias + 1; // accomodate the jbit
-    final noLossN = bias + fractionBitsWidth - 1;
+    final noLossM = _defaultIntegerWidth(float);
+    final noLossN = _defaultFractionWidth(float);
 
     this.integerWidth = integerWidth ?? noLossM;
     this.fractionWidth = fractionWidth ?? noLossN;

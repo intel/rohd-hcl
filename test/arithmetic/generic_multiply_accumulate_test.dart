@@ -75,6 +75,43 @@ void main() {
         isNot(compressionWide.definitionName));
   });
 
+  test('Generic MAC definition names include generators and signedness', () {
+    final a = Logic(width: 3);
+    final b = Logic(width: 3);
+    final c = Logic(width: 6);
+
+    Multiplier compressionTreeMultiplier(Logic a, Logic b,
+            {dynamic signedMultiplicand, dynamic signedMultiplier}) =>
+        CompressionTreeMultiplier(a, b,
+            signedMultiplicand: signedMultiplicand,
+            signedMultiplier: signedMultiplier);
+
+    final variants = [
+      GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new),
+      GenericMultiplyAccumulate(a, b, c, compressionTreeMultiplier,
+          multiplierIdentity: 'compressionTree'),
+      GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
+          adderGen: RippleCarryAdder.new, adderIdentity: 'rippleCarry'),
+      GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
+          signedMultiplicand: true),
+      GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
+          signedMultiplier: true),
+      GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
+          signedAddend: true),
+      GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
+          signedAddend: Logic(name: 'signedAddend')),
+    ];
+
+    expect(variants.map((variant) => variant.definitionName).toSet(),
+        hasLength(variants.length));
+    expect(variants[1].definitionName, contains('MulcompressionTree'));
+    expect(variants[2].definitionName, contains('AddrippleCarry'));
+    expect(variants[3].definitionName, contains('_SD_UM_UA'));
+    expect(variants[4].definitionName, contains('_UD_SM_UA'));
+    expect(variants[5].definitionName, contains('_UD_UM_SA'));
+    expect(variants[6].definitionName, contains('_UD_UM_SSA'));
+  });
+
   test('StaticOrRuntimeParameter rejects wide runtime configurations', () {
     for (final config in [
       () => StaticOrRuntimeParameter(
@@ -147,7 +184,8 @@ void main() {
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier);
 
-    final mac = GenericMultiplyAccumulate(a, b, c, multiplierGen);
+    final mac = GenericMultiplyAccumulate(a, b, c, multiplierGen,
+        multiplierIdentity: 'compressionTree');
     expect(mac.accumulate.value.toInt(), equals(16));
   });
 

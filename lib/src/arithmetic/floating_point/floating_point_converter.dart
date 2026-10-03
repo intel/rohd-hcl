@@ -70,8 +70,10 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 'FloatingPointConverter_'
                     'SE${source.exponent.width}_'
                     'SM${source.mantissa.width}_'
+                    'SJ${source.explicitJBit ? 1 : 0}_'
                     'DE${destination.exponent.width}_'
                     'DM${destination.mantissa.width}_'
+                    'DJ${destination.explicitJBit ? 1 : 0}_'
                     'R${roundingMode.name}') {
     if (source.subNormalAsZero) {
       throw ArgumentError(

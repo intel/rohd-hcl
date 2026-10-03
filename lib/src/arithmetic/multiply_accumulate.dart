@@ -207,14 +207,14 @@ abstract class MultiplyAccumulate extends Module {
   /// - UA: unsigned addend.
   /// - SA: signed addend.
   /// - SSA: dynamic selection of signed addend.
-  static String signedAD(dynamic adConfig) =>
-      ((adConfig is! StaticOrRuntimeParameter) | (adConfig == null))
-          ? 'UA'
-          : (adConfig as StaticOrRuntimeParameter).runtimeConfig != null
-              ? 'SSA'
-              : adConfig.staticConfig
-                  ? 'SA'
-                  : 'UA';
+  static String signedAD(dynamic adConfig) {
+    final parameter = StaticOrRuntimeParameter.ofDynamic(adConfig);
+    return parameter.runtimeConfig != null
+        ? 'SSA'
+        : parameter.staticConfig
+            ? 'SA'
+            : 'UA';
+  }
 }
 
 /// An implementation of an integer multiply-accumulate using compression trees
@@ -397,6 +397,10 @@ class GenericMultiplyAccumulate extends MultiplyAccumulate {
   ///
   /// The optional [outputWidth] parameter configures the width of
   /// [accumulate], as described in [MultiplyAccumulate].
+  ///
+  /// [multiplierIdentity] and [adderIdentity] must stably identify the
+  /// generated multiplier and adder configurations so automatic definition
+  /// names remain unique when custom generators are used.
   GenericMultiplyAccumulate(
     super.a,
     super.b,
@@ -406,6 +410,8 @@ class GenericMultiplyAccumulate extends MultiplyAccumulate {
         mulGen, {
     Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
         NativeAdder.new,
+    String multiplierIdentity = 'native',
+    String adderIdentity = 'native',
     super.clk,
     super.reset,
     super.enable,
@@ -421,7 +427,11 @@ class GenericMultiplyAccumulate extends MultiplyAccumulate {
             definitionName: definitionName ??
                 'GenericMultiplyAccumulate_W${a.width}x${b.width}_'
                     'Acc${c.width}_Out'
-                    '${outputWidth ?? (a.width + b.width + 1)}') {
+                    '${outputWidth ?? (a.width + b.width + 1)}_'
+                    'Mul${multiplierIdentity}_Add${adderIdentity}_'
+                    '${Multiplier.signedMD(signedMultiplicand)}_'
+                    '${Multiplier.signedML(signedMultiplier)}_'
+                    '${MultiplyAccumulate.signedAD(signedAddend)}') {
     // Copy the configuration using this module's internal runtime input.
     final multiply = mulGen(a, b,
         signedMultiplicand: StaticOrRuntimeParameter(

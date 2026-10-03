@@ -246,6 +246,11 @@ class FloatingPoint extends LogicStructure {
     late final Logic quietMantissa;
     if (targetFractionWidth == 0) {
       quietMantissa = Const(1, width: mantissa.width);
+    } else if (targetPayloadWidth == 0) {
+      quietMantissa = [
+        if (explicitJBit) Const(1),
+        Const(1),
+      ].swizzle();
     } else {
       Logic payload;
       if (sourcePayloadWidth == 0) {
@@ -259,7 +264,7 @@ class FloatingPoint extends LogicStructure {
       quietMantissa = [
         if (explicitJBit) Const(1),
         Const(1),
-        if (targetPayloadWidth > 0) payload
+        payload,
       ].swizzle();
     }
     final quiet = clone(name: 'quietNaN');

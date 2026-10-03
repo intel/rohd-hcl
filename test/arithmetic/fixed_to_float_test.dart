@@ -41,14 +41,21 @@ void main() {
     }
   });
 
-  test('FixedToFloat definition names include rounding mode', () {
+  test('FixedToFloat definition names include rounding and explicit J-bit', () {
     final fixed = FixedPoint(integerWidth: 2, fractionWidth: 4);
     final output = FloatingPoint(exponentWidth: 4, mantissaWidth: 2);
+    final explicitOutput =
+        FloatingPoint(exponentWidth: 4, mantissaWidth: 2, explicitJBit: true);
     final nearest = FixedToFloat(fixed, output);
     final towardsZero = FixedToFloat(fixed, output,
         roundingMode: FloatingPointRoundingMode.roundTowardsZero);
+    final explicit = FixedToFloat(fixed, explicitOutput);
 
-    expect(nearest.definitionName, isNot(towardsZero.definitionName));
+    expect({
+      nearest.definitionName,
+      towardsZero.definitionName,
+      explicit.definitionName
+    }, hasLength(3));
   });
 
   test('FixedToFloat: E4M3 retains representable exponent-15 values', () {

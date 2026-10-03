@@ -14,6 +14,30 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('FP: converter definition names include explicit J-bit modes', () {
+    String definitionName(
+        {required bool sourceExplicitJBit,
+        required bool destinationExplicitJBit}) {
+      final source = FloatingPoint(
+          exponentWidth: 4, mantissaWidth: 4, explicitJBit: sourceExplicitJBit);
+      final destination = FloatingPoint(
+          exponentWidth: 4,
+          mantissaWidth: 4,
+          explicitJBit: destinationExplicitJBit);
+      return FloatingPointConverter(source, destination).definitionName;
+    }
+
+    final variants = [
+      for (final sourceExplicitJBit in [false, true])
+        for (final destinationExplicitJBit in [false, true])
+          definitionName(
+              sourceExplicitJBit: sourceExplicitJBit,
+              destinationExplicitJBit: destinationExplicitJBit),
+    ];
+
+    expect(variants.toSet(), hasLength(variants.length));
+  });
+
   test('FP: singleton conversion wide to narrow exponent', () async {
     const exponentWidth = 3;
     const mantissaWidth = 4;

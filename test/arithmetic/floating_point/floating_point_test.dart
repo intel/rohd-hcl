@@ -75,6 +75,20 @@ void main() {
     expect(fp.isQuietNaN.value.toBool(), isTrue);
   });
 
+  test('quieting a NaN supports a target with no payload bits', () {
+    final source = FloatingPoint(exponentWidth: 4, mantissaWidth: 4);
+    final target = FloatingPoint(exponentWidth: 3, mantissaWidth: 1);
+    final signaling = source.valuePopulator().ofInts(15, 3, sign: true);
+
+    source.put(signaling);
+    final quiet = target.quietNaNFrom(source);
+
+    expect(quiet.sign.value.toBool(), isTrue);
+    expect(quiet.exponent.value.toInt(), 7);
+    expect(quiet.mantissa.value.toInt(), 1);
+    expect(quiet.isQuietNaN.value.toBool(), isTrue);
+  });
+
   test('explicit J-bit formats classify special values consistently', () {
     final fp =
         FloatingPoint(exponentWidth: 5, mantissaWidth: 5, explicitJBit: true);

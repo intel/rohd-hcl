@@ -81,6 +81,46 @@ void main() {
         scaled.toUnsigned(destination.width), destination.width));
   }
 
+  test('FloatToFixed definition names include every static configuration', () {
+    String definitionName(
+        {bool explicitJBit = false,
+        int integerWidth = 4,
+        int fractionWidth = 2,
+        bool checkOverflow = false,
+        FloatingPointRoundingMode roundingMode =
+            FloatingPointRoundingMode.truncate}) {
+      final input = FloatingPoint(
+          exponentWidth: 4, mantissaWidth: 4, explicitJBit: explicitJBit);
+      return FloatToFixed(input,
+              integerWidth: integerWidth,
+              fractionWidth: fractionWidth,
+              checkOverflow: checkOverflow,
+              roundingMode: roundingMode)
+          .definitionName;
+    }
+
+    final variants = [
+      definitionName(),
+      definitionName(integerWidth: 5),
+      definitionName(fractionWidth: 3),
+      definitionName(checkOverflow: true),
+      definitionName(roundingMode: FloatingPointRoundingMode.roundNearestEven),
+      definitionName(explicitJBit: true),
+    ];
+
+    expect(variants.toSet(), hasLength(variants.length));
+
+    final inferred =
+        FloatToFixed(FloatingPoint(exponentWidth: 4, mantissaWidth: 4))
+            .definitionName;
+    final explicitEffective = FloatToFixed(
+            FloatingPoint(exponentWidth: 4, mantissaWidth: 4),
+            integerWidth: 8,
+            fractionWidth: 10)
+        .definitionName;
+    expect(inferred, explicitEffective);
+  });
+
   test('FloatToFixed: supports every rounding mode', () {
     // Small widths so exhaustive coverage over every raw bit pattern stays
     // fast. mantissaWidth (4) is wider than fractionWidth (2), forcing a

@@ -52,6 +52,7 @@ class FixedToFloat extends Module {
             definitionName: definitionName ??
                 'Fixed${fixed.width}ToFloat_E${outFloat.exponent.width}'
                     'M${outFloat.mantissa.width}_'
+                    'J${outFloat.explicitJBit ? 1 : 0}_'
                     'R${roundingMode.name}') {
     fixed = addTypedInput('fixed', fixed);
 
