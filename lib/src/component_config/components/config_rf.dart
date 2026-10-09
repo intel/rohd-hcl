@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_rf.dart
@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [RegisterFile]s.
 class RegisterFileConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.memory;
+
+  @override
+  String get subcategory => 'storage';
+
   /// Controls the number of entries in the RF.
   final IntConfigKnob numEntriesKnob = IntConfigKnob(value: 4);
 

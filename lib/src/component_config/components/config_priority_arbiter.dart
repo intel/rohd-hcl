@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_priority_arbiter.dart
@@ -13,6 +13,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [PriorityArbiter].
 class PriorityArbiterConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.flowControl;
+
+  @override
+  String get subcategory => 'arbitration';
+
   /// A knob controlling the number of requests and grants.
   final IntConfigKnob numRequestKnob = IntConfigKnob(value: 8);
 

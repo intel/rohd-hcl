@@ -3,7 +3,7 @@
 ### Breaking changes
 
 - The minimum supported Dart SDK is now 3.6.0. Applications using Dart 3.0 through 3.5 must upgrade their SDK before resolving ROHD-HCL.
-- Removed APIs deprecated before v0.3.0. Migrate `splitSelectAdderAlgorithm4Bit` to `splitSelectAdderAlgorithmNBit(4)`, legacy interface clone and divider match constructors to instance `clone()`, partial-product sign-extension wrappers to the corresponding `PartialProductSignExtension` strategy, `FixedPointValue.eq`/`neq` to `==`/`!=`, floating-point random `normal`/`subNormal` arguments to `genNormal`/`genSubNormal`, `Count.index` to `count`, legacy parity getters to `code`/`error`/`originalData`, and `loadMemHex` to `loadMemString`. The `FixedPointValue` comparison operators now return `bool`.
+- Removed APIs already deprecated in v0.2.1. Migrate `splitSelectAdderAlgorithm4Bit` to `splitSelectAdderAlgorithmNBit(4)`, legacy interface clone and divider match constructors to instance `clone()`, partial-product sign-extension wrappers to the corresponding `PartialProductSignExtension` strategy, `Count.index` to `count`, and legacy parity getters to `code`/`error`/`originalData`. The `FixedPointValue` comparison operators now return `bool`.
 - Corrected AXI5 signal widths to match the configured protocol widths. Generated interfaces for affected `MMUSID`, `MMUSSID`, and `SUBSYSID` signals may have different port widths; designs that connect to those signals must use the corrected widths (<https://github.com/intel/rohd-hcl/pull/280>).
 - `ChoiceConfigKnob<Type>` now requires a stable label for every choice, including on the Dart VM, because `Type.toString()` is not stable in minified builds. The labels are used as both display text and serialized JSON values. Existing custom configurators must migrate to the `choiceLabels` construction pattern:
 
@@ -19,6 +19,25 @@
   ```
 
   Labels matching the previous unminified type names, as used by the built-in configurators, preserve compatibility with existing saved values.
+- `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an implicit-J-bit format or normalize the input before connecting it to the square-root component.
+- Explicit-J-bit NaN construction now requires at least one payload bit in addition to the J bit. Formats with a one-bit explicit mantissa are rejected because they cannot encode a quiet-NaN payload.
+- Automatic definition names for `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now include the effective `outputWidth`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `FixedToFloat` definition names now include `roundingMode` so converters with different rounding logic cannot share an HDL definition.
+- Automatic `FloatingPointAdderSinglePath` definition names now include `roundingMode` for the same reason.
+- Automatic `FloatingPointConverter`, `FloatingPointSqrt`, and `FloatingPointSqrtSimple` definition names now include `roundingMode`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `DotProduct`, `CompressionTreeDotProduct`, and `GeneralDotProduct` definition names now include lane count, operand widths, radix, implementation identity, and signedness. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Removed `PartialProductMatrix.array`, which exposed the internal partial-product generator. Apply custom transformations through the `beforeGenerateOutputs` callback to `generateOutputs`.
+- Reorganized `lib/src` into a category/subcategory directory taxonomy. The public `package:rohd_hcl/rohd_hcl.dart` API is unchanged, but code that imports private `package:rohd_hcl/src/...` paths directly must update those paths or import the package barrel instead.
+
+### Deprecated APIs
+
+- Deprecated the unsigned-default `FixedPointValue` constructor and `FixedPointValue.populator` while preserving their existing behavior. Use `FixedPointValue.withSignedness` and `FixedPointValue.populatorWithSignedness`, which default to `signed: true` to match `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>).
+- Deprecated `FixedPoint.operator *` while preserving its previous unsigned result width and behavior. Use `FixedPoint.multiply` for a correctly signed, full-width product.
+- Deprecated the `static_or_runtime_parameter.dart` import path. Import `static_or_runtime_control.dart` instead.
+- Deprecated the `subtractIn` constructor parameter and protected member on `OnesComplementAdder` and `CarrySelectOnesComplementCompoundAdder`. Use `subtract` and `subtractParameter`, respectively.
+- Kept the deprecated `FixedPointValue.eq`/`neq` compatibility methods. Use `==`/`!=` instead.
+- Kept the deprecated `normal`/`subNormal` arguments to `FloatingPointValuePopulator.random`. Use `genNormal`/`genSubNormal` instead.
+- Kept the deprecated `loadMemHex` compatibility method. Use `loadMemString` instead.
 
 - `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an implicit-J-bit format or normalize the input before connecting it to the square-root component.
 - Explicit-J-bit NaN construction now requires at least one payload bit in addition to the J bit. Formats with a one-bit explicit mantissa are rejected because they cannot encode a quiet-NaN payload.
@@ -44,6 +63,7 @@
 - Added the `Counter.upDown` convenience constructor for incrementing and decrementing by one (<https://github.com/intel/rohd-hcl/pull/271>).
 - Added the `RegisterFile.setData` testbench hook for directly initializing register contents (<https://github.com/intel/rohd-hcl/pull/273>).
 - Added optional early termination to `Serializer` and `Deserializer` for dynamically sized inputs (<https://github.com/intel/rohd-hcl/issues/277>, <https://github.com/intel/rohd-hcl/pull/278>).
+- Added regression coverage for the single-element `Serializer` count-width case (<https://github.com/intel/rohd-hcl/issues/166>).
 - Exposed the module `name` argument on round-robin and related arbiters (<https://github.com/intel/rohd-hcl/pull/255>).
 - Expanded CSR support with heterogeneous block sizes (<https://github.com/intel/rohd-hcl/pull/285>), configurable asynchronous reset through `CsrTopConfig` (<https://github.com/intel/rohd-hcl/pull/310>), and write-only fields for command, trigger, and pulse semantics (<https://github.com/intel/rohd-hcl/issues/308>, <https://github.com/intel/rohd-hcl/pull/313>).
 
@@ -69,9 +89,37 @@
 - Added `GenericMultiplyAccumulate`, which composes configurable multiplier and adder generators.
 - Added independent multiplicand and multiplier widths to `NativeMultiplier` and `GeneralDotProduct`; `CompressionTreeDotProduct` retains its equal-width fused-partial-product contract.
 
-#### Parameterized configuration
+#### Accumulation
+
+- Added `trackOverflow`/`trackUnderflow` to `Counter` and `GatedCounter` so the overflow/underflow history flop can be omitted when unneeded, partially addressing <https://github.com/intel/rohd-hcl/issues/90> for `Counter` (`Sum`'s combinational overflow/underflow logic is unaffected).
+
+#### Bit Operations
+
+- Added a `radix` parameter to `Count` so its population count is combined with a balanced `ReductionTreeGenerator` tree instead of a linear accumulation chain.
+
+#### Dataflow
+
+- Added a `radix` parameter to `Extrema` so candidates are combined with a balanced `ReductionTreeGenerator` tree instead of a linear comparison chain.
+
+#### Memory
+
+- Added an optional `name` parameter to `ShiftRegister`.
+
+#### Parameterized Configuration
 
 - Added generic `StaticOrRuntimeControl<T>` support for statically configured values or multi-bit runtime `Logic` inputs while preserving `StaticOrRuntimeParameter` as the boolean specialization.
+
+#### Source Organization
+
+- Grouped existing components into top-level categories: `arithmetic`, `bit_operations`, `clocking`, `dataflow`, `encodings`, `error_control`, `flow_control`, `interfaces`, `memory`, and `models`. Each category has functional subcategories, such as `arithmetic/addition`, `clocking/cdc`, `flow_control/arbitration`, `flow_control/ready_valid`, and `memory/csr`.
+- Added category barrels and subcategory barrels where useful, so related components can be imported selectively. `lib/rohd_hcl.dart` now exports the category barrels.
+- Moved tests under their matching category directories and subdivided larger families by source subcategory.
+- Renamed the misspelled internal `mulitiplier_components.dart` barrel to `multiplication/multiplier_components.dart`.
+
+#### Configurator Taxonomy
+
+- Added `ComponentCategory` and `Configurator.category`/`Configurator.subcategory` so configurators can describe where a component belongs in the library taxonomy. Custom configurators default to `ComponentCategory.other` and `'uncategorized'`.
+- Tagged all built-in configurators with their category and subcategory.
 
 ### Configuration application and schematics
 
@@ -79,6 +127,15 @@
 - Added selectable ROHD schematic, ROHD source, generated SystemVerilog, and synthesized schematic views, including syntax highlighting, downloadable generated artifacts, configurable schematic expansion, and split-pane output.
 - Migrated the configuration application to `material_ui`, including light and dark themes, and removed its legacy Flutter Material dependencies.
 - Converted the root package and configuration application to a Pub workspace and added package-by-package hosted, Git, and local dependency-source selection for development.
+- Grouped the component sidebar by configurator category.
+- Updated the source-view asset mapping and generated asset list for the reorganized source tree.
+- Expanded the configuration application catalog to cover all configurable components and bundled Roboto Mono for generated source output.
+
+### Documentation
+
+- Reorganized the component list in `doc/README.md` by taxonomy and added a source-layout table that maps categories to their barrels and subcategories.
+- Updated the new-component instructions in `CONTRIBUTING.md` and `doc/Component.md` to cover taxonomy directories, subcategory barrels, family-based test locations, configurator category tags, and confapp source assets.
+- Fixed stale source paths in component documentation.
 
 ### Bug fixes
 
@@ -129,6 +186,15 @@
 - Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending unsigned products in uneven reduction trees. Static and runtime operand signedness now control partial-sum extension.
 - Fixed `GeneralDotProduct` passing static signedness to child multipliers as constant-valued runtime ports, and strengthened automatic definition names with lane count, operand widths, radix, implementation identity, and signedness.
 - Fixed runtime-signed `GeneralDotProduct` synthesis by keeping its signed-extension control inside the inline reduction generator rather than capturing a parent signal across a reduction-module hierarchy boundary.
+- Fixed `CarrySaveMultiplier` ignoring `enable` instead of stalling every pipeline stage.
+
+#### Flow Control
+
+- Fixed `AsyncFifo` incorrectly advancing its write pointer when full and its read pointer when empty.
+
+#### Encodings
+
+- Replaced `BinaryToGrayConverter` and `GrayToBinaryConverter`'s `O(2^width)` `Case`-based logic with linear XOR-based conversion.
 
 #### Floating-point arithmetic
 
@@ -154,7 +220,7 @@
 
 - Berkeley TestFloat integration remains unimplemented (<https://github.com/intel/rohd-hcl/issues/135>).
 - `MultiCycleDivider` improvements (<https://github.com/intel/rohd-hcl/issues/139>) and a 4:2 `ColumnCompressor` (<https://github.com/intel/rohd-hcl/issues/120>) remain in stale pull requests.
-- `Sum` and `Counter` still generate avoidable overflow/underflow logic (<https://github.com/intel/rohd-hcl/issues/90>).
+- `Sum` still generates avoidable overflow/underflow logic; `Counter`'s history flops can now be disabled with `trackOverflow`/`trackUnderflow` (<https://github.com/intel/rohd-hcl/issues/90>).
 - `CompressionTreeMultiplyAccumulate` can discard precision when `c` exceeds its natural accumulation width; `GenericMultiplyAccumulate` does not.
 - Potential optimizations remain in compact sign extension, `FixedToFloat` exponent prediction, and the dual-path floating-point adder N-path.
 

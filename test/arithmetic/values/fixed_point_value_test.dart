@@ -146,6 +146,18 @@ void main() {
     }
   });
 
+  test('deprecated equality methods remain available', () {
+    final one = FixedPointValue.populatorWithSignedness(
+            integerWidth: 2, fractionWidth: 2)
+        .ofDouble(1);
+    final half = FixedPointValue.populatorWithSignedness(
+            integerWidth: 2, fractionWidth: 2)
+        .ofDouble(0.5);
+
+    expect(one.eq(one), LogicValue.one);
+    expect(one.neq(half), LogicValue.one);
+  });
+
   test('ofDouble toDouble', () {
     final corners = [
       // value, m, n, double

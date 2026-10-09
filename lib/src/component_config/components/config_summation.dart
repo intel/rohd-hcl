@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_summation.dart
@@ -9,7 +9,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/summation/summation_base.dart';
 
 /// A knob for a single sum interface.
 class SumInterfaceKnob extends GroupOfKnobs {
@@ -44,6 +43,12 @@ class SumInterfaceKnob extends GroupOfKnobs {
 
 /// A configurator for a module like [SummationBase].
 abstract class SummationConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'accumulation';
+
   /// The interface knobs.
   final ListOfKnobsKnob sumInterfaceKnobs = ListOfKnobsKnob(
     count: 1,

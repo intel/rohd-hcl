@@ -12,34 +12,41 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Maps configurable module runtime types to bundled ROHD source assets.
 const moduleSourceAssets = <String, String>{
-  'ApbCsrCompleter': 'rohd_src/gaskets/amba5/apb_csr_completer.dart',
-  'AsyncFifo': 'rohd_src/async_fifo.dart',
-  'BinaryToOneHot': 'rohd_src/encodings/binary_to_one_hot.dart',
-  'BinaryToGrayConverter': 'rohd_src/binary_gray.dart',
-  'BitonicSort': 'rohd_src/sort.dart',
-  'Cam': 'rohd_src/memory/cam.dart',
-  'CarrySaveMultiplier': 'rohd_src/arithmetic/carry_save_mutiplier.dart',
-  'CarrySelectCompoundAdder': 'rohd_src/arithmetic/compound_adder.dart',
+  'ApbCsrCompleter':
+      'rohd_src/interfaces/amba/endpoints/apb_csr_completer.dart',
+  'AsyncFifo': 'rohd_src/flow_control/storage/async_fifo.dart',
+  'BinaryToOneHot': 'rohd_src/encodings/one_hot/binary_to_one_hot.dart',
+  'BinaryToGrayConverter': 'rohd_src/encodings/gray/binary_gray.dart',
+  'BitonicSort': 'rohd_src/dataflow/ordering/sort.dart',
+  'Cam': 'rohd_src/memory/associative/cam.dart',
+  'CarrySaveMultiplier':
+      'rohd_src/arithmetic/multiplication/carry_save_multiplier.dart',
+  'CarrySelectCompoundAdder':
+      'rohd_src/arithmetic/addition/compound_adder.dart',
   'CarrySelectOnesComplementCompoundAdder':
-      'rohd_src/arithmetic/compound_adder.dart',
-  'CaseOneHotToBinary': 'rohd_src/encodings/case_one_hot_to_binary.dart',
-  'ClockGate': 'rohd_src/clock_gating.dart',
-  'CompressionTreeDotProduct': 'rohd_src/arithmetic/dotproduct.dart',
+      'rohd_src/arithmetic/addition/compound_adder.dart',
+  'CaseOneHotToBinary':
+      'rohd_src/encodings/one_hot/case_one_hot_to_binary.dart',
+  'ClockGate': 'rohd_src/clocking/gating/clock_gating.dart',
+  'CompressionTreeDotProduct':
+      'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
   'CompressionTreeMultiplyAccumulate':
-      'rohd_src/arithmetic/multiply_accumulate.dart',
-  'CompressionTreeMultiplier': 'rohd_src/arithmetic/multiplier.dart',
-  'Counter': 'rohd_src/summation/counter.dart',
-  'Count': 'rohd_src/count.dart',
-  'Deserializer': 'rohd_src/serialization/serialization.dart',
-  'EdgeDetector': 'rohd_src/edge_detector.dart',
-  'Extrema': 'rohd_src/extrema.dart',
-  'Fifo': 'rohd_src/memory/fifo.dart',
-  'Find': 'rohd_src/find.dart',
-  'FindPattern': 'rohd_src/find_pattern.dart',
-  'Float8ToFixed': 'rohd_src/arithmetic/float_to_fixed.dart',
-  'FixedPointSqrt': 'rohd_src/arithmetic/fixed_sqrt.dart',
-  'FixedToFloat': 'rohd_src/arithmetic/fixed_to_float.dart',
-  'FloatToFixed': 'rohd_src/arithmetic/float_to_fixed.dart',
+      'rohd_src/arithmetic/multiply_accumulate/multiply_accumulate.dart',
+  'CompressionTreeMultiplier':
+      'rohd_src/arithmetic/multiplication/multiplier.dart',
+  'Counter': 'rohd_src/arithmetic/accumulation/counter.dart',
+  'Count': 'rohd_src/bit_operations/population_count/count.dart',
+  'Deserializer': 'rohd_src/dataflow/serialization/deserializer.dart',
+  'EdgeDetector': 'rohd_src/clocking/event_detection/edge_detector.dart',
+  'Extrema': 'rohd_src/dataflow/selection/extrema.dart',
+  'Fifo': 'rohd_src/flow_control/storage/fifo.dart',
+  'Find': 'rohd_src/bit_operations/search/find.dart',
+  'FindPattern': 'rohd_src/bit_operations/search/find_pattern.dart',
+  'Float8ToFixed': 'rohd_src/arithmetic/conversion/float_to_fixed.dart',
+  'FixedPointSqrt':
+      'rohd_src/arithmetic/division_and_roots/fixed_sqrt.dart',
+  'FixedToFloat': 'rohd_src/arithmetic/conversion/fixed_to_float.dart',
+  'FloatToFixed': 'rohd_src/arithmetic/conversion/float_to_fixed.dart',
   'FloatingPointAdderDualPath':
       'rohd_src/arithmetic/floating_point/floating_point_adder_dualpath.dart',
   'FloatingPointAdderSinglePath':
@@ -50,47 +57,65 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/floating_point/floating_point_sqrt_simple.dart',
   'FloatingPointConverter':
       'rohd_src/arithmetic/floating_point/floating_point_converter.dart',
-  'GatedCounter': 'rohd_src/summation/gated_counter.dart',
-  'GeneralDotProduct': 'rohd_src/arithmetic/dotproduct.dart',
-  'GrayToBinaryConverter': 'rohd_src/binary_gray.dart',
-  'HammingEccReceiver': 'rohd_src/error_checking/ecc.dart',
-  'LeadingDigitAnticipate': 'rohd_src/arithmetic/leading_digit_anticipate.dart',
-  'LeadingZeroAnticipate': 'rohd_src/arithmetic/leading_digit_anticipate.dart',
+  'GatedCounter': 'rohd_src/arithmetic/accumulation/gated_counter.dart',
+  'GeneralDotProduct':
+      'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
+  'GrayToBinaryConverter': 'rohd_src/encodings/gray/binary_gray.dart',
+  'HammingEccReceiver': 'rohd_src/error_control/protection/ecc.dart',
+  'LeadingDigitAnticipate':
+      'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
+  'LeadingZeroAnticipate':
+      'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
   'LeadingZeroAnticipateCarry':
-      'rohd_src/arithmetic/leading_digit_anticipate.dart',
-  'MaskRoundRobinArbiter': 'rohd_src/arbiters/mask_round_robin_arbiter.dart',
-  'MultiCycleDivider': 'rohd_src/arithmetic/divider.dart',
-  'NativeMultiplier': 'rohd_src/arithmetic/multiplier.dart',
-  'OnesComplementAdder': 'rohd_src/arithmetic/ones_complement_adder.dart',
-  'ParallelPrefixAdder': 'rohd_src/arithmetic/parallel_prefix_operations.dart',
-  'ParallelPrefixDecr': 'rohd_src/arithmetic/parallel_prefix_operations.dart',
-  'ParallelPrefixIncr': 'rohd_src/arithmetic/parallel_prefix_operations.dart',
-  'ParallelPrefixOrScan': 'rohd_src/arithmetic/parallel_prefix_operations.dart',
-  'ParallelPrefixPriorityEncoder': 'rohd_src/priority_encoder.dart',
+      'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
+  'MaskRoundRobinArbiter':
+      'rohd_src/flow_control/arbitration/mask_round_robin_arbiter.dart',
+  'MultiCycleDivider':
+      'rohd_src/arithmetic/division_and_roots/divider.dart',
+  'NativeMultiplier':
+      'rohd_src/arithmetic/multiplication/multiplier.dart',
+  'OnesComplementAdder':
+      'rohd_src/arithmetic/addition/ones_complement_adder.dart',
+  'ParallelPrefixAdder':
+      'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+  'ParallelPrefixDecr':
+      'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+  'ParallelPrefixIncr':
+      'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+  'ParallelPrefixOrScan':
+      'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+  'ParallelPrefixPriorityEncoder':
+      'rohd_src/encodings/priority/priority_encoder.dart',
   'ParallelPrefixPriorityFinder':
-      'rohd_src/arithmetic/parallel_prefix_operations.dart',
-  'ParityReceiver': 'rohd_src/error_checking/parity.dart',
-  'ParityTransmitter': 'rohd_src/error_checking/parity.dart',
-  'PriorityArbiter': 'rohd_src/arbiters/priority_arbiter.dart',
-  'RecursiveModulePriorityEncoder': 'rohd_src/priority_encoder.dart',
-  'RecursivePriorityEncoder': 'rohd_src/priority_encoder.dart',
-  'RegisterFile': 'rohd_src/memory/register_file.dart',
-  'ReductionTree': 'rohd_src/reduction_tree.dart',
-  'RippleCarryAdder': 'rohd_src/arithmetic/ripple_carry_adder.dart',
-  'RotateLeft': 'rohd_src/rotate.dart',
-  'RotateRight': 'rohd_src/rotate.dart',
+      'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+  'ParityReceiver': 'rohd_src/error_control/protection/parity.dart',
+  'ParityTransmitter': 'rohd_src/error_control/protection/parity.dart',
+  'PriorityArbiter':
+      'rohd_src/flow_control/arbitration/priority_arbiter.dart',
+  'RecursiveModulePriorityEncoder':
+      'rohd_src/encodings/priority/priority_encoder.dart',
+  'RecursivePriorityEncoder':
+      'rohd_src/encodings/priority/priority_encoder.dart',
+  'RegisterFile': 'rohd_src/memory/storage/register_file.dart',
+  'ReductionTree': 'rohd_src/dataflow/reduction/reduction_tree.dart',
+  'RippleCarryAdder': 'rohd_src/arithmetic/addition/ripple_carry_adder.dart',
+  'RotateLeft': 'rohd_src/bit_operations/shifting/rotate.dart',
+  'RotateRight': 'rohd_src/bit_operations/shifting/rotate.dart',
   'RotateRoundRobinArbiter':
-      'rohd_src/arbiters/rotate_round_robin_arbiter.dart',
-  'Serializer': 'rohd_src/serialization/serialization.dart',
-  'ShiftRegister': 'rohd_src/memory/shift_register.dart',
-  'SignMagnitudeAdder': 'rohd_src/arithmetic/sign_magnitude_adder.dart',
-  'SignMagnitudeDualAdder': 'rohd_src/arithmetic/sign_magnitude_adder.dart',
-  'SignedShifter': 'rohd_src/signed_shifter.dart',
-  'SpiMain': 'rohd_src/gaskets/spi/spi_main.dart',
-  'SpiSub': 'rohd_src/gaskets/spi/spi_sub.dart',
-  'Sum': 'rohd_src/summation/sum.dart',
-  'ToggleGate': 'rohd_src/toggle_gate.dart',
-  'TreeOneHotToBinary': 'rohd_src/encodings/tree_one_hot_to_binary.dart',
+      'rohd_src/flow_control/arbitration/rotate_round_robin_arbiter.dart',
+  'Serializer': 'rohd_src/dataflow/serialization/serializer.dart',
+  'ShiftRegister': 'rohd_src/memory/sequential/shift_register.dart',
+  'SignMagnitudeAdder':
+      'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
+  'SignMagnitudeDualAdder':
+      'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
+  'SignedShifter': 'rohd_src/bit_operations/shifting/signed_shifter.dart',
+  'SpiMain': 'rohd_src/interfaces/spi/endpoints/spi_main.dart',
+  'SpiSub': 'rohd_src/interfaces/spi/endpoints/spi_sub.dart',
+  'Sum': 'rohd_src/arithmetic/accumulation/sum.dart',
+  'ToggleGate': 'rohd_src/clocking/gating/toggle_gate.dart',
+  'TreeOneHotToBinary':
+      'rohd_src/encodings/one_hot/tree_one_hot_to_binary.dart',
 };
 
 /// Returns the bundled ROHD source asset for [module], if one is indexed.

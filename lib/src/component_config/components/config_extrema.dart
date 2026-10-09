@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_extrema.dart
@@ -15,6 +15,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Extrema].
 class ExtremaConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.dataflow;
+
+  @override
+  String get subcategory => 'selection';
+
   /// A knob controlling the number of logics to compare.
   final IntConfigKnob signalsKnob = IntConfigKnob(value: 4);
 

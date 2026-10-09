@@ -6,6 +6,11 @@ Fixed-point binary representation of numbers is useful several applications incl
 
 A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /). A `FixedPointValuePopulator` can be used to construct `FixedPointValue` using different kinds of converters.
 
+For exact finite-value conversion that does not pass through a host `double`,
+use `FixedPointValue.toFloatingPointValue()` and
+`FloatingPointValue.toFixedPointValue()`. The results use the minimum
+representation needed to preserve the value.
+
 ## FixedPointValue Populator
 
 A `FixedPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FixedPointValue` predictably across different special subtypes. The general pattern is to call `FixedPointValue.populatorWithSignedness`, then subsequently call one of the population methods on the provided populator to receive a completed object. The deprecated `FixedPointValue.populator` remains available with its historical unsigned default.
@@ -51,7 +56,7 @@ to a constant `FixedPoint` signal with `toLogic()`.
 
 ## FixedToFloat
 
-The [FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html) component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to the nearest even (RNE) when applicable and set to infinity if the input exceed the representable range.
+The [FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html) component converts a fixed-point signal to a floating-point signal specified by exponent and mantissa width. Its `roundingMode` option selects how discarded precision is rounded and defaults to `FloatingPointRoundingMode.roundNearestEven`. Results that exceed the representable range are set to infinity.
 
 ## FloatToFixed
 
@@ -59,7 +64,11 @@ This component converts a floating-point signal to a signed fixed-point signal. 
 
 If the `integerWidth` and `fractionWidth` integer and fraction widths are supplied, then lossy conversion is performed to fit the floating-point value into the fixed-point value. For testing, [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) has a `canStore` method to predetermine if a given double can fit.  For execution, [FloatToFixed](https://intel.github.io/rohd-hcl/rohd_hcl/FloatToFixed-class.html) can perform overflow detection by setting a `checkOverflow` option, which is a property of the class and set in the constructor (default is false as it must add significant logic to do the check).
 
-Currently, the FloatToFixed converter, when in lossy mode, is not performing any real rounding (just truncating).
+When the target widths are constrained, the `roundingMode` option selects how
+discarded fractional bits are handled. It defaults to
+`FloatingPointRoundingMode.truncate`, preserving the previous truncation
+behavior; other supported modes include round-to-nearest-even and directed
+rounding.
 
 ## Float8ToFixed
 

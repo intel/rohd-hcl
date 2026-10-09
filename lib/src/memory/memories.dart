@@ -1,11 +1,9 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
-export 'cam.dart';
+export 'associative/associative.dart';
+export 'contracts/contracts.dart';
 export 'csr/csrs.dart';
-export 'fifo.dart';
-export 'memory.dart';
-export 'ready_valid_fifo.dart';
-export 'register_file.dart';
-export 'resettable_entries.dart';
-export 'shift_register.dart';
+export 'sequential/sequential.dart';
+export 'state/state.dart';
+export 'storage/storage.dart';
