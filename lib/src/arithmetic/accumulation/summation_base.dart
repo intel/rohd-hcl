@@ -100,14 +100,17 @@ abstract class SummationBase extends Module {
     maxValue ??= biggestVal(this.width);
     minValue ??= 0;
 
-    if (maxValue is! Logic) {
-      constantMaxValue = LogicValue.ofInferWidth(maxValue).toBigInt();
+    final configuredMaxValue = configuredValue(maxValue);
+    final configuredMinValue = configuredValue(minValue);
+
+    if (configuredMaxValue is! Logic) {
+      constantMaxValue = LogicValue.ofInferWidth(configuredMaxValue).toBigInt();
     } else {
       constantMaxValue = null;
     }
 
-    if (minValue is! Logic) {
-      constantMinValue = LogicValue.ofInferWidth(minValue).toBigInt();
+    if (configuredMinValue is! Logic) {
+      constantMinValue = LogicValue.ofInferWidth(configuredMinValue).toBigInt();
     } else {
       constantMinValue = null;
     }
@@ -132,6 +135,13 @@ abstract class SummationBase extends Module {
   /// Takes a given `dynamic` [value] and converts it into a [Logic],
   /// potentially as an input port, if necessary.
   Logic _dynamicInputToLogic(String name, dynamic value) {
+    if (value is StaticOrRuntimeControl) {
+      if (value.runtimeConfig != null) {
+        return value.getRuntimeInput(this)!.zeroExtend(width);
+      }
+      value = value.staticConfig;
+    }
+
     if (value is Logic) {
       return addInput(name, value.zeroExtend(width), width: width);
     } else {
@@ -149,6 +159,13 @@ abstract class SummationBase extends Module {
     }
   }
 
+  /// Returns the effective value of a static-or-runtime configuration.
+  @protected
+  static dynamic configuredValue(dynamic value) =>
+      value is StaticOrRuntimeControl
+          ? value.runtimeConfig ?? value.staticConfig
+          : value;
+
   /// Returns the largest value that can fit within [width].
   @protected
   static BigInt biggestVal(int width) => BigInt.two.pow(width) - BigInt.one;
@@ -157,12 +174,14 @@ abstract class SummationBase extends Module {
   /// optionally the provided [width].
   static int _inferWidth(
       List<dynamic> values, int? width, List<SumInterface> interfaces) {
+    final configuredValues = values.map(configuredValue);
+
     if (width != null) {
       if (width <= 0) {
         throw RohdHclException('Width must be greater than 0.');
       }
 
-      if (values.any((v) => v is Logic && v.width > width)) {
+      if (configuredValues.any((v) => v is Logic && v.width > width)) {
         throw RohdHclException(
             'Width must be at least as large as the largest value.');
       }
@@ -172,7 +191,7 @@ abstract class SummationBase extends Module {
 
     int? maxWidthFound;
 
-    for (final value in values) {
+    for (final value in configuredValues) {
       int? inferredValWidth;
       if (value is Logic) {
         inferredValWidth = value.width;

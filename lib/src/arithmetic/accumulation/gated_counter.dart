@@ -84,6 +84,7 @@ class GatedCounter extends Counter {
       super.minValue,
       super.width,
       super.saturates,
+      super.asyncReset,
       super.trackOverflow,
       super.trackUnderflow,
       this.gateToggles = true,
@@ -501,6 +502,7 @@ class GatedCounter extends Counter {
             summer.sum,
             reset: reset,
             resetValue: initialValueLogic,
+            asyncReset: asyncReset,
           );
     } else {
       final lowerClkGate = ClockGate(clk,
@@ -520,6 +522,7 @@ class GatedCounter extends Counter {
         summer.sum.getRange(0, clkGatePartitionIndex),
         reset: reset,
         resetValue: initialValueLogic.getRange(0, clkGatePartitionIndex),
+        asyncReset: asyncReset,
       );
 
       final upperCount = flop(
@@ -527,6 +530,7 @@ class GatedCounter extends Counter {
         summer.sum.getRange(clkGatePartitionIndex),
         reset: reset,
         resetValue: initialValueLogic.getRange(clkGatePartitionIndex),
+        asyncReset: asyncReset,
       );
 
       lowerGatedClock = lowerClkGate.gatedClk;

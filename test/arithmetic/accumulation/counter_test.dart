@@ -80,6 +80,8 @@ void main() {
     final reset = Logic();
     final counter = Counter.simple(clk: clk, reset: reset, maxValue: 5);
 
+    expect(counter.definitionName, 'Counter_L1');
+
     await counter.build();
 
     Simulator.setMaxSimTime(1000);
@@ -145,6 +147,7 @@ void main() {
 
     expect(counter.definitionName, contains('_NO'));
     expect(counter.definitionName, contains('_NU'));
+    expect(counter.definitionName, 'Counter_L1_NO_NU');
 
     await counter.build();
 

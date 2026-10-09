@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sum_test.dart
@@ -50,6 +50,99 @@ void main() {
       final dut =
           Sum.ofLogics([Const(5, width: 8)], maxValue: 4, saturates: true);
       expect(dut.overflowed.value.toBool(), isTrue);
+    });
+  });
+
+  group('unreachable overflow and underflow', () {
+    test('elides impossible checks and preserves the reachable check',
+        () async {
+      final incrementAmount = Logic(width: 2);
+      final incrementInitial = Logic(width: 3);
+      final incrementer = Sum(
+        [SumInterface(width: 2)..amount.gets(incrementAmount)],
+        initialValue: incrementInitial,
+        width: 3,
+      );
+      expect(incrementer.canOverflow, isTrue);
+      expect(incrementer.canUnderflow, isFalse);
+      await incrementer.build();
+
+      incrementInitial.put(0);
+      incrementAmount.put(3);
+      expect(incrementer.underflowed.value.toBool(), isFalse);
+      expect(incrementer.sum.value.toInt(), 3);
+
+      incrementInitial.put(7);
+      incrementAmount.put(1);
+      expect(incrementer.overflowed.value.toBool(), isTrue);
+      expect(incrementer.sum.value.toInt(), 0);
+
+      final decrementAmount = Logic(width: 2);
+      final decrementInitial = Logic(width: 3);
+      final decrementer = Sum(
+        [
+          SumInterface(width: 2, increments: false)
+            ..amount.gets(decrementAmount)
+        ],
+        initialValue: decrementInitial,
+        width: 3,
+      );
+      expect(decrementer.canOverflow, isFalse);
+      expect(decrementer.canUnderflow, isTrue);
+      await decrementer.build();
+
+      decrementInitial.put(7);
+      decrementAmount.put(1);
+      expect(decrementer.overflowed.value.toBool(), isFalse);
+      expect(decrementer.sum.value.toInt(), 6);
+
+      decrementInitial.put(0);
+      decrementAmount.put(1);
+      expect(decrementer.underflowed.value.toBool(), isTrue);
+      expect(decrementer.sum.value.toInt(), 7);
+    });
+
+    test('elides both checks for a statically bounded result', () async {
+      final dut = Sum(
+        [SumInterface(fixedAmount: 1)],
+        maxValue: 5,
+      );
+      expect(dut.canOverflow, isFalse);
+      expect(dut.canUnderflow, isFalse);
+
+      await dut.build();
+
+      expect(dut.overflowed.value.toBool(), isFalse);
+      expect(dut.underflowed.value.toBool(), isFalse);
+      expect(dut.sum.value.toInt(), 1);
+    });
+
+    test('uses a static-or-runtime control as an explicit configuration',
+        () async {
+      final staticBoundedSum = Sum(
+        [SumInterface(fixedAmount: 1)],
+        maxValue: StaticOrRuntimeControl<BigInt>(
+          name: 'staticMaxValue',
+          staticConfig: BigInt.from(5),
+        ),
+      );
+      expect(staticBoundedSum.canOverflow, isFalse);
+      expect(staticBoundedSum.canUnderflow, isFalse);
+
+      final runtimeMaxValue = Logic(width: 3);
+      final runtimeBoundedSum = Sum(
+        [SumInterface(fixedAmount: 1)],
+        maxValue: StaticOrRuntimeControl<BigInt>(
+          name: 'runtimeMaxValue',
+          staticConfig: BigInt.from(5),
+          runtimeConfig: runtimeMaxValue,
+        ),
+      );
+      expect(runtimeBoundedSum.canOverflow, isTrue);
+
+      await runtimeBoundedSum.build();
+      runtimeBoundedSum.input('runtimeMaxValue').put(5);
+      expect(runtimeBoundedSum.sum.value.toInt(), 1);
     });
   });
 
