@@ -8,8 +8,10 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:logging/logging.dart';
 import 'package:rohd/rohd.dart';
@@ -737,6 +739,106 @@ void main() {
       final vals = await setupAndDumpFifo([]);
       expect(vals, isEmpty);
     });
+  });
+
+  group('fifo matches a reference queue model', () {
+    for (final depth in [1, 2, 3, 4, 5, 8]) {
+      for (final generateBypass in [false, true]) {
+        for (final generateExtras in [false, true]) {
+          // how many entries the Fifo is pre-loaded with at reset
+          for (final prefill in {0, depth - 1, depth}) {
+            test(
+                'depth=$depth bypass=$generateBypass extras=$generateExtras'
+                ' prefill=$prefill', () async {
+              final clk = SimpleClockGenerator(10).clk;
+              final reset = Logic()..put(0);
+              final wrEn = Logic()..put(0);
+              final rdEn = Logic()..put(0);
+              final wrData = Logic(width: 16)..put(0);
+
+              final initialValues =
+                  prefill > 0 ? List.generate(prefill, (i) => 1000 + i) : null;
+
+              final fifo = Fifo(clk, reset,
+                  writeEnable: wrEn,
+                  readEnable: rdEn,
+                  writeData: wrData,
+                  depth: depth,
+                  generateBypass: generateBypass,
+                  generateError: generateExtras,
+                  generateOccupancy: generateExtras,
+                  initialValues: initialValues);
+
+              await fifo.build();
+              unawaited(Simulator.run());
+
+              Future<void> doReset() async {
+                wrEn.put(0);
+                rdEn.put(0);
+                reset.put(1);
+                await clk.nextNegedge;
+                await clk.nextNegedge;
+                reset.put(0);
+                await clk.nextNegedge;
+              }
+
+              await clk.nextNegedge;
+              await doReset();
+
+              final model = Queue<int>.of(initialValues ?? []);
+              final rand = Random(depth * 31 + (generateBypass ? 1 : 0));
+
+              // enough cycles to wrap the pointers many times
+              final cycles = 40 * depth + 100;
+              for (var i = 0; i < cycles; i++) {
+                // reset in the middle of the run returns to the initial state
+                if (i == cycles ~/ 2) {
+                  await doReset();
+                  model
+                    ..clear()
+                    ..addAll(initialValues ?? []);
+                }
+
+                final data = rand.nextInt(1 << 16);
+                final wantWrite = rand.nextBool();
+                final wantRead = rand.nextBool();
+
+                // only legal operations: no overflow, no underflow
+                final write = wantWrite && model.length < depth;
+                final bypassing = generateBypass && model.isEmpty && write;
+                final read = wantRead && (model.isNotEmpty || bypassing);
+
+                wrEn.put(write);
+                rdEn.put(read);
+                wrData.put(data);
+
+                expect(fifo.full.value.toBool(), model.length == depth);
+                expect(fifo.empty.value.toBool(), model.isEmpty);
+                if (generateExtras) {
+                  expect(fifo.occupancy!.value.toInt(), model.length);
+                  expect(fifo.error!.value.toBool(), false);
+                }
+                if (read) {
+                  expect(fifo.readData.value.toInt(),
+                      model.isEmpty ? data : model.first);
+                }
+
+                await clk.nextNegedge;
+
+                if (write) {
+                  model.add(data);
+                }
+                if (read) {
+                  model.removeFirst();
+                }
+              }
+
+              await Simulator.endSimulation();
+            });
+          }
+        }
+      }
+    }
   });
 
   test('typed fifo', () {

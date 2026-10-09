@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fifo.dart
@@ -174,8 +174,27 @@ class Fifo<LogicType extends Logic> extends Module {
               : Const(0, width: dataWidth)), // fill rest with 0s
     );
 
-    final wrPointer = Logic(name: 'wrPointer', width: _addrWidth);
-    final rdPointer = Logic(name: 'rdPointer', width: _addrWidth);
+    // pointers advance on (non-bypassed) writes and reads, wrapping at [depth]
+    final wrAdvance = Logic(name: 'wrAdvance');
+    final rdAdvance = Logic(name: 'rdAdvance');
+
+    final wrCounter = Counter.simple(
+        clk: _clk,
+        reset: _reset,
+        enable: wrAdvance,
+        maxValue: depth - 1,
+        width: _addrWidth,
+        resetValue: _initialValues.length % depth,
+        name: 'wrPointerCounter');
+    final rdCounter = Counter.simple(
+        clk: _clk,
+        reset: _reset,
+        enable: rdAdvance,
+        maxValue: depth - 1,
+        width: _addrWidth,
+        name: 'rdPointerCounter');
+    final wrPointer = wrCounter.count;
+    final rdPointer = rdCounter.count;
 
     // empty calculation
     final matchedPointers = Logic(name: 'matchedPointers');
@@ -196,25 +215,15 @@ class Fifo<LogicType extends Logic> extends Module {
 
     // occupancy calculation
     if (generateOccupancy) {
-      Sequential(_clk, reset: _reset, resetValues: {
-        occupancy!: _initialValues.length,
-      }, [
-        Case(
-            conditionalType: ConditionalType.unique,
-            [_writeEnable, _readEnable].swizzle(),
-            [
-              // write, no read
-              CaseItem(Const(LogicValue.ofString('10')),
-                  [occupancy! < occupancy! + 1]),
-
-              // read, no write
-              CaseItem(Const(LogicValue.ofString('01')),
-                  [occupancy! < occupancy! - 1]),
-            ],
-            defaultItem: [
-              occupancy! < occupancy
-            ])
-      ]);
+      final occupancyCounter = Counter.upDown(
+          clk: _clk,
+          reset: _reset,
+          enableInc: _writeEnable & ~_readEnable,
+          enableDec: _readEnable & ~_writeEnable,
+          width: occupancy!.width,
+          resetValue: _initialValues.length,
+          name: 'occupancyCounter');
+      occupancy! <= occupancyCounter.count;
     }
 
     // bypass means don't write to [Fifo], feed straight through
@@ -222,10 +231,13 @@ class Fifo<LogicType extends Logic> extends Module {
     if (generateBypass) {
       bypass = Logic(name: 'bypass');
       bypass <= empty & _readEnable & _writeEnable;
-      wrPort.en <= _writeEnable & ~bypass;
+      wrAdvance <= _writeEnable & ~bypass;
+      rdAdvance <= _readEnable & ~bypass;
     } else {
-      wrPort.en <= _writeEnable;
+      wrAdvance <= _writeEnable;
+      rdAdvance <= _readEnable;
     }
+    wrPort.en <= wrAdvance;
 
     wrPort.addr <= wrPointer;
     wrPort.data <= _writeData;
@@ -242,20 +254,18 @@ class Fifo<LogicType extends Logic> extends Module {
             ? mux(peekWriteData, _writeData, rdPort.data)
             : rdPort.data);
 
-    final pointerIncrements = [
-      wrPointer < _incrWithWrap(wrPointer, _writeEnable),
-      rdPointer < _incrWithWrap(rdPointer, _readEnable),
-    ];
+    // the write pointer value after the next write, wrapping at [depth]
+    final nextWrPointerSum = Sum(
+        [SumInterface(width: _addrWidth, fixedAmount: 1)],
+        initialValue: wrPointer,
+        maxValue: depth - 1,
+        width: _addrWidth,
+        name: 'nextWrPointerSum');
+    final nextWrPointer = nextWrPointerSum.sum;
 
     Sequential(_clk, reset: _reset, resetValues: {
       full: _initialValues.length == depth ? Const(1) : Const(0),
-      wrPointer: Const(_initialValues.length, width: _addrWidth),
     }, [
-      if (generateBypass)
-        If(~bypass!, then: pointerIncrements)
-      else
-        ...pointerIncrements,
-
       // full condition is one of these options:
       //  - we were already full, and pointers are staying the same.
       //  - [wrPointer] is 1 behind read, and we're writing without reading
@@ -263,20 +273,8 @@ class Fifo<LogicType extends Logic> extends Module {
       //    territory.
       full <
           (full & (_writeEnable.eq(_readEnable))) |
-              (rdPointer.eq(_incrWithWrap(wrPointer)) &
-                  _writeEnable &
-                  ~_readEnable)
+              (rdPointer.eq(nextWrPointer) & _writeEnable & ~_readEnable)
     ]);
-  }
-
-  /// Increments [original] by 1, but wraps accounting for [depth].
-  ///
-  /// Optionally, the increment can be conditional on [condition].
-  Logic _incrWithWrap(Logic original, [Logic? condition]) {
-    final maxValue = depth - 1;
-    final wrapped = mux(original.eq(maxValue), Const(0, width: original.width),
-        (original + 1).named('${original.name}Increment'));
-    return condition != null ? mux(condition, wrapped, original) : wrapped;
   }
 }
 
