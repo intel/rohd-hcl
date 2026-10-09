@@ -26,7 +26,9 @@
 - Automatic `FloatingPointAdderSinglePath` definition names now include `roundingMode` for the same reason.
 - Automatic `FloatingPointConverter`, `FloatingPointSqrt`, and `FloatingPointSqrtSimple` definition names now include `roundingMode`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
 - Automatic `DotProduct`, `CompressionTreeDotProduct`, and `GeneralDotProduct` definition names now include lane count, operand widths, radix, implementation identity, and signedness. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `Count` and `Extrema` definition names now include their tree radix, and `Extrema` names also include the input widths. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
 - Removed `PartialProductMatrix.array`, which exposed the internal partial-product generator. Apply custom transformations through the `beforeGenerateOutputs` callback to `generateOutputs`.
+- Made implementation-only hardware signals and connected interface clones non-public. Consumers must use documented module outputs and caller-owned interfaces instead of accessing child internals directly.
 - Reorganized `lib/src` into a category/subcategory directory taxonomy. The public `package:rohd_hcl/rohd_hcl.dart` API is unchanged, but code that imports private `package:rohd_hcl/src/...` paths directly must update those paths or import the package barrel instead.
 
 ### Deprecated APIs
@@ -91,7 +93,7 @@
 
 #### Accumulation
 
-- Added `trackOverflow`/`trackUnderflow` to `Counter` and `GatedCounter` so the overflow/underflow history flop can be omitted when unneeded, partially addressing <https://github.com/intel/rohd-hcl/issues/90> for `Counter` (`Sum`'s combinational overflow/underflow logic is unaffected).
+- Added static reachable-range analysis to omit impossible overflow/underflow checks and normalization branches in `Sum` and `Counter`; `trackOverflow`/`trackUnderflow` can additionally omit unused status history flops (<https://github.com/intel/rohd-hcl/issues/90>).
 
 #### Bit Operations
 
@@ -147,6 +149,8 @@
 - Fixed CSR frontdoor decoding for non-power-of-two-aligned block base addresses and corrected the minimum required address width calculation (<https://github.com/intel/rohd-hcl/issues/294>, <https://github.com/intel/rohd-hcl/pull/309>).
 - Implemented the documented write-ones-clear CSR behavior, with software writes clearing bits and backdoor hardware writes setting them (<https://github.com/intel/rohd-hcl/issues/296>, <https://github.com/intel/rohd-hcl/pull/311>).
 - Enabled independent AXI4 subordinate read and write response-delay callbacks and corrected their timing behavior (<https://github.com/intel/rohd-hcl/issues/303>, <https://github.com/intel/rohd-hcl/pull/312>).
+- Corrected the default `Counter` definition name and made `GatedCounter` honor asynchronous reset for its count flops.
+- Fixed `ClockGate` bypass mode to create module-owned free-clock and gated-clock ports rather than directly exposing parent logic.
 
 #### IEEE rounding compatibility bugs
 
@@ -220,7 +224,7 @@
 
 - Berkeley TestFloat integration remains unimplemented (<https://github.com/intel/rohd-hcl/issues/135>).
 - `MultiCycleDivider` improvements (<https://github.com/intel/rohd-hcl/issues/139>) and a 4:2 `ColumnCompressor` (<https://github.com/intel/rohd-hcl/issues/120>) remain in stale pull requests.
-- `Sum` still generates avoidable overflow/underflow logic; `Counter`'s history flops can now be disabled with `trackOverflow`/`trackUnderflow` (<https://github.com/intel/rohd-hcl/issues/90>).
+- Static range analysis cannot prune overflow/underflow logic when bounds or initial-value ranges are dynamic; those checks are conservatively retained.
 - `CompressionTreeMultiplyAccumulate` can discard precision when `c` exceeds its natural accumulation width; `GenericMultiplyAccumulate` does not.
 - Potential optimizations remain in compact sign extension, `FixedToFloat` exponent prediction, and the dual-path floating-point adder N-path.
 

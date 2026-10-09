@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // gated_counter_test.dart
@@ -89,6 +89,33 @@ void main() {
 
     expect(toggleCounter.lowerActivity, greaterThan(0.95));
     expect(toggleCounter.upperActivity, lessThan(0.75));
+  });
+
+  test('async reset resets the count without a clock edge', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final dut = GatedCounter(
+      [SumInterface(fixedAmount: 1)],
+      clk: Const(0),
+      reset: reset,
+      resetValue: 3,
+      width: 4,
+      asyncReset: true,
+    );
+
+    await dut.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    reset.inject(0);
+    await clk.nextNegedge;
+    reset.inject(1);
+    await clk.nextPosedge;
+
+    expect(dut.count.value.toInt(), 3);
+
+    await Simulator.endSimulation();
   });
 
   test(

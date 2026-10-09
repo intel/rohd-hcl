@@ -86,7 +86,7 @@ class Counter extends SummationBase {
   }) : super(
             initialValue: resetValue,
             definitionName: definitionName ??
-                'Counter_L${interfaces.length}}'
+                'Counter_L${interfaces.length}'
                     '${trackOverflow ? "" : "_NO"}'
                     '${trackUnderflow ? "" : "_NU"}') {
     this.clk = addInput('clk', clk);
@@ -108,8 +108,13 @@ class Counter extends SummationBase {
     interfaces,
     initialValue:
         restart != null ? mux(restart!, initialValueLogic, count) : count,
-    maxValue: maxValueLogic,
-    minValue: minValueLogic,
+    // Preserve constant bounds so Sum can prune unreachable overflow paths.
+    maxValue: constantMaxValue != null && !constantMaxValue!.isNegative
+        ? constantMaxValue
+        : maxValueLogic,
+    minValue: constantMinValue != null && !constantMinValue!.isNegative
+        ? constantMinValue
+        : minValueLogic,
     width: width,
     saturates: saturates,
   );
@@ -119,13 +124,13 @@ class Counter extends SummationBase {
     buildFlops();
 
     // need to flop these since value is flopped
-    if (trackOverflow) {
+    if (trackOverflow && summer.canOverflow) {
       overflowed <=
           flop(clk, summer.overflowed, reset: reset, asyncReset: asyncReset);
     } else {
       overflowed <= Const(0);
     }
-    if (trackUnderflow) {
+    if (trackUnderflow && summer.canUnderflow) {
       underflowed <=
           flop(clk, summer.underflowed, reset: reset, asyncReset: asyncReset);
     } else {
