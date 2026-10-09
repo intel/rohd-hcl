@@ -10,6 +10,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -34,11 +35,67 @@ extension on SumInterface {
   }
 }
 
+BigInt _biggestUnsignedValue(int width) => (BigInt.one << width) - BigInt.one;
+
+// Computes conservative bounds before the sum is wrapped or saturated.
+({BigInt minimum, BigInt maximum}) _possibleSumRange(
+  dynamic initialValue,
+  List<SumInterface> interfaces,
+  int width,
+) {
+  var minimum = BigInt.zero;
+  late BigInt maximum;
+
+  if (initialValue == null) {
+    maximum = BigInt.zero;
+  } else if (initialValue is int && initialValue >= 0) {
+    minimum = BigInt.from(initialValue);
+    maximum = minimum;
+  } else if (initialValue is BigInt && !initialValue.isNegative) {
+    minimum = initialValue;
+    maximum = minimum;
+  } else if (initialValue is Logic) {
+    maximum = _biggestUnsignedValue(initialValue.width);
+  } else if (initialValue is LogicValue) {
+    maximum = _biggestUnsignedValue(initialValue.width);
+  } else {
+    maximum = _biggestUnsignedValue(width);
+  }
+
+  for (final intf in interfaces) {
+    final amountMaximum = intf.fixedAmount == null
+        ? _biggestUnsignedValue(intf.width)
+        : intf.amount.value.toBigInt();
+
+    if (intf.increments) {
+      maximum += amountMaximum;
+      if (intf.fixedAmount != null && !intf.hasEnable) {
+        minimum += amountMaximum;
+      }
+    } else {
+      minimum -= amountMaximum;
+      if (intf.fixedAmount != null && !intf.hasEnable) {
+        maximum -= amountMaximum;
+      }
+    }
+  }
+
+  return (minimum: minimum, maximum: maximum);
+}
+
 /// Computes a sum of any number of sources with optional configuration for
 /// widths and saturation behavior.
 class Sum extends SummationBase {
   /// The resulting [sum].
   Logic get sum => output('sum');
+
+  /// Whether the range analysis finds that overflow is possible.
+  @internal
+  late final bool canOverflow;
+
+  /// Whether the range analysis finds that underflow is possible.
+  @internal
+  late final bool canUnderflow;
 
   /// Computes a [sum] across the provided [interfaces].
   ///
@@ -59,7 +116,9 @@ class Sum extends SummationBase {
   /// [maxValue] and [minValue].  The [equalsMax], [equalsMin], [overflowed],
   /// and [underflowed] outputs can be used to determine if the sum is at the
   /// maximum, minimum, (would have) overflowed, or  (would have) underflowed,
-  /// respectively.
+  /// respectively. [initialValue], [maxValue], and [minValue] can be provided
+  /// as [StaticOrRuntimeControl]s when a named runtime input or explicit
+  /// static/runtime configuration is useful.
   Sum(super.interfaces,
       {dynamic initialValue = 0,
       super.maxValue,
@@ -75,6 +134,7 @@ class Sum extends SummationBase {
                 definitionName ?? 'Sum_${interfaces.length}_W$width',
             initialValue: initialValue) {
     addOutput('sum', width: width);
+    final configuredInitialValue = SummationBase.configuredValue(initialValue);
 
     var maxPosMagnitude = SummationBase.biggestVal(width);
     var maxNegMagnitude = BigInt.zero;
@@ -91,9 +151,12 @@ class Sum extends SummationBase {
     }
 
     // also consider that initialValue may be less than min or more than max
-    final maxInitialValueMagnitude = initialValue is Logic
-        ? SummationBase.biggestVal(initialValue.width)
-        : LogicValue.ofInferWidth(initialValue).toBigInt();
+    final initialValueMagnitude = configuredInitialValue == null
+        ? BigInt.zero
+        : configuredInitialValue is Logic
+            ? SummationBase.biggestVal(configuredInitialValue.width)
+            : LogicValue.ofInferWidth(configuredInitialValue).toBigInt().abs();
+    final maxInitialValueMagnitude = initialValueMagnitude;
     maxPosMagnitude += maxInitialValueMagnitude;
     maxNegMagnitude += maxInitialValueMagnitude;
 
@@ -106,6 +169,15 @@ class Sum extends SummationBase {
         minValueLogic.zeroExtend(internalWidth).named('minValueExt');
     final maxValueLogicExt =
         maxValueLogic.zeroExtend(internalWidth).named('maxValueExt');
+
+    final possibleRange =
+        _possibleSumRange(configuredInitialValue, interfaces, width);
+    canOverflow = constantMaxValue == null ||
+        constantMaxValue!.isNegative ||
+        possibleRange.maximum > constantMaxValue!;
+    canUnderflow = constantMinValue == null ||
+        constantMinValue!.isNegative ||
+        possibleRange.minimum < constantMinValue!;
 
     // lazy range so that it's not generated if not necessary
     late final range = Logic(name: 'range', width: internalWidth)
@@ -134,42 +206,64 @@ class Sum extends SummationBase {
     //
     // For more details, see:
     // https://intel.github.io/rohd-website/blog/combinational-ssa/
-    Combinational.ssa((s) => [
-          // initialize
-          s(internalValue) < initialValueLogicExt + zeroPoint,
+    Combinational.ssa((s) {
+      final overflowUnderflowAdjustments = <Iff>[];
+      if (canOverflow) {
+        overflowUnderflowAdjustments.add(
+          Iff.s(
+            overflowed,
+            s(internalValue) <
+                (saturates
+                    ? upperSaturation
+                    : ((s(internalValue) - upperSaturation - 1) % range +
+                        lowerSaturation)),
+          ),
+        );
+      }
+      if (canUnderflow) {
+        final underflowAdjustment = s(internalValue) <
+            (saturates
+                ? lowerSaturation
+                : (upperSaturation -
+                    ((lowerSaturation - s(internalValue) - 1) % range)));
+        if (canOverflow) {
+          overflowUnderflowAdjustments.add(
+            ElseIf.s(underflowed, underflowAdjustment),
+          );
+        } else {
+          overflowUnderflowAdjustments.add(
+            Iff.s(underflowed, underflowAdjustment),
+          );
+        }
+      }
 
-          // perform increments and decrements per-interface
-          ...interfaces
-              .map((e) => e._combAdjustments(s, internalValue))
-              .flattened,
+      return [
+        // initialize
+        s(internalValue) < initialValueLogicExt + zeroPoint,
 
-          // identify if we're at a max/min case
-          overflowed < s(internalValue).gt(upperSaturation),
-          underflowed < s(internalValue).lt(lowerSaturation),
+        // perform increments and decrements per-interface
+        ...interfaces
+            .map((e) => e._combAdjustments(s, internalValue))
+            .flattened,
 
-          // useful as an internal node for debug/visibility
-          preAdjustmentValue < s(internalValue),
+        // identify if we're at a max/min case
+        if (canOverflow)
+          overflowed < s(internalValue).gt(upperSaturation)
+        else
+          overflowed < Const(0),
+        if (canUnderflow)
+          underflowed < s(internalValue).lt(lowerSaturation)
+        else
+          underflowed < Const(0),
 
-          // handle saturation or over/underflow
-          If.block([
-            Iff.s(
-              overflowed,
-              s(internalValue) <
-                  (saturates
-                      ? upperSaturation
-                      : ((s(internalValue) - upperSaturation - 1) % range +
-                          lowerSaturation)),
-            ),
-            ElseIf.s(
-              underflowed,
-              s(internalValue) <
-                  (saturates
-                      ? lowerSaturation
-                      : (upperSaturation -
-                          ((lowerSaturation - s(internalValue) - 1) % range))),
-            )
-          ]),
-        ]);
+        // useful as an internal node for debug/visibility
+        preAdjustmentValue < s(internalValue),
+
+        // handle saturation or over/underflow
+        if (overflowUnderflowAdjustments.isNotEmpty)
+          If.block(overflowUnderflowAdjustments),
+      ];
+    });
 
     equalsMax <= internalValue.eq(upperSaturation);
     equalsMin <= internalValue.eq(lowerSaturation);

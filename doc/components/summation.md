@@ -15,6 +15,8 @@ SumInterface(width: 4);
 
 The `Sum` component takes a list of `SumInterface`s and adds them all up. The `saturates` configuration enables saturation behavior, otherwise there will be roll-over at overflow/underflow of the counter at `minValue` and `maxValue`. The sum can also be given an `initialValue` to start at.
 
+`initialValue`, `maxValue`, and `minValue` may be supplied as a static value or a runtime `Logic`. They also accept a `StaticOrRuntimeControl<T>` when an explicitly named runtime input is useful. Static configurations can be used to omit unreachable overflow or underflow logic; runtime configurations retain the corresponding checks.
+
 Internally, the `Sum` component builds a wider bus which is large enough to hold the biggest possible intermediate value during summation before consideration of overflow and saturation.
 
 Note that the implementation's size and complexity when synthesized depend significantly on the configuration. For example, if everything is a nice power-of-2 number, then the logic is much simpler than otherwise where hardware modulos may be required to properly handle roll-over/under scenarios.
@@ -35,6 +37,8 @@ One additional nice feature of the `Counter` is that it supports a `restart` in 
 The `Counter` also has a `Counter.simple` constructor which is intended for very basic scenarios like "count up by 1 each cycle".
 
 The `Counter` also has a `Counter.upDown` constructor which is intended for increment/decrement use cases like crediting.
+
+The `resetValue`, `maxValue`, and `minValue` may also use `StaticOrRuntimeControl<T>` to create explicitly named runtime inputs. Static bounds are available to the range analysis; runtime bounds conservatively retain the relevant checks.
 
 `Counter` and `GatedCounter` track overflow and underflow by default. Set
 `trackOverflow: false` or `trackUnderflow: false` when the corresponding
