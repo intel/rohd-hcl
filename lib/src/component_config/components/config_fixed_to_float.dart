@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FixedToFloat].
 class FixedToFloatConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'conversion';
+
   /// A knob controlling the input sign.
   final ToggleConfigKnob signKnob = ToggleConfigKnob(value: true);
 

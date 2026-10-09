@@ -37,6 +37,12 @@ class SubNormalAsZeroSelecKnob extends GroupOfKnobs {
 
 /// A [Configurator] for [FloatingPointAdder]s.
 class FloatingPointAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'floating-point';
+
   /// Controls whether to select the simple adder or the dual path.
   final ToggleConfigKnob dualPathAdderKnob = ToggleConfigKnob(value: false);
 

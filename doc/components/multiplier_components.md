@@ -136,7 +136,9 @@ Our `RadixEncoder` module is general, creating selection tables for arbitrary Bo
 
 ### Sign Extension Option
 
-The `PartialProductSignExtension` defines the abstract API for doing different kinds of sign extension on the `PartialProductArray`, from very simplistic for helping design new arithmetics to fairly standard to even compact, rectangular forms. The following derived sub-classes do different kinds of sign extension:
+`PartialProductSignExtension` defines the API for applying different sign
+extension strategies to a `PartialProductGeneratorBase` array. The available
+strategies range from simple reference implementations to compact forms:
 
 - `NoneSignExtension`: no sign extension.
 - `BruteSignExtension`: full width extension which is robust but costly.
@@ -144,7 +146,8 @@ The `PartialProductSignExtension` defines the abstract API for doing different k
 - `CompactSignExtension`: A form that eliminates a final sign in an otherwise empty final row.
 - `CompactRectSignExtension`: An enhanced form of compact that can handle rectangular multiplications.
 
-You can perform sign extension by constructing a sign extender with the `PartialProductArray` as an argument and then calling `signExtend()`.
+Apply a strategy by constructing it with the partial-product generator (or the
+`array` of a `PartialProduct` module) and calling `signExtend()`.
 
 ```dart
 CompactSignExtension(ppg).signExtend();
@@ -237,12 +240,23 @@ We then choose a `ParallelPrefixAdder` using the `BrentKung` tree style to do th
 Finally, we produce the product.
 
 ```dart
-    final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signedMultiplicand: true, signedMultiplier: true);
-    CompactRectSignExtension(pp).signExtend();
-    final compressor = ColumnCompressor(pp)..compress();
+    final pp = PartialProduct(
+      a,
+      b,
+      RadixEncoder(radix),
+      signedMultiplicand: true,
+      signedMultiplier: true,
+    );
+    pp.generateOutputs(
+      beforeGenerateOutputs: (array) =>
+          CompactRectSignExtension(array).signExtend(),
+    );
+    final compressor = ColumnCompressor(pp.rows, pp.rowShift);
     final adder = ParallelPrefixAdder(
-        compressor.exractRow(0), compressor.extractRow(1), BrentKung.new);
+      compressor.add0,
+      compressor.add1,
+      ppGen: BrentKung.new,
+    );
     product <= adder.sum.slice(a.width + b.width - 1, 0);
 ```
 

@@ -45,6 +45,12 @@ class OutputWidthSelectKnob extends GroupOfKnobs {
 
 /// A [Configurator] for [FloatingPointMultiplierSimple]s.
 class FloatingPointMultiplierSimpleConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'floating-point';
+
   /// Select the type of mantissa multiplier.
   final multiplierSelectKnob = MultiplierSelectKnob(
     allowSigned: false,

@@ -46,8 +46,8 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
   /// getter for the computed [FloatingPoint] output.
   late final FpType sqrt;
 
-  /// getter for the [error] output.
-  late final Logic error = Logic(name: 'error')..gets(output('error'));
+  /// The error status output.
+  Logic get error => output('error');
 
   /// IEEE 754 exception status for this operation.
   late final FloatingPointStatus status;

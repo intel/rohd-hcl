@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_fixed_sqrt.dart
@@ -12,6 +12,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FixedPointSqrt].
 class FixedPointSqrtConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'division-and-roots';
+
   /// Controls the size of the integer 'm'.
   final IntConfigKnob integerWidthKnob = IntConfigKnob(value: 8);
 
