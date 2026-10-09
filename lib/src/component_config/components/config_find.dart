@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_find.dart
@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Find].
 class FindConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.bitOperations;
+
+  @override
+  String get subcategory => 'search';
+
   /// A knob controlling the width of the bus.
   final IntConfigKnob busWidthKnob = IntConfigKnob(value: 8);
 

@@ -4,10 +4,14 @@ ROHD-HCL implements a `Parity` component for error checking. For satisfying the 
 
 ## Parity Transmitter
 
-The `ParityTransmitter` is a module that accepts a Logic `bus` for data and makes the data `bus` suitable for transmission with parity. A parity check is handled by appending parity bit to `bus` data.
+The `ParityTransmitter` accepts the original data, produces its parity bit on
+`code`, and exposes the combined code-and-data bus on `transmission`.
 
 ## Parity Receiver
 
-The `ParityReceiver` is a module that accepts a Logic `bus` for transmitted data with a parity bit appended. The receiver functionality splits the provided `bus` into original `data` and `parity`. Also, the process of parity error check is handled within this module at result output `checkError`.
+The `ParityReceiver` accepts that `transmission` bus and exposes the payload as
+`originalData` and the received parity bit as `code`. A parity mismatch raises
+`error` and `uncorrectableError`; `correctableError` is low because parity
+detects errors but does not correct them.
 
 Please visit [API docs](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html) for more details about parity.

@@ -26,7 +26,8 @@ String? observeOutput(WidgetTester tester) {
 
 List<Configurator> components = componentRegistry;
 
-const _missingToggleGateAsset = 'assets/rohd_src/toggle_gate.dart';
+const _missingToggleGateAsset =
+    'assets/rohd_src/clocking/gating/toggle_gate.dart';
 
 class _MissingSourceAssetBundle extends CachingAssetBundle {
   _MissingSourceAssetBundle(this.missingAsset);
@@ -71,21 +72,6 @@ Future<void> showOnlyGeneratedSv(WidgetTester tester) async {
   await tester.pump();
 }
 
-Future<void> pumpUntilOutputContains(
-  WidgetTester tester,
-  String expected,
-) async {
-  for (var i = 0; i < 100; i++) {
-    final output = find.byKey(const Key('generatedSV'));
-    if (tester.any(output) &&
-        tester.widget<TextField>(output).controller!.text.contains(expected)) {
-      return;
-    }
-    await tester.pump(const Duration(milliseconds: 100));
-  }
-  expect(observeOutput(tester), contains(expected));
-}
-
 Future<void> tapSidebarComponent(WidgetTester tester, String name) async {
   final tile = find.text(name);
   await tester.scrollUntilVisible(
@@ -99,6 +85,21 @@ Future<void> tapSidebarComponent(WidgetTester tester, String name) async {
         .first,
   );
   await tester.tap(tile);
+}
+
+Future<void> pumpUntilOutputContains(
+  WidgetTester tester,
+  String expected,
+) async {
+  for (var i = 0; i < 100; i++) {
+    final output = find.byKey(const Key('generatedSV'));
+    if (tester.any(output) &&
+        tester.widget<TextField>(output).controller!.text.contains(expected)) {
+      return;
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(observeOutput(tester), contains(expected));
 }
 
 void main() {
@@ -163,6 +164,14 @@ void main() {
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows component taxonomy categories and subcategories',
+      (tester) async {
+    await pumpHclPage(tester);
+
+    expect(find.text('Arithmetic'), findsOneWidget);
+    expect(find.text('accumulation'), findsWidgets);
   });
 
   testWidgets('uses a bundled monospace font for generated source',

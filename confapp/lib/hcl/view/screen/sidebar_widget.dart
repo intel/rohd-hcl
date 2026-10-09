@@ -55,6 +55,13 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
   @override
   Widget build(BuildContext context) {
     final comCubit = context.read<ComponentCubit>();
+    final componentsByCategory = <ComponentCategory, List<Configurator>>{
+      for (final category in ComponentCategory.values)
+        category: comCubit.components
+            .where((component) => component.category == category)
+            .toList(),
+    };
+
     return BlocBuilder<ComponentCubit, Configurator>(
       builder: (context, selectedComponent) => Container(
         width: widget.width,
@@ -73,15 +80,29 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
                 ),
               ),
             ),
-            for (final component in comCubit.components)
-              Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: _ComponentTile(
-                  component: component,
-                  selected: component == selectedComponent,
-                  onTap: () => comCubit.setSelectedComponent(component),
+            for (final category in ComponentCategory.values)
+              if (componentsByCategory[category]!.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
+                  child: Text(
+                    category.label,
+                    style: TextStyle(
+                      color: white.withValues(alpha: 0.82),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
+                for (final component in componentsByCategory[category]!)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: _ComponentTile(
+                      component: component,
+                      selected: component == selectedComponent,
+                      onTap: () => comCubit.setSelectedComponent(component),
+                    ),
+                  ),
+              ],
           ],
         ),
       ),
@@ -111,14 +132,29 @@ class _ComponentTile extends StatelessWidget {
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-              child: Text(
-                component.name,
-                style: TextStyle(
-                  color: selected
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: 0.72),
-                  fontSize: 14,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    component.name,
+                    style: TextStyle(
+                      color: selected
+                          ? Colors.white
+                          : Colors.white.withValues(alpha: 0.72),
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    component.subcategory,
+                    style: TextStyle(
+                      color: selected
+                          ? Colors.white.withValues(alpha: 0.76)
+                          : Colors.white.withValues(alpha: 0.5),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

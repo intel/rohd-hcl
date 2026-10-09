@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_carry_save_multiplier.dart
@@ -13,6 +13,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [CarrySaveMultiplier].
 class CarrySaveMultiplierConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'multiplication';
+
   /// A knob controlling the width of the inputs to a [CarrySaveMultiplier].
   final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 4);
 

@@ -36,6 +36,11 @@ The `Counter` also has a `Counter.simple` constructor which is intended for very
 
 The `Counter` also has a `Counter.upDown` constructor which is intended for increment/decrement use cases like crediting.
 
+`Counter` and `GatedCounter` track overflow and underflow by default. Set
+`trackOverflow: false` or `trackUnderflow: false` when the corresponding
+history signal is not needed; its history flop is omitted and the signal is
+tied low.
+
 ```dart
 // A counter which increments by 1 each cycle up to 5, then rolls over.
 Counter.simple(clk: clk, reset: reset, maxValue: 5);

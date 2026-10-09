@@ -8,7 +8,7 @@ For cross-referencing against the official LTI specification:
 
 ## Interfaces
 
-All interface definitions can be found in `lib/src/interfaces/amba5`. Each channel (as defined in the LTI spec) is implemented as a `PairInterface` and is constructed with a configuration object that is meant to encapsulate the many parameters that are associated with LTI signals. As a convenience, there are "super" interfaces in which individual channels are grouped together. These "super" interfaces are called `Cluster`s. For example, an `LtiCluster` consists of the `LA`, `LR`, `LC`, `LT`, and `Management` channels.
+All interface definitions can be found in `lib/src/interfaces/amba/amba5`. Each channel (as defined in the LTI spec) is implemented as a `PairInterface` and is constructed with a configuration object that is meant to encapsulate the many parameters that are associated with LTI signals. As a convenience, there are "super" interfaces in which individual channels are grouped together. These "super" interfaces are called `Cluster`s. For example, an `LtiCluster` consists of the `LA`, `LR`, `LC`, `LT`, and `Management` channels.
 
 The LTI interface definition is mostly independent but does share some base definitions for link layer signals like ready/valid with AXI.
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_serialization.dart
@@ -12,6 +12,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Serializer] and [Deserializer].
 class SerializationConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.dataflow;
+
+  @override
+  String get subcategory => 'serialization';
+
   /// Controls whether we are serializing or deserializing.
   final ChoiceConfigKnob<Type> directionKnob = ChoiceConfigKnob(
     [Serializer, Deserializer],

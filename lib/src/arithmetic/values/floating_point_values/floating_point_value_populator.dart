@@ -1080,7 +1080,9 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// - [lte]: generate a value in the range `(-∞, [lte]]`
   /// - none: generate a value in the range `(-∞, ∞)`
   FpvType random(Random rv,
-      {bool genNormal = true,
+      {@Deprecated('use genNormal/genSubNormal instead') bool normal = false,
+      @Deprecated('use genNormal/genSubNormal instead') bool subNormal = false,
+      bool genNormal = true,
       bool genSubNormal = true,
       bool excludeInfinity = false,
       FpvType? gt,
@@ -1089,6 +1091,27 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       FpvType? lte}) {
     FpvType cloneConstant(FloatingPointConstants c) =>
         _unpopulated.clonePopulator().ofConstant(c) as FpvType;
+    if (normal & subNormal) {
+      throw RohdHclException(
+          'FloatingPointValuePopulator.random: cannot have both normal and '
+          'subNormal be true');
+    }
+    if (normal & !genNormal) {
+      throw RohdHclException(
+          'FloatingPointValuePopulator.random: cannot have both normal and '
+          'genNormal be false -- normal will be deprecated, use genNormal');
+    }
+    if (subNormal & !genSubNormal) {
+      throw RohdHclException(
+          'FloatingPointValuePopulator.random: cannot have both subNormal and '
+          'genSubNormal be false -- subNormal will be deprecated, use '
+          'genSubNormal');
+    }
+    if (subNormal & subNormalAsZero) {
+      throw RohdHclException(
+          'FloatingPointValuePopulator.random: cannot have both subNormal and '
+          'subNormalAsZero be true');
+    }
     _checkMatching('gt', gt);
     _checkMatching('lt', lt);
     _checkMatching('gte', gte);
@@ -1124,8 +1147,18 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       }
     }
 
-    final doGenNormal = genNormal;
-    final doGenSubNormal = genSubNormal;
+    final bool doGenNormal;
+    final bool doGenSubNormal;
+    if (normal) {
+      doGenNormal = true;
+      doGenSubNormal = false;
+    } else if (subNormal) {
+      doGenNormal = false;
+      doGenSubNormal = true;
+    } else {
+      doGenNormal = genNormal;
+      doGenSubNormal = genSubNormal;
+    }
     if (!doGenNormal & !doGenSubNormal) {
       throw RohdHclException(
           'FloatingPointValuePopulator.random: cannot have both genNormal and '
@@ -1142,8 +1175,8 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       FloatingPointValuePopulator populator() => FloatingPointValue.populator(
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1);
       return ofFloatingPointValue(populator().random(rv,
-          genNormal: genNormal,
-          genSubNormal: genSubNormal,
+          genNormal: doGenNormal,
+          genSubNormal: doGenSubNormal,
           gt: (gt != null)
               ? populator().ofFloatingPointValue(gt, canonicalizeExplicit: true)
               : null,
