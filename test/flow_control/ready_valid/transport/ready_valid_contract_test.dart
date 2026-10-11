@@ -34,6 +34,28 @@ class _Packet extends LogicStructure {
   _Packet clone({String? name}) => _Packet._clone(this, name: name);
 }
 
+void _setLegacyModifier(
+  PairInterface interface,
+  String Function(String original)? modifier,
+) {
+  // Exercise the legacy ROHD modifier compatibility path.
+  // ignore: deprecated_member_use
+  interface.modify = modifier;
+}
+
+String Function(String original)? _legacyModifier(PairInterface interface) =>
+    // Inspect the legacy callback only for clone compatibility coverage.
+    // ignore: deprecated_member_use
+    interface.modify;
+
+CloneType _copyLegacyModifier<CloneType extends PairInterface>(
+  PairInterface source,
+  CloneType target,
+) {
+  _setLegacyModifier(target, _legacyModifier(source));
+  return target;
+}
+
 class _ConsumerPortHarness extends Module {
   late final ReadyValidInterface<_Packet> channel;
 
@@ -70,15 +92,56 @@ class _ModifiedPortHarness extends Module {
       source.data.clone(),
       contract: source.contract,
     );
-    // Exercise the legacy ROHD modifier compatibility path.
-    // ignore: deprecated_member_use
-    channel.modify = (original) => 'modified_$original';
+    _setLegacyModifier(channel, (original) => 'modified_$original');
     channel.pairConnectIO(
       this,
       source,
       role,
       uniquify: uniquify,
     );
+  }
+}
+
+enum _RegistrationHelper {
+  pair,
+  tagged,
+}
+
+class _SourceCloneHarness extends Module {
+  late final ReadyValidInterface<_Packet> channel;
+
+  _SourceCloneHarness(
+    ReadyValidInterface<_Packet> source,
+    PairRole role,
+    _RegistrationHelper helper, {
+    String Function(String original)? uniquify,
+  }) {
+    final inputTags = role == PairRole.consumer
+        ? const {
+            PairDirection.sharedInputs,
+            PairDirection.fromProvider,
+          }
+        : const {
+            PairDirection.sharedInputs,
+            PairDirection.fromConsumer,
+          };
+    final outputTags = role == PairRole.consumer
+        ? const {PairDirection.fromConsumer}
+        : const {PairDirection.fromProvider};
+    channel = switch (helper) {
+      _RegistrationHelper.pair => addPairInterface(
+          source,
+          role,
+          uniquify: uniquify,
+        ),
+      _RegistrationHelper.tagged => addInterface(
+          source,
+          inputTags: inputTags,
+          outputTags: outputTags,
+          inOutTags: const {PairDirection.commonInOuts},
+          uniquify: uniquify,
+        ),
+    };
   }
 }
 
@@ -102,9 +165,12 @@ class _ExtendedReadyValidInterface extends ReadyValidInterface<_Packet> {
   }
 
   @override
-  _ExtendedReadyValidInterface clone() => _ExtendedReadyValidInterface(
-        data.clone(),
-        contract: contract,
+  _ExtendedReadyValidInterface clone() => _copyLegacyModifier(
+        this,
+        _ExtendedReadyValidInterface(
+          data.clone(),
+          contract: contract,
+        ),
       );
 }
 
@@ -295,6 +361,28 @@ void main() {
       );
     });
 
+    test('every built-in clone preserves an independent modifier field', () {
+      final variants = <ReadyValidInterface<Logic>>[
+        ReadyValidInterface<Logic>(Logic(width: 8)),
+        ReadyAndValidInterface<Logic>(Logic(width: 8)),
+        ReadyThenValidInterface<Logic>(Logic(width: 8)),
+        ValidThenReadyInterface<Logic>(Logic(width: 8)),
+        IrrevocableReadyValidInterface<Logic>(Logic(width: 8)),
+      ];
+
+      for (final source in variants) {
+        String originalModifier(String name) => 'original_$name';
+        String replacementModifier(String name) => 'replacement_$name';
+        _setLegacyModifier(source, originalModifier);
+        final cloned = source.clone();
+
+        expect(_legacyModifier(cloned), same(originalModifier));
+        _setLegacyModifier(cloned, replacementModifier);
+        expect(_legacyModifier(source), same(originalModifier));
+        expect(_legacyModifier(cloned), same(replacementModifier));
+      }
+    });
+
     test('exposes cached accepted and stalled predicates', () async {
       final channel = ReadyValidInterface<Logic>(
         Logic(width: 8, name: 'payload'),
@@ -438,6 +526,92 @@ void main() {
             contains('$readyDirection logic $readyName'),
           );
         });
+      }
+    }
+
+    for (final helper in _RegistrationHelper.values) {
+      for (final role in PairRole.values) {
+        for (final extended in [false, true]) {
+          for (final withUniquify in [false, true]) {
+            test(
+                '${helper.name} clones source modifier as $role'
+                '${extended ? ' with sidebands' : ''}'
+                '${withUniquify ? ' then uniquifies' : ''}', () async {
+              final source = extended
+                  ? _ExtendedReadyValidInterface(_Packet())
+                  : ReadyValidInterface<_Packet>(_Packet());
+              _setLegacyModifier(
+                source,
+                (original) => 'modified_$original',
+              );
+              final harness = _SourceCloneHarness(
+                source,
+                role,
+                helper,
+                uniquify:
+                    withUniquify ? (original) => 'unique_$original' : null,
+              );
+              final prefix = withUniquify ? 'unique_modified_' : 'modified_';
+              final payloadName = '${prefix}packet';
+              final validName = '${prefix}valid';
+              final readyName = '${prefix}ready';
+              final providerNames = {
+                payloadName,
+                validName,
+                if (extended) '${prefix}last',
+                if (extended)
+                  '${withUniquify ? 'unique_' : ''}metadata_modified_code',
+              };
+
+              if (role == PairRole.consumer) {
+                expect(harness.inputs.keys, containsAll(providerNames));
+                expect(harness.outputs.keys, contains(readyName));
+                expect(harness.inputs[payloadName], isA<_Packet>());
+              } else {
+                expect(harness.inputs.keys, contains(readyName));
+                expect(harness.outputs.keys, containsAll(providerNames));
+                expect(harness.outputs[payloadName], isA<_Packet>());
+              }
+              expect(
+                harness.channel,
+                extended
+                    ? isA<_ExtendedReadyValidInterface>()
+                    : isNot(isA<_ExtendedReadyValidInterface>()),
+              );
+
+              await harness.build();
+              final systemVerilog = harness.generateSynth();
+              final providerDirection =
+                  role == PairRole.consumer ? 'input' : 'output';
+              final readyDirection =
+                  role == PairRole.consumer ? 'output' : 'input';
+              expect(
+                systemVerilog,
+                contains('$providerDirection logic [9:0] $payloadName'),
+              );
+              expect(
+                systemVerilog,
+                contains('$providerDirection logic $validName'),
+              );
+              expect(
+                systemVerilog,
+                contains('$readyDirection logic $readyName'),
+              );
+              if (extended) {
+                expect(
+                  systemVerilog,
+                  contains('$providerDirection logic ${prefix}last'),
+                );
+                final metadataName = '${withUniquify ? 'unique_' : ''}'
+                    'metadata_modified_code';
+                expect(
+                  systemVerilog,
+                  contains('$providerDirection logic [2:0] $metadataName'),
+                );
+              }
+            });
+          }
+        }
       }
     }
 

@@ -42,7 +42,9 @@ registration creates a typed bridge from the target payload template after
 validating width; two declared structures must also have matching recursive
 field or array shape. For legacy pair interfaces, the inherited
 `PairInterface.modify` callback is applied before `uniquify` to data, valid,
-ready, sidebands, and nested interface ports.
+ready, sidebands, and nested interface ports. Every built-in ready/valid
+`clone` retains that callback on the new interface without modifying the
+source.
 
 ## ReadyValidFifo
 
