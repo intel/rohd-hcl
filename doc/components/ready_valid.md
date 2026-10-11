@@ -40,7 +40,9 @@ pair subinterfaces continue through normal ROHD traversal. When an
 intentionally retyped connection uses a plain packed `Logic` on one side,
 registration creates a typed bridge from the target payload template after
 validating width; two declared structures must also have matching recursive
-field or array shape.
+field or array shape. For legacy pair interfaces, the inherited
+`PairInterface.modify` callback is applied before `uniquify` to data, valid,
+ready, sidebands, and nested interface ports.
 
 ## ReadyValidFifo
 
