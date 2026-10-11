@@ -158,8 +158,10 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     // bits that would have fallen off the bottom land back at the top.
     final rightShiftAmount = shiftAmount.abs().named('rightShiftAmount');
     final isRightShift = shiftAmount[-1].named('isRightShift');
-    final safeRightShift = mux(rightShiftAmount.gte(fullMantissa.width),
-            Const(0, width: rightShiftAmount.width), rightShiftAmount)
+    final safeRightShift = mux(
+            rightShiftAmount.gte(fullMantissa.width),
+            Const(fullMantissa.width, width: rightShiftAmount.width),
+            rightShiftAmount)
         .named('safeRightShift');
     final partialLostBits = (isRightShift &
             (fullMantissa <<

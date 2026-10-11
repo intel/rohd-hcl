@@ -602,6 +602,28 @@ outSpec=$outSpec mode=$mode
       expect(multiplier.product.floatingPointValue, equals(expected));
     });
 
+    test('FP: multiplier retains sticky bits for an oversized right shift', () {
+      final fp1 = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+      final fp2 = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+      final fpOut = FloatingPoint(exponentWidth: 3, mantissaWidth: 2);
+      const mode = FloatingPointRoundingMode.roundTowardsInfinity;
+      final multiplier = FloatingPointMultiplierSimple(fp1, fp2,
+          outProduct: fpOut, roundingMode: mode);
+      final smallestSubnormal = fp1.valuePopulator().ofInts(0, 1);
+
+      fp1.put(smallestSubnormal);
+      fp2.put(smallestSubnormal);
+
+      // Rebiasing the E5 product into E3 requires shifting beyond the raw
+      // 14-bit mantissa, so all set product bits contribute to the sticky bit.
+      final expected = fpOut
+          .valuePopulator()
+          .multiply(smallestSubnormal, smallestSubnormal, roundingMode: mode);
+      expect(expected.isAZero, isFalse);
+      expect(multiplier.product.floatingPointValue, equals(expected));
+      expect(multiplier.status.inexact.value.toBool(), isTrue);
+    });
+
     test('FP: simple multiplier singleton pipelined', () async {
       final clk = SimpleClockGenerator(10).clk;
 

@@ -74,13 +74,13 @@ class DotProductBase extends Module {
           '${multiplicands.length - candWidthMiss} '
           "don't match preceding width.");
     }
-    final multiplierWidthMiss = multipliers
+    final multiplierWidthMatches = multipliers
         .mapIndexed((i, m) => m.width == multipliers[i > 0 ? i - 1 : 0].width)
         .where((w) => w)
         .length;
-    if (multiplierWidthMiss < multipliers.length) {
+    if (multiplierWidthMatches < multipliers.length) {
       throw RohdHclException('Multipliers must all have the same width: '
-          '${multipliers.length - multiplierWidthMiss} '
+          '${multipliers.length - multiplierWidthMatches} '
           "don't match preceding width.");
     }
 
