@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder_dualpath.dart
@@ -60,10 +60,6 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       throw ArgumentError(
           'FloatingPointAdderDualPath does not support explicit J bit output.');
     }
-    if (roundingMode != FloatingPointRoundingMode.roundNearestEven) {
-      throw RohdHclException('FloatingPointAdderDualPath only supports '
-          'roundNearestEven.');
-    }
 
     // Seidel: S.EFF = effectiveSubtraction.
     final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
@@ -80,10 +76,15 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final effectiveSubtraction =
         (fa.sign ^ fb.sign ^ (subtract ?? Const(0))).named('effSubtraction');
-    final isNaN = (a.isNaN |
-            b.isNaN |
-            (a.isAnInfinity & b.isAnInfinity & effectiveSubtraction))
-        .named('isNaN');
+    final invalidArithmetic =
+        (a.isAnInfinity & b.isAnInfinity & effectiveSubtraction)
+            .named('invalidArithmetic');
+    final invalidOperation =
+        (a.isSignalingNaN | b.isSignalingNaN | invalidArithmetic)
+            .named('invalidOperation');
+    final isNaN = (a.isNaN | b.isNaN | invalidArithmetic).named('isNaN');
+    final inputIsNaN = (a.isNaN | b.isNaN).named('inputIsNaN');
+    final propagatedNaN = internalSum.propagateNaN(a, b);
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller.
     final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
     final larger = swapper.outA;
@@ -139,6 +140,21 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         .slice(smallerAlignRPath.width - 1,
             smallerAlignRPath.width - largeOperand.width)
         .named('smallerOperandRpath');
+    final farShiftWidth = max(delta.width, log2Ceil(smallShift.width) + 1);
+    final farShift = mux(
+            delta
+                .zeroExtend(farShiftWidth)
+                .gte(Const(extendWidthRPath, width: farShiftWidth)),
+            delta.zeroExtend(farShiftWidth) -
+                Const(extendWidthRPath, width: farShiftWidth),
+            Const(0, width: farShiftWidth))
+        .named('farShiftRpath');
+    final farChop = mux(
+            farShift.lt(Const(smallShift.width, width: farShiftWidth)),
+            Const(smallShift.width, width: farShiftWidth) - farShift,
+            Const(0, width: farShiftWidth))
+        .named('farChopRpath');
+    final farStickyRPath = (smallShift << farChop).or().named('farStickyRpath');
 
     /// R Pipestage here:
     final aIsNormalFlopped = localFlop(a.isNormal);
@@ -147,14 +163,20 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final largeOperandFlopped = localFlop(largeOperand);
     final smallerOperandRPathFlopped = localFlop(smallerOperandRPath);
     final smallerAlignRPathFlopped = localFlop(smallerAlignRPath);
+    final farStickyRPathFlopped = localFlop(farStickyRPath);
     final largerExpFlopped = localFlop(larger.exponent);
+    final largerSignFlopped = localFlop(larger.sign);
     final deltaFlopped = localFlop(delta);
     final isInfFlopped = localFlop(isInf);
     final isNaNFlopped = localFlop(isNaN);
+    final invalidOperationFlopped = localFlop(invalidOperation);
+    final inputIsNaNFlopped = localFlop(inputIsNaN);
+    final nanSignFlopped = localFlop(propagatedNaN.sign);
+    final nanMantissaFlopped = localFlop(propagatedNaN.mantissa);
 
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
-        subtractIn: effectiveSubtractionFlopped,
+        subtract: effectiveSubtractionFlopped,
         generateCarryOut: true,
         generateCarryOutP1: true,
         adderGen: adderGen,
@@ -198,20 +220,9 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         (~sumP1RPath[-1] & (aIsNormalFlopped | bIsNormalFlopped))
             .named('sumP1lead0Rpath');
 
-    final Logic selectRPath;
-    if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
-      selectRPath = lowAdderRPathSum[-1].named('selectRpath');
-    } else {
-      // TODO(desmonddak): This is an attempt to get the truncation working
-      // but it is not correct, so we disable this mode for now.
-      // The issue is that we need to handle both the carry from lower
-      // bits as well as the additional rounding bit and this logic
-      // is turning off both.
-      // This case fails to truncate:  0 0000 0000,   1 0010 0000
-      // selectRPath = Const(0).named('selectRpath');
-      // This case fails to truncate:  0 0000 0000,   1 1010 0000
-      selectRPath = lowAdderRPathSum[-1].named('selectRpath');
-    }
+    final selectRPath = (lowAdderRPathSum[-1] &
+            ~(effectiveSubtractionFlopped & farStickyRPathFlopped))
+        .named('selectRpath');
     // R pipestage here:
 
     final shiftGRSRPath =
@@ -234,66 +245,178 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             [sumP1RPath, shiftGRSRPath].swizzle().named('sumP1ShiftGRSRPath'))
         .named('mergedSumP1RPath');
 
-    final finalSumLGRSRPath = mux(selectRPath, mergedSumP1RPath, mergedSumRPath)
-        .named('finalSumLGRSRpath');
-    // RNE: guard & (lsb | round | sticky).
-    final rndRPath = (finalSumLGRSRPath[2] &
-            (finalSumLGRSRPath[3] |
-                finalSumLGRSRPath[1] |
-                finalSumLGRSRPath[0]))
-        .named('rndRpath');
+    final sumRounderRPath = FloatingPointRounder.fromGRS(
+        retainedLsb: mergedSumRPath[3],
+        guard: mergedSumRPath[2],
+        roundBit: mergedSumRPath[1],
+        sticky: mergedSumRPath[0],
+        extraSticky: farStickyRPathFlopped,
+        roundingMode: roundingMode,
+        sign: largerSignFlopped);
+    final sumP1RounderRPath = FloatingPointRounder.fromGRS(
+        retainedLsb: mergedSumP1RPath[3],
+        guard: mergedSumP1RPath[2],
+        roundBit: mergedSumP1RPath[1],
+        sticky: mergedSumP1RPath[0],
+        extraSticky: farStickyRPathFlopped,
+        roundingMode: roundingMode,
+        sign: largerSignFlopped);
+    final lowBitsAfterNormalizeRPath =
+        lowBitsRPath.slice(lowBitsRPath.width - 2, 0).or();
+    Logic inexactForRPathCandidate(Logic leadZero) =>
+        (mux(leadZero, lowBitsAfterNormalizeRPath, lowBitsRPath.or()) |
+                farStickyRPathFlopped)
+            .named('candidateInexactRpath');
+    final sumInexactRPath =
+        (sumRounderRPath.inexact | inexactForRPathCandidate(sumLeadZeroRPath))
+            .named('sumInexactRpath');
+    final sumP1InexactRPath = (sumP1RounderRPath.inexact |
+            inexactForRPathCandidate(sumP1LeadZeroRPath))
+        .named('sumP1InexactRpath');
+    Logic roundForRPathCandidate(FloatingPointRounder rounder, Logic inexact) =>
+        switch (roundingMode) {
+          FloatingPointRoundingMode.truncate ||
+          FloatingPointRoundingMode.roundTowardsZero =>
+            Const(0),
+          FloatingPointRoundingMode.roundNearestEven ||
+          FloatingPointRoundingMode.roundNearestTiesAway =>
+            rounder.doRound,
+          FloatingPointRoundingMode.roundTowardsInfinity =>
+            ~largerSignFlopped & inexact,
+          FloatingPointRoundingMode.roundTowardsNegativeInfinity =>
+            largerSignFlopped & inexact,
+        };
+    final roundSumRPath =
+        roundForRPathCandidate(sumRounderRPath, sumInexactRPath)
+            .named('roundSumRpath');
+    final roundSumP1RPath =
+        roundForRPathCandidate(sumP1RounderRPath, sumP1InexactRPath)
+            .named('roundSumP1Rpath');
 
-    // Rounding from 1111 to 0000.
-    final Logic incExpRPath;
-    if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
-      incExpRPath =
-          (rndRPath & sumLeadZeroRPath.eq(Const(1)) & sumP1LeadZeroRPath.eq(0))
-              .named('incExpRrpath');
-    } else {
-      incExpRPath = Const(0).named('incExpRrpath');
-    }
+    final sumP2RPath =
+        ParallelPrefixIncr(sumP1RPath, ppGen: ppTree, name: 'sumPlusTwoRpath')
+            .out
+            .named('sumP2Rpath');
+    final sumP2CarryRPath = sumP1RPath.and().named('sumP2CarryRpath');
+    final sumP3RPath =
+        ParallelPrefixIncr(sumP2RPath, ppGen: ppTree, name: 'sumPlusThreeRpath')
+            .out
+            .named('sumP3Rpath');
+    final sumP3CarryRPath = sumP2RPath.and().named('sumP3CarryRpath');
+    final sumP2LeadZeroRPath = (~sumP2RPath[-1] &
+            ~sumP2CarryRPath &
+            (aIsNormalFlopped | bIsNormalFlopped))
+        .named('sumP2lead0Rpath');
+    final sumP3LeadZeroRPath = (~sumP3RPath[-1] &
+            ~sumP3CarryRPath &
+            (aIsNormalFlopped | bIsNormalFlopped))
+        .named('sumP3lead0Rpath');
 
-    final firstZeroRPath = mux(selectRPath, ~sumP1RPath[-1], ~sumRPath[-1])
-        .named('firstZero_rpath');
+    final normalizedSumRPath =
+        (sumRPath << sumLeadZeroRPath).named('normalizedSumRpath');
+    final normalizedSumP1RPath =
+        (sumP1RPath << sumP1LeadZeroRPath).named('normalizedSumP1Rpath');
+    final normalizedSumP2RPath =
+        (sumP2RPath << sumP2LeadZeroRPath).named('normalizedSumP2Rpath');
+    final normalizedSumP3RPath =
+        (sumP3RPath << sumP3LeadZeroRPath).named('normalizedSumP3Rpath');
+    final roundedTargetSumRPath = mux(sumLeadZeroRPath | sumRPath[0],
+            normalizedSumP1RPath, normalizedSumP2RPath)
+        .named('roundedTargetSumRpath');
+    final roundedTargetSumP1RPath = mux(sumP1LeadZeroRPath | sumP1RPath[0],
+            normalizedSumP2RPath, normalizedSumP3RPath)
+        .named('roundedTargetSumP1Rpath');
+    final roundedSumBranchRPath =
+        mux(roundSumRPath, roundedTargetSumRPath, normalizedSumRPath)
+            .named('roundedSumBranchRpath');
+    final roundedSumP1BranchRPath =
+        mux(roundSumP1RPath, roundedTargetSumP1RPath, normalizedSumP1RPath)
+            .named('roundedSumP1BranchRpath');
+    final mantissaRPath =
+        mux(selectRPath, roundedSumP1BranchRPath, roundedSumBranchRPath)
+            .named('mantissaRpath');
 
     final expDecr = ParallelPrefixDecr(largerExpFlopped,
         ppGen: ppTree, name: 'expDecrement');
     final expIncr = ParallelPrefixIncr(largerExpFlopped,
         ppGen: ppTree, name: 'expIncrement');
-    final exponentRPath = Logic(width: exponentWidth);
+    final maxExponentRPath = Const(1, width: exponentWidth, fill: true);
+    final expIncr2Raw =
+        ParallelPrefixIncr(expIncr.out, ppGen: ppTree, name: 'expIncrement2')
+            .out;
+    final expIncr2 =
+        mux(expIncr.out.eq(maxExponentRPath), maxExponentRPath, expIncr2Raw)
+            .named('expIncrementedTwice');
 
-    Combinational([
-      If.block([
-        // Subtract 1 from exponent.
-        Iff(~incExpRPath & effectiveSubtractionFlopped & firstZeroRPath,
-            [exponentRPath < expDecr.out]),
-        // Add 1 to exponent.
-        ElseIf(
-            ~effectiveSubtractionFlopped &
-                (incExpRPath & firstZeroRPath | ~incExpRPath & ~firstZeroRPath),
-            [exponentRPath < expIncr.out]),
-        // Add 2 to exponent.
-        ElseIf(incExpRPath & effectiveSubtractionFlopped & ~firstZeroRPath,
-            [exponentRPath < largerExpFlopped << 1]),
-        Else([exponentRPath < largerExpFlopped])
-      ])
-    ]);
+    Logic exponentForRPathCandidate(Logic candidate, {Logic? overflow}) => mux(
+        (overflow ?? Const(0)) & ~effectiveSubtractionFlopped,
+        expIncr2,
+        mux(
+            effectiveSubtractionFlopped,
+            mux(~candidate[-1], expDecr.out, largerExpFlopped),
+            mux(candidate[-1], expIncr.out, largerExpFlopped)));
 
-    final Logic mantissaRPath;
-    final sumMantissaRPath =
-        mux(selectRPath, sumP1RPath, sumRPath).named('selectSumMantissa_rpath');
-    if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
-      final sumMantissaRPathRnd = (sumMantissaRPath +
-              rndRPath.zeroExtend(sumRPath.width).named('rndExtend_rpath'))
-          .named('sumMantissaRndRpath');
-      mantissaRPath = (sumMantissaRPathRnd <<
-              mux(selectRPath, sumP1LeadZeroRPath, sumLeadZeroRPath)
-                  .named('shiftRpath'))
-          .named('mantissaRpath1');
-    } else {
-      mantissaRPath =
-          (sumMantissaRPath << sumLeadZeroRPath).named('mantissaRpath2');
-    }
+    final exponentSumRPath =
+        exponentForRPathCandidate(sumRPath).named('exponentSumRpath');
+    final exponentSumP1RPath =
+        exponentForRPathCandidate(sumP1RPath).named('exponentSumP1Rpath');
+    final exponentSumP2RPath =
+        exponentForRPathCandidate(sumP2RPath, overflow: sumP2CarryRPath)
+            .named('exponentSumP2Rpath');
+    final exponentSumP3RPath =
+        exponentForRPathCandidate(sumP3RPath, overflow: sumP3CarryRPath)
+            .named('exponentSumP3Rpath');
+    final roundedTargetExponentSumRPath = mux(sumLeadZeroRPath | sumRPath[0],
+            exponentSumP1RPath, exponentSumP2RPath)
+        .named('roundedTargetExponentSumRpath');
+    final roundedTargetExponentSumP1RPath = mux(
+            sumP1LeadZeroRPath | sumP1RPath[0],
+            exponentSumP2RPath,
+            exponentSumP3RPath)
+        .named('roundedTargetExponentSumP1Rpath');
+    final roundedExponentSumBranchRPath =
+        mux(roundSumRPath, roundedTargetExponentSumRPath, exponentSumRPath)
+            .named('roundedExponentSumBranchRpath');
+    final roundedExponentSumP1BranchRPath = mux(roundSumP1RPath,
+            roundedTargetExponentSumP1RPath, exponentSumP1RPath)
+        .named('roundedExponentSumP1BranchRpath');
+    final exponentRPath = mux(selectRPath, roundedExponentSumP1BranchRPath,
+            roundedExponentSumBranchRPath)
+        .named('exponentRpath');
+    final maxExponentMinusOne =
+        Const((1 << exponentWidth) - 2, width: exponentWidth);
+    Logic exponentOverflowForRPathCandidate(Logic candidate,
+            {Logic? overflow}) =>
+        ~effectiveSubtractionFlopped &
+        mux(overflow ?? Const(0), largerExpFlopped.gte(maxExponentMinusOne),
+            candidate[-1] & largerExpFlopped.and());
+    final exponentOverflowSumRPath =
+        exponentOverflowForRPathCandidate(sumRPath);
+    final exponentOverflowSumP1RPath =
+        exponentOverflowForRPathCandidate(sumP1RPath);
+    final exponentOverflowSumP2RPath = exponentOverflowForRPathCandidate(
+        sumP2RPath,
+        overflow: sumP2CarryRPath);
+    final exponentOverflowSumP3RPath = exponentOverflowForRPathCandidate(
+        sumP3RPath,
+        overflow: sumP3CarryRPath);
+    final roundedTargetExponentOverflowSumRPath = mux(
+        sumLeadZeroRPath | sumRPath[0],
+        exponentOverflowSumP1RPath,
+        exponentOverflowSumP2RPath);
+    final roundedTargetExponentOverflowSumP1RPath = mux(
+        sumP1LeadZeroRPath | sumP1RPath[0],
+        exponentOverflowSumP2RPath,
+        exponentOverflowSumP3RPath);
+    final roundedExponentOverflowSumBranchRPath = mux(roundSumRPath,
+        roundedTargetExponentOverflowSumRPath, exponentOverflowSumRPath);
+    final roundedExponentOverflowSumP1BranchRPath = mux(roundSumP1RPath,
+        roundedTargetExponentOverflowSumP1RPath, exponentOverflowSumP1RPath);
+    final exponentOverflowRPath = mux(
+            selectRPath,
+            roundedExponentOverflowSumP1BranchRPath,
+            roundedExponentOverflowSumBranchRPath)
+        .named('exponentOverflowRpath');
 
     //
     //  N Datapath here:  close exponents, subtraction.
@@ -301,13 +424,12 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final smallOperandNPath =
         (smallShift >>> (a.exponent[0] ^ b.exponent[0])).named('smallOperand');
 
-    // TODO(desmonddak): could we avoid the end-around-carry here or will that
-    // cause too much to do for the leadingOne calculation. Could we reverse the
-    // operands or is there no guarantee?  If so, would a dual-adder make sense
-    // here?
+    // Exponent ordering cannot determine mantissa magnitude on the N-path, so
+    // end-around carry resolves ambiguous subtraction.
+    // A dual adder could shorten the critical path at roughly double the area.
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
-        subtractIn: effectiveSubtraction,
+        subtract: effectiveSubtraction,
         adderGen: adderGen,
         name: 'npath_significand_sub');
 
@@ -319,7 +441,6 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final significandNPathFlopped = localFlop(significandNPath);
     final significandSubtractorNPathSignFlopped =
         localFlop(significandSubtractorNPath.sign);
-    final largerSignFlopped = localFlop(larger.sign);
     final smallerSignFlopped = localFlop(smaller.sign);
 
     final leadOneEncoderNPath = RecursiveModulePriorityEncoder(
@@ -340,7 +461,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final expCalcNPath = OnesComplementAdder(
         largerExpFlopped, leadOneNPath.zeroExtend(exponentWidth),
-        subtractIn: Const(1), adderGen: adderGen, name: 'npath_expcalc');
+        subtract: Const(1), adderGen: adderGen, name: 'npath_expcalc');
 
     final preExpNPath =
         expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExpNpath');
@@ -360,9 +481,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             .named('minShiftNpath');
     final notSubnormalNPath = aIsNormalFlopped | bIsNormalFlopped;
 
-    final shiftedSignificandNPath = (significandNPathFlopped << minShiftNPath)
-        .named('shiftedSignificandNpath')
-        .slice(mantissaWidth, 1);
+    final shiftedSignificandNPathFull =
+        (significandNPathFlopped << minShiftNPath)
+            .named('shiftedSignificandFullNpath');
+    final shiftedSignificandNPath =
+        shiftedSignificandNPathFull.slice(mantissaWidth, 1);
 
     final finalSignificandNPath = mux(
             notSubnormalNPath,
@@ -370,56 +493,135 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
             significandNPathFlopped.slice(significandNPathFlopped.width - 1, 2))
         .named('finalSignificandNpath');
 
-    final signNPath = mux(significandSubtractorNPathSignFlopped,
-            smallerSignFlopped, largerSignFlopped)
+    final exactZeroSign = Const(
+        roundingMode == FloatingPointRoundingMode.roundTowardsNegativeInfinity);
+    final signNPath = mux(
+            ~validLeadOneNPath,
+            exactZeroSign,
+            mux(significandSubtractorNPathSignFlopped, smallerSignFlopped,
+                largerSignFlopped))
         .named('signNpath');
+    final nPathRounder = FloatingPointRounder.fromGRS(
+        retainedLsb: mux(notSubnormalNPath, shiftedSignificandNPathFull[1],
+            significandNPathFlopped[2]),
+        guard: mux(notSubnormalNPath, shiftedSignificandNPathFull[0],
+            significandNPathFlopped[1]),
+        roundBit: mux(notSubnormalNPath, Const(0), significandNPathFlopped[0]),
+        roundingMode: roundingMode,
+        sign: signNPath);
+    final finalSignificandP1NPath = ParallelPrefixIncr(finalSignificandNPath,
+            ppGen: ppTree, name: 'npath_round_increment')
+        .out
+        .named('finalSignificandP1Npath');
+    final roundCarryNPath = (nPathRounder.doRound & finalSignificandNPath.and())
+        .named('roundCarryNpath');
+    final roundedSignificandNPath = mux(nPathRounder.doRound,
+            finalSignificandP1NPath, finalSignificandNPath)
+        .named('roundedSignificandNpath');
+    final exponentP1NPath = ParallelPrefixIncr(exponentNPath,
+            ppGen: ppTree, name: 'npath_exponent_increment')
+        .out;
+    final roundedExponentNPath =
+        mux(roundCarryNPath, exponentP1NPath, exponentNPath)
+            .named('roundedExponentNpath');
 
     final isR = (deltaFlopped.gte(Const(2, width: delta.width)) |
             ~effectiveSubtractionFlopped)
         .named('isR');
-    final infExponent = internalSum.inf(sign: largerSignFlopped).exponent;
-
     final inf = internalSum.inf(sign: largerSignFlopped);
-
-    final realIsInfRPath =
-        exponentRPath.eq(infExponent).named('realIsInfRPath');
-
-    final realIsInfNPath =
-        exponentNPath.eq(infExponent).named('realIsInfNPath');
-
+    final largestFinite = internalSum
+        .valuePopulator()
+        .ofConstant(FloatingPointConstants.largestNormal);
+    final maxFiniteExponent = Const(largestFinite.exponent);
+    final maxFiniteMantissa = Const(largestFinite.mantissa);
+    final outputMantissaRPath = mantissaRPath.slice(mantissaRPath.width - 2, 1);
+    final finiteOverflowRPath = (exponentOverflowRPath |
+            exponentRPath.gt(maxFiniteExponent) |
+            (exponentRPath.eq(maxFiniteExponent) &
+                outputMantissaRPath.gt(maxFiniteMantissa)))
+        .named('finiteOverflowRpath');
+    final exponentOverflowNPath =
+        (roundCarryNPath & exponentNPath.and()).named('exponentOverflowNpath');
+    final finiteOverflowNPath = (exponentOverflowNPath |
+            roundedExponentNPath.gt(maxFiniteExponent) |
+            (roundedExponentNPath.eq(maxFiniteExponent) &
+                roundedSignificandNPath.gt(maxFiniteMantissa)))
+        .named('finiteOverflowNpath');
+    final overflowToInfinity = switch (roundingMode) {
+      FloatingPointRoundingMode.roundNearestEven ||
+      FloatingPointRoundingMode.roundNearestTiesAway =>
+        Const(1),
+      FloatingPointRoundingMode.truncate ||
+      FloatingPointRoundingMode.roundTowardsZero =>
+        Const(0),
+      FloatingPointRoundingMode.roundTowardsInfinity => ~largerSignFlopped,
+      FloatingPointRoundingMode.roundTowardsNegativeInfinity =>
+        largerSignFlopped,
+    };
     final outSubNormalAsZero =
         internalSum.subNormalAsZero ? Const(1) : Const(0);
+    final selectedExponent = mux(isR, exponentRPath, roundedExponentNPath);
+    final finiteOverflow = (mux(isR, finiteOverflowRPath, finiteOverflowNPath) &
+            ~isInfFlopped &
+            ~isNaNFlopped)
+        .named('finiteOverflow');
+    final rPathInexact = mux(selectRPath, sumP1InexactRPath, sumInexactRPath)
+        .named('rPathInexact');
+    final operationInexact =
+        mux(isR, rPathInexact, nPathRounder.inexact).named('operationInexact');
+    final finiteOperationInexact =
+        (operationInexact & ~isInfFlopped & ~isNaNFlopped)
+            .named('finiteOperationInexact');
+    internalStatus.invalid <= invalidOperationFlopped;
+    internalStatus.divideByZero <= Const(0);
+    internalStatus.overflow <= finiteOverflow;
+    internalStatus.underflow <= ~selectedExponent.or() & finiteOperationInexact;
+    internalStatus.inexact <= finiteOverflow | finiteOperationInexact;
 
     Combinational([
       If(isNaNFlopped, then: [
-        internalSum < internalSum.nan,
+        internalSum.sign <
+            mux(inputIsNaNFlopped, nanSignFlopped, internalSum.nan.sign),
+        internalSum.exponent < internalSum.nan.exponent,
+        internalSum.mantissa <
+            mux(inputIsNaNFlopped, nanMantissaFlopped,
+                internalSum.nan.mantissa),
       ], orElse: [
         If(isInfFlopped, then: [
           internalSum < internalSum.inf(sign: largerSignFlopped),
         ], orElse: [
           If(isR, then: [
-            If(realIsInfRPath, then: [
+            If(finiteOverflowRPath & overflowToInfinity, then: [
               internalSum < inf,
             ], orElse: [
-              internalSum.sign < largerSignFlopped,
-              internalSum.exponent < exponentRPath,
-              internalSum.mantissa <
-                  mux(
-                      outSubNormalAsZero & ~exponentRPath.or(),
-                      Const(0, width: internalSum.mantissa.width),
-                      mantissaRPath.slice(mantissaRPath.width - 2, 1)),
+              If(finiteOverflowRPath, then: [
+                internalSum <
+                    internalSum.largestFinite(sign: largerSignFlopped),
+              ], orElse: [
+                internalSum.sign < largerSignFlopped,
+                internalSum.exponent < exponentRPath,
+                internalSum.mantissa <
+                    mux(
+                        outSubNormalAsZero & ~exponentRPath.or(),
+                        Const(0, width: internalSum.mantissa.width),
+                        mantissaRPath.slice(mantissaRPath.width - 2, 1)),
+              ])
             ]),
           ], orElse: [
-            If(realIsInfNPath, then: [
+            If(finiteOverflowNPath & overflowToInfinity, then: [
               internalSum < inf,
             ], orElse: [
-              internalSum.sign < signNPath,
-              internalSum.exponent < exponentNPath,
-              internalSum.mantissa <
-                  mux(
-                      outSubNormalAsZero & ~exponentNPath.or(),
-                      Const(0, width: finalSignificandNPath.width),
-                      finalSignificandNPath),
+              If(finiteOverflowNPath, then: [
+                internalSum < internalSum.largestFinite(sign: signNPath),
+              ], orElse: [
+                internalSum.sign < signNPath,
+                internalSum.exponent < roundedExponentNPath,
+                internalSum.mantissa <
+                    mux(
+                        outSubNormalAsZero & ~roundedExponentNPath.or(),
+                        Const(0, width: roundedSignificandNPath.width),
+                        roundedSignificandNPath),
+              ])
             ]),
           ])
         ])
