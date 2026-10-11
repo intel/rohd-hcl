@@ -70,12 +70,12 @@ ones) and a zero mantissa.</p>
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">late final isAnInfinity = (floatingPointValue.supportsInfinities
+  <pre class="language-dart"><code class="language-dart">late final isAnInfinity = (supportsInfinities
         ? exponent.isIn([
               valuePopulator().positiveInfinity.exponent,
               valuePopulator().negativeInfinity.exponent,
             ]) &amp;
-            ~mantissa.or()
+            ~_fraction.or()
         : Const(0))
     .named(_nameJoin(&#39;isAnInfinity&#39;, name), naming: Naming.mergeable);</code></pre>
 </section>

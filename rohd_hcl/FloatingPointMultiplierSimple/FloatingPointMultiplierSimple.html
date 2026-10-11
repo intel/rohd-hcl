@@ -88,8 +88,10 @@ multiplication.</li>
 <li><code>priorityGen</code> is a <a href="../../rohd_hcl/PriorityEncoder-class.html">PriorityEncoder</a> generator to be used in the
 leading one detection (default <a href="../../rohd_hcl/RecursiveModulePriorityEncoder-class.html">RecursiveModulePriorityEncoder</a>).</li>
 </ul>
-<p>The multiplier currently does not support a <a href="../../rohd_hcl/FloatingPointMultiplier/product.html">product</a> with narrower
-exponent or mantissa fields and will throw an exception.</p>
+<p>The multiplier supports a <a href="../../rohd_hcl/FloatingPointMultiplier/product.html">product</a> with narrower exponent and/or
+mantissa fields than the inputs, in which case <code>roundingMode</code> is used to
+round the result and overflow saturates to infinity (or the largest
+finite value if <a href="../../rohd_hcl/FloatingPoint/supportsInfinities.html">FloatingPoint.supportsInfinities</a> is <code>false</code>).</p>
 </section>
 
 
@@ -118,18 +120,6 @@ exponent or mantissa fields and will throw an exception.</p>
                   &#39;E${a.exponent.width}M${a.mantissa.width}&#39;
                   &#39;${outProduct != null ? &#39;_OE${outProduct.exponent.width}_&#39;
                       &#39;OM${outProduct.mantissa.width}&#39; : &#39;&#39;}&#39;) {
-  if (exponentWidth &lt; a.exponent.width) {
-    throw RohdHclException(&#39;product exponent width must be &gt;= &#39;
-        &#39; input exponent width&#39;);
-  }
-  if (mantissaWidth &lt; a.mantissa.width) {
-    throw RohdHclException(&#39;product mantissa width must be &gt;= &#39;
-        &#39; input mantissa width&#39;);
-  }
-  if (roundingMode != FloatingPointRoundingMode.truncate) {
-    throw RohdHclException(&#39;FloatingPointMultiplierSimple does not support &#39;
-        &#39;rounding modes other than truncate (for now).&#39;);
-  }
   if (a.subNormalAsZero | b.subNormalAsZero) {
     throw ArgumentError(&#39;FloatingPointMultiplierSimple does not &#39;
         &#39;support denormal as zero (DAZ)&#39;);
@@ -146,9 +136,17 @@ exponent or mantissa fields and will throw an exception.</p>
           [b.mantissa, Const(0)].swizzle())
       .named(&#39;bMantissa&#39;);
 
-  &#47;&#47; TODO(desmonddak): do this calculation using the maximum exponent width
-  &#47;&#47; Then adapt to the product exponent width.
-  final expCalcWidth = exponentWidth + 2;
+  &#47;&#47; Raw (unrounded) product mantissa width, independent of the output
+  &#47;&#47; mantissa width: this is always the full double-width product.
+  final rawMantissaWidth = (a.mantissa.width + 1) * 2;
+
+  &#47;&#47; Sized to safely hold the sum of the input exponents (rebiased to the
+  &#47;&#47; output format) and the leading-one position within the raw mantissa
+  &#47;&#47; product, regardless of whether the output exponent&#47;mantissa are
+  &#47;&#47; narrower or wider than the inputs.
+  final expCalcWidth = max(
+      max(exponentWidth, max(a.exponent.width, b.exponent.width)) + 2,
+      log2Ceil(rawMantissaWidth + 1) + 1);
   final addBias =
       (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
           .named(&#39;addBias&#39;);
@@ -162,21 +160,19 @@ exponent or mantissa fields and will throw an exception.</p>
   final mantissaMult = multGen(aMantissa, bMantissa,
       clk: clk, reset: reset, enable: enable, name: &#39;mantissa_mult&#39;);
 
-  final mantissa = mantissaMult.product
-      .getRange(0, (a.mantissa.width + 1) * 2)
-      .named(&#39;mantissa&#39;);
-
-  &#47;&#47; TODO(desmonddak): https:&#47;&#47;github.com&#47;intel&#47;rohd-hcl&#47;issues&#47;194 narrower
-  &#47;&#47; multiplier. This is where we need to either truncate or round to the
-  &#47;&#47; product mantissa width.  Today it simply is expanded only, but upon
-  &#47;&#47; narrowing, it will need to truncate for simple multiplication.
-  &#47;&#47;
+  final mantissa =
+      mantissaMult.product.getRange(0, rawMantissaWidth).named(&#39;mantissa&#39;);
 
   final isInf = (a.isAnInfinity | b.isAnInfinity).named(&#39;isInf&#39;);
-  final isNaN = (a.isNaN |
-          b.isNaN |
-          ((a.isAnInfinity | b.isAnInfinity) &amp; (a.isAZero | b.isAZero)))
-      .named(&#39;isNaN&#39;);
+  final invalidArithmetic =
+      ((a.isAnInfinity | b.isAnInfinity) &amp; (a.isAZero | b.isAZero))
+          .named(&#39;invalidArithmetic&#39;);
+  final invalidOperation =
+      (a.isSignalingNaN | b.isSignalingNaN | invalidArithmetic)
+          .named(&#39;invalidOperation&#39;);
+  final isNaN = (a.isNaN | b.isNaN | invalidArithmetic).named(&#39;isNaN&#39;);
+  final inputIsNaN = (a.isNaN | b.isNaN).named(&#39;inputIsNaN&#39;);
+  final propagatedNaN = internalProduct.propagateNaN(a, b);
 
   final productExpLatch = localFlop(productExp);
   final aSignLatch =
@@ -185,16 +181,20 @@ exponent or mantissa fields and will throw an exception.</p>
       localFlop(b.sign).named(&#39;b_sign&#39;, naming: Naming.renameable);
   final isInfLatch = localFlop(isInf);
   final isNaNLatch = localFlop(isNaN);
+  final invalidOperationLatch = localFlop(invalidOperation);
+  final inputIsNaNLatch = localFlop(inputIsNaN);
+  final nanSignLatch = localFlop(propagatedNaN.sign);
+  final nanMantissaLatch = localFlop(propagatedNaN.mantissa);
 
   final leadingOnePosPre =
       priorityGen(mantissa.reversed, name: &#39;leading_one_encoder&#39;)
           .out
           .named(&#39;leadingOneRaw&#39;)
-          .zeroExtend(exponentWidth + 2)
+          .zeroExtend(expCalcWidth)
           .named(&#39;leadingOneRawExtended&#39;, naming: Naming.mergeable);
 
   final leadingOnePos = mux(
-          leadingOnePosPre.gt(mantissa.width),
+          leadingOnePosPre.gte(mantissa.width),
           Const(product.bias.value.toInt() + 1,
               width: leadingOnePosPre.width),
           leadingOnePosPre)
@@ -204,13 +204,6 @@ exponent or mantissa fields and will throw an exception.</p>
       ((productExpLatch - leadingOnePos).named(&#39;productExpMinusLeadOne&#39;) + 1)
           .named(&#39;remainingExp&#39;);
 
-  final internalOverflow = (~remainingExp[-1] &amp;
-          remainingExp.gte(Const(1, width: exponentWidth, fill: true)
-              .zeroExtend(exponentWidth + 2)))
-      .named(&#39;internalOverflow&#39;);
-
-  final overFlow = (isInfLatch | internalOverflow).named(&#39;overflow&#39;);
-
   final fullMantissa = (mantissaWidth + 1 &gt; mantissa.width)
       ? [
           mantissa,
@@ -218,31 +211,117 @@ exponent or mantissa fields and will throw an exception.</p>
         ].swizzle().named(&#39;extendMantissa&#39;)
       : mantissa.named(&#39;fullMantissa&#39;);
 
-  final fullShift = SignedShifter(
-          fullMantissa,
-          mux(productExpLatch[-1] | productExpLatch.lt(leadingOnePos),
-              productExpLatch, leadingOnePos),
-          name: &#39;full_mantissa_shifter&#39;)
-      .shifted
-      .named(&#39;shiftMantissa&#39;);
-  final finalMantissa = fullShift
-      .getRange(fullShift.width - mantissaWidth - 1, fullShift.width - 1)
+  final shiftAmount = mux(
+          productExpLatch[-1] | productExpLatch.lt(leadingOnePos),
+          productExpLatch,
+          leadingOnePos)
+      .named(&#39;shiftAmount&#39;);
+  final fullShift =
+      SignedShifter(fullMantissa, shiftAmount, name: &#39;full_mantissa_shifter&#39;)
+          .shifted
+          .named(&#39;shiftMantissa&#39;);
+  final retainedLsb = fullShift.width - mantissaWidth - 1;
+
+  &#47;&#47; A right shift on a fixed-width register can lose set bits below bit 0
+  &#47;&#47; (not just when the entire result becomes zero, as when only some of
+  &#47;&#47; the low bits shifted out were set). Recover those lost bits by
+  &#47;&#47; shifting the pre-shift mantissa left by the complementary amount: any
+  &#47;&#47; bits that would have fallen off the bottom land back at the top.
+  final rightShiftAmount = shiftAmount.abs().named(&#39;rightShiftAmount&#39;);
+  final isRightShift = shiftAmount[-1].named(&#39;isRightShift&#39;);
+  final safeRightShift = mux(
+          rightShiftAmount.gte(fullMantissa.width),
+          Const(fullMantissa.width, width: rightShiftAmount.width),
+          rightShiftAmount)
+      .named(&#39;safeRightShift&#39;);
+  final partialLostBits = (isRightShift &amp;
+          (fullMantissa &lt;&lt;
+                  (Const(fullMantissa.width, width: safeRightShift.width) -
+                      safeRightShift))
+              .or())
+      .named(&#39;partialLostBits&#39;);
+  final shiftedOutSticky =
+      ((mantissa.or() &amp; ~fullShift.or()) | partialLostBits)
+          .named(&#39;shiftedOutSticky&#39;);
+  final rounder = FloatingPointRounder(fullShift, retainedLsb,
+      roundingMode: roundingMode,
+      sign: aSignLatch ^ bSignLatch,
+      extraSticky: shiftedOutSticky);
+  final retainedSignificand =
+      fullShift.getRange(retainedLsb).named(&#39;retainedSignificand&#39;);
+  final roundedSignificand =
+      (retainedSignificand.zeroExtend(retainedSignificand.width + 1) +
+              rounder.doRound.zeroExtend(retainedSignificand.width + 1))
+          .named(&#39;roundedSignificand&#39;);
+  final roundingCarry = roundedSignificand[-1].named(&#39;roundingCarry&#39;);
+  final roundedToNormal = ((remainingExp[-1] | ~remainingExp.or()) &amp;
+          roundedSignificand[retainedSignificand.width - 1])
+      .named(&#39;roundedToNormal&#39;);
+  final finalMantissa = mux(roundingCarry, roundedSignificand.slice(-2, 1),
+          roundedSignificand.slice(-3, 0))
       .named(&#39;finalMantissa&#39;);
+  final roundedExp = (remainingExp +
+          (roundingCarry | roundedToNormal).zeroExtend(remainingExp.width))
+      .named(&#39;roundedExponent&#39;);
+  final largestFinite = product
+      .valuePopulator()
+      .ofConstant(FloatingPointConstants.largestNormal);
+  final maxFiniteExponent =
+      Const(largestFinite.exponent).zeroExtend(roundedExp.width);
+  final maxFiniteMantissa = Const(largestFinite.mantissa);
+  final finiteOverflow = (~roundedExp[-1] &amp;
+          (roundedExp.gt(maxFiniteExponent) |
+              (roundedExp.eq(maxFiniteExponent) &amp;
+                  finalMantissa.gt(maxFiniteMantissa))))
+      .named(&#39;finiteOverflow&#39;);
+  final finiteRounderInexact = (rounder.inexact &amp; ~isInfLatch &amp; ~isNaNLatch)
+      .named(&#39;finiteRounderInexact&#39;);
+  final resultSign = (aSignLatch ^ bSignLatch).named(&#39;resultSign&#39;);
+  final overflowToInfinity = switch (roundingMode) {
+    FloatingPointRoundingMode.roundNearestEven ||
+    FloatingPointRoundingMode.roundNearestTiesAway =&gt;
+      Const(1),
+    FloatingPointRoundingMode.truncate ||
+    FloatingPointRoundingMode.roundTowardsZero =&gt;
+      Const(0),
+    FloatingPointRoundingMode.roundTowardsInfinity =&gt; ~resultSign,
+    FloatingPointRoundingMode.roundTowardsNegativeInfinity =&gt; resultSign,
+  };
+  internalStatus.invalid &lt;= invalidOperationLatch;
+  internalStatus.divideByZero &lt;= Const(0);
+  internalStatus.overflow &lt;= finiteOverflow &amp; ~isInfLatch &amp; ~isNaNLatch;
+  internalStatus.underflow &lt;=
+      (roundedExp[-1] | ~roundedExp.or()) &amp; finiteRounderInexact;
+  internalStatus.inexact &lt;=
+      (finiteOverflow &amp; ~isInfLatch &amp; ~isNaNLatch) | finiteRounderInexact;
 
   Combinational([
     If(isNaNLatch, then: [
-      internalProduct &lt; product.nan,
+      internalProduct.sign &lt;
+          mux(inputIsNaNLatch, nanSignLatch, product.nan.sign),
+      internalProduct.exponent &lt; product.nan.exponent,
+      internalProduct.mantissa &lt;
+          mux(inputIsNaNLatch, nanMantissaLatch, product.nan.mantissa),
     ], orElse: [
-      If(overFlow, then: [
-        internalProduct &lt; product.inf(sign: aSignLatch ^ bSignLatch),
+      If(isInfLatch, then: [
+        internalProduct &lt; product.inf(sign: resultSign),
       ], orElse: [
-        internalProduct.sign &lt; aSignLatch ^ bSignLatch,
-        If(remainingExp[-1], then: [
-          internalProduct.exponent &lt; Const(0, width: exponentWidth)
+        If(finiteOverflow &amp; overflowToInfinity, then: [
+          internalProduct &lt; product.inf(sign: resultSign),
         ], orElse: [
-          internalProduct.exponent &lt; remainingExp.getRange(0, exponentWidth),
-        ]),
-        internalProduct.mantissa &lt; finalMantissa
+          If(finiteOverflow, then: [
+            internalProduct &lt; internalProduct.largestFinite(sign: resultSign),
+          ], orElse: [
+            internalProduct.sign &lt; resultSign,
+            If(roundedExp[-1], then: [
+              internalProduct.exponent &lt; Const(0, width: exponentWidth)
+            ], orElse: [
+              internalProduct.exponent &lt;
+                  roundedExp.getRange(0, exponentWidth),
+            ]),
+            internalProduct.mantissa &lt; finalMantissa
+          ])
+        ])
       ])
     ])
   ]);

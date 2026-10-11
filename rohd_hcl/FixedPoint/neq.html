@@ -77,8 +77,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Logic neq(dynamic other) {
-  _verifyCompatible(other);
-  return super.neq(other);
+  final comparable = _verifyCompatible(other);
+  return super.neq(comparable);
 }</code></pre>
 </section>
 

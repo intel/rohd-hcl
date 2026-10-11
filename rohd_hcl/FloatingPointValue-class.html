@@ -240,6 +240,18 @@ and <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.neg
 
 </dd>
 
+        <dt id="isFractionAllZeroes" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isFractionAllZeroes.html">isFractionAllZeroes</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Test if the fractional portion of <a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a> is all zeroes.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="isMantissaAllZeroes" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isMantissaAllZeroes.html">isMantissaAllZeroes</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -261,6 +273,30 @@ and <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.neg
 <dd>
   Return <code>true</code> if the represented floating point number is considered
 NaN or "Not a Number".
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isQuietNaN" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isQuietNaN.html">isQuietNaN</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Return <code>true</code> if this is a quiet NaN.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isSignalingNaN" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isSignalingNaN.html">isSignalingNaN</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Return <code>true</code> if this is a signaling NaN.
   <div class="features"><span class="feature">no setter</span></div>
 
 </dd>
@@ -362,6 +398,18 @@ NaN or "Not a Number".
 
 </dd>
 
+        <dt id="supportsSignalingNaNs" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/supportsSignalingNaNs.html">supportsSignalingNaNs</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether signaling and quiet NaNs have distinct encodings.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
         <dt id="value" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/value.html">value</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span>
@@ -433,8 +481,21 @@ with the same widths.
 
 </dt>
 <dd>
-  Floating point comparison to implement <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable</a>.
+  Compares two ordered values to implement <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable</a>.
   <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="comparisonInvalid" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/comparisonInvalid.html">comparisonInvalid</a></span><span class="signature">(<wbr><span class="parameter" id="comparisonInvalid-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Whether an IEEE quiet comparison with <code>other</code> signals invalid.
+  
 
 </dd>
 
@@ -450,6 +511,19 @@ with the same widths.
 <a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a> components of a special constant, or <code>null</code> if the constant
 does not have special components.This is useful for constants like NaN,
 infinity, etc., in certain types of floating point representations.
+  
+
+</dd>
+
+        <dt id="hasSameEncoding" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/hasSameEncoding.html">hasSameEncoding</a></span><span class="signature">(<wbr><span class="parameter" id="hasSameEncoding-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Whether this and <code>other</code> have identical formats and bit encodings.
   
 
 </dd>
@@ -530,6 +604,45 @@ number, defined as having mantissa in the range <code>[1,2)</code>.
 </dt>
 <dd>
   Return the value of the floating point number in a Dart <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a> type.
+  
+
+</dd>
+
+        <dt id="toFixedPointValue" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toFixedPointValue.html">toFixedPointValue</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Losslessly converts this finite value to a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>.
+  
+
+</dd>
+
+        <dt id="toLogic" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toLogic.html">toLogic</a></span><span class="signature">(<wbr>{<span class="parameter" id="toLogic-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Converts this value to a constant <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> signal.
+  
+
+</dd>
+
+        <dt id="toScaledBigInt" class="callable">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toScaledBigInt.html">toScaledBigInt</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="field-name">significand</span>}</span>)</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns this exact finite value as <code>significand * 2^exponent</code>.
   
 
 </dd>

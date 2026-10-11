@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ofDoubleLegacy method from the FloatingPointValuePopulator class, for the Dart programming language.">
+  <title>ofDoubleLegacy method - FloatingPointValuePopulator class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator<span class="signature">&lt;<wbr><span class="type-parameter">FpvType extends FloatingPointValue</span>&gt;</span></a></li>
+    <li class="self-crumb"><span class="deprecated">ofDoubleLegacy</span> method</li>
+  </ol>
+  <div class="self-name">ofDoubleLegacy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;FloatingPointValuePopulator-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">ofDoubleLegacy</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use ofDouble instead, which supports all rounding modes &#39; &#39;and fixes a rounding bug for formats close to double width.&#39;)</li>
+    </ol>
+  </div>
+<span class="returntype">FpvType</span>
+<span class="name deprecated">ofDoubleLegacy</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="ofDoubleLegacy-param-inDouble"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span>, {</span></li>
+<li><span class="parameter" id="ofDoubleLegacy-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Convert from double using its native binary representation.</p>
+<p>This is the original hand-rolled guard/round/sticky implementation of
+<a href="../../rohd_hcl/FloatingPointValuePopulator/ofDouble.html">ofDouble</a>, retained temporarily for reference and back-compatibility
+comparisons. It only supports <a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode.roundNearestEven</a>
+and <a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode.truncate</a>, and has a known bug for
+formats close to the width of the native double (not enough bits of
+space to hold the guard, round, and sticky bits).</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use ofDouble instead, which supports all rounding modes &#39;
+    &#39;and fixes a rounding bug for formats close to double width.&#39;)
+FpvType ofDoubleLegacy(double inDouble,
+    {FloatingPointRoundingMode roundingMode =
+        FloatingPointRoundingMode.roundNearestEven}) {
+  if (explicitJBit) {
+    return ofFloatingPointValue(FloatingPointValue.populator(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
+        .ofDoubleLegacy(inDouble, roundingMode: roundingMode)) as FpvType;
+  }
+  if (inDouble.isNaN) {
+    return nan;
+  }
+
+  if (inDouble.isInfinite) {
+    return ofConstant(
+      inDouble &lt; 0.0
+          ? FloatingPointConstants.negativeInfinity
+          : FloatingPointConstants.positiveInfinity,
+    );
+  }
+
+  if (roundingMode != FloatingPointRoundingMode.roundNearestEven &amp;&amp;
+      roundingMode != FloatingPointRoundingMode.truncate) {
+    throw UnimplementedError(
+        &#39;Only roundNearestEven or truncate is supported for this width&#39;);
+  }
+
+  final fp64 = FloatingPoint64Value.populator().ofDouble(inDouble);
+  final fp64Mw = fp64.mantissa.width;
+  final exponent64 = fp64.exponent;
+
+  var expVal = (exponent64.toInt() - fp64.bias) + bias;
+  final mantissa64n = ((expVal &lt;= 0)
+      ? [LogicValue.one, fp64.mantissa].swizzle() &gt;&gt;&gt;
+          (-expVal +
+              (!explicitJBit &amp; (fp64.exponent.toInt() &gt; 0)
+                  ? 1
+                  : explicitJBit
+                      ? 1
+                      : 0))
+      : [LogicValue.one, fp64.mantissa].swizzle());
+
+  var mantissa = mantissa64n.slice(fp64Mw - (explicitJBit ? 0 : 1),
+      fp64Mw - mantissaWidth + (explicitJBit ? 1 : 0));
+
+  if (roundingMode == FloatingPointRoundingMode.roundNearestEven) {
+    final stickyPos = fp64Mw - (mantissaWidth + 3);
+    final sticky =
+        (stickyPos &gt;= 0) ? mantissa64n.slice(stickyPos, 0).or() : 0;
+    final roundPos = stickyPos + 1;
+    final round = ((roundPos &gt;= 0) &amp; (roundPos &gt; stickyPos))
+        ? mantissa64n[roundPos]
+        : 0;
+    final guardPos = roundPos + 1;
+    final guard = (guardPos &gt;= 1) ? mantissa64n[roundPos + 1] : 0;
+
+    &#47;&#47; RNE Rounding
+    if (guard == LogicValue.one) {
+      if ((round == LogicValue.one) |
+          (sticky == LogicValue.one) |
+          (mantissa[0] == LogicValue.one)) {
+        mantissa += 1;
+        if (mantissa == LogicValue.zero.zeroExtend(mantissa.width)) {
+          expVal += 1;
+          if (explicitJBit) {
+            mantissa = [
+              LogicValue.one,
+              LogicValue.zero.zeroExtend(mantissa.width - 1)
+            ].swizzle();
+          }
+        }
+      }
+    }
+  }
+
+  if (_unpopulated.supportsInfinities &amp;&amp; expVal &gt; maxExponent + bias) {
+    return ofConstant(
+      fp64.sign.toBool()
+          ? FloatingPointConstants.negativeInfinity
+          : FloatingPointConstants.positiveInfinity,
+    );
+  }
+
+  final exponent =
+      LogicValue.ofBigInt(BigInt.from(max(expVal, 0)), exponentWidth);
+
+  if (subNormalAsZero &amp;&amp; expVal &lt;= 0) {
+    &#47;&#47; If we are subnormal, we return zero
+    mantissa = LogicValue.zero.zeroExtend(mantissaWidth);
+  }
+
+  final sign = fp64.sign;
+
+  return populate(
+    sign: sign,
+    exponent: exponent,
+    mantissa: mantissa,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointValuePopulator-class.html">FloatingPointValuePopulator<span class="signature">&lt;<wbr><span class="type-parameter">FpvType extends FloatingPointValue</span>&gt;</span></a></li>
+    <li class="self-crumb"><span class="deprecated">ofDoubleLegacy</span> method</li>
+</ol>
+
+    <h5>FloatingPointValuePopulator class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

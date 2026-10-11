@@ -82,19 +82,19 @@ The result fraction width is the sum of fraction widths of operands.</p>
       : integerWidth + other.integerWidth;
   final nr = fractionWidth + other.fractionWidth;
   final tr = mr + nr;
-  final val1 = FixedPointValue.populator(
+  final val1 = FixedPointValue.populatorWithSignedness(
           integerWidth: tr - fractionWidth,
           fractionWidth: fractionWidth,
           signed: s)
       .widen(this)
       .value;
-  final val2 = FixedPointValue.populator(
+  final val2 = FixedPointValue.populatorWithSignedness(
           integerWidth: tr - other.fractionWidth,
           fractionWidth: other.fractionWidth,
           signed: s)
       .widen(other)
       .value;
-  return FixedPointValue.populator(
+  return FixedPointValue.populatorWithSignedness(
           integerWidth: mr, fractionWidth: nr, signed: s)
       .ofLogicValue(val1 * val2);
 }</code></pre>

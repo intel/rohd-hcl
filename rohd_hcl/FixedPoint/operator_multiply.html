@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></li>
-    <li class="self-crumb">operator * method</li>
+    <li class="self-crumb"><span class="deprecated">operator *</span> method</li>
   </ol>
   <div class="self-name">operator *</div>
   <form class="search navbar-right" role="search">
@@ -57,10 +57,11 @@
   <div>
     <ol class="annotation-list">
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use multiply instead.&#39;)</li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">operator *</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="*-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span></li>
+<span class="returntype"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
+<span class="name deprecated">operator *</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="*-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span></li>
 </ol>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -76,7 +77,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Logic operator *(dynamic other) =&gt; _multiply(other);</code></pre>
+@Deprecated(&#39;Use multiply instead.&#39;)
+FixedPoint operator *(dynamic other) =&gt; _legacyMultiply(other);</code></pre>
 </section>
 
 
@@ -92,7 +94,7 @@ Logic operator *(dynamic other) =&gt; _multiply(other);</code></pre>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></li>
-    <li class="self-crumb">operator * method</li>
+    <li class="self-crumb"><span class="deprecated">operator *</span> method</li>
 </ol>
 
     <h5>FixedPoint class</h5>

@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder-class.html">CarrySelectOnesComplementCompoundAdder</a></li>
-    <li class="self-crumb">subtractIn property</li>
+    <li class="self-crumb"><span class="deprecated">subtractIn</span> property</li>
   </ol>
   <div class="self-name">subtractIn</div>
   <form class="search navbar-right" role="search">
@@ -53,32 +53,40 @@
 </h1></div>
 
     
-      <section class="multi-line-signature">
+
+    
         
+  <section id="getter">
+    <section class="multi-line-signature">
+      
   <div>
     <ol class="annotation-list">
         <li>@<a href="https://pub.dev/documentation/meta/1.19.0/meta/protected-constant.html">protected</a></li>
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use subtractParameter instead.&#39;)</li>
     </ol>
   </div>
-        <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?
-        <span class="name ">subtractIn</span>
-        <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
-
-      </section>
+      <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span>
+      get
+      <span class="name deprecated">subtractIn</span>
       
+
+    </section>
+    
 <section class="desc markdown">
-  <p>Subtraction controlled by an optional logic <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/subtractIn.html">subtractIn</a></p>
+  <p>The deprecated runtime subtraction input, if configured.</p>
 </section>
 
-      
+    
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@protected
-late final Logic? subtractIn;</code></pre>
+@Deprecated(&#39;Use subtractParameter instead.&#39;)
+Logic? get subtractIn =&gt; subtractParameter.tryRuntimeInput(this);</code></pre>
 </section>
 
+  </section>
 
-    
+
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -91,7 +99,7 @@ late final Logic? subtractIn;</code></pre>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder-class.html">CarrySelectOnesComplementCompoundAdder</a></li>
-    <li class="self-crumb">subtractIn property</li>
+    <li class="self-crumb"><span class="deprecated">subtractIn</span> property</li>
 </ol>
 
   <h5>CarrySelectOnesComplementCompoundAdder class</h5>

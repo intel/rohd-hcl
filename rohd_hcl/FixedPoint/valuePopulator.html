@@ -76,8 +76,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@mustBeOverridden
-FixedPointValuePopulator valuePopulator() =&gt; FixedPointValue.populator(
-    integerWidth: integerWidth, fractionWidth: fractionWidth, signed: signed);</code></pre>
+FixedPointValuePopulator valuePopulator() =&gt;
+    FixedPointValue.populatorWithSignedness(
+        integerWidth: integerWidth,
+        fractionWidth: fractionWidth,
+        signed: signed);</code></pre>
 </section>
 
 

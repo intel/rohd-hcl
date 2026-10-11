@@ -59,8 +59,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Factory constructor to create a <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a> instance from a
-dynamic.</p>
+  <p>Factory constructor to create a <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a> from a dynamic.</p>
 </section>
 
 
@@ -71,11 +70,12 @@ dynamic.</p>
   if (config is StaticOrRuntimeParameter) {
     return config;
   } else if (config is bool) {
-    return BooleanConfig(staticConfig: config);
+    return StaticOrRuntimeParameter(
+        name: &#39;boolean_config&#39;, staticConfig: config);
   } else if (config == null) {
-    return BooleanConfig(staticConfig: null);
+    return StaticOrRuntimeParameter(name: &#39;boolean_config&#39;);
   } else if (config is Logic) {
-    return RuntimeConfig(config, name: config.name);
+    return StaticOrRuntimeParameter(name: config.name, runtimeConfig: config);
   } else {
     throw RohdHclException(
         &#39;Unsupported configuration type: ${config.runtimeType}&#39;);

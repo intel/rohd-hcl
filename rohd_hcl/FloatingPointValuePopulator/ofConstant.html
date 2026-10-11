@@ -73,15 +73,32 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FpvType ofConstant(FloatingPointConstants constantFloatingPoint) {
   if (explicitJBit) {
-    return ofFloatingPointValue(FloatingPointValue.populator(
+    if (mantissaWidth &lt; 2) {
+      throw ArgumentError.value(mantissaWidth, &#39;mantissaWidth&#39;,
+          &#39;explicit-J-bit formats require a NaN payload bit&#39;);
+    }
+    if (constantFloatingPoint == FloatingPointConstants.nan) {
+      return populate(
+          sign: LogicValue.zero,
+          exponent: LogicValue.filled(exponentWidth, LogicValue.one),
+          mantissa: [
+            LogicValue.one,
+            LogicValue.one,
+            LogicValue.filled(mantissaWidth - 2, LogicValue.zero)
+          ].swizzle());
+    }
+    final implicit = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
-        .ofConstant(constantFloatingPoint)) as FpvType;
+        .ofConstant(constantFloatingPoint);
+    final explicitJBitValue =
+        implicit.isNormal() || implicit.isAnInfinity || implicit.isNaN;
+    return populate(
+        sign: implicit.sign,
+        exponent: implicit.exponent,
+        mantissa: [LogicValue.ofBool(explicitJBitValue), implicit.mantissa]
+            .swizzle());
   }
-  final components =
-      &#47;&#47; This package helper supplies fallback data for the protected hook.
-      &#47;&#47; ignore: invalid_use_of_visible_for_overriding_member, invalid_use_of_protected_member
-      _unpopulated.getSpecialConstantComponents(constantFloatingPoint) ??
-          getConstantComponents(constantFloatingPoint);
+  final components = _constantComponents(constantFloatingPoint);
 
   return populate(
       sign: components.sign,

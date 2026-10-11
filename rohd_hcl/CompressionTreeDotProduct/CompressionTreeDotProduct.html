@@ -63,6 +63,7 @@
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
+<li><span class="parameter" id="param-adderIdentity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">adderIdentity</span> = <span class="default-value">&#39;native&#39;</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compression_tree_dotproduct&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -76,6 +77,9 @@ partial-product generation of the multiplies. While a <a href="../../rohd_hcl/Co
 is used on the tall array of partial products, the final addition is
 accomplished using the specified <code>adderGen</code> (default is
 <a href="../../rohd_hcl/NativeAdder/NativeAdder.html">NativeAdder.new</a>).</p>
+<p><code>adderIdentity</code> must stably identify the generated adder configuration so
+automatic definition names remain unique when a custom <code>adderGen</code> is
+used.</p>
 </section>
 
 
@@ -88,13 +92,24 @@ accomplished using the specified <code>adderGen</code> (default is
     int productRadix = 4,
     Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
         NativeAdder.new,
+    String adderIdentity = &#39;native&#39;,
     super.name = &#39;compression_tree_dotproduct&#39;,
     super.reserveName = false,
     super.reserveDefinitionName = false,
     String? definitionName})
     : super(
           definitionName: definitionName ??
-              &#39;CompTreeDotProduct_W${multipliers[0].width}_&#39;) {
+              &#39;CompressionTreeDotProduct_L${multipliers.length}_&#39;
+                  &#39;A${multiplicands[0].width}_B${multipliers[0].width}_&#39;
+                  &#39;R${productRadix}_Add${adderIdentity}_&#39;
+                  &#39;${Multiplier.signedMD(signedMultiplicand)}_&#39;
+                  &#39;${Multiplier.signedML(signedMultiplier)}&#39;) {
+  if (multiplicands.first.width != multipliers.first.width) {
+    throw RohdHclException(
+      &#39;CompressionTreeDotProduct requires equal multiplicand and &#39;
+      &#39;multiplier widths.&#39;,
+    );
+  }
   final ppGenerators = [
     for (var i = 0; i &lt; multipliers.length; i++)
       PartialProductGenerator(

@@ -222,6 +222,18 @@ and <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.neg
 
 </dd>
 
+        <dt id="isFractionAllZeroes" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isFractionAllZeroes.html">isFractionAllZeroes</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Test if the fractional portion of <a href="../rohd_hcl/FloatingPointValue/mantissa.html">mantissa</a> is all zeroes.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="isMantissaAllZeroes" class="property inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValue/isMantissaAllZeroes.html">isMantissaAllZeroes</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
@@ -244,6 +256,30 @@ and <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.neg
   Return <code>true</code> if the represented floating point number is considered
 NaN or "Not a Number".
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isQuietNaN" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isQuietNaN.html">isQuietNaN</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Return <code>true</code> if this is a quiet NaN.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isSignalingNaN" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/isSignalingNaN.html">isSignalingNaN</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Return <code>true</code> if this is a signaling NaN.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -271,15 +307,15 @@ NaN or "Not a Number".
 
 </dd>
 
-        <dt id="maxExponent" class="property inherited">
-  <span class="name"><a href="../rohd_hcl/FloatingPointValue/maxExponent.html">maxExponent</a></span>
+        <dt id="maxExponent" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint8E4M3Value/maxExponent.html">maxExponent</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
   
 
 </dt>
-<dd class="inherited">
+<dd>
   Return the maximum exponent of this <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
-  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -340,6 +376,18 @@ NaN or "Not a Number".
 <dd>
   Indicates whether <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.positiveInfinity</a> and
 <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants.negativeInfinity</a> representations are supported.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="supportsSignalingNaNs" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint8E4M3Value/supportsSignalingNaNs.html">supportsSignalingNaNs</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether signaling and quiet NaNs have distinct encodings.
   <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
@@ -415,7 +463,20 @@ with the same widths.
 
 </dt>
 <dd class="inherited">
-  Floating point comparison to implement <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable</a>.
+  Compares two ordered values to implement <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="comparisonInvalid" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/comparisonInvalid.html">comparisonInvalid</a></span><span class="signature">(<wbr><span class="parameter" id="comparisonInvalid-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether an IEEE quiet comparison with <code>other</code> signals invalid.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -433,6 +494,19 @@ with the same widths.
 does not have special components.This is useful for constants like NaN,
 infinity, etc., in certain types of floating point representations.
   <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="hasSameEncoding" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/hasSameEncoding.html">hasSameEncoding</a></span><span class="signature">(<wbr><span class="parameter" id="hasSameEncoding-param-other"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether this and <code>other</code> have identical formats and bit encodings.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -503,16 +577,55 @@ number, defined as having mantissa in the range <code>[1,2)</code>.
 
 </dd>
 
-        <dt id="toDouble" class="callable">
-  <span class="name"><a href="../rohd_hcl/FloatingPoint8E4M3Value/toDouble.html">toDouble</a></span><span class="signature">(<wbr>)
+        <dt id="toDouble" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toDouble.html">toDouble</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>
   </span>
   
 
 </dt>
-<dd>
-  Override the toDouble to avoid NaN
-  <div class="features"><span class="feature">override</span></div>
+<dd class="inherited">
+  Return the value of the floating point number in a Dart <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a> type.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toFixedPointValue" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toFixedPointValue.html">toFixedPointValue</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Losslessly converts this finite value to a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toLogic" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toLogic.html">toLogic</a></span><span class="signature">(<wbr>{<span class="parameter" id="toLogic-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Converts this value to a constant <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a> signal.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toScaledBigInt" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValue/toScaledBigInt.html">toScaledBigInt</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="field-name">significand</span>}</span>)</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns this exact finite value as <code>significand * 2^exponent</code>.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 

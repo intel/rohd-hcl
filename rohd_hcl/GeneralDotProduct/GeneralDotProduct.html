@@ -59,6 +59,8 @@
 <li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
 <li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="param-treeRadix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">treeRadix</span> = <span class="default-value">2</span>, </span></li>
+<li><span class="parameter" id="param-multiplierIdentity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">multiplierIdentity</span> = <span class="default-value">&#39;native&#39;</span>, </span></li>
+<li><span class="parameter" id="param-adderIdentity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">adderIdentity</span> = <span class="default-value">&#39;native&#39;</span>, </span></li>
 <li><span class="parameter" id="param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
@@ -84,6 +86,9 @@
 <code>multipliers</code>, a <code>multiplierGen</code> for constructing products, and an
 <code>adderGen</code> function to generate <a href="../../rohd_hcl/Adder-class.html">Adder</a>s for use in a <a href="../../rohd_hcl/ReductionTree-class.html">ReductionTree</a> for
 the final addition of the products.</p>
+<p><code>multiplierIdentity</code> and <code>adderIdentity</code> must stably identify the
+generated multiplier and adder configurations so automatic definition
+names remain unique when custom generators are used.</p>
 </section>
 
 
@@ -94,6 +99,8 @@ the final addition of the products.</p>
     {super.signedMultiplicand,
     super.signedMultiplier,
     int treeRadix = 2,
+    String multiplierIdentity = &#39;native&#39;,
+    String adderIdentity = &#39;native&#39;,
     this.adderGen = NativeAdder.new,
     Multiplier Function(Logic a, Logic b,
             {Logic? clk,
@@ -108,24 +115,41 @@ the final addition of the products.</p>
     String? definitionName})
     : super(
           definitionName: definitionName ??
-              &#39;DotProductNative_W${multipliers[0].width}_&#39;) {
+              &#39;GeneralDotProduct_L${multipliers.length}_&#39;
+                  &#39;A${multiplicands[0].width}_B${multipliers[0].width}_&#39;
+                  &#39;R${treeRadix}_${multiplierIdentity}_&#39;
+                  &#39;Add${adderIdentity}_&#39;
+                  &#39;${Multiplier.signedMD(signedMultiplicand)}_&#39;
+                  &#39;${Multiplier.signedML(signedMultiplier)}&#39;) {
+  final hasRuntimeSign = signedMultiplicandParameter.runtimeConfig != null ||
+      signedMultiplierParameter.runtimeConfig != null;
+  _signedProduct = !hasRuntimeSign &amp;&amp;
+      (signedMultiplicandParameter.staticConfig ||
+          signedMultiplierParameter.staticConfig);
+  _selectSignedProduct = hasRuntimeSign
+      ? signedMultiplicandParameter.getLogic(this) |
+          signedMultiplierParameter.getLogic(this)
+      : null;
+
   final dotResults = [
     for (var i = 0; i &lt; multipliers.length; i++)
       multiplierGen(multiplicands[i], multipliers[i],
-              signedMultiplicand: signedMultiplicandParameter.getLogic(this),
-              signedMultiplier: signedMultiplierParameter.getLogic(this))
+              signedMultiplicand: signedMultiplicandParameter.isRuntime
+                  ? signedMultiplicandParameter.getRuntimeInput(this)
+                  : signedMultiplicandParameter.staticConfig,
+              signedMultiplier: signedMultiplierParameter.isRuntime
+                  ? signedMultiplierParameter.getRuntimeInput(this)
+                  : signedMultiplierParameter.staticConfig)
           .product
   ];
 
-  &#47;&#47; TODO(desmonddak): add sign extension option for use with unsigned
-  &#47;&#47; multipliers and multiplicands.
-
-  final prefixAdd = ReductionTree(dotResults, addReduceAdders,
-      signExtend: true,
-      radix: treeRadix,
-      name: &#39;dotproduct_reduction_tree&#39;,
-      definitionName: &#39;DotProductReductionTree_W${multiplicands[0].width}_&#39;
-          &#39;${multipliers[0].width}_R$treeRadix&#39;);
+  final prefixAdd = ReductionTreeGenerator(
+    dotResults,
+    addReduceAdders,
+    signExtend: _selectSignedProduct ?? _signedProduct,
+    control: _selectSignedProduct,
+    radix: treeRadix,
+  );
   addOutput(&#39;product&#39;, width: prefixAdd.out.width) &lt;= prefixAdd.out;
 }</code></pre>
 </section>

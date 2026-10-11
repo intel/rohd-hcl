@@ -65,12 +65,15 @@
 <li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
 <li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="param-signedAddend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedAddend</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">outputWidth</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
   <p>Construct a <a href="../../rohd_hcl/MultiplyAccumulate-class.html">MultiplyAccumulate</a> that only multiplies to enable
 using the same tester with zero accumulate addend <code>c</code>.</p>
+<p>The optional <code>outputWidth</code> parameter configures the width of
+<a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a>, as described in <a href="../../rohd_hcl/MultiplyAccumulate-class.html">MultiplyAccumulate</a>.</p>
 </section>
 
 
@@ -87,6 +90,7 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
   super.signedMultiplicand,
   super.signedMultiplier,
   super.signedAddend,
+  super.outputWidth,
 }) &#47;&#47; Will be overrwridden by multiplyGenerator
 : super(
         name: &#39;multiply_only_${_genName(
@@ -97,35 +101,25 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
           signedMultiplier,
         )}&#39;,
       ) {
-  &#47;&#47; Here we need to copy the Config and make sure we access our module&#39;s
-  &#47;&#47; input by calling .logic(this) on the runtimeConfig.
-
-  &#47;&#47; TODO(desmonddak): try using tryRuntimeInput instead of getLogic.
+  &#47;&#47; Copy the configuration using this module&#39;s internal runtime input.
   final multiply = mulGen(a, b,
       signedMultiplicand: StaticOrRuntimeParameter(
           name: &#39;selectSignedMultiplicand&#39;,
-          runtimeConfig: signedMultiplicandParameter.runtimeConfig != null
-              ? signedMultiplicandParameter.getLogic(this)
-              : null,
+          runtimeConfig: signedMultiplicandParameter.tryRuntimeInput(this),
           staticConfig: signedMultiplicandParameter.runtimeConfig == null
               ? signedMultiplicandParameter.staticConfig
               : null),
       signedMultiplier: StaticOrRuntimeParameter(
           name: &#39;selectSignedMultiplier&#39;,
-          runtimeConfig: signedMultiplierParameter.runtimeConfig != null
-              ? signedMultiplierParameter.getLogic(this)
-              : null,
+          runtimeConfig: signedMultiplierParameter.tryRuntimeInput(this),
           staticConfig: signedMultiplierParameter.runtimeConfig == null
               ? signedMultiplierParameter.staticConfig
               : null));
 
   accumulate &lt;=
-      mux(
-          &#47;&#47; Signedness is part of the generated multiplier&#39;s protected API.
-          &#47;&#47; ignore: invalid_use_of_protected_member
-          multiply.isProductSigned,
-          multiply.product.signExtend(accumulate.width),
-          multiply.product.zeroExtend(accumulate.width));
+      &#47;&#47; The wrapper needs the generated multiplier&#39;s signedness metadata.
+      &#47;&#47; ignore: invalid_use_of_protected_member
+      fitAccumulateWidth(multiply.product, signed: multiply.isProductSigned);
 }</code></pre>
 </section>
 

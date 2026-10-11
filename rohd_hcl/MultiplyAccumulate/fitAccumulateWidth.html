@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the fitAccumulateWidth method from the MultiplyAccumulate class, for the Dart programming language.">
+  <title>fitAccumulateWidth method - MultiplyAccumulate class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/MultiplyAccumulate-class.html">MultiplyAccumulate</a></li>
+    <li class="self-crumb">fitAccumulateWidth method</li>
+  </ol>
+  <div class="self-name">fitAccumulateWidth</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;MultiplyAccumulate-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">fitAccumulateWidth</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://pub.dev/documentation/meta/1.19.0/meta/protected-constant.html">protected</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+<span class="name ">fitAccumulateWidth</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="fitAccumulateWidth-param-naturalResult"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">naturalResult</span>, {</span></li>
+<li><span class="parameter" id="fitAccumulateWidth-param-signed"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">signed</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Reshapes <code>naturalResult</code> (the full-precision, natural-width
+multiply-accumulate result) to fit this module's <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> output
+width.</p>
+<p>If <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> is the same width as <code>naturalResult</code>, it is returned
+unchanged. If <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> is narrower, <code>naturalResult</code> is truncated to
+the low <code>accumulate.width</code> bits. If <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> is wider,
+<code>naturalResult</code> is sign- or zero-extended based on <code>signed</code> (which
+defaults to the runtime <a href="../../rohd_hcl/MultiplyAccumulate/isAccumulateSigned.html">isAccumulateSigned</a> signal).</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@protected
+Logic fitAccumulateWidth(Logic naturalResult, {Logic? signed}) {
+  if (accumulate.width == naturalResult.width) {
+    return naturalResult;
+  }
+  if (accumulate.width &lt; naturalResult.width) {
+    return naturalResult.slice(accumulate.width - 1, 0);
+  }
+  return mux(
+      signed ?? isAccumulateSigned,
+      naturalResult.signExtend(accumulate.width),
+      naturalResult.zeroExtend(accumulate.width));
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/MultiplyAccumulate-class.html">MultiplyAccumulate</a></li>
+    <li class="self-crumb">fitAccumulateWidth method</li>
+</ol>
+
+    <h5>MultiplyAccumulate class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

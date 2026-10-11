@@ -68,8 +68,7 @@
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">late final nan = FloatingPoint.nan(
-    exponentWidth: exponent.width, mantissaWidth: mantissa.width);</code></pre>
+  <pre class="language-dart"><code class="language-dart">late final FloatingPoint nan = _constant(valuePopulator().nan);</code></pre>
 </section>
 
 

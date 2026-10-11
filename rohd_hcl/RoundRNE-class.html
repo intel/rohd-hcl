@@ -54,10 +54,32 @@
 
     
 <section class="desc markdown">
-  <p>A rounding class that performs rounding-nearest-even</p>
+  <p>Determines whether rounding-nearest-even requires an increment.</p>
 </section>
 
 
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../rohd_hcl/FloatingPointRounder-class.html">FloatingPointRounder</a></li>
+      <li>RoundRNE</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
 
     
   <section class="summary offset-anchor" id="constructors">
@@ -67,25 +89,25 @@
           <span class="name"><a href="../rohd_hcl/RoundRNE/RoundRNE.html">RoundRNE</a></span><span class="signature">(<span class="parameter" id="param-inp"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">inp</span>, </span><span class="parameter" id="param-lsb"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">lsb</span></span>)</span>
         </dt>
         <dd>
-          Determine whether the input should be rounded up given
+          Determines RNE rounding for <code>inp</code>, retaining bits from <code>lsb</code> upward.
         </dd>
     </dl>
   </section>
     
   <section
-      class="summary offset-anchor"
+      class="summary offset-anchor inherited"
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
-        <dt id="doRound" class="property">
-  <span class="name"><a href="../rohd_hcl/RoundRNE/doRound.html">doRound</a></span>
+        <dt id="doRound" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointRounder/doRound.html">doRound</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
   
 
 </dt>
-<dd>
-  Return whether to round the input or not.
-  <div class="features"><span class="feature">no setter</span></div>
+<dd class="inherited">
+  Whether the retained value should be incremented.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -97,6 +119,18 @@
 </dt>
 <dd class="inherited">
   The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inexact" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointRounder/inexact.html">inexact</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether any discarded bit is nonzero.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
 
 </dd>

@@ -72,7 +72,7 @@ either static or runtime.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Logic getLogic(Module module) =&gt;
-    staticConfig ? Const(1) : (getRuntimeInput(module) ?? Const(0));</code></pre>
+    resolve(module, staticToLogic: (value) =&gt; Const(value ? 1 : 0));</code></pre>
 </section>
 
 

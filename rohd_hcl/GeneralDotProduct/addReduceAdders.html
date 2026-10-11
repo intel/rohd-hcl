@@ -75,15 +75,29 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Logic addReduceAdders(List&lt;Logic&gt; inputs,
     {int? depth, Logic? control, String name = &#39;prefix&#39;}) {
-  if (inputs.length &lt; 4) {
-    return inputs.reduce((v, e) =&gt; v + e);
-  } else {
-    final add0 = adderGen(inputs[0], inputs[1], name: &#39;${name}_add0&#39;);
-    final add1 = adderGen(inputs[2], inputs[3], name: &#39;${name}_add1&#39;);
-    final addf =
-        adderGen(add0.sum, add1.sum, name: &#39;${name}_addf_${depth ?? 0}&#39;);
-    return addf.sum;
+  var level = inputs;
+  var stage = 0;
+  while (level.length &gt; 1) {
+    final nextLevel = &lt;Logic&gt;[];
+    for (var i = 0; i &lt; level.length; i += 2) {
+      if (i + 1 == level.length) {
+        nextLevel.add(level[i]);
+        continue;
+      }
+
+      final inputWidth = level[i].width &gt; level[i + 1].width
+          ? level[i].width
+          : level[i + 1].width;
+      final resultWidth = inputWidth + 1;
+      final a = _extendForSum(level[i], resultWidth, control);
+      final b = _extendForSum(level[i + 1], resultWidth, control);
+      final sum = adderGen(a, b, name: &#39;${name}_s${stage}_add${i ~&#47; 2}&#39;).sum;
+      nextLevel.add(sum.slice(resultWidth - 1, 0));
+    }
+    level = nextLevel;
+    stage++;
   }
+  return level.single;
 }</code></pre>
 </section>
 

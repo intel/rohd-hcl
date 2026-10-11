@@ -85,11 +85,11 @@ width and divisor integer width.</p>
   final mr = m1 + other.fractionWidth;
   final nr = fractionWidth + m2;
   final tr = mr + nr;
-  var val1 = FixedPointValue.populator(
+  var val1 = FixedPointValue.populatorWithSignedness(
           integerWidth: m1, fractionWidth: tr - m1, signed: s)
       .widen(this)
       .value;
-  var val2 = FixedPointValue.populator(
+  var val2 = FixedPointValue.populatorWithSignedness(
           integerWidth: tr - other.fractionWidth,
           fractionWidth: other.fractionWidth,
           signed: s)
@@ -109,7 +109,7 @@ width and divisor integer width.</p>
   if (isNegative() != other.isNegative()) {
     val = (~val) + 1;
   }
-  return FixedPointValue.populator(
+  return FixedPointValue.populatorWithSignedness(
           integerWidth: mr, fractionWidth: nr, signed: s)
       .ofLogicValue(val);
 }</code></pre>

@@ -70,15 +70,30 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPointValue ulp() {
-  if (exponent.toInt() &gt; mantissa.width) {
-    final newExponent =
-        LogicValue.ofInt(exponent.toInt() - mantissa.width, exponent.width);
-    return clonePopulator().ofBinaryStrings(
-        sign.bitString, newExponent.bitString, &#39;0&#39; * (mantissa.width));
-  } else {
-    return clonePopulator().ofBinaryStrings(
-        sign.bitString, exponent.bitString, &#39;${&#39;0&#39; * (mantissa.width - 1)}1&#39;);
+  if (isNaN || isAnInfinity) {
+    return abs();
   }
+
+  final populator = clonePopulator();
+  if (exponent.isZero) {
+    return populator.ofConstant(subNormalAsZero
+        ? FloatingPointConstants.smallestPositiveNormal
+        : FloatingPointConstants.smallestPositiveSubnormal);
+  }
+
+  final fractionWidth = mantissaWidth - (explicitJBit ? 1 : 0);
+  final encodedExponent = exponent.toInt();
+  if (encodedExponent &lt;= fractionWidth) {
+    if (subNormalAsZero) {
+      return populator
+          .ofConstant(FloatingPointConstants.smallestPositiveNormal);
+    }
+    return populator.ofBigInts(
+        BigInt.zero, BigInt.one &lt;&lt; (encodedExponent - 1));
+  }
+
+  return populator.ofBigInts(BigInt.from(encodedExponent - fractionWidth),
+      explicitJBit ? BigInt.one &lt;&lt; fractionWidth : BigInt.zero);
 }</code></pre>
 </section>
 

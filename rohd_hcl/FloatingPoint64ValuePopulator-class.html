@@ -295,6 +295,33 @@
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="add" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/add.html">add</a></span><span class="signature">(<wbr><span class="parameter" id="add-param-a"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="add-param-b"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="add-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds <code>a</code> and <code>b</code> exactly and rounds once into this format.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="divide" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/divide.html">divide</a></span><span class="signature">(<wbr><span class="parameter" id="divide-param-a"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="divide-param-b"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="divide-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Divides <code>a</code> by <code>b</code> exactly (to sufficient precision) and rounds once
+into this format.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="getConstantComponents" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/getConstantComponents.html">getConstantComponents</a></span><span class="signature">(<wbr><span class="parameter" id="getConstantComponents-param-constant"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a></span> <span class="parameter-name">constant</span></span>)
     <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">mantissa</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">sign</span>}</span>)</span>
@@ -305,6 +332,19 @@
 <dd class="inherited">
   Return the set of <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>s for a given <a href="../rohd_hcl/FloatingPointConstants.html">FloatingPointConstants</a> at a
 given <a href="../rohd_hcl/FloatingPointValuePopulator/exponentWidth.html">exponentWidth</a> and <a href="../rohd_hcl/FloatingPointValuePopulator/mantissaWidth.html">mantissaWidth</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="multiply" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/multiply.html">multiply</a></span><span class="signature">(<wbr><span class="parameter" id="multiply-param-a"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="multiply-param-b"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="multiply-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Multiplies <code>a</code> and <code>b</code> exactly and rounds once into this format.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -372,8 +412,34 @@ individual bitfields
 
 </dt>
 <dd>
-  Convert from double using its native binary representation
+  Convert from double using its native binary representation.
   <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="ofDoubleLegacy" class="callable inherited">
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/FloatingPointValuePopulator/ofDoubleLegacy.html">ofDoubleLegacy</a></span><span class="signature">(<wbr><span class="parameter" id="ofDoubleLegacy-param-inDouble"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">inDouble</span>, {</span><span class="parameter" id="ofDoubleLegacy-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Convert from double using its native binary representation.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="ofFixedPointValue" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/ofFixedPointValue.html">ofFixedPointValue</a></span><span class="signature">(<wbr><span class="parameter" id="ofFixedPointValue-param-fxv"><span class="type-annotation"><a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">fxv</span>, {</span><span class="parameter" id="ofFixedPointValue-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Converts <code>fxv</code> directly into this floating-point format.
+  <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
@@ -418,6 +484,19 @@ an explicit J bit.
 
 </dd>
 
+        <dt id="ofFloatingPointValueRounded" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/ofFloatingPointValueRounded.html">ofFloatingPointValueRounded</a></span><span class="signature">(<wbr><span class="parameter" id="ofFloatingPointValueRounded-param-fpv"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">fpv</span>, {</span><span class="parameter" id="ofFloatingPointValueRounded-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Converts <code>fpv</code> directly to this format with one exact rounding step.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="ofInts" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/ofInts.html">ofInts</a></span><span class="signature">(<wbr><span class="parameter" id="ofInts-param-exponent"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponent</span>, </span><span class="parameter" id="ofInts-param-mantissa"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">mantissa</span>, {</span><span class="parameter" id="ofInts-param-sign"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">sign</span> = <span class="default-value">false</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
@@ -441,6 +520,19 @@ representation and the size of the exponent and mantissa
 </dt>
 <dd class="inherited">
   Construct a <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> from a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="ofScaledBigInt" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/ofScaledBigInt.html">ofScaledBigInt</a></span><span class="signature">(<wbr><span class="parameter" id="ofScaledBigInt-param-significand"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">significand</span>, </span><span class="parameter" id="ofScaledBigInt-param-exponent"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponent</span>, {</span><span class="parameter" id="ofScaledBigInt-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Constructs a value equal to <code>significand</code> times two to <code>exponent</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -498,6 +590,19 @@ representation and the size of the exponent and mantissa
   Generate a random <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>, using random seed <code>rv</code> in a given
 range, if provided. The distribution of values is uniform across the
 combined bitfield of exponent and mantissa.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="squareRoot" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPointValuePopulator/squareRoot.html">squareRoot</a></span><span class="signature">(<wbr><span class="parameter" id="squareRoot-param-value"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="squareRoot-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint64Value-class.html">FloatingPoint64Value</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Computes square root exactly and rounds once into this format.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

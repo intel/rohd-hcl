@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">populator static method</li>
+    <li class="self-crumb"><span class="deprecated">populator</span> static method</li>
   </ol>
   <div class="self-name">populator</div>
   <form class="search navbar-right" role="search">
@@ -54,8 +54,13 @@
 
     <section class="multi-line-signature">
       
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use FixedPointValue.populatorWithSignedness instead.&#39;)</li>
+    </ol>
+  </div>
 <span class="returntype"><a href="../../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span>&gt;</span></span>
-<span class="name ">populator</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="populator-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span></li>
+<span class="name deprecated">populator</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="populator-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span></li>
 <li><span class="parameter" id="populator-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span></li>
 <li><span class="parameter" id="populator-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
@@ -68,19 +73,22 @@
   <p>Creates a <a href="../../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a> with the provided <code>integerWidth</code>
 and <code>fractionWidth</code>, which can then be used to complete construction of
 a <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> using population functions.</p>
+<p>Use <a href="../../rohd_hcl/FixedPointValue/populatorWithSignedness.html">populatorWithSignedness</a> for new code.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static FixedPointValuePopulator populator(
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use FixedPointValue.populatorWithSignedness instead.&#39;)
+static FixedPointValuePopulator populator(
         {required int integerWidth,
         required int fractionWidth,
         bool signed = false}) =&gt;
-    FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
-      ..integerWidth = integerWidth
-      ..fractionWidth = fractionWidth);</code></pre>
+    populatorWithSignedness(
+        integerWidth: integerWidth,
+        fractionWidth: fractionWidth,
+        signed: signed);</code></pre>
 </section>
 
 
@@ -96,7 +104,7 @@ a <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> using 
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">populator static method</li>
+    <li class="self-crumb"><span class="deprecated">populator</span> static method</li>
 </ol>
 
     <h5>FixedPointValue class</h5>

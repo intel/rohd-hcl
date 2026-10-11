@@ -64,6 +64,7 @@
 <li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
 <li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="param-signedAddend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedAddend</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">outputWidth</span>, </span></li>
 <li><span class="parameter" id="param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
@@ -89,6 +90,8 @@ supplied via <code>seGen</code>.</p>
 after compression.  <code>reset</code> and <code>enable</code> are optional
 inputs to control these flops when <code>clk</code> is provided. If <code>clk</code> is null,
 the Column Compressor is built as a combinational tree of compressors.</p>
+<p>The optional <code>outputWidth</code> parameter configures the width of
+<a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a>, as described in <a href="../../rohd_hcl/MultiplyAccumulate-class.html">MultiplyAccumulate</a>.</p>
 </section>
 
 
@@ -103,6 +106,7 @@ the Column Compressor is built as a combinational tree of compressors.</p>
     super.signedMultiplicand,
     super.signedMultiplier,
     super.signedAddend,
+    super.outputWidth,
     Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
         NativeAdder.new,
     PartialProductSignExtension Function(PartialProductGeneratorBase pp,
@@ -115,6 +119,7 @@ the Column Compressor is built as a combinational tree of compressors.</p>
     : super(
           definitionName: definitionName ??
               &#39;CompressionTreeMAC_W${a.width}x${b.width}_Acc${c.width}_&#39;
+                  &#39;Out${outputWidth ?? (a.width + b.width + 1)}_&#39;
                   &#39;${MultiplyAccumulate.signedAD(signedAddend)}&#39;) {
   final ppg = PartialProductGenerator(
     a,
@@ -160,7 +165,8 @@ the Column Compressor is built as a combinational tree of compressors.</p>
   final compressor = ColumnCompressor(ppgRows, ppg.rowShift,
       clk: clk, reset: reset, enable: enable);
   final adder = adderGen(compressor.add0, compressor.add1);
-  accumulate &lt;= adder.sum.slice(a.width + b.width - 1 + 1, 0);
+  accumulate &lt;=
+      fitAccumulateWidth(adder.sum.slice(a.width + b.width - 1 + 1, 0));
 }</code></pre>
 </section>
 

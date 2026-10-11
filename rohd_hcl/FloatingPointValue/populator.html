@@ -76,14 +76,19 @@ a <a href="../../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a> 
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static FloatingPointValuePopulator populator(
-        {required int exponentWidth,
-        required int mantissaWidth,
-        bool explicitJBit = false,
-        bool subNormalAsZero = false}) =&gt;
-    FloatingPointValuePopulator(FloatingPointValue.uninitialized(
-        explicitJBit: explicitJBit, subNormalAsZero: subNormalAsZero)
-      .._exponentWidth = exponentWidth
-      .._mantissaWidth = mantissaWidth);</code></pre>
+    {required int exponentWidth,
+    required int mantissaWidth,
+    bool explicitJBit = false,
+    bool subNormalAsZero = false}) {
+  if (explicitJBit &amp;&amp; mantissaWidth &lt; 2) {
+    throw ArgumentError.value(mantissaWidth, &#39;mantissaWidth&#39;,
+        &#39;explicit-J-bit formats require a NaN payload bit&#39;);
+  }
+  return FloatingPointValuePopulator(FloatingPointValue.uninitialized(
+      explicitJBit: explicitJBit, subNormalAsZero: subNormalAsZero)
+    .._exponentWidth = exponentWidth
+    .._mantissaWidth = mantissaWidth);
+}</code></pre>
 </section>
 
 

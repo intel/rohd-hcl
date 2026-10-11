@@ -60,10 +60,10 @@
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
+<li><span class="parameter" id="param-subtractIn"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use subtract with a 1-bit Logic instead.&#39;)</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
 <li><span class="parameter" id="param-generateCarryOut"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateCarryOut</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-generateCarryOutP1"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateCarryOutP1</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="param-subtract"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subtract</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-subtract"><span class="type-annotation">dynamic</span> <span class="parameter-name">subtract</span>, </span></li>
 <li><span class="parameter" id="param-widthGen"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">widthGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span></span></li>
 </ol>) = <span class="default-value">CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compound_adder&#39;</span>, </span></li>
@@ -80,9 +80,10 @@
 <ul>
 <li><code>adderGen</code> is the adder generator <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> inside the
 <a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a>.</li>
-<li><code>subtractIn</code> is an optional <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> control for subtraction.</li>
-<li><code>subtract</code> is a boolean control for subtraction. It must be
-<code>false</code>(default) if a <code>subtractIn</code> <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> is provided.</li>
+<li><code>subtract</code> configures subtraction statically with a <code>bool</code> or at runtime
+with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>. It defaults to addition.</li>
+<li><code>subtractIn</code> is a deprecated runtime subtraction control. It may be
+provided with an explicit <code>subtract: false</code> for compatibility.</li>
 <li><code>generateCarryOut</code> set to <code>true</code> will create output <a href="../../rohd_hcl/CarrySelectOnesComplementCompoundAdder/carryOut.html">carryOut</a> and
 employ the ones-complement optimization of not adding '1' to convert
 back to 2s complement during subtraction on the <a href="../../rohd_hcl/Adder/sum.html">sum</a>.</li>
@@ -102,10 +103,10 @@ for the carry-select chain.  The default is
   <pre class="language-dart"><code class="language-dart">CarrySelectOnesComplementCompoundAdder(super.a, super.b,
     {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
         NativeAdder.new,
-    Logic? subtractIn,
+    @Deprecated(&#39;Use subtract with a 1-bit Logic instead.&#39;) Logic? subtractIn,
     bool generateCarryOut = false,
     bool generateCarryOutP1 = false,
-    bool subtract = false,
+    dynamic subtract,
     List&lt;int&gt; Function(int) widthGen =
         CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
     super.name,
@@ -115,9 +116,17 @@ for the carry-select chain.  The default is
     : super(
           definitionName: definitionName ??
               &#39;CarrySelectOnesComplementCompoundAdder_W${a.width}&#39;) {
-  subtractIn = (subtractIn != null)
-      ? addInput(&#39;subtractIn&#39;, subtractIn, width: subtractIn.width)
-      : null;
+  final subtractIsActive =
+      subtract != null &amp;&amp; (subtract is! bool || subtract);
+  if (subtractIn != null &amp;&amp; subtractIsActive) {
+    throw RohdHclException(
+        &quot;Provide either deprecated &#39;subtractIn&#39; or &#39;subtract&#39;, &quot;
+        &#39;but not both.&#39;);
+  }
+  subtractParameter = subtractIn != null
+      ? StaticOrRuntimeParameter(
+          name: &#39;subtractIn&#39;, runtimeConfig: subtractIn)
+      : StaticOrRuntimeParameter.ofDynamic(subtract);
 
   if (generateCarryOut) {
     addOutput(&#39;carryOut&#39;);
@@ -126,19 +135,18 @@ for the carry-select chain.  The default is
     addOutput(&#39;carryOutP1&#39;);
   }
 
-  final doSubtract = subtractIn ?? (subtract ? Const(subtract) : Const(0));
+  final doSubtract = subtractParameter.getLogic(this);
 
   final csadder = CarrySelectCompoundAdder(a, b,
       widthGen: widthGen,
-      subtractIn: subtractIn,
+      subtractIn: doSubtract,
       adderGen: (a, b, {carryIn, subtractIn, name = &#39;ones_complement&#39;}) =&gt;
           OnesComplementAdder(a, b,
               adderGen: adderGen,
               carryIn: carryIn,
               generateEndAroundCarry: true,
-              subtract: subtract,
               chainable: true,
-              subtractIn: subtractIn));
+              subtract: subtractIn));
 
   addOutput(&#39;sign&#39;) &lt;= mux(doSubtract, ~csadder.sum[-1], Const(0));
   addOutput(&#39;signP1&#39;) &lt;= mux(doSubtract, ~csadder.sumP1[-1], Const(0));

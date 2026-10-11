@@ -98,6 +98,13 @@ Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">ht
         <dd>
           Constructs a <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> signal.
         </dd>
+        <dt id="FixedPoint.constant" class="callable">
+          <span class="name"><a href="../rohd_hcl/FixedPoint/FixedPoint.constant.html">FixedPoint.constant</a></span><span class="signature">(<span class="parameter" id="constant-param-value"><span class="type-annotation"><a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="constant-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})</span>
+        </dt>
+        <dd>
+          Constructs a constant <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> from <code>value</code>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
         <dt id="FixedPoint.of" class="callable">
           <span class="name"><a href="../rohd_hcl/FixedPoint/FixedPoint.of.html">FixedPoint.of</a></span><span class="signature">(<span class="parameter" id="of-param-signal"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">signal</span>, {</span><span class="parameter" id="of-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="of-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span><span class="parameter" id="of-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span></span>})</span>
         </dt>
@@ -659,6 +666,19 @@ number is a two's complement.
 
 </dd>
 
+        <dt id="add" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPoint/add.html">add</a></span><span class="signature">(<wbr><span class="parameter" id="add-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Adds <code>other</code> and returns a full-precision <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a>.
+  
+
+</dd>
+
         <dt id="and" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/and.html">and</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
@@ -911,6 +931,19 @@ conditional (<code>&lt;</code>) assignment.
 
 </dd>
 
+        <dt id="multiply" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPoint/multiply.html">multiply</a></span><span class="signature">(<wbr><span class="parameter" id="multiply-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Multiply
+  
+
+</dd>
+
         <dt id="named" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/named.html">named</a></span><span class="signature">(<wbr><span class="parameter" id="named-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, {</span><span class="parameter" id="named-param-naming"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Naming.html">Naming</a>?</span> <span class="parameter-name">naming</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure-class.html">LogicStructure</a></span>
@@ -1096,6 +1129,19 @@ both inclusive.
 
 </dd>
 
+        <dt id="subtract" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPoint/subtract.html">subtract</a></span><span class="signature">(<wbr><span class="parameter" id="subtract-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subtracts <code>other</code> and returns a full-precision signed <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a>.
+  
+
+</dd>
+
         <dt id="toString" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
@@ -1218,8 +1264,8 @@ as the most significant bits.
 </dd>
 
         <dt id="operator *" class="callable">
-  <span class="name"><a href="../rohd_hcl/FixedPoint/operator_multiply.html">operator *</a></span><span class="signature">(<wbr><span class="parameter" id="*-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/FixedPoint/operator_multiply.html">operator *</a></span><span class="signature">(<wbr><span class="parameter" id="*-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
   </span>
   
 
@@ -1230,29 +1276,29 @@ as the most significant bits.
 
 </dd>
 
-        <dt id="operator +" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+        <dt id="operator +" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPoint/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Addition.
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Addition operator.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 
-        <dt id="operator -" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/operator_minus.html">operator -</a></span><span class="signature">(<wbr><span class="parameter" id="--param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+        <dt id="operator -" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPoint/operator_minus.html">operator -</a></span><span class="signature">(<wbr><span class="parameter" id="--param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
   </span>
   
 
 </dt>
-<dd class="inherited">
-  Subtraction.
-  <div class="features"><span class="feature">inherited</span></div>
+<dd>
+  Subtraction operator.
+  <div class="features"><span class="feature">override</span></div>
 
 </dd>
 

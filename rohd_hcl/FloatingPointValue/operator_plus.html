@@ -71,25 +71,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPointValue operator +(FloatingPointValue addend) {
-  if (isNaN | addend.isNaN) {
-    return clonePopulator().nan;
-  }
-  if (isAnInfinity) {
-    if (addend.isAnInfinity) {
-      if (sign != addend.sign) {
-        return clonePopulator().nan;
-      } else {
-        return sign.toBool()
-            ? clonePopulator().negativeInfinity
-            : clonePopulator().positiveInfinity;
-      }
-    } else {
-      return this;
-    }
-  } else if (addend.isAnInfinity) {
-    return addend;
-  }
-  return _performOp(addend, (a, b) =&gt; a + b);
+  _validateArithmeticFormat(addend);
+  return clonePopulator().add(this, addend);
 }</code></pre>
 </section>
 

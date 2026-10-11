@@ -77,19 +77,20 @@ The result fraction has the max fractional width of the operands.</p>
   if (!value.isValid | !other.value.isValid) {
     throw RohdHclException(&#39;Inputs must be valid.&#39;);
   }
-  const s = true;
+  &#47;&#47; Subtraction can produce a negative result regardless of the operands&#39;
+  &#47;&#47; signedness, so the result is always signed.
   final nr = max(fractionWidth, other.fractionWidth);
   final mr = max(integerWidth, other.integerWidth) + 1;
-  final val1 = FixedPointValue.populator(
-          integerWidth: mr, fractionWidth: nr, signed: s)
+  final val1 = FixedPointValue.populatorWithSignedness(
+          integerWidth: mr, fractionWidth: nr)
       .widen(this)
       .value;
-  final val2 = FixedPointValue.populator(
-          integerWidth: mr, fractionWidth: nr, signed: s)
+  final val2 = FixedPointValue.populatorWithSignedness(
+          integerWidth: mr, fractionWidth: nr)
       .widen(other)
       .value;
-  return FixedPointValue.populator(
-          integerWidth: mr, fractionWidth: nr, signed: s)
+  return FixedPointValue.populatorWithSignedness(
+          integerWidth: mr, fractionWidth: nr)
       .ofLogicValue(val1 - val2);
 }</code></pre>
 </section>

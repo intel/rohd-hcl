@@ -77,8 +77,9 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Logic lt(dynamic other) {
-  _verifyCompatible(other);
-  return mux(Const(signed) &amp; this[-1], super.gt(other), super.lt(other));
+  final comparable = _verifyCompatible(other);
+  return mux(
+      Const(signed) &amp; this[-1], super.gt(comparable), super.lt(comparable));
 }</code></pre>
 </section>
 

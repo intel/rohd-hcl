@@ -70,7 +70,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">bool operator &lt;=(FloatingPointValue other) =&gt; compareTo(other) &lt;= 0;</code></pre>
+  <pre class="language-dart"><code class="language-dart">bool operator &lt;=(FloatingPointValue other) {
+  _validateComparable(other);
+  return !(isNaN || other.isNaN) &amp;&amp; compareTo(other) &lt;= 0;
+}</code></pre>
 </section>
 
 

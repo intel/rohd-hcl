@@ -69,7 +69,13 @@
     </section>
     
 <section class="desc markdown">
-  <p>Convert from double using its native binary representation</p>
+  <p>Convert from double using its native binary representation.</p>
+<p>The input <code>inDouble</code> is decoded bit-exactly (no precision is lost in
+that step, since a Dart <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a> is itself an IEEE 754 binary64 value)
+and then rounded exactly once into this format using <code>roundingMode</code>,
+via the same exact rounding engine used by <a href="../../rohd_hcl/FloatingPointValuePopulator/add.html">add</a>, <a href="../../rohd_hcl/FloatingPointValuePopulator/multiply.html">multiply</a>,
+<a href="../../rohd_hcl/FloatingPointValuePopulator/squareRoot.html">squareRoot</a>, and <a href="../../rohd_hcl/FloatingPointValuePopulator/ofFloatingPointValueRounded.html">ofFloatingPointValueRounded</a>. All
+<a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a>s are supported.</p>
 </section>
 
 

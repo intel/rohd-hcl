@@ -97,6 +97,13 @@
         <dd>
           Construct an 8-bit floating point number E5M2.
         </dd>
+        <dt id="FloatingPoint8E5M2.constant" class="callable">
+          <span class="name"><a href="../rohd_hcl/FloatingPoint8E5M2/FloatingPoint8E5M2.constant.html">FloatingPoint8E5M2.constant</a></span><span class="signature">(<span class="parameter" id="constant-param-value"><span class="type-annotation"><a href="../rohd_hcl/FloatingPoint8E5M2Value-class.html">FloatingPoint8E5M2Value</a></span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="constant-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})</span>
+        </dt>
+        <dd>
+          Constructs an E5M2 constant from <code>value</code>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
     </dl>
   </section>
     
@@ -396,6 +403,30 @@ defined as having mantissa in the range <code>[1,2)</code>.
 
 </dd>
 
+        <dt id="isQuietNaN" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/isQuietNaN.html">isQuietNaN</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Return <code>1</code> if this is a quiet NaN.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isSignalingNaN" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/isSignalingNaN.html">isSignalingNaN</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Return <code>1</code> if this is a signaling NaN.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="leafElements" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/leafElements.html">leafElements</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
@@ -686,6 +717,30 @@ one exists.  Otherwise, this is the same as <a href="https://pub.dev/documentati
 
 </dd>
 
+        <dt id="supportsInfinities" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/supportsInfinities.html">supportsInfinities</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether this format represents positive and negative infinity.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="supportsSignalingNaNs" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/supportsSignalingNaNs.html">supportsSignalingNaNs</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether this format distinguishes signaling and quiet NaNs.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="value" class="property inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/value.html">value</a></span>
   <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span>
@@ -769,6 +824,19 @@ number is a two's complement.
 
 </dd>
 
+        <dt id="add" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/add.html">add</a></span><span class="signature">(<wbr><span class="parameter" id="add-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span>, {</span><span class="parameter" id="add-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Adds <code>other</code> using a single-path adder.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="and" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/and.html">and</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
@@ -811,6 +879,19 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dd>
 
+        <dt id="comparisonInvalid" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/comparisonInvalid.html">comparisonInvalid</a></span><span class="signature">(<wbr><span class="parameter" id="comparisonInvalid-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Whether an IEEE quiet comparison with <code>other</code> signals invalid.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="decr" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/decr.html">decr</a></span><span class="signature">(<wbr>{<span class="parameter" id="decr-param-s"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">s</span>(<span class="parameter" id="param-p1"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">p1</span></span>)?, </span><span class="parameter" id="decr-param-val"><span class="type-annotation">dynamic</span> <span class="parameter-name">val</span> = <span class="default-value">1</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Conditional-class.html">Conditional</a></span>
@@ -845,7 +926,7 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dt>
 <dd class="inherited">
-  Equal
+  IEEE quiet equality.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -885,7 +966,7 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dt>
 <dd class="inherited">
-  Greater-than.
+  IEEE quiet greater-than.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -898,7 +979,7 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dt>
 <dd class="inherited">
-  Greater-than-or-equal-to.
+  IEEE quiet greater-than-or-equal.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -982,6 +1063,19 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dd>
 
+        <dt id="largestFinite" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/largestFinite.html">largestFinite</a></span><span class="signature">(<wbr>{<span class="parameter" id="largestFinite-param-sign"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">sign</span>, </span><span class="parameter" id="largestFinite-param-negative"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">negative</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Construct the largest finite value with the provided <code>sign</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="lt" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/FloatingPoint/lt.html">lt</a></span><span class="signature">(<wbr><span class="parameter" id="lt-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
@@ -990,7 +1084,7 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dt>
 <dd class="inherited">
-  Less-than.
+  IEEE quiet less-than.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1003,7 +1097,7 @@ the corresponding index, plus <code>start</code>, of this signal.
 
 </dt>
 <dd class="inherited">
-  Less-than-or-equal-to.
+  IEEE quiet less-than-or-equal.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1031,6 +1125,19 @@ conditional (<code>&lt;</code>) assignment.
 </dt>
 <dd class="inherited">
   Multiply-assigns each element of <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/elements.html">elements</a> using <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic/mulAssign.html">Logic.mulAssign</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="multiply" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/multiply.html">multiply</a></span><span class="signature">(<wbr><span class="parameter" id="multiply-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span>, {</span><span class="parameter" id="multiply-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Multiplies by <code>other</code> using a simple floating-point multiplier.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1070,7 +1177,7 @@ be driven by <code>this</code>.
 
 </dt>
 <dd class="inherited">
-  Not Equal
+  IEEE quiet inequality.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1102,14 +1209,27 @@ be driven by <code>this</code>.
 </dd>
 
         <dt id="pow" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/pow.html">pow</a></span><span class="signature">(<wbr><span class="parameter" id="pow-param-exponent"><span class="type-annotation">dynamic</span> <span class="parameter-name">exponent</span></span>)
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/pow.html">pow</a></span><span class="signature">(<wbr><span class="parameter" id="pow-param-exponent"><span class="type-annotation">dynamic</span> <span class="parameter-name">exponent</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Power operation
+  Power does not yet have a signal-level implementation.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="propagateNaN" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/propagateNaN.html">propagateNaN</a></span><span class="signature">(<wbr><span class="parameter" id="propagateNaN-param-first"><span class="type-annotation"><a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">first</span>, </span><span class="parameter" id="propagateNaN-param-second"><span class="type-annotation"><a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">second</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Propagate the first signaling NaN, otherwise the first quiet NaN.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1124,6 +1244,19 @@ be driven by <code>this</code>.
 <dd class="inherited">
   Puts a value <code>val</code> onto this signal, which may or may not be picked up
 for <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/changed.html">changed</a> in this <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Simulator-class.html">Simulator</a> tick.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="quietNaNFrom" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/quietNaNFrom.html">quietNaNFrom</a></span><span class="signature">(<wbr><span class="parameter" id="quietNaNFrom-param-source"><span class="type-annotation"><a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Quiet and convert the NaN payload and sign from <code>source</code> into this format.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1234,6 +1367,19 @@ both inclusive.
 
 </dd>
 
+        <dt id="subtract" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/subtract.html">subtract</a></span><span class="signature">(<wbr><span class="parameter" id="subtract-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span>, {</span><span class="parameter" id="subtract-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Subtracts <code>other</code> using a single-path adder.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
         <dt id="toString" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
@@ -1330,14 +1476,14 @@ as the most significant bits.
     <h2>Operators</h2>
     <dl class="callables">
         <dt id="operator %" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/operator_modulo.html">operator %</a></span><span class="signature">(<wbr><span class="parameter" id="%-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/operator_modulo.html">operator %</a></span><span class="signature">(<wbr><span class="parameter" id="%-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Modulo operation.
+  Modulo is not defined for <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -1356,53 +1502,53 @@ as the most significant bits.
 </dd>
 
         <dt id="operator *" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/operator_multiply.html">operator *</a></span><span class="signature">(<wbr><span class="parameter" id="*-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/operator_multiply.html">operator *</a></span><span class="signature">(<wbr><span class="parameter" id="*-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Multiplication.
+  Multiplication operator.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="operator +" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/operator_plus.html">operator +</a></span><span class="signature">(<wbr><span class="parameter" id="+-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Addition.
+  Addition operator.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="operator -" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/operator_minus.html">operator -</a></span><span class="signature">(<wbr><span class="parameter" id="--param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/operator_minus.html">operator -</a></span><span class="signature">(<wbr><span class="parameter" id="--param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Subtraction.
+  Subtraction operator.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="operator &#47;" class="callable inherited">
-  <span class="name"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure/operator_divide.html">operator /</a></span><span class="signature">(<wbr><span class="parameter" id="/-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
+  <span class="name"><a href="../rohd_hcl/FloatingPoint/operator_divide.html">operator /</a></span><span class="signature">(<wbr><span class="parameter" id="/-param-other"><span class="type-annotation">dynamic</span> <span class="parameter-name">other</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Division.
+  Division does not yet have a signal-level implementation.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

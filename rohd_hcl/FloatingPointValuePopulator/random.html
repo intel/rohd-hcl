@@ -187,23 +187,22 @@ generated. NaN values are never generated.</p>
   if ((lt == null) &amp; (lte == null)) {
     lte = doGenSubNormal &amp; !doGenNormal
         ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
-        : !excludeInfinity
-            ? cloneConstant(FloatingPointConstants.positiveInfinity)
-            : null;
-    lt = (lte == null) &amp; excludeInfinity
-        ? cloneConstant(FloatingPointConstants.positiveInfinity)
-        : null;
+        : excludeInfinity
+            &#47;&#47; Use an inclusive bound at the largest finite value instead of
+            &#47;&#47; an exclusive bound at +infinity: this produces the same set
+            &#47;&#47; of generatable values but also works for formats (like
+            &#47;&#47; e4m3) that cannot represent infinity at all.
+            ? cloneConstant(FloatingPointConstants.largestNormal)
+            : cloneConstant(FloatingPointConstants.positiveInfinity);
   }
   if ((gt == null) &amp; (gte == null)) {
     gte = doGenSubNormal &amp; !doGenNormal
         ? cloneConstant(FloatingPointConstants.largestPositiveSubnormal)
             .negate() as FpvType
-        : !excludeInfinity
-            ? cloneConstant(FloatingPointConstants.negativeInfinity)
-            : null;
-    gt = (gte == null) &amp; excludeInfinity
-        ? cloneConstant(FloatingPointConstants.negativeInfinity)
-        : null;
+        : excludeInfinity
+            ? cloneConstant(FloatingPointConstants.largestNormal).negate()
+                as FpvType
+            : cloneConstant(FloatingPointConstants.negativeInfinity);
   }
 
   &#47;&#47; Take the tightest constraints and assign as local variables.

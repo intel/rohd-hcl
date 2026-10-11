@@ -60,10 +60,10 @@
 <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>, {</span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="param-subtractIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
+<li><span class="parameter" id="param-subtractIn"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use subtract with a 1-bit Logic instead.&#39;)</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
 <li><span class="parameter" id="param-generateEndAroundCarry"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateEndAroundCarry</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-<li><span class="parameter" id="param-subtract"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subtract</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-subtract"><span class="type-annotation">dynamic</span> <span class="parameter-name">subtract</span>, </span></li>
 <li><span class="parameter" id="param-chainable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">chainable</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -75,10 +75,10 @@
 <section class="desc markdown">
   <p><a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a> constructor with an adder functor <code>adderGen</code>.</p>
 <ul>
-<li>A subtractor is created if <code>subtract</code> is set to <code>true</code>.  Alternatively,
-if <code>subtract</code> configuration is <code>false</code>, and a Lgic control signal
-<code>subtractIn</code> is provided, then subtraction can be dynamically selected.
-Otherwise an adder is constructed.</li>
+<li><code>subtract</code> configures subtraction statically with a <code>bool</code> or at runtime
+with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>. It defaults to addition.</li>
+<li><code>subtractIn</code> is a deprecated runtime subtraction control. It may be
+provided with an explicit <code>subtract: false</code> for compatibility.</li>
 <li>If <code>generateEndAroundCarry</code> is <code>true</code>, then the end-around
 carry is not performed and is provided as output <a href="../../rohd_hcl/OnesComplementAdder/endAroundCarry.html">endAroundCarry</a>. If
 <code>generateEndAroundCarry</code> is <code>false</code>, extra hardware takes care of adding
@@ -98,10 +98,10 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
   <pre class="language-dart"><code class="language-dart">OnesComplementAdder(super.a, super.b,
     {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
         NativeAdder.new,
-    Logic? subtractIn,
+    @Deprecated(&#39;Use subtract with a 1-bit Logic instead.&#39;) Logic? subtractIn,
     this.generateEndAroundCarry = false,
     super.carryIn,
-    bool subtract = false,
+    dynamic subtract,
     bool chainable = false,
     super.reserveName,
     super.reserveDefinitionName,
@@ -113,19 +113,22 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
   if (generateEndAroundCarry) {
     addOutput(&#39;endAroundCarry&#39;);
   }
-  if ((subtractIn != null) &amp; subtract) {
+  final subtractIsActive =
+      subtract != null &amp;&amp; (subtract is! bool || subtract);
+  if (subtractIn != null &amp;&amp; subtractIsActive) {
     throw RohdHclException(
-        &quot;either provide a Logic signal &#39;subtractIn&#39; for runtime &quot;
-        &quot; configuration, or a boolean parameter &#39;subtract&#39; for &quot;
-        &#39;generation time configuration, but not both.&#39;);
+        &quot;Provide either deprecated &#39;subtractIn&#39; or &#39;subtract&#39;, &quot;
+        &#39;but not both.&#39;);
   }
-  this.subtractIn =
-      (subtractIn != null) ? addInput(&#39;subtractIn&#39;, subtractIn) : null;
+  subtractParameter = subtractIn != null
+      ? StaticOrRuntimeParameter(
+          name: &#39;subtractIn&#39;, runtimeConfig: subtractIn)
+      : StaticOrRuntimeParameter.ofDynamic(subtract);
   _sign = addOutput(&#39;sign&#39;);
 
-  final doSubtract =
-      (this.subtractIn ?? (subtract ? Const(subtract) : Const(0)))
-          .named(&#39;dosubtract&#39;, naming: Naming.mergeable);
+  final doSubtract = subtractParameter
+      .getLogic(this)
+      .named(&#39;dosubtract&#39;, naming: Naming.mergeable);
 
   final adderSum =
       adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0))

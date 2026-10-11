@@ -73,13 +73,14 @@
   if (explicitJBit) {
     final e = exponent.toInt();
     final m = mantissa.toInt();
-    &#47;&#47; TODO(desmonddak): We need to check this with bit-pattern testing
-    &#47;&#47; of legal mantissas and that exponents are compatible with those.
-    &#47;&#47; Basically, if e &gt; 0 then we expect a 1 somewhere.  If e == 0 then
-    &#47;&#47; we expect anything except a leading 1 in the mantissas.
+    &#47;&#47; For a subnormal&#47;zero exponent (e == 0), the explicit j-bit (the
+    &#47;&#47; mantissa&#39;s MSB) must be 0. For a normal exponent (e &gt; 0), the
+    &#47;&#47; explicit j-bit must be 1: this is the entire purpose of storing the
+    &#47;&#47; j-bit explicitly, so any other bit pattern is not a legal encoding.
     final normMantissa = 1 &lt;&lt; (mantissa.width - 1);
 
-    return ((e == 0) &amp;&amp; (m &lt; normMantissa)) || ((e &gt; 0) &amp;&amp; (m &gt;= 1));
+    return ((e == 0) &amp;&amp; (m &lt; normMantissa)) ||
+        ((e &gt; 0) &amp;&amp; (m &gt;= normMantissa));
   }
   return true;
 }</code></pre>

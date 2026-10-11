@@ -71,11 +71,14 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPoint inf({Logic? sign, bool negative = false}) =&gt; FloatingPoint.inf(
-    exponentWidth: exponent.width,
-    mantissaWidth: mantissa.width,
-    sign: sign,
-    negative: negative);</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPoint inf({Logic? sign, bool negative = false}) {
+  final value = valuePopulator().ofConstant(supportsInfinities
+      ? (negative
+          ? FloatingPointConstants.negativeInfinity
+          : FloatingPointConstants.positiveInfinity)
+      : FloatingPointConstants.largestNormal);
+  return _constant(value, sign: sign ?? Const(negative));
+}</code></pre>
 </section>
 
 

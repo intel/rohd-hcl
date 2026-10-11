@@ -63,6 +63,7 @@
 <li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
 <li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="param-signedAddend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedAddend</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">outputWidth</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;multiply_accumulate&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -95,6 +96,12 @@ unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/roh
 You can pass either a <code>bool</code>(for static configuration) or a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>
 (dynamically configuring the type handled) with a signal to this
 parameter, otherwise this constructor will throw.</p>
+<p>The optional <code>outputWidth</code> parameter configures the width of
+<a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a>. If not provided, <a href="../../rohd_hcl/MultiplyAccumulate/accumulate.html">accumulate</a> is the natural
+full-precision width <code>a.width + b.width + 1</code>. If <code>outputWidth</code> is
+narrower, the natural result is truncated to the low <code>outputWidth</code>
+bits. If <code>outputWidth</code> is wider, the natural result is sign- or
+zero-extended based on <a href="../../rohd_hcl/MultiplyAccumulate/isAccumulateSigned.html">isAccumulateSigned</a>.</p>
 </section>
 
 
@@ -108,6 +115,7 @@ parameter, otherwise this constructor will throw.</p>
     dynamic signedMultiplicand,
     dynamic signedMultiplier,
     dynamic signedAddend,
+    int? outputWidth,
     super.name = &#39;multiply_accumulate&#39;,
     super.reserveName,
     super.reserveDefinitionName,
@@ -115,7 +123,13 @@ parameter, otherwise this constructor will throw.</p>
     : super(
           definitionName: definitionName ??
               &#39;MultiplyAccumulate_W${a.width}x${b.width}_&#39;
-                  &#39;Acc${c.width}&#39;) {
+                  &#39;Acc${c.width}_Out&#39;
+                  &#39;${outputWidth ?? (a.width + b.width + 1)}&#39;) {
+  if (outputWidth != null &amp;&amp; outputWidth &lt;= 0) {
+    throw RohdHclException(
+        &#39;outputWidth must be positive when provided, got $outputWidth.&#39;);
+  }
+
   this.clk = (clk != null) ? addInput(&#39;clk&#39;, clk) : null;
   this.reset = (reset != null) ? addInput(&#39;reset&#39;, reset) : null;
   this.enable = (enable != null) ? addInput(&#39;enable&#39;, enable) : null;
@@ -132,7 +146,7 @@ parameter, otherwise this constructor will throw.</p>
   signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
   this.signedAddend = signedAddendParameter.staticConfig;
 
-  addOutput(&#39;accumulate&#39;, width: a.width + b.width + 1);
+  addOutput(&#39;accumulate&#39;, width: outputWidth ?? (a.width + b.width + 1));
 
   addOutput(&#39;isAccumulateSigned&#39;) &lt;=
       signedMultiplicandParameter.getLogic(this) |

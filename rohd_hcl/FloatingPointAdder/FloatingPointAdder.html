@@ -119,6 +119,9 @@ input that does NOT have explicit j-bit set.</p>
   sum = addTypedOutput(
       &#39;sum&#39;, internalSum.clone as FpTypeOut Function({String? name}));
   sum &lt;= internalSum;
+  internalStatus = FloatingPointStatus(name: &#39;internalStatus&#39;);
+  status = addTypedOutput(&#39;status&#39;, internalStatus.clone);
+  status &lt;= internalStatus;
 
   if (outSum != null) {
     outSum &lt;= sum;

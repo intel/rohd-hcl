@@ -68,7 +68,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Equal</p>
+  <p>IEEE quiet equality.</p>
 </section>
 
 
@@ -76,8 +76,12 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Logic eq(dynamic other) =&gt;
-    mux(_verifyComparable(other), super.eq(other), Const(0));</code></pre>
+Logic eq(dynamic other) {
+  final comparable = _validateComparable(other);
+  final bothZero = isAZero &amp; comparable.isAZero;
+  return mux(
+      _areOrdered(comparable), bothZero | super.eq(comparable), Const(0));
+}</code></pre>
 </section>
 
 

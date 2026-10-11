@@ -68,7 +68,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Floating point comparison to implement <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable</a>.</p>
+  <p>Compares two ordered values to implement <a href="https://api.flutter.dev/flutter/dart-core/Comparable-class.html">Comparable</a>.</p>
+<p>Throws if either operand is NaN because IEEE 754 ordinary comparisons
+define NaNs as unordered.</p>
 </section>
 
 
@@ -77,24 +79,20 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 int compareTo(Object other) {
-  if (other is! FloatingPointValue) {
-    throw Exception(&#39;Input must be of type FloatingPointValue &#39;);
-  }
-  if ((exponent.width != other.exponent.width) |
-      (mantissa.width - (explicitJBit ? 1 : 0) !=
-          other.mantissa.width - (other.explicitJBit ? 1 : 0))) {
-    throw Exception(&#39;FloatingPointValue widths must match for comparison&#39;);
+  final comparable = _validateComparable(other);
+  if (isNaN || comparable.isNaN) {
+    throw RohdHclException(&#39;NaN values are unordered.&#39;);
   }
 
   &#47;&#47; IEEE 754: -0 an +0 are considered equal
   if ((exponent.isZero &amp;&amp; mantissa.isZero) &amp;&amp;
-      (other.exponent.isZero &amp;&amp; other.mantissa.isZero)) {
+      (comparable.exponent.isZero &amp;&amp; comparable.mantissa.isZero)) {
     return 0;
   }
-  final signCompare = -sign.compareTo(other.sign);
+  final signCompare = -sign.compareTo(comparable.sign);
 
   final canonical = canonicalize();
-  final otherCanonical = other.canonicalize();
+  final otherCanonical = comparable.canonicalize();
 
   final canonicalMantissa = canonical.explicitJBit
       ? canonical.mantissa.getRange(0, -1)
@@ -109,8 +107,8 @@ int compareTo(Object other) {
   if ((signCompare != 0) &amp;&amp;
       !(exponent.isZero &amp;&amp;
           mantissa.isZero &amp;&amp;
-          other.exponent.isZero &amp;&amp;
-          other.mantissa.isZero)) {
+          comparable.exponent.isZero &amp;&amp;
+          comparable.mantissa.isZero)) {
     return signCompare; &#47;&#47; IEEE 754: -0 and +0 are considered equal.
   }
   if (expCompare != 0) {

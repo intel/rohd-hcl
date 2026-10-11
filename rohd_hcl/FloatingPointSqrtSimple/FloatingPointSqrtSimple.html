@@ -58,6 +58,7 @@
 <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floatingpoint_square_root_simple&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -78,6 +79,7 @@
     {super.clk,
     super.reset,
     super.enable,
+    super.roundingMode,
     super.name = &#39;floatingpoint_square_root_simple&#39;,
     super.reserveName,
     super.reserveDefinitionName,
@@ -85,11 +87,14 @@
     : super(
           definitionName: definitionName ??
               &#39;FloatingPointSquareRootSimple_&#39;
-                  &#39;E${a.exponent.width}M${a.mantissa.width}&#39;) {
-  final outputSqrt = FloatingPoint(
-      exponentWidth: exponentWidth,
-      mantissaWidth: mantissaWidth,
-      name: &#39;sqrt&#39;);
+                  &#39;E${a.exponent.width}M${a.mantissa.width}_&#39;
+                  &#39;R${roundingMode.name}&#39;) {
+  if (a.explicitJBit) {
+    throw RohdHclException(
+        &#39;FloatingPointSqrtSimple does not support explicit-J-bit inputs.&#39;);
+  }
+
+  final outputSqrt = a.clone(name: &#39;sqrt&#39;) as FpType;
   output(&#39;sqrt&#39;) &lt;= outputSqrt;
   late final error = output(&#39;error&#39;);
 
@@ -97,45 +102,172 @@
   final isInf = a.isAnInfinity.named(&#39;isInf&#39;);
   final isNaN = a.isNaN.named(&#39;isNan&#39;);
   final isZero = a.isAZero.named(&#39;isZero&#39;);
-  final isDeNormal = (~a.isNormal).named(&#39;isDenorm&#39;);
-  final enableSqrt =
-      ~((isInf | isNaN | isZero | isDeNormal) | a.sign).named(&#39;enableSqrt&#39;);
+  final rawSignificand =
+      [a.isNormal, a.mantissa].swizzle().named(&#39;rawSignificand&#39;);
+  final leadingOne = RecursiveModulePriorityEncoder(rawSignificand.reversed,
+          generateValid: true, name: &#39;leading_one&#39;)
+      .out
+      .named(&#39;leadingOne&#39;);
+  final normalizationShift =
+      mux(a.isNormal, Const(0, width: leadingOne.width), leadingOne)
+          .named(&#39;normalizationShift&#39;);
+  final normalizedSignificand =
+      (rawSignificand &lt;&lt; normalizationShift).named(&#39;normalizedSignificand&#39;);
 
-  &#47;&#47; debias the exponent
-  final deBiasAmt = (1 &lt;&lt; a.exponent.width - 1) - 1;
-
-  &#47;&#47; deBias math
-  final deBiasExp = (a.exponent - deBiasAmt).named(&#39;deBiasExp&#39;);
-
-  &#47;&#47; shift exponent
-  final shiftedExp = [deBiasExp[-1], deBiasExp.slice(a.exponent.width - 1, 1)]
-      .swizzle()
+  final exponentCalcWidth = [exponentWidth + 2, normalizationShift.width + 2]
+      .reduce((a, b) =&gt; a &gt; b ? a : b);
+  final bias = a.bias.zeroExtend(exponentCalcWidth);
+  final effectiveExponent = mux(
+          a.isNormal,
+          a.exponent.zeroExtend(exponentCalcWidth),
+          Const(1, width: exponentCalcWidth))
+      .named(&#39;effectiveExponent&#39;);
+  final deBiasExp = (effectiveExponent -
+          bias -
+          normalizationShift.zeroExtend(exponentCalcWidth))
       .named(&#39;deBiasExp&#39;);
-
-  &#47;&#47; check if exponent was odd
+  final shiftedExp = [deBiasExp[-1], deBiasExp.slice(deBiasExp.width - 1, 1)]
+      .swizzle()
+      .named(&#39;shiftedExp&#39;);
   final isExpOdd = deBiasExp[0];
 
-  &#47;&#47; use fixed sqrt unit
+  final extraPrecision = a.mantissa.width.isEven ? 5 : 4;
   final aFixed = FixedPoint(
-      signed: false, integerWidth: 3, fractionWidth: a.mantissa.width);
+      signed: false,
+      integerWidth: 3,
+      fractionWidth: a.mantissa.width + extraPrecision);
   aFixed &lt;=
-      [Const(1, width: 3), a.mantissa.getRange(0)].swizzle().named(&#39;aFixed&#39;);
+      [
+        Const(0, width: 2),
+        normalizedSignificand,
+        Const(0, width: extraPrecision)
+      ].swizzle().named(&#39;aFixed&#39;);
 
-  &#47;&#47; mux if we shift left by 1 if exponent was odd
   final aFixedAdj = aFixed.clone(name: &#39;aFixedAdj&#39;)
     ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
         .named(&#39;oddMantissaMux&#39;));
 
-  &#47;&#47; mux to choose if we do square root or not
-  final fixedSqrt = aFixedAdj.clone(name: &#39;fixedSqrt&#39;)
-    ..gets(mux(enableSqrt, FixedPointSqrt(aFixedAdj).sqrt, aFixedAdj)
-        .named(&#39;sqrtMux&#39;));
+  final fixedSqrt = FixedPointSqrt(aFixedAdj).sqrt;
+  final retainedSignificand = fixedSqrt
+      .getRange(extraPrecision, extraPrecision + a.mantissa.width + 1)
+      .named(&#39;retainedSignificand&#39;);
+  final adjustedSignificand = mux(
+          isExpOdd,
+          normalizedSignificand.zeroExtend(normalizedSignificand.width + 1) &lt;&lt;
+              1,
+          normalizedSignificand.zeroExtend(normalizedSignificand.width + 1))
+      .named(&#39;adjustedSignificand&#39;);
+  final comparisonWidth = 2 * (a.mantissa.width + 2);
+  final exactScaled =
+      (adjustedSignificand.zeroExtend(comparisonWidth) &lt;&lt; a.mantissa.width)
+          .named(&#39;exactScaled&#39;);
+  final retainedForSquare = retainedSignificand.zeroExtend(comparisonWidth);
+  final retainedSquared =
+      (retainedForSquare * retainedForSquare).named(&#39;retainedSquared&#39;);
+  final midpoint =
+      ((retainedSignificand.zeroExtend(retainedSignificand.width + 1) &lt;&lt; 1) |
+              Const(1, width: retainedSignificand.width + 1))
+          .named(&#39;midpoint&#39;);
+  final midpointForSquare = midpoint.zeroExtend(comparisonWidth);
+  final midpointSquared =
+      (midpointForSquare * midpointForSquare).named(&#39;midpointSquared&#39;);
+  final midpointScaled =
+      (adjustedSignificand.zeroExtend(midpointSquared.width) &lt;&lt;
+              (a.mantissa.width + 2))
+          .named(&#39;midpointScaled&#39;);
+  final inexact = exactScaled
+      .neq(retainedSquared.zeroExtend(exactScaled.width))
+      .named(&#39;inexact&#39;);
+  final aboveMidpoint =
+      midpointScaled.gt(midpointSquared).named(&#39;aboveMidpoint&#39;);
+  final atMidpoint = midpointScaled.eq(midpointSquared).named(&#39;atMidpoint&#39;);
+  final doRound = switch (roundingMode) {
+    FloatingPointRoundingMode.truncate ||
+    FloatingPointRoundingMode.roundTowardsZero ||
+    FloatingPointRoundingMode.roundTowardsNegativeInfinity =&gt;
+      Const(0),
+    FloatingPointRoundingMode.roundTowardsInfinity =&gt; inexact,
+    FloatingPointRoundingMode.roundNearestTiesAway =&gt;
+      aboveMidpoint | atMidpoint,
+    FloatingPointRoundingMode.roundNearestEven =&gt;
+      aboveMidpoint | (atMidpoint &amp; retainedSignificand[0]),
+  };
+  final roundedSignificand =
+      (retainedSignificand.zeroExtend(retainedSignificand.width + 1) +
+              doRound.zeroExtend(retainedSignificand.width + 1))
+          .named(&#39;roundedSignificand&#39;);
+  final roundIncExp = roundedSignificand[-1].named(&#39;roundIncExp&#39;);
+  final roundedMantissa = mux(roundIncExp, roundedSignificand.slice(-2, 1),
+          roundedSignificand.slice(-3, 0))
+      .named(&#39;roundedMantissa&#39;);
+  final roundedExponent =
+      (shiftedExp + bias + roundIncExp.zeroExtend(exponentCalcWidth))
+          .named(&#39;roundedExponent&#39;);
 
-  &#47;&#47; convert back to floating point representation
-  final fpSqrt = FixedToFloat(
-      fixedSqrt,
-      FloatingPoint(
-          exponentWidth: a.exponent.width, mantissaWidth: a.mantissa.width));
+  &#47;&#47; A negative biased exponent cannot be represented in the exponent field.
+  &#47;&#47; Shift the unrounded significand into the subnormal range and round it
+  &#47;&#47; there instead of truncating the negative exponent to its low bits.
+  final isSubnormal =
+      (roundedExponent[-1] | ~roundedExponent.or()).named(&#39;isSubnormal&#39;);
+  final subnormalShift =
+      (Const(1, width: exponentCalcWidth) - roundedExponent)
+          .named(&#39;subnormalShift&#39;);
+  final subnormalShiftLimit =
+      Const(a.mantissa.width + 1, width: exponentCalcWidth);
+  final selectedSubnormalShift = mux(subnormalShift.gt(subnormalShiftLimit),
+          subnormalShiftLimit, subnormalShift)
+      .named(&#39;selectedSubnormalShift&#39;);
+  final subnormalCandidates =
+      &lt;({Logic mantissa, Logic carry, Logic inexact})&gt;[];
+  for (var shift = 1; shift &lt;= a.mantissa.width + 1; shift++) {
+    final subnormalInput = [Const(0, width: shift), retainedSignificand]
+        .swizzle()
+        .named(&#39;subnormalInput$shift&#39;);
+    final subnormalRounder = FloatingPointRounder(subnormalInput, shift,
+        roundingMode: roundingMode, sign: a.sign, extraSticky: inexact);
+    final retained =
+        subnormalInput.slice(shift + a.mantissa.width - 1, shift);
+    final rounded = (retained.zeroExtend(retained.width + 1) +
+            subnormalRounder.doRound.zeroExtend(retained.width + 1))
+        .named(&#39;subnormalRounded$shift&#39;);
+    subnormalCandidates.add((
+      mantissa: rounded.slice(a.mantissa.width - 1, 0),
+      carry: rounded[-1],
+      inexact: subnormalRounder.inexact
+    ));
+  }
+  var subnormalMantissa = subnormalCandidates.last.mantissa;
+  var subnormalCarry = subnormalCandidates.last.carry;
+  var subnormalInexact = subnormalCandidates.last.inexact;
+  for (var shift = subnormalCandidates.length - 1; shift &gt;= 1; shift--) {
+    final candidate = subnormalCandidates[shift - 1];
+    final selected =
+        selectedSubnormalShift.eq(Const(shift, width: exponentCalcWidth));
+    subnormalMantissa = mux(selected, candidate.mantissa, subnormalMantissa);
+    subnormalCarry = mux(selected, candidate.carry, subnormalCarry);
+    subnormalInexact = mux(selected, candidate.inexact, subnormalInexact);
+  }
+  final resultExponent = mux(
+          isSubnormal,
+          subnormalCarry.zeroExtend(exponentWidth),
+          roundedExponent.getRange(0, exponentWidth))
+      .named(&#39;resultExponent&#39;);
+  final resultMantissa = mux(isSubnormal, subnormalMantissa,
+          roundedMantissa.slice(a.mantissa.width - 1, 0))
+      .named(&#39;resultMantissa&#39;);
+  final invalidOperation = (a.isSignalingNaN | (a.sign &amp; ~isZero &amp; ~isNaN))
+      .named(&#39;invalidOperation&#39;);
+  internalStatus.invalid &lt;= invalidOperation;
+  internalStatus.divideByZero &lt;= Const(0);
+  internalStatus.overflow &lt;= Const(0);
+  internalStatus.underflow &lt;=
+      mux(isSubnormal, subnormalInexact, Const(0)) &amp;
+          ~isInf &amp;
+          ~isNaN &amp;
+          ~isZero &amp;
+          ~a.sign;
+  internalStatus.inexact &lt;=
+      mux(isSubnormal, subnormalInexact, inexact) &amp; ~isInf &amp; ~isNaN &amp; ~a.sign;
 
   &#47;&#47; final calculation results
   Combinational([
@@ -145,11 +277,11 @@
         outputSqrt &lt; outputSqrt.inf(),
       ]),
       ElseIf(isInf &amp; a.sign, [
-        outputSqrt &lt; outputSqrt.inf(negative: true),
+        outputSqrt &lt; outputSqrt.nan,
         error &lt; Const(1),
       ]),
       ElseIf(isNaN, [
-        outputSqrt &lt; outputSqrt.nan,
+        outputSqrt &lt; outputSqrt.quietNaNFrom(a),
       ]),
       ElseIf(isZero, [
         outputSqrt.sign &lt; a.sign,
@@ -160,16 +292,10 @@
         outputSqrt &lt; outputSqrt.nan,
         error &lt; Const(1),
       ]),
-      ElseIf(isDeNormal, [
-        outputSqrt.sign &lt; a.sign,
-        outputSqrt.exponent &lt; a.exponent,
-        outputSqrt.mantissa &lt; a.mantissa,
-        error &lt; Const(1),
-      ]),
       Else([
         outputSqrt.sign &lt; a.sign,
-        outputSqrt.exponent &lt; (shiftedExp + deBiasAmt),
-        outputSqrt.mantissa &lt; fpSqrt.float.mantissa,
+        outputSqrt.exponent &lt; resultExponent,
+        outputSqrt.mantissa &lt; resultMantissa,
       ])
     ])
   ]);

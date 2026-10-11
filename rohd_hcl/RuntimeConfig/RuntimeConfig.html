@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/RuntimeConfig-class.html">RuntimeConfig</a></li>
-    <li class="self-crumb">RuntimeConfig.new constructor</li>
+    <li class="self-crumb"><span class="deprecated">RuntimeConfig.new</span> constructor</li>
   </ol>
   <div class="self-name">RuntimeConfig.new</div>
   <form class="search navbar-right" role="search">
@@ -54,20 +54,26 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">RuntimeConfig</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-runtimeConfig"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">runtimeConfig</span>, {</span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use StaticOrRuntimeParameter instead.&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">RuntimeConfig</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-runtimeConfig"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">runtimeConfig</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new <a href="../../rohd_hcl/RuntimeConfig-class.html">RuntimeConfig</a> instance.</p>
+  <p>Creates a new <a class="deprecated" href="../../rohd_hcl/RuntimeConfig-class.html">RuntimeConfig</a> instance.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RuntimeConfig(Logic runtimeConfig, {required super.name})
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use StaticOrRuntimeParameter instead.&#39;)
+RuntimeConfig(Logic runtimeConfig, {required super.name})
     : super(runtimeConfig: runtimeConfig, staticConfig: null);</code></pre>
 </section>
 
@@ -84,7 +90,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/RuntimeConfig-class.html">RuntimeConfig</a></li>
-    <li class="self-crumb">RuntimeConfig.new constructor</li>
+    <li class="self-crumb"><span class="deprecated">RuntimeConfig.new</span> constructor</li>
 </ol>
 
     <h5>RuntimeConfig class</h5>

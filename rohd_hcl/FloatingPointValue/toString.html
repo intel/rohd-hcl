@@ -80,9 +80,11 @@
   <pre class="language-dart"><code class="language-dart">@override
 String toString({bool integer = false}) {
   if (integer) {
-    return &#39;(${sign.toInt()}&#39;
-        &#39; ${exponent.toInt()}&#39;
-        &#39; ${mantissa.toInt()})&#39;;
+    &#47;&#47; Use toBigInt() rather than toInt(): exponent&#47;mantissa can exceed 64
+    &#47;&#47; bits, and LogicValue.toInt() throws in that case.
+    return &#39;(${sign.toBigInt()}&#39;
+        &#39; ${exponent.toBigInt()}&#39;
+        &#39; ${mantissa.toBigInt()})&#39;;
   } else {
     return &#39;${sign.toString(includeWidth: false)}&#39;
         &#39; ${exponent.toString(includeWidth: false)}&#39;

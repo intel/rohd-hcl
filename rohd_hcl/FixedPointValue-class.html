@@ -92,20 +92,33 @@ Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">ht
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="FixedPointValue.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.html">FixedPointValue</a></span><span class="signature">({<span class="parameter" id="param-integer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">integer</span>, </span><span class="parameter" id="param-fraction"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">fraction</span>, </span><span class="parameter" id="param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a class="deprecated" href="../rohd_hcl/FixedPointValue/FixedPointValue.html">FixedPointValue</a></span><span class="signature">({<span class="parameter" id="param-integer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">integer</span>, </span><span class="parameter" id="param-fraction"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">fraction</span>, </span><span class="parameter" id="param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
-          Constructs <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from <code>integer</code> and <code>fraction</code> values with a
-<code>signed</code> option to interpret MSB of <code>integer</code> as sign bit with the
-<code>integer</code> represented in twos-complement.
+          Constructs an unsigned <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from <code>integer</code> and <code>fraction</code>.
             <div class="constructor-modifier features">factory</div>
         </dd>
         <dt id="FixedPointValue.uninitialized" class="callable">
-          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.uninitialized.html">FixedPointValue.uninitialized</a></span><span class="signature">({<span class="parameter" id="uninitialized-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})</span>
+          <span class="name"><a class="deprecated" href="../rohd_hcl/FixedPointValue/FixedPointValue.uninitialized.html">FixedPointValue.uninitialized</a></span><span class="signature">({<span class="parameter" id="uninitialized-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})</span>
         </dt>
         <dd>
           Creates an unpopulated version of a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>, intended to be
-called with the <a href="../rohd_hcl/FixedPointValue/populator.html">populator</a>.
+called with the <a class="deprecated" href="../rohd_hcl/FixedPointValue/populator.html">populator</a>.
+        </dd>
+        <dt id="FixedPointValue.uninitializedWithSignedness" class="callable">
+          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.uninitializedWithSignedness.html">FixedPointValue.uninitializedWithSignedness</a></span><span class="signature">({<span class="parameter" id="uninitializedWithSignedness-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span></span>})</span>
+        </dt>
+        <dd>
+          Creates an unpopulated <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> with the specified signedness.
+        </dd>
+        <dt id="FixedPointValue.withSignedness" class="callable">
+          <span class="name"><a href="../rohd_hcl/FixedPointValue/FixedPointValue.withSignedness.html">FixedPointValue.withSignedness</a></span><span class="signature">({<span class="parameter" id="withSignedness-param-integer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">integer</span>, </span><span class="parameter" id="withSignedness-param-fraction"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">fraction</span>, </span><span class="parameter" id="withSignedness-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span></span>})</span>
+        </dt>
+        <dd>
+          Constructs <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from <code>integer</code> and <code>fraction</code> values with a
+<code>signed</code> option to interpret the MSB of <code>integer</code> as a two's-complement
+sign bit.
+            <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
   </section>
@@ -353,6 +366,45 @@ and zero if <code>this</code> and <code>other</code> are equal.
 
 </dd>
 
+        <dt id="toFloatingPointValue" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/toFloatingPointValue.html">toFloatingPointValue</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Losslessly converts this value to a minimal generic <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a>.
+  
+
+</dd>
+
+        <dt id="toLogic" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/toLogic.html">toLogic</a></span><span class="signature">(<wbr>{<span class="parameter" id="toLogic-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Converts this value to a constant <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> signal.
+  
+
+</dd>
+
+        <dt id="toScaledBigInt" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/toScaledBigInt.html">toScaledBigInt</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; (<span class="field">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="field-name">exponent</span>, </span><span class="field"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="field-name">significand</span>}</span>)</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns this exact value as <code>significand * 2^exponent</code>.
+  
+
+</dd>
+
         <dt id="toString" class="callable">
   <span class="name"><a href="../rohd_hcl/FixedPointValue/toString.html">toString</a></span><span class="signature">(<wbr>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
@@ -512,7 +564,7 @@ width and divisor integer width.
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="populator" class="callable">
-  <span class="name"><a href="../rohd_hcl/FixedPointValue/populator.html">populator</a></span><span class="signature">(<wbr>{<span class="parameter" id="populator-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="populator-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span><span class="parameter" id="populator-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/FixedPointValue/populator.html">populator</a></span><span class="signature">(<wbr>{<span class="parameter" id="populator-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="populator-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span><span class="parameter" id="populator-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span>&gt;</span></span>
   </span>
   
@@ -522,6 +574,20 @@ width and divisor integer width.
   Creates a <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a> with the provided <code>integerWidth</code>
 and <code>fractionWidth</code>, which can then be used to complete construction of
 a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> using population functions.
+  
+
+</dd>
+
+        <dt id="populatorWithSignedness" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValue/populatorWithSignedness.html">populatorWithSignedness</a></span><span class="signature">(<wbr>{<span class="parameter" id="populatorWithSignedness-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="populatorWithSignedness-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span><span class="parameter" id="populatorWithSignedness-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a <a href="../rohd_hcl/FixedPointValuePopulator-class.html">FixedPointValuePopulator</a> with the provided widths and
+signedness.
   
 
 </dd>

@@ -71,24 +71,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPointValue operator *(FloatingPointValue multiplicand) {
-  if (isAnInfinity) {
-    if (multiplicand.isAnInfinity) {
-      return sign != multiplicand.sign
-          ? clonePopulator().negativeInfinity
-          : clonePopulator().positiveInfinity;
-    } else if (multiplicand.isAZero) {
-      return clonePopulator().nan;
-    } else {
-      return this;
-    }
-  } else if (multiplicand.isAnInfinity) {
-    if (isAZero) {
-      return clonePopulator().nan;
-    } else {
-      return multiplicand;
-    }
-  }
-  return _performOp(multiplicand, (a, b) =&gt; a * b);
+  _validateArithmeticFormat(multiplicand);
+  return clonePopulator().multiply(this, multiplicand);
 }</code></pre>
 </section>
 

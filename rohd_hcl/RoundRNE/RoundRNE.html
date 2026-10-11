@@ -60,25 +60,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Determine whether the input should be rounded up given</p>
-<ul>
-<li><code>inp</code> the input bitvector to consider rounding</li>
-<li><code>lsb</code> the bit position at which to consider rounding</li>
-</ul>
+  <p>Determines RNE rounding for <code>inp</code>, retaining bits from <code>lsb</code> upward.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">RoundRNE(Logic inp, int lsb) {
-  final last = inp[lsb];
-  final guard = (lsb &gt; 0) ? inp[lsb - 1] : Const(0);
-  final round = (lsb &gt; 1) ? inp[lsb - 2] : Const(0);
-  final sticky = (lsb &gt; 2) ? inp.getRange(0, lsb - 2).or() : Const(0);
-
-  _doRound = guard &amp; (last | round | sticky);
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">RoundRNE(super.inp, super.lsb)
+    : super(roundingMode: FloatingPointRoundingMode.roundNearestEven);</code></pre>
 </section>
 
 

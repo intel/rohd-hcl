@@ -162,14 +162,14 @@ forms of <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>s.<
 </dd>
 
         <dt id="ofDouble" class="callable">
-  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/ofDouble.html">ofDouble</a></span><span class="signature">(<wbr><span class="parameter" id="ofDouble-param-val"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span></span>)
+  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/ofDouble.html">ofDouble</a></span><span class="signature">(<wbr><span class="parameter" id="ofDouble-param-val"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="ofDouble-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span></span>})
     <span class="returntype parameter">&#8594; FxvType</span>
   </span>
   
 
 </dt>
 <dd>
-  Constructs <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from a Dart <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a> rounding away from zero.
+  Constructs a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from a Dart <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>.
   
 
 </dd>
@@ -187,6 +187,19 @@ forms of <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>s.<
 
 </dd>
 
+        <dt id="ofFloatingPointValue" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/ofFloatingPointValue.html">ofFloatingPointValue</a></span><span class="signature">(<wbr><span class="parameter" id="ofFloatingPointValue-param-fpv"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue</a></span> <span class="parameter-name">fpv</span>, {</span><span class="parameter" id="ofFloatingPointValue-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span></span>})
+    <span class="returntype parameter">&#8594; FxvType</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Converts <code>fpv</code> directly into this fixed-point format.
+  
+
+</dd>
+
         <dt id="ofLogicValue" class="callable">
   <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/ofLogicValue.html">ofLogicValue</a></span><span class="signature">(<wbr><span class="parameter" id="ofLogicValue-param-val"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">val</span></span>)
     <span class="returntype parameter">&#8594; FxvType</span>
@@ -196,6 +209,19 @@ forms of <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>s.<
 </dt>
 <dd>
   Construct a <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>
+  
+
+</dd>
+
+        <dt id="ofScaledBigInt" class="callable">
+  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/ofScaledBigInt.html">ofScaledBigInt</a></span><span class="signature">(<wbr><span class="parameter" id="ofScaledBigInt-param-significand"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">significand</span>, </span><span class="parameter" id="ofScaledBigInt-param-exponent"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">exponent</span>, {</span><span class="parameter" id="ofScaledBigInt-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span></span>})
+    <span class="returntype parameter">&#8594; FxvType</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Constructs a value equal to <code>significand</code> times two to <code>exponent</code>.
   
 
 </dd>
@@ -283,7 +309,7 @@ by widening the integer and/or fraction widths.
     <h2>Static Methods</h2>
     <dl class="callables">
         <dt id="canStore" class="callable">
-  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/canStore.html">canStore</a></span><span class="signature">(<wbr><span class="parameter" id="canStore-param-val"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="canStore-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="canStore-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="canStore-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span></span>})
+  <span class="name"><a href="../rohd_hcl/FixedPointValuePopulator/canStore.html">canStore</a></span><span class="signature">(<wbr><span class="parameter" id="canStore-param-val"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">val</span>, {</span><span class="parameter" id="canStore-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span><span class="parameter" id="canStore-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span><span class="parameter" id="canStore-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span><span class="parameter" id="canStore-param-roundingMode"><span class="type-annotation"><a href="../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span></span>})
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
   </span>
   

@@ -123,6 +123,9 @@ generation.</li>
   product = addTypedOutput(
       &#39;product&#39;, internalProduct.clone as FpTypeOut Function({String? name}));
   product &lt;= internalProduct;
+  internalStatus = FloatingPointStatus(name: &#39;internalStatus&#39;);
+  status = addTypedOutput(&#39;status&#39;, internalStatus.clone);
+  status &lt;= internalStatus;
 
   if (outProduct != null) {
     outProduct &lt;= product;

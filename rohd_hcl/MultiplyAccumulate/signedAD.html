@@ -78,14 +78,14 @@ they are statics: <a href="../../rohd_hcl/Multiplier/signedMD.html">Multiplier.s
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">static String signedAD(dynamic adConfig) =&gt;
-    ((adConfig is! StaticOrRuntimeParameter) | (adConfig == null))
-        ? &#39;UA&#39;
-        : (adConfig as StaticOrRuntimeParameter).runtimeConfig != null
-            ? &#39;SSA&#39;
-            : adConfig.staticConfig
-                ? &#39;SA&#39;
-                : &#39;UA&#39;;</code></pre>
+  <pre class="language-dart"><code class="language-dart">static String signedAD(dynamic adConfig) {
+  final parameter = StaticOrRuntimeParameter.ofDynamic(adConfig);
+  return parameter.runtimeConfig != null
+      ? &#39;SSA&#39;
+      : parameter.staticConfig
+          ? &#39;SA&#39;
+          : &#39;UA&#39;;
+}</code></pre>
 </section>
 
 

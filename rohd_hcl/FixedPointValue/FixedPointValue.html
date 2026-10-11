@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">FixedPointValue.new factory constructor</li>
+    <li class="self-crumb"><span class="deprecated">FixedPointValue.new</span> factory constructor</li>
   </ol>
   <div class="self-name">FixedPointValue.new</div>
   <form class="search navbar-right" role="search">
@@ -54,30 +54,33 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">FixedPointValue</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-integer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">integer</span>, </span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use FixedPointValue.withSignedness instead.&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">FixedPointValue</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-integer"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">integer</span>, </span></li>
 <li><span class="parameter" id="param-fraction"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">fraction</span>, </span></li>
 <li><span class="parameter" id="param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Constructs <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from <code>integer</code> and <code>fraction</code> values with a
-<code>signed</code> option to interpret MSB of <code>integer</code> as sign bit with the
-<code>integer</code> represented in twos-complement.</p>
+  <p>Constructs an unsigned <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a> from <code>integer</code> and <code>fraction</code>.</p>
+<p>Use <a href="../../rohd_hcl/FixedPointValue/FixedPointValue.withSignedness.html">FixedPointValue.withSignedness</a> for new code.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory FixedPointValue(
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use FixedPointValue.withSignedness instead.&#39;)
+factory FixedPointValue(
         {required LogicValue integer,
         required LogicValue fraction,
         bool signed = false}) =&gt;
-    populator(
-            integerWidth: integer.width - (signed ? 1 : 0),
-            fractionWidth: fraction.width)
-        .populate(integer: integer, fraction: fraction);</code></pre>
+    FixedPointValue.withSignedness(
+        integer: integer, fraction: fraction, signed: signed);</code></pre>
 </section>
 
 
@@ -93,7 +96,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a></li>
-    <li class="self-crumb">FixedPointValue.new factory constructor</li>
+    <li class="self-crumb"><span class="deprecated">FixedPointValue.new</span> factory constructor</li>
 </ol>
 
     <h5>FixedPointValue class</h5>

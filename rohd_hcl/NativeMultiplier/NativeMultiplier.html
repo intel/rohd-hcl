@@ -69,7 +69,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>The width of input <code>a</code> and <code>b</code> must be the same.</p>
+  <p>Inputs <code>a</code> and <code>b</code> may have independent widths.</p>
 </section>
 
 
@@ -91,9 +91,6 @@
               &#39;NativeMultiplier_W${a.width}x&#39;
                   &#39;${b.width}_${Multiplier.signedMD(signedMultiplicand)}_&#39;
                   &#39;${Multiplier.signedML(signedMultiplier)}&#39;) {
-  if (a.width != b.width) {
-    throw RohdHclException(&#39;inputs of a and b should have same width.&#39;);
-  }
   final pW = a.width + b.width;
 
   final Logic extendedMultiplicand;

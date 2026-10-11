@@ -68,7 +68,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Less-than.</p>
+  <p>IEEE quiet less-than.</p>
 </section>
 
 
@@ -77,11 +77,16 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Logic lt(dynamic other) {
-  final otherSign = (other as FloatingPoint).sign;
+  final comparable = _validateComparable(other);
+  final otherSign = comparable.sign;
+  final bothZero = isAZero &amp; comparable.isAZero;
   return mux(
-      _verifyComparable(other),
-      mux(sign, mux(otherSign, super.gt(other), Const(1)),
-          mux(otherSign, Const(0), super.lt(other))),
+      _areOrdered(comparable),
+      mux(
+          bothZero,
+          Const(0),
+          mux(sign, mux(otherSign, super.gt(comparable), Const(1)),
+              mux(otherSign, Const(0), super.lt(comparable)))),
       Const(0));
 }</code></pre>
 </section>

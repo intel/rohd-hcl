@@ -70,11 +70,11 @@ ones) and a non-zero mantissa.</p>
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">late final isNaN = exponent.eq(valuePopulator().nan.exponent) &amp;
-    mantissa.or().named(
-          _nameJoin(&#39;isNaN&#39;, name),
-          naming: Naming.mergeable,
-        );</code></pre>
+  <pre class="language-dart"><code class="language-dart">late final Logic isNaN = (supportsSignalingNaNs
+        ? exponent.eq(valuePopulator().nan.exponent) &amp; _fraction.or()
+        : exponent.eq(valuePopulator().nan.exponent) &amp;
+            mantissa.eq(valuePopulator().nan.mantissa))
+    .named(_nameJoin(&#39;isNaN&#39;, name), naming: Naming.mergeable);</code></pre>
 </section>
 
 

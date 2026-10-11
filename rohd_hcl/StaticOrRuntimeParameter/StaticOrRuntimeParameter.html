@@ -61,9 +61,9 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a new <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a> instance. Note that
-<code>runtimeConfig</code> overrides <code>staticConfig</code>.  Also, it is presumed that
-<code>staticConfig</code> has a default value of <code>false</code> if not provided.</p>
+  <p>Creates a new <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a> instance.</p>
+<p><code>runtimeConfig</code> overrides <code>staticConfig</code> and must be 1 bit wide. A missing
+static value defaults to <code>false</code>.</p>
 </section>
 
 
@@ -71,11 +71,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">StaticOrRuntimeParameter(
-    {required this.name, this.runtimeConfig, bool? staticConfig = false}) {
-  if (runtimeConfig == null &amp;&amp; staticConfig != null) {
-    this.staticConfig = staticConfig;
-  } else {
-    this.staticConfig = false;
+    {required super.name, super.runtimeConfig, bool? staticConfig = false})
+    : super(staticConfig: runtimeConfig == null &amp;&amp; (staticConfig ?? false)) {
+  final runtimeBooleanConfig = runtimeConfig;
+  if (runtimeBooleanConfig != null &amp;&amp; runtimeBooleanConfig.width != 1) {
+    throw RohdHclException(
+        &#39;Runtime boolean configuration &quot;$name&quot; must be 1 bit wide, &#39;
+        &#39;got ${runtimeBooleanConfig.width}.&#39;);
   }
 }</code></pre>
 </section>

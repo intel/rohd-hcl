@@ -72,6 +72,12 @@ of this value.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">bool withinRounding(FloatingPointValue other) {
+  if (isNaN || other.isNaN) {
+    return false;
+  }
+  if (isAnInfinity || other.isAnInfinity) {
+    return this == other;
+  }
   if (this != other) {
     final diff = (abs() - other.abs()).abs();
     if (diff.compareTo(ulp()) == 1) {

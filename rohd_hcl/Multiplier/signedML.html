@@ -77,13 +77,7 @@ by a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">L
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static String signedML(dynamic mlConfig) =&gt;
-    ((mlConfig is! StaticOrRuntimeParameter) | (mlConfig == null))
-        ? &#39;UM&#39;
-        : (mlConfig as StaticOrRuntimeParameter).runtimeConfig != null
-            ? &#39;SSM&#39;
-            : mlConfig.staticConfig
-                ? &#39;SM&#39;
-                : &#39;UM&#39;;</code></pre>
+    _signedConfigName(mlConfig, unsigned: &#39;UM&#39;, signed: &#39;SM&#39;, runtime: &#39;SSM&#39;);</code></pre>
 </section>
 
 

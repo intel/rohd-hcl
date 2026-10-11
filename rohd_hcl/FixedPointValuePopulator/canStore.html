@@ -59,6 +59,7 @@
 <li><span class="parameter" id="canStore-param-signed"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span>, </span></li>
 <li><span class="parameter" id="canStore-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span></li>
 <li><span class="parameter" id="canStore-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span></li>
+<li><span class="parameter" id="canStore-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span>, </span></li>
 </ol>})
 
       
@@ -77,19 +78,31 @@ with <code>integerWidth</code> and <code>fractionWidth</code> lengths without ov
   <pre class="language-dart"><code class="language-dart">static bool canStore(double val,
     {required bool signed,
     required int integerWidth,
-    required int fractionWidth}) {
-  final w = signed
-      ? 1 + integerWidth + fractionWidth
-      : integerWidth + fractionWidth;
-  if (val.isFinite) {
-    final bigIntegerValue = BigInt.from(val * pow(2.0, fractionWidth));
-    final negBigIntegerValue = BigInt.from(-val * pow(2.0, fractionWidth));
-    final l = (val &lt; 0.0)
-        ? max(bigIntegerValue.bitLength, negBigIntegerValue.bitLength)
-        : bigIntegerValue.bitLength;
-    return l &lt;= w;
+    required int fractionWidth,
+    FloatingPointRoundingMode roundingMode =
+        FloatingPointRoundingMode.truncate}) {
+  if (!val.isFinite) {
+    return false;
   }
-  return false;
+  final exact =
+      FloatingPoint64Value.populator().ofDouble(val).toScaledBigInt();
+  if (!signed &amp;&amp; exact.significand.isNegative) {
+    return false;
+  }
+  final shift = exact.exponent + fractionWidth;
+  final scaled = shift &gt;= 0
+      ? exact.significand &lt;&lt; shift
+      : roundBigIntByPowerOfTwo(exact.significand, -shift,
+          roundingMode: roundingMode);
+  final width = integerWidth + fractionWidth + (signed ? 1 : 0);
+  if (width &lt; 1) {
+    return false;
+  }
+  final minValue = signed ? -(BigInt.one &lt;&lt; (width - 1)) : BigInt.zero;
+  final maxValue = signed
+      ? (BigInt.one &lt;&lt; (width - 1)) - BigInt.one
+      : (BigInt.one &lt;&lt; width) - BigInt.one;
+  return scaled &gt;= minValue &amp;&amp; scaled &lt;= maxValue;
 }</code></pre>
 </section>
 

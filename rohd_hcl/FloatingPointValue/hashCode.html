@@ -104,7 +104,19 @@ like <a href="https://api.flutter.dev/flutter/dart-collection/HashSet-class.html
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-int get hashCode =&gt; sign.hashCode ^ exponent.hashCode ^ mantissa.hashCode;</code></pre>
+int get hashCode {
+  if (isExponentAllZeros &amp;&amp; isMantissaAllZeroes) {
+    return 0;
+  }
+  if (isNaN) {
+    return Object.hash(sign, exponent, mantissa, explicitJBit);
+  }
+  final canonical = canonicalize();
+  final canonicalMantissa = canonical.explicitJBit
+      ? canonical.mantissa.getRange(0, -1)
+      : canonical.mantissa;
+  return Object.hash(canonical.sign, canonical.exponent, canonicalMantissa);
+}</code></pre>
 </section>
 
   </section>

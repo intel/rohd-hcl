@@ -67,8 +67,9 @@
     
 <section class="desc markdown">
   <p>Creates a new <a href="../../rohd_hcl/DotProductBase-class.html">DotProductBase</a> instance given a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a> of
-<code>multiplicands</code> and a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a> of <code>multipliers</code>.  Currently widths of
-all operands must match.</p>
+<code>multiplicands</code> and a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a> of <code>multipliers</code>.</p>
+<p>Every multiplicand must have one common width and every multiplier must
+have one common width. The multiplicand and multiplier widths may differ.</p>
 <p>The optional <code>signedMultiplicand</code> parameter configures the <code>multiplicands</code>
 statically using a <code>bool</code> to indicate a signed multiplicand (default is
 <code>false</code>, or unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> input. Passing
@@ -78,8 +79,8 @@ statically using a <code>bool</code> to indicate a signed multiplier (default is
 <code>false</code>, or unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> input.  Passing
 something other null, <code>bool</code>, or <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> will result in a throw.</p>
 <p>The output <a href="../../rohd_hcl/DotProductBase/product.html">product</a> will be <a href="../../rohd_hcl/log2Ceil.html">log2Ceil(multiplicands.length)</a> wider than
-the sum of the widths of one pair of products to accomadate the increasing
-accumulation value.</p>
+the sum of one multiplicand width and one multiplier width to accommodate
+the increasing accumulation value.</p>
 </section>
 
 
@@ -94,8 +95,11 @@ accumulation value.</p>
     super.reserveDefinitionName = false,
     String? definitionName})
     : super(
-          definitionName:
-              definitionName ?? &#39;DotProduct_W${multipliers[0].width}_&#39;) {
+          definitionName: definitionName ??
+              &#39;DotProduct_L${multipliers.length}_&#39;
+                  &#39;A${multiplicands[0].width}_B${multipliers[0].width}_&#39;
+                  &#39;${Multiplier.signedMD(signedMultiplicand)}_&#39;
+                  &#39;${Multiplier.signedML(signedMultiplier)}&#39;) {
   if (multipliers.length != multiplicands.length) {
     throw RohdHclException(
         &#39;Number of multipliers and multiplicands must be equal.&#39;);
@@ -110,14 +114,14 @@ accumulation value.</p>
         &#39;${multiplicands.length - candWidthMiss} &#39;
         &quot;don&#39;t match preceding width.&quot;);
   }
-  &#47;&#47; Enforce square products.
-  final operandWidthMiss = multiplicands
-      .mapIndexed((i, m) =&gt; m.width == multipliers[i].width)
+  final multiplierWidthMatches = multipliers
+      .mapIndexed((i, m) =&gt; m.width == multipliers[i &gt; 0 ? i - 1 : 0].width)
       .where((w) =&gt; w)
       .length;
-  if (operandWidthMiss &lt; multiplicands.length) {
-    throw RohdHclException(&#39;Multiplier and multiplicand have &#39;
-        &#39;${multiplicands.length - operandWidthMiss} width mismatches.&#39;);
+  if (multiplierWidthMatches &lt; multipliers.length) {
+    throw RohdHclException(&#39;Multipliers must all have the same width: &#39;
+        &#39;${multipliers.length - multiplierWidthMatches} &#39;
+        &quot;don&#39;t match preceding width.&quot;);
   }
 
   signedMultiplicandParameter =

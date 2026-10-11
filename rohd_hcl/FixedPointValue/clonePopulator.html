@@ -79,8 +79,8 @@ of <a href="../../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>s.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@mustBeOverridden
-FixedPointValuePopulator clonePopulator() =&gt;
-    FixedPointValuePopulator(FixedPointValue.uninitialized(signed: signed)
+FixedPointValuePopulator clonePopulator() =&gt; FixedPointValuePopulator(
+    FixedPointValue.uninitializedWithSignedness(signed: signed)
       ..integerWidth = integerWidth
       ..fractionWidth = fractionWidth);</code></pre>
 </section>
