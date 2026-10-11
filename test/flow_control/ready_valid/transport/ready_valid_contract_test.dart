@@ -58,6 +58,47 @@ class _ProviderPortHarness extends Module {
   }
 }
 
+class _ExtendedReadyValidInterface extends ReadyValidInterface<_Packet> {
+  late final Logic last;
+  late final PairInterface metadata;
+
+  _ExtendedReadyValidInterface(
+    super.data, {
+    super.contract,
+  }) {
+    last = Logic.port('last');
+    setPorts([last], [PairDirection.fromProvider]);
+    metadata = addSubInterface(
+      'metadata',
+      PairInterface(
+        portsFromProvider: [Logic.port('code', 3)],
+      ),
+      uniquify: (original) => 'metadata_$original',
+    );
+  }
+
+  @override
+  _ExtendedReadyValidInterface clone() => _ExtendedReadyValidInterface(
+        data.clone(),
+        contract: contract,
+      );
+}
+
+class _ExtendedPortHarness extends Module {
+  late final _ExtendedReadyValidInterface channel;
+
+  _ExtendedPortHarness(
+    _ExtendedReadyValidInterface source,
+    PairRole role,
+  ) {
+    channel = addPairInterface(
+      source,
+      role,
+      uniquify: (original) => 'channel_$original',
+    );
+  }
+}
+
 class _PredicateHarness extends Module {
   Logic get accepted => output('accepted');
   Logic get stalled => output('stalled');
@@ -318,6 +359,62 @@ void main() {
       );
       expect(harness.generateSynth(), contains('packet_data'));
       expect(harness.generateSynth(), contains('packet_tag'));
+    });
+
+    test('consumer traversal preserves provider sidebands and subinterfaces',
+        () async {
+      final harness = _ExtendedPortHarness(
+        _ExtendedReadyValidInterface(_Packet()),
+        PairRole.consumer,
+      );
+
+      expect(
+        harness.inputs.keys,
+        containsAll({
+          'channel_packet',
+          'channel_valid',
+          'channel_last',
+          'channel_metadata_code',
+        }),
+      );
+      expect(harness.inputs['channel_packet'], isA<_Packet>());
+      expect(harness.outputs.keys, contains('channel_ready'));
+
+      await harness.build();
+      final systemVerilog = harness.generateSynth();
+      expect(systemVerilog, contains('input logic channel_last'));
+      expect(
+        systemVerilog,
+        contains('input logic [2:0] channel_metadata_code'),
+      );
+    });
+
+    test('provider traversal preserves provider sidebands and subinterfaces',
+        () async {
+      final harness = _ExtendedPortHarness(
+        _ExtendedReadyValidInterface(_Packet()),
+        PairRole.provider,
+      );
+
+      expect(harness.inputs.keys, contains('channel_ready'));
+      expect(
+        harness.outputs.keys,
+        containsAll({
+          'channel_packet',
+          'channel_valid',
+          'channel_last',
+          'channel_metadata_code',
+        }),
+      );
+      expect(harness.outputs['channel_packet'], isA<_Packet>());
+
+      await harness.build();
+      final systemVerilog = harness.generateSynth();
+      expect(systemVerilog, contains('output logic channel_last'));
+      expect(
+        systemVerilog,
+        contains('output logic [2:0] channel_metadata_code'),
+      );
     });
 
     test('ready-then-valid compatibility adapter builds with the P00 FIFO',
