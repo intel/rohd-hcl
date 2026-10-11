@@ -16,6 +16,22 @@ import 'package:rohd_vf/rohd_vf.dart';
 ///
 /// Supports a bypass if [Fifo] is empty and written & read at the same time.
 class Fifo<LogicType extends Logic> extends Module {
+  /// High when an enqueue action can be performed in the current cycle.
+  ///
+  /// A simultaneous dequeue makes enqueue legal while full.
+  Logic get canEnqueue => output('canEnqueue');
+
+  /// High when [readData] is a legal dequeue payload.
+  ///
+  /// With bypass generation enabled, an empty FIFO can expose a simultaneous
+  /// write payload directly.
+  Logic get outputValid => output('outputValid');
+
+  /// High when a dequeue releases an entry retained in storage.
+  ///
+  /// An empty bypass transfer does not release a slot.
+  Logic get slotReleased => output('slotReleased');
+
   /// High if the entire FIFO is full and it cannot accept any more new items.
   Logic get full => output('full');
 
@@ -123,6 +139,9 @@ class Fifo<LogicType extends Logic> extends Module {
     // set up info ports
     addOutput('full');
     addOutput('empty');
+    addOutput('canEnqueue');
+    addOutput('outputValid');
+    addOutput('slotReleased');
 
     if (generateError) {
       addOutput('error');
@@ -181,6 +200,9 @@ class Fifo<LogicType extends Logic> extends Module {
     final matchedPointers = Logic(name: 'matchedPointers');
     matchedPointers <= wrPointer.eq(rdPointer);
     empty <= matchedPointers & ~full;
+    canEnqueue <= ~full | (_readEnable & ~empty);
+    outputValid <= ~empty | (generateBypass ? _writeEnable : Const(0));
+    slotReleased <= _readEnable & ~empty;
 
     // error calculation
     if (generateError) {

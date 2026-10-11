@@ -30,6 +30,7 @@
 - Removed `PartialProductMatrix.array`, which exposed the internal partial-product generator. Apply custom transformations through the `beforeGenerateOutputs` callback to `generateOutputs`.
 - Made implementation-only hardware signals and connected interface clones non-public. Consumers must use documented module outputs and caller-owned interfaces instead of accessing child internals directly.
 - Reorganized `lib/src` into a category/subcategory directory taxonomy. The public `package:rohd_hcl/rohd_hcl.dart` API is unchanged, but code that imports private `package:rohd_hcl/src/...` paths directly must update those paths or import the package barrel instead.
+- Generated `Fifo` definitions retain their existing automatic definition names and latency, but now include the protocol-neutral `canEnqueue`, `outputValid`, and `slotReleased` output ports. External positional SystemVerilog instantiations of generated FIFO definitions must account for the additional outputs; named-port instantiations may leave them unconnected.
 
 ### Deprecated APIs
 
@@ -62,6 +63,9 @@
 - Added an abstract `ApbCompleter` and an `ApbCsrCompleter` implementation for connecting APB transactions to CSR blocks (<https://github.com/intel/rohd-hcl/pull/270>).
 - Added `AsyncFifo` for safely transferring data between clock domains (<https://github.com/intel/rohd-hcl/issues/168>, <https://github.com/intel/rohd-hcl/pull/279>).
 - Added `ReadyValidInterface`, `ReadyValidFifo`, and `Cam` capabilities in preparation for cache componentry (<https://github.com/intel/rohd-hcl/pull/281>).
+- Finalized the ready/valid interface foundation with value-based `ReadyValidContract` metadata, typed payload port registration, accepted/stalled predicates, composability checks, clone-preserved contracts, and independent, ready-first, valid-first, and irrevocable interface variants.
+- Added the protocol-neutral `HardwareCoreFunctor` construction seam and a typed `FifoCoreFunctor` implementation over `Fifo`, including explicit full-replacement and empty-bypass capability requirements. Concrete ready/valid, credit, routing, and scheduling attachments remain later component work.
+- Added `addInterface`, `addPairInterface`, and `addPairInterfaceFrom` module extensions as the shared typed interface-registration seam.
 - Added the `Counter.upDown` convenience constructor for incrementing and decrementing by one (<https://github.com/intel/rohd-hcl/pull/271>).
 - Added the `RegisterFile.setData` testbench hook for directly initializing register contents (<https://github.com/intel/rohd-hcl/pull/273>).
 - Added optional early termination to `Serializer` and `Deserializer` for dynamically sized inputs (<https://github.com/intel/rohd-hcl/issues/277>, <https://github.com/intel/rohd-hcl/pull/278>).
