@@ -16,6 +16,21 @@ When `readEnable` is low, the `readData` continually provides access to "peek" t
 
 The `empty` signal indicates when nothing is in the FIFO.  The `full` signal indicates when the FIFO can store no additional data.
 
+## Action and Status Outputs
+
+The FIFO exposes three protocol-neutral combinational outputs for composition:
+
+- `canEnqueue` is high whenever an enqueue is legal. A dequeue of a retained
+  entry makes a same-cycle replacement legal even while the FIFO is full.
+- `outputValid` is high whenever `readData` is a legal dequeue payload. With
+  bypass enabled, a write presented while empty is also a valid bypass payload.
+- `slotReleased` pulses when `readEnable` removes an entry that was retained in
+  storage. An empty bypass transfer does not release a stored slot.
+
+These outputs do not change FIFO storage, latency, occupancy width, or its
+existing automatic definition name. They add ports to generated `Fifo`
+definitions.
+
 ## Bypass
 
 The FIFO optionally supports a bypass if `generateBypass` is set.  When generated, if the FIFO is empty and both `readEnable` and `writeEnable` are high at the same time, then the FIFO will do a bypass of the internal storage, allowing for a combinational passthrough.
@@ -33,6 +48,26 @@ Occupancy information can optionally be generated and provided if `generateOccup
 ## Initial Values
 
 If desired, the `initialValues` argument can be used to pre-load the FIFO with data upon reset.  The length of `initialValues` must be less than or equal to the `depth` of the FIFO.
+
+## Protocol-Neutral Construction
+
+`HardwareCoreFunctor<Request, Binding>` is the generic non-`Module`
+construction seam for protocol-neutral cores. `FifoCoreFunctor<T>` implements
+that seam over `Fifo<T>`:
+
+- `FifoCoreRequest<T>` carries caller-owned clock, reset, enqueue, dequeue, and
+  typed payload signals.
+- `FifoCoreRequirements` explicitly requests full replacement, empty bypass,
+  and stored-entry-only slot release semantics.
+- `FifoCoreCapabilities` describes the configured depth, action semantics, and
+  optional occupancy/error outputs.
+- `FifoCoreBinding<T>` returns the constructed FIFO and output-only status and
+  payload views.
+
+The implementation identity is `fifo_core`, and its generated definition
+identity includes the configured capabilities and payload width. Concrete
+ready/valid, credit, routing, and scheduling attachments are intentionally
+outside this foundation.
 
 ## Example Schematic
 

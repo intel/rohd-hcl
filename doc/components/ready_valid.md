@@ -7,14 +7,35 @@ ROHD-HCL provides typed ready/valid interfaces and a FIFO that buffers
 
 `ReadyValidInterface<T>` pairs a `data` payload with `valid` and `ready`
 signals. A transfer is accepted on a clock edge when both `valid` and `ready`
-are high; `accepted` exposes their conjunction. A producer holds `valid` and
-the payload stable until the receiver accepts the transfer.
+are high; `accepted` exposes their conjunction, while `stalled` indicates a
+valid offer waiting for ready.
 
-`ReadyAndValidInterface<T>` and `ReadyThenValidInterface<T>` are interface
-variants for protocols with different ready/valid ordering assumptions. A
-`ReadyThenValidInterface` can be adapted with
+Every interface carries a `ReadyValidContract` value that records whether
+`valid` may depend on `ready`, whether `ready` may depend on `valid`, and
+whether `valid` and the payload must remain stable while stalled. The default
+`ReadyValidInterface<T>` contract is unconstrained to preserve existing
+constructor behavior.
+
+The specialized interfaces provide stronger presets:
+
+- `ReadyAndValidInterface<T>` computes ready and valid independently.
+- `ReadyThenValidInterface<T>` permits valid to wait for ready.
+- `ValidThenReadyInterface<T>` permits ready to wait for valid.
+- `IrrevocableReadyValidInterface<T>` is valid-first and guarantees that valid
+  and payload remain stable until acceptance.
+
+Contracts compare by value, survive interface cloning, support requirement
+checks with `satisfies`, and can reject a direct provider/consumer dependency
+cycle with `requireComposable` or the corresponding interface convenience
+methods.
+
+A `ReadyThenValidInterface` can be adapted with
 `toDownstreamReadyAndValid(clk, reset)`, which inserts a two-entry FIFO and
 returns an independently asserted ready/valid interface.
+
+Ready/valid `connectIO` registration preserves the concrete payload type,
+including `LogicStructure` payloads, by using ROHD typed module ports for data
+and scalar ports for ready and valid.
 
 ## ReadyValidFifo
 

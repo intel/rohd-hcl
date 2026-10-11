@@ -15,5 +15,6 @@ export 'amba/amba5/lti.dart';
 export 'amba/amba5/msi.dart';
 export 'amba/apb.dart';
 export 'amba/endpoints/amba_endpoints.dart';
+export 'interface_port_helpers.dart';
 export 'spi/endpoints/spi_endpoints.dart';
 export 'spi/spi.dart';
