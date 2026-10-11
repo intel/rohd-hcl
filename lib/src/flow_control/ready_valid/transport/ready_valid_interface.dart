@@ -224,8 +224,14 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
         inputTagSet?.contains(PairDirection.fromProvider) ?? false;
     final outputIncludesProvider =
         outputTagSet?.contains(PairDirection.fromProvider) ?? false;
-    final portName = (uniquify ?? (original) => original)(dataName);
-    final validPortName = (uniquify ?? (original) => original)('valid');
+    final nonNullUniquify = uniquify ?? (original) => original;
+    // Keep ROHD's deprecated naming compatibility on this typed port path.
+    // ignore: deprecated_member_use
+    final nonNullModify = modify ?? (original) => original;
+    String transformPortName(String original) =>
+        nonNullUniquify(nonNullModify(original));
+    final portName = transformPortName(dataName);
+    final validPortName = transformPortName('valid');
 
     if (inputIncludesProvider) {
       final sourcePayload = _validatePayloadCompatibility(

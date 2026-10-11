@@ -58,6 +58,30 @@ class _ProviderPortHarness extends Module {
   }
 }
 
+class _ModifiedPortHarness extends Module {
+  late final ReadyValidInterface<_Packet> channel;
+
+  _ModifiedPortHarness(
+    ReadyValidInterface<_Packet> source,
+    PairRole role, {
+    String Function(String original)? uniquify,
+  }) {
+    channel = ReadyValidInterface<_Packet>(
+      source.data.clone(),
+      contract: source.contract,
+    );
+    // Exercise the legacy ROHD modifier compatibility path.
+    // ignore: deprecated_member_use
+    channel.modify = (original) => 'modified_$original';
+    channel.pairConnectIO(
+      this,
+      source,
+      role,
+      uniquify: uniquify,
+    );
+  }
+}
+
 class _ExtendedReadyValidInterface extends ReadyValidInterface<_Packet> {
   late final Logic last;
   late final PairInterface metadata;
@@ -360,6 +384,62 @@ void main() {
       expect(harness.generateSynth(), contains('packet_data'));
       expect(harness.generateSynth(), contains('packet_tag'));
     });
+
+    for (final role in PairRole.values) {
+      for (final withUniquify in [false, true]) {
+        test(
+            'applies modify${withUniquify ? ' then uniquify' : ''} '
+            'consistently as $role', () async {
+          final harness = _ModifiedPortHarness(
+            ReadyValidInterface<_Packet>(_Packet()),
+            role,
+            uniquify: withUniquify ? (original) => 'unique_$original' : null,
+          );
+          final prefix = withUniquify ? 'unique_modified_' : 'modified_';
+          final payloadName = '${prefix}packet';
+          final validName = '${prefix}valid';
+          final readyName = '${prefix}ready';
+
+          if (role == PairRole.consumer) {
+            expect(
+              harness.inputs.keys,
+              containsAll({payloadName, validName}),
+            );
+            expect(harness.outputs.keys, contains(readyName));
+            expect(harness.inputs[payloadName], isA<_Packet>());
+          } else {
+            expect(harness.inputs.keys, contains(readyName));
+            expect(
+              harness.outputs.keys,
+              containsAll({payloadName, validName}),
+            );
+            expect(harness.outputs[payloadName], isA<_Packet>());
+          }
+          expect(
+            {...harness.inputs.keys, ...harness.outputs.keys},
+            isNot(contains('packet')),
+          );
+
+          await harness.build();
+          final systemVerilog = harness.generateSynth();
+          final payloadDirection =
+              role == PairRole.consumer ? 'input' : 'output';
+          final readyDirection = role == PairRole.consumer ? 'output' : 'input';
+          expect(
+            systemVerilog,
+            contains('$payloadDirection logic [9:0] $payloadName'),
+          );
+          expect(
+            systemVerilog,
+            contains('$payloadDirection logic $validName'),
+          );
+          expect(
+            systemVerilog,
+            contains('$readyDirection logic $readyName'),
+          );
+        });
+      }
+    }
 
     test('consumer traversal preserves provider sidebands and subinterfaces',
         () async {
