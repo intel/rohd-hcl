@@ -1,4 +1,3 @@
-import 'package:rohd/rohd.dart';
 // Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
@@ -8,12 +7,150 @@ import 'package:rohd/rohd.dart';
 // 2025 October 20
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'package:meta/meta.dart';
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// Static behavioral promises and dependency permissions for a ready/valid
+/// channel.
+@immutable
+class ReadyValidContract {
+  /// Whether valid is permitted to depend combinationally on ready.
+  final bool validMayDependOnReady;
+
+  /// Whether ready is permitted to depend combinationally on valid.
+  final bool readyMayDependOnValid;
+
+  /// Whether valid must remain asserted until a stalled offer is accepted.
+  final bool validMustRemainAssertedWhileStalled;
+
+  /// Whether payload must remain stable until a stalled offer is accepted.
+  final bool payloadMustRemainStableWhileStalled;
+
+  /// A contract with no dependency restrictions or stall guarantees.
+  static const unconstrained = ReadyValidContract(
+    validMayDependOnReady: true,
+    readyMayDependOnValid: true,
+  );
+
+  /// A contract in which ready and valid are computed independently.
+  static const readyAndValid = ReadyValidContract(
+    validMayDependOnReady: false,
+    readyMayDependOnValid: false,
+  );
+
+  /// A contract in which valid may wait for ready.
+  static const readyThenValid = ReadyValidContract(
+    validMayDependOnReady: true,
+    readyMayDependOnValid: false,
+  );
+
+  /// A contract in which ready may wait for valid.
+  static const validThenReady = ReadyValidContract(
+    validMayDependOnReady: false,
+    readyMayDependOnValid: true,
+  );
+
+  /// A valid-first contract with stable valid and payload while stalled.
+  static const irrevocable = ReadyValidContract(
+    validMayDependOnReady: false,
+    readyMayDependOnValid: true,
+    validMustRemainAssertedWhileStalled: true,
+    payloadMustRemainStableWhileStalled: true,
+  );
+
+  /// Creates ready/valid behavioral metadata.
+  const ReadyValidContract({
+    required this.validMayDependOnReady,
+    required this.readyMayDependOnValid,
+    this.validMustRemainAssertedWhileStalled = false,
+    this.payloadMustRemainStableWhileStalled = false,
+  });
+
+  /// Returns a copy with selected axes replaced.
+  ReadyValidContract copyWith({
+    bool? validMayDependOnReady,
+    bool? readyMayDependOnValid,
+    bool? validMustRemainAssertedWhileStalled,
+    bool? payloadMustRemainStableWhileStalled,
+  }) =>
+      ReadyValidContract(
+        validMayDependOnReady:
+            validMayDependOnReady ?? this.validMayDependOnReady,
+        readyMayDependOnValid:
+            readyMayDependOnValid ?? this.readyMayDependOnValid,
+        validMustRemainAssertedWhileStalled:
+            validMustRemainAssertedWhileStalled ??
+                this.validMustRemainAssertedWhileStalled,
+        payloadMustRemainStableWhileStalled:
+            payloadMustRemainStableWhileStalled ??
+                this.payloadMustRemainStableWhileStalled,
+      );
+
+  /// Whether this actual contract satisfies all [required] restrictions and
+  /// guarantees.
+  bool satisfies(ReadyValidContract required) =>
+      !(validMayDependOnReady && !required.validMayDependOnReady) &&
+      !(readyMayDependOnValid && !required.readyMayDependOnValid) &&
+      (!required.validMustRemainAssertedWhileStalled ||
+          validMustRemainAssertedWhileStalled) &&
+      (!required.payloadMustRemainStableWhileStalled ||
+          payloadMustRemainStableWhileStalled);
+
+  /// Whether this provider may wait for ready while [peer] may wait for valid.
+  bool mayFormDependencyCycleWith(ReadyValidContract peer) =>
+      validMayDependOnReady && peer.readyMayDependOnValid;
+
+  /// Rejects a direct provider-to-consumer composition that can form a
+  /// combinational valid/ready cycle.
+  ///
+  /// This is a construction-time check rather than a Dart type-system check:
+  /// interface contracts are values carried by generic interface instances.
+  /// [provider] describes the valid behavior at the boundary and [consumer]
+  /// describes the ready behavior at that same boundary.
+  static void requireComposable({
+    required ReadyValidContract provider,
+    required ReadyValidContract consumer,
+    required String providerName,
+    required String consumerName,
+  }) {
+    if (provider.mayFormDependencyCycleWith(consumer)) {
+      throw ArgumentError(
+        'Ready/valid composition from $providerName to '
+        '$consumerName can form a combinational dependency cycle: provider '
+        'valid may depend on ready while consumer ready may depend on valid. '
+        'Insert a storage stage or use independent boundary contracts.',
+      );
+    }
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is ReadyValidContract &&
+      validMayDependOnReady == other.validMayDependOnReady &&
+      readyMayDependOnValid == other.readyMayDependOnValid &&
+      validMustRemainAssertedWhileStalled ==
+          other.validMustRemainAssertedWhileStalled &&
+      payloadMustRemainStableWhileStalled ==
+          other.payloadMustRemainStableWhileStalled;
+
+  @override
+  int get hashCode => Object.hash(
+        validMayDependOnReady,
+        readyMayDependOnValid,
+        validMustRemainAssertedWhileStalled,
+        payloadMustRemainStableWhileStalled,
+      );
+}
+
 /// A ready/valid interface with associated data of type [LogicType].
+/// {@category Flow Control}
 class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
   /// The data associated with the ready/valid handshake.
   final LogicType data;
+
+  /// The behavioral metadata associated with this interface.
+  final ReadyValidContract contract;
 
   /// Indicates that the consumer is ready to accept data.
   Logic get ready => port('ready');
@@ -26,23 +163,113 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
   /// interpolating the object itself.
   late final Logic accepted = (ready & valid).named('${data.name}_accepted');
 
+  /// Indicates that valid data is waiting for the consumer to become ready.
+  late final Logic stalled = (valid & ~ready).named('${data.name}_stalled');
+
   /// Creates a [ReadyValidInterface] with the given [data].
-  ReadyValidInterface(this.data)
-      : super(
+  ReadyValidInterface(
+    this.data, {
+    this.contract = ReadyValidContract.unconstrained,
+  }) : super(
           portsFromProvider: [data, Logic.port('valid')],
           portsFromConsumer: [Logic.port('ready')],
         );
 
+  /// Verifies that this provider can connect to [consumerContract].
+  void requireProviderComposableWith(
+    ReadyValidContract consumerContract, {
+    required String consumerName,
+  }) =>
+      ReadyValidContract.requireComposable(
+        provider: contract,
+        consumer: consumerContract,
+        providerName: data.name,
+        consumerName: consumerName,
+      );
+
+  /// Verifies that [providerContract] can connect to this consumer.
+  void requireConsumerComposableWith(
+    ReadyValidContract providerContract, {
+    required String providerName,
+  }) =>
+      ReadyValidContract.requireComposable(
+        provider: providerContract,
+        consumer: contract,
+        providerName: providerName,
+        consumerName: data.name,
+      );
+
+  /// Connects this channel while retaining the payload's concrete logic type.
+  ///
+  /// Generic [Interface.connectIO] registers every non-array port with scalar
+  /// `addInput` and `addOutput`. Ready/valid payloads may be [LogicStructure]s,
+  /// so this override uses typed module ports for [data] while leaving the
+  /// single-bit valid and ready controls on the standard connection path.
+  @override
+  void connectIO(
+    Module module,
+    Interface<dynamic> srcInterface, {
+    Iterable<PairDirection>? inputTags,
+    Iterable<PairDirection>? outputTags,
+    Iterable<PairDirection>? inOutTags,
+    String Function(String original)? uniquify,
+  }) {
+    final dataName = data.name;
+    final inputTagSet = inputTags?.toSet();
+    final outputTagSet = outputTags?.toSet();
+    final inputIncludesProvider =
+        inputTagSet?.contains(PairDirection.fromProvider) ?? false;
+    final outputIncludesProvider =
+        outputTagSet?.contains(PairDirection.fromProvider) ?? false;
+    final portName = (uniquify ?? (original) => original)(dataName);
+    final validPortName = (uniquify ?? (original) => original)('valid');
+
+    if (inputIncludesProvider) {
+      data <=
+          module.addTypedInput(
+            portName,
+            srcInterface.port(dataName) as LogicType,
+          );
+      valid <= module.addInput(validPortName, srcInterface.port('valid'));
+    }
+    if (outputIncludesProvider) {
+      final output = module.addTypedOutput(
+        portName,
+        data.clone as LogicType Function({String? name}),
+      );
+      output <= data;
+      srcInterface.port(dataName) <= output;
+      final validOutput = module.addOutput(validPortName);
+      validOutput <= valid;
+      srcInterface.port('valid') <= validOutput;
+    }
+
+    super.connectIO(
+      module,
+      srcInterface,
+      inputTags: inputIncludesProvider
+          ? inputTagSet!.where((tag) => tag != PairDirection.fromProvider)
+          : inputTags,
+      outputTags: outputIncludesProvider
+          ? outputTagSet!.where((tag) => tag != PairDirection.fromProvider)
+          : outputTags,
+      inOutTags: inOutTags,
+      uniquify: uniquify,
+    );
+  }
+
   @override
   ReadyValidInterface<LogicType> clone() =>
-      ReadyValidInterface(data.clone() as LogicType);
+      ReadyValidInterface(data.clone() as LogicType, contract: contract);
 }
 
 /// A ready/valid interface where ready and valid assert independently.
+/// {@category Flow Control}
 class ReadyAndValidInterface<LogicType extends Logic>
     extends ReadyValidInterface<LogicType> {
   /// Creates a [ReadyAndValidInterface].
-  ReadyAndValidInterface(super.data);
+  ReadyAndValidInterface(super.data)
+      : super(contract: ReadyValidContract.readyAndValid);
 
   @override
   ReadyAndValidInterface<LogicType> clone() =>
@@ -51,10 +278,12 @@ class ReadyAndValidInterface<LogicType extends Logic>
 
 /// A ready/valid interface where ready must be asserted before valid can be
 /// computed.
+/// {@category Flow Control}
 class ReadyThenValidInterface<LogicType extends Logic>
     extends ReadyValidInterface<LogicType> {
   /// Creates a [ReadyThenValidInterface].
-  ReadyThenValidInterface(super.data);
+  ReadyThenValidInterface(super.data)
+      : super(contract: ReadyValidContract.readyThenValid);
 
   /// Converts this [ReadyThenValidInterface] to a [ReadyAndValidInterface] by
   /// adding a small FIFO to buffer data.
@@ -88,4 +317,31 @@ class ReadyThenValidInterface<LogicType extends Logic>
   @override
   ReadyThenValidInterface<LogicType> clone() =>
       ReadyThenValidInterface(data.clone() as LogicType);
+}
+
+/// A ready/valid interface where ready may be computed after valid.
+/// {@category Flow Control}
+class ValidThenReadyInterface<LogicType extends Logic>
+    extends ReadyValidInterface<LogicType> {
+  /// Creates a [ValidThenReadyInterface].
+  ValidThenReadyInterface(super.data)
+      : super(contract: ReadyValidContract.validThenReady);
+
+  @override
+  ValidThenReadyInterface<LogicType> clone() =>
+      ValidThenReadyInterface(data.clone() as LogicType);
+}
+
+/// A valid-first ready/valid interface that holds an offer stable until it is
+/// accepted.
+/// {@category Flow Control}
+class IrrevocableReadyValidInterface<LogicType extends Logic>
+    extends ReadyValidInterface<LogicType> {
+  /// Creates an [IrrevocableReadyValidInterface].
+  IrrevocableReadyValidInterface(super.data)
+      : super(contract: ReadyValidContract.irrevocable);
+
+  @override
+  IrrevocableReadyValidInterface<LogicType> clone() =>
+      IrrevocableReadyValidInterface(data.clone() as LogicType);
 }
