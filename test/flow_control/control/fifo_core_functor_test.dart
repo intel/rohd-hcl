@@ -36,6 +36,33 @@ class _Packet extends LogicStructure {
   _Packet clone({String? name}) => _Packet._clone(this, name: name);
 }
 
+class _SplitPacket extends LogicStructure {
+  final int firstWidth;
+  final int secondWidth;
+
+  Logic get first => elements[0];
+  Logic get second => elements[1];
+
+  _SplitPacket(
+    this.firstWidth,
+    this.secondWidth, {
+    required String name,
+  }) : super(
+          [
+            Logic(name: 'first', width: firstWidth),
+            Logic(name: 'second', width: secondWidth),
+          ],
+          name: name,
+        );
+
+  @override
+  _SplitPacket clone({String? name}) => _SplitPacket(
+        firstWidth,
+        secondWidth,
+        name: name ?? this.name,
+      );
+}
+
 class _FifoFunctorHarness<LogicType extends Logic> extends Module {
   late final LogicType payloadOut;
   late final FifoCoreBinding<LogicType> binding;
@@ -104,6 +131,54 @@ class _FifoFunctorHarness<LogicType extends Logic> extends Module {
   }
 }
 
+class _ShapeIdentityHarness extends Module {
+  late final FifoCoreBinding<_SplitPacket> first;
+  late final FifoCoreBinding<_SplitPacket> repeated;
+  late final FifoCoreBinding<_SplitPacket> distinct;
+
+  _ShapeIdentityHarness() : super(definitionName: 'FifoShapeIdentityHarness') {
+    final clk = addInput('clk', Logic());
+    final reset = addInput('reset', Logic());
+    final enqueue = addInput('enqueue', Logic());
+    final dequeue = addInput('dequeue', Logic());
+    final firstPayload = addTypedInput(
+      'firstPayload',
+      _SplitPacket(4, 4, name: 'first_root'),
+    );
+    final repeatedPayload = addTypedInput(
+      'repeatedPayload',
+      _SplitPacket(4, 4, name: 'different_root'),
+    );
+    final distinctPayload = addTypedInput(
+      'distinctPayload',
+      _SplitPacket(2, 6, name: 'third_root'),
+    );
+    final functor = FifoCoreFunctor<_SplitPacket>(depth: 2);
+
+    FifoCoreBinding<_SplitPacket> construct(
+      _SplitPacket payload,
+      String name,
+    ) =>
+        functor.construct(
+          FifoCoreRequest<_SplitPacket>(
+            clk: clk,
+            reset: reset,
+            enqueue: enqueue,
+            dequeue: dequeue,
+            payload: payload,
+          ),
+          name: name,
+        );
+
+    first = construct(firstPayload, 'first_fifo');
+    repeated = construct(repeatedPayload, 'repeated_fifo');
+    distinct = construct(distinctPayload, 'distinct_fifo');
+    addOutput('firstValid') <= first.outputValid;
+    addOutput('repeatedValid') <= repeated.outputValid;
+    addOutput('distinctValid') <= distinct.outputValid;
+  }
+}
+
 void main() {
   tearDown(Simulator.reset);
 
@@ -167,10 +242,13 @@ void main() {
 
         await harness.build();
         final systemVerilog = harness.generateSynth();
+        final definitionName = harness.binding.module.definitionName;
         expect(
-          systemVerilog,
-          contains('FifoCore_fifo_core_D${depth}_R1_B0_S1_O1_E0_W10'),
+          definitionName,
+          startsWith('FifoCore_fifo_core_D${depth}_R1_B0_S1_O1_E0_P'),
         );
+        expect(definitionName, endsWith('_W10'));
+        expect(systemVerilog, contains('module $definitionName'));
         expect(
             harness.binding.module.outputs.keys,
             containsAll({
@@ -250,6 +328,152 @@ void main() {
       },
     );
   }
+
+  test('payload shape identity merges equal shapes and separates equal widths',
+      () async {
+    final harness = _ShapeIdentityHarness();
+
+    await harness.build();
+    final firstDefinition = harness.first.module.definitionName;
+    final repeatedDefinition = harness.repeated.module.definitionName;
+    final distinctDefinition = harness.distinct.module.definitionName;
+    expect(firstDefinition, repeatedDefinition);
+    expect(firstDefinition, isNot(distinctDefinition));
+    expect(firstDefinition, matches(RegExp(r'^[A-Za-z][A-Za-z0-9_]*$')));
+    expect(distinctDefinition, matches(RegExp(r'^[A-Za-z][A-Za-z0-9_]*$')));
+
+    final systemVerilog = harness.generateSynth();
+    expect(
+      RegExp('module ${RegExp.escape(firstDefinition)}\\b')
+          .allMatches(systemVerilog),
+      hasLength(1),
+    );
+    expect(
+      RegExp('module ${RegExp.escape(distinctDefinition)}\\b')
+          .allMatches(systemVerilog),
+      hasLength(1),
+    );
+  });
+
+  for (final depth in [1, 3]) {
+    test('fully initialized depth $depth supports full replacement', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+      final writeEnable = Logic();
+      final readEnable = Logic();
+      final writeData = Logic(width: 8);
+      final initialValues = [
+        for (var index = 0; index < depth; index++) 0x20 + index,
+      ];
+      final fifo = Fifo<Logic>(
+        clk,
+        reset,
+        writeEnable: writeEnable,
+        writeData: writeData,
+        readEnable: readEnable,
+        depth: depth,
+        generateError: true,
+        generateOccupancy: true,
+        initialValues: initialValues,
+      );
+
+      await fifo.build();
+      unawaited(Simulator.run());
+      reset.inject(1);
+      writeEnable.inject(0);
+      readEnable.inject(0);
+      writeData.inject(0);
+      await clk.nextPosedge;
+      reset.inject(0);
+      await clk.nextPosedge;
+
+      expect(fifo.full.value, LogicValue.one);
+      expect(fifo.empty.value, LogicValue.zero);
+      expect(fifo.occupancy!.value.toInt(), depth);
+      expect(fifo.readData.value.toInt(), initialValues.first);
+
+      writeEnable.inject(1);
+      readEnable.inject(1);
+      writeData.inject(0x70 + depth);
+      await clk.nextNegedge;
+      expect(fifo.canEnqueue.value, LogicValue.one);
+      expect(fifo.slotReleased.value, LogicValue.one);
+      expect(fifo.readData.value.toInt(), initialValues.first);
+      await clk.nextPosedge;
+      expect(fifo.full.value, LogicValue.one);
+      expect(fifo.occupancy!.value.toInt(), depth);
+      expect(fifo.error!.value, LogicValue.zero);
+
+      writeEnable.inject(0);
+      final expected = [
+        ...initialValues.skip(1),
+        0x70 + depth,
+      ];
+      for (final value in expected) {
+        await clk.nextNegedge;
+        expect(fifo.outputValid.value, LogicValue.one);
+        expect(fifo.readData.value.toInt(), value);
+        await clk.nextPosedge;
+      }
+
+      readEnable.inject(0);
+      await clk.nextNegedge;
+      expect(fifo.empty.value, LogicValue.one);
+      expect(fifo.full.value, LogicValue.zero);
+      expect(fifo.outputValid.value, LogicValue.zero);
+      expect(fifo.slotReleased.value, LogicValue.zero);
+      expect(fifo.occupancy!.value.toInt(), 0);
+      expect(fifo.error!.value, LogicValue.zero);
+      await Simulator.endSimulation();
+    });
+  }
+
+  test('partially initialized FIFO retains its next write position', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final writeEnable = Logic();
+    final readEnable = Logic();
+    final writeData = Logic(width: 8);
+    final fifo = Fifo<Logic>(
+      clk,
+      reset,
+      writeEnable: writeEnable,
+      writeData: writeData,
+      readEnable: readEnable,
+      depth: 3,
+      generateOccupancy: true,
+      initialValues: const [0x31, 0x32],
+    );
+
+    await fifo.build();
+    unawaited(Simulator.run());
+    reset.inject(1);
+    writeEnable.inject(0);
+    readEnable.inject(0);
+    writeData.inject(0);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+    expect(fifo.occupancy!.value.toInt(), 2);
+    expect(fifo.full.value, LogicValue.zero);
+
+    writeEnable.inject(1);
+    writeData.inject(0x33);
+    await clk.nextPosedge;
+    writeEnable.inject(0);
+    readEnable.inject(1);
+    expect(fifo.full.value, LogicValue.one);
+    expect(fifo.occupancy!.value.toInt(), 3);
+    for (final value in const [0x31, 0x32, 0x33]) {
+      await clk.nextNegedge;
+      expect(fifo.readData.value.toInt(), value);
+      await clk.nextPosedge;
+    }
+    await clk.nextNegedge;
+    expect(fifo.empty.value, LogicValue.one);
+    expect(fifo.occupancy!.value.toInt(), 0);
+    await Simulator.endSimulation();
+  });
 
   test('empty bypass exposes payload without releasing a stored slot',
       () async {
