@@ -11,7 +11,9 @@ seam over ROHD's released interface APIs:
   returns the module-local clone.
 - `addPairInterface` does the same for a selected `PairRole`.
 - `addPairInterfaceFrom` registers an intentionally different concrete
-  `PairInterface` target against a source.
+  `PairInterface` target against a source. Ready/valid retyping accepts a
+  width-compatible plain packed payload bridge and rejects mismatched widths or
+  incompatible declared structures.
 
 The helpers preserve specialized `connectIO` behavior, including typed
 ready/valid payload ports. Existing components are not required to migrate to

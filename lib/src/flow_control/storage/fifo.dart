@@ -271,7 +271,7 @@ class Fifo<LogicType extends Logic> extends Module {
 
     Sequential(_clk, reset: _reset, resetValues: {
       full: _initialValues.length == depth ? Const(1) : Const(0),
-      wrPointer: Const(_initialValues.length, width: _addrWidth),
+      wrPointer: Const(_initialValues.length % depth, width: _addrWidth),
     }, [
       if (generateBypass)
         If(~bypass!, then: pointerIncrements)

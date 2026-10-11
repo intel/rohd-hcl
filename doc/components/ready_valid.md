@@ -35,7 +35,12 @@ returns an independently asserted ready/valid interface.
 
 Ready/valid `connectIO` registration preserves the concrete payload type,
 including `LogicStructure` payloads, by using ROHD typed module ports for data
-and scalar ports for ready and valid.
+and scalar ports for ready and valid. Subclass provider sidebands and nested
+pair subinterfaces continue through normal ROHD traversal. When an
+intentionally retyped connection uses a plain packed `Logic` on one side,
+registration creates a typed bridge from the target payload template after
+validating width; two declared structures must also have matching recursive
+field or array shape.
 
 ## ReadyValidFifo
 

@@ -152,6 +152,8 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
   /// The behavioral metadata associated with this interface.
   final ReadyValidContract contract;
 
+  bool _suppressHandledProviderPorts = false;
+
   /// Indicates that the consumer is ready to accept data.
   Logic get ready => port('ready');
 
@@ -203,8 +205,9 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
   ///
   /// Generic [Interface.connectIO] registers every non-array port with scalar
   /// `addInput` and `addOutput`. Ready/valid payloads may be [LogicStructure]s,
-  /// so this override uses typed module ports for [data] while leaving the
-  /// single-bit valid and ready controls on the standard connection path.
+  /// so this override uses typed module ports for [data], bridges compatible
+  /// packed sources, and leaves sidebands, nested interfaces, and the
+  /// single-bit controls on the standard recursive connection path.
   @override
   void connectIO(
     Module module,
@@ -225,43 +228,152 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
     final validPortName = (uniquify ?? (original) => original)('valid');
 
     if (inputIncludesProvider) {
+      final sourcePayload = _validatePayloadCompatibility(
+        srcInterface.port(dataName),
+      );
+      final typedSource =
+          data.clone(name: '${data.name}_input_bridge') as LogicType;
+      typedSource <= sourcePayload;
       data <=
           module.addTypedInput(
             portName,
-            srcInterface.port(dataName) as LogicType,
+            typedSource,
           );
       valid <= module.addInput(validPortName, srcInterface.port('valid'));
     }
     if (outputIncludesProvider) {
+      final sourcePayload = _validatePayloadCompatibility(
+        srcInterface.port(dataName),
+      );
       final output = module.addTypedOutput(
         portName,
         data.clone as LogicType Function({String? name}),
       );
       output <= data;
-      srcInterface.port(dataName) <= output;
+      sourcePayload <= output;
       final validOutput = module.addOutput(validPortName);
       validOutput <= valid;
       srcInterface.port('valid') <= validOutput;
     }
 
-    super.connectIO(
-      module,
-      srcInterface,
-      inputTags: inputIncludesProvider
-          ? inputTagSet!.where((tag) => tag != PairDirection.fromProvider)
-          : inputTags,
-      outputTags: outputIncludesProvider
-          ? outputTagSet!.where((tag) => tag != PairDirection.fromProvider)
-          : outputTags,
-      inOutTags: inOutTags,
-      uniquify: uniquify,
-    );
+    _suppressHandledProviderPorts = true;
+    try {
+      super.connectIO(
+        module,
+        srcInterface,
+        inputTags: inputTags,
+        outputTags: outputTags,
+        inOutTags: inOutTags,
+        uniquify: uniquify,
+      );
+    } finally {
+      _suppressHandledProviderPorts = false;
+    }
+  }
+
+  Logic _validatePayloadCompatibility(Logic sourcePayload) {
+    if (sourcePayload.width != data.width) {
+      throw PortTypeException.forIntendedName(
+        data.name,
+        'Expected ready/valid payload width ${data.width}, '
+        'but found ${sourcePayload.width}.',
+      );
+    }
+    if (sourcePayload is LogicStructure &&
+        data is LogicStructure &&
+        !_sameDeclaredPayloadShape(data, sourcePayload)) {
+      throw PortTypeException.forIntendedName(
+        data.name,
+        'Expected ready/valid payload shape '
+        '${_payloadShapeIdentity(data)}, but found '
+        '${_payloadShapeIdentity(sourcePayload)}.',
+      );
+    }
+    return sourcePayload;
+  }
+
+  @override
+  Map<String, Logic> getPorts([Iterable<PairDirection>? tags]) {
+    final selectedPorts = super.getPorts(tags);
+    final includesProvider =
+        tags == null || tags.any((tag) => tag == PairDirection.fromProvider);
+    if (!_suppressHandledProviderPorts || !includesProvider) {
+      return selectedPorts;
+    }
+    return Map<String, Logic>.of(selectedPorts)
+      ..remove(data.name)
+      ..remove('valid');
   }
 
   @override
   ReadyValidInterface<LogicType> clone() =>
       ReadyValidInterface(data.clone() as LogicType, contract: contract);
 }
+
+bool _sameDeclaredPayloadShape(Logic template, Logic source) {
+  if (template is! LogicStructure || source is! LogicStructure) {
+    return template is! LogicStructure && source is! LogicStructure;
+  }
+  final templateStructure = template;
+  final sourceStructure = source;
+  if (templateStructure is LogicArray || sourceStructure is LogicArray) {
+    return templateStructure is LogicArray &&
+        sourceStructure is LogicArray &&
+        _sameIntList(
+          templateStructure.dimensions,
+          sourceStructure.dimensions,
+        ) &&
+        templateStructure.elementWidth == sourceStructure.elementWidth &&
+        templateStructure.numUnpackedDimensions ==
+            sourceStructure.numUnpackedDimensions;
+  }
+  if (templateStructure.elements.length != sourceStructure.elements.length) {
+    return false;
+  }
+  for (var index = 0; index < templateStructure.elements.length; index++) {
+    final templateElement = templateStructure.elements[index];
+    final sourceElement = sourceStructure.elements[index];
+    if (templateElement.name != sourceElement.name ||
+        templateElement.width != sourceElement.width ||
+        !_sameDeclaredPayloadShape(templateElement, sourceElement)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool _sameIntList(List<int> first, List<int> second) {
+  if (first.length != second.length) {
+    return false;
+  }
+  for (var index = 0; index < first.length; index++) {
+    if (first[index] != second[index]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+String _payloadShapeIdentity(Logic logic) {
+  if (logic is LogicArray) {
+    return 'A${logic.dimensions.join('x')}_'
+        'E${logic.elementWidth}_U${logic.numUnpackedDimensions}';
+  }
+  if (logic is LogicStructure) {
+    final fields = logic.elements
+        .map(
+          (element) => 'N${_encodePayloadFieldName(element.name)}_'
+              '${_payloadShapeIdentity(element)}',
+        )
+        .join('_');
+    return 'S${logic.elements.length}_$fields';
+  }
+  return 'L${logic.width}';
+}
+
+String _encodePayloadFieldName(String name) => name.codeUnits
+    .map((codeUnit) => codeUnit.toRadixString(16).padLeft(4, '0'))
+    .join();
 
 /// A ready/valid interface where ready and valid assert independently.
 /// {@category Flow Control}

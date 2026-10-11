@@ -47,7 +47,11 @@ Occupancy information can optionally be generated and provided if `generateOccup
 
 ## Initial Values
 
-If desired, the `initialValues` argument can be used to pre-load the FIFO with data upon reset.  The length of `initialValues` must be less than or equal to the `depth` of the FIFO.
+If desired, the `initialValues` argument can be used to pre-load the FIFO with
+data upon reset. The length of `initialValues` must be less than or equal to the
+`depth` of the FIFO. A fully initialized FIFO starts with its write pointer
+wrapped to the first slot, so a simultaneous full dequeue and replacement
+writes the newly released slot at every supported depth.
 
 ## Protocol-Neutral Construction
 
@@ -65,9 +69,12 @@ that seam over `Fifo<T>`:
   payload views.
 
 The implementation identity is `fifo_core`, and its generated definition
-identity includes the configured capabilities and payload width. Concrete
-ready/valid, credit, routing, and scheduling attachments are intentionally
-outside this foundation.
+identity includes the configured capabilities, payload width, and a
+deterministic recursive payload-shape signature. The signature includes
+structure field names and widths or array dimensions, but not the payload
+instance name. Identical shapes therefore share a definition while distinct
+equal-width shapes do not collide. Concrete ready/valid, credit, routing, and
+scheduling attachments are intentionally outside this foundation.
 
 ## Example Schematic
 

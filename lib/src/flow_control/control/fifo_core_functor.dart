@@ -214,6 +214,7 @@ class FifoCoreFunctor<LogicType extends Logic> extends HardwareCoreFunctor<
       }
     }
     request.requirements._validate(capabilities);
+    final payloadShapeIdentity = _payloadShapeIdentity(request.payload);
     final fifo = Fifo<LogicType>(
       request.clk,
       request.reset,
@@ -225,9 +226,31 @@ class FifoCoreFunctor<LogicType extends Logic> extends HardwareCoreFunctor<
       generateOccupancy: generateOccupancy,
       generateBypass: capabilities.supportsEmptyBypass,
       definitionName: 'FifoCore_${definitionIdentity}_'
-          '${capabilities.configurationIdentity}_W${request.payload.width}',
+          '${capabilities.configurationIdentity}_'
+          'P${payloadShapeIdentity}_W${request.payload.width}',
       name: name,
     );
     return FifoCoreBinding<LogicType>(fifo, capabilities);
   }
 }
+
+String _payloadShapeIdentity(Logic logic) {
+  if (logic is LogicArray) {
+    return 'A${logic.dimensions.join('x')}_'
+        'E${logic.elementWidth}_U${logic.numUnpackedDimensions}';
+  }
+  if (logic is LogicStructure) {
+    final fields = logic.elements
+        .map(
+          (element) => 'N${_encodePayloadFieldName(element.name)}_'
+              '${_payloadShapeIdentity(element)}',
+        )
+        .join('_');
+    return 'S${logic.elements.length}_$fields';
+  }
+  return 'L${logic.width}';
+}
+
+String _encodePayloadFieldName(String name) => name.codeUnits
+    .map((codeUnit) => codeUnit.toRadixString(16).padLeft(4, '0'))
+    .join();
