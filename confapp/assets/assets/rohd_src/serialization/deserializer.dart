@@ -1,0 +1,91 @@
+// Copyright (C) 2024-2025 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// deserializer.dart
+// A deserialization block, deserializing narrow input data onto a wide channel.
+//
+// 2024 August 27
+// Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
+import 'package:collection/collection.dart';
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+
+/// [Deserializer] aggregates data from a serialized stream.
+class Deserializer extends Module {
+  /// Aggregated data output.
+  LogicArray get deserialized => output('deserialized') as LogicArray;
+
+  /// Length of aggregate to deserialize.
+  final int length;
+
+  /// [done] emitted when the last element is committed to [deserialized].
+  /// The timing is that you can latch [deserialized] when [done] is high.
+  Logic get done => output('done');
+
+  /// Return the current count of elements that have been serialized out.
+  Logic get count => output('count');
+
+  /// Build a [Deserializer] that takes serialized input [serialized]
+  /// and aggregates it into one wide output [deserialized] of length [length].
+  ///
+  /// Updates one element per clock while [enable] (if connected) is high,
+  /// emitting [done] when completing the filling of wide output [LogicArray]
+  /// [deserialized].
+  ///
+  /// If [last] is connected, it is used as a potential early indicator for
+  /// completion of the deserialization.
+  Deserializer(Logic serialized, this.length,
+      {required Logic clk,
+      required Logic reset,
+      Logic? enable,
+      Logic? last,
+      super.name = 'deserializer',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'Deserializer_W${serialized.width}_L$length') {
+    clk = addInput('clk', clk);
+    reset = addInput('reset', reset);
+    if (enable != null) {
+      enable = addInput('enable', enable);
+    }
+    Logic? floppedLast;
+    if (last != null) {
+      last = addInput('last', last);
+      floppedLast = Logic(name: 'floppedLast')
+        ..gets(flop(clk, reset: reset, en: (enable ?? Const(1)), last));
+    }
+    serialized = (serialized is LogicArray)
+        ? addInputArray('serialized', serialized,
+            dimensions: serialized.dimensions,
+            elementWidth: serialized.elementWidth)
+        : addInput('serialized', serialized, width: serialized.width);
+    final cnt = Counter.simple(
+        clk: clk,
+        reset: reset,
+        enable: enable,
+        maxValue: length - 1,
+        restart: (last ?? Const(0)) & (enable ?? Const(1)));
+    addOutput('count', width: cnt.width) <= cnt.count;
+    addOutput('done') <=
+        cnt.overflowed | ((floppedLast ?? Const(0)) & (enable ?? Const(1)));
+    addOutputArray('deserialized',
+            dimensions: (serialized is LogicArray)
+                ? ([length, ...serialized.dimensions])
+                : [length],
+            elementWidth: (serialized is LogicArray)
+                ? serialized.elementWidth
+                : serialized.width)
+        .elements
+        .forEachIndexed((i, d) =>
+            d <=
+            flop(
+                clk,
+                reset: reset,
+                en: (enable ?? Const(1)) & count.eq(i),
+                serialized));
+  }
+}
