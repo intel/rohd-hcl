@@ -43,8 +43,7 @@ const moduleSourceAssets = <String, String>{
   'Find': 'rohd_src/bit_operations/search/find.dart',
   'FindPattern': 'rohd_src/bit_operations/search/find_pattern.dart',
   'Float8ToFixed': 'rohd_src/arithmetic/conversion/float_to_fixed.dart',
-  'FixedPointSqrt':
-      'rohd_src/arithmetic/division_and_roots/fixed_sqrt.dart',
+  'FixedPointSqrt': 'rohd_src/arithmetic/division_and_roots/fixed_sqrt.dart',
   'FixedToFloat': 'rohd_src/arithmetic/conversion/fixed_to_float.dart',
   'FloatToFixed': 'rohd_src/arithmetic/conversion/float_to_fixed.dart',
   'FloatingPointAdderDualPath':
@@ -70,10 +69,8 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
   'MaskRoundRobinArbiter':
       'rohd_src/flow_control/arbitration/mask_round_robin_arbiter.dart',
-  'MultiCycleDivider':
-      'rohd_src/arithmetic/division_and_roots/divider.dart',
-  'NativeMultiplier':
-      'rohd_src/arithmetic/multiplication/multiplier.dart',
+  'MultiCycleDivider': 'rohd_src/arithmetic/division_and_roots/divider.dart',
+  'NativeMultiplier': 'rohd_src/arithmetic/multiplication/multiplier.dart',
   'OnesComplementAdder':
       'rohd_src/arithmetic/addition/ones_complement_adder.dart',
   'ParallelPrefixAdder':
@@ -90,8 +87,7 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
   'ParityReceiver': 'rohd_src/error_control/protection/parity.dart',
   'ParityTransmitter': 'rohd_src/error_control/protection/parity.dart',
-  'PriorityArbiter':
-      'rohd_src/flow_control/arbitration/priority_arbiter.dart',
+  'PriorityArbiter': 'rohd_src/flow_control/arbitration/priority_arbiter.dart',
   'RecursiveModulePriorityEncoder':
       'rohd_src/encodings/priority/priority_encoder.dart',
   'RecursivePriorityEncoder':
