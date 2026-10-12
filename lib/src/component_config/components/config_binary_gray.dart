@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Shared configuration for a fixed-width binary/Gray-code converter.
 abstract class _BinaryGrayConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.encodings;
+
+  @override
+  String get subcategory => 'gray';
+
   /// Width of the encoded value.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 

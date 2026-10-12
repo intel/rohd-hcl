@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [AsyncFifo].
 class AsyncFifoConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.flowControl;
+
+  @override
+  String get subcategory => 'storage';
+
   /// Width of the FIFO data input and output.
   final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
 

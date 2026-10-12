@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Count].
 class CountConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.bitOperations;
+
+  @override
+  String get subcategory => 'population-count';
+
   /// Width of the bus to count.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 

@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [PriorityEncoder] implementations.
 class PriorityEncoderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.encodings;
+
+  @override
+  String get subcategory => 'priority';
+
   /// Width of the input bit vector.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 

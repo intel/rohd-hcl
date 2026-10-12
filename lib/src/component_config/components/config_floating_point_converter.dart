@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FloatingPointConverter].
 class FloatingPointConverterConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'floating-point';
+
   /// Width of the source exponent.
   final IntConfigKnob sourceExponentWidthKnob = IntConfigKnob(value: 8);
 

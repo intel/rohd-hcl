@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [OnesComplementAdder].
 class OnesComplementAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'addition';
+
   /// Width of each magnitude input.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 
@@ -60,6 +66,12 @@ enum SignMagnitudeAdderImplementation {
 
 /// A [Configurator] for sign-magnitude adders.
 class SignMagnitudeAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'addition';
+
   /// Width of each magnitude input.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 
@@ -124,6 +136,12 @@ class SignMagnitudeAdderConfigurator extends Configurator {
 
 /// A [Configurator] for [CarrySelectOnesComplementCompoundAdder].
 class CarrySelectOnesComplementCompoundAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'addition';
+
   /// Width of each addend.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 
