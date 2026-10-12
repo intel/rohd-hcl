@@ -110,6 +110,50 @@ void main() {
             .createModule(),
         asset: 'rohd_src/summation/gated_counter.dart',
       ),
+      (
+        name: 'compression-tree dot product',
+        module: (DotProductConfigurator()
+              ..implementationKnob.value =
+                  DotProductImplementation.compressionTree)
+            .createModule(),
+        asset: 'rohd_src/arithmetic/dotproduct.dart',
+      ),
+      (
+        name: 'dual sign-magnitude adder',
+        module: (SignMagnitudeAdderConfigurator()
+              ..implementationKnob.value =
+                  SignMagnitudeAdderImplementation.dual)
+            .createModule(),
+        asset: 'rohd_src/arithmetic/sign_magnitude_adder.dart',
+      ),
+      (
+        name: 'parallel-prefix priority encoder',
+        module: (PriorityEncoderConfigurator()
+              ..implementationKnob.implementationKnob.value =
+                  ParallelPrefixPriorityEncoder)
+            .createModule(),
+        asset: 'rohd_src/priority_encoder.dart',
+      ),
+      (
+        name: 'parallel-prefix incrementer',
+        module: (ParallelPrefixOperationConfigurator()
+              ..operationKnob.value = ParallelPrefixOperation.increment)
+            .createModule(),
+        asset: 'rohd_src/arithmetic/parallel_prefix_operations.dart',
+      ),
+      (
+        name: 'parity receiver',
+        module: (ParityConfigurator()
+              ..directionKnob.value = ParityDirection.receiver)
+            .createModule(),
+        asset: 'rohd_src/error_checking/parity.dart',
+      ),
+      (
+        name: 'SPI sub gasket',
+        module:
+            (SpiConfigurator()..roleKnob.value = SpiRole.sub).createModule(),
+        asset: 'rohd_src/gaskets/spi/spi_sub.dart',
+      ),
     ];
 
     for (final variant in variants) {

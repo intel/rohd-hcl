@@ -7,7 +7,11 @@
 // 2023 December
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'package:confapp/hcl/cubit/component_cubit.dart';
 import 'package:confapp/hcl/hcl.dart';
+import 'package:confapp/hcl/view/screen/sidebar_widget.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' as flutter_widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -22,14 +26,38 @@ String? observeOutput(WidgetTester tester) {
 
 List<Configurator> components = componentRegistry;
 
-Future<void> pumpHclPage(WidgetTester tester) async {
+const _missingToggleGateAsset = 'assets/rohd_src/toggle_gate.dart';
+
+class _MissingSourceAssetBundle extends CachingAssetBundle {
+  _MissingSourceAssetBundle(this.missingAsset);
+
+  final String missingAsset;
+
+  @override
+  Future<ByteData> load(String key) {
+    if (key == missingAsset) {
+      return Future<ByteData>.error(
+        FlutterError('Unable to load asset: "$key".'),
+      );
+    }
+    return rootBundle.load(key);
+  }
+}
+
+Future<void> pumpHclPage(
+  WidgetTester tester, {
+  AssetBundle? assetBundle,
+}) async {
   await tester.binding.setSurfaceSize(const Size(1440, 900));
   addTearDown(() => tester.binding.setSurfaceSize(null));
 
   await tester.pumpWidget(
     MaterialApp(
-      home: HCLPage(
-        components: components,
+      home: flutter_widgets.DefaultAssetBundle(
+        bundle: assetBundle ?? rootBundle,
+        child: HCLPage(
+          components: components,
+        ),
       ),
     ),
   );
@@ -58,7 +86,43 @@ Future<void> pumpUntilOutputContains(
   expect(observeOutput(tester), contains(expected));
 }
 
+Future<void> tapSidebarComponent(WidgetTester tester, String name) async {
+  final tile = find.text(name);
+  await tester.scrollUntilVisible(
+    tile,
+    250,
+    scrollable: find
+        .descendant(
+          of: find.byType(ComponentsSidebar),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.tap(tile);
+}
+
 void main() {
+  test('sorts components alphabetically without mutating the input', () {
+    final input = <Configurator>[
+      RotateConfigurator(),
+      ApbCsrCompleterConfigurator(),
+      CountConfigurator(),
+    ];
+    final originalOrder = input.map((component) => component.name).toList();
+    final cubit = ComponentCubit(input);
+    addTearDown(cubit.close);
+
+    expect(
+      cubit.components.map((component) => component.name),
+      orderedEquals(['APB CSR Completer', 'Count', 'Rotate']),
+    );
+    expect(cubit.state, same(cubit.components.first));
+    expect(
+      input.map((component) => component.name),
+      orderedEquals(originalOrder),
+    );
+  });
+
   testWidgets('should return message to click generate when page load',
       (tester) async {
     await pumpHclPage(tester);
@@ -69,7 +133,39 @@ void main() {
     );
   });
 
-  testWidgets('keeps horizontally scrolled source below its scrollbar',
+  testWidgets('shows a popup when a ROHD source asset is missing',
+      (tester) async {
+    await pumpHclPage(
+      tester,
+      assetBundle: _MissingSourceAssetBundle(_missingToggleGateAsset),
+    );
+    await tester.tap(find.byTooltip('ROHD Schematic'));
+    await tester.pump();
+    await tapSidebarComponent(tester, 'Toggle Gate');
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('generateRTL')));
+
+    for (var i = 0; i < 100; i++) {
+      if (tester.any(find.text('Missing source asset'))) {
+        break;
+      }
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('Missing source asset'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.textContaining(_missingToggleGateAsset),
+      ),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('uses a bundled monospace font for generated source',
       (tester) async {
     await pumpHclPage(tester);
     await showOnlyGeneratedSv(tester);
@@ -78,6 +174,10 @@ void main() {
     await pumpUntilOutputContains(tester, 'module');
 
     final generatedSv = find.byKey(const Key('generatedSV'));
+    final generatedSvField = tester.widget<TextField>(generatedSv);
+    expect(generatedSvField.style?.fontFamily, 'RobotoMono');
+    expect(generatedSvField.style?.fontFamilyFallback, contains('monospace'));
+
     final horizontalScrollbar = find.ancestor(
       of: generatedSv,
       matching: find.byWidgetPredicate(
@@ -133,7 +233,7 @@ void main() {
   testWidgets('shows stable labels for type-valued choices', (tester) async {
     await pumpHclPage(tester);
 
-    await tester.tap(find.text('One-hot Converter'));
+    await tapSidebarComponent(tester, 'One-hot Converter');
     await tester.pump();
 
     final directionKnob = find.byKey(const Key('Direction'));
@@ -156,11 +256,10 @@ void main() {
     await pumpHclPage(tester);
     await showOnlyGeneratedSv(tester);
 
-    final sidebarPriorityArbiter = find.text('Priority Arbiter');
     final btnGenerateRTL = find.byKey(const Key('generateRTL'));
 
     // tap on the priority Arbiter located in the sidebar
-    await tester.tap(sidebarPriorityArbiter);
+    await tapSidebarComponent(tester, 'Priority Arbiter');
 
     await tester.pump();
 
@@ -179,7 +278,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('generateRTL')));
     await tester.pump(const Duration(milliseconds: 20));
-    await tester.tap(find.text('Priority Arbiter'));
+    await tapSidebarComponent(tester, 'Priority Arbiter');
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(tester.takeException(), isNull);

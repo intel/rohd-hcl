@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // multiplier_select_knob.dart
@@ -14,14 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class MultiplierSelectKnob extends GroupOfKnobs {
   /// Whether to instantiate a [CompressionTreeMultiplier] (or use a
   /// [NativeMultiplier]).
-  final ToggleConfigKnob compressionTreeMultiplierKnob =
-      ToggleConfigKnob(value: false);
+  final ToggleConfigKnob compressionTreeMultiplierKnob = ToggleConfigKnob(
+    value: false,
+  );
 
   /// Controls the Booth encoding radix of the multiplier.
-  final radixKnob = ChoiceConfigKnob<int>(
-    [2, 4, 8, 16],
-    value: 4,
-  );
+  final radixKnob = ChoiceConfigKnob<int>([2, 4, 8, 16], value: 4);
 
   /// Adder selection control.
   final adderSelectionKnob = AdderSelectKnob(name: 'Final Adder Type');
@@ -33,12 +31,18 @@ class MultiplierSelectKnob extends GroupOfKnobs {
   final IntConfigKnob multiplierWidthKnob = IntConfigKnob(value: 4);
 
   /// A knob controlling the sign of the multiplicand
-  final ChoiceConfigKnob<dynamic> signMultiplicandValueKnob =
-      ChoiceConfigKnob(['unsigned', 'signed', 'selected'], value: 'unsigned');
+  final ChoiceConfigKnob<String> signMultiplicandValueKnob = ChoiceConfigKnob([
+    'unsigned',
+    'signed',
+    'selected',
+  ], value: 'unsigned');
 
   /// A knob controlling the sign of the multiplier
-  final ChoiceConfigKnob<dynamic> signMultiplierValueKnob =
-      ChoiceConfigKnob(['unsigned', 'signed', 'selected'], value: 'unsigned');
+  final ChoiceConfigKnob<String> signMultiplierValueKnob = ChoiceConfigKnob([
+    'unsigned',
+    'signed',
+    'selected',
+  ], value: 'unsigned');
 
   /// Controls whether the adder is pipelined
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
@@ -48,6 +52,14 @@ class MultiplierSelectKnob extends GroupOfKnobs {
 
   /// Option to allow pipelining selection.
   late final bool allowPipelining;
+
+  /// Resolves the multiplicand signedness configuration.
+  dynamic get signedMultiplicandConfig =>
+      _signedConfig(signMultiplicandValueKnob.value, 'signedMultiplicand');
+
+  /// Resolves the multiplier signedness configuration.
+  dynamic get signedMultiplierConfig =>
+      _signedConfig(signMultiplierValueKnob.value, 'signedMultiplier');
 
   @override
   Map<String, ConfigKnob<dynamic>> get subKnobs => {
@@ -67,34 +79,76 @@ class MultiplierSelectKnob extends GroupOfKnobs {
   /// - [allowSigned] is `false` by default, making the multiplier unsigned.
   /// - [allowPipelining] is `false` by default, making the multiplier
   /// combinational.
-  MultiplierSelectKnob(
-      {required this.allowSigned,
-      required this.allowPipelining,
-      super.name = 'Multiplier Select'})
-      : super({});
+  MultiplierSelectKnob({
+    required this.allowSigned,
+    required this.allowPipelining,
+    super.name = 'Multiplier Select',
+  }) : super({});
+
+  dynamic _signedConfig(String value, String inputName) => switch (value) {
+        'unsigned' => false,
+        'signed' => true,
+        'selected' => Logic(name: inputName),
+        _ => throw RohdHclException('Unknown signedness selection: $value'),
+      };
 
   /// Return the [Multiplier] Functor selected.
-  Multiplier Function(Logic term1, Logic term2,
-      {Logic? clk,
+  Multiplier Function(
+    Logic term1,
+    Logic term2, {
+    Logic? clk,
+    Logic? reset,
+    Logic? enable,
+    String name,
+    String? definitionName,
+  }) selectedMultiplier(
+      {dynamic signedMultiplicand, dynamic signedMultiplier}) {
+    final multiplicandSign = signedMultiplicand ?? signedMultiplicandConfig;
+    final multiplierSign = signedMultiplier ?? signedMultiplierConfig;
+
+    if (compressionTreeMultiplierKnob.value) {
+      return (
+        Logic term1,
+        Logic term2, {
+        Logic? clk,
+        Logic? reset,
+        Logic? enable,
+        String name = 'comp_tree_multiplier',
+        String? definitionName,
+      }) =>
+          CompressionTreeMultiplier(
+            term1,
+            term2,
+            radix: radixKnob.value,
+            adderGen: adderSelectionKnob.selectedAdder(),
+            clk: clk,
+            reset: reset,
+            enable: enable,
+            signedMultiplicand: multiplicandSign,
+            signedMultiplier: multiplierSign,
+            name: name,
+            definitionName: definitionName,
+          );
+    }
+    return (
+      Logic term1,
+      Logic term2, {
+      Logic? clk,
       Logic? reset,
       Logic? enable,
-      String name,
-      String? definitionName}) selectedMultiplier() {
-    if (compressionTreeMultiplierKnob.value) {
-      return (Logic term1, Logic term2,
-              {Logic? clk,
-              Logic? reset,
-              Logic? enable,
-              String name = 'comp_tree_multiplier',
-              String? definitionName}) =>
-          CompressionTreeMultiplier(term1, term2,
-              radix: radixKnob.value,
-              adderGen: adderSelectionKnob.selectedAdder(),
-              clk: clk,
-              reset: reset,
-              enable: enable,
-              definitionName: definitionName);
-    }
-    return NativeMultiplier.new;
+      String name = 'native_multiplier',
+      String? definitionName,
+    }) =>
+        NativeMultiplier(
+          term1,
+          term2,
+          clk: clk,
+          reset: reset,
+          enable: enable,
+          signedMultiplicand: multiplicandSign,
+          signedMultiplier: multiplierSign,
+          name: name,
+          definitionName: definitionName,
+        );
   }
 }

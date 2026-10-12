@@ -169,10 +169,15 @@ After implementing a component, export it from the appropriate library barrel
 and `lib/rohd_hcl.dart`. Add focused tests under `test/`, including a
 nested-parent build test for every composable module.
 
-If the component should appear in the configuration application, create a
-`Configurator` under `lib/src/component_config/components/` and register it in
-`lib/src/component_config/components/component_registry.dart`. The registry
-drives both the configuration app and documentation netlist generation.
+Every documented, synthesizable public `Module` must have a `Configurator`
+under `lib/src/component_config/components/` and an entry in
+`lib/src/component_config/components/component_registry.dart`. Update an
+existing configurator whenever its component gains a user-selectable
+elaboration parameter. Expose compile-time choices as `ConfigKnob`s and
+runtime-selectable controls as generated named `Logic` inputs. Pure
+`LogicStructure`/`Interface` APIs, callback-only implementation primitives,
+and simulation-only models do not require configurators. The registry drives
+both the configuration app and documentation netlist generation.
 
 Complete the Confapp source-asset, generated-view, and regression-test work
 described in [the Confapp README](../confapp/README.md). Application setup and

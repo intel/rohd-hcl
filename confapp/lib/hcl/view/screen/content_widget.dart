@@ -18,6 +18,7 @@ import 'package:confapp/hcl/view/screen/dart_syntax_code_controller.dart';
 import 'package:confapp/hcl/view/screen/flc_trace_data.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' as flutter_widgets;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:highlight/languages/cpp.dart' as highlight_cpp;
 import 'package:highlight/languages/verilog.dart' as highlight_verilog;
@@ -463,6 +464,7 @@ class _SVGeneratorState extends State<SVGenerator>
   /// Cached asset-loading futures so FutureBuilder doesn't restart on rebuild.
   final Map<String, Future<String>> _rohdFileFutures = {};
   final Map<String, Future<_RohdSourceDocument>> _rohdSourceViewFutures = {};
+  final Set<String> _missingSourceAssetDialogs = {};
 
   /// GlobalKey for the TabBarView to preserve element identity across rebuilds.
   GlobalKey? _subtabViewKey;
@@ -539,7 +541,8 @@ class _SVGeneratorState extends State<SVGenerator>
   /// height multiplier that CodeField merges in.  This keeps our overlay
   /// line-height calculation in sync with the actual rendered text.
   static const _codeTextStyle = TextStyle(
-    fontFamily: 'monospace',
+    fontFamily: 'RobotoMono',
+    fontFamilyFallback: ['monospace'],
     fontSize: 12,
     height: 1.5,
   );
@@ -1611,7 +1614,7 @@ class _SVGeneratorState extends State<SVGenerator>
           // Use the cached future if already loaded, else load now.
           _rohdFileFutures.putIfAbsent(
             asset,
-            () => rootBundle.loadString(bundledSourceAssetPath(asset)),
+            () => _loadRohdSourceAsset(asset),
           );
           final source = await _rohdFileFutures[asset]!;
           final lines = source.split('\n');
@@ -1621,7 +1624,11 @@ class _SVGeneratorState extends State<SVGenerator>
           } else {
             labels.add(locationStr);
           }
-        } on Object {
+        } on Object catch (error) {
+          if (!_isMissingSourceAssetError(error)) {
+            rethrow;
+          }
+          _showMissingSourceAssetPopup(asset);
           labels.add(locationStr);
         }
       } else {
@@ -2632,7 +2639,7 @@ class _SVGeneratorState extends State<SVGenerator>
     // Cache the future so FutureBuilder doesn't restart on every rebuild.
     _rohdFileFutures.putIfAbsent(
       assetPath,
-      () => rootBundle.loadString(bundledSourceAssetPath(assetPath)),
+      () => _loadRohdSourceAsset(assetPath),
     );
     _rohdSourceViewFutures.putIfAbsent(
       assetPath,
@@ -2648,6 +2655,15 @@ class _SVGeneratorState extends State<SVGenerator>
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
+          if (_isMissingSourceAssetError(snapshot.error)) {
+            _showMissingSourceAssetPopup(assetPath);
+            return Center(
+              child: Text(
+                'Missing source asset: '
+                '${bundledSourceAssetPath(assetPath)}',
+              ),
+            );
+          }
           return Center(
             child: Text('Error preparing source view: ${snapshot.error}'),
           );
@@ -3067,6 +3083,54 @@ class _SVGeneratorState extends State<SVGenerator>
         },
       );
 
+  Future<String> _loadRohdSourceAsset(String sourceAsset) =>
+      flutter_widgets.DefaultAssetBundle.of(context).loadString(
+        bundledSourceAssetPath(sourceAsset),
+      );
+
+  bool _isMissingSourceAssetError(Object? error) =>
+      error is FlutterError &&
+      error.toString().contains('Unable to load asset');
+
+  void _showMissingSourceAssetPopup(String sourceAsset) {
+    final assetPath = bundledSourceAssetPath(sourceAsset);
+    if (!mounted || !_missingSourceAssetDialogs.add(assetPath)) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        _missingSourceAssetDialogs.remove(assetPath);
+        return;
+      }
+      unawaited(_showMissingSourceAssetDialog(assetPath));
+    });
+  }
+
+  Future<void> _showMissingSourceAssetDialog(String assetPath) async {
+    try {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Missing source asset'),
+          content: Text(
+            'The source file "$assetPath" is missing from the asset area. '
+            "It must be bundled with confapp to view this module's ROHD "
+            'source.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      _missingSourceAssetDialogs.remove(assetPath);
+    }
+  }
+
   /// Load the ROHD source and populate its subtabs from embedded [FlcData].
   Future<void> _buildCrossProbeAndHighlight(
     Configurator component,
@@ -3084,8 +3148,7 @@ class _SVGeneratorState extends State<SVGenerator>
     }
 
     try {
-      final rohdSource =
-          await rootBundle.loadString(bundledSourceAssetPath(primaryAsset));
+      final rohdSource = await _loadRohdSourceAsset(primaryAsset);
       if (!_isCurrentGeneration(requestId)) {
         return;
       }
@@ -3154,10 +3217,18 @@ class _SVGeneratorState extends State<SVGenerator>
           _highlightedRohdLine = null;
         });
       }
-    } on Exception catch (e) {
-      // Non-fatal: cross-probe is optional.
-      // ignore: avoid_print
-      print('[FlcData] failed to build: $e');
+    } on Object catch (error) {
+      if (_isMissingSourceAssetError(error)) {
+        if (_isCurrentGeneration(requestId)) {
+          _showMissingSourceAssetPopup(primaryAsset);
+        }
+      } else if (error is Exception) {
+        // Non-fatal: cross-probe is optional.
+        // ignore: avoid_print
+        print('[FlcData] failed to build: $error');
+      } else {
+        rethrow;
+      }
     }
   }
 
