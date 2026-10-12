@@ -23,6 +23,12 @@ enum ParityDirection {
 
 /// A [Configurator] for parity transmitters and receivers.
 class ParityConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.errorControl;
+
+  @override
+  String get subcategory => 'protection';
+
   /// Width of the data input or received transmission.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 

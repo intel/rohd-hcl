@@ -29,6 +29,12 @@ enum ParallelPrefixOperation {
 
 /// A [Configurator] for unary parallel-prefix operations.
 class ParallelPrefixOperationConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'prefix-networks';
+
   static final Map<
       Type,
       ParallelPrefix Function(

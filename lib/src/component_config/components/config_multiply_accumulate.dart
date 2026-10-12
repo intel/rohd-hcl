@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [CompressionTreeMultiplyAccumulate].
 class MultiplyAccumulateConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'multiply-accumulate';
+
   /// Width of multiplicand A.
   final IntConfigKnob multiplicandWidthKnob = IntConfigKnob(value: 8);
 

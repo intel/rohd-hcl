@@ -12,6 +12,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Shared controls for optional clock-gate interfaces.
 abstract class _ClockControlConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.clocking;
+
+  @override
+  String get subcategory => 'gating';
+
   /// Whether to expose a clock-gate control interface.
   final ToggleConfigKnob includeControlInterfaceKnob =
       ToggleConfigKnob(value: false);
