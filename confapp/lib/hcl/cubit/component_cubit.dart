@@ -19,11 +19,10 @@ class ComponentCubit extends Cubit<Configurator> {
 
   /// Creates a controller for selecting from [components].
   ComponentCubit(List<Configurator> components)
-      : this._(_sortedComponents(components));
+      : this._(_sortedComponents(components), components.first);
 
-  ComponentCubit._(this.components)
-      : selectedComponent = components.first,
-        super(components.first);
+  ComponentCubit._(this.components, this.selectedComponent)
+      : super(selectedComponent);
 
   static List<Configurator> _sortedComponents(
     List<Configurator> components,

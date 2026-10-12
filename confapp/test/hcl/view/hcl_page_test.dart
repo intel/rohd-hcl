@@ -116,7 +116,7 @@ void main() {
       cubit.components.map((component) => component.name),
       orderedEquals(['APB CSR Completer', 'Count', 'Rotate']),
     );
-    expect(cubit.state, same(cubit.components.first));
+    expect(cubit.state, same(input.first));
     expect(
       input.map((component) => component.name),
       orderedEquals(originalOrder),
