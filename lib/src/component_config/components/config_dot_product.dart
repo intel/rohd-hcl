@@ -23,6 +23,12 @@ enum DotProductImplementation {
 
 /// A [Configurator] for documented dot-product implementations.
 class DotProductConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'multiply-accumulate';
+
   /// Number of products to accumulate.
   final IntConfigKnob laneCountKnob = IntConfigKnob(value: 4);
 

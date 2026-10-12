@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [ShiftRegister].
 class ShiftRegisterConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.memory;
+
+  @override
+  String get subcategory => 'sequential';
+
   /// Width of the data input and output.
   final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
 

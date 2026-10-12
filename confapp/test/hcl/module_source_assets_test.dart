@@ -119,7 +119,7 @@ void main() {
               ..implementationKnob.value =
                   DotProductImplementation.compressionTree)
             .createModule(),
-        asset: 'rohd_src/arithmetic/dotproduct.dart',
+        asset: 'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
       ),
       (
         name: 'dual sign-magnitude adder',
@@ -127,7 +127,7 @@ void main() {
               ..implementationKnob.value =
                   SignMagnitudeAdderImplementation.dual)
             .createModule(),
-        asset: 'rohd_src/arithmetic/sign_magnitude_adder.dart',
+        asset: 'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
       ),
       (
         name: 'parallel-prefix priority encoder',
@@ -135,27 +135,28 @@ void main() {
               ..implementationKnob.implementationKnob.value =
                   ParallelPrefixPriorityEncoder)
             .createModule(),
-        asset: 'rohd_src/priority_encoder.dart',
+        asset: 'rohd_src/encodings/priority/priority_encoder.dart',
       ),
       (
         name: 'parallel-prefix incrementer',
         module: (ParallelPrefixOperationConfigurator()
               ..operationKnob.value = ParallelPrefixOperation.increment)
             .createModule(),
-        asset: 'rohd_src/arithmetic/parallel_prefix_operations.dart',
+        asset:
+            'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
       ),
       (
         name: 'parity receiver',
         module: (ParityConfigurator()
               ..directionKnob.value = ParityDirection.receiver)
             .createModule(),
-        asset: 'rohd_src/error_checking/parity.dart',
+        asset: 'rohd_src/error_control/protection/parity.dart',
       ),
       (
         name: 'SPI sub gasket',
         module:
             (SpiConfigurator()..roleKnob.value = SpiRole.sub).createModule(),
-        asset: 'rohd_src/gaskets/spi/spi_sub.dart',
+        asset: 'rohd_src/interfaces/spi/endpoints/spi_sub.dart',
       ),
     ];
 

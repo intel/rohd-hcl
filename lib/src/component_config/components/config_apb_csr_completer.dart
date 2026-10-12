@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [ApbCsrCompleter].
 class ApbCsrCompleterConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.interfaces;
+
+  @override
+  String get subcategory => 'amba-endpoints';
+
   /// Width of APB and CSR addresses.
   final IntConfigKnob addressWidthKnob = IntConfigKnob(value: 16);
 

@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FindPattern].
 class FindPatternConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.bitOperations;
+
+  @override
+  String get subcategory => 'search';
+
   /// Width of the bus being searched.
   final IntConfigKnob busWidthKnob = IntConfigKnob(value: 8);
 

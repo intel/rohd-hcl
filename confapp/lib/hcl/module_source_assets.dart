@@ -36,7 +36,7 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/multiplication/multiplier.dart',
   'Counter': 'rohd_src/arithmetic/accumulation/counter.dart',
   'Count': 'rohd_src/bit_operations/population_count/count.dart',
-  'Deserializer': 'rohd_src/dataflow/serialization/deserializer.dart',
+  'Deserializer': 'rohd_src/dataflow/serialization/serialization.dart',
   'EdgeDetector': 'rohd_src/clocking/event_detection/edge_detector.dart',
   'Extrema': 'rohd_src/dataflow/selection/extrema.dart',
   'Fifo': 'rohd_src/flow_control/storage/fifo.dart',
@@ -103,7 +103,7 @@ const moduleSourceAssets = <String, String>{
   'RotateRight': 'rohd_src/bit_operations/shifting/rotate.dart',
   'RotateRoundRobinArbiter':
       'rohd_src/flow_control/arbitration/rotate_round_robin_arbiter.dart',
-  'Serializer': 'rohd_src/dataflow/serialization/serializer.dart',
+  'Serializer': 'rohd_src/dataflow/serialization/serialization.dart',
   'ShiftRegister': 'rohd_src/memory/sequential/shift_register.dart',
   'SignMagnitudeAdder':
       'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
