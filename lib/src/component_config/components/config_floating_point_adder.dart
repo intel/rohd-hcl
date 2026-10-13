@@ -154,20 +154,20 @@ class FloatingPointAdderConfigurator extends Configurator {
   }
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Dual Path Adder': dualPathAdderKnob,
-    'DAZ/FTZ Selection': subNormalAsZeroSelecKnob,
-    'Select Internal Adder': adderSelectionKnob,
-    'Prefix tree type for incrementers': prefixTreeKnob,
-    'Exponent width': exponentWidthKnob,
-    'Mantissa width': mantissaWidthKnob,
-    'Pipelined': pipelinedKnob,
-    'Explicit J bit': explicitJBitKnob,
-    'Output Floating Point': outputWidthSelectKnob,
-    if (dualPathAdderKnob.value)
-      'Generate Subtract Input': dualPathSubtractInputKnob,
-    'Rounding mode': roundingModeKnob,
-  });
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Dual Path Adder': dualPathAdderKnob,
+        'DAZ/FTZ Selection': subNormalAsZeroSelecKnob,
+        'Select Internal Adder': adderSelectionKnob,
+        'Prefix tree type for incrementers': prefixTreeKnob,
+        'Exponent width': exponentWidthKnob,
+        'Mantissa width': mantissaWidthKnob,
+        'Pipelined': pipelinedKnob,
+        'Explicit J bit': explicitJBitKnob,
+        'Output Floating Point': outputWidthSelectKnob,
+        if (dualPathAdderKnob.value)
+          'Generate Subtract Input': dualPathSubtractInputKnob,
+        'Rounding mode': roundingModeKnob,
+      });
 
   @override
   final String name = 'Floating-Point Adder';

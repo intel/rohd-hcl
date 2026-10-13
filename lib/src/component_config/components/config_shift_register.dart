@@ -34,14 +34,14 @@ class ShiftRegisterConfigurator extends Configurator {
       IntOptionalConfigKnob(value: null);
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Width': widthKnob,
-    'Depth': depthKnob,
-    'Generate Enable Input': includeEnableKnob,
-    'Generate Reset Input': includeResetKnob,
-    if (includeResetKnob.value) 'Asynchronous Reset': asyncResetKnob,
-    if (includeResetKnob.value) 'Reset Value': resetValueKnob,
-  });
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Width': widthKnob,
+        'Depth': depthKnob,
+        'Generate Enable Input': includeEnableKnob,
+        'Generate Reset Input': includeResetKnob,
+        if (includeResetKnob.value) 'Asynchronous Reset': asyncResetKnob,
+        if (includeResetKnob.value) 'Reset Value': resetValueKnob,
+      });
 
   @override
   Module createModule() => ShiftRegister(

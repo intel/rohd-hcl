@@ -43,12 +43,13 @@ class SpiConfigurator extends Configurator {
   final ToggleConfigKnob subResetKnob = ToggleConfigKnob(value: true);
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Data Length': dataLengthKnob,
-    'Role': roleKnob,
-    if (roleKnob.value == SpiRole.sub) 'Subordinate Bus Input': subBusInKnob,
-    if (roleKnob.value == SpiRole.sub) 'Subordinate Reset': subResetKnob,
-  });
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Data Length': dataLengthKnob,
+        'Role': roleKnob,
+        if (roleKnob.value == SpiRole.sub)
+          'Subordinate Bus Input': subBusInKnob,
+        if (roleKnob.value == SpiRole.sub) 'Subordinate Reset': subResetKnob,
+      });
 
   @override
   Module createModule() {

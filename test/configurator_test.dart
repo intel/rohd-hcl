@@ -58,6 +58,119 @@ void main() {
     expect((cfg.knobs['f']! as GroupOfKnobs).subKnobs['2']!.value, '2x');
   });
 
+  test('conditional knobs update after their maps are first accessed', () {
+    final floatingPointAdder = FloatingPointAdderConfigurator();
+    expect(floatingPointAdder.knobs.containsKey('Generate Subtract Input'),
+        isFalse);
+    floatingPointAdder.dualPathAdderKnob.value = true;
+    expect(floatingPointAdder.knobs.containsKey('Generate Subtract Input'),
+        isTrue);
+
+    final spi = SpiConfigurator();
+    expect(spi.knobs.containsKey('Subordinate Bus Input'), isFalse);
+    spi.roleKnob.value = SpiRole.sub;
+    expect(spi.knobs.containsKey('Subordinate Bus Input'), isTrue);
+    expect(spi.knobs.containsKey('Subordinate Reset'), isTrue);
+
+    final findPattern = FindPatternConfigurator();
+    expect(
+        findPattern.knobs.containsKey('Nth Occurrence Input Width'), isFalse);
+    findPattern.includeOccurrenceKnob.value = true;
+    expect(findPattern.knobs.containsKey('Nth Occurrence Input Width'), isTrue);
+
+    final shiftRegister = ShiftRegisterConfigurator();
+    expect(shiftRegister.knobs.containsKey('Asynchronous Reset'), isFalse);
+    shiftRegister.includeResetKnob.value = true;
+    expect(shiftRegister.knobs.containsKey('Asynchronous Reset'), isTrue);
+    expect(shiftRegister.knobs.containsKey('Reset Value'), isTrue);
+
+    final signMagnitudeAdder = SignMagnitudeAdderConfigurator();
+    expect(signMagnitudeAdder.knobs.containsKey('Largest Magnitude First'),
+        isTrue);
+    signMagnitudeAdder.implementationKnob.value =
+        SignMagnitudeAdderImplementation.dual;
+    expect(signMagnitudeAdder.knobs.containsKey('Largest Magnitude First'),
+        isFalse);
+    expect(signMagnitudeAdder.knobs.containsKey('Generate End-Around Carry'),
+        isFalse);
+
+    final dotProduct = DotProductConfigurator();
+    expect(dotProduct.knobs.containsKey('Reduction Tree Radix'), isTrue);
+    dotProduct.implementationKnob.value =
+        DotProductImplementation.compressionTree;
+    expect(dotProduct.knobs.containsKey('Reduction Tree Radix'), isFalse);
+    expect(dotProduct.knobs.containsKey('Lane Multiplier'), isFalse);
+
+    final generalDotProduct = DotProductConfigurator()
+      ..multiplierSelectKnob.compressionTreeMultiplierKnob.value = true;
+    expect(
+      generalDotProduct.multiplierSelectKnob.subKnobs.containsKey('Pipelined'),
+      isFalse,
+    );
+  });
+
+  test('loads conditional floating-point adder knobs from JSON', () {
+    final configured = FloatingPointAdderConfigurator()
+      ..dualPathAdderKnob.value = true
+      ..dualPathSubtractInputKnob.value = true;
+
+    final loaded = FloatingPointAdderConfigurator()
+      ..loadJson(configured.toJson());
+
+    expect(loaded.dualPathAdderKnob.value, isTrue);
+    expect(loaded.dualPathSubtractInputKnob.value, isTrue);
+    expect(loaded.knobs.containsKey('Generate Subtract Input'), isTrue);
+  });
+
+  test('all configurator knobs round-trip through JSON', () {
+    for (final configured in componentRegistry) {
+      final loaded = componentRegistry.singleWhere(
+        (candidate) => candidate.runtimeType == configured.runtimeType,
+      )..loadJson(configured.toJson());
+
+      expect(
+        loaded.toJson(),
+        configured.toJson(),
+        reason: '${configured.name} configuration did not round-trip.',
+      );
+    }
+  });
+
+  test('reusable conditional knobs retain non-default JSON values', () {
+    final multiplier = MultiplierSelectKnob(
+      allowSigned: true,
+      allowPipelining: true,
+    )
+      ..compressionTreeMultiplierKnob.value = true
+      ..radixKnob.value = 8
+      ..multiplicandWidthKnob.value = 7
+      ..multiplierWidthKnob.value = 9
+      ..signMultiplicandValueKnob.value = 'selected'
+      ..signMultiplierValueKnob.value = 'signed'
+      ..pipelinedKnob.value = true
+      ..adderSelectionKnob.parallelPrefixAdderKnob.value = true
+      ..adderSelectionKnob.parallelPrefixTypeKnob.value = Ripple;
+    final loadedMultiplier = MultiplierSelectKnob(
+      allowSigned: true,
+      allowPipelining: true,
+    )..loadJson(multiplier.toJson());
+
+    expect(loadedMultiplier.toJson(), multiplier.toJson());
+    expect(loadedMultiplier.subKnobs.containsKey('Pipelined'), isTrue);
+    expect(loadedMultiplier.pipelinedKnob.value, isTrue);
+    expect(
+      loadedMultiplier.adderSelectionKnob.parallelPrefixTypeKnob.value,
+      Ripple,
+    );
+
+    final priorityEncoder = PriorityEncoderSelectKnob()
+      ..implementationKnob.value = ParallelPrefixPriorityEncoder;
+    final loadedPriorityEncoder = PriorityEncoderSelectKnob()
+      ..loadJson(priorityEncoder.toJson());
+
+    expect(loadedPriorityEncoder.toJson(), priorityEncoder.toJson());
+  });
+
   group('rotate generator', () {
     test('should return Ripple Carry Adder for component name', () {
       final rotate = RotateConfigurator();

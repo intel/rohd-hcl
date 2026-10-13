@@ -33,15 +33,15 @@ class FindPatternConfigurator extends Configurator {
   final ToggleConfigKnob generateErrorKnob = ToggleConfigKnob(value: false);
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Bus Width': busWidthKnob,
-    'Pattern Width': patternWidthKnob,
-    'Search From Start': fromStartKnob,
-    'Generate Nth Occurrence Input': includeOccurrenceKnob,
-    if (includeOccurrenceKnob.value)
-      'Nth Occurrence Input Width': occurrenceWidthKnob,
-    'Generate Error': generateErrorKnob,
-  });
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Bus Width': busWidthKnob,
+        'Pattern Width': patternWidthKnob,
+        'Search From Start': fromStartKnob,
+        'Generate Nth Occurrence Input': includeOccurrenceKnob,
+        if (includeOccurrenceKnob.value)
+          'Nth Occurrence Input Width': occurrenceWidthKnob,
+        'Generate Error': generateErrorKnob,
+      });
 
   @override
   Module createModule() => FindPattern(

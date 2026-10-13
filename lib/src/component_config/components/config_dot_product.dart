@@ -62,26 +62,26 @@ class DotProductConfigurator extends Configurator {
 
   /// Multiplier implementation used by the general dot product.
   final MultiplierSelectKnob multiplierSelectKnob = MultiplierSelectKnob(
-      allowSigned: false, allowPipelining: true, name: 'Lane Multiplier');
+      allowSigned: false, allowPipelining: false, name: 'Lane Multiplier');
 
   /// Adder implementation used by the dot product.
   final AdderSelectKnob adderSelectKnob = AdderSelectKnob();
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Lane Count': laneCountKnob,
-    'Multiplicand Width': multiplicandWidthKnob,
-    'Multiplier Width': multiplierWidthKnob,
-    'Implementation': implementationKnob,
-    'Product Radix': productRadixKnob,
-    if (implementationKnob.value == DotProductImplementation.general)
-      'Reduction Tree Radix': reductionRadixKnob,
-    'Multiplicand Signedness': signedMultiplicandKnob,
-    'Multiplier Signedness': signedMultiplierKnob,
-    if (implementationKnob.value == DotProductImplementation.general)
-      'Lane Multiplier': multiplierSelectKnob,
-    'Final Adder': adderSelectKnob,
-  });
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Lane Count': laneCountKnob,
+        'Multiplicand Width': multiplicandWidthKnob,
+        'Multiplier Width': multiplierWidthKnob,
+        'Implementation': implementationKnob,
+        'Product Radix': productRadixKnob,
+        if (implementationKnob.value == DotProductImplementation.general)
+          'Reduction Tree Radix': reductionRadixKnob,
+        'Multiplicand Signedness': signedMultiplicandKnob,
+        'Multiplier Signedness': signedMultiplierKnob,
+        if (implementationKnob.value == DotProductImplementation.general)
+          'Lane Multiplier': multiplierSelectKnob,
+        'Final Adder': adderSelectKnob,
+      });
 
   @override
   Module createModule() {

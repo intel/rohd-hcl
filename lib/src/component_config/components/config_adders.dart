@@ -86,15 +86,15 @@ class SignMagnitudeAdderConfigurator extends Configurator {
   final AdderSelectKnob adderSelectKnob = AdderSelectKnob();
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Width': widthKnob,
-    'Implementation': implementationKnob,
-    if (implementationKnob.value == SignMagnitudeAdderImplementation.single)
-      'Largest Magnitude First': largestMagnitudeFirstKnob,
-    if (implementationKnob.value == SignMagnitudeAdderImplementation.single)
-      'Generate End-Around Carry': generateEndAroundCarryKnob,
-    'Internal Adder': adderSelectKnob,
-  });
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Width': widthKnob,
+        'Implementation': implementationKnob,
+        if (implementationKnob.value == SignMagnitudeAdderImplementation.single)
+          'Largest Magnitude First': largestMagnitudeFirstKnob,
+        if (implementationKnob.value == SignMagnitudeAdderImplementation.single)
+          'Generate End-Around Carry': generateEndAroundCarryKnob,
+        'Internal Adder': adderSelectKnob,
+      });
 
   @override
   Module createModule() {
