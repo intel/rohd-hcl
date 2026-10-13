@@ -26,15 +26,22 @@ class CountConfigurator extends Configurator {
   /// Whether to count ones rather than zeros.
   final ToggleConfigKnob countOneKnob = ToggleConfigKnob(value: true);
 
+  /// Maximum number of operands combined by a balanced reduction node.
+  final IntConfigKnob radixKnob = IntConfigKnob(value: 2);
+
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Width': widthKnob,
     'Count Ones': countOneKnob,
+    'Radix': radixKnob,
   });
 
   @override
-  Module createModule() =>
-      Count(Logic(width: widthKnob.value), countOne: countOneKnob.value);
+  Module createModule() => Count(
+        Logic(width: widthKnob.value),
+        countOne: countOneKnob.value,
+        radix: radixKnob.value,
+      );
 
   @override
   String get name => 'Count';
