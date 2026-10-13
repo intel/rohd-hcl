@@ -30,11 +30,15 @@ class ExtremaConfigurator extends Configurator {
   /// A knob controlling whether to find Max or Min.
   final ToggleConfigKnob maxKnob = ToggleConfigKnob(value: true);
 
+  /// Maximum number of candidates compared by a balanced reduction node.
+  final IntConfigKnob radixKnob = IntConfigKnob(value: 2);
+
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
     'Length of list (number of elements)': signalsKnob,
     'Element width (for all elements)': logicWidthKnob,
     'Find maximum (uncheck for minimum)': maxKnob,
+    'Radix': radixKnob,
   });
 
   @override
@@ -45,6 +49,7 @@ class ExtremaConfigurator extends Configurator {
     return Extrema(
       signals,
       max: maxKnob.value,
+      radix: radixKnob.value,
     );
   }
 

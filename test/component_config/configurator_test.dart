@@ -85,6 +85,23 @@ void main() {
     }
   });
 
+  test('static-or-runtime integer knobs preserve static values and inputs', () {
+    final knob = StaticOrRuntimeIntKnob(staticValue: null)
+      ..loadJson({'value': 7});
+    expect(knob.resolve('threshold'), 7);
+
+    knob.modeKnob.value = StaticOrRuntimeIntMode.runtime;
+    knob.runtimeWidthKnob.value = 5;
+    final runtimeControl =
+        knob.resolve('threshold') as StaticOrRuntimeControl<int>;
+    expect(runtimeControl.name, 'threshold');
+    expect(runtimeControl.runtimeConfig!.width, 5);
+
+    final restored = StaticOrRuntimeIntKnob()..loadJson(knob.toJson());
+    expect(restored.modeKnob.value, StaticOrRuntimeIntMode.runtime);
+    expect(restored.runtimeWidthKnob.value, 5);
+  });
+
   test('conditional knobs update after their maps are first accessed', () {
     final floatingPointAdder = FloatingPointAdderConfigurator();
     expect(floatingPointAdder.knobs.containsKey('Generate Subtract Input'),
@@ -601,10 +618,10 @@ void main() {
 
   test('sum configurator', () {
     final cfg = SumConfigurator();
-    cfg.initialValueKnob.value = 6;
+    cfg.initialValueKnob.staticValueKnob.value = 6;
     cfg.widthKnob.value = 10;
-    cfg.minValueKnob.value = 5;
-    cfg.maxValueKnob.value = 25;
+    cfg.minValueKnob.staticValueKnob.value = 5;
+    cfg.maxValueKnob.staticValueKnob.value = 25;
     cfg.saturatesKnob.value = true;
 
     final mod = cfg.createModule() as Sum;
@@ -620,6 +637,58 @@ void main() {
     // ignore: invalid_use_of_protected_member
     expect(mod.maxValueLogic.value.toInt(), 25);
     expect(mod.saturates, true);
+  });
+
+  test('summation configurators forward new controls', () async {
+    final sumConfigurator = SumConfigurator()
+      ..widthKnob.value = 8
+      ..initialValueKnob.modeKnob.value = StaticOrRuntimeIntMode.runtime
+      ..initialValueKnob.runtimeWidthKnob.value = 8
+      ..minValueKnob.modeKnob.value = StaticOrRuntimeIntMode.runtime
+      ..minValueKnob.runtimeWidthKnob.value = 8
+      ..maxValueKnob.modeKnob.value = StaticOrRuntimeIntMode.runtime
+      ..maxValueKnob.runtimeWidthKnob.value = 8;
+    final sum = sumConfigurator.createModule() as Sum;
+    expect(
+        sum.inputs.keys, containsAll(['initialValue', 'minValue', 'maxValue']));
+    await sumConfigurator.generateSV();
+
+    final counterConfigurator = CounterConfigurator()
+      ..asyncResetKnob.value = true
+      ..trackOverflowKnob.value = false
+      ..trackUnderflowKnob.value = false
+      ..resetValueKnob.modeKnob.value = StaticOrRuntimeIntMode.runtime
+      ..resetValueKnob.runtimeWidthKnob.value = 8;
+    final counter = counterConfigurator.createModule() as Counter;
+    expect(counter.inputs, contains('resetValue'));
+    expect(counter.asyncReset, isTrue);
+    expect(counter.trackOverflow, isFalse);
+    expect(counter.trackUnderflow, isFalse);
+    await counterConfigurator.generateSV();
+
+    final gatedCounterConfigurator = CounterConfigurator()
+      ..clockGatingKnob.value = true
+      ..asyncResetKnob.value = true
+      ..trackOverflowKnob.value = false
+      ..trackUnderflowKnob.value = false;
+    final gatedCounter =
+        gatedCounterConfigurator.createModule() as GatedCounter;
+    expect(gatedCounter.asyncReset, isTrue);
+    expect(gatedCounter.trackOverflow, isFalse);
+    expect(gatedCounter.trackUnderflow, isFalse);
+    await gatedCounterConfigurator.generateSV();
+  });
+
+  test('count and extrema configurators forward radix', () async {
+    final countConfigurator = CountConfigurator()..radixKnob.value = 3;
+    final count = countConfigurator.createModule() as Count;
+    expect(count.treeDepth, isPositive);
+    expect(await countConfigurator.generateSV(), contains('_R3'));
+
+    final extremaConfigurator = ExtremaConfigurator()..radixKnob.value = 3;
+    final extrema = extremaConfigurator.createModule() as Extrema;
+    expect(extrema.treeDepth, isPositive);
+    expect(await extremaConfigurator.generateSV(), contains('_R3'));
   });
 
   test('gated counter configurator', () async {

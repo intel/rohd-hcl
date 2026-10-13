@@ -123,6 +123,7 @@
 - Grouped the component sidebar by configurator category.
 - Updated the source-view asset mapping and generated asset list for the reorganized source tree.
 - Expanded the configuration application catalog to cover all configurable components and bundled Roboto Mono for generated source output.
+- Added configuration controls for `Count`/`Extrema` radix and static-or-runtime summation values, Counter reset behavior, and overflow/underflow tracking.
 
 ### Documentation
 

@@ -17,6 +17,8 @@ The `Sum` component takes a list of `SumInterface`s and adds them all up. The `s
 
 `initialValue`, `maxValue`, and `minValue` may be supplied as a static value or a runtime `Logic`. They also accept a `StaticOrRuntimeControl<T>` when an explicitly named runtime input is useful. Static configurations can be used to omit unreachable overflow or underflow logic; runtime configurations retain the corresponding checks.
 
+The configuration application exposes each of these values as a static value or a named runtime input, including the runtime signal width.
+
 Internally, the `Sum` component builds a wider bus which is large enough to hold the biggest possible intermediate value during summation before consideration of overflow and saturation.
 
 Note that the implementation's size and complexity when synthesized depend significantly on the configuration. For example, if everything is a nice power-of-2 number, then the logic is much simpler than otherwise where hardware modulos may be required to properly handle roll-over/under scenarios.
@@ -44,6 +46,8 @@ The `resetValue`, `maxValue`, and `minValue` may also use `StaticOrRuntimeContro
 `trackOverflow: false` or `trackUnderflow: false` when the corresponding
 history signal is not needed; its history flop is omitted and the signal is
 tied low.
+
+The configuration application also exposes asynchronous reset and both status-tracking controls.
 
 ```dart
 // A counter which increments by 1 each cycle up to 5, then rolls over.
