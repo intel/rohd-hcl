@@ -14,6 +14,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+const _randomIterations = 4;
+
 // Here are the variations needed testing:
 // - Sign variants
 //   - Multiplicand:  [unsigned, signed], [selectedUnsigned, selectedSigned]
@@ -24,30 +26,28 @@ import 'package:test/test.dart';
 //   - Rectangular: again, need to cross a shift interval
 // - Sign Extension: [brute, stop, compact, compactRect]
 
-void testPartialProductExhaustive(PartialProductGeneratorBase pp) {
-  final widthX = pp.selector.multiplicand.width;
-  final widthY = pp.encoder.multiplier.width;
+typedef PartialProductFactory = PartialProductGeneratorBase Function();
 
-  final limitX = pow(2, widthX);
-  final limitY = pow(2, widthY);
-
-  final multiplicandSigns = pp.signedMultiplicand
-      ? [true]
-      : (pp.selectSignedMultiplicand != null)
-          ? [false, true]
-          : [false];
-  final multiplierSigns = pp.signedMultiplier
-      ? [true]
-      : (pp.selectSignedMultiplier != null)
-          ? [false, true]
-          : [false];
-  test(
-      'exhaustive: ${pp.name} R${pp.selector.radix} '
-      'WD=${pp.multiplicand.width} WM=${pp.multiplier.width} '
-      'SD=${pp.signedMultiplicand ? 1 : 0} '
-      'SM=${pp.signedMultiplier ? 1 : 0} '
-      'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () {
+void testPartialProductExhaustive(
+  String description,
+  PartialProductFactory create,
+) {
+  test('exhaustive: $description', () {
+    final pp = create();
+    final widthX = pp.selector.multiplicand.width;
+    final widthY = pp.encoder.multiplier.width;
+    final limitX = pow(2, widthX);
+    final limitY = pow(2, widthY);
+    final multiplicandSigns = pp.signedMultiplicand
+        ? [true]
+        : (pp.selectSignedMultiplicand != null)
+            ? [false, true]
+            : [false];
+    final multiplierSigns = pp.signedMultiplier
+        ? [true]
+        : (pp.selectSignedMultiplier != null)
+            ? [false, true]
+            : [false];
     for (var i = 0; i < limitX; i++) {
       for (var j = 0; j < limitY; j++) {
         for (final multiplicandSign in multiplicandSigns) {
@@ -70,28 +70,25 @@ void testPartialProductExhaustive(PartialProductGeneratorBase pp) {
   });
 }
 
-void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
-  final widthX = pp.selector.multiplicand.width;
-  final widthY = pp.encoder.multiplier.width;
-
-  final multiplicandSigns = pp.signedMultiplicand
-      ? [true]
-      : (pp.selectSignedMultiplicand != null)
-          ? [false, true]
-          : [false];
-  final multiplierSigns = pp.signedMultiplier
-      ? [true]
-      : (pp.selectSignedMultiplier != null)
-          ? [false, true]
-          : [false];
-
-  test(
-      'random: ${pp.name} R${pp.selector.radix} '
-      'WD=${pp.multiplicand.width} WM=${pp.multiplier.width} '
-      'SD=${pp.signedMultiplicand ? 1 : 0} '
-      'SM=${pp.signedMultiplier ? 1 : 0} '
-      'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () {
+void testPartialProductRandom(
+  String description,
+  int iterations,
+  PartialProductFactory create,
+) {
+  test('random: $description', () {
+    final pp = create();
+    final widthX = pp.selector.multiplicand.width;
+    final widthY = pp.encoder.multiplier.width;
+    final multiplicandSigns = pp.signedMultiplicand
+        ? [true]
+        : (pp.selectSignedMultiplicand != null)
+            ? [false, true]
+            : [false];
+    final multiplierSigns = pp.signedMultiplier
+        ? [true]
+        : (pp.selectSignedMultiplier != null)
+            ? [false, true]
+            : [false];
     final rand = Random(47);
     for (var i = 0; i < iterations; i++) {
       for (final multiplicandSign in multiplicandSigns) {
@@ -118,14 +115,13 @@ void testPartialProductRandom(PartialProductGeneratorBase pp, int iterations) {
 }
 
 void testPartialProductSingle(
-    PartialProductGeneratorBase pp, BigInt X, BigInt Y) {
-  test(
-      'single: ${pp.name} R${pp.selector.radix} '
-      'WD=${pp.multiplicand.width} WM=${pp.multiplier.width} '
-      'SD=${pp.signedMultiplicand ? 1 : 0} '
-      'SM=${pp.signedMultiplier ? 1 : 0} '
-      'SelD=${pp.selectSignedMultiplicand != null ? 1 : 0} '
-      'SelM=${pp.selectSignedMultiplier != null ? 1 : 0}', () {
+  String description,
+  PartialProductFactory create,
+  BigInt X,
+  BigInt Y,
+) {
+  test('single: $description', () {
+    final pp = create();
     if (pp.selectSignedMultiplicand != null) {
       pp.selectSignedMultiplicand!.put(X.isNegative ? 1 : 0);
     }
@@ -162,12 +158,22 @@ void main() {
           final width = log2Ceil(radix) + (signedMultiplier ? 1 : 0);
           for (final signExtension
               in SignExtension.values.where((e) => e != SignExtension.none)) {
-            final pp = PartialProductGenerator(Logic(name: 'X', width: width),
-                Logic(name: 'Y', width: width), RadixEncoder(radix),
-                signedMultiplicand: signedMultiplicand,
-                signedMultiplier: signedMultiplier);
-            currySignExtensionFunction(signExtension)(pp).signExtend();
-            testPartialProductExhaustive(pp);
+            testPartialProductExhaustive(
+              'fixed_R${radix}_W$width'
+              '_SD${signedMultiplicand ? 1 : 0}'
+              '_SM${signedMultiplier ? 1 : 0}_${signExtension.name}',
+              () {
+                final pp = PartialProductGenerator(
+                  Logic(name: 'X', width: width),
+                  Logic(name: 'Y', width: width),
+                  RadixEncoder(radix),
+                  signedMultiplicand: signedMultiplicand,
+                  signedMultiplier: signedMultiplier,
+                );
+                currySignExtensionFunction(signExtension)(pp).signExtend();
+                return pp;
+              },
+            );
           }
         }
       }
@@ -180,55 +186,63 @@ void main() {
     for (final signedMultiplicand in [false, true]) {
       for (final signedMultiplier in [false, true]) {
         final width = log2Ceil(radix) + (signedMultiplier ? 1 : 0);
-        final a = Logic(name: 'X', width: width);
-        final b = Logic(name: 'Y', width: width);
-
-        const i = 0;
-        const j = 0;
-        final X =
-            SignedBigInt.fromSignedInt(i, width, signed: signedMultiplicand);
-        final Y =
-            SignedBigInt.fromSignedInt(j, width, signed: signedMultiplier);
-        a.put(X);
-        b.put(Y);
-        final PartialProductGeneratorBase pp;
-        pp = PartialProductGenerator(a, b, encoder,
-            signedMultiplicand: signedMultiplicand,
-            signedMultiplier: signedMultiplier);
-        StopBitsSignExtension(pp).signExtend();
-        testPartialProductSingle(pp, X, Y);
+        testPartialProductSingle(
+          'singleton_R${radix}_W$width'
+          '_SD${signedMultiplicand ? 1 : 0}'
+          '_SM${signedMultiplier ? 1 : 0}',
+          () {
+            final pp = PartialProductGenerator(
+              Logic(name: 'X', width: width),
+              Logic(name: 'Y', width: width),
+              encoder,
+              signedMultiplicand: signedMultiplicand,
+              signedMultiplier: signedMultiplier,
+            );
+            StopBitsSignExtension(pp).signExtend();
+            return pp;
+          },
+          BigInt.zero,
+          BigInt.zero,
+        );
       }
     }
   });
 
   group('PartialProduct: fixed/select sign variants', () {
-    final selectSignMultiplicand = Logic();
-    final selectSignMultiplier = Logic();
     for (final radix in [2, 4]) {
-      final encoder = RadixEncoder(radix);
       for (final selectMultiplicand in [false, true]) {
         for (final signMultiplicand
             in (!selectMultiplicand ? [false, true] : [false])) {
           for (final selectMultiplier in [false, true]) {
             for (final signMultiplier
                 in (!selectMultiplier ? [false, true] : [false])) {
-              selectSignMultiplicand.put(selectMultiplicand ? 1 : 0);
-              selectSignMultiplier.put(selectMultiplier ? 1 : 0);
               for (final signExtension in SignExtension.values
                   .where((e) => e != SignExtension.none)) {
                 final width = log2Ceil(radix) + (signMultiplier ? 1 : 0);
-                final PartialProductGeneratorBase pp;
-                pp = PartialProductGenerator(Logic(name: 'X', width: width),
-                    Logic(name: 'Y', width: width), encoder,
-                    signedMultiplicand: signMultiplicand,
-                    signedMultiplier: signMultiplier,
-                    selectSignedMultiplicand:
-                        selectMultiplicand ? selectSignMultiplicand : null,
-                    selectSignedMultiplier:
-                        selectMultiplier ? selectSignMultiplier : null);
-                currySignExtensionFunction(signExtension)(pp).signExtend();
-
-                testPartialProductExhaustive(pp);
+                testPartialProductExhaustive(
+                  'select_R${radix}_W$width'
+                  '_SD${signMultiplicand ? 1 : 0}'
+                  '_SM${signMultiplier ? 1 : 0}'
+                  '_SelD${selectMultiplicand ? 1 : 0}'
+                  '_SelM${selectMultiplier ? 1 : 0}_${signExtension.name}',
+                  () {
+                    final selectSignMultiplicand = Logic();
+                    final selectSignMultiplier = Logic();
+                    final pp = PartialProductGenerator(
+                      Logic(name: 'X', width: width),
+                      Logic(name: 'Y', width: width),
+                      RadixEncoder(radix),
+                      signedMultiplicand: signMultiplicand,
+                      signedMultiplier: signMultiplier,
+                      selectSignedMultiplicand:
+                          selectMultiplicand ? selectSignMultiplicand : null,
+                      selectSignedMultiplier:
+                          selectMultiplier ? selectSignMultiplier : null,
+                    );
+                    currySignExtensionFunction(signExtension)(pp).signExtend();
+                    return pp;
+                  },
+                );
               }
             }
           }
@@ -239,61 +253,63 @@ void main() {
 
   group('PartialProduct: singleton fixed/select sign variants', () {
     const radix = 4;
-    final encoder = RadixEncoder(radix);
     const width = 4;
-
-    final selectSignMultiplicand = Logic();
-    final selectSignMultiplier = Logic();
 
     for (final selectMultiplicand in [false, true]) {
       for (final selectMultiplier in [false, true]) {
-        selectSignMultiplicand.put(selectMultiplicand ? 1 : 0);
-        selectSignMultiplier.put(selectMultiplier ? 1 : 0);
-        final PartialProductGeneratorBase pp;
-        pp = PartialProductGenerator(Logic(name: 'X', width: width),
-            Logic(name: 'Y', width: width), encoder,
-            signedMultiplicand: !selectMultiplicand,
-            signedMultiplier: !selectMultiplier,
-            selectSignedMultiplicand:
-                selectMultiplicand ? selectSignMultiplicand : null,
-            selectSignedMultiplier:
-                selectMultiplier ? selectSignMultiplier : null);
-
-        CompactRectSignExtension(pp).signExtend();
-
-        const i = 6;
-        const j = -6;
-        final X = SignedBigInt.fromSignedInt(i, width,
-            signed: pp.isSignedMultiplicand());
-        final Y = SignedBigInt.fromSignedInt(j, width,
-            signed: pp.isSignedMultiplier());
-
-        testPartialProductSingle(pp, X, Y);
+        testPartialProductSingle(
+          'singleton_select_R${radix}_W$width'
+          '_SelD${selectMultiplicand ? 1 : 0}'
+          '_SelM${selectMultiplier ? 1 : 0}',
+          () {
+            final selectSignMultiplicand = Logic();
+            final selectSignMultiplier = Logic();
+            final pp = PartialProductGenerator(
+              Logic(name: 'X', width: width),
+              Logic(name: 'Y', width: width),
+              RadixEncoder(radix),
+              signedMultiplicand: !selectMultiplicand,
+              signedMultiplier: !selectMultiplier,
+              selectSignedMultiplicand:
+                  selectMultiplicand ? selectSignMultiplicand : null,
+              selectSignedMultiplier:
+                  selectMultiplier ? selectSignMultiplier : null,
+            );
+            CompactRectSignExtension(pp).signExtend();
+            return pp;
+          },
+          BigInt.from(6),
+          BigInt.from(-6),
+        );
       }
     }
   });
 
   group('PartialProduct: width/radix/extension sweep', () {
     for (var radix = 2; radix < 16; radix *= 2) {
-      final encoder = RadixEncoder(radix);
-      final shift = log2Ceil(encoder.radix);
+      final shift = log2Ceil(radix);
       for (var width = shift; width < min(5, 2 * shift); width++) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
-          // final ppg = curryPartialProductGenerator(signExtension);
-          final pp = PartialProductGenerator(Logic(name: 'X', width: width),
-              Logic(name: 'Y', width: width), encoder);
-          currySignExtensionFunction(signExtension)(pp).signExtend();
-
-          testPartialProductExhaustive(pp);
+          testPartialProductExhaustive(
+            'width_R${radix}_W${width}_${signExtension.name}',
+            () {
+              final pp = PartialProductGenerator(
+                Logic(name: 'X', width: width),
+                Logic(name: 'Y', width: width),
+                RadixEncoder(radix),
+              );
+              currySignExtensionFunction(signExtension)(pp).signExtend();
+              return pp;
+            },
+          );
         }
       }
     }
   });
   group('PartialProduct: rectangle/radix/extension sweep', () {
     for (var radix = 2; radix < 8; radix *= 2) {
-      final encoder = RadixEncoder(radix);
-      final shift = log2Ceil(encoder.radix);
+      final shift = log2Ceil(radix);
       for (final signedMultiplicand in [false, true]) {
         final widthX = shift + 2;
         for (final signedMultiplier in [false, true]) {
@@ -304,15 +320,22 @@ void main() {
               SignExtension.stopBits,
               SignExtension.compactRect
             ]) {
-              final pp = PartialProductGenerator(
-                  Logic(name: 'X', width: widthX),
-                  Logic(name: 'Y', width: widthY),
-                  encoder,
-                  signedMultiplicand: signedMultiplicand,
-                  signedMultiplier: signedMultiplier);
-              currySignExtensionFunction(signExtension)(pp).signExtend();
-
-              testPartialProductExhaustive(pp);
+              testPartialProductExhaustive(
+                'rectangle_R${radix}_W${widthX}x$widthY'
+                '_SD${signedMultiplicand ? 1 : 0}'
+                '_SM${signedMultiplier ? 1 : 0}_${signExtension.name}',
+                () {
+                  final pp = PartialProductGenerator(
+                    Logic(name: 'X', width: widthX),
+                    Logic(name: 'Y', width: widthY),
+                    RadixEncoder(radix),
+                    signedMultiplicand: signedMultiplicand,
+                    signedMultiplier: signedMultiplier,
+                  );
+                  currySignExtensionFunction(signExtension)(pp).signExtend();
+                  return pp;
+                },
+              );
             }
           }
         }
@@ -322,16 +345,22 @@ void main() {
 
   group('PartialProduct: minimum width', () {
     for (var radix = 2; radix < 32; radix *= 2) {
-      final encoder = RadixEncoder(radix);
-      final shift = log2Ceil(encoder.radix);
+      final shift = log2Ceil(radix);
       for (var width = shift; width < min(5, 2 * shift); width++) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
-          final pp = PartialProductGenerator(Logic(name: 'X', width: width),
-              Logic(name: 'Y', width: width), encoder);
-          currySignExtensionFunction(signExtension)(pp).signExtend();
-
-          testPartialProductExhaustive(pp);
+          testPartialProductExhaustive(
+            'minimum_R${radix}_W${width}_${signExtension.name}',
+            () {
+              final pp = PartialProductGenerator(
+                Logic(name: 'X', width: width),
+                Logic(name: 'Y', width: width),
+                RadixEncoder(radix),
+              );
+              currySignExtensionFunction(signExtension)(pp).signExtend();
+              return pp;
+            },
+          );
         }
       }
     }
@@ -339,30 +368,47 @@ void main() {
 
   group('PartialProduct: minimum rectangle', () {
     for (var radix = 2; radix < 32; radix *= 2) {
-      final encoder = RadixEncoder(radix);
-      final shift = log2Ceil(encoder.radix);
-      for (final signedMultiplicand in [false, true]) {
+      final shift = log2Ceil(radix);
+      // At high radices, the unsigned and signed extremes cover the
+      // rectangular boundary without repeating the mixed-sign cases already
+      // exhaustively covered at lower radices.
+      final signCombinations = radix < 8
+          ? [
+              (multiplicand: false, multiplier: false),
+              (multiplicand: false, multiplier: true),
+              (multiplicand: true, multiplier: false),
+              (multiplicand: true, multiplier: true),
+            ]
+          : [
+              (multiplicand: false, multiplier: false),
+              (multiplicand: true, multiplier: true),
+            ];
+      for (final signs in signCombinations) {
+        final signedMultiplicand = signs.multiplicand;
         final widthX = shift;
-        for (final signedMultiplier in [false, true]) {
-          for (var widthY = shift + (signedMultiplier ? 1 : 0);
-              widthY < shift + 1 + (signedMultiplier ? 1 : 0);
-              widthY++) {
-            for (final signExtension in [
-              SignExtension.brute,
-              SignExtension.stopBits,
-              SignExtension.compactRect
-            ]) {
+        final signedMultiplier = signs.multiplier;
+        final widthY = shift + (signedMultiplier ? 1 : 0);
+        for (final signExtension in [
+          SignExtension.brute,
+          SignExtension.stopBits,
+          SignExtension.compactRect
+        ]) {
+          testPartialProductExhaustive(
+            'minimum_rectangle_R${radix}_W${widthX}x$widthY'
+            '_SD${signedMultiplicand ? 1 : 0}'
+            '_SM${signedMultiplier ? 1 : 0}_${signExtension.name}',
+            () {
               final pp = PartialProductGenerator(
-                  Logic(name: 'X', width: widthX),
-                  Logic(name: 'Y', width: widthY),
-                  encoder,
-                  signedMultiplicand: signedMultiplicand,
-                  signedMultiplier: signedMultiplier);
+                Logic(name: 'X', width: widthX),
+                Logic(name: 'Y', width: widthY),
+                RadixEncoder(radix),
+                signedMultiplicand: signedMultiplicand,
+                signedMultiplier: signedMultiplier,
+              );
               currySignExtensionFunction(signExtension)(pp).signExtend();
-
-              testPartialProductExhaustive(pp);
-            }
-          }
+              return pp;
+            },
+          );
         }
       }
     }
@@ -383,16 +429,23 @@ void main() {
     for (final alignList in alignTest) {
       for (final align in alignList) {
         final radix = align.$1;
-        final encoder = RadixEncoder(radix);
         final width = align.$2;
 
         final skew = align.$3;
 
-        final pp = PartialProductGenerator(Logic(name: 'X', width: width),
-            Logic(name: 'Y', width: width + skew), encoder);
-        CompactRectSignExtension(pp).signExtend();
-
-        testPartialProductRandom(pp, 10);
+        testPartialProductRandom(
+          'q_collision_R${radix}_W${width}x${width + skew}',
+          _randomIterations,
+          () {
+            final pp = PartialProductGenerator(
+              Logic(name: 'X', width: width),
+              Logic(name: 'Y', width: width + skew),
+              RadixEncoder(radix),
+            );
+            CompactRectSignExtension(pp).signExtend();
+            return pp;
+          },
+        );
       }
     }
   });

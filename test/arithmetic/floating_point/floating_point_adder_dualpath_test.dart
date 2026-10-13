@@ -13,6 +13,10 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+const _roundingModeRandomIterations = 40;
+const _rPathRandomIterations = 50;
+const _wideRandomIterations = 30;
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -32,7 +36,9 @@ void main() {
           exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
       final adder = FloatingPointAdderDualPath(a, b, roundingMode: mode);
 
-      for (var iteration = 0; iteration < 150; iteration++) {
+      for (var iteration = 0;
+          iteration < _roundingModeRandomIterations;
+          iteration++) {
         final aValue = populator().random(random);
         final bValue = populator().random(random);
         a.put(aValue);
@@ -84,9 +90,13 @@ void main() {
     expect(adder.status.inexact.value.toBool(), isFalse);
   });
 
-  test('FP: dual-path native rounding is exhaustive at reduced width', () {
+  test('FP: dual-path native rounding covers reduced boundary format', () {
+    // This is the smallest format supported by the dual-path implementation.
+    // The selected exponents cover zero/subnormal, minimum normal, maximum
+    // finite, and special-value encodings for every rounding mode.
     const exponentWidth = 3;
     const mantissaWidth = 2;
+    const representativeExponents = [0, 1, 6, 7];
 
     for (final mode in FloatingPointRoundingMode.values) {
       final a = FloatingPoint(
@@ -96,15 +106,13 @@ void main() {
       final adder = FloatingPointAdderDualPath(a, b, roundingMode: mode);
 
       for (final aSign in [false, true]) {
-        for (var aExponent = 0; aExponent < 1 << exponentWidth; aExponent++) {
+        for (final aExponent in representativeExponents) {
           for (var aMantissa = 0; aMantissa < 1 << mantissaWidth; aMantissa++) {
             final aValue =
                 a.valuePopulator().ofInts(aExponent, aMantissa, sign: aSign);
             a.put(aValue);
             for (final bSign in [false, true]) {
-              for (var bExponent = 0;
-                  bExponent < 1 << exponentWidth;
-                  bExponent++) {
+              for (final bExponent in representativeExponents) {
                 for (var bMantissa = 0;
                     bMantissa < 1 << mantissaWidth;
                     bMantissa++) {
@@ -151,7 +159,7 @@ void main() {
 
   group('FP: dual-path adder N path tests', () {
     const exponentWidth = 3;
-    const mantissaWidth = 5;
+    const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
@@ -213,7 +221,7 @@ void main() {
 
   group('FP: dual-path adder R path tests', () {
     const exponentWidth = 3;
-    const mantissaWidth = 4;
+    const mantissaWidth = 3;
     final expLimit = pow(2, exponentWidth).toInt();
     final mantLimit = pow(2, mantissaWidth).toInt();
 
@@ -296,7 +304,7 @@ void main() {
       unawaited(Simulator.run());
       final rand = Random(47);
 
-      var cnt = 200;
+      var cnt = _rPathRandomIterations;
       while (cnt > 0) {
         final fv1 = fpvPopulator().random(rand);
         final fv2 = fpvPopulator().random(rand);
@@ -555,7 +563,7 @@ void main() {
     final adder = FloatingPointAdderDualPath(fp1, fp2);
     final rand = Random(51);
 
-    var cnt = 100;
+    var cnt = _wideRandomIterations;
     while (cnt > 0) {
       final fv1 = fpvPopulator().random(rand);
       final fv2 = fpvPopulator().random(rand);

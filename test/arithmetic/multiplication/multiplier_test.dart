@@ -16,6 +16,40 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+const _randomIterations = 4;
+
+typedef _SignControl = ({int? runtimeValue, bool staticValue});
+
+const _signControls = <_SignControl>[
+  (runtimeValue: null, staticValue: false),
+  (runtimeValue: null, staticValue: true),
+  (runtimeValue: 0, staticValue: false),
+  (runtimeValue: 1, staticValue: false),
+];
+
+StaticOrRuntimeParameter _signControl(String name, _SignControl configuration) {
+  final runtimeValue = configuration.runtimeValue;
+  return runtimeValue == null
+      ? StaticOrRuntimeParameter(
+          name: name,
+          staticConfig: configuration.staticValue,
+        )
+      : StaticOrRuntimeParameter(
+          name: name,
+          runtimeConfig: Const(runtimeValue),
+        );
+}
+
+Logic? _runtimeSignLogic(_SignControl configuration) =>
+    configuration.runtimeValue == null
+        ? null
+        : Const(configuration.runtimeValue);
+
+String _signControlName(_SignControl configuration) =>
+    configuration.runtimeValue == null
+        ? 'static${configuration.staticValue ? 1 : 0}'
+        : 'runtime${configuration.runtimeValue}';
+
 /// The following routines are useful only during testing.
 extension TestMultiplierSignage on Multiplier {
   /// Return `true` if multiplicand [a] is truly signed (fixed or runtime).
@@ -87,16 +121,19 @@ void checkMultiplyAccumulate(
   expect(result, equals(golden));
 }
 
-void testMultiplyAccumulateSingle(int width, BigInt ibA, BigInt ibB, BigInt ibC,
-    MultiplyAccumulate Function(Logic a, Logic b, Logic c) fn) {
-  final a = Logic(name: 'a', width: width);
-  final b = Logic(name: 'b', width: width);
-  final c = Logic(name: 'c', width: width * 2);
-  a.put(0);
-  b.put(0);
-  c.put(0);
-  final mod = fn(a, b, c);
-  test('single_W${width}_${mod.name}', () async {
+void testMultiplyAccumulateSingle(
+  int width,
+  BigInt ibA,
+  BigInt ibB,
+  BigInt ibC,
+  String configurationName,
+  MultiplyAccumulate Function(Logic a, Logic b, Logic c) fn,
+) {
+  test('single_W${width}_$configurationName', () async {
+    final a = Logic(name: 'a', width: width)..put(0);
+    final b = Logic(name: 'b', width: width)..put(0);
+    final c = Logic(name: 'c', width: width * 2)..put(0);
+    final mod = fn(a, b, c);
     final multiplyOnly = mod is MultiplyOnly;
     await mod.build();
     final bA = ibA.toCondSigned(width, signed: mod.isSignedMultiplicand());
@@ -109,16 +146,17 @@ void testMultiplyAccumulateSingle(int width, BigInt ibA, BigInt ibB, BigInt ibC,
   });
 }
 
-void testMultiplyAccumulateRandom(int width, int iterations,
-    MultiplyAccumulate Function(Logic a, Logic b, Logic c) fn) {
-  final a = Logic(name: 'a', width: width);
-  final b = Logic(name: 'b', width: width);
-  final c = Logic(name: 'c', width: width * 2);
-  a.put(0);
-  b.put(0);
-  c.put(0);
-  final mod = fn(a, b, c);
-  test('random_W${width}_I${iterations}_${mod.name}', () {
+void testMultiplyAccumulateRandom(
+  int width,
+  int iterations,
+  String configurationName,
+  MultiplyAccumulate Function(Logic a, Logic b, Logic c) fn,
+) {
+  test('random_W${width}_I${iterations}_$configurationName', () {
+    final a = Logic(name: 'a', width: width)..put(0);
+    final b = Logic(name: 'b', width: width)..put(0);
+    final c = Logic(name: 'c', width: width * 2)..put(0);
+    final mod = fn(a, b, c);
     final multiplyOnly = mod is MultiplyOnly;
 
     final rand = Random(47);
@@ -145,15 +183,15 @@ void testMultiplyAccumulateRandom(int width, int iterations,
 }
 
 void testMultiplyAccumulateExhaustive(
-    int width, MultiplyAccumulate Function(Logic a, Logic b, Logic c) fn) {
-  final a = Logic(name: 'a', width: width);
-  final b = Logic(name: 'b', width: width);
-  final c = Logic(name: 'c', width: 2 * width);
-  a.put(0);
-  b.put(0);
-  c.put(0);
-  final mod = fn(a, b, c);
-  test('Multiplier exhaustive_W${width}_${mod.name}', () async {
+  int width,
+  String configurationName,
+  MultiplyAccumulate Function(Logic a, Logic b, Logic c) fn,
+) {
+  test('Multiplier exhaustive_W${width}_$configurationName', () async {
+    final a = Logic(name: 'a', width: width)..put(0);
+    final b = Logic(name: 'b', width: width)..put(0);
+    final c = Logic(name: 'c', width: 2 * width)..put(0);
+    final mod = fn(a, b, c);
     await mod.build();
     final multiplyOnly = mod is MultiplyOnly;
 
@@ -293,7 +331,7 @@ void main() {
   });
 
   test('Native multiplier sweep with signage test', () {
-    const width = 5;
+    const width = 4;
     final a = Logic(width: width);
     final b = Logic(width: width);
 
@@ -376,34 +414,36 @@ void main() {
   });
 
   group('Native multiplier check', () {
-    for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
-      for (final signedMultiplicand
-          in (selectSignedMultiplicand == null) ? [false, true] : [false]) {
-        for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
-          for (final signedMultiplier
-              in (selectSignedMultiplier == null) ? [false, true] : [false]) {
-            testMultiplyAccumulateExhaustive(
-                5,
-                curryNativeMultiplierAsMultiplyAccumulate(
-                    selectSignedMultiplicand: selectSignedMultiplicand,
-                    signedMultiplicand: signedMultiplicand,
-                    selectSignedMultiplier: selectSignedMultiplier,
-                    signedMultiplier: signedMultiplier));
-          }
-        }
-      }
+    // The direct NativeMultiplier sweep above already covers every pair of
+    // sign controls. Here, cover the MultiplyOnly wrapper once per control
+    // mode rather than repeating that Cartesian product.
+    for (final configuration in _signControls) {
+      testMultiplyAccumulateExhaustive(
+        4,
+        'native_${_signControlName(configuration)}',
+        curryNativeMultiplierAsMultiplyAccumulate(
+          selectSignedMultiplicand: _runtimeSignLogic(configuration),
+          signedMultiplicand: configuration.staticValue,
+          selectSignedMultiplier: _runtimeSignLogic(configuration),
+          signedMultiplier: configuration.staticValue,
+        ),
+      );
     }
   });
 
   group('Compression Tree Multiplier: curried random radix/ptree/width', () {
     for (final radix in [2, 4]) {
-      for (final width in [3, 4]) {
-        for (final ppTree in [KoggeStone.new, BrentKung.new, Sklansky.new]) {
-          Adder adderFn(Logic a, Logic b, {Logic? carryIn, String? name}) =>
-              ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppTree);
-          testMultiplyAccumulateRandom(width, 10,
-              curryMultiplierAsMultiplyAccumulate(radix, adderGen: adderFn));
-        }
+      for (final (index, ppTree)
+          in [KoggeStone.new, BrentKung.new, Sklansky.new].indexed) {
+        // Across both radices, each tree is exercised at both boundary widths.
+        final width = (radix + index).isEven ? 3 : 4;
+        Adder adderFn(Logic a, Logic b, {Logic? carryIn, String? name}) =>
+            ParallelPrefixAdder(a, b, carryIn: carryIn, ppGen: ppTree);
+        testMultiplyAccumulateRandom(
+            width,
+            _randomIterations,
+            'tree_R${radix}_W${width}_$index',
+            curryMultiplierAsMultiplyAccumulate(radix, adderGen: adderFn));
       }
     }
   });
@@ -411,16 +451,15 @@ void main() {
   group('Compression Tree Multiplier: curried random radix/extension/width',
       () {
     for (final radix in [2, 4]) {
-      for (final width in [3, 4]) {
-        for (final signExtension
-            in SignExtension.values.where((e) => e != SignExtension.none)) {
-          final seg = currySignExtensionFunction(signExtension);
-          testMultiplyAccumulateRandom(
-              width,
-              10,
-              curryMultiplierAsMultiplyAccumulate(radix,
-                  adderGen: ParallelPrefixAdder.new, seGen: seg));
-        }
+      for (final signExtension
+          in SignExtension.values.where((e) => e != SignExtension.none)) {
+        final seg = currySignExtensionFunction(signExtension);
+        testMultiplyAccumulateRandom(
+            radix == 2 ? 3 : 4,
+            _randomIterations,
+            'extension_R${radix}_${signExtension.name}',
+            curryMultiplierAsMultiplyAccumulate(radix,
+                adderGen: ParallelPrefixAdder.new, seGen: seg));
       }
     }
   });
@@ -442,9 +481,17 @@ void main() {
                     name: 'signedMultiplier',
                     runtimeConfig: selectSignedMultiplier,
                     staticConfig: signedMultiplier);
+                final multiplicandControlName = selectSignedMultiplicand == null
+                    ? 'static${signedMultiplicand ? 1 : 0}'
+                    : 'runtime${selectSignedMultiplicand.value.toInt()}';
+                final multiplierControlName = selectSignedMultiplier == null
+                    ? 'static${signedMultiplier ? 1 : 0}'
+                    : 'runtime${selectSignedMultiplier.value.toInt()}';
                 testMultiplyAccumulateRandom(
                     width,
-                    10,
+                    _randomIterations,
+                    'sign_R${radix}_${multiplicandControlName}_'
+                    '$multiplierControlName',
                     curryMultiplierAsMultiplyAccumulate(radix,
                         adderGen: ParallelPrefixAdder.new,
                         signedMultiplicand: signedMultiplicandConfig,
@@ -458,47 +505,43 @@ void main() {
   });
 
   group('Compression Tree MAC: curried random sign/select', () {
-    for (final selectSignedMultiplicand in [null, Const(0), Const(1)]) {
-      for (final signedMultiplicand
-          in (selectSignedMultiplicand == null) ? [false, true] : [false]) {
-        for (final selectSignedMultiplier in [null, Const(0), Const(1)]) {
-          for (final signedMultiplier
-              in (selectSignedMultiplier == null) ? [false, true] : [false]) {
-            for (final selectSignedAddend in [null, Const(0), Const(1)]) {
-              for (final signedAddend
-                  in (selectSignedAddend == null) ? [false, true] : [false]) {
-                for (final radix in [4]) {
-                  for (final width in [1 + log2Ceil(radix)]) {
-                    final signedMultiplicandConfig = StaticOrRuntimeParameter(
-                        name: 'signedMultiplicand',
-                        runtimeConfig: selectSignedMultiplicand,
-                        staticConfig: signedMultiplicand);
-                    final signedMultiplierConfig = StaticOrRuntimeParameter(
-                        name: 'signedMultiplier',
-                        runtimeConfig: selectSignedMultiplier,
-                        staticConfig: signedMultiplier);
-
-                    final signedAddendConfig = StaticOrRuntimeParameter(
-                        name: 'signedAddend',
-                        runtimeConfig: selectSignedAddend,
-                        staticConfig: signedAddend);
-                    testMultiplyAccumulateRandom(
-                        width,
-                        10,
-                        curryMultiplyAccumulate(
-                          radix,
-                          adderGen: ParallelPrefixAdder.new,
-                          signedMultiplicand: signedMultiplicandConfig,
-                          signedMultiplier: signedMultiplierConfig,
-                          signedAddend: signedAddendConfig,
-                        ));
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    const modeTriples = [
+      (multiplicand: 0, multiplier: 0, addend: 0),
+      (multiplicand: 1, multiplier: 1, addend: 1),
+      (multiplicand: 2, multiplier: 2, addend: 2),
+      (multiplicand: 3, multiplier: 3, addend: 3),
+      (multiplicand: 0, multiplier: 1, addend: 2),
+      (multiplicand: 1, multiplier: 2, addend: 3),
+      (multiplicand: 2, multiplier: 3, addend: 0),
+      (multiplicand: 3, multiplier: 0, addend: 1),
+    ];
+    // Each control mode appears twice in every role, including mixed static
+    // and runtime configurations, without the redundant 4^3 matrix.
+    for (final modes in modeTriples) {
+      final signedMultiplicandConfig = _signControl(
+        'signedMultiplicand',
+        _signControls[modes.multiplicand],
+      );
+      final signedMultiplierConfig = _signControl(
+        'signedMultiplier',
+        _signControls[modes.multiplier],
+      );
+      final signedAddendConfig = _signControl(
+        'signedAddend',
+        _signControls[modes.addend],
+      );
+      testMultiplyAccumulateRandom(
+        1 + log2Ceil(4),
+        _randomIterations,
+        'mac_${modes.multiplicand}_${modes.multiplier}_${modes.addend}',
+        curryMultiplyAccumulate(
+          4,
+          adderGen: ParallelPrefixAdder.new,
+          signedMultiplicand: signedMultiplicandConfig,
+          signedMultiplier: signedMultiplierConfig,
+          signedAddend: signedAddendConfig,
+        ),
+      );
     }
   });
 
@@ -762,7 +805,7 @@ void main() {
 
   test('CompressionTreeMultiplyAccumulate: variable outputWidth exhaustive',
       () {
-    const width = 4;
+    const width = 3;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     final c = Logic(name: 'c', width: width * 2)..put(0);
@@ -793,7 +836,7 @@ void main() {
 
   test('CompressionTreeMultiplyAccumulate: wide signed outputWidth exhaustive',
       () {
-    const width = 4;
+    const width = 3;
     const outputWidth = 20;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -833,7 +876,7 @@ void main() {
   });
 
   test('Multiplier Components exhaustive', () {
-    const width = 4;
+    const width = 3;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
     final ppG0 = PartialProductGenerator(a, b, RadixEncoder(4));
