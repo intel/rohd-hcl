@@ -59,11 +59,13 @@ abstract class SummationConfigurator extends Configurator {
   /// The width.
   final IntOptionalConfigKnob widthKnob = IntOptionalConfigKnob(value: null);
 
-  /// The minimum value.
-  final IntOptionalConfigKnob minValueKnob = IntOptionalConfigKnob(value: 0);
+  /// The minimum value, statically or from a generated runtime input.
+  final StaticOrRuntimeIntKnob minValueKnob =
+      StaticOrRuntimeIntKnob(name: 'Minimum Value');
 
-  /// The maximum value.
-  final IntOptionalConfigKnob maxValueKnob = IntOptionalConfigKnob(value: null);
+  /// The maximum value, statically or from a generated runtime input.
+  final StaticOrRuntimeIntKnob maxValueKnob =
+      StaticOrRuntimeIntKnob(staticValue: null, name: 'Maximum Value');
 
   /// Whether the output saturates (vs. rolling over/under).
   final ToggleConfigKnob saturatesKnob = ToggleConfigKnob(value: false);
@@ -80,8 +82,9 @@ abstract class SummationConfigurator extends Configurator {
 
 /// A configurator for [Sum].
 class SumConfigurator extends SummationConfigurator {
-  /// The initial value.
-  final IntConfigKnob initialValueKnob = IntConfigKnob(value: 0);
+  /// The initial value, statically or from a generated runtime input.
+  final StaticOrRuntimeIntKnob initialValueKnob =
+      StaticOrRuntimeIntKnob(name: 'Initial Value');
 
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {
@@ -101,10 +104,10 @@ class SumConfigurator extends SummationConfigurator {
                 increments: e.incrementsKnob.value,
               ))
           .toList(),
-      initialValue: initialValueKnob.value,
+      initialValue: initialValueKnob.resolve('initialValue'),
       width: widthKnob.value,
-      minValue: minValueKnob.value,
-      maxValue: maxValueKnob.value,
+      minValue: minValueKnob.resolve('minValue'),
+      maxValue: maxValueKnob.resolve('maxValue'),
       saturates: saturatesKnob.value,
       definitionName: 'Sum');
 
@@ -114,8 +117,18 @@ class SumConfigurator extends SummationConfigurator {
 
 /// A configurator for [Counter].
 class CounterConfigurator extends SummationConfigurator {
-  /// The reset value.
-  final IntConfigKnob resetValueKnob = IntConfigKnob(value: 0);
+  /// The reset value, statically or from a generated runtime input.
+  final StaticOrRuntimeIntKnob resetValueKnob =
+      StaticOrRuntimeIntKnob(name: 'Reset Value');
+
+  /// Whether reset acts asynchronously.
+  final ToggleConfigKnob asyncResetKnob = ToggleConfigKnob(value: false);
+
+  /// Whether overflow history is retained.
+  final ToggleConfigKnob trackOverflowKnob = ToggleConfigKnob(value: true);
+
+  /// Whether underflow history is retained.
+  final ToggleConfigKnob trackUnderflowKnob = ToggleConfigKnob(value: true);
 
   /// Whether to instantiate a [GatedCounter].
   final ToggleConfigKnob clockGatingKnob = ToggleConfigKnob(value: false);
@@ -131,6 +144,9 @@ class CounterConfigurator extends SummationConfigurator {
   Map<String, ConfigKnob<dynamic>> get knobs => {
         ...super.knobs,
         'Reset Value': resetValueKnob,
+        'Asynchronous Reset': asyncResetKnob,
+        'Track Overflow': trackOverflowKnob,
+        'Track Underflow': trackUnderflowKnob,
         'Clock Gating': clockGatingKnob,
         if (clockGatingKnob.value) ...{
           'Clock Gating Partition Index': clockGatingPartitionIndexKnob,
@@ -154,11 +170,14 @@ class CounterConfigurator extends SummationConfigurator {
     if (clockGatingKnob.value) {
       return GatedCounter(
         sumIntfs,
-        resetValue: resetValueKnob.value,
+        resetValue: resetValueKnob.resolve('resetValue'),
         width: widthKnob.value,
-        minValue: minValueKnob.value,
-        maxValue: maxValueKnob.value,
+        minValue: minValueKnob.resolve('minValue'),
+        maxValue: maxValueKnob.resolve('maxValue'),
         saturates: saturatesKnob.value,
+        asyncReset: asyncResetKnob.value,
+        trackOverflow: trackOverflowKnob.value,
+        trackUnderflow: trackUnderflowKnob.value,
         clk: Logic(),
         reset: Logic(),
         clkGatePartitionIndex: clockGatingPartitionIndexKnob.value,
@@ -167,11 +186,14 @@ class CounterConfigurator extends SummationConfigurator {
     } else {
       return Counter(
         sumIntfs,
-        resetValue: resetValueKnob.value,
+        resetValue: resetValueKnob.resolve('resetValue'),
         width: widthKnob.value,
-        minValue: minValueKnob.value,
-        maxValue: maxValueKnob.value,
+        minValue: minValueKnob.resolve('minValue'),
+        maxValue: maxValueKnob.resolve('maxValue'),
         saturates: saturatesKnob.value,
+        asyncReset: asyncResetKnob.value,
+        trackOverflow: trackOverflowKnob.value,
+        trackUnderflow: trackUnderflowKnob.value,
         clk: Logic(),
         reset: Logic(),
       );
