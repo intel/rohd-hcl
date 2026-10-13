@@ -18,9 +18,22 @@ class ComponentCubit extends Cubit<Configurator> {
   final List<Configurator> components;
 
   /// Creates a controller for selecting from [components].
-  ComponentCubit(this.components)
-      : selectedComponent = components.first,
-        super(components.first);
+  ComponentCubit(List<Configurator> components)
+      : this._(_sortedComponents(components), components.first);
+
+  ComponentCubit._(this.components, this.selectedComponent)
+      : super(selectedComponent);
+
+  static List<Configurator> _sortedComponents(
+    List<Configurator> components,
+  ) =>
+      List<Configurator>.of(components)..sort(_compareComponents);
+
+  static int _compareComponents(Configurator a, Configurator b) {
+    final caseInsensitive =
+        a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    return caseInsensitive != 0 ? caseInsensitive : a.name.compareTo(b.name);
+  }
 
   /// Selects and emits [selectedComponent].
   void setSelectedComponent(Configurator selectedComponent) {

@@ -71,8 +71,14 @@ flutter:
     - assets/rohd_src/models/spi_bfm/
     - assets/rohd_src/serialization/
     - assets/rohd_src/summation/
+    - assets/fonts/RobotoMono-LICENSE.txt
     - assets/third_party_notices.md
     - assets/rohd_icon.png
     - assets/systemverilog_icon.png
     - assets/systemc_icon.png
     - assets/yosys_icon.png
+  fonts:
+    - family: RobotoMono
+      fonts:
+        - asset: assets/fonts/RobotoMono-Regular.ttf
+          weight: 400

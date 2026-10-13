@@ -1,4 +1,4 @@
-## 0.3.0
+## 0.3.0 (Unreleased)
 
 ### Breaking changes
 
@@ -20,7 +20,22 @@
 
   Labels matching the previous unminified type names, as used by the built-in configurators, preserve compatibility with existing saved values.
 
-### New and enhanced components
+- `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an implicit-J-bit format or normalize the input before connecting it to the square-root component.
+- Explicit-J-bit NaN construction now requires at least one payload bit in addition to the J bit. Formats with a one-bit explicit mantissa are rejected because they cannot encode a quiet-NaN payload.
+- Automatic definition names for `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now include the effective `outputWidth`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `FixedToFloat` definition names now include `roundingMode` so converters with different rounding logic cannot share an HDL definition.
+- Automatic `FloatingPointAdderSinglePath` definition names now include `roundingMode` for the same reason.
+- Automatic `FloatingPointConverter`, `FloatingPointSqrt`, and `FloatingPointSqrtSimple` definition names now include `roundingMode`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+- Automatic `DotProduct`, `CompressionTreeDotProduct`, and `GeneralDotProduct` definition names now include lane count, operand widths, radix, implementation identity, and signedness. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
+
+### Deprecated APIs
+
+- Deprecated the unsigned-default `FixedPointValue` constructor and `FixedPointValue.populator` while preserving their existing behavior. Use `FixedPointValue.withSignedness` and `FixedPointValue.populatorWithSignedness`, which default to `signed: true` to match `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>).
+- Deprecated `FixedPoint.operator *` while preserving its previous unsigned result width and behavior. Use `FixedPoint.multiply` for a correctly signed, full-width product.
+- Deprecated the `static_or_runtime_parameter.dart` import path. Import `static_or_runtime_control.dart` instead.
+- Deprecated the `subtractIn` constructor parameter and protected member on `OnesComplementAdder` and `CarrySelectOnesComplementCompoundAdder`. Use `subtract` and `subtractParameter`, respectively.
+
+### New features and enhanced components
 
 - Refactored AMBA support to add AXI4-Lite, AXI4-Stream, ACE, and ACE-Lite protocol variants while preserving the existing AXI APIs (<https://github.com/intel/rohd-hcl/pull/251>).
 - Added an abstract `ApbCompleter` and an `ApbCsrCompleter` implementation for connecting APB transactions to CSR blocks (<https://github.com/intel/rohd-hcl/pull/270>).
@@ -31,6 +46,32 @@
 - Added optional early termination to `Serializer` and `Deserializer` for dynamically sized inputs (<https://github.com/intel/rohd-hcl/issues/277>, <https://github.com/intel/rohd-hcl/pull/278>).
 - Exposed the module `name` argument on round-robin and related arbiters (<https://github.com/intel/rohd-hcl/pull/255>).
 - Expanded CSR support with heterogeneous block sizes (<https://github.com/intel/rohd-hcl/pull/285>), configurable asynchronous reset through `CsrTopConfig` (<https://github.com/intel/rohd-hcl/pull/310>), and write-only fields for command, trigger, and pulse semantics (<https://github.com/intel/rohd-hcl/issues/308>, <https://github.com/intel/rohd-hcl/pull/313>).
+
+#### IEEE rounding compatibility
+
+- Added all `FloatingPointRoundingMode`s to floating-point value and logic operations, including adders, multipliers, converters, square root, `FixedToFloat`, and `FloatToFixed` (<https://github.com/intel/rohd-hcl/issues/191>).
+- Added `roundingMode` to `FixedToFloat` and `FloatToFixed`, retaining their previous defaults of `roundNearestEven` and `truncate`, respectively.
+- Unified fixed- and floating-point value rounding APIs (<https://github.com/intel/rohd-hcl/issues/173>).
+
+#### Conversions
+
+- Added exact, host-`double`-independent conversion between `FloatingPointValue` and `FixedPointValue`, with automatic-width lossless methods and width-constrained populator methods (<https://github.com/intel/rohd-hcl/issues/112>).
+- Added `toLogic()` conversion from `FixedPointValue` and `FloatingPointValue` to constant corresponding signal types (<https://github.com/intel/rohd-hcl/issues/200>).
+
+#### Arithmetic signal operations
+
+- Added typed `add`, `subtract`, and `multiply` methods and direct `+` and `-` operators to `FixedPoint` signals, and arithmetic methods and operators to `FloatingPoint` signals (<https://github.com/intel/rohd-hcl/issues/199>).
+
+#### Integer arithmetic components
+
+- Added an optional `carryIn` to `SignMagnitudeAdder`.
+- Added configurable `outputWidth` to `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `MultiplyOnly`.
+- Added `GenericMultiplyAccumulate`, which composes configurable multiplier and adder generators.
+- Added independent multiplicand and multiplier widths to `NativeMultiplier` and `GeneralDotProduct`; `CompressionTreeDotProduct` retains its equal-width fused-partial-product contract.
+
+#### Parameterized configuration
+
+- Added generic `StaticOrRuntimeControl<T>` support for statically configured values or multi-bit runtime `Logic` inputs while preserving `StaticOrRuntimeParameter` as the boolean specialization.
 
 ### Configuration application and schematics
 
@@ -50,77 +91,21 @@
 - Implemented the documented write-ones-clear CSR behavior, with software writes clearing bits and backdoor hardware writes setting them (<https://github.com/intel/rohd-hcl/issues/296>, <https://github.com/intel/rohd-hcl/pull/311>).
 - Enabled independent AXI4 subordinate read and write response-delay callbacks and corrected their timing behavior (<https://github.com/intel/rohd-hcl/issues/303>, <https://github.com/intel/rohd-hcl/pull/312>).
 
-### Tooling and compatibility
-
-- Updated analysis settings and added `pana` validation for pub.dev scoring (<https://github.com/intel/rohd-hcl/issues/262>, <https://github.com/intel/rohd-hcl/pull/263>).
-- Updated source and analysis configuration for newer Dart lints (<https://github.com/intel/rohd-hcl/pull/282>, <https://github.com/intel/rohd-hcl/pull/300>).
-- Updated GitHub workflows to Node.js 24 (<https://github.com/intel/rohd-hcl/pull/288>).
-- Updated compatibility to ROHD 0.6.11 and set the Dart SDK range to `^3.6.0`.
-
-## Unreleased
-
-### Breaking Changes
-
-- `FloatingPointSqrtSimple` now rejects explicit-J-bit inputs. Use an implicit-J-bit format or normalize the input before connecting it to the square-root component.
-- Explicit-J-bit NaN construction now requires at least one payload bit in addition to the J bit. Formats with a one-bit explicit mantissa are rejected because they cannot encode a quiet-NaN payload.
-- Automatic definition names for `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `GenericMultiplyAccumulate` now include the effective `outputWidth`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
-- Automatic `FixedToFloat` definition names now include `roundingMode` so converters with different rounding logic cannot share an HDL definition.
-- Automatic `FloatingPointAdderSinglePath` definition names now include `roundingMode` for the same reason.
-- Automatic `FloatingPointConverter`, `FloatingPointSqrt`, and `FloatingPointSqrtSimple` definition names now include `roundingMode`. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
-- Automatic `DotProduct`, `CompressionTreeDotProduct`, and `GeneralDotProduct` definition names now include lane count, operand widths, radix, implementation identity, and signedness. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
-
-### Deprecated APIs
-
-- Deprecated the unsigned-default `FixedPointValue` constructor and `FixedPointValue.populator` while preserving their existing behavior. Use `FixedPointValue.withSignedness` and `FixedPointValue.populatorWithSignedness`, which default to `signed: true` to match `FixedPoint` (<https://github.com/intel/rohd-hcl/issues/249>).
-- Deprecated `FixedPoint.operator *` while preserving its previous unsigned result width and behavior. Use `FixedPoint.multiply` for a correctly signed, full-width product.
-- Deprecated the `static_or_runtime_parameter.dart` import path. Import `static_or_runtime_control.dart` instead.
-- Deprecated the `subtractIn` constructor parameter and protected member on `OnesComplementAdder` and `CarrySelectOnesComplementCompoundAdder`. Use `subtract` and `subtractParameter`, respectively.
-
-### New Features
-
-#### IEEE Rounding Compatibility
-
-- Added all `FloatingPointRoundingMode`s to floating-point value and logic operations, including adders, multipliers, converters, square root, `FixedToFloat`, and `FloatToFixed` (<https://github.com/intel/rohd-hcl/issues/191>).
-- Added `roundingMode` to `FixedToFloat` and `FloatToFixed`, retaining their previous defaults of `roundNearestEven` and `truncate`, respectively.
-- Unified fixed- and floating-point value rounding APIs (<https://github.com/intel/rohd-hcl/issues/173>).
-
-#### Conversions
-
-- Added exact, host-`double`-independent conversion between `FloatingPointValue` and `FixedPointValue`, with automatic-width lossless methods and width-constrained populator methods (<https://github.com/intel/rohd-hcl/issues/112>).
-- Added `toLogic()` conversion from `FixedPointValue` and `FloatingPointValue` to constant corresponding signal types (<https://github.com/intel/rohd-hcl/issues/200>).
-
-#### Arithmetic Signal Operations
-
-- Added typed `add`, `subtract`, and `multiply` methods and direct `+` and `-` operators to `FixedPoint` signals, and arithmetic methods and operators to `FloatingPoint` signals (<https://github.com/intel/rohd-hcl/issues/199>).
-
-#### Integer Arithmetic Components
-
-- Added an optional `carryIn` to `SignMagnitudeAdder`.
-- Added configurable `outputWidth` to `MultiplyAccumulate`, `CompressionTreeMultiplyAccumulate`, and `MultiplyOnly`.
-- Added `GenericMultiplyAccumulate`, which composes configurable multiplier and adder generators.
-- Added independent multiplicand and multiplier widths to `NativeMultiplier` and `GeneralDotProduct`; `CompressionTreeDotProduct` retains its equal-width fused-partial-product contract.
-
-#### Parameterized Configuration
-
-- Added generic `StaticOrRuntimeControl<T>` support for statically configured values or multi-bit runtime `Logic` inputs while preserving `StaticOrRuntimeParameter` as the boolean specialization.
-
-### Bug Fixes
-
-#### IEEE Rounding Compatibility Bugs
+#### IEEE rounding compatibility bugs
 
 - Corrected round-nearest-even sticky-bit handling in `FloatingPointMultiplierSimple` near the subnormal boundary (<https://github.com/intel/rohd-hcl/issues/194>).
 - Replaced `FixedToFloat`'s custom rounding with the shared `FloatingPointRounder`.
 - Verified round-nearest-even behavior across mantissa widths and subnormal boundaries (<https://github.com/intel/rohd-hcl/issues/190>).
 - `FixedToFloat` overflow results now respect the selected rounding mode and use the largest finite value for formats without infinity.
 
-#### Conversion Fixes
+#### Conversion fixes
 
 - Fixed `FloatingPointConverter` when narrowing the mantissa and widening the exponent of a subnormal value (<https://github.com/intel/rohd-hcl/issues/241>).
 - Fixed `FloatToFixed` conversion from explicit-j-bit formats.
 - Fixed `FloatToFixed` overflow detection for reduced precision, rounding carry, and the exact negative power-of-two boundary.
 - Fixed wide `FloatingPointValue.toString(integer: true)` conversions.
 
-#### NaN and Special Values
+#### NaN and special values
 
 - Corrected IEEE-754 NaN comparisons and added `hasSameEncoding()` (<https://github.com/intel/rohd-hcl/issues/252>).
 - Fixed explicit-j-bit infinity and NaN encodings and quiet/signaling NaN classification.
@@ -128,37 +113,44 @@
 - Fixed `FloatingPointValuePopulator.random(excludeInfinity: true)` for formats without infinity.
 - Fixed `FloatingPointValue.isLegalValue()` accepting explicit-j-bit unnormal encodings.
 
-#### Subnormal Handling
+#### Subnormal handling
 
 - Fixed `FloatingPointValue.ulp()` for subnormal values and removed its dependency on host `double` precision (<https://github.com/intel/rohd-hcl/issues/206>).
 - Fixed zero multiplication with a widened output exponent in `FloatingPointMultiplierSimple` (<https://github.com/intel/rohd-hcl/issues/194>).
 - `FloatingPointSqrtSimple` now reports underflow when an inexact result remains subnormal.
 
-#### Fixed-Point Fixes
+#### Fixed-point fixes
 
 - Added `FixedPoint.multiply` to produce a correctly signed, full-width product.
 - Fixed `FixedPointValuePopulator.canStore()` to use the rounded value and the asymmetric two's-complement range.
 
-#### Integer Arithmetic Components Fixes
+#### Integer arithmetic component fixes
 
 - Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending unsigned products in uneven reduction trees. Static and runtime operand signedness now control partial-sum extension.
 - Fixed `GeneralDotProduct` passing static signedness to child multipliers as constant-valued runtime ports, and strengthened automatic definition names with lane count, operand widths, radix, implementation identity, and signedness.
 - Fixed runtime-signed `GeneralDotProduct` synthesis by keeping its signed-extension control inside the inline reduction generator rather than capturing a parent signal across a reduction-module hierarchy boundary.
 
-#### Floating-Point Arithmetic
+#### Floating-point arithmetic
 
 - Made `FloatingPointValue.operator /` exact and correctly rounded for arbitrary widths, removing its host-`double` dependency (<https://github.com/intel/rohd-hcl/issues/113>).
 - Fixed `FloatingPointMultiplierSimple` when the output format is narrower than its inputs (<https://github.com/intel/rohd-hcl/issues/194>).
 - Fixed `FloatingPointValue()` forwarding of the `signed` argument.
 
-### Verification and Maintenance
+### Tooling and compatibility
+
+- Updated analysis settings and added `pana` validation for pub.dev scoring (<https://github.com/intel/rohd-hcl/issues/262>, <https://github.com/intel/rohd-hcl/pull/263>).
+- Updated source and analysis configuration for newer Dart lints (<https://github.com/intel/rohd-hcl/pull/282>, <https://github.com/intel/rohd-hcl/pull/300>).
+- Updated GitHub workflows to Node.js 24 (<https://github.com/intel/rohd-hcl/pull/288>).
+- Updated compatibility to ROHD 0.6.11 and set the Dart SDK range to `^3.6.0`.
+
+### Verification and maintenance
 
 - Added common smoke coverage for all `FloatingPointValue` formats (<https://github.com/intel/rohd-hcl/issues/133>).
 - Expanded exhaustive coverage for conversions, rounding, floating-point arithmetic, fixed-point multiplication, and multiply-accumulate widths.
 - Re-enabled `previousFloatingPointValue` regressions after the upstream ROHD fix (<https://github.com/intel/rohd/pull/565>).
 - Resolved stale arithmetic TODOs where exhaustive testing confirmed the existing implementation.
 
-### Known Issues
+### Known issues
 
 - Berkeley TestFloat integration remains unimplemented (<https://github.com/intel/rohd-hcl/issues/135>).
 - `MultiCycleDivider` improvements (<https://github.com/intel/rohd-hcl/issues/139>) and a 4:2 `ColumnCompressor` (<https://github.com/intel/rohd-hcl/issues/120>) remain in stale pull requests.

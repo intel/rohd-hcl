@@ -61,6 +61,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
           'FloatingPointAdderDualPath does not support explicit J bit output.');
     }
 
+    subtract = (subtract != null) ? addInput('subtract', subtract) : null;
+
     // Seidel: S.EFF = effectiveSubtraction.
     final isInf = (a.isAnInfinity | b.isAnInfinity).named('isInf');
 
