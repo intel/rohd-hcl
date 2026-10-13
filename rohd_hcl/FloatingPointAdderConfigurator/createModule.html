@@ -75,33 +75,63 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Module createModule() =&gt; dualPathAdderKnob.value
-    ? FloatingPointAdderDualPath(
-        clk: pipelinedKnob.value ? Logic() : null,
-        FloatingPoint(
-            exponentWidth: exponentWidthKnob.value,
-            mantissaWidth: mantissaWidthKnob.value,
-            subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroA.value),
-        FloatingPoint(
-            exponentWidth: exponentWidthKnob.value,
-            mantissaWidth: mantissaWidthKnob.value,
-            subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroB.value),
-        adderGen: adderSelectionKnob.selectedAdder(),
-        ppTree: treeGeneratorMap[prefixTreeKnob.value]!,
-        definitionName: &#39;FloatingPointAdderDualPath&#39;)
-    : FloatingPointAdderSinglePath(
-        clk: pipelinedKnob.value ? Logic() : null,
-        FloatingPoint(
+Module createModule() {
+  if (dualPathAdderKnob.value &amp;&amp; explicitJBitKnob.value) {
+    throw RohdHclException(
+      &#39;The dual-path floating-point adder does not support explicit J bits.&#39;,
+    );
+  }
+
+  final a = FloatingPoint(
+    exponentWidth: exponentWidthKnob.value,
+    mantissaWidth: mantissaWidthKnob.value,
+    explicitJBit: explicitJBitKnob.value,
+    subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroA.value,
+  );
+  final b = FloatingPoint(
+    exponentWidth: exponentWidthKnob.value,
+    mantissaWidth: mantissaWidthKnob.value,
+    explicitJBit: explicitJBitKnob.value,
+    subNormalAsZero: subNormalAsZeroSelecKnob.denormalAsZeroB.value,
+  );
+  final outSum = outputWidthSelectKnob.differentWidthOutput.value
+      ? FloatingPoint(
+          exponentWidth: outputWidthSelectKnob.exponentWidthKnob.value,
+          mantissaWidth: outputWidthSelectKnob.mantissaWidthKnob.value,
+          explicitJBit: outputWidthSelectKnob.explicitJBitKnob.value,
+          subNormalAsZero: subNormalAsZeroSelecKnob.flushToZero.value,
+        )
+      : FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
           mantissaWidth: mantissaWidthKnob.value,
-        ),
-        FloatingPoint(
-            exponentWidth: exponentWidthKnob.value,
-            mantissaWidth: mantissaWidthKnob.value,
-            subNormalAsZero: subNormalAsZeroSelecKnob.flushToZero.value),
-        adderGen: adderSelectionKnob.selectedAdder(),
-        definitionName: &#39;FloatingPointAdderSinglePath&#39;,
-      );</code></pre>
+          explicitJBit: explicitJBitKnob.value,
+          subNormalAsZero: subNormalAsZeroSelecKnob.flushToZero.value,
+        );
+
+  return dualPathAdderKnob.value
+      ? FloatingPointAdderDualPath(
+          clk: pipelinedKnob.value ? Logic() : null,
+          a,
+          b,
+          outSum: outSum,
+          subtract: dualPathSubtractInputKnob.value
+              ? Logic(name: &#39;subtract&#39;)
+              : null,
+          roundingMode: roundingModeKnob.value,
+          adderGen: adderSelectionKnob.selectedAdder(),
+          ppTree: treeGeneratorMap[prefixTreeKnob.value]!,
+          definitionName: &#39;FloatingPointAdderDualPath&#39;,
+        )
+      : FloatingPointAdderSinglePath(
+          clk: pipelinedKnob.value ? Logic() : null,
+          a,
+          b,
+          outSum: outSum,
+          roundingMode: roundingModeKnob.value,
+          adderGen: adderSelectionKnob.selectedAdder(),
+          definitionName: &#39;FloatingPointAdderSinglePath&#39;,
+        );
+}</code></pre>
 </section>
 
 

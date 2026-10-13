@@ -123,6 +123,30 @@
 
 </dd>
 
+        <dt id="dualPathSubtractInputKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointAdderConfigurator/dualPathSubtractInputKnob.html">dualPathSubtractInputKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Whether the dual-path implementation generates a subtraction input.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="explicitJBitKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointAdderConfigurator/explicitJBitKnob.html">explicitJBitKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Whether the floating-point format includes an explicit J bit.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="exponentWidthKnob" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointAdderConfigurator/exponentWidthKnob.html">exponentWidthKnob</a></span>
   <span class="signature">&#8594; <a href="../rohd_hcl/IntConfigKnob-class.html">IntConfigKnob</a></span>
@@ -156,7 +180,7 @@
 <dd>
   A mapping from configuration names to <code>ConfigKnob</code>s that can be used
 to configure this component.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -184,6 +208,18 @@ to configure this component.
 
 </dd>
 
+        <dt id="outputWidthSelectKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointAdderConfigurator/outputWidthSelectKnob.html">outputWidthSelectKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/OutputWidthSelectKnob-class.html">OutputWidthSelectKnob</a></span>
+  
+
+</dt>
+<dd>
+  Optional output format for the sum.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="pipelinedKnob" class="property">
   <span class="name"><a href="../rohd_hcl/FloatingPointAdderConfigurator/pipelinedKnob.html">pipelinedKnob</a></span>
   <span class="signature">&#8594; <a href="../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a></span>
@@ -204,6 +240,18 @@ to configure this component.
 </dt>
 <dd>
   Controls the type of <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree used in the other functions.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="roundingModeKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatingPointAdderConfigurator/roundingModeKnob.html">roundingModeKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointRoundingModeKnob-class.html">FloatingPointRoundingModeKnob</a></span>
+  
+
+</dt>
+<dd>
+  Rounding mode used by the adder.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>

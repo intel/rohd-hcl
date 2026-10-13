@@ -77,10 +77,14 @@
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() {
   final inp = FloatingPoint(
-      exponentWidth: exponentWidthKnob.value,
-      mantissaWidth: mantissaWidthKnob.value);
-  return FloatingPointSqrtSimple(inp,
-      definitionName: &#39;FloatingPointSqrtSimple&#39;);
+    exponentWidth: exponentWidthKnob.value,
+    mantissaWidth: mantissaWidthKnob.value,
+  );
+  return FloatingPointSqrtSimple(
+    inp,
+    roundingMode: roundingModeKnob.value,
+    definitionName: &#39;FloatingPointSqrtSimple&#39;,
+  );
 }</code></pre>
 </section>
 

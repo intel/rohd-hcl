@@ -1,0 +1,2252 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.0.1",
+  "modules": {
+    "OneHotToBinary_W7": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "onehot": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "logic_type": {
+            "width": 7
+          }
+        },
+        "binary": {
+          "direction": "output",
+          "bits": [
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 3
+          }
+        }
+      },
+      "cells": {
+        "combinational": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "onehot": "input",
+            "binary": "output"
+          },
+          "connections": {
+            "onehot": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "binary": [
+              9,
+              10,
+              11
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "onehot": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "logic_type": {
+            "width": 7
+          },
+          "attributes": {}
+        },
+        "binary": {
+          "bits": [
+            9,
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {}
+        }
+      }
+    },
+    "FindPattern_W8_P2": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "bus": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "pattern": {
+          "direction": "input",
+          "bits": [
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 2
+          }
+        },
+        "index": {
+          "direction": "output",
+          "bits": [
+            12,
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 3
+          }
+        }
+      },
+      "cells": {
+        "one_hot_to_binary": {
+          "hide_name": 0,
+          "type": "OneHotToBinary_W7",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "onehot": "input",
+            "binary": "output"
+          },
+          "connections": {
+            "onehot": [
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "binary": [
+              12,
+              13,
+              14
+            ]
+          }
+        },
+        "swizzle": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1,
+            "IN4_WIDTH": 1,
+            "IN5_WIDTH": 1,
+            "IN6_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "[4]": "input",
+            "[5]": "input",
+            "[6]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              22
+            ],
+            "[1]": [
+              23
+            ],
+            "[2]": [
+              24
+            ],
+            "[3]": [
+              25
+            ],
+            "[4]": [
+              26
+            ],
+            "[5]": [
+              27
+            ],
+            "[6]": [
+              28
+            ],
+            "Y": [
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21
+            ]
+          }
+        },
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              29
+            ],
+            "B": [
+              30
+            ],
+            "Y": [
+              22
+            ]
+          }
+        },
+        "equals": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              31,
+              32
+            ],
+            "B": [
+              10,
+              11
+            ],
+            "Y": [
+              29
+            ]
+          }
+        },
+        "bussubset": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              31,
+              32
+            ]
+          }
+        },
+        "swizzle_0": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              29
+            ],
+            "B": [
+              33,
+              34,
+              35
+            ],
+            "Y": [
+              36,
+              37,
+              38,
+              39
+            ]
+          }
+        },
+        "add": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              40,
+              41,
+              42,
+              43
+            ],
+            "B": [
+              36,
+              37,
+              38,
+              39
+            ],
+            "Y": [
+              44,
+              45,
+              46,
+              47,
+              48
+            ]
+          }
+        },
+        "equals_0": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              49,
+              50,
+              51,
+              52
+            ],
+            "B": [
+              44,
+              45,
+              46,
+              47
+            ],
+            "Y": [
+              30
+            ]
+          }
+        },
+        "equals_1": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              49,
+              50,
+              51,
+              52
+            ],
+            "B": [
+              60,
+              61,
+              62,
+              63
+            ],
+            "Y": [
+              64
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              65
+            ],
+            "B": [
+              64
+            ],
+            "Y": [
+              23
+            ]
+          }
+        },
+        "equals_2": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              66,
+              67
+            ],
+            "B": [
+              10,
+              11
+            ],
+            "Y": [
+              65
+            ]
+          }
+        },
+        "bussubset_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              66,
+              67
+            ]
+          }
+        },
+        "swizzle_2": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              65
+            ],
+            "B": [
+              68,
+              69,
+              70
+            ],
+            "Y": [
+              71,
+              72,
+              73,
+              74
+            ]
+          }
+        },
+        "add_1": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              44,
+              45,
+              46,
+              47
+            ],
+            "B": [
+              71,
+              72,
+              73,
+              74
+            ],
+            "Y": [
+              60,
+              61,
+              62,
+              63,
+              75
+            ]
+          }
+        },
+        "add_2": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              60,
+              61,
+              62,
+              63
+            ],
+            "B": [
+              76,
+              77,
+              78,
+              79
+            ],
+            "Y": [
+              80,
+              81,
+              82,
+              83,
+              84
+            ]
+          }
+        },
+        "equals_3": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              49,
+              50,
+              51,
+              52
+            ],
+            "B": [
+              80,
+              81,
+              82,
+              83
+            ],
+            "Y": [
+              85
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              86
+            ],
+            "B": [
+              85
+            ],
+            "Y": [
+              24
+            ]
+          }
+        },
+        "equals_4": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              87,
+              88
+            ],
+            "B": [
+              10,
+              11
+            ],
+            "Y": [
+              86
+            ]
+          }
+        },
+        "bussubset_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              87,
+              88
+            ]
+          }
+        },
+        "swizzle_3": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              86
+            ],
+            "B": [
+              89,
+              90,
+              91
+            ],
+            "Y": [
+              76,
+              77,
+              78,
+              79
+            ]
+          }
+        },
+        "add_3": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              80,
+              81,
+              82,
+              83
+            ],
+            "B": [
+              92,
+              93,
+              94,
+              95
+            ],
+            "Y": [
+              96,
+              97,
+              98,
+              99,
+              100
+            ]
+          }
+        },
+        "equals_5": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              49,
+              50,
+              51,
+              52
+            ],
+            "B": [
+              96,
+              97,
+              98,
+              99
+            ],
+            "Y": [
+              101
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              102
+            ],
+            "B": [
+              101
+            ],
+            "Y": [
+              25
+            ]
+          }
+        },
+        "equals_6": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              103,
+              104
+            ],
+            "B": [
+              10,
+              11
+            ],
+            "Y": [
+              102
+            ]
+          }
+        },
+        "bussubset_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              103,
+              104
+            ]
+          }
+        },
+        "swizzle_4": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              102
+            ],
+            "B": [
+              105,
+              106,
+              107
+            ],
+            "Y": [
+              92,
+              93,
+              94,
+              95
+            ]
+          }
+        },
+        "add_4": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              96,
+              97,
+              98,
+              99
+            ],
+            "B": [
+              108,
+              109,
+              110,
+              111
+            ],
+            "Y": [
+              112,
+              113,
+              114,
+              115,
+              116
+            ]
+          }
+        },
+        "equals_7": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              49,
+              50,
+              51,
+              52
+            ],
+            "B": [
+              112,
+              113,
+              114,
+              115
+            ],
+            "Y": [
+              117
+            ]
+          }
+        },
+        "and__3": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              118
+            ],
+            "B": [
+              117
+            ],
+            "Y": [
+              26
+            ]
+          }
+        },
+        "equals_8": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              119,
+              120
+            ],
+            "B": [
+              10,
+              11
+            ],
+            "Y": [
+              118
+            ]
+          }
+        },
+        "bussubset_3": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 4,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              119,
+              120
+            ]
+          }
+        },
+        "swizzle_5": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              118
+            ],
+            "B": [
+              121,
+              122,
+              123
+            ],
+            "Y": [
+              108,
+              109,
+              110,
+              111
+            ]
+          }
+        },
+        "add_5": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              112,
+              113,
+              114,
+              115
+            ],
+            "B": [
+              124,
+              125,
+              126,
+              127
+            ],
+            "Y": [
+              128,
+              129,
+              130,
+              131,
+              132
+            ]
+          }
+        },
+        "equals_9": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              49,
+              50,
+              51,
+              52
+            ],
+            "B": [
+              128,
+              129,
+              130,
+              131
+            ],
+            "Y": [
+              133
+            ]
+          }
+        },
+        "and__4": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              134
+            ],
+            "B": [
+              133
+            ],
+            "Y": [
+              27
+            ]
+          }
+        },
+        "equals_10": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              135,
+              136
+            ],
+            "B": [
+              10,
+              11
+            ],
+            "Y": [
+              134
+            ]
+          }
+        },
+        "bussubset_4": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 5,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              135,
+              136
+            ]
+          }
+        },
+        "swizzle_6": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              134
+            ],
+            "B": [
+              137,
+              138,
+              139
+            ],
+            "Y": [
+              124,
+              125,
+              126,
+              127
+            ]
+          }
+        },
+        "add_6": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              128,
+              129,
+              130,
+              131
+            ],
+            "B": [
+              140,
+              141,
+              142,
+              143
+            ],
+            "Y": [
+              144,
+              145,
+              146,
+              147,
+              148
+            ]
+          }
+        },
+        "equals_11": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              49,
+              50,
+              51,
+              52
+            ],
+            "B": [
+              144,
+              145,
+              146,
+              147
+            ],
+            "Y": [
+              149
+            ]
+          }
+        },
+        "and__5": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              150
+            ],
+            "B": [
+              149
+            ],
+            "Y": [
+              28
+            ]
+          }
+        },
+        "equals_12": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              151,
+              152
+            ],
+            "B": [
+              10,
+              11
+            ],
+            "Y": [
+              150
+            ]
+          }
+        },
+        "bussubset_5": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 6,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              151,
+              152
+            ]
+          }
+        },
+        "swizzle_7": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              150
+            ],
+            "B": [
+              153,
+              154,
+              155
+            ],
+            "Y": [
+              140,
+              141,
+              142,
+              143
+            ]
+          }
+        },
+        "const_0_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              33,
+              34,
+              35
+            ]
+          }
+        },
+        "const_1_4_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h0": "output"
+          },
+          "connections": {
+            "4'h0": [
+              40,
+              41,
+              42,
+              43
+            ]
+          }
+        },
+        "const_5_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              68,
+              69,
+              70
+            ]
+          }
+        },
+        "const_6_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              89,
+              90,
+              91
+            ]
+          }
+        },
+        "const_7_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              105,
+              106,
+              107
+            ]
+          }
+        },
+        "const_8_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              121,
+              122,
+              123
+            ]
+          }
+        },
+        "const_9_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              137,
+              138,
+              139
+            ]
+          }
+        },
+        "const_10_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              153,
+              154,
+              155
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "bus": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "pattern": {
+          "bits": [
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "index": {
+          "bits": [
+            12,
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {}
+        },
+        "onehot": {
+          "bits": [
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21
+          ],
+          "logic_type": {
+            "width": 7
+          },
+          "attributes": {}
+        },
+        "_subset_1_0_bus_equals_pattern_and__swizzled_equals__const_0_add__swizzled": {
+          "bits": [
+            22
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1": {
+          "bits": [
+            23
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in2": {
+          "bits": [
+            24
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in3": {
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in4": {
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in5": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in6": {
+          "bits": [
+            28
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0": {
+          "bits": [
+            29
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_equals__const_0_add__swizzled": {
+          "bits": [
+            30
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_1_0_bus": {
+          "bits": [
+            31,
+            32
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled": {
+          "bits": [
+            36,
+            37,
+            38,
+            39
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__const_0_add__swizzled": {
+          "bits": [
+            44,
+            45,
+            46,
+            47
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__swizzled_carry": {
+          "bits": [
+            48
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__const_0_add__swizzled_add__swizzled": {
+          "bits": [
+            60,
+            61,
+            62,
+            63
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled": {
+          "bits": [
+            64
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_2_1_bus_equals_pattern": {
+          "bits": [
+            65
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_2_1_bus": {
+          "bits": [
+            66,
+            67
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_swizzled": {
+          "bits": [
+            71,
+            72,
+            73,
+            74
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__swizzled_add__swizzled_carry": {
+          "bits": [
+            75
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_0": {
+          "bits": [
+            76,
+            77,
+            78,
+            79
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            80,
+            81,
+            82,
+            83
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "bits": [
+            84
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            85
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_3_2_bus_equals_pattern": {
+          "bits": [
+            86
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_3_2_bus": {
+          "bits": [
+            87,
+            88
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_1": {
+          "bits": [
+            92,
+            93,
+            94,
+            95
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            96,
+            97,
+            98,
+            99
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "bits": [
+            100
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            101
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_4_3_bus_equals_pattern": {
+          "bits": [
+            102
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_4_3_bus": {
+          "bits": [
+            103,
+            104
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_2": {
+          "bits": [
+            108,
+            109,
+            110,
+            111
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            112,
+            113,
+            114,
+            115
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "bits": [
+            116
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            117
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_5_4_bus_equals_pattern": {
+          "bits": [
+            118
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_5_4_bus": {
+          "bits": [
+            119,
+            120
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_3": {
+          "bits": [
+            124,
+            125,
+            126,
+            127
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            128,
+            129,
+            130,
+            131
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "bits": [
+            132
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            133
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_6_5_bus_equals_pattern": {
+          "bits": [
+            134
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_6_5_bus": {
+          "bits": [
+            135,
+            136
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_4": {
+          "bits": [
+            140,
+            141,
+            142,
+            143
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in1__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            144,
+            145,
+            146,
+            147
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+          "bits": [
+            149
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_7_6_bus_equals_pattern": {
+          "bits": [
+            150
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_7_6_bus": {
+          "bits": [
+            151,
+            152
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "const_0_3_h0": {
+          "bits": [
+            33,
+            34,
+            35
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_4_h0": {
+          "bits": [
+            40,
+            41,
+            42,
+            43
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_3_h0": {
+          "bits": [
+            68,
+            69,
+            70
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_6_3_h0": {
+          "bits": [
+            89,
+            90,
+            91
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_7_3_h0": {
+          "bits": [
+            105,
+            106,
+            107
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_8_3_h0": {
+          "bits": [
+            121,
+            122,
+            123
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_9_3_h0": {
+          "bits": [
+            137,
+            138,
+            139
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_10_3_h0": {
+          "bits": [
+            153,
+            154,
+            155
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    }
+  }
+}

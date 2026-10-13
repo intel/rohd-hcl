@@ -53,41 +53,52 @@
 </h1></div>
 
     
-      <section class="multi-line-signature">
+
+    
         
+  <section id="getter">
+    <section class="multi-line-signature">
+      
   <div>
     <ol class="annotation-list">
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-        <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a></span>&gt;</span>
-        <span class="name ">knobs</span>
-        <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+      <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="../../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a></span>&gt;</span></span>
+      get
+      <span class="name ">knobs</span>
+      <div class="features"><span class="feature">override</span></div>
 
-      </section>
-      
+    </section>
+    
 <section class="desc markdown">
   <p>A mapping from configuration names to <code>ConfigKnob</code>s that can be used
 to configure this component.</p>
 </section>
 
-      
+    
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-late final Map&lt;String, ConfigKnob&lt;dynamic&gt;&gt; knobs = UnmodifiableMapView({
-  &#39;Dual Path Adder&#39;: dualPathAdderKnob,
-  &#39;DAZ&#47;FTZ Selection&#39;: subNormalAsZeroSelecKnob,
-  &#39;Select Internal Adder&#39;: adderSelectionKnob,
-  &#39;Prefix tree type for incrementers&#39;: prefixTreeKnob,
-  &#39;Exponent width&#39;: exponentWidthKnob,
-  &#39;Mantissa width&#39;: mantissaWidthKnob,
-  &#39;Pipelined&#39;: pipelinedKnob,
-});</code></pre>
+Map&lt;String, ConfigKnob&lt;dynamic&gt;&gt; get knobs =&gt; UnmodifiableMapView({
+      &#39;Dual Path Adder&#39;: dualPathAdderKnob,
+      &#39;DAZ&#47;FTZ Selection&#39;: subNormalAsZeroSelecKnob,
+      &#39;Select Internal Adder&#39;: adderSelectionKnob,
+      &#39;Prefix tree type for incrementers&#39;: prefixTreeKnob,
+      &#39;Exponent width&#39;: exponentWidthKnob,
+      &#39;Mantissa width&#39;: mantissaWidthKnob,
+      &#39;Pipelined&#39;: pipelinedKnob,
+      &#39;Explicit J bit&#39;: explicitJBitKnob,
+      &#39;Output Floating Point&#39;: outputWidthSelectKnob,
+      if (dualPathAdderKnob.value)
+        &#39;Generate Subtract Input&#39;: dualPathSubtractInputKnob,
+      &#39;Rounding mode&#39;: roundingModeKnob,
+    });</code></pre>
 </section>
 
+  </section>
 
-    
+
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->

@@ -75,17 +75,33 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Module createModule() =&gt; FloatingPointMultiplierSimple(
+Module createModule() {
+  final outProduct = outputWidthSelectKnob.differentWidthOutput.value
+      ? FloatingPoint(
+          exponentWidth: outputWidthSelectKnob.exponentWidthKnob.value,
+          mantissaWidth: outputWidthSelectKnob.mantissaWidthKnob.value,
+          explicitJBit: outputWidthSelectKnob.explicitJBitKnob.value,
+        )
+      : null;
+
+  return FloatingPointMultiplierSimple(
     clk: multiplierSelectKnob.pipelinedKnob.value ? Logic() : null,
     FloatingPoint(
       exponentWidth: exponentWidthKnob.value,
       mantissaWidth: mantissaWidthKnob.value,
+      explicitJBit: inputExplicitJBitKnob.value,
     ),
     FloatingPoint(
-        exponentWidth: exponentWidthKnob.value,
-        mantissaWidth: mantissaWidthKnob.value),
+      exponentWidth: exponentWidthKnob.value,
+      mantissaWidth: mantissaWidthKnob.value,
+      explicitJBit: inputExplicitJBitKnob.value,
+    ),
+    outProduct: outProduct,
+    roundingMode: roundingModeKnob.value,
     multGen: multiplierSelectKnob.selectedMultiplier(),
-    definitionName: &#39;FloatingPointMultiplierSimple&#39;);</code></pre>
+    definitionName: &#39;FloatingPointMultiplierSimple&#39;,
+  );
+}</code></pre>
 </section>
 
 

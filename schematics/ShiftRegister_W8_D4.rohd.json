@@ -1,0 +1,330 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.0.1",
+  "modules": {
+    "ShiftRegister_W8_D4": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "data_in": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "clk": {
+          "direction": "input",
+          "bits": [
+            10
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "data_out": {
+          "direction": "output",
+          "bits": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "data_stage_0": {
+          "direction": "output",
+          "bits": [
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "data_stage_1": {
+          "direction": "output",
+          "bits": [
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "data_stage_2": {
+          "direction": "output",
+          "bits": [
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "data_stage_3": {
+          "direction": "output",
+          "bits": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        }
+      },
+      "cells": {
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "data_in": "input",
+            "data_stage_0": "input",
+            "data_stage_1": "input",
+            "data_stage_2": "input",
+            "clk": "input",
+            "data_stage_0__out1_data_stage_0": "output",
+            "data_stage_1__out3_data_stage_1": "output",
+            "data_stage_2__out5_data_stage_2": "output",
+            "data_stage_3": "output"
+          },
+          "connections": {
+            "data_in": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "data_stage_0": [
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ],
+            "data_stage_1": [
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34
+            ],
+            "data_stage_2": [
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42
+            ],
+            "clk": [
+              10
+            ],
+            "data_stage_0__out1_data_stage_0": [
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ],
+            "data_stage_1__out3_data_stage_1": [
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34
+            ],
+            "data_stage_2__out5_data_stage_2": [
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42
+            ],
+            "data_stage_3": [
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "data_in": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "clk": {
+          "bits": [
+            10
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "data_out": {
+          "bits": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data_stage_0": {
+          "bits": [
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data_stage_1": {
+          "bits": [
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data_stage_2": {
+          "bits": [
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data_stage_3": {
+          "bits": [
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        }
+      }
+    }
+  }
+}

@@ -99,6 +99,18 @@
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="checkOverflowKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatToFixedConfigurator/checkOverflowKnob.html">checkOverflowKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Whether to generate the overflow output.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
         <dt id="exponentWidthKnob" class="property">
   <span class="name"><a href="../rohd_hcl/FloatToFixedConfigurator/exponentWidthKnob.html">exponentWidthKnob</a></span>
   <span class="signature">&#8594; <a href="../rohd_hcl/IntConfigKnob-class.html">IntConfigKnob</a></span>
@@ -107,6 +119,18 @@
 </dt>
 <dd>
   Width of exponent, must be greater than 0.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="fractionWidthKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatToFixedConfigurator/fractionWidthKnob.html">fractionWidthKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/IntOptionalConfigKnob-class.html">IntOptionalConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Optional width of the fractional part of the fixed-point output.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -120,6 +144,30 @@
 <dd class="inherited">
   The hash code for this object.
   <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inputExplicitJBitKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatToFixedConfigurator/inputExplicitJBitKnob.html">inputExplicitJBitKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Whether the input format includes an explicit J bit.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="integerWidthKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatToFixedConfigurator/integerWidthKnob.html">integerWidthKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/IntOptionalConfigKnob-class.html">IntOptionalConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Optional width of the integer part of the fixed-point output.
+  <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
@@ -156,6 +204,18 @@ to configure this component.
 </dt>
 <dd>
   The <a href="../rohd_hcl/FloatToFixedConfigurator/name.html">name</a> of this <a href="../rohd_hcl/Configurator-class.html">Configurator</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="roundingModeKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/FloatToFixedConfigurator/roundingModeKnob.html">roundingModeKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/FloatingPointRoundingModeKnob-class.html">FloatingPointRoundingModeKnob</a></span>
+  
+
+</dt>
+<dd>
+  Rounding mode used for the conversion.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>

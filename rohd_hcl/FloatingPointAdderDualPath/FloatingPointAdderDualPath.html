@@ -134,6 +134,8 @@ the output type will be the same as the input type <code>a</code>. Note that
         &#39;FloatingPointAdderDualPath does not support explicit J bit output.&#39;);
   }
 
+  subtract = (subtract != null) ? addInput(&#39;subtract&#39;, subtract) : null;
+
   &#47;&#47; Seidel: S.EFF = effectiveSubtraction.
   final isInf = (a.isAnInfinity | b.isAnInfinity).named(&#39;isInf&#39;);
 

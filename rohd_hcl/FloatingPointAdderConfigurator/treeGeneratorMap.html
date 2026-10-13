@@ -69,14 +69,15 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">static Map&lt;
-        Type,
-        ParallelPrefix Function(
-            List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)&gt;
-    treeGeneratorMap = {
+    Type,
+    ParallelPrefix Function(
+      List&lt;Logic&gt; inps,
+      Logic Function(Logic term1, Logic term2) op,
+    )&gt; treeGeneratorMap = {
   Ripple: Ripple.new,
   Sklansky: Sklansky.new,
   KoggeStone: KoggeStone.new,
-  BrentKung: BrentKung.new
+  BrentKung: BrentKung.new,
 };</code></pre>
 </section>
 
