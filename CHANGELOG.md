@@ -209,6 +209,7 @@
 
 - Added common smoke coverage for all `FloatingPointValue` formats (<https://github.com/intel/rohd-hcl/issues/133>).
 - Expanded exhaustive coverage for conversions, rounding, floating-point arithmetic, fixed-point multiplication, and multiply-accumulate widths.
+- Reduced redundant randomized/exhaustive test matrices and deferred parameterized DUT construction until test execution, retaining boundary and configuration coverage while lowering test time and peak simulator memory.
 - Re-enabled `previousFloatingPointValue` regressions after the upstream ROHD fix (<https://github.com/intel/rohd/pull/565>).
 - Resolved stale arithmetic TODOs where exhaustive testing confirmed the existing implementation.
 

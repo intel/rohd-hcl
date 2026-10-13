@@ -153,6 +153,13 @@ void main() {
 Prefer using `waitCycles` instead of `nextPosedge` and use `inject` instead of
 `put` when working with sequential tests.
 
+For a parameterized test matrix, construct one DUT for each unique elaboration
+configuration, then drive all of that configuration's value vectors through the
+same DUT. Do not instantiate every configuration while registering tests in a
+loop: use a lazy factory inside each test callback so unexecuted configurations
+do not consume simulator memory. Construct separate DUTs only when a parameter
+changes the generated hardware.
+
 When testing a combinational path, and you `inject` inputs after a positive
 clock edge, if you sample at the next clock edge, you will miss the
 combinational value.  Instead, use the output `previousValue` at the next clock

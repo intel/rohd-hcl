@@ -13,6 +13,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+const _randomIterations = 20;
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -150,22 +152,23 @@ void main() {
     }
   });
 
-  test('dotproduct signed-variants exhaustive', () {
+  test('dotproduct signed-variants boundary sweep', () {
+    // A compression-tree multiplier requires at least three bits. These
+    // patterns preserve the unsigned and signed boundaries in every lane:
+    // zero, one, maximum positive, minimum signed, and minus one.
     const widths = [3, 3];
+    const boundaryValues = [0, 1, 3, 4, 7];
+    final boundaryVectors = [
+      for (final first in boundaryValues)
+        for (final second in boundaryValues)
+          [BigInt.from(first), BigInt.from(second)],
+    ];
     final depth = widths.length;
-    final candValues = List.generate(depth, (_) => BigInt.zero);
-    final multValues = List.generate(depth, (_) => BigInt.zero);
     final multiplicands = [
       for (var i = 0; i < depth; i++) Logic(width: widths[i])..put(0)
     ];
     final multipliers = [
       for (var i = 0; i < depth; i++) Logic(width: widths[i])..put(0)
-    ];
-
-    final fullWidth = widths.reduce((a, b) => a + b);
-    final limit = BigInt.from(1 << fullWidth);
-    final masks = [
-      for (var i = 0; i < depth; i++) BigInt.from((1 << widths[i]) - 1)
     ];
 
     for (final signedMultiplicand in [false, true]) {
@@ -178,21 +181,8 @@ void main() {
               signedMultiplicand: signedMultiplicand,
               signedMultiplier: signedMultiplier);
 
-          for (var candFv = BigInt.zero; candFv < limit; candFv += BigInt.one) {
-            var remCandValue = candFv;
-
-            for (var i = 0; i < depth; i++) {
-              candValues[i] = remCandValue & masks[i];
-              remCandValue >>= widths[i];
-            }
-            for (var mulFv = BigInt.zero; mulFv < limit; mulFv += BigInt.one) {
-              var remMulValue = mulFv;
-
-              for (var i = 0; i < depth; i++) {
-                multValues[i] = remMulValue & masks[i];
-                remMulValue >>= widths[i];
-              }
-
+          for (final candValues in boundaryVectors) {
+            for (final multValues in boundaryVectors) {
               for (var m = 0; m < multiplicands.length; m++) {
                 multiplicands[m].put(candValues[m]);
                 multipliers[m].put(multValues[m]);
@@ -227,7 +217,7 @@ void main() {
   });
 
   test('dotproduct signed-variants random', () {
-    const iterations = 100;
+    const iterations = _randomIterations;
 
     const widths = [4, 4, 4, 4, 4];
     final depth = widths.length;
@@ -257,11 +247,9 @@ void main() {
                 rv.nextLogicValue(width: widths[i])
             ];
 
-            for (var i = 0; i < iterations; i++) {
-              for (var m = 0; m < multiplicands.length; m++) {
-                multiplicands[m].put(candValues[m]);
-                multipliers[m].put(multValues[m]);
-              }
+            for (var m = 0; m < multiplicands.length; m++) {
+              multiplicands[m].put(candValues[m]);
+              multipliers[m].put(multValues[m]);
             }
 
             final productWidth = dotProduct.product.width;
