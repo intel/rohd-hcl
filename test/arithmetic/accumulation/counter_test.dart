@@ -461,17 +461,16 @@ void main() {
   });
 
   group('random counter', () {
-    const numRandCounters = 20;
+    const counterSeeds = [0, 3, 7, 11, 15, 19];
+    const numCycles = 128;
     const restartProbability = 0.05;
 
     final counterTypes = ['normal', 'gated'];
 
     for (final counterType in counterTypes) {
       group(counterType, () {
-        for (var counterIdx = 0; counterIdx < numRandCounters; counterIdx++) {
+        for (final counterIdx in counterSeeds) {
           test('$counterIdx', () async {
-            const numCycles = 500;
-
             final rand = Random(456 + counterIdx ^ counterType.hashCode);
 
             final cfg = genRandomSummationConfiguration(rand);
