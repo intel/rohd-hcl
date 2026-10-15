@@ -10,7 +10,11 @@
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.dart';
+import 'package:rohd_hcl/src/flow_control/control/fifo_core_functor.dart';
+import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
+import 'package:rohd_hcl/src/flow_control/storage/fifo.dart';
+import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
 
 /// A simple generic module that wires a single upstream and downstream
 /// [ReadyValidInterface] for a given [LogicType] through an internal
@@ -18,6 +22,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 ///
 ///  The internal FIFO will buffer values of the  type parameter [LogicType].
 class ReadyValidFifo<LogicType extends LogicStructure> extends Module {
+  /// Upstream interface accepted by this FIFO.
+  late final ReadyValidInterface<LogicType> upstream;
+
+  /// Downstream interface driven by this FIFO.
+  late final ReadyValidInterface<LogicType> downstream;
+
   /// Internal FIFO instance
   @protected
   late final Fifo<LogicType> fifo;
@@ -54,42 +64,48 @@ class ReadyValidFifo<LogicType extends LogicStructure> extends Module {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
 
-    // Clone and connect the provided interfaces to module-local interfaces
-    // (consumer role for upstream, provider role for downstream).
-    final upstreamIntf = upstream.clone()
-      ..pairConnectIO(this, upstream, PairRole.consumer,
-          uniquify: (original) => 'upstream_$original');
-
-    final downstreamIntf = downstream.clone()
-      ..pairConnectIO(this, downstream, PairRole.provider,
-          uniquify: (original) => 'downstream_$original');
+    this.upstream = addPairInterface(
+      upstream,
+      PairRole.consumer,
+      uniquify: (original) => 'upstream_$original',
+    );
+    this.downstream = addPairInterface(
+      downstream,
+      PairRole.provider,
+      uniquify: (original) => 'downstream_$original',
+    );
 
     // Use the upstream data shape as a template for FIFO element.
-    final writeData = upstreamIntf.data.clone() as LogicType;
+    final writeData = this.upstream.data.clone() as LogicType;
+    final binding = FifoCoreFunctor<LogicType>(
+      depth: depth,
+      generateOccupancy: true,
+    ).construct(
+      FifoCoreRequest<LogicType>(
+        clk: this.clk,
+        reset: this.reset,
+        enqueue: writeEnable,
+        dequeue: readEnable,
+        payload: writeData,
+      ),
+      name: '${name}_fifo',
+    );
+    fifo = binding.module;
 
-    fifo = Fifo<LogicType>(this.clk, this.reset,
-        writeEnable: writeEnable,
-        readEnable: readEnable,
-        writeData: writeData,
-        depth: depth,
-        generateOccupancy: true,
-        name: '${name}_fifo');
-
-    // Connect upstream valid/data to FIFO write when not full.
-    writeEnable <= upstreamIntf.valid & ~fifo.full;
-    writeData <= upstreamIntf.data;
-
-    // Drive upstream ready when FIFO can accept
-    upstreamIntf.ready <= ~fifo.full;
-
-    // Downstream side: read when downstream ready and fifo not empty.
-    final shouldRead = downstreamIntf.ready & ~fifo.empty;
-    readEnable <= shouldRead;
-
-    // Drive downstream valid and data from FIFO readData.
-    downstreamIntf.valid <= ~fifo.empty;
-    final readData = upstreamIntf.data.clone() as LogicType;
-    readData <= fifo.readData;
-    downstreamIntf.data <= readData;
+    ReadyValidIngressAttachmentPolicy<LogicType>(
+      supportsSameCycleReplacement: false,
+      storageDepth: depth,
+    ).attach(
+      upstream: this.upstream,
+      canAccept: ~binding.full,
+      accept: writeEnable,
+      payload: writeData,
+    );
+    ReadyValidEgressAttachmentPolicy<LogicType>().attach(
+      downstream: this.downstream,
+      offerValid: binding.outputValid,
+      payload: binding.output,
+      transfer: readEnable,
+    );
   }
 }

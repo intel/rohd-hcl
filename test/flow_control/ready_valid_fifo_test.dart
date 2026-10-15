@@ -38,6 +38,25 @@ void main() {
     await Simulator.reset();
   });
 
+  test('ReadyValidFifo constructs through the protocol-neutral FIFO core',
+      () async {
+    final fifoModule = ReadyValidFifo<SimpleOp>(
+      clk: Logic(),
+      reset: Logic(),
+      upstream: ReadyValidInterface<SimpleOp>(SimpleOp()),
+      downstream: ReadyValidInterface<SimpleOp>(SimpleOp()),
+      depth: 4,
+    );
+
+    await fifoModule.build();
+    final systemVerilog = fifoModule.generateSynth();
+
+    expect(
+      systemVerilog,
+      contains('FifoCore_fifo_core_D4_R1_B0_S1_O1_E0_'),
+    );
+  });
+
   test('ReadyValidFifo basic flow (SimpleOp)', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
