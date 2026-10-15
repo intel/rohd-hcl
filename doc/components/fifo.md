@@ -73,8 +73,36 @@ identity includes the configured capabilities, payload width, and a
 deterministic recursive payload-shape signature. The signature includes
 structure field names and widths or array dimensions, but not the payload
 instance name. Identical shapes therefore share a definition while distinct
-equal-width shapes do not collide. Concrete ready/valid, credit, routing, and
-scheduling attachments are intentionally outside this foundation.
+equal-width shapes do not collide.
+
+## Directional Protocol Attachments
+
+Protocol wrappers compose a core through independently typed ingress and
+egress attachments. The core owns only clocked storage, payload retention, and
+the explicit `enqueue`/`dequeue` actions. An attachment owns one protocol
+boundary and maps it onto those actions and a wrapper-owned payload signal.
+
+`DirectionalAttachmentCapabilities` describes the storage, latency,
+retention, same-cycle replacement, credit-reuse, contract, and combinational
+dependency properties of one attachment. P00 provides:
+
+- `SynchronousActionAttachmentPolicy` for a caller-owned one-bit action; and
+- `ReadyValidIngressAttachmentPolicy` and
+  `ReadyValidEgressAttachmentPolicy` for typed ready/valid boundaries.
+
+`ReadyValidFifo` is the reference composition: it uses `FifoCoreFunctor` with
+one Ready/Valid ingress attachment and one Ready/Valid egress attachment.
+It intentionally retains its existing no-full-replacement behavior by giving
+the ingress attachment `~full` rather than the core's more permissive
+`canEnqueue` action.
+
+Later protocol families add their own typed attachments to the same core
+action boundary. For example, a credited ingress may own admission accounting
+and map legal credit traffic to `enqueue`, while a ready/valid egress maps
+`dequeue` to its transfer handshake. Do not add a universal protocol
+interface, and do not have protocol wrappers instantiate `Fifo` directly:
+extend the typed attachment layer while preserving the core request/binding
+API.
 
 ## Example Schematic
 
