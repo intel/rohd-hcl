@@ -51,7 +51,12 @@ source.
 `ReadyValidFifo<T>` buffers a typed `LogicStructure` payload between upstream
 and downstream ready/valid interfaces. Its default depth is 8. The upstream
 side deasserts `ready` when full, and the downstream side deasserts `valid`
-when empty.
+when empty. It is the P00 reference protocol shell: its storage is constructed
+through `FifoCoreFunctor`, while `ReadyValidIngressAttachmentPolicy` and
+`ReadyValidEgressAttachmentPolicy` map the two ready/valid boundaries to the
+core's enqueue and dequeue actions. Future protocol combinations reuse that
+core-and-directional-attachment pattern rather than introducing another FIFO
+wrapper architecture.
 
 Create and retain the interface instances at the composition boundary, then
 pass them into the FIFO. Continue to use those caller-owned interfaces to
