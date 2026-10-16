@@ -36,19 +36,27 @@ abstract class SummationBase extends Module {
   @protected
   late final List<SumInterface> interfaces;
 
-  /// If `true`, will saturate at the `maxValue` and `minValue`. If `false`,
-  /// will wrap around (overflow/underflow) at the `maxValue` and `minValue`.
+  /// Chooses how an out-of-range raw result is corrected.
+  ///
+  /// If `true`, the result saturates at `maxValue` or `minValue`. If `false`,
+  /// it wraps within those bounds. This does not prevent the raw result from
+  /// violating a bound; [overflowed] and [underflowed] report that violation
+  /// independently of the selected correction.
   final bool saturates;
 
-  /// Indicates whether the sum is greater than the maximum value. The actual
-  /// resulting value depends on the provided [saturates] behavior (staturation
-  /// or overflow).
-  Logic get overflowed => output('overflowed');
+  /// Indicates whether the sum is greater than the maximum value, when this
+  /// status output is generated.
+  ///
+  /// This reports the raw bound violation before [saturates] selects either
+  /// saturation or wrapping for the resulting value.
+  Logic? get overflowed => tryOutput('overflowed');
 
-  /// Indicates whether the sum is less than the minimum value. The actual
-  /// resulting value depends on the provided [saturates] behavior (saturation
-  /// or underflow).
-  Logic get underflowed => output('underflowed');
+  /// Indicates whether the sum is less than the minimum value, when this
+  /// status output is generated.
+  ///
+  /// This reports the raw bound violation before [saturates] selects either
+  /// saturation or wrapping for the resulting value.
+  Logic? get underflowed => tryOutput('underflowed');
 
   /// Indicates whether the sum (including potential saturation) is currently
   /// equal to the maximum.
@@ -76,6 +84,8 @@ abstract class SummationBase extends Module {
       dynamic maxValue,
       dynamic minValue = 0,
       this.saturates = false,
+      bool generateOverflowedOutput = true,
+      bool generateUnderflowedOutput = true,
       int? width,
       super.name,
       super.reserveName,
@@ -126,8 +136,12 @@ abstract class SummationBase extends Module {
     minValueLogic = _dynamicInputToLogic('minValue', minValue);
     maxValueLogic = _dynamicInputToLogic('maxValue', maxValue);
 
-    addOutput('overflowed');
-    addOutput('underflowed');
+    if (generateOverflowedOutput) {
+      addOutput('overflowed');
+    }
+    if (generateUnderflowedOutput) {
+      addOutput('underflowed');
+    }
     addOutput('equalsMax');
     addOutput('equalsMin');
   }

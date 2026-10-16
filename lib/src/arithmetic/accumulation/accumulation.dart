@@ -5,4 +5,3 @@ export 'counter.dart';
 export 'gated_counter.dart';
 export 'sum.dart';
 export 'sum_interface.dart';
-export 'summation_base.dart';

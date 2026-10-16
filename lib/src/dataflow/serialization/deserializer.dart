@@ -69,9 +69,13 @@ class Deserializer extends Module {
         enable: enable,
         maxValue: length - 1,
         restart: (last ?? Const(0)) & (enable ?? Const(1)));
+    final overflowed = cnt.overflowed;
+    if (overflowed == null) {
+      throw StateError('Deserializer requires Counter overflow tracking.');
+    }
     addOutput('count', width: cnt.width) <= cnt.count;
     addOutput('done') <=
-        cnt.overflowed | ((floppedLast ?? Const(0)) & (enable ?? Const(1)));
+        overflowed | ((floppedLast ?? Const(0)) & (enable ?? Const(1)));
     addOutputArray('deserialized',
             dimensions: (serialized is LogicArray)
                 ? ([length, ...serialized.dimensions])

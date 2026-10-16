@@ -11,11 +11,29 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+import 'package:rohd_hcl/src/arithmetic/accumulation/summation_base.dart';
+
 /// Keeps a count of the running sum of any number of sources with optional
 /// configuration for widths, saturation behavior, and restarting.
 class Counter extends SummationBase {
   /// The output value of the counter.
   Logic get count => output('count');
+
+  /// Registered overflow status for the current update cycle, if
+  /// [trackOverflow] is true.
+  ///
+  /// This is not a sticky "has ever overflowed" flag: a following update
+  /// without a raw overflow clears it.
+  @override
+  Logic? get overflowed => super.overflowed;
+
+  /// Registered underflow status for the current update cycle, if
+  /// [trackUnderflow] is true.
+  ///
+  /// This is not a sticky "has ever underflowed" flag: a following update
+  /// without a raw underflow clears it.
+  @override
+  Logic? get underflowed => super.underflowed;
 
   /// The main clock signal.
   @visibleForTesting
@@ -29,17 +47,27 @@ class Counter extends SummationBase {
   /// Whether the [reset] is asynchronous.
   final bool asyncReset;
 
-  /// Whether [overflowed] records overflow status.
+  /// Whether [overflowed] is generated to record overflow history.
   ///
-  /// When `false`, the output remains present for API compatibility but is
-  /// tied low and its history flop is omitted.
+  /// This affects reporting only; it does not change whether [count] wraps or
+  /// saturates. When `false`, the output port is omitted and [overflowed] is
+  /// `null`.
   final bool trackOverflow;
 
-  /// Whether [underflowed] records underflow status.
+  /// Whether [underflowed] is generated to record underflow history.
   ///
-  /// When `false`, the output remains present for API compatibility but is
-  /// tied low and its history flop is omitted.
+  /// This affects reporting only; it does not change whether [count] wraps or
+  /// saturates. When `false`, the output port is omitted and [underflowed] is
+  /// `null`.
   final bool trackUnderflow;
+
+  /// Internal overflow history, retained independently of the public port.
+  @protected
+  late final Logic overflowHistory;
+
+  /// Internal underflow history, retained independently of the public port.
+  @protected
+  late final Logic underflowHistory;
 
   /// The restart signal.
   @protected
@@ -60,12 +88,12 @@ class Counter extends SummationBase {
   /// also continue to increment in that same cycle. This is distinct from
   /// [reset] which will reset the counter, holding the [count] at [resetValue].
   ///
-  /// If [saturates] is `true`, then it will saturate at the [maxValue] and
-  /// [minValue]. If `false`, will wrap around (overflow/underflow) at the
-  /// [maxValue] and [minValue].  The [equalsMax], [equalsMin], [overflowed],
-  /// and [underflowed] outputs can be used to determine if the sum is at the
-  /// maximum, minimum, (would have) overflowed, or  (would have) underflowed,
-  /// respectively.
+  /// [saturates] chooses whether a raw result outside [maxValue] and
+  /// [minValue] is corrected by clamping or wrapping. It does not determine
+  /// whether a raw overflow or underflow occurs: enabled [overflowed] and
+  /// [underflowed] status report that raw violation in either correction mode.
+  /// [trackOverflow] and [trackUnderflow] control only that status reporting
+  /// and do not alter [count].
   Counter(
     super.interfaces, {
     required Logic clk,
@@ -88,7 +116,9 @@ class Counter extends SummationBase {
             definitionName: definitionName ??
                 'Counter_L${interfaces.length}'
                     '${trackOverflow ? "" : "_NO"}'
-                    '${trackUnderflow ? "" : "_NU"}') {
+                    '${trackUnderflow ? "" : "_NU"}',
+            generateOverflowedOutput: trackOverflow,
+            generateUnderflowedOutput: trackUnderflow) {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
     if (restart != null) {
@@ -123,18 +153,28 @@ class Counter extends SummationBase {
   void _buildLogic() {
     buildFlops();
 
-    // need to flop these since value is flopped
+    overflowHistory = Logic(name: 'overflowHistory');
+    underflowHistory = Logic(name: 'underflowHistory');
+
+    // These histories are internal counter state. GatedCounter uses them for
+    // behavior independent of whether callers request public status ports.
     if (trackOverflow && summer.canOverflow) {
-      overflowed <=
+      overflowHistory <=
           flop(clk, summer.overflowed, reset: reset, asyncReset: asyncReset);
     } else {
-      overflowed <= Const(0);
+      overflowHistory <= Const(0);
     }
     if (trackUnderflow && summer.canUnderflow) {
-      underflowed <=
+      underflowHistory <=
           flop(clk, summer.underflowed, reset: reset, asyncReset: asyncReset);
     } else {
-      underflowed <= Const(0);
+      underflowHistory <= Const(0);
+    }
+    if (trackOverflow) {
+      overflowed! <= overflowHistory;
+    }
+    if (trackUnderflow) {
+      underflowed! <= underflowHistory;
     }
 
     equalsMax <= count.eq(maxValueLogic);

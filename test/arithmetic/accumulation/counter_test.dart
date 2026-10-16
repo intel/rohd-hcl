@@ -17,6 +17,148 @@ import 'package:test/test.dart';
 
 import 'summation_test_utils.dart';
 
+Future<void> _expectStableSaturationGatesRemainQuiet({
+  required bool increments,
+  required bool trackBoundaryStatus,
+  required int clkGatePartitionIndex,
+}) async {
+  const width = 6;
+  const minValue = 0;
+  const maxValue = (1 << width) - 1;
+  final clk = SimpleClockGenerator(10).clk;
+  final reset = Logic();
+  final counter = GatedCounter(
+    [
+      SumInterface(
+        fixedAmount: 1,
+        increments: increments,
+      ),
+    ],
+    clk: clk,
+    reset: reset,
+    width: width,
+    maxValue: maxValue,
+    resetValue: increments ? maxValue : minValue,
+    saturates: true,
+    trackOverflow: !increments || trackBoundaryStatus,
+    trackUnderflow: increments || trackBoundaryStatus,
+    gateToggles: false,
+    clkGatePartitionIndex: clkGatePartitionIndex,
+  );
+  await counter.build();
+
+  var lowerEdges = 0;
+  var upperEdges = 0;
+  final lowerSubscription =
+      counter.lowerGatedClock.posedge.listen((_) => lowerEdges++);
+  final upperSubscription =
+      counter.upperGatedClock.posedge.listen((_) => upperEdges++);
+
+  Simulator.setMaxSimTime(10000);
+  unawaited(Simulator.run());
+  try {
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(3);
+
+    expect(
+      counter.count.value.toInt(),
+      increments ? maxValue : minValue,
+    );
+    expect(
+      increments ? counter.overflowed : counter.underflowed,
+      trackBoundaryStatus ? isNotNull : isNull,
+    );
+
+    lowerEdges = 0;
+    upperEdges = 0;
+    await clk.waitCycles(20);
+
+    expect(lowerEdges, 0);
+    expect(upperEdges, 0);
+  } finally {
+    await lowerSubscription.cancel();
+    await upperSubscription.cancel();
+    await Simulator.endSimulation();
+  }
+}
+
+Future<void> _expectOutOfRangeValuesNormalize({
+  required bool increments,
+  required int clkGatePartitionIndex,
+  required bool useRestart,
+}) async {
+  const width = 6;
+  final minValue = increments ? 0 : 10;
+  final maxValue = increments ? 10 : (1 << width) - 1;
+  final stableValue = increments ? maxValue : minValue;
+  final outOfRangeValue = increments ? (1 << width) - 1 : 0;
+  final clk = SimpleClockGenerator(10).clk;
+  final reset = Logic();
+  final restart = Logic();
+  final resetValue = Logic(width: width);
+  final counter = GatedCounter(
+    [
+      SumInterface(fixedAmount: 1, increments: increments),
+    ],
+    clk: clk,
+    reset: reset,
+    restart: restart,
+    width: width,
+    minValue: minValue,
+    maxValue: maxValue,
+    resetValue: resetValue,
+    saturates: true,
+    trackOverflow: false,
+    trackUnderflow: false,
+    gateToggles: false,
+    clkGatePartitionIndex: clkGatePartitionIndex,
+  );
+  await counter.build();
+
+  var lowerEdges = 0;
+  var upperEdges = 0;
+  final lowerSubscription =
+      counter.lowerGatedClock.posedge.listen((_) => lowerEdges++);
+  final upperSubscription =
+      counter.upperGatedClock.posedge.listen((_) => upperEdges++);
+
+  Simulator.setMaxSimTime(10000);
+  unawaited(Simulator.run());
+  try {
+    restart.inject(0);
+    resetValue.inject(useRestart ? stableValue : outOfRangeValue);
+    reset.inject(1);
+    await clk.waitCycles(2);
+    lowerEdges = 0;
+    upperEdges = 0;
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    if (useRestart) {
+      expect(counter.count.value.toInt(), stableValue);
+      resetValue.inject(outOfRangeValue);
+      lowerEdges = 0;
+      upperEdges = 0;
+      restart.inject(1);
+      await clk.waitCycles(1);
+      restart.inject(0);
+      await clk.waitCycles(1);
+    }
+
+    expect(counter.count.value.toInt(), stableValue);
+    expect(counter.overflowed, isNull);
+    expect(counter.underflowed, isNull);
+    expect(lowerEdges, greaterThan(0));
+    expect(upperEdges, greaterThan(0));
+  } finally {
+    await lowerSubscription.cancel();
+    await upperSubscription.cancel();
+    await Simulator.endSimulation();
+  }
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -95,8 +237,8 @@ void main() {
     await clk.nextNegedge;
     reset.inject(0);
 
-    expect(counter.overflowed.value.toBool(), false);
-    expect(counter.underflowed.value.toBool(), false);
+    expect(counter.overflowed!.value.toBool(), false);
+    expect(counter.underflowed!.value.toBool(), false);
     expect(counter.equalsMax.value.toBool(), false);
     expect(counter.equalsMin.value.toBool(), true);
 
@@ -104,15 +246,15 @@ void main() {
       expect(counter.count.value.toInt(), i % 6);
 
       if (i % 6 == 5) {
-        expect(counter.overflowed.value.toBool(), false);
+        expect(counter.overflowed!.value.toBool(), false);
         expect(counter.equalsMax.value.toBool(), true);
         expect(counter.equalsMin.value.toBool(), false);
       } else if (i % 6 == 0 && i > 0) {
-        expect(counter.overflowed.value.toBool(), true);
+        expect(counter.overflowed!.value.toBool(), true);
         expect(counter.equalsMax.value.toBool(), false);
         expect(counter.equalsMin.value.toBool(), true);
       } else {
-        expect(counter.overflowed.value.toBool(), false);
+        expect(counter.overflowed!.value.toBool(), false);
         expect(counter.equalsMax.value.toBool(), false);
         if (i % 6 != 0) {
           expect(counter.equalsMin.value.toBool(), false);
@@ -121,7 +263,7 @@ void main() {
         }
       }
 
-      expect(counter.underflowed.value.toBool(), false);
+      expect(counter.underflowed!.value.toBool(), false);
 
       await clk.nextNegedge;
     }
@@ -134,7 +276,7 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  test('trackOverflow and trackUnderflow false tie outputs low', () async {
+  test('disabled overflow and underflow tracking omits status ports', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
     final counter = Counter.simple(
@@ -148,6 +290,10 @@ void main() {
     expect(counter.definitionName, contains('_NO'));
     expect(counter.definitionName, contains('_NU'));
     expect(counter.definitionName, 'Counter_L1_NO_NU');
+    expect(counter.overflowed, isNull);
+    expect(counter.underflowed, isNull);
+    expect(counter.outputs, isNot(contains('overflowed')));
+    expect(counter.outputs, isNot(contains('underflowed')));
 
     await counter.build();
 
@@ -162,19 +308,62 @@ void main() {
     await clk.nextNegedge;
     reset.inject(0);
 
-    // drive the counter well past wraparound and confirm overflowed/
-    // underflowed stay tied low the whole time, even though the counter
-    // itself still wraps around as expected.
+    // Drive the counter well past wraparound and confirm the counter itself
+    // still wraps as expected without generating status outputs.
     for (var i = 0; i < 20; i++) {
       expect(counter.count.value.toInt(), i % 6);
-      expect(counter.overflowed.value.toBool(), false);
-      expect(counter.underflowed.value.toBool(), false);
 
       await clk.nextNegedge;
     }
 
     await Simulator.endSimulation();
   });
+
+  for (final clkGatePartitionIndex in [-1, 3]) {
+    final layout = clkGatePartitionIndex < 0 ? 'whole' : 'partitioned';
+
+    for (final increments in [true, false]) {
+      final direction = increments ? 'up' : 'down';
+
+      for (final trackBoundaryStatus in [true, false]) {
+        final tracking = trackBoundaryStatus ? 'tracked' : 'untracked';
+
+        test(
+            'stable saturated $direction counter keeps $layout gates quiet '
+            'when status is $tracking', () async {
+          await _expectStableSaturationGatesRemainQuiet(
+            increments: increments,
+            trackBoundaryStatus: trackBoundaryStatus,
+            clkGatePartitionIndex: clkGatePartitionIndex,
+          );
+        });
+      }
+    }
+
+    for (final increments in [true, false]) {
+      final direction = increments ? 'up' : 'down';
+
+      test(
+          'out-of-range saturated $direction reset normalizes through '
+          '$layout gates without status ports', () async {
+        await _expectOutOfRangeValuesNormalize(
+          increments: increments,
+          clkGatePartitionIndex: clkGatePartitionIndex,
+          useRestart: false,
+        );
+      });
+
+      test(
+          'out-of-range saturated $direction restart normalizes through '
+          '$layout gates without status ports', () async {
+        await _expectOutOfRangeValuesNormalize(
+          increments: increments,
+          clkGatePartitionIndex: clkGatePartitionIndex,
+          useRestart: true,
+        );
+      });
+    }
+  }
 
   test('simple down counter', () async {
     final clk = SimpleClockGenerator(10).clk;
@@ -195,8 +384,8 @@ void main() {
     await clk.nextNegedge;
     reset.inject(0);
 
-    expect(counter.overflowed.value.toBool(), false);
-    expect(counter.underflowed.value.toBool(), false);
+    expect(counter.overflowed!.value.toBool(), false);
+    expect(counter.underflowed!.value.toBool(), false);
     expect(counter.equalsMax.value.toBool(), true);
     expect(counter.equalsMin.value.toBool(), false);
 
@@ -204,15 +393,15 @@ void main() {
       expect(counter.count.value.toInt(), 5 - (i % 6));
 
       if (i % 6 == 5) {
-        expect(counter.underflowed.value.toBool(), false);
+        expect(counter.underflowed!.value.toBool(), false);
         expect(counter.equalsMax.value.toBool(), false);
         expect(counter.equalsMin.value.toBool(), true);
       } else if (i % 6 == 0 && i > 0) {
-        expect(counter.underflowed.value.toBool(), true);
+        expect(counter.underflowed!.value.toBool(), true);
         expect(counter.equalsMax.value.toBool(), true);
         expect(counter.equalsMin.value.toBool(), false);
       } else {
-        expect(counter.underflowed.value.toBool(), false);
+        expect(counter.underflowed!.value.toBool(), false);
         expect(counter.equalsMin.value.toBool(), false);
         if (i % 6 != 0) {
           expect(counter.equalsMax.value.toBool(), false);
@@ -221,7 +410,7 @@ void main() {
         }
       }
 
-      expect(counter.overflowed.value.toBool(), false);
+      expect(counter.overflowed!.value.toBool(), false);
 
       await clk.nextNegedge;
     }
@@ -255,8 +444,8 @@ void main() {
     await clk.nextNegedge;
     reset.inject(0);
 
-    expect(counter.overflowed.value.toBool(), false);
-    expect(counter.underflowed.value.toBool(), false);
+    expect(counter.overflowed!.value.toBool(), false);
+    expect(counter.underflowed!.value.toBool(), false);
     expect(counter.equalsMax.value.toBool(), false);
     expect(counter.equalsMin.value.toBool(), true);
 
@@ -338,15 +527,15 @@ void main() {
     expect(counter.count.value.toInt(), 12);
     await clk.nextNegedge;
     expect(counter.count.value.toInt(), 14);
-    expect(counter.overflowed.value.toBool(), false);
+    expect(counter.overflowed!.value.toBool(), false);
 
     // saturate
     await clk.nextNegedge;
     expect(counter.count.value.toInt(), 15);
-    expect(counter.overflowed.value.toBool(), true);
+    expect(counter.overflowed!.value.toBool(), true);
     await clk.nextNegedge;
     expect(counter.count.value.toInt(), 15);
-    expect(counter.overflowed.value.toBool(), true);
+    expect(counter.overflowed!.value.toBool(), true);
 
     // restart (not reset!)
     restart.inject(1);

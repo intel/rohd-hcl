@@ -664,6 +664,10 @@ void main() {
     expect(counter.asyncReset, isTrue);
     expect(counter.trackOverflow, isFalse);
     expect(counter.trackUnderflow, isFalse);
+    expect(counter.overflowed, isNull);
+    expect(counter.underflowed, isNull);
+    expect(counter.outputs, isNot(contains('overflowed')));
+    expect(counter.outputs, isNot(contains('underflowed')));
     await counterConfigurator.generateSV();
 
     final gatedCounterConfigurator = CounterConfigurator()
@@ -676,6 +680,10 @@ void main() {
     expect(gatedCounter.asyncReset, isTrue);
     expect(gatedCounter.trackOverflow, isFalse);
     expect(gatedCounter.trackUnderflow, isFalse);
+    expect(gatedCounter.overflowed, isNull);
+    expect(gatedCounter.underflowed, isNull);
+    expect(gatedCounter.outputs, isNot(contains('overflowed')));
+    expect(gatedCounter.outputs, isNot(contains('underflowed')));
     await gatedCounterConfigurator.generateSV();
   });
 

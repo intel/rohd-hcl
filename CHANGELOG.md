@@ -31,6 +31,10 @@
 - Made implementation-only hardware signals and connected interface clones non-public. Consumers must use documented module outputs and caller-owned interfaces instead of accessing child internals directly.
 - Reorganized `lib/src` into a category/subcategory directory taxonomy. The public `package:rohd_hcl/rohd_hcl.dart` API is unchanged, but code that imports private `package:rohd_hcl/src/...` paths directly must update those paths or import the package barrel instead.
 - Generated `Fifo` definitions retain their existing automatic definition names and latency, but now include the protocol-neutral `canEnqueue`, `outputValid`, and `slotReleased` output ports. External positional SystemVerilog instantiations of generated FIFO definitions must account for the additional outputs; named-port instantiations may leave them unconnected.
+- `Counter.overflowed` and `Counter.underflowed` (including `GatedCounter`)
+  are now nullable. The corresponding generated status port exists only when
+  `trackOverflow` or `trackUnderflow`, respectively, is `true`; callers that
+  disable tracking must handle a `null` getter instead of a tied-low signal.
 
 ### Deprecated APIs
 

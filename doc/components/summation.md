@@ -42,10 +42,33 @@ The `Counter` also has a `Counter.upDown` constructor which is intended for incr
 
 The `resetValue`, `maxValue`, and `minValue` may also use `StaticOrRuntimeControl<T>` to create explicitly named runtime inputs. Static bounds are available to the range analysis; runtime bounds conservatively retain the relevant checks.
 
+### Bounds, correction, and status reporting
+
+`saturates` chooses how a raw result outside the configured bounds is
+corrected; it does not decide whether the raw limit violation occurred. For
+example, with bounds 0 through 7, `7 + 1` is an overflow in both modes. A
+wrapping counter corrects the count to 0, while a saturating counter corrects
+it to 7.
+
+`overflowed` and `underflowed` report that raw violation in either correction
+mode. On a `Counter` or `GatedCounter`, enabled status is registered for the
+current update cycle; it is not a sticky "has ever happened" flag. Disabling
+`trackOverflow` or `trackUnderflow` removes only the corresponding reporting
+history and output port. It does not change whether the count wraps or
+saturates.
+
 `Counter` and `GatedCounter` track overflow and underflow by default. Set
 `trackOverflow: false` or `trackUnderflow: false` when the corresponding
-history signal is not needed; its history flop is omitted and the signal is
-tied low.
+history signal is not needed; its history flop and generated output port are
+omitted, and the corresponding `overflowed` or `underflowed` getter returns
+`null`. With the default `true` values, both status ports and non-null status
+signals are retained.
+
+`GatedCounter` keeps its clock-gating safety decisions independent of those
+optional public status ports. A reset or restart value outside the configured
+bounds still wakes the required gate long enough to normalize the count, while
+a counter stably saturated at its bound can remain gated even when either
+status history port is omitted.
 
 The configuration application also exposes asynchronous reset and both status-tracking controls.
 
