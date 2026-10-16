@@ -17,7 +17,33 @@ enum DataPortGroup {
   control,
 
   /// For data signals to/from memory.
-  data
+  data,
+
+  /// For data signal validation.
+  validation,
+}
+
+/// A [DataPortInterface] that signals the data validation and readiness.
+class AssertiveDataPortInterface extends DataPortInterface {
+  /// On a read port, this indicates that the data is ready to be read.
+  /// On a write port, this indicates that the write has completed.
+  Logic get ready => port('ready');
+
+  /// A signal that indicates the transaction is successful.
+  Logic get valid => port('valid');
+
+  /// Constructs a [DataPortInterface] with ready and valid.
+  AssertiveDataPortInterface(super.dataWidth, super.addrWidth) {
+    setPorts([
+      Logic.port('ready'),
+      Logic.port('valid'),
+    ], [
+      DataPortGroup.validation
+    ]);
+  }
+
+  @override
+  DataPortInterface clone() => AssertiveDataPortInterface(dataWidth, addrWidth);
 }
 
 /// A [DataPortInterface] that supports byte-enabled strobing.
@@ -182,14 +208,14 @@ abstract class Memory extends Module {
       rdPorts.add(readPorts[i].clone()
         ..connectIO(this, readPorts[i],
             inputTags: {DataPortGroup.control},
-            outputTags: {DataPortGroup.data},
+            outputTags: {DataPortGroup.data, DataPortGroup.validation},
             uniquify: (original) => 'rd_${original}_$i'));
     }
     for (var i = 0; i < numWrites; i++) {
       wrPorts.add(writePorts[i].clone()
         ..connectIO(this, writePorts[i],
             inputTags: {DataPortGroup.control, DataPortGroup.data},
-            outputTags: {},
+            outputTags: {DataPortGroup.validation},
             uniquify: (original) => 'wr_${original}_$i'));
     }
   }
