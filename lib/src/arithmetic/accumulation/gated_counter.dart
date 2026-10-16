@@ -469,11 +469,10 @@ class GatedCounter extends Counter {
   ///
   /// Covers the scenario where reset value is less than the minimum value or
   /// greater than the maximum value. The first cycle after reset, we need to
-  /// ungate the count.
+  /// ungate the count. This intentionally does not depend on the optional
+  /// public overflow or underflow history ports.
   late final Logic _unstableValue = Logic(name: 'unstableValue')
-    ..gets(
-      (summer.underflowed & ~underflowed) | (summer.overflowed & ~overflowed),
-    );
+    ..gets(count.gt(maxValueLogic) | count.lt(minValueLogic));
 
   /// Picks a partition index based on the interfaces provided.
   int _pickPartitionIndex() =>

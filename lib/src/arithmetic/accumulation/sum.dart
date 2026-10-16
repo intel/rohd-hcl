@@ -14,6 +14,8 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+import 'package:rohd_hcl/src/arithmetic/accumulation/summation_base.dart';
+
 /// An extension on [SumInterface] to provide additional functionality for
 /// computing in [Sum].
 extension on SumInterface {
@@ -89,11 +91,27 @@ class Sum extends SummationBase {
   /// The resulting [sum].
   Logic get sum => output('sum');
 
-  /// Whether the range analysis finds that overflow is possible.
+  /// Indicates whether this combinational sum exceeds its maximum value.
+  @override
+  Logic get overflowed => super.overflowed!;
+
+  /// Indicates whether this combinational sum is below its minimum value.
+  @override
+  Logic get underflowed => super.underflowed!;
+
+  /// Construction-time range-analysis result for raw overflow.
+  ///
+  /// This is independent of [saturates] and is not a runtime status signal or
+  /// user-facing configuration. `false` means the static configuration proves
+  /// raw overflow impossible; `true` means raw overflow was not ruled out.
   @internal
   late final bool canOverflow;
 
-  /// Whether the range analysis finds that underflow is possible.
+  /// Construction-time range-analysis result for raw underflow.
+  ///
+  /// This is independent of [saturates] and is not a runtime status signal or
+  /// user-facing configuration. `false` means the static configuration proves
+  /// raw underflow impossible; `true` means raw underflow was not ruled out.
   @internal
   late final bool canUnderflow;
 
