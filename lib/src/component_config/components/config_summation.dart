@@ -41,7 +41,7 @@ class SumInterfaceKnob extends GroupOfKnobs {
       };
 }
 
-/// A configurator for a module like [SummationBase].
+/// A configurator for summation components.
 abstract class SummationConfigurator extends Configurator {
   @override
   ComponentCategory get category => ComponentCategory.arithmetic;
