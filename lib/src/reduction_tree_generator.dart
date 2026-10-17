@@ -112,7 +112,8 @@ class ReductionTreeGenerator {
     if (radix < 2) {
       throw RohdHclException('Radix must be at least 2, got $radix');
     }
-    signExtensionParameter = StaticOrRuntimeParameter.ofDynamic(signExtend);
+    signExtensionParameter =
+        StaticOrRuntimeParameter.ofDynamic(signExtend, name: 'signExtend');
 
     controlOut = control != null ? Logic(width: control!.width) : null;
     _computed = _reductionTreeRecurse(sequence);

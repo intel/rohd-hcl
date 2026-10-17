@@ -107,11 +107,13 @@ abstract class Multiplier extends Module {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
-    signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+    signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplicand,
+        name: 'signedMultiplicand');
     this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-    signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+    signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplier,
+        name: 'signedMultiplier');
     this.signedMultiplier = signedMultiplierParameter.staticConfig;
 
     addOutput('product', width: a.width + b.width);
