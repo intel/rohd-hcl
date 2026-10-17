@@ -59,7 +59,7 @@ class ApbCsrCompleterHwTest extends Test {
   late final DataPortInterface csrRd;
   late final DataPortInterface csrWr;
   late final ApbCompleter completer;
-  late final CsrBlock csrs;
+  late final Module csrs;
 
   final int dataWidth = 32;
   final int addrWidth = 32;
@@ -74,6 +74,7 @@ class ApbCsrCompleterHwTest extends Test {
     super.name, {
     this.interTxnDelay = 0,
     int apbClkLatency = 0,
+    bool softwareCsrs = false,
   }) : super(randomSeed: 123) {
     intf = ApbInterface(includeSlvErr: true);
 
@@ -84,36 +85,47 @@ class ApbCsrCompleterHwTest extends Test {
 
     requester = ApbRequesterAgent(intf: intf, parent: this);
 
-    csrs = CsrBlock(
-      config: CsrBlockConfig(name: 'test', baseAddr: 0x0, registers: [
-        CsrInstanceConfig(
-          arch: CsrConfig(
-            name: 'reg0',
-            access: CsrAccess.readWrite,
-            fields: const [],
-            isBackdoorWritable: false,
-          ),
-          addr: 0x0,
-          width: dataWidth,
-          resetValue: 0xa,
+    final blockConfig = CsrBlockConfig(name: 'test', baseAddr: 0x0, registers: [
+      CsrInstanceConfig(
+        arch: CsrConfig(
+          name: 'reg0',
+          access: CsrAccess.readWrite,
+          fields: const [],
+          isBackdoorWritable: false,
         ),
-        CsrInstanceConfig(
-          arch: CsrConfig(
-            name: 'reg1',
-            access: CsrAccess.readWrite,
-            fields: const [],
-            isBackdoorWritable: false,
-          ),
-          addr: 0x4,
-          width: dataWidth,
-          resetValue: 0xb,
+        addr: 0x0,
+        width: dataWidth,
+        resetValue: 0xa,
+      ),
+      CsrInstanceConfig(
+        arch: CsrConfig(
+          name: 'reg1',
+          access: CsrAccess.readWrite,
+          fields: const [],
+          isBackdoorWritable: false,
         ),
-      ]),
-      clk: intf.clk,
-      reset: ~intf.resetN,
-      frontWrite: csrWr,
-      frontRead: csrRd,
-    );
+        addr: 0x4,
+        width: dataWidth,
+        resetValue: 0xb,
+      ),
+    ]);
+    csrs = softwareCsrs
+        ? CsrTop(
+            config:
+                CsrTopConfig(name: 'test', blockSize: 8, blocks: [blockConfig]),
+            clk: intf.clk,
+            reset: ~intf.resetN,
+            frontWrite: csrWr,
+            frontRead: csrRd,
+            implementationConfiguration:
+                CsrImplementationConfiguration.software)
+        : CsrBlock(
+            config: blockConfig,
+            clk: intf.clk,
+            reset: ~intf.resetN,
+            frontWrite: csrWr,
+            frontRead: csrRd,
+          );
 
     completer = ApbCsrCompleter(
         apb: intf,
@@ -132,7 +144,7 @@ class ApbCsrCompleterHwTest extends Test {
       outputFolder: outFolder,
     );
 
-    numTransfers = csrs.config.registers.length;
+    numTransfers = blockConfig.registers.length;
 
     ApbComplianceChecker(intf, parent: this);
 
@@ -254,4 +266,11 @@ void main() {
   test('apb csr completer - non zero latency', () async {
     await runTest(ApbCsrCompleterHwTest('test', apbClkLatency: 1));
   });
+
+  for (final latency in [0, 1]) {
+    test('apb software csr completer - latency $latency', () async {
+      await runTest(ApbCsrCompleterHwTest('software_test',
+          apbClkLatency: latency, softwareCsrs: true));
+    });
+  }
 }
