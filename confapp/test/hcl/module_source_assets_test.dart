@@ -36,7 +36,7 @@ void main() {
     expect(module, isA<CarrySaveMultiplier>());
     expect(
       moduleSourceAsset(module),
-      'rohd_src/arithmetic/carry_save_mutiplier.dart',
+      'rohd_src/arithmetic/multiplication/carry_save_multiplier.dart',
     );
   });
 
@@ -46,34 +46,35 @@ void main() {
         name: 'binary-to-one-hot direction',
         module: (OneHotConfigurator()..directionKnob.value = BinaryToOneHot)
             .createModule(),
-        asset: 'rohd_src/encodings/binary_to_one_hot.dart',
+        asset: 'rohd_src/encodings/one_hot/binary_to_one_hot.dart',
       ),
       (
         name: 'tree one-hot-to-binary width',
         module:
             (OneHotConfigurator()..inputWidthKnob.value = 16).createModule(),
-        asset: 'rohd_src/encodings/tree_one_hot_to_binary.dart',
+        asset: 'rohd_src/encodings/one_hot/tree_one_hot_to_binary.dart',
       ),
       (
         name: 'rotate round-robin implementation',
         module: (RoundRobinArbiterConfigurator()
               ..implementationKnob.value = RotateRoundRobinArbiter)
             .createModule(),
-        asset: 'rohd_src/arbiters/rotate_round_robin_arbiter.dart',
+        asset:
+            'rohd_src/flow_control/arbitration/rotate_round_robin_arbiter.dart',
       ),
       (
         name: 'deserialize direction',
         module: (SerializationConfigurator()
               ..directionKnob.value = Deserializer)
             .createModule(),
-        asset: 'rohd_src/serialization/serialization.dart',
+        asset: 'rohd_src/dataflow/serialization/serialization.dart',
       ),
       (
         name: 'left rotation',
         module: (RotateConfigurator()
               ..directionKnob.value = RotateDirection.left)
             .createModule(),
-        asset: 'rohd_src/rotate.dart',
+        asset: 'rohd_src/bit_operations/shifting/rotate.dart',
       ),
       (
         name: 'dual-path floating-point adder',
@@ -88,27 +89,29 @@ void main() {
         module: (LeadingDigitAnticipateConfigurator()
               ..anticipator.value = LeadingZeroAnticipate)
             .createModule(),
-        asset: 'rohd_src/arithmetic/leading_digit_anticipate.dart',
+        asset:
+            'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
       ),
       (
         name: 'leading-zero carry anticipator',
         module: (LeadingDigitAnticipateConfigurator()
               ..anticipator.value = LeadingZeroAnticipateCarry)
             .createModule(),
-        asset: 'rohd_src/arithmetic/leading_digit_anticipate.dart',
+        asset:
+            'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
       ),
       (
         name: 'compression-tree multiplier',
         module: (MultiplierConfigurator()
               ..multiplierSelectKnob.compressionTreeMultiplierKnob.value = true)
             .createModule(),
-        asset: 'rohd_src/arithmetic/multiplier.dart',
+        asset: 'rohd_src/arithmetic/multiplication/multiplier.dart',
       ),
       (
         name: 'gated counter',
         module: (CounterConfigurator()..clockGatingKnob.value = true)
             .createModule(),
-        asset: 'rohd_src/summation/gated_counter.dart',
+        asset: 'rohd_src/arithmetic/accumulation/gated_counter.dart',
       ),
       (
         name: 'compression-tree dot product',
@@ -116,7 +119,7 @@ void main() {
               ..implementationKnob.value =
                   DotProductImplementation.compressionTree)
             .createModule(),
-        asset: 'rohd_src/arithmetic/dotproduct.dart',
+        asset: 'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
       ),
       (
         name: 'dual sign-magnitude adder',
@@ -124,7 +127,7 @@ void main() {
               ..implementationKnob.value =
                   SignMagnitudeAdderImplementation.dual)
             .createModule(),
-        asset: 'rohd_src/arithmetic/sign_magnitude_adder.dart',
+        asset: 'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
       ),
       (
         name: 'parallel-prefix priority encoder',
@@ -132,27 +135,28 @@ void main() {
               ..implementationKnob.implementationKnob.value =
                   ParallelPrefixPriorityEncoder)
             .createModule(),
-        asset: 'rohd_src/priority_encoder.dart',
+        asset: 'rohd_src/encodings/priority/priority_encoder.dart',
       ),
       (
         name: 'parallel-prefix incrementer',
         module: (ParallelPrefixOperationConfigurator()
               ..operationKnob.value = ParallelPrefixOperation.increment)
             .createModule(),
-        asset: 'rohd_src/arithmetic/parallel_prefix_operations.dart',
+        asset:
+            'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
       ),
       (
         name: 'parity receiver',
         module: (ParityConfigurator()
               ..directionKnob.value = ParityDirection.receiver)
             .createModule(),
-        asset: 'rohd_src/error_checking/parity.dart',
+        asset: 'rohd_src/error_control/protection/parity.dart',
       ),
       (
         name: 'SPI sub gasket',
         module:
             (SpiConfigurator()..roleKnob.value = SpiRole.sub).createModule(),
-        asset: 'rohd_src/gaskets/spi/spi_sub.dart',
+        asset: 'rohd_src/interfaces/spi/endpoints/spi_sub.dart',
       ),
     ];
 

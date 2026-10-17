@@ -37,7 +37,7 @@ Here is a sample usage in floating point addition: here we want to add two manti
 A slow method would use a priority encoder to find the leading 1 in the sum:
 
 ```dart
-final adder = OnesComplementAdder(aMantissa, bMantissa, subtractIn: aSign ^ bSign);
+final adder = OnesComplementAdder(aMantissa, bMantissa, subtract: aSign ^ bSign);
 
 // Look at the output sum and find the leading 1
 final predictedPos = RecursivePriorityEncoder(adder.sum.reversed).out;
@@ -55,7 +55,7 @@ But we can 'anticipate' the number of leading zeros instead of counting them:
 
 ```dart
 // Perform the addition
-final adder = OnesComplementAdder(aMantissa, bMantissa, subtractIn: aSign ^ bSign);
+final adder = OnesComplementAdder(aMantissa, bMantissa, subtract: aSign ^ bSign);
 
 // Perform the prediction in parallel: Look at the inputs of the adder to anticipate what the sum will look like.
 final predictor = LeadingZeroAnticipateCarry(aSign, aMantissa, bSign, bMantissa,

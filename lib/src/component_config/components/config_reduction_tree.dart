@@ -29,6 +29,12 @@ enum ReductionTreeOperation {
 
 /// A [Configurator] for [ReductionTree].
 class ReductionTreeConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.dataflow;
+
+  @override
+  String get subcategory => 'reduction';
+
   /// Number of input terms.
   final IntConfigKnob inputCountKnob = IntConfigKnob(value: 4);
 

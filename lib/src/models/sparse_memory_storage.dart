@@ -207,6 +207,16 @@ abstract class MemoryStorage {
     padToAlignment();
   }
 
+  /// Loads a Verilog-compliant hexadecimal memory file.
+  ///
+  /// Use [loadMemString] instead.
+  // This was deprecated after v0.2.1 and remains supported in v0.3.0.
+  // ignore: remove_deprecations_in_breaking_versions
+  @Deprecated('Use `loadMemString` instead.')
+  void loadMemHex(String hexMemContents) {
+    loadMemString(hexMemContents);
+  }
+
   /// Dumps the contents of memory to a verilog-compliant hex file.
   ///
   /// The address will increment each [bitsPerAddress] bits of data between

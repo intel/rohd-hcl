@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Cam].
 class CamConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.memory;
+
+  @override
+  String get subcategory => 'associative';
+
   /// Number of CAM entries.
   final IntConfigKnob entryCountKnob = IntConfigKnob(value: 8);
 

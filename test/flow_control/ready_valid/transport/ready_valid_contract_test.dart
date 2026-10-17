@@ -1,0 +1,689 @@
+// Copyright (C) 2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_contract_test.dart
+// Tests ready/valid contract and typed-interface foundations.
+//
+// 2026 October 10
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:test/test.dart';
+
+class _Packet extends LogicStructure {
+  Logic get data => elements[0];
+  Logic get tag => elements[1];
+
+  _Packet({String name = 'packet'})
+      : super(
+          [
+            Logic(name: 'data', width: 8),
+            Logic(name: 'tag', width: 2),
+          ],
+          name: name,
+        );
+
+  _Packet._clone(LogicStructure original, {String? name})
+      : super(
+          original.elements.map((element) => element.clone()).toList(),
+          name: name ?? original.name,
+        );
+
+  @override
+  _Packet clone({String? name}) => _Packet._clone(this, name: name);
+}
+
+void _setLegacyModifier(
+  PairInterface interface,
+  String Function(String original)? modifier,
+) {
+  // Exercise the legacy ROHD modifier compatibility path.
+  // ignore: deprecated_member_use
+  interface.modify = modifier;
+}
+
+String Function(String original)? _legacyModifier(PairInterface interface) =>
+    // Inspect the legacy callback only for clone compatibility coverage.
+    // ignore: deprecated_member_use
+    interface.modify;
+
+CloneType _copyLegacyModifier<CloneType extends PairInterface>(
+  PairInterface source,
+  CloneType target,
+) {
+  _setLegacyModifier(target, _legacyModifier(source));
+  return target;
+}
+
+class _ConsumerPortHarness extends Module {
+  late final ReadyValidInterface<_Packet> channel;
+
+  _ConsumerPortHarness(ReadyValidInterface<_Packet> source) {
+    channel = addPairInterface(
+      source,
+      PairRole.consumer,
+      uniquify: (original) => 'channel_$original',
+    );
+  }
+}
+
+class _ProviderPortHarness extends Module {
+  late final ReadyValidInterface<_Packet> channel;
+
+  _ProviderPortHarness(ReadyValidInterface<_Packet> source) {
+    channel = addPairInterface(
+      source,
+      PairRole.provider,
+      uniquify: (original) => 'channel_$original',
+    );
+  }
+}
+
+class _ModifiedPortHarness extends Module {
+  late final ReadyValidInterface<_Packet> channel;
+
+  _ModifiedPortHarness(
+    ReadyValidInterface<_Packet> source,
+    PairRole role, {
+    String Function(String original)? uniquify,
+  }) {
+    channel = ReadyValidInterface<_Packet>(
+      source.data.clone(),
+      contract: source.contract,
+    );
+    _setLegacyModifier(channel, (original) => 'modified_$original');
+    channel.pairConnectIO(
+      this,
+      source,
+      role,
+      uniquify: uniquify,
+    );
+  }
+}
+
+enum _RegistrationHelper {
+  pair,
+  tagged,
+}
+
+class _SourceCloneHarness extends Module {
+  late final ReadyValidInterface<_Packet> channel;
+
+  _SourceCloneHarness(
+    ReadyValidInterface<_Packet> source,
+    PairRole role,
+    _RegistrationHelper helper, {
+    String Function(String original)? uniquify,
+  }) {
+    final inputTags = role == PairRole.consumer
+        ? const {
+            PairDirection.sharedInputs,
+            PairDirection.fromProvider,
+          }
+        : const {
+            PairDirection.sharedInputs,
+            PairDirection.fromConsumer,
+          };
+    final outputTags = role == PairRole.consumer
+        ? const {PairDirection.fromConsumer}
+        : const {PairDirection.fromProvider};
+    channel = switch (helper) {
+      _RegistrationHelper.pair => addPairInterface(
+          source,
+          role,
+          uniquify: uniquify,
+        ),
+      _RegistrationHelper.tagged => addInterface(
+          source,
+          inputTags: inputTags,
+          outputTags: outputTags,
+          inOutTags: const {PairDirection.commonInOuts},
+          uniquify: uniquify,
+        ),
+    };
+  }
+}
+
+class _ExtendedReadyValidInterface extends ReadyValidInterface<_Packet> {
+  late final Logic last;
+  late final PairInterface metadata;
+
+  _ExtendedReadyValidInterface(
+    super.data, {
+    super.contract,
+  }) {
+    last = Logic.port('last');
+    setPorts([last], [PairDirection.fromProvider]);
+    metadata = addSubInterface(
+      'metadata',
+      PairInterface(
+        portsFromProvider: [Logic.port('code', 3)],
+      ),
+      uniquify: (original) => 'metadata_$original',
+    );
+  }
+
+  @override
+  _ExtendedReadyValidInterface clone() => _copyLegacyModifier(
+        this,
+        _ExtendedReadyValidInterface(
+          data.clone(),
+          contract: contract,
+        ),
+      );
+}
+
+class _ExtendedPortHarness extends Module {
+  late final _ExtendedReadyValidInterface channel;
+
+  _ExtendedPortHarness(
+    _ExtendedReadyValidInterface source,
+    PairRole role,
+  ) {
+    channel = addPairInterface(
+      source,
+      role,
+      uniquify: (original) => 'channel_$original',
+    );
+  }
+}
+
+class _PredicateHarness extends Module {
+  Logic get accepted => output('accepted');
+  Logic get stalled => output('stalled');
+
+  _PredicateHarness({
+    required Logic ready,
+    required Logic valid,
+  }) {
+    final channel = ReadyValidInterface<Logic>(
+      Logic(width: 8, name: 'payload'),
+    );
+    channel.ready <= addInput('ready', ready);
+    channel.valid <= addInput('valid', valid);
+    addOutput('accepted') <= channel.accepted;
+    addOutput('stalled') <= channel.stalled;
+  }
+}
+
+class _ReadyThenAdapterHarness extends Module {
+  late final ReadyAndValidInterface<_Packet> downstream;
+
+  _ReadyThenAdapterHarness({
+    required Logic clk,
+    required Logic reset,
+    required ReadyThenValidInterface<_Packet> upstream,
+    required ReadyAndValidInterface<_Packet> downstream,
+  }) : super(definitionName: 'ReadyThenAdapterHarness') {
+    final localUpstream = addPairInterface(
+      upstream,
+      PairRole.consumer,
+      uniquify: (original) => 'upstream_$original',
+    );
+    this.downstream = localUpstream.toDownstreamReadyAndValid(
+      addInput('clk', clk),
+      addInput('reset', reset),
+    );
+    addPairInterfaceFrom(
+      this.downstream,
+      downstream,
+      PairRole.provider,
+      uniquify: (original) => 'downstream_$original',
+    );
+  }
+}
+
+void main() {
+  tearDown(Simulator.reset);
+
+  group('ReadyValidContract', () {
+    test('supports value equality, hashing, and immutable copies', () {
+      final equivalent = ReadyValidContract.irrevocable.copyWith();
+      final equivalentSet = <ReadyValidContract>{equivalent}
+        ..add(ReadyValidContract.irrevocable);
+
+      expect(equivalent, ReadyValidContract.irrevocable);
+      expect(equivalent.hashCode, ReadyValidContract.irrevocable.hashCode);
+      expect(equivalentSet, hasLength(1));
+      expect(
+        equivalent.copyWith(payloadMustRemainStableWhileStalled: false),
+        const ReadyValidContract(
+          validMayDependOnReady: false,
+          readyMayDependOnValid: true,
+          validMustRemainAssertedWhileStalled: true,
+        ),
+      );
+    });
+
+    test('defines the complete compatibility relation', () {
+      final contracts = <String, ReadyValidContract>{
+        'unconstrained': ReadyValidContract.unconstrained,
+        'readyAndValid': ReadyValidContract.readyAndValid,
+        'readyThenValid': ReadyValidContract.readyThenValid,
+        'validThenReady': ReadyValidContract.validThenReady,
+        'irrevocable': ReadyValidContract.irrevocable,
+      };
+      final satisfiedRequirements = <String, Set<String>>{
+        'unconstrained': {'unconstrained'},
+        'readyAndValid': {
+          'unconstrained',
+          'readyAndValid',
+          'readyThenValid',
+          'validThenReady',
+        },
+        'readyThenValid': {'unconstrained', 'readyThenValid'},
+        'validThenReady': {'unconstrained', 'validThenReady'},
+        'irrevocable': {'unconstrained', 'validThenReady', 'irrevocable'},
+      };
+
+      for (final actual in contracts.entries) {
+        for (final required in contracts.entries) {
+          expect(
+            actual.value.satisfies(required.value),
+            satisfiedRequirements[actual.key]!.contains(required.key),
+            reason: '${actual.key} satisfying ${required.key}',
+          );
+        }
+      }
+    });
+
+    test('detects only provider-valid/consumer-ready dependency cycles', () {
+      expect(
+        ReadyValidContract.readyThenValid.mayFormDependencyCycleWith(
+          ReadyValidContract.validThenReady,
+        ),
+        isTrue,
+      );
+      expect(
+        ReadyValidContract.validThenReady.mayFormDependencyCycleWith(
+          ReadyValidContract.readyThenValid,
+        ),
+        isFalse,
+      );
+      expect(
+        () => ReadyValidContract.requireComposable(
+          provider: ReadyValidContract.readyThenValid,
+          consumer: ReadyValidContract.validThenReady,
+          providerName: 'producer',
+          consumerName: 'consumer',
+        ),
+        throwsA(
+          isA<ArgumentError>().having(
+            (error) => error.message,
+            'message',
+            allOf(contains('producer'), contains('consumer')),
+          ),
+        ),
+      );
+      expect(
+        () => ReadyValidContract.requireComposable(
+          provider: ReadyValidContract.readyAndValid,
+          consumer: ReadyValidContract.validThenReady,
+          providerName: 'producer',
+          consumerName: 'consumer',
+        ),
+        returnsNormally,
+      );
+    });
+  });
+
+  group('ReadyValidInterface', () {
+    test('preserves constructor compatibility and clone metadata', () {
+      final base = ReadyValidInterface<Logic>(Logic(width: 8));
+      final custom = ReadyValidInterface<Logic>(
+        Logic(width: 8),
+        contract: ReadyValidContract.irrevocable,
+      );
+
+      expect(base.contract, ReadyValidContract.unconstrained);
+      expect(custom.clone().contract, same(custom.contract));
+      expect(custom.clone().data, isNot(same(custom.data)));
+    });
+
+    test('exposes finalized variants and preserves their concrete types', () {
+      final independent = ReadyAndValidInterface<Logic>(Logic(width: 8));
+      final readyFirst = ReadyThenValidInterface<Logic>(Logic(width: 8));
+      final validFirst = ValidThenReadyInterface<Logic>(Logic(width: 8));
+      final irrevocable =
+          IrrevocableReadyValidInterface<Logic>(Logic(width: 8));
+
+      expect(independent.contract, ReadyValidContract.readyAndValid);
+      expect(readyFirst.contract, ReadyValidContract.readyThenValid);
+      expect(validFirst.contract, ReadyValidContract.validThenReady);
+      expect(irrevocable.contract, ReadyValidContract.irrevocable);
+      expect(independent.clone(), isA<ReadyAndValidInterface<Logic>>());
+      expect(readyFirst.clone(), isA<ReadyThenValidInterface<Logic>>());
+      expect(validFirst.clone(), isA<ValidThenReadyInterface<Logic>>());
+      expect(
+        irrevocable.clone(),
+        isA<IrrevocableReadyValidInterface<Logic>>(),
+      );
+    });
+
+    test('every built-in clone preserves an independent modifier field', () {
+      final variants = <ReadyValidInterface<Logic>>[
+        ReadyValidInterface<Logic>(Logic(width: 8)),
+        ReadyAndValidInterface<Logic>(Logic(width: 8)),
+        ReadyThenValidInterface<Logic>(Logic(width: 8)),
+        ValidThenReadyInterface<Logic>(Logic(width: 8)),
+        IrrevocableReadyValidInterface<Logic>(Logic(width: 8)),
+      ];
+
+      for (final source in variants) {
+        String originalModifier(String name) => 'original_$name';
+        String replacementModifier(String name) => 'replacement_$name';
+        _setLegacyModifier(source, originalModifier);
+        final cloned = source.clone();
+
+        expect(_legacyModifier(cloned), same(originalModifier));
+        _setLegacyModifier(cloned, replacementModifier);
+        expect(_legacyModifier(source), same(originalModifier));
+        expect(_legacyModifier(cloned), same(replacementModifier));
+      }
+    });
+
+    test('exposes cached accepted and stalled predicates', () async {
+      final channel = ReadyValidInterface<Logic>(
+        Logic(width: 8, name: 'payload'),
+      );
+
+      expect(identical(channel.accepted, channel.accepted), isTrue);
+      expect(identical(channel.stalled, channel.stalled), isTrue);
+      expect(channel.accepted.name, 'payload_accepted');
+      expect(channel.stalled.name, 'payload_stalled');
+
+      final ready = Logic();
+      final valid = Logic();
+      final harness = _PredicateHarness(ready: ready, valid: valid);
+      await harness.build();
+      valid.inject(1);
+      ready.inject(0);
+      await Simulator.tick();
+      expect(harness.accepted.value, LogicValue.zero);
+      expect(harness.stalled.value, LogicValue.one);
+      ready.inject(1);
+      await Simulator.tick();
+      expect(harness.accepted.value, LogicValue.one);
+      expect(harness.stalled.value, LogicValue.zero);
+    });
+
+    test('offers interface-level composability checks', () {
+      final provider = ReadyThenValidInterface<Logic>(
+        Logic(width: 8, name: 'provider_payload'),
+      );
+      final consumer = ValidThenReadyInterface<Logic>(
+        Logic(width: 8, name: 'consumer_payload'),
+      );
+
+      expect(
+        () => provider.requireProviderComposableWith(
+          consumer.contract,
+          consumerName: consumer.data.name,
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => consumer.requireConsumerComposableWith(
+          provider.contract,
+          providerName: provider.data.name,
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('retains typed structure ports and contract metadata as consumer',
+        () async {
+      final source = ReadyValidInterface<_Packet>(
+        _Packet(),
+        contract: ReadyValidContract.irrevocable,
+      );
+      final harness = _ConsumerPortHarness(source);
+
+      expect(harness.inputs['channel_packet'], isA<_Packet>());
+      expect(harness.inputs['channel_valid'], isA<Logic>());
+      expect(harness.outputs['channel_ready'], isA<Logic>());
+      expect(harness.channel.data, isA<_Packet>());
+      expect(harness.channel.contract, ReadyValidContract.irrevocable);
+
+      await harness.build();
+      expect(
+        harness.generateSynth(),
+        contains('input logic [9:0] channel_packet'),
+      );
+      expect(harness.generateSynth(), contains('packet_data'));
+      expect(harness.generateSynth(), contains('packet_tag'));
+    });
+
+    test('retains typed structure ports as provider', () async {
+      final source = ReadyValidInterface<_Packet>(_Packet());
+      final harness = _ProviderPortHarness(source);
+
+      expect(harness.inputs['channel_ready'], isA<Logic>());
+      expect(harness.outputs['channel_packet'], isA<_Packet>());
+      expect(harness.outputs['channel_valid'], isA<Logic>());
+      expect(harness.channel.data, isA<_Packet>());
+
+      await harness.build();
+      expect(
+        harness.generateSynth(),
+        contains('output logic [9:0] channel_packet'),
+      );
+      expect(harness.generateSynth(), contains('packet_data'));
+      expect(harness.generateSynth(), contains('packet_tag'));
+    });
+
+    for (final role in PairRole.values) {
+      for (final withUniquify in [false, true]) {
+        test(
+            'applies modify${withUniquify ? ' then uniquify' : ''} '
+            'consistently as $role', () async {
+          final harness = _ModifiedPortHarness(
+            ReadyValidInterface<_Packet>(_Packet()),
+            role,
+            uniquify: withUniquify ? (original) => 'unique_$original' : null,
+          );
+          final prefix = withUniquify ? 'unique_modified_' : 'modified_';
+          final payloadName = '${prefix}packet';
+          final validName = '${prefix}valid';
+          final readyName = '${prefix}ready';
+
+          if (role == PairRole.consumer) {
+            expect(
+              harness.inputs.keys,
+              containsAll({payloadName, validName}),
+            );
+            expect(harness.outputs.keys, contains(readyName));
+            expect(harness.inputs[payloadName], isA<_Packet>());
+          } else {
+            expect(harness.inputs.keys, contains(readyName));
+            expect(
+              harness.outputs.keys,
+              containsAll({payloadName, validName}),
+            );
+            expect(harness.outputs[payloadName], isA<_Packet>());
+          }
+          expect(
+            {...harness.inputs.keys, ...harness.outputs.keys},
+            isNot(contains('packet')),
+          );
+
+          await harness.build();
+          final systemVerilog = harness.generateSynth();
+          final payloadDirection =
+              role == PairRole.consumer ? 'input' : 'output';
+          final readyDirection = role == PairRole.consumer ? 'output' : 'input';
+          expect(
+            systemVerilog,
+            contains('$payloadDirection logic [9:0] $payloadName'),
+          );
+          expect(
+            systemVerilog,
+            contains('$payloadDirection logic $validName'),
+          );
+          expect(
+            systemVerilog,
+            contains('$readyDirection logic $readyName'),
+          );
+        });
+      }
+    }
+
+    for (final helper in _RegistrationHelper.values) {
+      for (final role in PairRole.values) {
+        for (final extended in [false, true]) {
+          for (final withUniquify in [false, true]) {
+            test(
+                '${helper.name} clones source modifier as $role'
+                '${extended ? ' with sidebands' : ''}'
+                '${withUniquify ? ' then uniquifies' : ''}', () async {
+              final source = extended
+                  ? _ExtendedReadyValidInterface(_Packet())
+                  : ReadyValidInterface<_Packet>(_Packet());
+              _setLegacyModifier(
+                source,
+                (original) => 'modified_$original',
+              );
+              final harness = _SourceCloneHarness(
+                source,
+                role,
+                helper,
+                uniquify:
+                    withUniquify ? (original) => 'unique_$original' : null,
+              );
+              final prefix = withUniquify ? 'unique_modified_' : 'modified_';
+              final payloadName = '${prefix}packet';
+              final validName = '${prefix}valid';
+              final readyName = '${prefix}ready';
+              final providerNames = {
+                payloadName,
+                validName,
+                if (extended) '${prefix}last',
+                if (extended)
+                  '${withUniquify ? 'unique_' : ''}metadata_modified_code',
+              };
+
+              if (role == PairRole.consumer) {
+                expect(harness.inputs.keys, containsAll(providerNames));
+                expect(harness.outputs.keys, contains(readyName));
+                expect(harness.inputs[payloadName], isA<_Packet>());
+              } else {
+                expect(harness.inputs.keys, contains(readyName));
+                expect(harness.outputs.keys, containsAll(providerNames));
+                expect(harness.outputs[payloadName], isA<_Packet>());
+              }
+              expect(
+                harness.channel,
+                extended
+                    ? isA<_ExtendedReadyValidInterface>()
+                    : isNot(isA<_ExtendedReadyValidInterface>()),
+              );
+
+              await harness.build();
+              final systemVerilog = harness.generateSynth();
+              final providerDirection =
+                  role == PairRole.consumer ? 'input' : 'output';
+              final readyDirection =
+                  role == PairRole.consumer ? 'output' : 'input';
+              expect(
+                systemVerilog,
+                contains('$providerDirection logic [9:0] $payloadName'),
+              );
+              expect(
+                systemVerilog,
+                contains('$providerDirection logic $validName'),
+              );
+              expect(
+                systemVerilog,
+                contains('$readyDirection logic $readyName'),
+              );
+              if (extended) {
+                expect(
+                  systemVerilog,
+                  contains('$providerDirection logic ${prefix}last'),
+                );
+                final metadataName = '${withUniquify ? 'unique_' : ''}'
+                    'metadata_modified_code';
+                expect(
+                  systemVerilog,
+                  contains('$providerDirection logic [2:0] $metadataName'),
+                );
+              }
+            });
+          }
+        }
+      }
+    }
+
+    test('consumer traversal preserves provider sidebands and subinterfaces',
+        () async {
+      final harness = _ExtendedPortHarness(
+        _ExtendedReadyValidInterface(_Packet()),
+        PairRole.consumer,
+      );
+
+      expect(
+        harness.inputs.keys,
+        containsAll({
+          'channel_packet',
+          'channel_valid',
+          'channel_last',
+          'channel_metadata_code',
+        }),
+      );
+      expect(harness.inputs['channel_packet'], isA<_Packet>());
+      expect(harness.outputs.keys, contains('channel_ready'));
+
+      await harness.build();
+      final systemVerilog = harness.generateSynth();
+      expect(systemVerilog, contains('input logic channel_last'));
+      expect(
+        systemVerilog,
+        contains('input logic [2:0] channel_metadata_code'),
+      );
+    });
+
+    test('provider traversal preserves provider sidebands and subinterfaces',
+        () async {
+      final harness = _ExtendedPortHarness(
+        _ExtendedReadyValidInterface(_Packet()),
+        PairRole.provider,
+      );
+
+      expect(harness.inputs.keys, contains('channel_ready'));
+      expect(
+        harness.outputs.keys,
+        containsAll({
+          'channel_packet',
+          'channel_valid',
+          'channel_last',
+          'channel_metadata_code',
+        }),
+      );
+      expect(harness.outputs['channel_packet'], isA<_Packet>());
+
+      await harness.build();
+      final systemVerilog = harness.generateSynth();
+      expect(systemVerilog, contains('output logic channel_last'));
+      expect(
+        systemVerilog,
+        contains('output logic [2:0] channel_metadata_code'),
+      );
+    });
+
+    test('ready-then-valid compatibility adapter builds with the P00 FIFO',
+        () async {
+      final harness = _ReadyThenAdapterHarness(
+        clk: Logic(),
+        reset: Logic(),
+        upstream: ReadyThenValidInterface<_Packet>(_Packet()),
+        downstream: ReadyAndValidInterface<_Packet>(_Packet()),
+      );
+
+      await harness.build();
+      final systemVerilog = harness.generateSynth();
+      expect(systemVerilog, contains('Fifo_D2_W10'));
+      expect(systemVerilog, contains('ReadyThenAdapterHarness'));
+    });
+  });
+}

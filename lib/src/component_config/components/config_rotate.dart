@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_rotate.dart
@@ -13,6 +13,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for rotation.
 class RotateConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.bitOperations;
+
+  @override
+  String get subcategory => 'shifting';
+
   /// A knob controlling the direction of rotation.
   final directionKnob = ChoiceConfigKnob<RotateDirection>(
     RotateDirection.values,

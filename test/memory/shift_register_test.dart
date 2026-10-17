@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // shift_register_test.dart
@@ -58,6 +58,11 @@ void main() {
     expect(sr.dataOut.name, contains('fancy'));
     expect(
         sr.inputs.keys.where((element) => element.contains('fancy')).length, 1);
+  });
+
+  test('explicit name overrides default dataName-derived naming', () {
+    final sr = ShiftRegister(Logic(), clk: Logic(), depth: 3, name: 'myReg');
+    expect(sr.name, equals('myReg'));
   });
 
   test('depth 0 shift register is pass-through', () {

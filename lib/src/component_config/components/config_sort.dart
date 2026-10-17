@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_sort.dart
@@ -13,6 +13,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [BitonicSort].
 class BitonicSortConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.dataflow;
+
+  @override
+  String get subcategory => 'ordering';
+
   /// A knob controlling the number of items to sort.
   final IntConfigKnob lengthOfListKnob = IntConfigKnob(value: 4);
 

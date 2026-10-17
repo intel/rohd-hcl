@@ -18,6 +18,11 @@ The read path is combinational, so data is provided immediately according to the
 
 The `RegisterFile` can be initialized with data on reset using `resetValue` following the conventions of `ResettableEntries`.
 
+For testbench initialization without driving a clocked write port, use
+`RegisterFile.setData(LogicValue address, LogicValue value)`. This helper
+directly sets one entry and is intended for simulation setup, not synthesized
+hardware.
+
 [RegisterFile Schematic](https://intel.github.io/rohd-hcl/RegisterFile.html)
 
 ## First-In First-Out (FIFO) Buffers

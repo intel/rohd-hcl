@@ -14,6 +14,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [SignedShifter].
 class SignedShifterConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.bitOperations;
+
+  @override
+  String get subcategory => 'shifting';
+
   /// Width of the shifted input and output.
   final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
 

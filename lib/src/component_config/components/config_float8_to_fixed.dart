@@ -13,6 +13,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [Float8ToFixed].
 class Float8ToFixedConfigurator extends Configurator {
   @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'conversion';
+
+  @override
   Map<String, ConfigKnob<dynamic>> get knobs => const {};
 
   @override
