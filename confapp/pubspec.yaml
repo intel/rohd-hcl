@@ -75,6 +75,7 @@ flutter:
     - assets/rohd_src/error_control/protection/
     - assets/rohd_src/flow_control/
     - assets/rohd_src/flow_control/arbitration/
+    - assets/rohd_src/flow_control/attachments/
     - assets/rohd_src/flow_control/control/
     - assets/rohd_src/flow_control/ready_valid/
     - assets/rohd_src/flow_control/ready_valid/queues/
@@ -89,6 +90,7 @@ flutter:
     - assets/rohd_src/interfaces/spi/endpoints/
     - assets/rohd_src/memory/
     - assets/rohd_src/memory/associative/
+    - assets/rohd_src/memory/behavioral/
     - assets/rohd_src/memory/contracts/
     - assets/rohd_src/memory/csr/
     - assets/rohd_src/memory/csr/config/
