@@ -33,6 +33,11 @@ enum CsrFieldAccess {
 
   /// Only legal values can be written
   readWriteLegal,
+
+  /// Register field is write only; frontdoor reads always return the
+  /// reset value, and backdoor reads pulse the written value for one
+  /// cycle.
+  writeOnly,
 }
 
 /// Definitions for various register access patterns.

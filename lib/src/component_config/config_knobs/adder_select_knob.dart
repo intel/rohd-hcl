@@ -28,8 +28,16 @@ class AdderSelectKnob extends GroupOfKnobs {
   };
 
   /// Controls the type of [ParallelPrefixAdder] used for internal adders.
-  final parallelPrefixTypeKnob =
-      ChoiceConfigKnob(adderGeneratorMap.keys.toList(), value: BrentKung);
+  final parallelPrefixTypeKnob = ChoiceConfigKnob(
+    adderGeneratorMap.keys.toList(),
+    value: BrentKung,
+    choiceLabels: const {
+      Ripple: 'Ripple',
+      Sklansky: 'Sklansky',
+      KoggeStone: 'KoggeStone',
+      BrentKung: 'BrentKung',
+    },
+  );
 
   /// Whether to instantiate a [ParallelPrefixAdder] (or use a [NativeAdder]).
   final ToggleConfigKnob parallelPrefixAdderKnob =

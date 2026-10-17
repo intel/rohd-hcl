@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // partial_product_generator.dart
@@ -9,7 +9,6 @@
 
 import 'dart:math';
 
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -262,12 +261,6 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
     }
     _build();
   }
-
-  /// Perform sign extension (defined in child classes).
-  @Deprecated('Replace this call with a construction of a '
-      '[PartialProductSignExtension] class')
-  @protected
-  void signExtend();
 
   /// Setup the partial products array ([partialProducts] and [rowShift]).
   void _build() {

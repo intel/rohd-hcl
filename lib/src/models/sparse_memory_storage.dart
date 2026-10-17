@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sparse_memory_storage.dart
@@ -28,6 +28,7 @@ abstract class MemoryStorage {
 
   /// Default behavior for [onInvalidWrite].
   static void _defaultOnInvalidWrite() {
+    // The default callback must warn users without requiring a logging setup.
     // ignore: avoid_print
     print('WARNING: Memory was cleared by invalid write!');
   }
@@ -42,6 +43,7 @@ abstract class MemoryStorage {
 
   /// Default behavior for [onInvalidRead].
   static LogicValue _defaultOnInvalidRead(LogicValue addr, int dataWidth) {
+    // The default callback must warn users without requiring a logging setup.
     // ignore: avoid_print
     print('WARNING: reading from address $addr that has no data!');
     return LogicValue.filled(dataWidth, LogicValue.x);
@@ -243,23 +245,6 @@ abstract class MemoryStorage {
     }
 
     return memString.toString();
-  }
-
-  /// Reads a verilog-compliant hex file and preloads memory with it.
-  ///
-  /// Example input format:
-  /// ```text
-  /// @80000000
-  /// B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
-  /// 6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
-  /// 23 20 53 00 6F 00 00 00
-  /// @80000040
-  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  /// ```
-  @Deprecated('Use `loadMemString` instead.')
-  void loadMemHex(String hexMemContents) {
-    loadMemString(hexMemContents);
   }
 
   /// Resets all memory to initial state.

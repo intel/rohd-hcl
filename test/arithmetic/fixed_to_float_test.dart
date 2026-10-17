@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_to_float_test.dart
@@ -12,8 +12,120 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
-void main() async {
-  test('FixedToFloat: singleton', () async {
+void main() {
+  test('FixedToFloat: supports every rounding mode', () {
+    // Small widths so exhaustive coverage over every raw bit pattern stays
+    // fast, while still exercising rounding-carry, subnormal, and overflow
+    // corners (fraction wider than the output mantissa forces rounding).
+    const integerWidth = 2;
+    const fractionWidth = 4;
+    final fixed =
+        FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
+    final output = FloatingPoint(exponentWidth: 4, mantissaWidth: 2);
+
+    for (final mode in FloatingPointRoundingMode.values) {
+      final dut = FixedToFloat(fixed, output, roundingMode: mode);
+      for (var raw = 0; raw < 1 << fixed.width; raw++) {
+        final fixedValue = fixed
+            .valuePopulator()
+            .ofLogicValue(LogicValue.ofInt(raw, fixed.width));
+        final scaledInteger = fixedValue.value.toBigInt().toSigned(fixed.width);
+        final expected = output
+            .valuePopulator()
+            .ofScaledBigInt(scaledInteger, -fractionWidth, roundingMode: mode);
+        fixed.put(fixedValue);
+
+        expect(dut.float.value.bitString, expected.value.bitString,
+            reason: 'mode=$mode raw=$raw');
+      }
+    }
+  });
+
+  test('FixedToFloat definition names include rounding and explicit J-bit', () {
+    final fixed = FixedPoint(integerWidth: 2, fractionWidth: 4);
+    final output = FloatingPoint(exponentWidth: 4, mantissaWidth: 2);
+    final explicitOutput =
+        FloatingPoint(exponentWidth: 4, mantissaWidth: 2, explicitJBit: true);
+    final nearest = FixedToFloat(fixed, output);
+    final towardsZero = FixedToFloat(fixed, output,
+        roundingMode: FloatingPointRoundingMode.roundTowardsZero);
+    final explicit = FixedToFloat(fixed, explicitOutput);
+
+    expect({
+      nearest.definitionName,
+      towardsZero.definitionName,
+      explicit.definitionName
+    }, hasLength(3));
+  });
+
+  test('FixedToFloat: E4M3 retains representable exponent-15 values', () {
+    final fixed = FixedPoint(signed: false, integerWidth: 10, fractionWidth: 0);
+    final output = FloatingPoint8E4M3();
+    final dut = FixedToFloat(fixed, output, signed: false);
+
+    fixed.put(fixed
+        .valuePopulator()
+        .ofLogicValue(LogicValue.ofInt(256, fixed.width)));
+
+    expect(dut.float.floatingPointValue,
+        equals(output.valuePopulator().ofDouble(256)));
+  });
+
+  test('FixedToFloat: exact signed and unsigned layout coverage', () {
+    for (final signed in [false, true]) {
+      final layouts = signed
+          ? const [(3, 4), (0, 7), (7, 0)]
+          : const [(4, 4), (0, 8), (8, 0)];
+      for (final (integerWidth, fractionWidth) in layouts) {
+        final fixed = FixedPoint(
+            signed: signed,
+            integerWidth: integerWidth,
+            fractionWidth: fractionWidth);
+        final output = FloatingPoint(exponentWidth: 5, mantissaWidth: 4);
+        final dut = FixedToFloat(fixed, output, signed: signed);
+
+        for (var raw = 0; raw < 1 << fixed.width; raw++) {
+          final fixedValue = fixed
+              .valuePopulator()
+              .ofLogicValue(LogicValue.ofInt(raw, fixed.width));
+          final scaledInteger = signed
+              ? fixedValue.value.toBigInt().toSigned(fixed.width)
+              : fixedValue.value.toBigInt();
+          final expected = output
+              .valuePopulator()
+              .ofScaledBigInt(scaledInteger, -fractionWidth);
+          fixed.put(fixedValue);
+
+          expect(dut.float.value.bitString, expected.value.bitString,
+              reason:
+                  'signed=$signed, Q$integerWidth.$fractionWidth, raw=$raw');
+        }
+      }
+    }
+  });
+
+  test('FixedToFloat: explicit J-bit matches implicit precision', () {
+    final fixed = FixedPoint(integerWidth: 3, fractionWidth: 4);
+    final output =
+        FloatingPoint(exponentWidth: 5, mantissaWidth: 5, explicitJBit: true);
+    final explicit = FixedToFloat(fixed, output);
+
+    for (var raw = 0; raw < 1 << fixed.width; raw++) {
+      final fixedValue = fixed
+          .valuePopulator()
+          .ofLogicValue(LogicValue.ofInt(raw, fixed.width));
+      final expected = output.valuePopulator().ofScaledBigInt(
+          fixedValue.value.toBigInt().toSigned(fixed.width),
+          -fixed.fractionWidth);
+      fixed.put(fixedValue);
+
+      expect(explicit.float.explicitJBit, isTrue);
+      expect(explicit.float.value.bitString, expected.value.bitString,
+          reason: 'raw=$raw');
+    }
+  });
+
+  test('FixedToFloat: singleton', () {
     final fixed = FixedPoint(integerWidth: 34, fractionWidth: 33);
     const inDouble = -2.0;
     fixed.put(fixed.valuePopulator().ofDouble(inDouble));
@@ -59,7 +171,7 @@ void main() async {
     }
   });
 
-  test('FixedToFloat addition with Anticipate: signed singleton', () async {
+  test('FixedToFloat addition with Anticipate: signed singleton', () {
     const width = 8;
     final val1 = LogicValue.ofInt(0, width);
     final val2 = LogicValue.ofInt(192, width);
@@ -93,7 +205,7 @@ void main() async {
 ''');
   });
 
-  test('FixedToFloat: Add with Anticipate: exhaustive', () async {
+  test('FixedToFloat: Add with Anticipate: exhaustive', () {
     const width = 8;
     final a = Logic(width: width)..put(0);
     final b = Logic(width: width)..put(0);
@@ -140,7 +252,7 @@ void main() async {
     }
   });
 
-  test('FixedToFloat: leadingDigit smoke test', () async {
+  test('FixedToFloat: leadingDigit smoke test', () {
     const width = 68;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -171,12 +283,10 @@ void main() async {
     expect(fpv2, equals(fpv));
   });
 
-  test('FixedToFloat: leadingDigit exhaustive', () async {
+  test('FixedToFloat: leadingDigit exhaustive', () {
     const width = 16;
 
-    final leadPredictIn = Logic(width: width);
-    // ignore: cascade_invocations
-    leadPredictIn.put(0);
+    final leadPredictIn = Logic(width: width)..put(0);
     final leadZeroCounter = RecursiveModulePriorityEncoder(
         leadPredictIn.reversed,
         generateValid: true);

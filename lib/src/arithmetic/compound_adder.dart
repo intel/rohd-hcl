@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // compound_adder.dart
@@ -7,6 +7,9 @@
 //
 // 2024 September
 // Author: Anton Sorokin <anton.a.sorokin@intel.com>
+
+// Deprecated subtraction aliases remain for source compatibility.
+// ignore_for_file: remove_deprecations_in_breaking_versions
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -64,22 +67,6 @@ class CarrySelectCompoundAdder extends CompoundAdder {
   /// [adderWidth] is a whole width of adder.
   static List<int> splitSelectAdderAlgorithmSingleBlock(int adderWidth) {
     final splitData = <int>[adderWidth];
-    return splitData;
-  }
-
-  /// Adder  block size computation algorithm.
-  /// Generates 4 bit carry-select blocks with 1st entry width adjusted down.
-  /// Return list of block sizes starting from
-  /// the LSB connected one.
-  /// [adderWidth] is a whole width of adder.
-  @Deprecated('use splitSelectAdderAlgorithmNBit instead')
-  static List<int> splitSelectAdderAlgorithm4Bit(int adderWidth) {
-    final blockNb = (adderWidth / 4.0).ceil();
-    final firstBlockSize = adderWidth - (blockNb - 1) * 4;
-    final splitData = <int>[firstBlockSize];
-    for (var i = 1; i < blockNb; ++i) {
-      splitData.add(4);
-    }
     return splitData;
   }
 
@@ -218,18 +205,24 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   /// final result.
   Logic? get carryOutP1 => tryOutput('carryOutP1');
 
-  /// Subtraction controlled by an optional logic [subtractIn]
+  /// Configuration for static or runtime subtraction.
   @protected
-  late final Logic? subtractIn;
+  late final StaticOrRuntimeParameter subtractParameter;
+
+  /// The deprecated runtime subtraction input, if configured.
+  @protected
+  @Deprecated('Use subtractParameter instead.')
+  Logic? get subtractIn => subtractParameter.tryRuntimeInput(this);
 
   /// Constructs a [CarrySelectCompoundAdder] using a set of
   /// [OnesComplementAdder] in a carry-select configuration. Adds (or subtracts)
   /// [a] and [b] to produce [sum] and [sumP1] (sum plus 1).
   /// - [adderGen] is the adder generator [Function] inside the
   ///   [OnesComplementAdder].
-  /// - [subtractIn] is an optional [Logic] control for subtraction.
-  /// - [subtract] is a boolean control for subtraction. It must be
-  ///   `false`(default) if a [subtractIn] [Logic] is provided.
+  /// - [subtract] configures subtraction statically with a `bool` or at runtime
+  ///   with a 1-bit [Logic]. It defaults to addition.
+  /// - [subtractIn] is a deprecated runtime subtraction control. It may be
+  ///   provided with an explicit `subtract: false` for compatibility.
   /// - [generateCarryOut] set to `true` will create output [carryOut] and
   ///   employ the ones-complement optimization of not adding '1' to convert
   ///   back to 2s complement during subtraction on the [sum].
@@ -242,10 +235,10 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
   CarrySelectOnesComplementCompoundAdder(super.a, super.b,
       {Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
           NativeAdder.new,
-      Logic? subtractIn,
+      @Deprecated('Use subtract with a 1-bit Logic instead.') Logic? subtractIn,
       bool generateCarryOut = false,
       bool generateCarryOutP1 = false,
-      bool subtract = false,
+      dynamic subtract,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
       super.name,
@@ -255,9 +248,17 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       : super(
             definitionName: definitionName ??
                 'CarrySelectOnesComplementCompoundAdder_W${a.width}') {
-    subtractIn = (subtractIn != null)
-        ? addInput('subtractIn', subtractIn, width: subtractIn.width)
-        : null;
+    final subtractIsActive =
+        subtract != null && (subtract is! bool || subtract);
+    if (subtractIn != null && subtractIsActive) {
+      throw RohdHclException(
+          "Provide either deprecated 'subtractIn' or 'subtract', "
+          'but not both.');
+    }
+    subtractParameter = subtractIn != null
+        ? StaticOrRuntimeParameter(
+            name: 'subtractIn', runtimeConfig: subtractIn)
+        : StaticOrRuntimeParameter.ofDynamic(subtract);
 
     if (generateCarryOut) {
       addOutput('carryOut');
@@ -266,19 +267,18 @@ class CarrySelectOnesComplementCompoundAdder extends CompoundAdder {
       addOutput('carryOutP1');
     }
 
-    final doSubtract = subtractIn ?? (subtract ? Const(subtract) : Const(0));
+    final doSubtract = subtractParameter.getLogic(this);
 
     final csadder = CarrySelectCompoundAdder(a, b,
         widthGen: widthGen,
-        subtractIn: subtractIn,
+        subtractIn: doSubtract,
         adderGen: (a, b, {carryIn, subtractIn, name = 'ones_complement'}) =>
             OnesComplementAdder(a, b,
                 adderGen: adderGen,
                 carryIn: carryIn,
                 generateEndAroundCarry: true,
-                subtract: subtract,
                 chainable: true,
-                subtractIn: subtractIn));
+                subtract: subtractIn));
 
     addOutput('sign') <= mux(doSubtract, ~csadder.sum[-1], Const(0));
     addOutput('signP1') <= mux(doSubtract, ~csadder.sumP1[-1], Const(0));

@@ -1,6 +1,12 @@
+analyzer:
+  exclude:
+    - assets/rohd_src/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
-include: package:flutter_lints/flutter.yaml
-
-linter:
-  rules:
-
+include: ../analysis_options.yaml

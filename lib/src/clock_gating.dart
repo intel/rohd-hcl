@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // clock_gating.dart
@@ -8,6 +8,7 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:rohd/rohd.dart';
+// ROHD does not expose the uniquifier required by this interface publicly.
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/uniquifier.dart';
 
@@ -75,32 +76,6 @@ class ClockGateControlInterface extends PairInterface {
           if (hasEnableOverride) Logic.port('en_override'),
           ...?additionalPorts,
         ]);
-
-  /// Creates a clone of [otherInterface] with the same configuration,
-  /// including
-  /// any `additionalPorts` and `gatedClockGenerator` function. This should be
-  /// used to replicate interface configuration through hierarchies to carry
-  /// configuration information.
-  ///
-  /// If [isPresent] is provided, then it will override the [isPresent] value
-  /// from [otherInterface].
-  ///
-  /// If a [gatedClockGenerator] is provided, then it will override the
-  /// [gatedClockGenerator] function from [otherInterface].
-  @Deprecated('Use Instance-based `clone()` instead.')
-  ClockGateControlInterface.clone(
-    ClockGateControlInterface super.otherInterface, {
-    bool? isPresent,
-    Logic Function(
-      ClockGateControlInterface intf,
-      Logic clk,
-      Logic enable,
-    )? gatedClockGenerator,
-  })  : hasEnableOverride = otherInterface.hasEnableOverride,
-        isPresent = isPresent ?? otherInterface.isPresent,
-        gatedClockGenerator =
-            gatedClockGenerator ?? otherInterface.gatedClockGenerator,
-        super.clone();
 
   /// Creates a clone of with the same configuration, including any
   /// `additionalPorts` and `gatedClockGenerator` function. This should be used
@@ -271,7 +246,7 @@ class ClockGate extends Module {
     if (_reset != null) {
       // we want to enable the clock during reset so that synchronous resets
       // work properly
-      internalEnable |= _reset!;
+      internalEnable |= _reset;
     }
 
     if (delayControlledSignals) {
@@ -286,6 +261,6 @@ class ClockGate extends Module {
 
     gatedClk <=
         _controlIntf!
-            .gatedClockGenerator(_controlIntf!, _freeClk, internalEnable);
+            .gatedClockGenerator(_controlIntf, _freeClk, internalEnable);
   }
 }

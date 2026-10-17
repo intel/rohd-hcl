@@ -19,8 +19,13 @@ class RoundRobinArbiterConfigurator extends Configurator {
 
   /// A knob controlling the implementation.
   final ChoiceConfigKnob<Type> implementationKnob = ChoiceConfigKnob(
-      [MaskRoundRobinArbiter, RotateRoundRobinArbiter],
-      value: MaskRoundRobinArbiter);
+    [MaskRoundRobinArbiter, RotateRoundRobinArbiter],
+    value: MaskRoundRobinArbiter,
+    choiceLabels: const {
+      MaskRoundRobinArbiter: 'MaskRoundRobinArbiter',
+      RotateRoundRobinArbiter: 'RotateRoundRobinArbiter',
+    },
+  );
 
   @override
   final String name = 'Round Robin Arbiter';

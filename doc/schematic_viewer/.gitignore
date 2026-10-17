@@ -1,0 +1,19 @@
+# Flutter/Dart/Pub
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+pubspec_overrides.yaml
+pubspec_overrides.yaml.disabled*
+/build/
+/coverage/
+
+# Editors and platforms not used by this web-only wrapper
+.idea/
+.vscode/
+*.iml
+android/
+ios/
+linux/
+macos/
+windows/

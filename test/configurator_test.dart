@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // configurator_test.dart
@@ -31,11 +31,15 @@ void main() {
 
     cfg.knobs['e']!.value = 5;
     for (final k in (cfg.knobs['e']! as ListOfKnobsKnob).knobs) {
+      // Knob values are dynamic because configurators support mixed
+      // value types.
       // ignore: avoid_dynamic_calls
       k.value += 10;
     }
 
     (cfg.knobs['f']! as GroupOfKnobs).subKnobs.forEach((key, value) {
+      // Knob values are dynamic because configurators support mixed
+      // value types.
       // ignore: avoid_dynamic_calls
       value.value += 'x';
     });
@@ -54,6 +58,119 @@ void main() {
     expect((cfg.knobs['f']! as GroupOfKnobs).subKnobs['2']!.value, '2x');
   });
 
+  test('conditional knobs update after their maps are first accessed', () {
+    final floatingPointAdder = FloatingPointAdderConfigurator();
+    expect(floatingPointAdder.knobs.containsKey('Generate Subtract Input'),
+        isFalse);
+    floatingPointAdder.dualPathAdderKnob.value = true;
+    expect(floatingPointAdder.knobs.containsKey('Generate Subtract Input'),
+        isTrue);
+
+    final spi = SpiConfigurator();
+    expect(spi.knobs.containsKey('Subordinate Bus Input'), isFalse);
+    spi.roleKnob.value = SpiRole.sub;
+    expect(spi.knobs.containsKey('Subordinate Bus Input'), isTrue);
+    expect(spi.knobs.containsKey('Subordinate Reset'), isTrue);
+
+    final findPattern = FindPatternConfigurator();
+    expect(
+        findPattern.knobs.containsKey('Nth Occurrence Input Width'), isFalse);
+    findPattern.includeOccurrenceKnob.value = true;
+    expect(findPattern.knobs.containsKey('Nth Occurrence Input Width'), isTrue);
+
+    final shiftRegister = ShiftRegisterConfigurator();
+    expect(shiftRegister.knobs.containsKey('Asynchronous Reset'), isFalse);
+    shiftRegister.includeResetKnob.value = true;
+    expect(shiftRegister.knobs.containsKey('Asynchronous Reset'), isTrue);
+    expect(shiftRegister.knobs.containsKey('Reset Value'), isTrue);
+
+    final signMagnitudeAdder = SignMagnitudeAdderConfigurator();
+    expect(signMagnitudeAdder.knobs.containsKey('Largest Magnitude First'),
+        isTrue);
+    signMagnitudeAdder.implementationKnob.value =
+        SignMagnitudeAdderImplementation.dual;
+    expect(signMagnitudeAdder.knobs.containsKey('Largest Magnitude First'),
+        isFalse);
+    expect(signMagnitudeAdder.knobs.containsKey('Generate End-Around Carry'),
+        isFalse);
+
+    final dotProduct = DotProductConfigurator();
+    expect(dotProduct.knobs.containsKey('Reduction Tree Radix'), isTrue);
+    dotProduct.implementationKnob.value =
+        DotProductImplementation.compressionTree;
+    expect(dotProduct.knobs.containsKey('Reduction Tree Radix'), isFalse);
+    expect(dotProduct.knobs.containsKey('Lane Multiplier'), isFalse);
+
+    final generalDotProduct = DotProductConfigurator()
+      ..multiplierSelectKnob.compressionTreeMultiplierKnob.value = true;
+    expect(
+      generalDotProduct.multiplierSelectKnob.subKnobs.containsKey('Pipelined'),
+      isFalse,
+    );
+  });
+
+  test('loads conditional floating-point adder knobs from JSON', () {
+    final configured = FloatingPointAdderConfigurator()
+      ..dualPathAdderKnob.value = true
+      ..dualPathSubtractInputKnob.value = true;
+
+    final loaded = FloatingPointAdderConfigurator()
+      ..loadJson(configured.toJson());
+
+    expect(loaded.dualPathAdderKnob.value, isTrue);
+    expect(loaded.dualPathSubtractInputKnob.value, isTrue);
+    expect(loaded.knobs.containsKey('Generate Subtract Input'), isTrue);
+  });
+
+  test('all configurator knobs round-trip through JSON', () {
+    for (final configured in componentRegistry) {
+      final loaded = componentRegistry.singleWhere(
+        (candidate) => candidate.runtimeType == configured.runtimeType,
+      )..loadJson(configured.toJson());
+
+      expect(
+        loaded.toJson(),
+        configured.toJson(),
+        reason: '${configured.name} configuration did not round-trip.',
+      );
+    }
+  });
+
+  test('reusable conditional knobs retain non-default JSON values', () {
+    final multiplier = MultiplierSelectKnob(
+      allowSigned: true,
+      allowPipelining: true,
+    )
+      ..compressionTreeMultiplierKnob.value = true
+      ..radixKnob.value = 8
+      ..multiplicandWidthKnob.value = 7
+      ..multiplierWidthKnob.value = 9
+      ..signMultiplicandValueKnob.value = 'selected'
+      ..signMultiplierValueKnob.value = 'signed'
+      ..pipelinedKnob.value = true
+      ..adderSelectionKnob.parallelPrefixAdderKnob.value = true
+      ..adderSelectionKnob.parallelPrefixTypeKnob.value = Ripple;
+    final loadedMultiplier = MultiplierSelectKnob(
+      allowSigned: true,
+      allowPipelining: true,
+    )..loadJson(multiplier.toJson());
+
+    expect(loadedMultiplier.toJson(), multiplier.toJson());
+    expect(loadedMultiplier.subKnobs.containsKey('Pipelined'), isTrue);
+    expect(loadedMultiplier.pipelinedKnob.value, isTrue);
+    expect(
+      loadedMultiplier.adderSelectionKnob.parallelPrefixTypeKnob.value,
+      Ripple,
+    );
+
+    final priorityEncoder = PriorityEncoderSelectKnob()
+      ..implementationKnob.value = ParallelPrefixPriorityEncoder;
+    final loadedPriorityEncoder = PriorityEncoderSelectKnob()
+      ..loadJson(priorityEncoder.toJson());
+
+    expect(loadedPriorityEncoder.toJson(), priorityEncoder.toJson());
+  });
+
   group('rotate generator', () {
     test('should return Ripple Carry Adder for component name', () {
       final rotate = RotateConfigurator();
@@ -66,6 +183,75 @@ void main() {
           isA<ChoiceConfigKnob<RotateDirection>>());
       expect(rotate.knobs.values.toList()[1], isA<IntConfigKnob>());
       expect(rotate.knobs.values.toList()[2], isA<IntConfigKnob>());
+    });
+
+    test('type-valued choice knobs provide stable display labels', () {
+      final oneHot = OneHotConfigurator();
+
+      expect(oneHot.directionKnob.labelFor(BinaryToOneHot), 'BinaryToOneHot');
+      expect(oneHot.directionKnob.labelFor(OneHotToBinary), 'OneHotToBinary');
+    });
+
+    test('type-valued choice knobs require stable labels', () {
+      expect(
+        () => ChoiceConfigKnob<Type>(
+          [BinaryToOneHot, OneHotToBinary],
+          value: OneHotToBinary,
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('choice knobs reject duplicate serialized labels', () {
+      expect(
+        () => ChoiceConfigKnob<Type>(
+          [BinaryToOneHot, OneHotToBinary],
+          value: OneHotToBinary,
+          choiceLabels: const {
+            BinaryToOneHot: 'converter',
+            OneHotToBinary: 'converter',
+          },
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('choice labels cannot collide with default serialized values', () {
+      expect(
+        () => ChoiceConfigKnob<Object>(
+          const [1, 'one'],
+          value: 1,
+          choiceLabels: const {1: 'one'},
+        ),
+        throwsA(isA<RohdHclException>()),
+      );
+    });
+
+    test('choice labels are stored as an unmodifiable copy', () {
+      final labels = <int, String>{1: 'one', 2: 'two'};
+      final knob = ChoiceConfigKnob<int>(
+        const [1, 2],
+        value: 1,
+        choiceLabels: labels,
+      );
+
+      labels[1] = 'two';
+
+      expect(knob.toJson(), {'value': 'one'});
+      expect(
+        () => knob.choiceLabels[1] = 'two',
+        throwsUnsupportedError,
+      );
+    });
+
+    test('type-valued choice knobs use stable JSON values', () {
+      final oneHot = OneHotConfigurator()..directionKnob.value = BinaryToOneHot;
+
+      expect(oneHot.directionKnob.toJson(), {'value': 'BinaryToOneHot'});
+
+      final loaded = OneHotConfigurator()
+        ..directionKnob.loadJson({'value': 'BinaryToOneHot'});
+      expect(loaded.directionKnob.value, BinaryToOneHot);
     });
 
     test('should return RotateRight module when generate() with default value',
@@ -386,7 +572,7 @@ void main() {
     expect(sv, contains('swizzle'));
   });
 
-  test('sum configurator', () async {
+  test('sum configurator', () {
     final cfg = SumConfigurator();
     cfg.initialValueKnob.value = 6;
     cfg.widthKnob.value = 10;
@@ -396,11 +582,14 @@ void main() {
 
     final mod = cfg.createModule() as Sum;
 
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.initialValueLogic.value.toInt(), 6);
     expect(mod.width, 10);
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.minValueLogic.value.toInt(), 5);
+    // Verify the protected signal generated from the public configuration knob.
     // ignore: invalid_use_of_protected_member
     expect(mod.maxValueLogic.value.toInt(), 25);
     expect(mod.saturates, true);
@@ -424,11 +613,132 @@ void main() {
     expect(sv, contains('Deserializer'));
   });
 
+  group('configuration coverage', () {
+    test('documents every synthesizable public component in the registry', () {
+      final names = componentRegistry.map((configurator) => configurator.name);
+
+      expect(
+        names,
+        containsAll([
+          'APB CSR Completer',
+          'Asynchronous FIFO',
+          'Binary to Gray Converter',
+          'Gray to Binary Converter',
+          'Ones Complement Adder',
+          'Sign Magnitude Adder',
+          'Carry-Select Ones Complement Compound Adder',
+          'Content-Addressable Memory',
+          'Clock Gate',
+          'Count',
+          'Find Pattern',
+          'FP8 To Fixed Converter',
+          'Floating-Point Converter',
+          'Compression Tree Multiply-Accumulate',
+          'Dot Product',
+          'Multi-Cycle Divider',
+          'Parallel Prefix Operation',
+          'Parity',
+          'Priority Encoder',
+          'Reduction Tree',
+          'Shift Register',
+          'Signed Shifter',
+          'SPI Gasket',
+          'Toggle Gate',
+        ]),
+      );
+    });
+
+    test('floating-point configurators forward rounding and format knobs',
+        () async {
+      final fixedToFloat = FixedToFloatConfigurator()
+        ..outputExplicitJBitKnob.value = true
+        ..roundingModeKnob.value =
+            FloatingPointRoundingMode.roundTowardsInfinity;
+      final roundedFixedToFloat = fixedToFloat.createModule() as FixedToFloat;
+      expect(roundedFixedToFloat.float.explicitJBit, isTrue);
+      final truncatedFixedToFloat = FixedToFloatConfigurator()
+        ..roundingModeKnob.value = FloatingPointRoundingMode.truncate;
+      expect(
+        await fixedToFloat.generateSV(),
+        isNot(equals(await truncatedFixedToFloat.generateSV())),
+      );
+
+      final floatToFixed = FloatToFixedConfigurator()
+        ..integerWidthKnob.value = 4
+        ..fractionWidthKnob.value = 7
+        ..checkOverflowKnob.value = true
+        ..roundingModeKnob.value =
+            FloatingPointRoundingMode.roundTowardsNegativeInfinity;
+      final fixed = floatToFixed.createModule() as FloatToFixed;
+      expect(fixed.integerWidth, 4);
+      expect(fixed.fractionWidth, 7);
+      expect(fixed.checkOverflow, isTrue);
+      expect(fixed.overflow, isNotNull);
+      await floatToFixed.generateSV();
+
+      final multiplier = FloatingPointMultiplierSimpleConfigurator()
+        ..outputWidthSelectKnob.differentWidthOutput.value = true
+        ..outputWidthSelectKnob.exponentWidthKnob.value = 6
+        ..outputWidthSelectKnob.mantissaWidthKnob.value = 9
+        ..roundingModeKnob.value =
+            FloatingPointRoundingMode.roundNearestTiesAway;
+      final floatingMultiplier =
+          multiplier.createModule() as FloatingPointMultiplier;
+      expect(floatingMultiplier.exponentWidth, 6);
+      expect(floatingMultiplier.mantissaWidth, 9);
+      expect(floatingMultiplier.roundingMode,
+          FloatingPointRoundingMode.roundNearestTiesAway);
+      await multiplier.generateSV();
+
+      final dualPathAdder = FloatingPointAdderConfigurator()
+        ..dualPathAdderKnob.value = true
+        ..dualPathSubtractInputKnob.value = true;
+      expect(
+        dualPathAdder.createModule().inputs.containsKey('subtract'),
+        isTrue,
+      );
+      await dualPathAdder.generateSV();
+
+      final apbCompleter = ApbCsrCompleterConfigurator()
+        ..userRequestWidthKnob.value = 3
+        ..userDataWidthKnob.value = 4
+        ..userResponseWidthKnob.value = 2
+        ..includeWakeupKnob.value = true
+        ..selectCountKnob.value = 2;
+      final apb = (apbCompleter.createModule() as ApbCsrCompleter).apb;
+      expect(apb.userReqWidth, 3);
+      expect(apb.userDataWidth, 4);
+      expect(apb.userRespWidth, 2);
+      expect(apb.includeWakeup, isTrue);
+      expect(apb.numSelects, 2);
+      await apbCompleter.generateSV();
+    });
+
+    test('multiplier signedness selections generate runtime control inputs',
+        () async {
+      final configurator = MultiplierConfigurator()
+        ..multiplierSelectKnob.signMultiplicandValueKnob.value = 'selected'
+        ..multiplierSelectKnob.signMultiplierValueKnob.value = 'selected';
+      final module = configurator.createModule();
+
+      expect(module.inputs, contains('signedMultiplicand'));
+      expect(module.inputs, contains('signedMultiplier'));
+      await configurator.generateSV();
+    });
+  });
+
   group('configurator builds', () {
     for (final componentConfigurator in componentRegistry) {
       test(componentConfigurator.name, () async {
         // generates verilog stand-alone
         await componentConfigurator.generateSV();
+
+        // MultiCycleDivider is independently verified in divider_test.dart.
+        // Its PairInterface-based hierarchy cannot be nested under this
+        // generic output-only wrapper because it cannot own prewired inputs.
+        if (componentConfigurator is MultiCycleDividerConfigurator) {
+          return;
+        }
 
         // generates within a wrapping module (check for input/output rules)
         final mod = Wrapper(componentConfigurator.createModule());

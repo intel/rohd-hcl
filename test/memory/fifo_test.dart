@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fifo_test.dart
@@ -677,7 +677,7 @@ void main() {
     final tracker =
         FifoTracker(fifoTest.fifo, outputFolder: 'tmp_test', dumpTable: false);
 
-    Simulator.registerEndOfSimulationAction(() async => tracker.terminate());
+    Simulator.registerEndOfSimulationAction(tracker.terminate);
 
     await fifoTest.start();
 

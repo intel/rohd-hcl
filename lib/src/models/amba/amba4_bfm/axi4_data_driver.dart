@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_data_driver.dart
@@ -87,7 +87,7 @@ class Axi4DataChannelDriver extends PendingClockedDriver<Axi4DataPacket> {
   Future<void> _driveRequestPacket(Axi4DataPacket packet) async {
     await sIntf.clk.nextPosedge;
     if (packet.data.width <= rIntf.data.width) {
-      Simulator.injectAction(() async {
+      Simulator.injectAction(() {
         rIntf.valid.put(1);
         rIntf.id?.put(packet.id);
         rIntf.user?.put(packet.user);
@@ -110,7 +110,7 @@ class Axi4DataChannelDriver extends PendingClockedDriver<Axi4DataPacket> {
       final it = (packet.data.width / rIntf.data.width).ceil();
       for (var i = 0; i < it; i++) {
         final end = min(packet.data.width, (i + 1) * rIntf.data.width);
-        Simulator.injectAction(() async {
+        Simulator.injectAction(() {
           rIntf.valid.put(1);
           rIntf.id?.put(packet.id);
           rIntf.user?.put(packet.user);

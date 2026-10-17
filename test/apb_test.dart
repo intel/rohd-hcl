@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // apb_test.dart
@@ -141,9 +141,9 @@ class ApbCsrCompleterHwTest extends Test {
 
       final jsonStr =
           File('$outFolder/apbTracker.tracker.json').readAsStringSync();
-      final jsonContents = json.decode(jsonStr);
-      // ignore: avoid_dynamic_calls
-      expect(jsonContents['records'].length, 2 * numTransfers);
+      final jsonContents = json.decode(jsonStr) as Map<String, dynamic>;
+      final records = jsonContents['records'] as List<Object?>;
+      expect(records.length, 2 * numTransfers);
 
       Directory(outFolder).deleteSync(recursive: true);
     });
@@ -238,7 +238,7 @@ void main() {
     await abpPair.build();
   });
 
-  test('abp optional ports null', () async {
+  test('abp optional ports null', () {
     final apb = ApbInterface();
     expect(apb.aUser, isNull);
     expect(apb.bUser, isNull);

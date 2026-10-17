@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // apb.dart
@@ -246,17 +246,6 @@ class ApbInterface extends Interface<ApbDirection> {
       ApbDirection.fromCompleter
     ]);
   }
-
-  /// Constructs a new [ApbInterface] with identical parameters to [other].
-  @Deprecated('Use Instance-based `clone()` instead.')
-  ApbInterface.clone(ApbInterface other)
-      : this(
-          addrWidth: other.addrWidth,
-          dataWidth: other.dataWidth,
-          userReqWidth: other.userReqWidth,
-          userRespWidth: other.userRespWidth,
-          includeSlvErr: other.includeSlvErr,
-        );
 
   /// Clone this [ApbInterface].
   @override

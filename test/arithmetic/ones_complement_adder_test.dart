@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // ones_complement_adder_test.dart
@@ -28,7 +28,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('OnesComplementAdder case test', () async {
+  test('OnesComplementAdder case test', () {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -164,7 +164,7 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              subtractIn: subtractIn,
+              subtract: subtractIn,
               generateEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
           final carry = adder.endAroundCarry!;
@@ -183,7 +183,7 @@ void main() {
     }
   });
 
-  test('OnesComplementAdder: trivial test', () async {
+  test('OnesComplementAdder: trivial test', () {
     const width = 8;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);

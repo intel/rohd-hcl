@@ -14,8 +14,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class OneHotConfigurator extends Configurator {
   /// Controls whether toggling from binary to one-hot or
   /// from one-hot to binary.
-  final ChoiceConfigKnob<Type> directionKnob =
-      ChoiceConfigKnob([BinaryToOneHot, OneHotToBinary], value: OneHotToBinary);
+  final ChoiceConfigKnob<Type> directionKnob = ChoiceConfigKnob(
+    [BinaryToOneHot, OneHotToBinary],
+    value: OneHotToBinary,
+    choiceLabels: const {
+      BinaryToOneHot: 'BinaryToOneHot',
+      OneHotToBinary: 'OneHotToBinary',
+    },
+  );
 
   /// Controls the width of the input.
   final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);

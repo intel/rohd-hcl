@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // count.dart
@@ -15,10 +15,6 @@ class Count extends Module {
   /// [_output] is output of [Count] (use index for accessing from outside
   /// Module).
   late Logic _output;
-
-  /// [index] is an getter for output of [Count].
-  @Deprecated('Use `count` instead')
-  Logic get index => _output;
 
   /// The resulting count.
   Logic get count => _output;

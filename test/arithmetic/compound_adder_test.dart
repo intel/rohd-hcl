@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // compound_adder_test.dart
@@ -16,8 +16,10 @@ import 'package:test/test.dart';
 void checkCompoundAdder(CompoundAdder adder, LogicValue av, LogicValue bv) {
   final aB = av.toBigInt();
   final bB = bv.toBigInt();
+  // This white-box helper drives the adder's protected operand directly.
   // ignore: invalid_use_of_protected_member
   adder.a.put(av);
+  // This white-box helper drives the adder's protected operand directly.
   // ignore: invalid_use_of_protected_member
   adder.b.put(bv);
 
@@ -78,7 +80,28 @@ void main() {
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4)));
   });
 
-  test('trivial compound adder test', () async {
+  test('compound adder accepts an explicit legacy false subtract value', () {
+    final a = Logic(width: 2);
+    final b = Logic(width: 2);
+    final subtractIn = Logic();
+
+    expect(
+        () => CarrySelectOnesComplementCompoundAdder(a, b,
+            // This test intentionally exercises the compatibility input.
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: false),
+        returnsNormally);
+    expect(
+        () => CarrySelectOnesComplementCompoundAdder(a, b,
+            // This test verifies conflicting legacy and current inputs.
+            // ignore: deprecated_member_use_from_same_package
+            subtractIn: subtractIn,
+            subtract: true),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('trivial compound adder test', () {
     const width = 6;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -146,8 +169,7 @@ void main() {
           widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
 
       final refAdder = OnesComplementAdder(a, b,
-          generateEndAroundCarry: true,
-          subtractIn: doSubtract ? Const(1) : Const(0));
+          generateEndAroundCarry: true, subtract: doSubtract);
 
       final expectedVal = doSubtract ? ai - bi : ai + bi;
       final expectedValP1 = expectedVal + 1;
@@ -182,17 +204,18 @@ void main() {
       for (final subtract in (useLogic == null) ? [false, true] : [false]) {
         final doSubtract =
             (useLogic == null) ? subtract : useLogic.value.toBool();
+        final subtractConfig = useLogic == null
+            ? subtract
+            : StaticOrRuntimeParameter(
+                name: 'subtract', runtimeConfig: useLogic);
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-            subtractIn: useLogic,
-            subtract: subtract,
+            subtract: subtractConfig,
             generateCarryOut: true,
             generateCarryOutP1: true,
             widthGen:
                 CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
         final refAdder = OnesComplementAdder(a, b,
-            generateEndAroundCarry: true,
-            subtractIn: useLogic,
-            subtract: subtract);
+            generateEndAroundCarry: true, subtract: subtractConfig);
         for (var ai = 0; ai < pow(2, width); ai++) {
           for (var bi = 0; bi < pow(2, width); bi++) {
             final av = LogicValue.ofInt(ai, width);
@@ -245,7 +268,7 @@ void main() {
     expect(adder.sum.value.toInt(), equals(4));
   });
 
-  test('CarrySelectOnesComplementCompoundAdder case test', () async {
+  test('CarrySelectOnesComplementCompoundAdder case test', () {
     const width = 8;
     final a = Logic(name: 'a', width: width);
     final b = Logic(name: 'b', width: width);
@@ -303,7 +326,7 @@ void main() {
       b.put(t.bMag);
 
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-          subtractIn: t.subtractIn,
+          subtract: t.subtractIn,
           generateCarryOut: t.carry,
           generateCarryOutP1: t.carryP1);
 

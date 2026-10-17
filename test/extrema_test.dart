@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // extrema_test.dart
@@ -146,7 +146,7 @@ void main() {
     expect(findMax.index.value.toInt(), equals(0));
   });
 
-  test('Empty List.', () async {
+  test('Empty List.', () {
     // Create a list of Logic objects with
     final logics = List<Logic>.empty();
 

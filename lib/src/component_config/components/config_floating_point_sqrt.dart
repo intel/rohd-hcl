@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_floating_point_sqrt.dart
@@ -18,19 +18,28 @@ class FloatingPointSqrtConfigurator extends Configurator {
   /// Controls the size of the mantissa.
   final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 8);
 
+  /// Rounding mode used by the square root.
+  final FloatingPointRoundingModeKnob roundingModeKnob =
+      FloatingPointRoundingModeKnob();
+
   @override
   Module createModule() {
     final inp = FloatingPoint(
-        exponentWidth: exponentWidthKnob.value,
-        mantissaWidth: mantissaWidthKnob.value);
-    return FloatingPointSqrtSimple(inp,
-        definitionName: 'FloatingPointSqrtSimple');
+      exponentWidth: exponentWidthKnob.value,
+      mantissaWidth: mantissaWidthKnob.value,
+    );
+    return FloatingPointSqrtSimple(
+      inp,
+      roundingMode: roundingModeKnob.value,
+      definitionName: 'FloatingPointSqrtSimple',
+    );
   }
 
   @override
   Map<String, ConfigKnob<dynamic>> get knobs => {
         'Exponent Width': exponentWidthKnob,
         'Mantissa Width': mantissaWidthKnob,
+        'Rounding mode': roundingModeKnob,
       };
 
   @override

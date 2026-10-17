@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // parity.dart
@@ -13,10 +13,6 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Encode data to transport with Parity bits
 class ParityTransmitter extends ErrorCheckingTransmitter {
-  /// The [parity] bit computed for the provided data.
-  @Deprecated('Use `code` instead.')
-  Logic get parity => code;
-
   /// Creates a transmitter that sends data with a parity bit.
   ParityTransmitter(super.data,
       {super.name = 'parity_tx',
@@ -61,17 +57,4 @@ class ParityReceiver extends ErrorCheckingReceiver {
   @override
   @protected
   Logic calculateUncorrectableError() => ~originalData.xor().eq(code);
-
-  /// [checkError] is an getter for parity result with `0` for success and `1`
-  /// for fail
-  @Deprecated('Use `error` or `uncorrectableError` instead.')
-  Logic get checkError => error;
-
-  /// The original [data] (without [parity]).
-  @Deprecated('Use `originalData` instead.')
-  Logic get data => originalData;
-
-  /// [parity] is an getter for parity Bit received upon data transmission
-  @Deprecated('Use `code` instead.')
-  Logic get parity => code;
 }

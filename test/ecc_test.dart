@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // ecc_test.dart
@@ -96,7 +96,7 @@ void main() {
     });
   }
 
-  test('Hamming(7,4)', () async {
+  test('Hamming(7,4)', () {
     final tx = HammingEccTransmitter(Logic(width: 4));
     final rx = HammingEccReceiver(tx.transmission);
     expect(tx.transmission.width, 7);

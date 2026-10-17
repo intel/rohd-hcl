@@ -1,5 +1,5 @@
-// Copyright (C) 2025 Intel Corporation
-// SPDX-License-Indentifier: BSD-3-Clause
+// Copyright (C) 2025-2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_sqrt.dart
 // An abstract base class defining the API for floating-point square root.
@@ -49,6 +49,16 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
   /// getter for the [error] output.
   late final Logic error = Logic(name: 'error')..gets(output('error'));
 
+  /// IEEE 754 exception status for this operation.
+  late final FloatingPointStatus status;
+
+  /// Internal exception status driven by the implementation.
+  @protected
+  late final FloatingPointStatus internalStatus;
+
+  /// The rounding mode to use for the square root.
+  final FloatingPointRoundingMode roundingMode;
+
   /// Square root a floating point number [a], returning result in [sqrt].
   /// - [clk], [reset], [enable] are optional inputs to control a pipestage
   /// (only inserted if [clk] is provided)
@@ -56,6 +66,7 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
+      this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
       super.name = 'floating_point_square_root',
       super.reserveName,
       super.reserveDefinitionName,
@@ -65,7 +76,7 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
         super(
             definitionName: definitionName ??
                 'FloatingPointSquareRoot_E${a.exponent.width}'
-                    'M${a.mantissa.width}') {
+                    'M${a.mantissa.width}_R${roundingMode.name}') {
     this.clk = (clk != null) ? addInput('clk', clk) : null;
     this.reset = (reset != null) ? addInput('reset', reset) : null;
     this.enable = (enable != null) ? addInput('enable', enable) : null;
@@ -73,6 +84,9 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
 
     sqrt = addTypedOutput('sqrt', a.clone as FpType Function({String? name}));
     addOutput('error');
+    internalStatus = FloatingPointStatus(name: 'internalStatus');
+    status = addTypedOutput('status', internalStatus.clone);
+    status <= internalStatus;
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset

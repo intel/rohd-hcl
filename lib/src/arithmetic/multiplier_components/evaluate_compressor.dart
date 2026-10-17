@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // evaluate_compressor.dart
@@ -38,9 +38,8 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
           rowLogic.insert(0, colList[row].logic);
         }
       }
-      final rowBits = [for (final c in rowLogic) c.value].reversed.toList();
-      // ignore: cascade_invocations
-      rowBits.addAll(List.filled(rowShift[row], LogicValue.zero));
+      final rowBits = [for (final c in rowLogic) c.value].reversed.toList()
+        ..addAll(List.filled(rowShift[row], LogicValue.zero));
       final rowBitsExtend = rowBits.length < width
           ? rowBits.swizzle().zeroExtend(width)
           : rowBits.swizzle();
@@ -57,9 +56,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
         ..write('\n');
     }
 
-    final sum = Logic(width: width);
-    // ignore: cascade_invocations
-    sum.put(accum.toSigned(width));
+    final sum = Logic(width: width)..put(accum.toSigned(width));
     ts.write(sum.elements
         .listString('p', prefix: 1, extraSpace: extraSpace, intValue: true));
 
