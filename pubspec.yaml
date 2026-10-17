@@ -21,3 +21,4 @@ dependencies:
 dev_dependencies:
   logging: ^1.0.1
   test: ^1.25.0
+  yaml: ^3.1.3
