@@ -18,19 +18,17 @@ import 'package:test/test.dart';
 
 class ApbCompleterTestModule extends Module {
   ApbCompleterTestModule(ApbInterface intf) {
-    intf = intf.clone()
-      ..connectIO(this, intf,
-          inputTags: {ApbDirection.misc, ApbDirection.fromRequester},
-          outputTags: {ApbDirection.fromCompleter});
+    intf = addInterfacePorts(intf,
+        inputTags: {ApbDirection.misc, ApbDirection.fromRequester},
+        outputTags: {ApbDirection.fromCompleter});
   }
 }
 
 class ApbRequesterTest extends Module {
   ApbRequesterTest(ApbInterface intf) {
-    intf = intf.clone()
-      ..connectIO(this, intf,
-          inputTags: {ApbDirection.misc, ApbDirection.fromCompleter},
-          outputTags: {ApbDirection.fromRequester});
+    intf = addInterfacePorts(intf,
+        inputTags: {ApbDirection.misc, ApbDirection.fromCompleter},
+        outputTags: {ApbDirection.fromRequester});
   }
 }
 
@@ -239,7 +237,7 @@ void main() {
 
     await apbTest.completer.build();
     if (dumpWaves) {
-      WaveDumper(apbTest.completer);
+      apbTest.completer.dumpWaves();
     }
 
     await apbTest.start();

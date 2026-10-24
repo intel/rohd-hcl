@@ -40,7 +40,10 @@ int _fractionBitsWidth(FloatingPoint float) =>
 
 int _floatingPointBias(FloatingPoint float) => float.valuePopulator().bias;
 
-int _defaultIntegerWidth(FloatingPoint float) {
+int _defaultIntegerWidth(FloatingPoint float, [FixedPoint? schema]) {
+  if (schema != null) {
+    return schema.integerWidth;
+  }
   final bias = _floatingPointBias(float);
   final fractionBitsWidth = _fractionBitsWidth(float);
   return float.exponent.width == 4 && fractionBitsWidth == 3
@@ -48,7 +51,8 @@ int _defaultIntegerWidth(FloatingPoint float) {
       : bias + 1;
 }
 
-int _defaultFractionWidth(FloatingPoint float) =>
+int _defaultFractionWidth(FloatingPoint float, [FixedPoint? schema]) =>
+    schema?.fractionWidth ??
     _floatingPointBias(float) + _fractionBitsWidth(float) - 1;
 
 /// [FloatToFixed] converts a floating point input to a signed
@@ -60,7 +64,7 @@ int _defaultFractionWidth(FloatingPoint float) =>
 /// m = e_max - bias + 1
 /// n = mantissa + bias - 1
 /// ```
-class FloatToFixed extends Module {
+class FloatToFixed<T extends FixedPoint> extends Module {
   /// Width of output integer part.
   late final int integerWidth;
 
@@ -73,12 +77,11 @@ class FloatToFixed extends Module {
   /// Return `true` if the conversion overflowed.
   Logic? get overflow => tryOutput('overflow');
 
-  /// Internal representation of the output port
-  late final FixedPoint _fixed =
-      FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
+  /// Internal representation of the output port.
+  late final T _fixed;
 
   /// Output fixed point port (exposed as a typed output)
-  late final FixedPoint fixed;
+  late final T fixed;
 
   /// Build a [FloatingPoint] to [FixedPoint] converter.
   /// - if [integerWidth] and [fractionWidth] are supplied, an m.n fixed-point
@@ -91,10 +94,14 @@ class FloatToFixed extends Module {
   /// - [roundingMode] selects how a fraction narrower than the incoming
   ///   mantissa is rounded. Defaults to [FloatingPointRoundingMode.truncate],
   ///   matching prior (rounding-free) behavior.
+  /// - [outFixed] optionally supplies a signed output schema and is driven by
+  ///   [fixed]. Its widths are used unless matching explicit widths are given.
+  ///   A specialized [T] requires [outFixed].
   FloatToFixed(FloatingPoint float,
       {super.name = 'FloatToFixed',
       int? integerWidth,
       int? fractionWidth,
+      T? outFixed,
       this.checkOverflow = false,
       FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.truncate,
@@ -105,11 +112,22 @@ class FloatToFixed extends Module {
             definitionName: definitionName ??
                 'FloatE${float.exponent.width}'
                     'M${float.mantissa.width}'
-                    'J${float.explicitJBit ? 1 : 0}ToFixed_'
-                    'I${integerWidth ?? _defaultIntegerWidth(float)}_'
-                    'F${fractionWidth ?? _defaultFractionWidth(float)}_'
-                    'R${roundingMode.name}_'
+                    'J${float.explicitJBit ? 1 : 0}ToFixed_I'
+                    '${integerWidth ?? _defaultIntegerWidth(float, outFixed)}_F'
+                    '${fractionWidth ?? _defaultFractionWidth(float, outFixed)}'
+                    '_R${roundingMode.name}_'
                     'O${checkOverflow ? 1 : 0}') {
+    if (outFixed == null && T != FixedPoint) {
+      throw ArgumentError('A specialized output type requires outFixed.');
+    }
+    if (outFixed != null &&
+        (!outFixed.signed ||
+            (integerWidth != null && integerWidth != outFixed.integerWidth) ||
+            (fractionWidth != null &&
+                fractionWidth != outFixed.fractionWidth))) {
+      throw ArgumentError('outFixed must be signed and its widths must match '
+          'any explicitly supplied widths.');
+    }
     float = addTypedInput('float', float);
 
     // [float.mantissa] includes the explicit j-bit as its top bit when
@@ -126,8 +144,13 @@ class FloatToFixed extends Module {
     final noLossM = _defaultIntegerWidth(float);
     final noLossN = _defaultFractionWidth(float);
 
-    this.integerWidth = integerWidth ?? noLossM;
-    this.fractionWidth = fractionWidth ?? noLossN;
+    this.integerWidth = integerWidth ?? outFixed?.integerWidth ?? noLossM;
+    this.fractionWidth = fractionWidth ?? outFixed?.fractionWidth ?? noLossN;
+    _fixed = outFixed != null
+        ? outFixed.cloneTyped(name: 'internalFixed')
+        : FixedPoint(
+            integerWidth: this.integerWidth,
+            fractionWidth: this.fractionWidth) as T;
     final outputWidth = this.integerWidth + this.fractionWidth + 1;
 
     final jBit = Logic(name: 'jBit')..gets(float.isNormal);
@@ -272,9 +295,12 @@ class FloatToFixed extends Module {
         roundedNumber.slice(unroundedNumber.width - 1, 0).named('number');
 
     _fixed <= mux(float.sign, ~number + 1, number).named('signedNumber');
-    final typedFixedOut = addTypedOutput('fixed', _fixed.clone);
+    final typedFixedOut = addTypedOutput('fixed', _fixed.cloneTyped);
     typedFixedOut <= _fixed;
     fixed = typedFixedOut;
+    if (outFixed != null) {
+      outFixed <= fixed;
+    }
   }
 }
 
@@ -309,7 +335,7 @@ class Float8ToFixed extends Module {
 
   /// Constructor
   Float8ToFixed(Logic float, Logic mode, {super.name = 'Float8ToFixed'}) {
-    float = addInput('float', float, width: float.width);
+    float = addTypedInput('float', float);
     mode = addInput('mode', mode);
     addOutput('fixed', width: 33);
 

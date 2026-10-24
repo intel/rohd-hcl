@@ -20,7 +20,7 @@ class PriorityArbiterConfigurator extends Configurator {
   String get subcategory => 'arbitration';
 
   /// A knob controlling the number of requests and grants.
-  final IntConfigKnob numRequestKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob numRequestKnob = PositiveIntConfigKnob(value: 8);
 
   @override
   final String name = 'Priority Arbiter';

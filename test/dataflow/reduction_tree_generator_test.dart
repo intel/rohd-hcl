@@ -49,7 +49,8 @@ void main() {
       count = count + i;
     }
     for (var radix = 2; radix < length; radix++) {
-      final prefixAdd = ReductionTreeGenerator(vec, radix: radix, addReduce);
+      final prefixAdd =
+          ReductionTreeGenerator<Logic, Logic>(vec, radix: radix, addReduce);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
@@ -68,8 +69,8 @@ void main() {
       count = count + i;
     }
     for (var radix = 2; radix < length; radix++) {
-      final prefixAdd =
-          ReductionTreeGenerator(vec, radix: radix, addReduce, clk: clk);
+      final prefixAdd = ReductionTreeGenerator<Logic, Logic>(
+          vec, radix: radix, addReduce, clk: clk);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
@@ -85,7 +86,7 @@ void main() {
       vec.add(Logic(width: width)..inject(i));
     }
     const radix = 4;
-    final prefixAdd = ReductionTreeGenerator(
+    final prefixAdd = ReductionTreeGenerator<Logic, Logic>(
         vec, radix: radix, addReduce, clk: clk, depthBetweenFlops: 1);
 
     unawaited(Simulator.run());
@@ -134,7 +135,7 @@ void main() {
       count = count + i;
     }
     final control = Logic(width: log2Ceil(vec.length))..put(0);
-    final muxTree = ReductionTreeGenerator(vec, muxReduce,
+    final muxTree = ReductionTreeGenerator<Logic, Logic>(vec, muxReduce,
         clk: clk, depthBetweenFlops: 2, control: control);
 
     final positions = [7, 4, 5, 6, 12, 0, 1010, 511, 212, 0, 789];
@@ -166,7 +167,7 @@ void main() {
       vec.add(Logic(width: width)..inject(i));
     }
     const reduce = 4;
-    final prefixAdd = ReductionTreeGenerator(
+    final prefixAdd = ReductionTreeGenerator<Logic, Logic>(
         vec, radix: reduce, addReduceAdders, clk: clk, depthBetweenFlops: 1);
 
     unawaited(Simulator.run());

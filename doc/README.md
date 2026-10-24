@@ -154,6 +154,7 @@ subcategory, and the confapp sidebar groups components accordingly.
   - [CAMs](./components/memory.md#cam)
   - [Shift register](./components/shift_register.md)
   - [Control/Status Registers (CSRs)](./components/csr.md)
+  - [Behavioral models](./components/behavioral_models.md)
 - Interfaces
   - [AXI](./components/amba/axi.md)
   - [LTI](./components/amba/lti.md)
@@ -177,6 +178,7 @@ subcategory, and the confapp sidebar groups components accordingly.
   - [Ready/Valid](./components/ready_valid_bfm.md)
   - [SPI](./components/spi_bfm.md)
   - [Memory Model](./components/memory.md#memory-models)
+  - [Behavioral models (RTL vs. software vs. SystemC)](./components/behavioral_models.md)
   - CXL
 
 ## Adding a New Component

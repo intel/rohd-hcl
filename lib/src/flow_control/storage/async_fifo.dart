@@ -48,7 +48,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 ///   depth: 16,
 /// );
 /// ```
-class AsyncFifo extends Module {
+class AsyncFifo<T extends Logic> extends Module {
   /// High if the FIFO is full and cannot accept new writes.
   ///
   /// This signal is in the write clock domain.
@@ -63,7 +63,7 @@ class AsyncFifo extends Module {
   ///
   /// This is the data that will be read when read enable is asserted.
   /// The data is valid when [empty] is low.
-  Logic get readData => output('readData');
+  T get readData => output('readData') as T;
 
   /// The depth of the FIFO (number of entries).
   ///
@@ -97,7 +97,7 @@ class AsyncFifo extends Module {
   Logic get _readEnable => input('readEnable');
 
   /// Write data input (write clock domain).
-  Logic get _writeData => input('writeData');
+  T get _writeData => input('writeData') as T;
 
   /// Address width for the FIFO memory.
   final int _addrWidth;
@@ -113,13 +113,16 @@ class AsyncFifo extends Module {
   /// - [readEnable]: Read enable signal (active high).
   /// - [depth]: Number of entries in the FIFO (must be power of 2).
   /// - [syncStages]: Number of synchronizer stages (default: 2).
+  ///
+  /// Payload ports and memory preserve [T]; CDC pointers remain bit vectors.
+  /// Use `AsyncFifo<Logic>` for scalar constant payloads.
   AsyncFifo({
     required Logic writeClk,
     required Logic readClk,
     required Logic writeReset,
     required Logic readReset,
     required Logic writeEnable,
-    required Logic writeData,
+    required T writeData,
     required Logic readEnable,
     required this.depth,
     this.syncStages = 2,
@@ -142,11 +145,11 @@ class AsyncFifo extends Module {
     addInput('writeReset', writeReset);
     addInput('readReset', readReset);
     addInput('writeEnable', writeEnable);
-    addInput('writeData', writeData, width: dataWidth);
+    writeData = addTypedInput('writeData', writeData);
     addInput('readEnable', readEnable);
 
     // Add outputs
-    addOutput('readData', width: dataWidth);
+    addTypedOutput('readData', writeData.cloneTyped);
     addOutput('full');
     addOutput('empty');
 
@@ -261,10 +264,10 @@ class AsyncFifo extends Module {
     full <= fullCondition;
 
     // Create memory storage using RegisterFile (dual-port RAM)
-    final wrPort = DataPortInterface(dataWidth, _addrWidth);
-    final rdPort = DataPortInterface(dataWidth, _addrWidth);
+    final wrPort = DataPortInterface<T>.typed(_writeData, _addrWidth);
+    final rdPort = DataPortInterface<T>.typed(_writeData, _addrWidth);
 
-    RegisterFile(
+    RegisterFile<T>(
       _writeClk,
       _writeReset,
       [wrPort],

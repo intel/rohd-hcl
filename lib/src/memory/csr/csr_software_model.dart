@@ -32,6 +32,9 @@ class CsrSoftwareModel
   final Map<int, (_CsrModelRegister, int)> _reads = {};
   final Map<int, (_CsrModelRegister, int)> _writes = {};
   final Map<int, CsrBackdoorInterface> _hardware = {};
+  final Map<int, ({Csr output, List<CsrFieldConfig> commands})> _hardwareReads =
+      {};
+  final Set<int> _commandHardware = {};
   final Map<Logic, LogicValue> _sampled = {};
   final Set<Logic> _deferred = {};
   final Set<Logic> _racing = {};
@@ -93,6 +96,20 @@ class CsrSoftwareModel
     _writes.addAll(description.writes.map((address, target) =>
         MapEntry(address, (_registers[target.$1.address]!, target.$2))));
     _hardware.addAll(hardware);
+    for (final entry in hardware.entries) {
+      if (!entry.value.hasRead) {
+        continue;
+      }
+      final register = _registers[entry.key]!;
+      final commands = register.config.fields
+          .where((field) => field.access == CsrFieldAccess.writeOnly)
+          .toList(growable: false);
+      _hardwareReads[entry.key] =
+          (output: entry.value.rdData!, commands: commands);
+      if (register.config.isFrontdoorWritable && commands.isNotEmpty) {
+        _commandHardware.add(entry.key);
+      }
+    }
     for (final signal in [
       _reset,
       if (frontWrite != null) ...[
@@ -141,10 +158,11 @@ class CsrSoftwareModel
       _cancelGlitches
           .add(frontRead.addr.glitch.listen((_) => _driveRead()).cancel);
     }
-    if (frontWrite != null) {
+    if (frontWrite != null && _commandHardware.isNotEmpty) {
       for (final signal in [frontWrite.en, frontWrite.addr, frontWrite.data]) {
-        _cancelGlitches
-            .add(signal.glitch.listen((_) => _driveHardware()).cancel);
+        _cancelGlitches.add(signal.glitch
+            .listen((_) => _driveHardware(_commandHardware))
+            .cancel);
       }
     }
     for (final entry in hardware.entries) {
@@ -211,7 +229,7 @@ class CsrSoftwareModel
     }
     register.value = value;
     _driveRead();
-    _driveHardware();
+    _driveHardware([address]);
   }
 
   /// Captures all register state, keyed by absolute logical register address.
@@ -238,7 +256,7 @@ class CsrSoftwareModel
       _registers[entry.key]!.value = entry.value;
     }
     _driveRead();
-    _driveHardware();
+    _driveHardware(replace ? null : values.keys);
   }
 
   void _resetState({bool unknown = false}) {
@@ -265,8 +283,10 @@ class CsrSoftwareModel
             _reset.value == LogicValue.one);
     _clockChanged = _resetChanged = false;
     _oldClock = _oldReset = null;
+    Iterable<int>? dirty = const [];
     if (invalid) {
       _resetState(unknown: true);
+      dirty = null;
     } else if (edge) {
       for (final signal in _racing) {
         if (signal != _reset || !description.asyncReset) {
@@ -282,19 +302,22 @@ class CsrSoftwareModel
       final reset = description.asyncReset ? _reset.value : _sampled[_reset]!;
       if (!reset.isValid) {
         _resetState(unknown: true);
+        dirty = null;
       } else if (reset == LogicValue.one) {
         _resetState();
+        dirty = null;
       } else {
-        _write();
+        dirty = _write();
       }
     }
     _driveRead();
-    _driveHardware();
+    _driveHardware(dirty);
   }
 
-  void _write() {
+  Set<int> _write() {
     final front = _frontWrite;
     final touched = <_CsrModelRegister>{};
+    final dirty = <int>{};
     if (front != null) {
       final enable = _sampled[front.en]!;
       final address = _sampled[front.addr]!;
@@ -304,6 +327,7 @@ class CsrSoftwareModel
           if (target != null) {
             final (entry, offset) = target;
             touched.add(entry);
+            dirty.add(entry.description.address);
             entry.value = enable.isValid
                 ? entry.write(_sampled[front.data]!, offset: offset)
                 : LogicValue.filled(entry.config.width, LogicValue.x);
@@ -312,6 +336,7 @@ class CsrSoftwareModel
           for (final entry
               in _writes.values.map((target) => target.$1).toSet()) {
             touched.add(entry);
+            dirty.add(entry.description.address);
             entry.value = LogicValue.filled(entry.config.width, LogicValue.x);
           }
         }
@@ -323,12 +348,14 @@ class CsrSoftwareModel
       if (!touched.contains(entry)) {
         final enable = _sampled[hardware.wrEn]!;
         if (enable != LogicValue.zero) {
+          dirty.add(address);
           entry.value = enable.isValid
               ? entry.write(_sampled[hardware.wrData]!, backdoor: true)
               : LogicValue.filled(entry.config.width, LogicValue.x);
         }
       }
     }
+    return dirty;
   }
 
   void _driveRead() {
@@ -351,18 +378,21 @@ class CsrSoftwareModel
     front.data.put(value & value);
   }
 
-  void _driveHardware() {
+  void _driveHardware([Iterable<int>? addresses]) {
     final front = _frontWrite;
     final target = front != null && front.addr.value.isValid
         ? _writes[front.addr.value.toInt()]
         : null;
-    for (final exposed in _hardware.entries) {
-      if (!exposed.value.hasRead) {
+    for (final address in addresses ?? _hardwareReads.keys) {
+      final exposed = _hardwareReads[address];
+      if (exposed == null) {
         continue;
       }
-      final entry = _registers[exposed.key]!;
+      final entry = _registers[address]!;
       var value = entry.value;
-      if (front != null && entry.config.isFrontdoorWritable) {
+      if (front != null &&
+          exposed.commands.isNotEmpty &&
+          entry.config.isFrontdoorWritable) {
         final register = entry.description;
         final address = front.addr.value;
         final inBlock = address.isValid
@@ -372,10 +402,7 @@ class CsrSoftwareModel
         final enable = front.en.value & inBlock;
         final offset = target?.$2 ?? 0;
         final count = min(front.dataWidth, entry.config.width - offset);
-        for (final field in entry.config.fields) {
-          if (field.access != CsrFieldAccess.writeOnly) {
-            continue;
-          }
+        for (final field in exposed.commands) {
           final unknown = !enable.isValid &&
                   (entry.config.width > front.dataWidth ||
                       !front.addr.value.isValid ||
@@ -400,15 +427,16 @@ class CsrSoftwareModel
           }
         }
       }
-      for (final field in entry.config.fields
-          .where((field) => field.access == CsrFieldAccess.writeOnly)) {
+      for (final field in exposed.commands) {
         // ROHD's mux propagates an invalid selected operand to the whole field.
         if (!value.getRange(field.start, field.start + field.width).isValid) {
           value = value.withSet(
               field.start, LogicValue.filled(field.width, LogicValue.x));
         }
       }
-      exposed.value.rdData!.put(value);
+      if (exposed.output.value != value) {
+        exposed.output.put(value);
+      }
     }
   }
 

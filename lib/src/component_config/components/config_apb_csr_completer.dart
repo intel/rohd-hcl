@@ -21,7 +21,7 @@ class ApbCsrCompleterConfigurator extends Configurator {
   String get subcategory => 'amba-endpoints';
 
   /// Width of APB and CSR addresses.
-  final IntConfigKnob addressWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob addressWidthKnob = PositiveIntConfigKnob(value: 16);
 
   /// Width of APB and CSR data.
   final ChoiceConfigKnob<int> dataWidthKnob = ChoiceConfigKnob(
@@ -30,25 +30,26 @@ class ApbCsrCompleterConfigurator extends Configurator {
   );
 
   /// Number of cycles before the completer responds.
-  final IntConfigKnob responseLatencyKnob = IntConfigKnob(value: 0);
+  final IntConfigKnob responseLatencyKnob = NonNegativeIntConfigKnob(value: 0);
 
   /// Whether to include the APB slave-error port.
   final ToggleConfigKnob includeSlvErrKnob = ToggleConfigKnob(value: false);
 
   /// Width of optional APB request-user data.
-  final IntConfigKnob userRequestWidthKnob = IntConfigKnob(value: 0);
+  final IntConfigKnob userRequestWidthKnob = NonNegativeIntConfigKnob(value: 0);
 
   /// Width of optional APB read/write user data.
-  final IntConfigKnob userDataWidthKnob = IntConfigKnob(value: 0);
+  final IntConfigKnob userDataWidthKnob = NonNegativeIntConfigKnob(value: 0);
 
   /// Width of optional APB response-user data.
-  final IntConfigKnob userResponseWidthKnob = IntConfigKnob(value: 0);
+  final IntConfigKnob userResponseWidthKnob =
+      NonNegativeIntConfigKnob(value: 0);
 
   /// Whether to include the APB wake-up port.
   final ToggleConfigKnob includeWakeupKnob = ToggleConfigKnob(value: false);
 
   /// Number of APB select signals.
-  final IntConfigKnob selectCountKnob = IntConfigKnob(value: 1);
+  final IntConfigKnob selectCountKnob = PositiveIntConfigKnob(value: 1);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

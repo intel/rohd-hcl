@@ -17,19 +17,19 @@ class _MultiCycleDividerState {
   static int width = 3;
 
   /// Ready for a new division.
-  static Const ready = Const(0, width: width);
+  static Logic ready = Const(0, width: width);
 
   /// Processing a current step in the algorithm.
-  static Const process = Const(1, width: width);
+  static Logic process = Const(1, width: width);
 
   /// Accumulating the result of a current step in the algorithm.
-  static Const accumulate = Const(2, width: width);
+  static Logic accumulate = Const(2, width: width);
 
   /// Converting the final result of the algorithm.
-  static Const convert = Const(3, width: width);
+  static Logic convert = Const(3, width: width);
 
   /// Division complete.
-  static Const done = Const(4, width: width);
+  static Logic done = Const(4, width: width);
 }
 
 /// Internal interface to the Divider.
@@ -136,13 +136,11 @@ class MultiCycleDivider extends Module {
         super(
             definitionName:
                 definitionName ?? 'MultiCycleDivider_W${interface.dataWidth}') {
-    intf = interface.clone()
-      ..pairConnectIO(
-        this,
-        interface,
-        PairRole.consumer,
-        uniquify: (original) => '${super.name}_$original',
-      );
+    intf = addPairInterfacePorts(
+      interface,
+      PairRole.consumer,
+      uniquify: (original) => '${super.name}_$original',
+    );
 
     _build();
   }

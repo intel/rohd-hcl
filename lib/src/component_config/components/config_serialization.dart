@@ -29,10 +29,10 @@ class SerializationConfigurator extends Configurator {
   );
 
   /// Controls the width of the input.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob inputWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Controls the length of the input.
-  final IntConfigKnob inputLengthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob inputLengthKnob = PositiveIntConfigKnob(value: 16);
 
   /// When available, controls whether to generate an error signal.
   final ToggleConfigKnob enableKnob = ToggleConfigKnob(value: false);
@@ -50,6 +50,7 @@ class SerializationConfigurator extends Configurator {
             reset: reset,
             definitionName: 'Serializer')
         : Deserializer(deserializeIn, inputLengthKnob.value,
+            valueCodec: LogicValueCodec.logicValue,
             enable: enableKnob.value ? enable : null,
             clk: clk,
             reset: reset,

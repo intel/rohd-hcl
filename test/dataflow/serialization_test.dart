@@ -122,7 +122,7 @@ void main() {
     await clk.nextPosedge;
     await clk.nextPosedge;
     start.inject(1);
-    final val = mod.serialized as LogicArray;
+    final val = mod.serialized;
     var predictedClk = 0;
     while (mod.done.value.toInt() != 1) {
       expect(val.elements[0].value.toInt(), equals(predictedClk * 2));
@@ -147,7 +147,10 @@ void main() {
     final mod = Serializer(dataIn, clk: clk, reset: reset, enable: start);
 
     final mod2 = Deserializer(mod.serialized, len,
-        clk: clk, reset: reset, enable: start);
+        valueCodec: LogicValueCodec.logicValue,
+        clk: clk,
+        reset: reset,
+        enable: start);
 
     await mod.build();
     await mod2.build();
@@ -226,8 +229,11 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final enable = Logic();
     final reset = Logic();
-    final mod =
-        Deserializer(dataIn, len, clk: clk, reset: reset, enable: enable);
+    final mod = Deserializer(dataIn, len,
+        valueCodec: LogicValueCodec.logicValue,
+        clk: clk,
+        reset: reset,
+        enable: enable);
 
     await mod.build();
     unawaited(Simulator.run());
@@ -282,8 +288,11 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final enable = Logic();
     final reset = Logic();
-    final mod =
-        Deserializer(dataIn, len, clk: clk, reset: reset, enable: enable);
+    final mod = Deserializer(dataIn, len,
+        valueCodec: LogicValueCodec.logicValue,
+        clk: clk,
+        reset: reset,
+        enable: enable);
     await mod.build();
     unawaited(Simulator.run());
 
@@ -355,7 +364,11 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final last = Logic();
     final reset = Logic();
-    final mod = Deserializer(dataIn, len, clk: clk, reset: reset, last: last);
+    final mod = Deserializer(dataIn, len,
+        valueCodec: LogicValueCodec.logicValue,
+        clk: clk,
+        reset: reset,
+        last: last);
     await mod.build();
     unawaited(Simulator.run());
 
@@ -460,7 +473,8 @@ void main() {
     final dataIn = Logic(width: width);
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
-    final deserializer = Deserializer(dataIn, len, clk: clk, reset: reset);
+    final deserializer = Deserializer(dataIn, len,
+        valueCodec: LogicValueCodec.logicValue, clk: clk, reset: reset);
 
     await deserializer.build();
     final firstDeserializerDone = deserializer.done |
@@ -471,7 +485,10 @@ void main() {
     await serializer.build();
     final serializerStart = firstDeserializerDone;
     final deserializer2 = Deserializer(serializer.serialized, len,
-        clk: clk, reset: reset, enable: serializerStart);
+        valueCodec: LogicValueCodec.logicValue,
+        clk: clk,
+        reset: reset,
+        enable: serializerStart);
 
     await deserializer2.build();
     unawaited(Simulator.run());

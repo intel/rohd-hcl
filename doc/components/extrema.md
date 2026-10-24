@@ -1,8 +1,9 @@
 # Extrema
 
-ROHD-HCL provides a component to find the extrema of a list of Logic.
+ROHD-HCL provides a component to find the extrema of a list of typed payloads.
 
-The component `Extrema` will determine an extrema (maximum or minimum) and their position in a list of `Logic`s.
+The component `Extrema<T>` determines an extremum (maximum or minimum) and its
+position, retaining the selected payload type in `val`.
 
 ## Description
 
@@ -10,7 +11,7 @@ The component `Extrema` will determine an extrema (maximum or minimum) and their
 
 * `max` is a boolean indicating whether to find the maximum value (`true`), or the minimum value (`false`). Default is `true`.
 
-`Extrema` will then ouput two `Logic` signals:
+`Extrema` outputs a scalar `index` and a typed `val`:
 
 * `index` The index or position of the first extrema in the list.
 
@@ -20,11 +21,35 @@ The component `Extrema` will determine an extrema (maximum or minimum) and their
 
 * `val` The value of the extrema.
 
-  * `val` will be a `Logic` with a width equal to the largest width of any element in the list.
+  * For ordinary `Logic` inputs, `val` has the largest input width.
+  * For structured inputs, `val` retains the complete payload schema.
 
 The `List<Logic>` may contain `Logic`s of any width. They will all be considered positive unsigned numbers.
 
 `Extrema` will throw an exception if the `Logic` list is empty.
+
+## Typed Comparisons
+
+The default comparison calls the payload's `lt` method: plain `Logic` remains
+unsigned, while floating-point and signed fixed-point payloads use numeric
+ordering. Structured inputs must have matching recursive layouts, including
+array dimensions, unpacked dimensions, enum mappings, and typed-array codecs.
+
+Supply a strict one-bit `isLessThan` comparator to select by record fields:
+
+```dart
+final best = Extrema<Sample>(samples,
+    isLessThan: (a, b) => a.key.lt(b.key));
+final Sample selected = best.val;
+```
+
+The reduction carries the index alongside the whole typed payload, without
+concatenating and slicing it. Equal keys retain the earliest original index.
+`radix` controls the balanced reduction's branching factor (default 2).
+
+Pass `.packed` representations when unsigned packed-bit ordering is desired
+for domain-specific signals. For scalar constants, explicitly request
+`Extrema<Logic>(...)` so mutable ports are not inferred as `Const`.
 
 ## Example Usage
 

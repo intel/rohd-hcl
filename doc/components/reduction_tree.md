@@ -1,5 +1,31 @@
 # Reduction Tree
 
+## Typed data and control
+
+`ReductionTree<T, C>` and `ReductionTreeGenerator<T, C>` retain the data type
+`T` and optional control type `C`, including structures, enum mappings, and
+typed-array shapes/codecs. Their `out` and `controlOut` handles are typed, and
+pipelined payloads retain their schemas across enable stalls and resets.
+
+Operations have this signature:
+
+```dart
+T operation(List<T> inputs, {int depth, C? control, String name});
+```
+
+`T` describes a signal family, not a fixed bit width. A typed operation may
+produce a wider format and align its own fields at the next node. Structures
+and enums are never automatically flattened or bit-extended. Plain `Logic`
+reductions retain their existing sign/zero-extension behavior. An operation
+must also handle a singleton on an unbalanced branch.
+
+For bit-oriented callbacks and scalar constants, explicitly use
+`ReductionTree<Logic, Logic>(...)` or
+`ReductionTreeGenerator<Logic, Logic>(...)`. Pass `.packed` inputs when packed
+bit arithmetic rather than the payload's domain operations is intended.
+
+## Bit-oriented reductions
+
 The `ReductionTree` component is a general tree generator that allows for arbitrary radix or tree-branching factor in the computation.  It takes a sequence of `Logic` values and performs a specified operation at each node of the tree, taking in 'radix' inputs and producing one output.  If the operation widens the output (say in addition), then the `ReductionTree` will widen values using either sign-extension or zero-extension as specified.
 
 The input sequence is provided in the form 'List\<Logic\>'.  The operation must be provided in the form:

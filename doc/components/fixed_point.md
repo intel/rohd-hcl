@@ -1,5 +1,15 @@
 # Fixed-Point Arithmetic
 
+`FixedPointSqrt<T>` preserves the concrete fixed-point signal subtype of its
+input in `sqrt`. `FixedToFloat<T>` similarly preserves the supplied
+floating-point output schema in `float`; for example, supplying a
+`FloatingPoint32` produces a statically typed `FloatingPoint32` output. These
+typed handles do not change the converters' rounding or numeric format support.
+
+Signal comparisons `lt`, `lte`, `gt`, and `gte` respect signed two's-complement
+ordering, including comparisons between negative values and across signs.
+They can be used directly by typed sort comparators.
+
 Fixed-point binary representation of numbers is useful several applications including digital signal processing and embedded systems. As a first step towards enabling fixed-point components, we created a new value system [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) similar to [LogicValue](https://intel.github.io/rohd/rohd/LogicValue-class.html).
 
 ## FixedPointValue
@@ -70,9 +80,31 @@ discarded fractional bits are handled. It defaults to
 behavior; other supported modes include round-to-nearest-even and directed
 rounding.
 
+`FloatToFixed<T extends FixedPoint>` optionally accepts `outFixed` to preserve
+a specialized signed fixed-point subtype in its internal result and public
+output. The supplied signal is cloned for the internal schema and driven by
+the converter's output:
+
+```dart
+final converter = FloatToFixed(source, outFixed: SignedQ3p4());
+final SignedQ3p4 result = converter.fixed;
+```
+
+The schema supplies the integer/fraction widths. Explicit width arguments, if
+also given, must match it. Unsigned schemas are rejected because this converter
+produces signed two's-complement results. A specialized type argument requires
+an `outFixed` schema. Without one, ordinary `FloatToFixed(source, ...)` calls
+still produce `FixedPoint` with the existing default sizing and rounding.
+Bit shifts and magnitude arithmetic remain bit-oriented.
+
 ## Float8ToFixed
 
 This component converts an 8-bit floating-point (FP8) representation ([FloatingPoint8E4M3Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E4M3Value-class.html) or [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html)) to a signed fixed-point representation. This component offers using the same hardware for both FP8 formats. Therefore, both input and output are of type [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) and can be cast from/to floating point/fixed point by the producer/consumer based on the selected `mode`. Infinities and NaN's are not supported. The output width is 33bits to accommodate [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html) without loss.
+
+Structured FP8 inputs now retain their runtime schema on the input port.
+The output intentionally remains `Logic`: its binary-point position changes
+with `mode`, so one fixed-point schema cannot describe both runtime formats.
+Use `q23p9` or `q16p16` for the corresponding typed views.
 
 ## FixedPointSqrt
 

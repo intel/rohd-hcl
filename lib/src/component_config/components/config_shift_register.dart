@@ -21,10 +21,10 @@ class ShiftRegisterConfigurator extends Configurator {
   String get subcategory => 'sequential';
 
   /// Width of the data input and output.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Number of shift stages.
-  final IntConfigKnob depthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob depthKnob = NonNegativeIntConfigKnob(value: 4);
 
   /// Whether to generate an enable input.
   final ToggleConfigKnob includeEnableKnob = ToggleConfigKnob(value: false);

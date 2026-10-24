@@ -103,33 +103,30 @@ class ClockGate extends Module {
   ///
   /// If a [resetValue] is provided, then the signal will be reset to that value
   /// when the clock gating is reset.
-  Logic controlled(Logic original, {dynamic resetValue}) {
+  ///
+  /// Preserves payload type [T] and its width. Use [Logic] for scalar constants
+  /// when a driveable delayed output is required.
+  T controlled<T extends Logic>(T original, {dynamic resetValue}) {
     if (!isPresent || !delayControlledSignals) {
       return original;
     }
 
-    if (_controlledCache.containsKey(original)) {
-      return _controlledCache[original]!;
-    } else {
-      final o = super.addOutput(
-          _uniquifier.getUniqueName(initialName: '${original.name}_delayed'));
-
-      _controlledCache[original] = o;
-
-      o <=
-          flop(
-            _freeClk,
-            reset: _reset,
-            resetValue: resetValue,
-            super.addInput(
-              _uniquifier.getUniqueName(initialName: original.name),
-              original,
-              width: original.width,
-            ),
-          );
-
-      return o;
+    final cached = _controlledCache[original];
+    if (cached != null) {
+      if (cached is! T) {
+        throw ArgumentError('The cached controlled signal is not a $T. '
+            'Use Logic for scalar constant payloads.');
+      }
+      return cached;
     }
+    final input = super.addTypedInput<T>(
+        _uniquifier.getUniqueName(initialName: original.name), original);
+    final result = super.addTypedOutput<T>(
+        _uniquifier.getUniqueName(initialName: '${original.name}_delayed'),
+        input.cloneTyped);
+    result <= flop(_freeClk, input, reset: _reset, resetValue: resetValue);
+    _controlledCache[original] = result;
+    return result;
   }
 
   /// A uniquifier for ports to ensure that they are unique as they punch via
@@ -232,8 +229,7 @@ class ClockGate extends Module {
       // configuration
       _controlIntf = ClockGateControlInterface();
     } else {
-      _controlIntf = controlIntf.clone()
-        ..pairConnectIO(this, controlIntf, PairRole.consumer);
+      _controlIntf = addPairInterfacePorts(controlIntf, PairRole.consumer);
     }
 
     gatedClk = addOutput('gatedClk');

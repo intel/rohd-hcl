@@ -29,16 +29,16 @@ class FixedToFloatConfigurator extends Configurator {
   );
 
   /// Width of integer part.
-  final IntConfigKnob integerWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob integerWidthKnob = NonNegativeIntConfigKnob(value: 8);
 
   /// Width of fractional part.
-  final IntConfigKnob fractionWidthKnob = IntConfigKnob(value: 23);
+  final IntConfigKnob fractionWidthKnob = NonNegativeIntConfigKnob(value: 23);
 
   /// Width of exponent, must be greater than 0.
-  final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob exponentWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of mantissa, must be greater than 0.
-  final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 23);
+  final IntConfigKnob mantissaWidthKnob = PositiveIntConfigKnob(value: 23);
 
   /// Whether the output format includes an explicit J bit.
   final ToggleConfigKnob outputExplicitJBitKnob = ToggleConfigKnob(

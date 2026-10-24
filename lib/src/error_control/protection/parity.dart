@@ -12,7 +12,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Encode data to transport with Parity bits
-class ParityTransmitter extends ErrorCheckingTransmitter {
+class ParityTransmitter<T extends Logic> extends ErrorCheckingTransmitter<T> {
   /// Creates a transmitter that sends data with a parity bit.
   ParityTransmitter(super.data,
       {super.name = 'parity_tx',
@@ -30,13 +30,14 @@ class ParityTransmitter extends ErrorCheckingTransmitter {
 }
 
 /// Check for error & Receive data on transmitted data via parity
-class ParityReceiver extends ErrorCheckingReceiver {
+class ParityReceiver<T extends Logic> extends ErrorCheckingReceiver<T> {
   /// Constructs a [Module] which checks data that has been transmitted with
   /// correct parity. This will split the transmitted data in [transmission]
   /// into 2 parts: the [originalData], and the error bit upon which [error] is
   /// calculated for parity error checking.
   ParityReceiver(super.transmission,
       {super.name = 'parity_rx',
+      super.dataSchema,
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
@@ -52,9 +53,9 @@ class ParityReceiver extends ErrorCheckingReceiver {
 
   @override
   @protected
-  Logic? calculateCorrectedData() => null;
+  T? calculateCorrectedData() => null;
 
   @override
   @protected
-  Logic calculateUncorrectableError() => ~originalData.xor().eq(code);
+  Logic calculateUncorrectableError() => ~rawData.xor().eq(code);
 }

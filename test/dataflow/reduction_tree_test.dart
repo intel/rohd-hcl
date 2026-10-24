@@ -54,7 +54,8 @@ void main() {
       count = count + i;
     }
     for (var radix = 2; radix < length; radix++) {
-      final prefixAdd = ReductionTree(vec, radix: radix, addReduce);
+      final prefixAdd =
+          ReductionTree<Logic, Logic>(vec, radix: radix, addReduce);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
@@ -72,10 +73,10 @@ void main() {
     }
     const controlValue = 14;
     final control = Const(controlValue, width: log2Ceil(vec.length));
-    final muxTree =
-        ReductionTree(vec, muxReduce, control: control, name: 'mux');
+    final muxTree = ReductionTree<Logic, Logic>(vec, muxReduce,
+        control: control, name: 'mux');
     await muxTree.build();
-    File('mux_tree.sv').writeAsStringSync(muxTree.generateSynth());
+    File('mux_tree.sv').writeAsStringSync(muxTree.dumpSystemVerilog());
   });
 
   test('reduction tree of muxes -- large flopped', () async {
@@ -91,7 +92,7 @@ void main() {
       count = count + i;
     }
     final control = Logic(width: log2Ceil(vec.length))..put(0);
-    final muxTree = ReductionTree(vec, muxReduce,
+    final muxTree = ReductionTree<Logic, Logic>(vec, muxReduce,
         clk: clk, depthBetweenFlops: 2, control: control, name: 'mux');
 
     final positions = [7, 4, 5, 6, 12, 0, 1010, 511, 212, 0, 789];
@@ -125,7 +126,8 @@ void main() {
       count = count + i;
     }
     for (var radix = 2; radix < length; radix++) {
-      final prefixAdd = ReductionTree(vec, radix: radix, addReduce, clk: clk);
+      final prefixAdd =
+          ReductionTree<Logic, Logic>(vec, radix: radix, addReduce, clk: clk);
       expect(prefixAdd.out.value.toInt(), equals(count));
     }
   });
@@ -141,7 +143,7 @@ void main() {
       vec.add(Logic(width: width)..inject(i));
     }
     const radix = 4;
-    final prefixAdd = ReductionTree(
+    final prefixAdd = ReductionTree<Logic, Logic>(
         vec,
         radix: radix,
         addReduce,
@@ -192,7 +194,7 @@ void main() {
       vec.add(Logic(width: width)..inject(i));
     }
     const reduce = 4;
-    final prefixAdd = ReductionTree(
+    final prefixAdd = ReductionTree<Logic, Logic>(
         vec, radix: reduce, addReduceAdders, clk: clk, depthBetweenFlops: 1);
 
     await prefixAdd.build();

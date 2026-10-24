@@ -55,7 +55,7 @@ void main() {
     await dut.build();
 
     if (dumpWaves) {
-      WaveDumper(dut);
+      dut.dumpWaves();
     }
 
     if (doChecks) {

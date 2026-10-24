@@ -30,7 +30,7 @@ class OneHotConfigurator extends Configurator {
   );
 
   /// Controls the width of the input.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob inputWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// When available, controls whether to generate an error signal.
   final ToggleConfigKnob generateErrorKnob = ToggleConfigKnob(value: false);

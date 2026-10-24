@@ -225,7 +225,7 @@ void main() {
           top.outputs.map((key, value) => MapEntry(key, value.width)));
       expect(generateBehavioralSystemC(top, 'Portable'),
           model.generateSystemC(className: 'Portable'));
-      expect(top.generateSynth, throwsUnsupportedError);
+      expect(top.dumpSystemVerilog, throwsUnsupportedError);
     }
     expect(generateBehavioralSystemC(Object(), 'Unrelated'), isNull);
   });

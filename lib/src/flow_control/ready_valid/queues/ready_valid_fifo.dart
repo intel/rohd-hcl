@@ -3,7 +3,7 @@
 //
 // ready_valid_fifo.dart
 // Generic ready/valid FIFO module that pipes a [ReadyValidInterface] of a
-// [LogicStructure]-derived type through an internal [Fifo] instance.
+// [Logic]-derived type through an internal [Fifo] instance.
 //
 // 2025 October 21
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -14,14 +14,13 @@ import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.da
 import 'package:rohd_hcl/src/flow_control/control/fifo_core_functor.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
 import 'package:rohd_hcl/src/flow_control/storage/fifo.dart';
-import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
 
 /// A simple generic module that wires a single upstream and downstream
 /// [ReadyValidInterface] for a given [LogicType] through an internal
 /// [Fifo] instance.
 ///
 ///  The internal FIFO will buffer values of the  type parameter [LogicType].
-class ReadyValidFifo<LogicType extends LogicStructure> extends Module {
+class ReadyValidFifo<LogicType extends Logic> extends Module {
   /// Upstream interface accepted by this FIFO.
   late final ReadyValidInterface<LogicType> upstream;
 
@@ -64,19 +63,19 @@ class ReadyValidFifo<LogicType extends LogicStructure> extends Module {
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
 
-    this.upstream = addPairInterface(
+    this.upstream = addPairInterfacePorts(
       upstream,
       PairRole.consumer,
       uniquify: (original) => 'upstream_$original',
     );
-    this.downstream = addPairInterface(
+    this.downstream = addPairInterfacePorts(
       downstream,
       PairRole.provider,
       uniquify: (original) => 'downstream_$original',
     );
 
     // Use the upstream data shape as a template for FIFO element.
-    final writeData = this.upstream.data.clone() as LogicType;
+    final writeData = this.upstream.data.cloneTyped();
     final binding = FifoCoreFunctor<LogicType>(
       depth: depth,
       generateOccupancy: true,

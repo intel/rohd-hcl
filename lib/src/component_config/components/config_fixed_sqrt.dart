@@ -19,10 +19,10 @@ class FixedPointSqrtConfigurator extends Configurator {
   String get subcategory => 'division-and-roots';
 
   /// Controls the size of the integer 'm'.
-  final IntConfigKnob integerWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob integerWidthKnob = NonNegativeIntConfigKnob(value: 8);
 
   /// Controls the size of the fraction 'n'.
-  final IntConfigKnob fractionWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob fractionWidthKnob = NonNegativeIntConfigKnob(value: 4);
 
   @override
   Module createModule() {

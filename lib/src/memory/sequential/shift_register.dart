@@ -11,15 +11,16 @@ import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A shift register with configurable width and depth and optional enable and
-/// reset.
-class ShiftRegister extends Module with ResettableEntries {
+/// reset, preserving the payload type [T] at every stage.
+class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
   /// The number of stages in this shift register.
   final int depth;
 
   /// The main output of the shift register after going through all the stages.
-  Logic get dataOut => output('${dataName}_out');
+  T get dataOut => output('${dataName}_out') as T;
 
   /// The width of the data passing through this shfit register.
   final int width;
@@ -28,8 +29,8 @@ class ShiftRegister extends Module with ResettableEntries {
   /// the input data after passing through `n + 1` flops.
   ///
   /// The length is equal to [depth]. The last entry is the same as [dataOut].
-  late final List<Logic> stages =
-      UnmodifiableListView(List.generate(depth, (i) => output(_stageName(i))));
+  late final List<T> stages = UnmodifiableListView(
+      List.generate(depth, (i) => output(_stageName(i)) as T));
 
   /// The name of the signal (and output pin) for the [i]th stage.
   String _stageName(int i) => '${dataName}_stage_$i';
@@ -44,8 +45,11 @@ class ShiftRegister extends Module with ResettableEntries {
   /// aynchronously if [asyncReset] is `true`. The [reset] will reset all stages
   /// to a default of `0` or to the provided [resetValue]. If [resetValue] is a
   /// [List] the stages will reset to the corresponding value in the list.
+  /// When both reset and payload are structured, their layouts must match.
+  /// Scalar constants used as [dataIn] require `ShiftRegister<Logic>` for
+  /// driveable ports.
   ShiftRegister(
-    Logic dataIn, {
+    T dataIn, {
     required Logic clk,
     required this.depth,
     Logic? enable,
@@ -63,10 +67,10 @@ class ShiftRegister extends Module with ResettableEntries {
             definitionName: definitionName ??
                 'ShiftRegister_W${dataIn.width}'
                     '_D$depth') {
-    dataIn = addInput('${dataName}_in', dataIn, width: width);
+    dataIn = addTypedInput('${dataName}_in', dataIn);
     clk = addInput('clk', clk);
 
-    addOutput('${dataName}_out', width: width);
+    addTypedOutput('${dataName}_out', dataIn.cloneTyped);
 
     final Map<Logic, dynamic>? resetValues;
     final List<Logic>? resetValueList;
@@ -75,6 +79,14 @@ class ShiftRegister extends Module with ResettableEntries {
       reset = addInput('reset', reset);
       resetValueList =
           makeResetValues(resetValue, numEntries: depth, entryWidth: width);
+      for (final value in resetValueList) {
+        if ((dataIn is LogicStructure || dataIn is LogicEnum) &&
+            (value is LogicStructure || value is LogicEnum) &&
+            !sameDeclaredPayloadShape(dataIn, value)) {
+          throw RohdHclException(
+              'ShiftRegister reset signal layout must match the payload.');
+        }
+      }
       resetValues = {};
     } else {
       resetValueList = null;
@@ -85,7 +97,7 @@ class ShiftRegister extends Module with ResettableEntries {
     var conds = <Conditional>[];
 
     for (var i = 0; i < depth; i++) {
-      final stageI = addOutput(_stageName(i), width: width);
+      final stageI = addTypedOutput(_stageName(i), dataIn.cloneTyped);
       conds.add(stageI < dataStage);
 
       resetValues?[stageI] = resetValueList![i];

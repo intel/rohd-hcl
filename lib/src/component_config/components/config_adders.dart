@@ -21,7 +21,7 @@ class OnesComplementAdderConfigurator extends Configurator {
   String get subcategory => 'addition';
 
   /// Width of each magnitude input.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Static or runtime subtraction configuration.
   final StaticOrRuntimeBoolKnob subtractKnob = StaticOrRuntimeBoolKnob();
@@ -73,7 +73,7 @@ class SignMagnitudeAdderConfigurator extends Configurator {
   String get subcategory => 'addition';
 
   /// Width of each magnitude input.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Sign-magnitude implementation to instantiate.
   final ChoiceConfigKnob<SignMagnitudeAdderImplementation> implementationKnob =
@@ -143,10 +143,10 @@ class CarrySelectOnesComplementCompoundAdderConfigurator extends Configurator {
   String get subcategory => 'addition';
 
   /// Width of each addend.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Size of each carry-select block.
-  final IntConfigKnob blockWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob blockWidthKnob = PositiveIntConfigKnob(value: 4);
 
   /// Static or runtime subtraction configuration.
   final StaticOrRuntimeBoolKnob subtractKnob = StaticOrRuntimeBoolKnob();

@@ -60,7 +60,7 @@ class _ConsumerPortHarness extends Module {
   late final ReadyValidInterface<_Packet> channel;
 
   _ConsumerPortHarness(ReadyValidInterface<_Packet> source) {
-    channel = addPairInterface(
+    channel = addPairInterfacePorts(
       source,
       PairRole.consumer,
       uniquify: (original) => 'channel_$original',
@@ -72,7 +72,7 @@ class _ProviderPortHarness extends Module {
   late final ReadyValidInterface<_Packet> channel;
 
   _ProviderPortHarness(ReadyValidInterface<_Packet> source) {
-    channel = addPairInterface(
+    channel = addPairInterfacePorts(
       source,
       PairRole.provider,
       uniquify: (original) => 'channel_$original',
@@ -129,12 +129,12 @@ class _SourceCloneHarness extends Module {
         ? const {PairDirection.fromConsumer}
         : const {PairDirection.fromProvider};
     channel = switch (helper) {
-      _RegistrationHelper.pair => addPairInterface(
+      _RegistrationHelper.pair => addPairInterfacePorts(
           source,
           role,
           uniquify: uniquify,
         ),
-      _RegistrationHelper.tagged => addInterface(
+      _RegistrationHelper.tagged => addInterfacePorts(
           source,
           inputTags: inputTags,
           outputTags: outputTags,
@@ -181,7 +181,7 @@ class _ExtendedPortHarness extends Module {
     _ExtendedReadyValidInterface source,
     PairRole role,
   ) {
-    channel = addPairInterface(
+    channel = addPairInterfacePorts(
       source,
       role,
       uniquify: (original) => 'channel_$original',
@@ -216,7 +216,7 @@ class _ReadyThenAdapterHarness extends Module {
     required ReadyThenValidInterface<_Packet> upstream,
     required ReadyAndValidInterface<_Packet> downstream,
   }) : super(definitionName: 'ReadyThenAdapterHarness') {
-    final localUpstream = addPairInterface(
+    final localUpstream = addPairInterfacePorts(
       upstream,
       PairRole.consumer,
       uniquify: (original) => 'upstream_$original',
@@ -448,11 +448,11 @@ void main() {
 
       await harness.build();
       expect(
-        harness.generateSynth(),
+        harness.dumpSystemVerilog(),
         contains('input logic [9:0] channel_packet'),
       );
-      expect(harness.generateSynth(), contains('packet_data'));
-      expect(harness.generateSynth(), contains('packet_tag'));
+      expect(harness.dumpSystemVerilog(), contains('packet_data'));
+      expect(harness.dumpSystemVerilog(), contains('packet_tag'));
     });
 
     test('retains typed structure ports as provider', () async {
@@ -466,11 +466,11 @@ void main() {
 
       await harness.build();
       expect(
-        harness.generateSynth(),
+        harness.dumpSystemVerilog(),
         contains('output logic [9:0] channel_packet'),
       );
-      expect(harness.generateSynth(), contains('packet_data'));
-      expect(harness.generateSynth(), contains('packet_tag'));
+      expect(harness.dumpSystemVerilog(), contains('packet_data'));
+      expect(harness.dumpSystemVerilog(), contains('packet_tag'));
     });
 
     for (final role in PairRole.values) {
@@ -509,7 +509,7 @@ void main() {
           );
 
           await harness.build();
-          final systemVerilog = harness.generateSynth();
+          final systemVerilog = harness.dumpSystemVerilog();
           final payloadDirection =
               role == PairRole.consumer ? 'input' : 'output';
           final readyDirection = role == PairRole.consumer ? 'output' : 'input';
@@ -580,7 +580,7 @@ void main() {
               );
 
               await harness.build();
-              final systemVerilog = harness.generateSynth();
+              final systemVerilog = harness.dumpSystemVerilog();
               final providerDirection =
                   role == PairRole.consumer ? 'input' : 'output';
               final readyDirection =
@@ -635,7 +635,7 @@ void main() {
       expect(harness.outputs.keys, contains('channel_ready'));
 
       await harness.build();
-      final systemVerilog = harness.generateSynth();
+      final systemVerilog = harness.dumpSystemVerilog();
       expect(systemVerilog, contains('input logic channel_last'));
       expect(
         systemVerilog,
@@ -663,7 +663,7 @@ void main() {
       expect(harness.outputs['channel_packet'], isA<_Packet>());
 
       await harness.build();
-      final systemVerilog = harness.generateSynth();
+      final systemVerilog = harness.dumpSystemVerilog();
       expect(systemVerilog, contains('output logic channel_last'));
       expect(
         systemVerilog,
@@ -681,7 +681,7 @@ void main() {
       );
 
       await harness.build();
-      final systemVerilog = harness.generateSynth();
+      final systemVerilog = harness.dumpSystemVerilog();
       expect(systemVerilog, contains('Fifo_D2_W10'));
       expect(systemVerilog, contains('ReadyThenAdapterHarness'));
     });

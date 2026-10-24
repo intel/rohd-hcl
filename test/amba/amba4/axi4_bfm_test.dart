@@ -1394,7 +1394,7 @@ void main() {
     if (dumpWaves) {
       final mod = Axi4Subordinate(axi4BfmTest.sIntf, axi4BfmTest.lanes);
       await mod.build();
-      WaveDumper(mod);
+      mod.dumpWaves();
     }
 
     await axi4BfmTest.start();

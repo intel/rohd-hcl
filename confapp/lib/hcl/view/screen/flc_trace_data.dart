@@ -9,12 +9,36 @@
 
 import 'dart:convert';
 
+import 'package:rohd/rohd.dart' show SystemVerilogService, TraceService;
 import 'package:rohd_source_navigator/flc_data.dart';
+
+/// Generates source navigation for Confapp's bundled HCL sources.
+///
+/// The root is a logical namespace, not a filesystem directory. Explicit
+/// package resolution avoids dart:io, while retaining the lib/src paths that
+/// Confapp maps to its assets/rohd_src bundle. The same SV service supplies
+/// both displayed text and file-global output positions.
+FlcData? bundledSourceFlcData(SystemVerilogService svService) {
+  final trace = TraceService(
+    svService.module,
+    svService: svService,
+    packageRoot: '/rohd_hcl',
+    register: false,
+  ).singleFileFlcHierarchy(
+    '${svService.module.definitionName}.sv',
+    packageMap: const {'rohd_hcl': '/rohd_hcl/lib'},
+  );
+  if (trace == null) {
+    return null;
+  }
+  final data = FlcData.fromJson(Map<String, dynamic>.from(trace));
+  return data.isEmpty ? null : data;
+}
 
 /// Returns source trace data embedded in [netlistJson], when present.
 ///
-/// ROHD 0.6.11 does not emit `rohd.src_trace` attributes. Trace-enabled future
-/// ROHD releases can provide them without requiring a Confapp API change.
+/// ROHD emits `rohd.src_trace` attributes when source tracing is active during
+/// module construction and netlist synthesis is configured to include traces.
 FlcData? embeddedFlcDataFromNetlistJson(String netlistJson) {
   final decoded = jsonDecode(netlistJson);
   if (decoded is! Map) {

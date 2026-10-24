@@ -44,7 +44,7 @@ Future<void> main() async {
           List.generate(3, (index) => Const(index + 1, width: dataWidth));
 
       expect(() {
-        BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+        BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });
 
@@ -55,7 +55,7 @@ Future<void> main() async {
       final toSort = <Logic>[];
 
       expect(() {
-        BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+        BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });
 
@@ -65,7 +65,8 @@ Future<void> main() async {
 
       final toSort = <Logic>[Const(20, width: 8)];
 
-      final topMod = BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+      final topMod =
+          BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
       await topMod.build();
 
       reset.inject(0);
@@ -93,7 +94,7 @@ Future<void> main() async {
       ];
 
       expect(() {
-        BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+        BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
       }, throwsA((dynamic e) => e is RohdHclException));
     });
 
@@ -110,7 +111,7 @@ Future<void> main() async {
             16, (index) => Const(16 - index - 1, width: dataWidth));
 
         final topMod =
-            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+            BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
         await topMod.build();
 
         reset.inject(0);
@@ -143,7 +144,7 @@ Future<void> main() async {
         });
 
         final topMod =
-            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+            BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
         await topMod.build();
 
         reset.inject(0);
@@ -181,7 +182,7 @@ Future<void> main() async {
         }
 
         final topMod =
-            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+            BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
         await topMod.build();
 
         reset.inject(0);
@@ -214,7 +215,7 @@ Future<void> main() async {
         ];
 
         final topMod =
-            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+            BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
         await topMod.build();
 
         reset.inject(0);
@@ -248,7 +249,7 @@ Future<void> main() async {
         final toSort = <Logic>[a, b, c, d];
 
         final topMod =
-            BitonicSort(clk, reset, toSort: toSort, name: 'top_level');
+            BitonicSort<Logic>(clk, reset, toSort: toSort, name: 'top_level');
 
         await topMod.build();
 
@@ -306,7 +307,7 @@ Future<void> main() async {
         final toSort =
             List.generate(16, (index) => Const(index + 1, width: dataWidth));
 
-        final topMod = BitonicSort(clk, reset,
+        final topMod = BitonicSort<Logic>(clk, reset,
             isAscending: false, toSort: toSort, name: 'top_level');
         await topMod.build();
 
@@ -339,7 +340,7 @@ Future<void> main() async {
           return Const(number, width: dataWidth);
         });
 
-        final topMod = BitonicSort(clk, reset,
+        final topMod = BitonicSort<Logic>(clk, reset,
             toSort: toSort, name: 'top_level', isAscending: false);
         await topMod.build();
 
@@ -377,7 +378,7 @@ Future<void> main() async {
           toSort.add(Const(num, width: dataWidth));
         }
 
-        final topMod = BitonicSort(clk, reset,
+        final topMod = BitonicSort<Logic>(clk, reset,
             toSort: toSort, name: 'top_level', isAscending: false);
         await topMod.build();
 
@@ -411,7 +412,7 @@ Future<void> main() async {
           Const(8, width: dataWidth),
         ];
 
-        final topMod = BitonicSort(clk, reset,
+        final topMod = BitonicSort<Logic>(clk, reset,
             toSort: toSort, isAscending: false, name: 'top_level');
         await topMod.build();
 
@@ -445,7 +446,7 @@ Future<void> main() async {
         final d = Logic(name: 'in_4', width: dataWidth);
         final toSort = <Logic>[a, b, c, d];
 
-        final topMod = BitonicSort(clk, reset,
+        final topMod = BitonicSort<Logic>(clk, reset,
             toSort: toSort, name: 'top_level', isAscending: false);
 
         await topMod.build();

@@ -110,7 +110,8 @@ extension CsrModelSystemC on CsrModelDescription {
         ..writeln('    value=sc_dt::sc_lv<W>(0); return true;')
         ..writeln('  }');
     }
-    void writeOutput(String port, int width, String value) {
+    void writeOutput(String port, int width, String value,
+        {String? diagnosticName}) {
       if (twoStatePorts) {
         final converted = width == 1
             ? 'visible[0].to_bool()'
@@ -119,7 +120,8 @@ extension CsrModelSystemC on CsrModelDescription {
         source
           ..writeln('    { sc_dt::sc_lv<$width> visible( '
               '($value).to_string().c_str());')
-          ..writeln('      if(prepare_output(visible,"$port"))'
+          ..writeln('      if(prepare_output(visible,'
+              '${diagnosticName ?? '"$port"'}))'
               ' $port.write($converted); }');
       } else {
         source.writeln(width == 1
@@ -133,12 +135,26 @@ extension CsrModelSystemC on CsrModelDescription {
       ..writeln('  struct field { int start, width, access; word fallback;'
           ' std::vector<word> legal; };')
       ..writeln('  struct reg { int width; bool readonly; word reset, value;'
+          ' unsigned long long block_base, block_size; bool front_writable;'
           ' std::vector<field> fields; };')
       ..writeln('  struct target { size_t index; int offset; };')
       ..writeln('  std::vector<reg> registers;')
       ..writeln('  std::map<unsigned long long, target> reads, writes;')
       ..writeln('  std::map<unsigned long long, size_t> addresses;')
-      ..writeln('  sc_core::sc_event changed;')
+      ..writeln('  sc_core::sc_event changed;');
+    final hardwareWidths = hardware.keys
+        .map((address) => registers[address]!.config.width)
+        .toSet();
+    for (final hardwareWidth in hardwareWidths) {
+      source
+        ..writeln('  struct hardware_$hardwareWidth { size_t index;'
+            ' sc_core::sc_in<${portType(1)}>* enable;'
+            ' sc_core::sc_in<${portType(hardwareWidth)}>* data;'
+            ' sc_core::sc_out<${portType(hardwareWidth)}>* output; };')
+        ..writeln('  std::vector<hardware_$hardwareWidth>'
+            ' hardware_ports_$hardwareWidth;');
+    }
+    source
       ..writeln('  sc_dt::sc_logic old_clk ='
           ' sc_dt::SC_LOGIC_${twoStatePorts ? '0' : 'X'};')
       ..writeln('  sc_dt::sc_logic old_reset ='
@@ -231,24 +247,80 @@ extension CsrModelSystemC on CsrModelDescription {
         ..writeln('        }')
         ..writeln('      }');
     }
-    for (final exposed in hardware.entries) {
-      if (!exposed.value.hasWrite) {
-        continue;
-      }
-      final register = registers[exposed.key]!;
-      final index = indices[register]!;
-      final enable = scalar(exposed.value.writeEnable!);
-      final wordData = data(exposed.value.writeData!, register.config.width);
+    for (final hardwareWidth in hardwareWidths) {
+      final enable = scalar('(*port.enable)');
+      final wordData = data('(*port.data)', hardwareWidth);
       source
-        ..writeln('      if($enable!=sc_dt::SC_LOGIC_0 &&'
-            ' std::find(touched.begin(),touched.end(),$index)==touched.end())')
-        ..writeln('        registers[$index].value=known($enable) ?'
-            ' transform($index,$wordData,0,${register.config.width},true)'
-            ' : word(sc_dt::SC_LOGIC_X);');
+        ..writeln('      for(const auto& port:hardware_ports_$hardwareWidth) {')
+        ..writeln('        if(!port.enable) continue;')
+        ..writeln('        auto enable=$enable;')
+        ..writeln('        if(enable!=sc_dt::SC_LOGIC_0 &&'
+            ' std::find(touched.begin(),touched.end(),port.index) '
+            '==touched.end())')
+        ..writeln('          registers[port.index].value=known(enable) ?'
+            ' transform(port.index,$wordData,0,$hardwareWidth,true)'
+            ' : word(sc_dt::SC_LOGIC_X);')
+        ..writeln('      }');
     }
     source
       ..writeln('    }')
       ..writeln('    changed.notify(sc_core::SC_ZERO_TIME);')
+      ..writeln('  }')
+      ..writeln('  word hardware_value(size_t index) {')
+      ..writeln('    const auto& reg=registers[index];')
+      ..writeln('    word value=reg.value;');
+    if (writePort != null) {
+      final writeValid = valid('frontWrite_addr', writePort.addressWidth);
+      final writeAddress = address('frontWrite_addr', writePort.addressWidth);
+      final writeData = data('frontWrite_data', writePort.dataWidth);
+      final writeOnly = CsrFieldAccess.writeOnly.index;
+      source
+        ..writeln('    if(reg.front_writable && std::any_of('
+            ' reg.fields.begin(),reg.fields.end(),'
+            ' [](const field& f) { return f.access==$writeOnly; })) {')
+        ..writeln('      auto enable=${scalar('frontWrite_en')} &'
+            ' (($writeValid) ? sc_dt::sc_logic( '
+            '($writeAddress)>=reg.block_base &&'
+            ' ($writeAddress)<reg.block_base+reg.block_size)'
+            ' : sc_dt::SC_LOGIC_X);')
+        ..writeln('      for(const auto& f:reg.fields) {')
+        ..writeln('        if(f.access!=$writeOnly) continue;')
+        ..writeln('        if(enable!=sc_dt::SC_LOGIC_0 && (')
+        ..writeln('          (!known(enable) &&'
+            ' (reg.width>${writePort.dataWidth} || !($writeValid))) ||')
+        ..writeln('          (enable==sc_dt::SC_LOGIC_1 && !($writeValid) &&'
+            ' reg.width<=${writePort.dataWidth})))')
+        ..writeln('          for(int i=f.start;i<f.start+f.width;++i)'
+            ' value[i]=sc_dt::SC_LOGIC_X;')
+        ..writeln('      }')
+        ..writeln('      if($writeValid) { auto it=writes.find($writeAddress);')
+        ..writeln('        if(it!=writes.end() && it->second.index==index) {')
+        ..writeln('          int offset=it->second.offset,'
+            ' count=std::min(${writePort.dataWidth},reg.width-offset);')
+        ..writeln('          word data=$writeData;')
+        ..writeln('          for(const auto& f:reg.fields) {')
+        ..writeln('            if(f.access!=$writeOnly) continue;')
+        ..writeln(
+            '            if(f.start<offset+count && f.start+f.width>offset'
+            ' && enable!=sc_dt::SC_LOGIC_0) {')
+        ..writeln('              for(int i=f.start;i<f.start+f.width;++i)')
+        ..writeln('                value[i]=!known(enable)'
+            ' ? sc_dt::SC_LOGIC_X : i>=offset && i<offset+count'
+            ' ? sc_dt::sc_logic(data[i-offset]) : sc_dt::SC_LOGIC_0;')
+        ..writeln('            }')
+        ..writeln('          }')
+        ..writeln('        }')
+        ..writeln('      }')
+        ..writeln('    }');
+    }
+    source
+      ..writeln('    for(const auto& f:reg.fields) {')
+      ..writeln('      if(f.access==${CsrFieldAccess.writeOnly.index} &&'
+          ' !slice(value,f.start,f.width).is_01())')
+      ..writeln('        for(int i=f.start;i<f.start+f.width;++i)'
+          ' value[i]=sc_dt::SC_LOGIC_X;')
+      ..writeln('    }')
+      ..writeln('    return value;')
       ..writeln('  }')
       ..writeln('  void drive() {');
     final readPort = frontRead;
@@ -265,82 +337,26 @@ extension CsrModelSystemC on CsrModelDescription {
             ' registers[t.index].width-t.offset)); } }');
       writeOutput('frontRead_data', readPort.dataWidth, 'value & value');
     }
-    for (final exposed in hardware.entries) {
-      if (!exposed.value.hasRead) {
-        continue;
-      }
-      final register = registers[exposed.key]!;
-      final index = indices[register]!;
-      final output = exposed.value.read!;
-      source.writeln('    { word value=registers[$index].value;');
-      if (writePort != null && register.config.isFrontdoorWritable) {
-        final writeValid = valid('frontWrite_addr', writePort.addressWidth);
-        final writeAddress = address('frontWrite_addr', writePort.addressWidth);
-        final writeData = data('frontWrite_data', writePort.dataWidth);
-        source.writeln('      auto enable=${scalar('frontWrite_en')} &'
-            ' (($writeValid) ? sc_dt::sc_logic( '
-            '($writeAddress)>=${register.blockBase}ULL &&'
-            ' ($writeAddress)<'
-            '${register.blockBase + register.blockSize}ULL)'
-            ' : sc_dt::SC_LOGIC_X);');
-        for (final field in register.config.fields
-            .where((field) => field.access == CsrFieldAccess.writeOnly)) {
-          source
-            ..writeln('      if(enable!=sc_dt::SC_LOGIC_0 && (')
-            ..writeln('        (!known(enable) &&'
-                ' (${register.config.width > writePort.dataWidth}'
-                ' || !($writeValid))) ||')
-            ..writeln('        (enable==sc_dt::SC_LOGIC_1 && !($writeValid) &&'
-                ' ${register.config.width <= writePort.dataWidth})))')
-            ..writeln('        for(int i=${field.start};'
-                ' i<${field.start + field.width};++i)'
-                ' value[i]=sc_dt::SC_LOGIC_X;');
-        }
-        source
-          ..writeln(
-              '      if($writeValid) { auto it=writes.find($writeAddress);')
-          ..writeln(
-              '        if(it!=writes.end() && it->second.index==$index) {')
-          ..writeln('          int offset=it->second.offset,'
-              ' count=std::min(${writePort.dataWidth},'
-              '${register.config.width}-offset);')
-          ..writeln('          word data=$writeData;');
-        for (final field in register.config.fields
-            .where((field) => field.access == CsrFieldAccess.writeOnly)) {
-          source
-            ..writeln('          if(${field.start}<offset+count &&'
-                ' ${field.start + field.width}>offset &&'
-                ' enable!=sc_dt::SC_LOGIC_0) {')
-            ..writeln('            for(int i=${field.start};'
-                ' i<${field.start + field.width};++i)')
-            ..writeln('              value[i]=!known(enable)'
-                ' ? sc_dt::SC_LOGIC_X : i>=offset && i<offset+count'
-                ' ? sc_dt::sc_logic(data[i-offset]) : sc_dt::SC_LOGIC_0;')
-            ..writeln('          }');
-        }
-        source
-          ..writeln('        }')
-          ..writeln('      }');
-      }
-      for (final field in register.config.fields
-          .where((field) => field.access == CsrFieldAccess.writeOnly)) {
-        source.writeln(
-            '      if(!slice(value,${field.start},${field.width}).is_01())'
-            ' for(int i=${field.start};i<${field.start + field.width};++i)'
-            ' value[i]=sc_dt::SC_LOGIC_X;');
-      }
-      writeOutput(output, register.config.width, 'value');
+    for (final hardwareWidth in hardwareWidths) {
+      source
+        ..writeln('    for(const auto& port:hardware_ports_$hardwareWidth) {')
+        ..writeln('      if(!port.output) continue;')
+        ..writeln('      word value=hardware_value(port.index);');
+      writeOutput('(*port.output)', hardwareWidth, 'value',
+          diagnosticName: 'port.output->name()');
       source.writeln('    }');
     }
     source
       ..writeln('  }')
       ..writeln('  static constexpr const char* register_metadata=R"ROHD_CSR(');
     for (final entry in registers.entries) {
-      final register = entry.value.config;
+      final description = entry.value;
+      final register = description.config;
       source.writeln('R ${entry.key} ${register.width} '
           '${register.access == CsrAccess.readOnly ? 1 : 0} '
           '${number(register.resetValue, register.width)} '
-          '${register.fields.length}');
+          '${register.fields.length} ${description.blockBase} '
+          '${description.blockSize} ${register.isFrontdoorWritable ? 1 : 0}');
       for (final field in register.fields) {
         final fallback = entry.value.illegalValues[field];
         final legal = field.legalValues
@@ -366,7 +382,8 @@ extension CsrModelSystemC on CsrModelDescription {
       ..writeln('      unsigned long long address; metadata >> address;')
       ..writeln("      if(kind=='R') {")
       ..writeln('        reg r; size_t count; std::string value;')
-      ..writeln('        metadata >> r.width >> r.readonly >> value >> count;')
+      ..writeln('        metadata >> r.width >> r.readonly >> value >> count'
+          ' >> r.block_base >> r.block_size >> r.front_writable;')
       ..writeln('        r.reset=word(value.c_str());')
       ..writeln('        r.value=word(sc_dt::SC_LOGIC_X);')
       ..writeln('        for(size_t i=0;i<count;++i) {')
@@ -382,7 +399,20 @@ extension CsrModelSystemC on CsrModelDescription {
       ..writeln('        registers.push_back(std::move(r));')
       ..writeln('      } else { target t; metadata >> t.index >> t.offset;')
       ..writeln("        (kind=='D' ? reads : writes).emplace(address,t); }")
-      ..writeln('    }')
+      ..writeln('    }');
+    for (final hardwareWidth in hardwareWidths) {
+      source.writeln('    hardware_ports_$hardwareWidth = {');
+      for (final exposed in hardware.entries.where(
+          (entry) => registers[entry.key]!.config.width == hardwareWidth)) {
+        final index = indices[registers[exposed.key]!]!;
+        String pointer(String? port) => port == null ? 'nullptr' : '&$port';
+        source.writeln('      {$index,${pointer(exposed.value.writeEnable)},'
+            '${pointer(exposed.value.writeData)},'
+            '${pointer(exposed.value.read)}},');
+      }
+      source.writeln('    };');
+    }
+    source
       ..writeln('    SC_METHOD(tick); sensitive << clk'
           '${asyncReset ? ' << reset' : ''}; dont_initialize();')
       ..writeln('    SC_METHOD(drive); sensitive << changed');

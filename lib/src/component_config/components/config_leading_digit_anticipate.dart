@@ -34,7 +34,7 @@ class LeadingDigitAnticipateConfigurator extends Configurator {
       });
 
   /// Controls the width of the input.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob inputWidthKnob = PositiveIntConfigKnob(value: 8);
 
   @override
   Module createModule() {

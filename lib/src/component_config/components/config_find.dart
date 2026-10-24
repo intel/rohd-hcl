@@ -21,7 +21,7 @@ class FindConfigurator extends Configurator {
   String get subcategory => 'search';
 
   /// A knob controlling the width of the bus.
-  final IntConfigKnob busWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob busWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling whether it should count ones or zeros.
   final ToggleConfigKnob countOneKnob = ToggleConfigKnob(value: true);

@@ -20,7 +20,7 @@ class RippleCarryAdderConfigurator extends Configurator {
   String get subcategory => 'addition';
 
   /// A knob controlling the width of the inputs to the adder.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob logicWidthKnob = PositiveIntConfigKnob(value: 8);
 
   @override
   final String name = 'Ripple Carry Adder';

@@ -1,7 +1,7 @@
 # Ready/Valid Hardware
 
 ROHD-HCL provides typed ready/valid interfaces and a FIFO that buffers
-`LogicStructure` payloads.
+any `Logic` payload, including scalars, enums, structures, and typed arrays.
 
 ## Interfaces and handshaking
 
@@ -48,7 +48,7 @@ source.
 
 ## ReadyValidFifo
 
-`ReadyValidFifo<T>` buffers a typed `LogicStructure` payload between upstream
+`ReadyValidFifo<T extends Logic>` buffers a typed payload between upstream
 and downstream ready/valid interfaces. Its default depth is 8. The upstream
 side deasserts `ready` when full, and the downstream side deasserts `valid`
 when empty. It is the P00 reference protocol shell: its storage is constructed
@@ -57,6 +57,10 @@ through `FifoCoreFunctor`, while `ReadyValidIngressAttachmentPolicy` and
 core's enqueue and dequeue actions. Future protocol combinations reuse that
 core-and-directional-attachment pattern rather than introducing another FIFO
 wrapper architecture.
+
+Payload cloning preserves array rank, leaf types, and value codecs. A full
+FIFO does not accept a replacement on the same cycle it dequeues: upstream
+`ready` becomes high after that edge releases a slot.
 
 Create and retain the interface instances at the composition boundary, then
 pass them into the FIFO. Continue to use those caller-owned interfaces to

@@ -53,12 +53,7 @@ class FloatingPointAdderConfigurator extends Configurator {
   final subNormalAsZeroSelecKnob = SubNormalAsZeroSelecKnob();
 
   /// Map from Type to Function for Parallel Prefix generator
-  static Map<
-      Type,
-      ParallelPrefix Function(
-        List<Logic> inps,
-        Logic Function(Logic term1, Logic term2) op,
-      )> treeGeneratorMap = {
+  static Map<Type, ParallelPrefixGenerator<Logic>> treeGeneratorMap = {
     Ripple: Ripple.new,
     Sklansky: Sklansky.new,
     KoggeStone: KoggeStone.new,
@@ -78,10 +73,10 @@ class FloatingPointAdderConfigurator extends Configurator {
   );
 
   /// Controls the width of the exponent.
-  final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob exponentWidthKnob = PositiveIntConfigKnob(value: 4);
 
   /// Controls the width of the mantissa.
-  final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 5);
+  final IntConfigKnob mantissaWidthKnob = PositiveIntConfigKnob(value: 5);
 
   /// Controls whether the adder is pipelined
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);

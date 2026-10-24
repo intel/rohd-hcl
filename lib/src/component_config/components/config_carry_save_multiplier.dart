@@ -20,7 +20,7 @@ class CarrySaveMultiplierConfigurator extends Configurator {
   String get subcategory => 'multiplication';
 
   /// A knob controlling the width of the inputs to a [CarrySaveMultiplier].
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob logicWidthKnob = PositiveIntConfigKnob(value: 4);
 
   @override
   final String name = 'Carry Save Multiplier';

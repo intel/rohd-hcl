@@ -43,6 +43,30 @@ final asyncFifo = AsyncFifo(
 );
 ```
 
+### Typed Payloads
+
+`AsyncFifo<T>` preserves the type and schema of `writeData` through its ports,
+internal register-file storage, and `readData`. Structures, floating/fixed-point
+signals, enums, and typed arrays do not require casts or manual packing:
+
+```dart
+final fifo = AsyncFifo<FloatingPoint32>(
+  writeClk: wrClk,
+  readClk: rdClk,
+  writeReset: wrRst,
+  readReset: rdRst,
+  writeEnable: wrEn,
+  writeData: sample,
+  readEnable: rdEn,
+  depth: 16,
+);
+final FloatingPoint32 received = fifo.readData;
+```
+
+The pointer arithmetic, synchronizers, flag latency, and combinational read
+timing are unchanged; only the payload path is typed. Use
+`AsyncFifo<Logic>(...)` when supplying a scalar `Const` payload.
+
 ### Write Domain
 
 In the write clock domain:

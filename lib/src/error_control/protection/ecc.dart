@@ -46,7 +46,8 @@ enum HammingType {
 
 /// A transmitter for data which generates a Hamming code for error detection
 /// and possibly correction.
-class HammingEccTransmitter extends ErrorCheckingTransmitter {
+class HammingEccTransmitter<T extends Logic>
+    extends ErrorCheckingTransmitter<T> {
   /// The type of Hamming code to use.
   final HammingType hammingType;
 
@@ -81,8 +82,12 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
   @protected
   Logic calculateCode() {
     final parityBits = List<Logic?>.generate(code.width, (index) => null);
-    final dataBits = List<Logic>.generate(
-        data.width, (index) => Logic(name: 'd${index + 1}')..gets(data[index]));
+    // Materialize the bit-oriented encoding boundary so structured leaves do
+    // not produce chained part-selects when individual bits are indexed.
+    final payloadBits =
+        data.packed.named('payloadBits', naming: Naming.reserved);
+    final dataBits = List<Logic>.generate(data.width,
+        (index) => Logic(name: 'd${index + 1}')..gets(payloadBits[index]));
 
     final hammingCodeWidth = code.width - hammingType._extraParityBits;
 
@@ -125,7 +130,7 @@ class HammingEccTransmitter extends ErrorCheckingTransmitter {
 
 /// A receiver for transmissions sent with a Hamming code for error detection
 /// and possibly correction.
-class HammingEccReceiver extends ErrorCheckingReceiver {
+class HammingEccReceiver<T extends Logic> extends ErrorCheckingReceiver<T> {
   /// The type of Hamming code to use to understand the original [transmission].
   final HammingType hammingType;
 
@@ -134,6 +139,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
   /// [correctedData], depending on the specified [hammingType].
   HammingEccReceiver(super.transmission,
       {super.name = 'hamming_ecc_rx',
+      super.dataSchema,
       this.hammingType = HammingType.sec,
       super.reserveName,
       super.reserveDefinitionName,
@@ -146,7 +152,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
               definitionName ?? 'hamming_ecc_receiver_${hammingType.name}',
           supportsErrorCorrection: hammingType.hasCorrection,
         ) {
-    final tx = HammingEccTransmitter(originalData, hammingType: hammingType);
+    final tx = HammingEccTransmitter(rawData, hammingType: hammingType);
     final hammingCode =
         hammingType.hasExtraParityBit ? code.getRange(0, -1) : code;
     final expectedHammingCode =
@@ -173,7 +179,7 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
             for (var i = 1; i <= hammingTransmissionWidth; i++)
               if (encodingToDataMap.containsKey(i))
                 Logic(name: 'd${encodingToDataMap[i]! + 1}')
-                  ..gets(originalData[encodingToDataMap[i]] ^ correction[i - 1])
+                  ..gets(rawData[encodingToDataMap[i]] ^ correction[i - 1])
           ].rswizzle();
     }
 
@@ -236,9 +242,10 @@ class HammingEccReceiver extends ErrorCheckingReceiver {
 
   @override
   @protected
-  Logic? calculateCorrectedData() =>
+  T? calculateCorrectedData() =>
       hammingType.hasCorrection ? _correctedData : null;
-  late final Logic _correctedData = Logic(width: originalData.width);
+  late final T _correctedData =
+      originalData.cloneTyped(name: 'correctedPayload');
 
   @override
   @protected

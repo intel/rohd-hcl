@@ -77,7 +77,7 @@ class CounterWithSimpleClockGate extends Module {
       {bool withDelay = true, ClockGateControlInterface? cgIntf})
       : super(name: 'clk_gated_counter') {
     if (cgIntf != null) {
-      cgIntf = cgIntf.clone()..pairConnectIO(this, cgIntf, PairRole.consumer);
+      cgIntf = addPairInterfacePorts(cgIntf, PairRole.consumer);
     }
 
     clk = addInput('clk', clk);
@@ -127,7 +127,7 @@ void main() {
 
     await counter.build();
 
-    final sv = counter.generateSynth();
+    final sv = counter.dumpSystemVerilog();
     expect(sv, contains('anotherOverride'));
     expect(sv, contains('CUSTOM_CLOCK_GATE'));
 

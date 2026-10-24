@@ -40,7 +40,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
   /// The result of [FloatingPoint] conversion
   @protected
   late final FpTypeOut _destination =
-      destination.clone(name: 'destination') as FpTypeOut;
+      destination.cloneTyped(name: 'destination');
 
   /// Convert a [FloatingPoint] logic structure from one format to another.
   /// - [source] is the source format [FloatingPoint] logic structure.
@@ -87,8 +87,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     destMantissaWidth = destination.mantissa.width;
     source = addTypedInput('source', source);
 
-    final destOut = addTypedOutput('destination',
-        _destination.clone as FpTypeOut Function({String? name}));
+    final destOut = addTypedOutput('destination', _destination.cloneTyped);
     destOut <= _destination;
     destination <= destOut;
     _status = FloatingPointStatus(name: 'internalStatus');

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // ready_valid_fifo_test.dart
@@ -49,7 +49,7 @@ void main() {
     );
 
     await fifoModule.build();
-    final systemVerilog = fifoModule.generateSynth();
+    final systemVerilog = fifoModule.dumpSystemVerilog();
 
     expect(
       systemVerilog,

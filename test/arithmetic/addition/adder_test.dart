@@ -84,7 +84,12 @@ void main() {
     await Simulator.reset();
   });
 
-  final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];
+  final generators = <ParallelPrefixGenerator<GeneratePropagate>>[
+    Ripple.new,
+    Sklansky.new,
+    KoggeStone.new,
+    BrentKung.new
+  ];
 
   final adders = [
     RippleCarryAdder.new,

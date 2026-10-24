@@ -31,7 +31,7 @@ Future<void> main({bool noPrint = false}) async {
 
   // Generate verilog for it and print it out
   await mod.build();
-  final sv = mod.generateSynth();
+  final sv = mod.dumpSystemVerilog();
   if (!noPrint) {
     print(sv);
   }

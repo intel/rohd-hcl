@@ -8,6 +8,22 @@ When `writeEnable` is high, `writeData` is added to the FIFO.  When `readEnable`
 
 The FIFO has a configurable `depth`.
 
+## Typed Payloads
+
+`Fifo<T>` preserves the payload type through its input, internal memory ports,
+`RegisterFile<T>` storage, output, and optional bypass. `T` may be plain
+`Logic`, a structure, an enum, or a `TypedLogicArray` (including multidimensional
+and rank-zero arrays). For array payloads, each FIFO entry is the entire array;
+no payload dimension is consumed. Array leaf codecs survive cloning.
+
+`FifoCoreFunctor<T>` and the existing ready/valid adapters preserve these
+schemas as well. `ReadyValidFifo<T>` accepts structure-derived payloads,
+including typed arrays. Its shape validation includes dimensions, unpacked
+axes, leaf layouts, and codec identity.
+
+This typed storage path applies to the synchronous `Fifo`; `AsyncFifo` is
+unchanged.
+
 ## Peeking
 
 When `readEnable` is low, the `readData` continually provides access to "peek" the next data.

@@ -11,9 +11,13 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Serializes wide aggregated data onto a narrower serialization stream.
-class Serializer extends Module {
-  /// Serialized output, one data item per clock.
-  Logic get serialized => output('serialized');
+class Serializer<T extends Logic, V> extends Module {
+  /// Serialized output, one outermost array element per clock.
+  ///
+  /// Has one fewer dimension than the input. For a one-dimensional input,
+  /// the output is rank zero and its typed leaf is available via
+  /// [TypedLogicArray.scalar].
+  late final TypedLogicArray<T, V> serialized;
 
   /// Return [done] = `true` when we have processed `deserialized`completely.
   /// [done] is asserted with the final element being serialized so that
@@ -31,12 +35,12 @@ class Serializer extends Module {
   /// Delivers one element per clock while [enable]
   /// is high (if connected). If [flopInput] is `true`, the
   /// [Serializer] is configured to latch the input data and hold it until
-  /// [done] is asserted after the full [LogicArray] [deserialized] is
+  /// [done] is asserted after the full [TypedLogicArray] [deserialized] is
   /// transferred. This will delay the serialized output by one cycle.
   ///
   /// If [endCount] is connected, it is used as a potential early indicator for
   /// completion of the serialization.
-  Serializer(LogicArray deserialized,
+  Serializer(TypedLogicArray<T, V> deserialized,
       {required Logic clk,
       required Logic reset,
       Logic? enable,
@@ -50,6 +54,11 @@ class Serializer extends Module {
             definitionName: definitionName ??
                 'Serializer_W${deserialized.width}_'
                     '${deserialized.elementWidth}') {
+    if (deserialized.dimensions.isEmpty ||
+        deserialized.dimensions.any((dimension) => dimension <= 0)) {
+      throw ArgumentError.value(deserialized.dimensions, 'deserialized',
+          'Serialization requires non-empty dimensions.');
+    }
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {
@@ -59,22 +68,21 @@ class Serializer extends Module {
       endCount = addInput('endCount', endCount,
           width: deserialized.dimensions[0].bitLength);
     }
-    deserialized = addInputArray('deserialized', deserialized,
-        dimensions: deserialized.dimensions,
-        elementWidth: deserialized.elementWidth);
+    deserialized = addTypedInput('deserialized', deserialized);
 
     addOutput('count', width: widthFor(deserialized.dimensions[0]));
     addOutput('done');
 
-    final reducedDimensions = List<int>.from(deserialized.dimensions)
-      ..removeAt(0);
-    if (deserialized.dimensions.length > 1) {
-      addOutputArray('serialized',
-          dimensions: reducedDimensions,
-          elementWidth: deserialized.elementWidth);
-    } else {
-      addOutput('serialized', width: deserialized.elementWidth);
-    }
+    serialized = deserialized.dimensions.length == 1
+        ? addTypedOutput(
+            'serialized',
+            ({name = 'serialized'}) => TypedLogicArray<T, V>(
+                  const [],
+                  deserialized.arrayElements.first.cloneTyped,
+                  valueCodec: deserialized.valueCodec,
+                  name: name,
+                ))
+        : addTypedOutput('serialized', deserialized.majorSlices.first.clone);
 
     Logic? earlyEnd;
     final cnt = Counter.simple(
@@ -97,8 +105,7 @@ class Serializer extends Module {
             ? flop(clk, reset: reset, en: enable, cnt.count)
             : cnt.count);
 
-    final dataOutput =
-        LogicArray(deserialized.dimensions, deserialized.elementWidth);
+    final dataOutput = deserialized.clone(name: 'dataOutput');
     for (var i = 0; i < deserialized.elements.length; i++) {
       dataOutput.elements[i] <=
           (flopInput
@@ -106,10 +113,13 @@ class Serializer extends Module {
                   clk,
                   reset: reset,
                   en: latchTheInput,
-                  deserialized.elements[i])
+                  deserialized.elements[i],
+                  outputGenerator: deserialized.elements[i].clone)
               : deserialized.elements[i]);
     }
-    serialized <= dataOutput.elements.selectIndex(count);
+    serialized <=
+        dataOutput.elements.selectIndex(count,
+            outputGenerator: dataOutput.elements.first.clone);
     done <=
         (flopInput
             ? flop(

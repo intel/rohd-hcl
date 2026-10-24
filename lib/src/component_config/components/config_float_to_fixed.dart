@@ -21,10 +21,10 @@ class FloatToFixedConfigurator extends Configurator {
   String get subcategory => 'conversion';
 
   /// Width of exponent, must be greater than 0.
-  final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob exponentWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of mantissa, must be greater than 0.
-  final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 23);
+  final IntConfigKnob mantissaWidthKnob = PositiveIntConfigKnob(value: 23);
 
   /// Whether the input format includes an explicit J bit.
   final ToggleConfigKnob inputExplicitJBitKnob = ToggleConfigKnob(value: false);

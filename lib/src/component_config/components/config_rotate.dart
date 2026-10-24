@@ -26,13 +26,13 @@ class RotateConfigurator extends Configurator {
   );
 
   /// A knob controlling the width of the input to be rotated.
-  final IntConfigKnob originalWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob originalWidthKnob = PositiveIntConfigKnob(value: 16);
 
   /// A knob controlling the width of the control for rotation amount.
-  final IntConfigKnob rotateWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob rotateWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling the maximum amount to rotate by to support.
-  final IntConfigKnob maxAmountKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob maxAmountKnob = PositiveIntConfigKnob(value: 8);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

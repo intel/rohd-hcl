@@ -17,8 +17,9 @@ import 'package:rohd_vf/rohd_vf.dart';
 /// store data.
 ///
 /// This is useful to mimic a large memory.  This is *not* synthesizable, it is
-/// only a model.
-class MemoryModel extends Memory {
+/// only a model. Ports preserve payload type [T]; storage retains lossless
+/// four-state bit patterns rather than converting through semantic values.
+class MemoryModel<T extends Logic> extends Memory<T> {
   /// The memory storage underlying this model.
   late final MemoryStorage storage;
 
@@ -75,7 +76,7 @@ class MemoryModel extends Memory {
         if (wrPort.en.previousValue == LogicValue.one) {
           final addrValue = wrPort.addr.previousValue!;
 
-          if (wrPort is MaskedDataPortInterface) {
+          if (wrPort is MaskedDataPortInterface<T>) {
             storage.writeData(
               addrValue,
               [
@@ -125,21 +126,36 @@ class MemoryModel extends Memory {
   }
 
   /// Updates read data for [rdPort] immediately (as if combinationally).
-  void _updateReadZeroLatency(DataPortInterface rdPort) {
+  void _updateReadZeroLatency(DataPortInterface<T> rdPort) {
     if (!rdPort.en.value.isValid ||
         !rdPort.en.value.toBool() ||
         !rdPort.addr.value.isValid) {
-      rdPort.data.put(LogicValue.x, fill: true);
+      _putReadData(rdPort, LogicValue.filled(rdPort.dataWidth, LogicValue.x));
     } else {
-      rdPort.data.put(storage.readData(rdPort.addr.value));
+      _putReadData(rdPort, storage.readData(rdPort.addr.value));
+    }
+  }
+
+  /// Drives stored bits without invoking a structure's semantic value API.
+  void _putReadData(DataPortInterface<T> rdPort, LogicValue value) {
+    final data = rdPort.data;
+    if (data is LogicStructure) {
+      final bits = LogicValue.of(value, width: data.width);
+      var offset = 0;
+      for (final leaf in data.leafElements) {
+        leaf.put(bits.getRange(offset, offset + leaf.width));
+        offset += leaf.width;
+      }
+    } else {
+      data.put(value);
     }
   }
 
   /// Updates read data for [rdPort] after [readLatency] time.
-  Future<void> _updateRead(DataPortInterface rdPort, LogicValue data) async {
+  Future<void> _updateRead(DataPortInterface<T> rdPort, LogicValue data) async {
     if (readLatency > 1) {
       await clk.waitCycles(readLatency - 1);
     }
-    rdPort.data.inject(data);
+    Simulator.injectAction(() => _putReadData(rdPort, data));
   }
 }

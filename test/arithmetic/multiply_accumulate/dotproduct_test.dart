@@ -398,7 +398,7 @@ void main() {
     final dotProduct = CompressionTreeDotProduct(multiplicands, multipliers,
         productRadix: 8, definitionName: 'DotProduct');
     await dotProduct.build();
-    expect(dotProduct.generateSynth(), isNotEmpty);
+    expect(dotProduct.dumpSystemVerilog(), isNotEmpty);
   });
 }
 

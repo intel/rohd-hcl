@@ -73,13 +73,12 @@ class CsrBlock extends CsrContainer {
 
     for (var i = 0; i < csrs.length; i++) {
       if (csrs[i].config.backdoorAccessible) {
-        _backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
         backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
-        _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
+        _backdoorInterfaces.add(addInterfacePorts(backdoorInterfaces.last,
             outputTags: {CsrBackdoorPortGroup.read},
             inputTags: {CsrBackdoorPortGroup.write},
             uniquify: (original) =>
-                '${name}_${csrs[i].config.name}_backdoor_$original');
+                '${name}_${csrs[i].config.name}_backdoor_$original'));
         _backdoorIndexMap[i] = _backdoorInterfaces.length - 1;
       }
     }
@@ -165,7 +164,7 @@ class CsrBlock extends CsrContainer {
       // the register is wider than the data width of the frontdoor
       // which is only permissible if [allowLargerRegisters] is true.
       Logic? addrCheck;
-      Logic? dataToWrite;
+      Csr? dataToWrite;
       final hasWriteOnlyField = csrs[i]
           .config
           .fields
@@ -187,7 +186,7 @@ class CsrBlock extends CsrContainer {
 
           // we write the portion of the register that
           // corresponds to this logical address
-          final wrCases = <Logic, Logic>{};
+          final wrCases = <Logic, Csr>{};
           for (var j = 0; j < targ; j++) {
             final key = Const(csrs[i].addr + j * logicalRegisterIncrement,
                 width: addrWidth);
@@ -222,10 +221,11 @@ class CsrBlock extends CsrContainer {
                       .getRange(j * dataWidth, (j + 1) * dataWidth));
             }
           }
-          dataToWrite = cases(
+          dataToWrite = cases<Csr>(
               frontWrite!.addr,
               conditionalType: ConditionalType.unique,
               wrCases,
+              outputGenerator: csrs[i].clone,
               defaultValue: csrs[i]);
 
           if (hasWriteOnlyField && config.registers[i].isFrontdoorWritable) {

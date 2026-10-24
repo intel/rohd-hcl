@@ -26,7 +26,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 ///
 /// **WARNING**: This synchronizer is only suitable for control signals, not
 /// data buses. For data transfer between clock domains, use an async FIFO.
-class Synchronizer extends ShiftRegister {
+class Synchronizer extends ShiftRegister<Logic> {
   /// The synchronized output signal in the destination clock domain.
   Logic get syncData => dataOut;
 

@@ -13,13 +13,13 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// Recursive Node for Reduction Tree
-class ReductionTree extends Module {
+/// A recursive reduction tree retaining data type [T] and control type [C].
+class ReductionTree<T extends Logic, C extends Logic> extends Module {
   /// The final output of the tree computation.
-  Logic get out => output('out');
+  late final T out;
 
   /// The control output of the tree computation.
-  Logic? get controlOut => tryOutput('controlOut');
+  C? get controlOut => _controlOut;
 
   /// The depth of the tree from the output to the leaves.
   int get depth => _computed.depth;
@@ -28,14 +28,23 @@ class ReductionTree extends Module {
   int get latency => _computed.flopDepth;
 
   /// Operation to be performed at each node. Note that [operation] can widen
-  /// the output. The logic function must support the operation for 2 and up to
-  /// [radix] inputs. The [depth] input is the depth of the current node in the
+  /// the output. The logic function must support singleton branches and up to
+  /// [radix] inputs. Structured operations align their own fields and formats;
+  /// plain [Logic] operands retain automatic sign/zero extension.
+  /// The [depth] input is the depth of the current node in the
   /// tree to the leaves.  For sequences that are not powers of [radix], the
   /// depth is the maximum depth to the leaves from this node in the tree.  The
   /// [depth] can be used to index the [control] [Logic] to change behavior at
   /// each depth of the tree.
-  final Logic Function(List<Logic> inputs,
-      {int depth, Logic? control, String name}) operation;
+  T operation(List<T> inputs, {int depth = 0, C? control, String? name}) =>
+      name == null
+          ? _operation(inputs, depth: depth, control: control)
+          : _operation(inputs, depth: depth, control: control, name: name);
+
+  // Accessed only through the covariantly checked instance method.
+  // ignore: unsafe_variance
+  final T Function(List<T> inputs, {int depth, C? control, String name})
+      _operation;
 
   /// Specified width of input to each reduction node (e.g., binary: radix=2)
   final int radix;
@@ -51,10 +60,10 @@ class ReductionTree extends Module {
   int get _depthFromLastFlop => _computed.depthFromLastFlop;
 
   /// Optional [_control] input to input to operation.
-  late final Logic? _control;
+  late final C? _control;
 
   /// Optional [_controlOut] output tfor propagating pipelined control.
-  late final Logic? _controlOut;
+  late final C? _controlOut;
 
   /// Optional [_clk] input to create pipeline.
   late final Logic? _clk;
@@ -66,19 +75,19 @@ class ReductionTree extends Module {
   late final Logic? _enable;
 
   /// The input sequence
-  late final List<Logic> _sequence;
+  late final List<T> _sequence;
 
   /// Capture the record of compute: the final value, its depth (from last
   /// flop or input), and its flopDepth if pipelined.
   late final ({
-    Logic value,
+    T value,
     int depthFromLastFlop,
     int depth,
     int flopDepth,
   }) _computed;
 
   /// Local conditional flop using module reset/enable
-  Logic _localFlop(Logic d, {bool doFlop = false}) =>
+  L _localFlop<L extends Logic>(L d, {bool doFlop = false}) =>
       condFlop(doFlop ? _clk : null, reset: _reset, en: _enable, d);
 
   /// Generate a tree based on dividing the input [sequence] of a node into
@@ -88,7 +97,7 @@ class ReductionTree extends Module {
   ///   operations.
   /// - [operation] is the operation to be performed at each node. Note that
   ///   [operation] can widen the output. The logic function must support the
-  ///   operation for (2 to [radix]) inputs.
+  ///   operation for singleton branches and up to [radix] inputs.
   /// - [radix] is the width of reduction at each node in the tree (e.g.,
   ///   binary: radix=2).
   /// - [signExtend] if `true`, use sign-extension to widen [Logic] values as
@@ -99,11 +108,14 @@ class ReductionTree extends Module {
   /// Optional parameters to be used for creating a pipelined computation tree:
   /// - [clk], [reset], [enable] are optionally provided to allow for flopping.
   /// - [depthBetweenFlops] specifies how many nodes deep separate flops.
-  ReductionTree(List<Logic> sequence, this.operation,
+  ReductionTree(
+      List<T> sequence,
+      T Function(List<T> inputs, {int depth, C? control, String name})
+          operation,
       {this.radix = 2,
       dynamic signExtend,
       this.depthBetweenFlops,
-      Logic? control,
+      C? control,
       Logic? clk,
       Logic? enable,
       Logic? reset,
@@ -111,7 +123,8 @@ class ReductionTree extends Module {
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
-      : super(
+      : _operation = operation,
+        super(
             definitionName: definitionName ??
                 'ReductionTreeNode_R${radix}_L${sequence.length}') {
     if (sequence.isEmpty) {
@@ -125,20 +138,61 @@ class ReductionTree extends Module {
     signExtensionParameter = StaticOrRuntimeParameter.ofDynamic(signExtend);
     _sequence = [
       for (var i = 0; i < sequence.length; i++)
-        addInput('seq$i', sequence[i], width: sequence[i].width)
+        addTypedInput('seq$i', sequence[i])
     ];
-    _control = (control != null
-        ? addInput('control', control, width: control.width)
-        : null);
+    _control = (control != null ? addTypedInput('control', control) : null);
     _clk = (clk != null) ? addInput('clk', clk) : null;
     _enable = (enable != null) ? addInput('enable', enable) : null;
     _reset = (reset != null) ? addInput('reset', reset) : null;
 
-    _controlOut = (control != null
-        ? addOutput('controlOut', width: control.width)
+    _controlOut = (_control != null
+        ? addTypedOutput('controlOut', _control.cloneTyped)
         : null);
 
     _buildLogic();
+  }
+
+  /// Clones a reduction signal, normalizing scalar constants for `Logic`.
+  @internal
+  static L cloneSignal<L extends Logic>(L source, {String? name}) {
+    final cloned = source is Const
+        ? Logic(width: source.width, name: name)
+        : source.clone(name: name);
+    if (cloned is! L) {
+      throw RohdHclException(
+          'Reduction signals require driveable clones. Use Logic for scalar '
+          'constants, not ${source.runtimeType}.');
+    }
+    return cloned;
+  }
+
+  /// Aligns scalar operands without erasing structured formats or enum types.
+  ///
+  /// Typed operations handle their own field/format alignment and may widen
+  /// their outputs. Scalar reductions retain the existing bit-extension policy.
+  @internal
+  static L alignInput<L extends Logic>(
+      L signal, int width, StaticOrRuntimeParameter signExtension,
+      {Module? module}) {
+    if (signal is LogicStructure || signal is LogicEnum) {
+      return signal;
+    }
+    final extended = signExtension.runtimeConfig == null
+        ? signExtension.staticConfig
+            ? signal.signExtend(width)
+            : signal.zeroExtend(width)
+        : mux(
+            module == null
+                ? signExtension.runtimeConfig!
+                : signExtension.getLogic(module),
+            signal.signExtend(width),
+            signal.zeroExtend(width));
+    if (extended is! L) {
+      throw RohdHclException(
+          'Scalar width alignment cannot preserve ${signal.runtimeType}. '
+          'Use Logic for bit-oriented reductions.');
+    }
+    return extended;
   }
 
   /// Compute the next splitting point taking into account trying to get
@@ -166,20 +220,22 @@ class ReductionTree extends Module {
       }
       final value =
           operation(_sequence, depth: 0, control: _control, name: 'leaf');
-      addOutput('out', width: value.width) <= value;
+      out = addTypedOutput(
+          'out', ({name = 'out'}) => cloneSignal(value, name: name))
+        ..gets(value);
       _computed = (
-        value: output('out'),
+        value: out,
         depthFromLastFlop: 0,
         depth: 0,
         flopDepth: 0,
       );
     } else {
-      final results = <ReductionTree>[];
+      final results = <ReductionTree<T, C>>[];
       var pos = 0;
       for (var i = 0; i < radix; i++) {
         final end1 =
             _nextSplitDistance(_sequence.length - pos, radix, radix - i) + pos;
-        final tree = ReductionTree(
+        final tree = ReductionTree<T, C>(
             _sequence.getRange(pos, end1).toList(), operation,
             radix: radix,
             signExtend: signExtensionParameter,
@@ -213,19 +269,16 @@ class ReductionTree extends Module {
           results.map((c) => c._computed.value.width).reduce(max);
 
       final resultsExtend = floppedResults.map((r) =>
-          signExtensionParameter.runtimeConfig == null
-              ? signExtensionParameter.staticConfig
-                  ? r.signExtend(alignWidth)
-                  : r.zeroExtend(alignWidth)
-              : mux(signExtensionParameter.getLogic(this),
-                  r.signExtend(alignWidth), r.zeroExtend(alignWidth)));
+          alignInput(r, alignWidth, signExtensionParameter, module: this));
 
       final value = operation(resultsExtend.toList(),
           control: controlOut, depth: depth + 1, name: 'reduce_d$depth');
 
-      addOutput('out', width: value.width) <= value;
+      out = addTypedOutput(
+          'out', ({name = 'out'}) => cloneSignal(value, name: name))
+        ..gets(value);
       _computed = (
-        value: output('out'),
+        value: out,
         depthFromLastFlop: flopHere ? 0 : combDepth + 1,
         depth: depth + 1,
         flopDepth: flopDepth + (flopHere ? 1 : 0),

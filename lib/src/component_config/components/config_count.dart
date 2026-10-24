@@ -21,13 +21,13 @@ class CountConfigurator extends Configurator {
   String get subcategory => 'population-count';
 
   /// Width of the bus to count.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Whether to count ones rather than zeros.
   final ToggleConfigKnob countOneKnob = ToggleConfigKnob(value: true);
 
   /// Maximum number of operands combined by a balanced reduction node.
-  final IntConfigKnob radixKnob = IntConfigKnob(value: 2);
+  final IntConfigKnob radixKnob = IntConfigKnob(value: 2, minValue: 2);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
