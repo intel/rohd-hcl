@@ -167,6 +167,7 @@
 - Replaced plain-text integer parameter fields in confapp with the shared `IntegerKnobControl` stepper, which provides +/- buttons, hexadecimal input, optional blanks, and inline validation.
 - Expanded the configuration application catalog to cover all configurable components and bundled Roboto Mono for generated source output.
 - Added configuration controls for `Count`/`Extrema` radix and static-or-runtime summation values, Counter reset behavior, and overflow/underflow tracking.
+- Added a lock toggle to the configuration application component menu; when unpinned, the menu slides out on hover from the left edge and hides when the pointer leaves.
 
 ### Documentation
 

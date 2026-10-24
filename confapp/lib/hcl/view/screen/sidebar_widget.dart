@@ -36,10 +36,24 @@ final divider = Divider(color: white.withValues(alpha: 0.3), height: 1);
 /// Displays the available configurable components.
 class ComponentsSidebar extends StatefulWidget {
   /// Creates a component sidebar with the given [width].
-  const ComponentsSidebar({required this.width, super.key});
+  ///
+  /// When [onTogglePinned] is provided, a lock button is shown in the header
+  /// reflecting [pinned].
+  const ComponentsSidebar({
+    required this.width,
+    this.pinned = true,
+    this.onTogglePinned,
+    super.key,
+  });
 
   /// The width of the sidebar.
   final double width;
+
+  /// Whether the sidebar is pinned open (shown in the layout).
+  final bool pinned;
+
+  /// Called when the user presses the lock button in the header.
+  final VoidCallback? onTogglePinned;
 
   @override
   State<ComponentsSidebar> createState() => _ComponentsSidebarState();
@@ -47,7 +61,13 @@ class ComponentsSidebar extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DoubleProperty('width', width));
+    properties
+      ..add(DoubleProperty('width', width))
+      ..add(FlagProperty('pinned', value: pinned, ifTrue: 'pinned'))
+      ..add(ObjectFlagProperty<VoidCallback>.has(
+        'onTogglePinned',
+        onTogglePinned,
+      ));
   }
 }
 
@@ -73,16 +93,36 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(8, 4, 8, 6),
-                child: Text(
-                  'Components',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+              Row(
+                children: [
+                  const Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(8, 4, 8, 6),
+                      child: Text(
+                        'Components',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  if (widget.onTogglePinned != null)
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      color: Colors.white,
+                      tooltip: widget.pinned
+                          ? 'Unpin components menu'
+                          : 'Pin components menu',
+                      icon: _DockLockIcon(
+                        locked: widget.pinned,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      onPressed: widget.onTogglePinned,
+                    ),
+                ],
               ),
               for (final category in ComponentCategory.values)
                 if (componentsByCategory[category]!.isNotEmpty)
@@ -203,4 +243,84 @@ class _ComponentTile extends StatelessWidget {
       ..add(DiagnosticsProperty<bool>('selected', selected))
       ..add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
   }
+}
+
+/// A two-box layout glyph whose left strip is shaded when [locked], matching
+/// the dock icon used by the ROHD wave viewer.
+class _DockLockIcon extends StatelessWidget {
+  const _DockLockIcon({
+    required this.locked,
+    required this.color,
+    required this.size,
+  });
+
+  final bool locked;
+  final Color color;
+  final double size;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(FlagProperty('locked', value: locked, ifTrue: 'locked'))
+      ..add(ColorProperty('color', color))
+      ..add(DoubleProperty('size', size));
+  }
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+        size: Size.square(size),
+        painter: _DockLockPainter(locked: locked, color: color),
+      );
+}
+
+class _DockLockPainter extends CustomPainter {
+  _DockLockPainter({required this.locked, required this.color});
+
+  final bool locked;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stroke = (size.width / 16 * 1.4).clamp(1.0, 2.0);
+    final rect = Rect.fromLTWH(
+      stroke,
+      stroke,
+      size.width - stroke * 2,
+      size.height - stroke * 2,
+    );
+    final rrect = RRect.fromRectAndRadius(
+      rect,
+      Radius.circular(size.width * 0.14),
+    );
+    final stripWidth = rect.width * 0.38;
+    final dividerX = rect.left + stripWidth;
+
+    if (locked) {
+      canvas
+        ..save()
+        ..clipRRect(rrect)
+        ..drawRect(
+          Rect.fromLTWH(rect.left, rect.top, stripWidth, rect.height),
+          Paint()
+            ..style = PaintingStyle.fill
+            ..color = color.withValues(alpha: 0.9),
+        )
+        ..restore();
+    }
+
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..color = color
+      ..isAntiAlias = true;
+    canvas
+      ..drawRRect(rrect, line)
+      ..drawLine(
+          Offset(dividerX, rect.top), Offset(dividerX, rect.bottom), line);
+  }
+
+  @override
+  bool shouldRepaint(_DockLockPainter oldDelegate) =>
+      oldDelegate.locked != locked || oldDelegate.color != color;
 }
