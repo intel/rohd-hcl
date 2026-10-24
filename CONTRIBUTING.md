@@ -47,12 +47,12 @@ to develop ROHD-HCL. Flutter provides the Dart SDK and is required because the
 pub workspace contains both the Dart `rohd_hcl` package and the Flutter
 `confapp` package.
 
-The root test suite also requires Icarus Verilog, a C++17-capable `g++`, and
-SystemC headers and libraries. On Ubuntu, install these with:
+The root test suite also requires Icarus Verilog, Verilator, a C++17-capable
+`g++`, and SystemC headers and libraries. On Ubuntu, install these with:
 
 ```shell
 sudo apt-get update
-sudo apt-get install -y iverilog g++ libsystemc-dev
+sudo apt-get install -y iverilog verilator g++ libsystemc-dev
 ```
 
 CI and the development-container setup install these dependencies. The CSR
