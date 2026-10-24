@@ -15,6 +15,7 @@ import 'package:confapp/hcl/cubit/theme_cubit.dart';
 import 'package:confapp/hcl/module_source_assets.dart';
 import 'package:confapp/hcl/view/screen/browser_interop.dart';
 import 'package:confapp/hcl/view/screen/dart_syntax_code_controller.dart';
+import 'package:confapp/hcl/view/screen/dock_lock_icon.dart';
 import 'package:confapp/hcl/view/screen/flc_trace_data.dart';
 import 'package:confapp/hcl/view/screen/integer_knob_control.dart';
 import 'package:flutter/foundation.dart';
@@ -156,6 +157,15 @@ class _SVGeneratorState extends State<SVGenerator>
   );
 
   late TabController _tabController;
+
+  static const double _toolbarTriggerHeight = 18;
+
+  /// Whether the output app bar is pinned into the layout.
+  bool _toolbarPinned = true;
+
+  /// Drives the hover slide of the unpinned output app bar.
+  late final AnimationController _toolbarController;
+  late final Animation<Offset> _toolbarSlide;
   late final _ConfappRohdExtensionClient _sourceFormatClient;
   late final StreamSubscription<Configurator> _componentSubscription;
 
@@ -318,6 +328,20 @@ class _SVGeneratorState extends State<SVGenerator>
   @override
   void initState() {
     super.initState();
+    _toolbarController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _toolbarSlide = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _toolbarController,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      ),
+    );
     _sourceTracer = null;
     _sourceFormatClient = _ConfappRohdExtensionClient(
       getModuleFormats: _getModuleFormats,
@@ -3300,6 +3324,7 @@ class _SVGeneratorState extends State<SVGenerator>
   @override
   void dispose() {
     unawaited(_componentSubscription.cancel());
+    _toolbarController.dispose();
     _tabController.dispose();
     _svController?.dispose();
     _scController?.dispose();
@@ -3457,83 +3482,8 @@ class _SVGeneratorState extends State<SVGenerator>
                   child: Card(
                     child: Container(
                       margin: const EdgeInsets.all(10),
-                      child: Scaffold(
-                        appBar: AppBar(
-                          title: const Text('Generated Outputs'),
-                          actions: [
-                            // Tab-visibility checkboxes
-                            for (var i = 0; i < _tabLabels.length; i++)
-                              Tooltip(
-                                message: _tabTooltips[i],
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(4),
-                                  onTap: () {
-                                    if (_tabEnabled[i] &&
-                                        _visibleTabs.length == 1) {
-                                      return;
-                                    }
-                                    setState(() {
-                                      _tabEnabled[i] = !_tabEnabled[i];
-                                      _rebuildTabController(
-                                        selectLogical:
-                                            _tabEnabled[i] ? i : null,
-                                      );
-                                    });
-                                    // Lazy generation when a tab is enabled.
-                                    if (_tabEnabled[i] &&
-                                        _lastBuiltModule != null) {
-                                      unawaited(_lazyGenerate(i));
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 4),
-                                    child: Opacity(
-                                      opacity: _tabEnabled[i] ? 1.0 : 0.35,
-                                      child: _tabIconWidget(i),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(width: 8),
-                            BlocBuilder<ThemeCubit, material_ui.ThemeMode>(
-                              builder: (context, themeMode) {
-                                final isDark =
-                                    themeMode == material_ui.ThemeMode.dark;
-                                return Tooltip(
-                                  message: isDark
-                                      ? 'Switch to light theme'
-                                      : 'Switch to dark theme',
-                                  child: IconButton(
-                                    icon: Text(
-                                      isDark ? '☀️' : '🌙',
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
-                                    onPressed: () {
-                                      context.read<ThemeCubit>().toggleTheme();
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                          bottom: TabBar(
-                            controller: _tabController,
-                            isScrollable: true,
-                            tabs: [
-                              for (final i in _visibleTabs)
-                                Tab(child: _tabLabelWidget(i)),
-                            ],
-                          ),
-                        ),
-                        body: IndexedStack(
-                          index: _tabController.index,
-                          children: [
-                            for (final i in _visibleTabs)
-                              _tabContentForIndex(i, screenHeight, screenWidth),
-                          ],
-                        ),
-                      ),
+                      child: _buildOutputScaffold(
+                          context, screenHeight, screenWidth),
                     ),
                   ),
                 ),
@@ -3543,6 +3493,155 @@ class _SVGeneratorState extends State<SVGenerator>
         );
       },
     );
+  }
+
+  /// Builds the output pane scaffold. When the toolbar is unpinned, the app
+  /// bar is hidden and slides down when the pointer reaches the top edge.
+  Widget _buildOutputScaffold(
+      BuildContext context, double screenHeight, double screenWidth) {
+    final appBar = AppBar(
+      title: const Text('Generated Outputs'),
+      actions: [
+        // Tab-visibility checkboxes
+        for (var i = 0; i < _tabLabels.length; i++)
+          Tooltip(
+            message: _tabTooltips[i],
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: () {
+                if (_tabEnabled[i] && _visibleTabs.length == 1) {
+                  return;
+                }
+                setState(() {
+                  _tabEnabled[i] = !_tabEnabled[i];
+                  _rebuildTabController(
+                    selectLogical: _tabEnabled[i] ? i : null,
+                  );
+                });
+                // Lazy generation when a tab is enabled.
+                if (_tabEnabled[i] && _lastBuiltModule != null) {
+                  unawaited(_lazyGenerate(i));
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+                child: Opacity(
+                  opacity: _tabEnabled[i] ? 1.0 : 0.35,
+                  child: _tabIconWidget(i),
+                ),
+              ),
+            ),
+          ),
+        const SizedBox(width: 8),
+        BlocBuilder<ThemeCubit, material_ui.ThemeMode>(
+          builder: (context, themeMode) {
+            final isDark = themeMode == material_ui.ThemeMode.dark;
+            return Tooltip(
+              message:
+                  isDark ? 'Switch to light theme' : 'Switch to dark theme',
+              child: IconButton(
+                icon: Text(
+                  isDark ? '☀️' : '🌙',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                onPressed: () {
+                  context.read<ThemeCubit>().toggleTheme();
+                },
+              ),
+            );
+          },
+        ),
+        IconButton(
+          tooltip:
+              _toolbarPinned ? 'Unpin output toolbar' : 'Pin output toolbar',
+          icon: DockLockIcon(
+            locked: _toolbarPinned,
+            color: IconTheme.of(context).color ?? Colors.white,
+            edge: DockEdge.top,
+          ),
+          onPressed: _toggleToolbarPinned,
+        ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabs: [
+          for (final i in _visibleTabs) Tab(child: _tabLabelWidget(i)),
+        ],
+      ),
+    );
+
+    final body = IndexedStack(
+      index: _tabController.index,
+      children: [
+        for (final i in _visibleTabs)
+          _tabContentForIndex(i, screenHeight, screenWidth),
+      ],
+    );
+
+    if (_toolbarPinned) {
+      return Scaffold(appBar: appBar, body: body);
+    }
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(child: body),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) => _showToolbar(),
+              child: const SizedBox(
+                width: double.infinity,
+                height: _toolbarTriggerHeight,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SlideTransition(
+              position: _toolbarSlide,
+              child: MouseRegion(
+                onExit: (_) => _hideToolbar(),
+                child: Material(
+                  elevation: 8,
+                  child: SizedBox(
+                    height: appBar.preferredSize.height,
+                    child: appBar,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _toggleToolbarPinned() {
+    setState(() {
+      _toolbarPinned = !_toolbarPinned;
+    });
+    if (!_toolbarPinned) {
+      _toolbarController.reverse();
+    }
+  }
+
+  void _showToolbar() {
+    if (!_toolbarPinned) {
+      _toolbarController.forward();
+    }
+  }
+
+  void _hideToolbar() {
+    if (!_toolbarPinned) {
+      _toolbarController.reverse();
+    }
   }
 
   @override

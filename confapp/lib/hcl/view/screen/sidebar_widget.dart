@@ -7,6 +7,7 @@
 // 2023 December
 
 import 'package:confapp/hcl/cubit/component_cubit.dart';
+import 'package:confapp/hcl/view/screen/dock_lock_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
@@ -115,10 +116,9 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
                       tooltip: widget.pinned
                           ? 'Unpin components menu'
                           : 'Pin components menu',
-                      icon: _DockLockIcon(
+                      icon: DockLockIcon(
                         locked: widget.pinned,
                         color: Colors.white,
-                        size: 18,
                       ),
                       onPressed: widget.onTogglePinned,
                     ),
@@ -243,84 +243,4 @@ class _ComponentTile extends StatelessWidget {
       ..add(DiagnosticsProperty<bool>('selected', selected))
       ..add(ObjectFlagProperty<VoidCallback>.has('onTap', onTap));
   }
-}
-
-/// A two-box layout glyph whose left strip is shaded when [locked], matching
-/// the dock icon used by the ROHD wave viewer.
-class _DockLockIcon extends StatelessWidget {
-  const _DockLockIcon({
-    required this.locked,
-    required this.color,
-    required this.size,
-  });
-
-  final bool locked;
-  final Color color;
-  final double size;
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(FlagProperty('locked', value: locked, ifTrue: 'locked'))
-      ..add(ColorProperty('color', color))
-      ..add(DoubleProperty('size', size));
-  }
-
-  @override
-  Widget build(BuildContext context) => CustomPaint(
-        size: Size.square(size),
-        painter: _DockLockPainter(locked: locked, color: color),
-      );
-}
-
-class _DockLockPainter extends CustomPainter {
-  _DockLockPainter({required this.locked, required this.color});
-
-  final bool locked;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final stroke = (size.width / 16 * 1.4).clamp(1.0, 2.0);
-    final rect = Rect.fromLTWH(
-      stroke,
-      stroke,
-      size.width - stroke * 2,
-      size.height - stroke * 2,
-    );
-    final rrect = RRect.fromRectAndRadius(
-      rect,
-      Radius.circular(size.width * 0.14),
-    );
-    final stripWidth = rect.width * 0.38;
-    final dividerX = rect.left + stripWidth;
-
-    if (locked) {
-      canvas
-        ..save()
-        ..clipRRect(rrect)
-        ..drawRect(
-          Rect.fromLTWH(rect.left, rect.top, stripWidth, rect.height),
-          Paint()
-            ..style = PaintingStyle.fill
-            ..color = color.withValues(alpha: 0.9),
-        )
-        ..restore();
-    }
-
-    final line = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke
-      ..color = color
-      ..isAntiAlias = true;
-    canvas
-      ..drawRRect(rrect, line)
-      ..drawLine(
-          Offset(dividerX, rect.top), Offset(dividerX, rect.bottom), line);
-  }
-
-  @override
-  bool shouldRepaint(_DockLockPainter oldDelegate) =>
-      oldDelegate.locked != locked || oldDelegate.color != color;
 }

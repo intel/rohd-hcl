@@ -329,6 +329,42 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('output toolbar unpinned by lock icon slides in on hover',
+      (tester) async {
+    Finder tooltip(String message) => find.byWidgetPredicate(
+          (w) => w is Tooltip && w.message == message,
+        );
+
+    await pumpHclPage(tester);
+    expect(tooltip('Unpin output toolbar'), findsOneWidget);
+    final barTop = tester.getTopLeft(find.byType(AppBar).last).dy;
+    final barCenterX = tester.getCenter(find.byType(AppBar).last).dx;
+
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(Offset(barCenterX, barTop + 60));
+    await tester.pump();
+
+    await tester.tap(tooltip('Unpin output toolbar'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tooltip('Pin output toolbar'), findsOneWidget);
+    expect(tester.getTopLeft(tooltip('Pin output toolbar')).dy,
+        lessThan(barTop - 20));
+
+    await mouse.moveTo(Offset(barCenterX, barTop + 2));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.getTopLeft(tooltip('Pin output toolbar')).dy,
+        greaterThanOrEqualTo(barTop - 1));
+
+    await mouse.moveTo(Offset(barCenterX, barTop + 200));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.getTopLeft(tooltip('Pin output toolbar')).dy,
+        lessThan(barTop - 20));
+  });
+
   testWidgets('components menu unpinned by lock icon slides in on hover',
       (tester) async {
     Finder tooltip(String message) => find.byWidgetPredicate(

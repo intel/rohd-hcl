@@ -168,6 +168,7 @@
 - Expanded the configuration application catalog to cover all configurable components and bundled Roboto Mono for generated source output.
 - Added configuration controls for `Count`/`Extrema` radix and static-or-runtime summation values, Counter reset behavior, and overflow/underflow tracking.
 - Added a lock toggle to the configuration application component menu; when unpinned, the menu slides out on hover from the left edge and hides when the pointer leaves.
+- Added a lock toggle to the configuration application output toolbar; when unpinned, the toolbar slides down on hover from the top edge and hides when the pointer leaves.
 
 ### Documentation
 
