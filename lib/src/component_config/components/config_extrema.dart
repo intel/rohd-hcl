@@ -22,16 +22,16 @@ class ExtremaConfigurator extends Configurator {
   String get subcategory => 'selection';
 
   /// A knob controlling the number of logics to compare.
-  final IntConfigKnob signalsKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob signalsKnob = PositiveIntConfigKnob(value: 4);
 
   /// A knob controlling the width of each element to sort.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob logicWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling whether to find Max or Min.
   final ToggleConfigKnob maxKnob = ToggleConfigKnob(value: true);
 
   /// Maximum number of candidates compared by a balanced reduction node.
-  final IntConfigKnob radixKnob = IntConfigKnob(value: 2);
+  final IntConfigKnob radixKnob = IntConfigKnob(value: 2, minValue: 2);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

@@ -47,7 +47,7 @@ class StaticOrRuntimeIntKnob extends GroupOfKnobs {
     int runtimeWidth = 8,
     super.name = 'Integer Control',
   })  : staticValueKnob = IntOptionalConfigKnob(value: staticValue),
-        runtimeWidthKnob = IntConfigKnob(value: runtimeWidth),
+        runtimeWidthKnob = PositiveIntConfigKnob(value: runtimeWidth),
         super({});
 
   /// Whether this knob generates a runtime input.

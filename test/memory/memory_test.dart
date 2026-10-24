@@ -99,7 +99,7 @@ void main() {
         rdPorts[2].addr.put(3);
         await clk.waitCycles(mem.readLatency);
         await clk.nextPosedge;
-        expect(rdPorts[2].data.value.toInt(), 0xdeadbeef);
+        expect(rdPorts[2].data.value, LogicValue.ofInt(0xdeadbeef, dataWidth));
 
         await clk.nextNegedge;
         rdPorts[2].en.put(0);
@@ -154,7 +154,7 @@ void main() {
         rdPorts[0].addr.put(4);
         await clk.waitCycles(mem.readLatency);
         await clk.nextPosedge;
-        expect(rdPorts[0].data.value.toInt(), 0xff00ff00);
+        expect(rdPorts[0].data.value, LogicValue.ofInt(0xff00ff00, dataWidth));
 
         await clk.nextNegedge;
         rdPorts[0].en.put(0);
@@ -230,7 +230,8 @@ void main() {
         rdPorts[0].addr.inject(4);
         unawaited(clk.waitCycles(mem.readLatency + 1).then((value) async {
           await clk.nextNegedge;
-          expect(rdPorts[0].data.value.toInt(), 0xff00ff00);
+          expect(
+              rdPorts[0].data.value, LogicValue.ofInt(0xff00ff00, dataWidth));
         }));
 
         await clk.nextPosedge;

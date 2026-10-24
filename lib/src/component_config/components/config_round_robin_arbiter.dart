@@ -21,7 +21,7 @@ class RoundRobinArbiterConfigurator extends Configurator {
   String get subcategory => 'arbitration';
 
   /// A knob controlling the number of requests and grants.
-  final IntConfigKnob numRequestKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob numRequestKnob = PositiveIntConfigKnob(value: 4);
 
   /// A knob controlling the implementation.
   final ChoiceConfigKnob<Type> implementationKnob = ChoiceConfigKnob(

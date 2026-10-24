@@ -21,7 +21,7 @@ class PriorityEncoderConfigurator extends Configurator {
   String get subcategory => 'priority';
 
   /// Width of the input bit vector.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Whether to generate the valid output.
   final ToggleConfigKnob generateValidKnob = ToggleConfigKnob(value: true);

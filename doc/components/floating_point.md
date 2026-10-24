@@ -32,6 +32,46 @@ representations with `FixedPointValue.toFloatingPointValue()` and
 `FloatingPointValue.toFixedPointValue()`. These conversions are independent of
 host `double` precision.
 
+### Typed transport and optional pipeline stages
+
+The shared `swap` and `condFlop` utilities preserve floating-point subtypes,
+fixed-point formats, and structured or typed-array payloads. For example,
+`final FloatingPoint32 registered = condFlop(clk, sample);` retains the
+floating-point fields without a cast. With a null clock, `condFlop` returns the
+original signal without adding latency. Enable and reset behavior are unchanged.
+When registering a scalar constant, use `condFlop<Logic>(clk, Const(...))` to
+request a driveable signal rather than an immutable constant output.
+
+Floating-point swap/sort modules independently preserve payload and metadata
+types as `FloatingPointSwap<FpType, MetaType>`,
+`FloatingPointConditionalSwap<FpType, MetaType>`,
+`FloatingPointSort<FpType, MetaType>`, and
+`FloatingPointSortByExp<FpType, MetaType>`. Optional metadata outputs have type
+`MetaType?`; fields are accessible without casting. Structured and typed-array
+metadata use typed muxes and must have matching recursive layouts, enum
+mappings, and value codecs.
+
+```dart
+final sorter = FloatingPointSort(a, b, metaA: packetA, metaB: packetB);
+final Packet firstMetadata = sorter.outMetaA!;
+```
+
+Calls with inferred type arguments remain supported. Explicit old
+`FloatingPointSort<FloatingPoint32>` annotations must now supply the metadata
+type, for example `FloatingPointSort<FloatingPoint32, Packet>`. Use `Logic` as
+the metadata type for scalar constants so outputs are driveable; with no
+metadata, optional outputs remain absent.
+
+The single-path and dual-path adders and the simple multiplier retain propagated
+NaNs as floating-point payloads through their optional pipeline stage, rather
+than transporting sign and mantissa as unrelated signals. Final NaN selection
+also uses a whole-payload typed mux. NaN payload selection, quieting,
+reset/enable behavior, exception flags, and latency are unchanged.
+Square-root selection also keeps fixed-point intermediates typed while leaving
+the underlying shifts and digit-recurrence arithmetic bit-oriented. Exponent,
+significand, rounding, and conversion calculations continue to operate on bits
+where that is the algorithm's intended representation.
+
 ### Subnormals As Zero
 
 Both for compatibility and for optimization we provide an option to flag floating-point numbers to be treated as zero when they become subnormal.  On input to a component, this is commonly known as Denormal-as-Zero (or DAZ).  On output from a component this is commonly known as Flush-to-Zero (FTZ).  By setting the boolean on the input `FloatingPoint` called `subNormalAsZero` you indicate DAZ for components that support this mode (our floating-point adders, currently).  By setting the same flag on the output `FloatingPoint`, you indicate FTZ.

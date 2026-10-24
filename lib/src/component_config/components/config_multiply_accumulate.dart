@@ -21,13 +21,13 @@ class MultiplyAccumulateConfigurator extends Configurator {
   String get subcategory => 'multiply-accumulate';
 
   /// Width of multiplicand A.
-  final IntConfigKnob multiplicandWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob multiplicandWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of multiplier B.
-  final IntConfigKnob multiplierWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob multiplierWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of addend C.
-  final IntConfigKnob addendWidthKnob = IntConfigKnob(value: 17);
+  final IntConfigKnob addendWidthKnob = PositiveIntConfigKnob(value: 17);
 
   /// Optional output width.
   final IntOptionalConfigKnob outputWidthKnob =

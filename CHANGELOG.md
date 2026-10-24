@@ -1,7 +1,27 @@
-## 0.3.0 (Unreleased)
+## Unreleased (0.3.0)
+
+- Confapp integer parameters now use validated numeric steppers with unit increment/decrement, hexadecimal input, and optional blank values. Added `PositiveIntConfigKnob` (minimum 1), `NonNegativeIntConfigKnob` (minimum 0), and optional `IntConfigKnob.minValue`; ordinary integer knobs retain signed values. Applicable component parameters declare their lower bounds while retaining defaults and saved JSON formats. Invalid integer text and below-minimum assignments now throw rather than silently retaining old values.
+- Confapp groups the existing component catalog into compact, expandable, initially collapsed category and subcategory menus using configurator metadata. Saved configuration names and the registered component set are unchanged.
 
 ### Breaking changes
 
+- Interface registration now uses ROHD's `addInterfacePorts` and `addPairInterfacePorts` APIs throughout components, tests, and examples. Tag selection, pair roles, typed payloads, and port naming are unchanged.
+
+- Parity/ECC transmitters and receivers now preserve payload types. Receivers accept an optional `dataSchema` for typed original/corrected data; without it they retain ordinary `Logic` outputs. Custom error-checker subclasses should specify their payload type and return that type from `calculateCorrectedData`. Use explicit `<Logic>` when transmitting scalar constants. Encoded wire formats are unchanged.
+
+- `ClockGate.controlled<T>` preserves payload type and width (fixing delayed multi-bit signals), and `ReadyValidFifo<T>` now accepts any `Logic` payload. Use `controlled<Logic>` for delayed scalar constants. CSR write/read candidate builders and bit replacement now return structured `Csr` values.
+
+- Floating-point swap/sort classes now take independent `<FpType, MetaType>` arguments and expose metadata as `MetaType?`. Explicit one-argument annotations must add the metadata type; inferred calls remain supported. Use `Logic` for scalar constant metadata. Metadata layouts, enum mappings, and codecs must match.
+
+- Prefix topologies now preserve their payload type as `ParallelPrefix<T>`, `Ripple<T>`, `Sklansky<T>`, `KoggeStone<T>`, and `BrentKung<T>`. Use `<Logic>` for scalar constant inputs. Custom `ParallelPrefixAdder.ppGen` generators must use `ParallelPrefixGenerator<GeneratePropagate>` and preserve named `generate`/`propagate` fields instead of packed two-bit pairs. Built-in constructor tear-offs remain supported.
+
+- `ShiftRegister<T>`, `AsyncFifo<T>`, and `Extrema<T>` preserve payload types. Use explicit `<Logic>` for scalar constant inputs. Extrema defaults to the payload's comparison rather than flattening domain-specific signals into unsigned bits; pass `.packed` inputs for packed-bit ordering. Ordinary scalar width extension and earliest-index tie breaking are unchanged.
+
+- Sorting, reduction, and toggle gating now preserve payload types. Use `BitonicSort<Logic>`, `ReductionTree<Logic, Logic>`, `ReductionTreeGenerator<Logic, Logic>`, and `ToggleGate<Logic>` when scalar constant inputs should become mutable ports/state. Typed sorting uses the payload's numeric comparisons by default; pass `.packed` inputs for the prior unsigned packed ordering. Structured reduction callbacks now own field/format alignment instead of receiving flattened, bit-extended operands.
+
+- `condFlop` now preserves its input's static type and runtime payload schema. When registering a scalar `Const` or `LogicNet`, request `condFlop<Logic>(...)` explicitly to construct a driveable result. Null-clock calls still return their original input.
+
+- `Serializer<T, V>` and `Deserializer<T, V>` now support typed array leaves while preserving outer-dimension transfer timing. Both data outputs are `TypedLogicArray<T, V>`; serialization of a one-dimensional input yields a rank-zero array, with the typed leaf accessible via `.scalar`. The deserializer constructor requires a leaf `valueCodec`; use `LogicValueCodec.logicValue` for existing plain-logic callers. See [Serialization](doc/components/serialization.md).
 - The minimum supported Dart SDK is now 3.6.0. Applications using Dart 3.0 through 3.5 must upgrade their SDK before resolving ROHD-HCL.
 - Removed APIs already deprecated in v0.2.1. Migrate `splitSelectAdderAlgorithm4Bit` to `splitSelectAdderAlgorithmNBit(4)`, legacy interface clone and divider match constructors to instance `clone()`, partial-product sign-extension wrappers to the corresponding `PartialProductSignExtension` strategy, `Count.index` to `count`, and legacy parity getters to `code`/`error`/`originalData`. The `FixedPointValue` comparison operators now return `bool`.
 - Corrected AXI5 signal widths to match the configured protocol widths. Generated interfaces for affected `MMUSID`, `MMUSSID`, and `SUBSYSID` signals may have different port widths; designs that connect to those signals must use the corrected widths (<https://github.com/intel/rohd-hcl/pull/280>).
@@ -48,6 +68,25 @@
 
 ### New features and enhanced components
 
+- `MemoryModel<T>` preserves typed payload interfaces and drives behavioral readback through raw leaf bits, supporting domain-specific structures such as `FixedPoint` without semantic value conversions. Raw storage, four-state values, latency, masks, and reset behavior are retained.
+- `FloatToFixed<T>` accepts an optional signed `outFixed` schema, preserves its concrete subtype internally and on output, and validates explicit width compatibility. Scalar defaults remain unchanged. `Float8ToFixed` preserves structured input schemas while retaining its intentionally mode-dependent scalar output.
+- Final propagated/default NaN selection in floating-point adders and the simple multiplier now uses whole-payload typed muxes.
+
+- Added `TagInterface<T>.typed(idWidth, schema)` and `Cam<T>` with typed tag ports, cloning, and storage. Width-based scalar interfaces remain supported. CAM lookups retain bit-identity matching, duplicate-index priority, and write/invalidation behavior; layouts/codecs and index capacity are validated explicitly.
+
+- Preserved structures, enum mappings, and typed-array schemas through prefix ports, callback results, recursive networks, and internal aliases. Added explicit structured-layout validation while retaining scalar widths and operand order.
+- Prefix adders now use typed generate/propagate records internally; external arithmetic ports and carry behavior are unchanged.
+
+- Preserved structured, enum, and typed-array payloads through shift-register stages and asynchronous FIFO ports/storage without changing delay or CDC behavior.
+- Extrema now selects typed payload/index candidates using typed muxes and supports a custom strict `isLessThan` comparator for record keys.
+
+- Added typed data/control propagation through bitonic sort stages, both reduction implementations, and ToggleGate storage/selection. Sorting supports a custom strict `isLessThan` comparator while transporting complete records and typed arrays.
+- Fixed-point square root and fixed-to-float conversion retain concrete output subtypes. Floating-point adders and the simple multiplier carry NaN payloads through typed optional pipeline stages; square-root selection preserves its fixed-point intermediate schema.
+
+- Shared swaps and optional flops preserve floating-point subtypes, fixed-point formats, enum mappings, and typed-array schemas. Floating-point swap/sort metadata ports now retain structured payloads; arithmetic field operations and pipeline timing are unchanged.
+
+- Extended typed storage regressions to check unpacked payloads with Icarus and to compare plain and typed FIFOs with SystemC using explicit clock edges.
+- Preserved typed payloads through `DataPortInterface.typed`, `MaskedDataPortInterface.typed`, generic `Memory<T>`/`RegisterFile<T>`, and synchronous FIFO storage. Register files now use a `TypedLogicArray<T, LogicValue>` bank, including structured, enum, multidimensional, and rank-zero payloads. Existing width-based ports remain available. Ready/valid adapters share recursive typed-array shape validation and FIFO definition identities.
 - Refactored AMBA support to add AXI4-Lite, AXI4-Stream, ACE, and ACE-Lite protocol variants while preserving the existing AXI APIs (<https://github.com/intel/rohd-hcl/pull/251>).
 - Added an abstract `ApbCompleter` and an `ApbCsrCompleter` implementation for connecting APB transactions to CSR blocks (<https://github.com/intel/rohd-hcl/pull/270>).
 - Added `AsyncFifo` for safely transferring data between clock domains (<https://github.com/intel/rohd-hcl/issues/168>, <https://github.com/intel/rohd-hcl/pull/279>).
@@ -55,7 +94,6 @@
 - Finalized the ready/valid interface foundation with value-based `ReadyValidContract` metadata, typed payload port registration, accepted/stalled predicates, composability checks, clone-preserved contracts, and independent, ready-first, valid-first, and irrevocable interface variants. Typed registration preserves provider sidebands and nested pair subinterfaces, and supports validated packed bridges between plain and structured payload ports.
 - Preserved deprecated `PairInterface.modify` compatibility for typed ready/valid payload and valid ports, applying `modify` before `uniquify` consistently with ROHD's ready and recursive interface traversal and retaining the callback through every built-in ready/valid clone.
 - Added the protocol-neutral `HardwareCoreFunctor` construction seam and a typed `FifoCoreFunctor` implementation over `Fifo`, including explicit full-replacement and empty-bypass capability requirements. FIFO core definition identities include a deterministic recursive payload-shape signature so equal-width but structurally different payloads cannot collide. Concrete ready/valid, credit, routing, and scheduling attachments remain later component work.
-- Added `addInterface`, `addPairInterface`, and `addPairInterfaceFrom` module extensions as the shared typed interface-registration seam.
 - Corrected a fully initialized `Fifo` to wrap its reset write pointer, preserving same-cycle full dequeue/replacement behavior at depth one and non-power-of-two depths.
 - Added the `Counter.upDown` convenience constructor for incrementing and decrementing by one (<https://github.com/intel/rohd-hcl/pull/271>).
 - Added the `RegisterFile.setData` testbench hook for directly initializing register contents (<https://github.com/intel/rohd-hcl/pull/273>).
@@ -124,8 +162,9 @@
 - Added selectable ROHD schematic, ROHD source, generated SystemVerilog, and synthesized schematic views, including syntax highlighting, downloadable generated artifacts, configurable schematic expansion, and split-pane output.
 - Migrated the configuration application to `material_ui`, including light and dark themes, and removed its legacy Flutter Material dependencies.
 - Converted the root package and configuration application to a Pub workspace and added package-by-package hosted, Git, and local dependency-source selection for development.
-- Grouped the component sidebar by configurator category.
 - Updated the source-view asset mapping and generated asset list for the reorganized source tree.
+- Organized confapp feature code by placing the integer stepper in `confapp/lib/hcl/view/screen/integer_knob_control.dart`, with its tests mirrored under `confapp/test/hcl/view/screen/`.
+- Replaced plain-text integer parameter fields in confapp with the shared `IntegerKnobControl` stepper, which provides +/- buttons, hexadecimal input, optional blanks, and inline validation.
 - Expanded the configuration application catalog to cover all configurable components and bundled Roboto Mono for generated source output.
 - Added configuration controls for `Count`/`Extrema` radix and static-or-runtime summation values, Counter reset behavior, and overflow/underflow tracking.
 
@@ -136,6 +175,8 @@
 - Fixed stale source paths in component documentation.
 
 ### Bug fixes
+
+- Corrected signed `FixedPoint` signal comparisons for negative and mixed-sign operands, enabling numeric ordering in typed sort modules.
 
 - Corrected AXI5 mixin signal widths to match the protocol specification (<https://github.com/intel/rohd-hcl/pull/280>).
 - Ensured the `Serializer` counter has a valid width for single-element inputs (<https://github.com/intel/rohd-hcl/pull/284>).
@@ -208,6 +249,7 @@
 - Updated source and analysis configuration for newer Dart lints (<https://github.com/intel/rohd-hcl/pull/282>, <https://github.com/intel/rohd-hcl/pull/300>).
 - Updated GitHub workflows to Node.js 24 (<https://github.com/intel/rohd-hcl/pull/288>).
 - Updated compatibility to ROHD 0.6.11 and set the Dart SDK range to `^3.6.0`.
+- Pointed the root and confapp `dependency_overrides` for ROHD and its UI packages at `intel/rohd` `main`, so checked-in builds resolve from git rather than local paths.
 
 ### Verification and maintenance
 
@@ -216,6 +258,7 @@
 - Reduced redundant randomized/exhaustive test matrices and deferred parameterized DUT construction until test execution, retaining boundary and configuration coverage while lowering test time and peak simulator memory.
 - Re-enabled `previousFloatingPointValue` regressions after the upstream ROHD fix (<https://github.com/intel/rohd/pull/565>).
 - Resolved stale arithmetic TODOs where exhaustive testing confirmed the existing implementation.
+- Added copyright and author headers to all source, test, and example Dart files that lacked them.
 
 ### Known issues
 

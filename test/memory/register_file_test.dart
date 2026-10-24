@@ -36,11 +36,11 @@ void main() {
     });
 
     test('required minimum ports', () {
-      RegisterFile(Logic(), Logic(), [], [DataPortInterface(32, 32)]);
-      RegisterFile(Logic(), Logic(), [DataPortInterface(32, 32)], []);
+      RegisterFile<Logic>(Logic(), Logic(), [], [DataPortInterface(32, 32)]);
+      RegisterFile<Logic>(Logic(), Logic(), [DataPortInterface(32, 32)], []);
 
       try {
-        RegisterFile(Logic(), Logic(), [], []);
+        RegisterFile<Logic>(Logic(), Logic(), [], []);
         fail('Should have failed');
       } on RohdHclException catch (_) {}
     });

@@ -21,10 +21,10 @@ class SignedShifterConfigurator extends Configurator {
   String get subcategory => 'shifting';
 
   /// Width of the shifted input and output.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of the signed shift-amount input.
-  final IntConfigKnob shiftWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob shiftWidthKnob = PositiveIntConfigKnob(value: 4);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

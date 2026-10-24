@@ -112,8 +112,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     final isNaNLatch = localFlop(isNaN);
     final invalidOperationLatch = localFlop(invalidOperation);
     final inputIsNaNLatch = localFlop(inputIsNaN);
-    final nanSignLatch = localFlop(propagatedNaN.sign);
-    final nanMantissaLatch = localFlop(propagatedNaN.mantissa);
+    final nanLatch = localFlop(propagatedNaN);
 
     final leadingOnePosPre =
         priorityGen(mantissa.reversed, name: 'leading_one_encoder')
@@ -226,11 +225,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
 
     Combinational([
       If(isNaNLatch, then: [
-        internalProduct.sign <
-            mux(inputIsNaNLatch, nanSignLatch, product.nan.sign),
-        internalProduct.exponent < product.nan.exponent,
-        internalProduct.mantissa <
-            mux(inputIsNaNLatch, nanMantissaLatch, product.nan.mantissa),
+        internalProduct < mux(inputIsNaNLatch, nanLatch, product.nan),
       ], orElse: [
         If(isInfLatch, then: [
           internalProduct < product.inf(sign: resultSign),

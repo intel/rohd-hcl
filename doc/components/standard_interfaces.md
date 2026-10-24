@@ -4,20 +4,27 @@ ROHD-HCL provides a set of standard interfaces using ROHD `Interface`s.  This ma
 
 ## Module Registration Helpers
 
-The `RohdHclModuleInterfacePorts` extension provides a shared registration
-seam over ROHD's released interface APIs:
+Register interfaces on a module with ROHD's `Module` registration methods
+rather than calling `connectIO` or `pairConnectIO` directly:
 
-- `addInterface` clones an `Interface`, registers selected tag directions, and
+- `addInterfacePorts` clones an `Interface`, registers selected tag directions, and
   returns the module-local clone.
-- `addPairInterface` does the same for a selected `PairRole`.
-- `addPairInterfaceFrom` registers an intentionally different concrete
-  `PairInterface` target against a source. Ready/valid retyping accepts a
-  width-compatible plain packed payload bridge and rejects mismatched widths or
-  incompatible declared structures.
+- `addPairInterfacePorts` does the same for a selected `PairRole`.
+- `addInterfaceFrom` and `addPairInterfaceFrom` register an intentionally
+  different concrete target against a source and return that target.
+  Ready/valid retyping accepts a width-compatible plain packed payload bridge
+  and rejects mismatched widths or incompatible declared structures.
 
-The helpers preserve specialized `connectIO` behavior, including typed
-ready/valid payload ports. Existing components are not required to migrate to
-the seam immediately.
+These methods preserve specialized `connectIO` behavior, including typed
+ready/valid payload ports, and keep module code independent of how interface
+ports are laid out.
+
+## Modeling Versus RTL
+
+The interfaces above are synthesizable RTL. Some components also have
+non-synthesizable software or SystemC models for simulation and verification.
+Those are separate from the RTL and are opt-in. See
+[Behavioral Models](./behavioral_models.md) for when to use each form.
 
 ## APB
 

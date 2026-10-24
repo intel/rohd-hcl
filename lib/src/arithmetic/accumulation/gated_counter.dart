@@ -101,8 +101,10 @@ class GatedCounter extends Counter {
                 'GatedCounter_W${width}_m${minValue}_M$maxValue'
                     '${trackOverflow ? "" : "_NO"}'
                     '${trackUnderflow ? "" : "_NU"}') {
-    _clockGateControlInterface?.pairConnectIO(
-        this, clockGateControlInterface!, PairRole.consumer);
+    if (_clockGateControlInterface != null) {
+      addPairInterfaceFrom(_clockGateControlInterface,
+          clockGateControlInterface!, PairRole.consumer);
+    }
   }
 
   /// All [interfaces] which are incrementing.

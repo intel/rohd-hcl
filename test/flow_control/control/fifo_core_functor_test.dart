@@ -241,7 +241,7 @@ void main() {
         );
 
         await harness.build();
-        final systemVerilog = harness.generateSynth();
+        final systemVerilog = harness.dumpSystemVerilog();
         final definitionName = harness.binding.module.definitionName;
         expect(
           definitionName,
@@ -342,7 +342,7 @@ void main() {
     expect(firstDefinition, matches(RegExp(r'^[A-Za-z][A-Za-z0-9_]*$')));
     expect(distinctDefinition, matches(RegExp(r'^[A-Za-z][A-Za-z0-9_]*$')));
 
-    final systemVerilog = harness.generateSynth();
+    final systemVerilog = harness.dumpSystemVerilog();
     expect(
       RegExp('module ${RegExp.escape(firstDefinition)}\\b')
           .allMatches(systemVerilog),

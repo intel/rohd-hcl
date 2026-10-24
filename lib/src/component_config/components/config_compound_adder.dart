@@ -23,10 +23,10 @@ class CompoundAdderConfigurator extends Configurator {
   final adderSelectionKnob = AdderSelectKnob();
 
   /// A knob controlling the width of the inputs to the adder.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob logicWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling the sub-adder block width.
-  final IntConfigKnob blockWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob blockWidthKnob = PositiveIntConfigKnob(value: 4);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

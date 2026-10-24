@@ -66,7 +66,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
 
     final aExplicit = Const(a.explicitJBit);
     final bExplicit = Const(b.explicitJBit);
-    final swapper = FloatingPointSortByExp(fa, fb,
+    final swapper = FloatingPointSortByExp<FloatingPoint, Logic>(fa, fb,
         metaA: aExplicit, metaB: bExplicit, name: 'sorter_${a.name}_${b.name}');
     final larger = swapper.outA;
     final smaller = swapper.outB;
@@ -206,8 +206,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final isNaNFlopped = localFlop(isNaN);
     final invalidOperationFlopped = localFlop(invalidOperation);
     final inputIsNaNFlopped = localFlop(inputIsNaN);
-    final nanSignFlopped = localFlop(propagatedNaN.sign);
-    final nanMantissaFlopped = localFlop(propagatedNaN.mantissa);
+    final nanFlopped = localFlop(propagatedNaN);
     final highBitsLSBFlopped = localFlop(highBitsLSB);
     final lowerBitsFlopped = localFlop(lowerBits);
     final lowBitsOrFlopped = localFlop(stickyBitsOr);
@@ -426,12 +425,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     Combinational([
       If.block([
         Iff(isNaNFlopped, [
-          internalSum.sign <
-              mux(inputIsNaNFlopped, nanSignFlopped, internalSum.nan.sign),
-          internalSum.exponent < internalSum.nan.exponent,
-          internalSum.mantissa <
-              mux(inputIsNaNFlopped, nanMantissaFlopped,
-                  internalSum.nan.mantissa),
+          internalSum < mux(inputIsNaNFlopped, nanFlopped, internalSum.nan),
         ]),
         ElseIf(isInfFlopped, [
           internalSum < internalSum.inf(sign: trueSignFlopped),

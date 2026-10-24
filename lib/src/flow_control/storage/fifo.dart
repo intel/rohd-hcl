@@ -84,7 +84,7 @@ class Fifo<LogicType extends Logic> extends Module {
   Logic get _reset => input('reset');
 
   /// Write data.
-  Logic get _writeData => input('writeData');
+  late final LogicType _writeData;
 
   /// The width of the data transmitted through this [Fifo].
   final int dataWidth;
@@ -131,10 +131,9 @@ class Fifo<LogicType extends Logic> extends Module {
 
     // set up read/write ports
     addInput('writeEnable', writeEnable);
-    addTypedInput('writeData', writeData);
+    _writeData = addTypedInput('writeData', writeData);
     addInput('readEnable', readEnable);
-    readData = addTypedOutput(
-        'readData', writeData.clone as LogicType Function({String? name}));
+    readData = addTypedOutput('readData', _writeData.cloneTyped);
 
     // set up info ports
     addOutput('full');
@@ -178,9 +177,9 @@ class Fifo<LogicType extends Logic> extends Module {
   /// Builds all the logic for [Fifo].
   void _buildLogic() {
     // set up the RF storage
-    final wrPort = DataPortInterface(dataWidth, _addrWidth);
-    final rdPort = DataPortInterface(dataWidth, _addrWidth);
-    RegisterFile(
+    final wrPort = DataPortInterface<LogicType>.typed(_writeData, _addrWidth);
+    final rdPort = DataPortInterface<LogicType>.typed(_writeData, _addrWidth);
+    RegisterFile<LogicType>(
       _clk,
       _reset,
       [wrPort],

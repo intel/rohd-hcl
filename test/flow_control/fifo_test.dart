@@ -703,7 +703,7 @@ void main() {
       await fifoTest.fifo.build();
 
       if (dumpWaves) {
-        WaveDumper(fifoTest.fifo);
+        fifoTest.fifo.dumpWaves();
       }
 
       await fifoTest.start();

@@ -10,6 +10,17 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
+
+void _validatePayload(Logic boundary, Logic payload) {
+  if (boundary.width != payload.width ||
+      (((boundary is LogicStructure && payload is LogicStructure) ||
+              (boundary is LogicEnum && payload is LogicEnum)) &&
+          !sameDeclaredPayloadShape(boundary, payload))) {
+    throw PortTypeException.forIntendedName(boundary.name,
+        'Attachment payload does not match ${payloadShapeIdentity(boundary)}.');
+  }
+}
 
 /// Construction-time behavior of one directional protocol attachment.
 @immutable
@@ -129,6 +140,7 @@ class ReadyValidIngressAttachmentPolicy<LogicType extends Logic> {
     required Logic accept,
     required LogicType payload,
   }) {
+    _validatePayload(upstream.data, payload);
     accept <= upstream.valid & canAccept;
     payload <= upstream.data;
     upstream.ready <= canAccept;
@@ -171,6 +183,7 @@ class ReadyValidEgressAttachmentPolicy<LogicType extends Logic> {
     required LogicType payload,
     required Logic transfer,
   }) {
+    _validatePayload(downstream.data, payload);
     transfer <= offerValid & downstream.ready;
     downstream.valid <= offerValid;
     downstream.data <= payload;

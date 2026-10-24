@@ -30,22 +30,17 @@ class ApbCsrCompleter extends ApbCompleter {
       required DataPortInterface csrWr,
       this.responseLatency = 0,
       super.name}) {
-    rd = csrRd.clone()
-      ..connectIO(
-        this,
-        csrRd,
-        inputTags: {DataPortGroup.data},
-        outputTags: {DataPortGroup.control},
-        uniquify: (original) => '${name}_rd_$original',
-      );
-    wr = csrWr.clone()
-      ..connectIO(
-        this,
-        csrWr,
-        inputTags: {},
-        outputTags: {DataPortGroup.control, DataPortGroup.data},
-        uniquify: (original) => '${name}_wr_$original',
-      );
+    rd = addInterfacePorts(
+      csrRd,
+      inputTags: {DataPortGroup.data},
+      outputTags: {DataPortGroup.control},
+      uniquify: (original) => '${name}_rd_$original',
+    );
+    wr = addInterfacePorts(
+      csrWr,
+      outputTags: {DataPortGroup.control, DataPortGroup.data},
+      uniquify: (original) => '${name}_wr_$original',
+    );
 
     _buildCustomLogic();
   }

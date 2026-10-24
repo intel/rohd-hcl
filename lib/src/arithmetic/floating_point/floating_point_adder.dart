@@ -101,8 +101,7 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
 
     // expose typed output and drive it from internalSum
-    sum = addTypedOutput(
-        'sum', internalSum.clone as FpTypeOut Function({String? name}));
+    sum = addTypedOutput('sum', internalSum.cloneTyped);
     sum <= internalSum;
     internalStatus = FloatingPointStatus(name: 'internalStatus');
     status = addTypedOutput('status', internalStatus.clone);
@@ -114,6 +113,6 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
-  Logic localFlop(Logic input) =>
+  LogicType localFlop<LogicType extends Logic>(LogicType input) =>
       condFlop(clk, input, en: enable, reset: reset);
 }

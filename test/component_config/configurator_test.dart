@@ -532,7 +532,7 @@ void main() {
 
       expect(sv, contains('input logic [7:0]'));
       expect(sv, contains('BitonicSort_W2'));
-      expect(sv, contains('if((toSort1 > toSort3)) begin'));
+      expect(sv, contains('if((toSort3 < toSort1)) begin'));
     });
 
     test('should return sorted module component code in descending.', () async {
@@ -842,7 +842,7 @@ void main() {
         // generates within a wrapping module (check for input/output rules)
         final mod = Wrapper(componentConfigurator.createModule());
         await mod.build();
-        mod.generateSynth();
+        mod.dumpSystemVerilog();
       });
     }
   });

@@ -283,8 +283,8 @@ void main() {
 
       if (dumpWaves) {
         await spiMainTest.main.build();
-        WaveDumper(spiMainTest.main,
-            outputPath: '${spiMainTest.outFolder}/waves.vcd');
+        spiMainTest.main
+            .dumpWaves(outputPath: '${spiMainTest.outFolder}/waves.vcd');
       }
       await spiMainTest.start();
     }
@@ -397,7 +397,7 @@ void main() {
       final mod = SpiTop(spiSubTest.intf, spiSubTest);
       if (dumpWaves) {
         await mod.build();
-        WaveDumper(mod, outputPath: '${spiSubTest.outFolder}/waves.vcd');
+        mod.dumpWaves(outputPath: '${spiSubTest.outFolder}/waves.vcd');
       }
 
       await spiSubTest.start();
@@ -523,7 +523,7 @@ void main() {
       final mod = SpiTop(spiPairTest.intf, null);
       if (dumpWaves) {
         await mod.build();
-        WaveDumper(mod, outputPath: '${spiPairTest.outFolder}/waves.vcd');
+        mod.dumpWaves(outputPath: '${spiPairTest.outFolder}/waves.vcd');
       }
       await spiPairTest.start();
     }

@@ -238,9 +238,7 @@ class ParallelPrefixPriorityEncoder extends PriorityEncoder {
   /// Build a [PriorityEncoder] using a [ParallelPrefix] tree.
   /// - [ppGen] is the type of [ParallelPrefix] tree to use.
   ParallelPrefixPriorityEncoder(super.inp,
-      {ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-          ppGen = KoggeStone.new,
+      {ParallelPrefixGenerator<Logic> ppGen = KoggeStone.new,
       super.generateValid,
       super.name = 'parallel_prefix_encoder',
       super.reserveName,

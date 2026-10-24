@@ -498,8 +498,8 @@ void main() {
     await ppmWithOutputs.build();
     await compress.build();
 
-    File('ppg.sv').writeAsStringSync(ppmWithOutputs.generateSynth());
-    File('compress.sv').writeAsStringSync(compress.generateSynth());
+    File('ppg.sv').writeAsStringSync(ppmWithOutputs.dumpSystemVerilog());
+    File('compress.sv').writeAsStringSync(compress.dumpSystemVerilog());
   });
 
   test('single MAC partial product test', () {

@@ -21,10 +21,10 @@ class FifoConfigurator extends Configurator {
   String get subcategory => 'storage';
 
   /// A knob controlling the data width of the FIFO.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling the depth of the FIFO.
-  final IntConfigKnob depthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob depthKnob = PositiveIntConfigKnob(value: 4);
 
   /// A knob controlling the generation of an error signal.
   final ToggleConfigKnob generateErrorKnob = ToggleConfigKnob(value: false);

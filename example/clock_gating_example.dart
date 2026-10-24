@@ -31,7 +31,7 @@ class CounterWithSimpleClockGate extends Module {
     reset = addInput('reset', reset);
 
     // We clone the incoming interface, receiving all config information with it
-    cgIntf = cgIntf.clone()..pairConnectIO(this, cgIntf, PairRole.consumer);
+    cgIntf = addPairInterfacePorts(cgIntf, PairRole.consumer);
 
     // In this case, we want to enable the clock any time we're incrementing
     final clkEnable = incr;
@@ -132,7 +132,7 @@ Future<void> main({bool noPrint = false}) async {
 
   // Let's see what this module looks like as SystemVerilog, so we can pass it
   // to other tools.
-  final systemVerilogCode = counter.generateSynth();
+  final systemVerilogCode = counter.dumpSystemVerilog();
   if (!noPrint) {
     print(systemVerilogCode);
   }
@@ -141,7 +141,7 @@ Future<void> main({bool noPrint = false}) async {
 
   // Attach a waveform dumper so we can see what happens.
   if (!noPrint) {
-    WaveDumper(counter);
+    counter.dumpWaves();
   }
 
   // Start off with a disabled counter and asserting reset at the start.

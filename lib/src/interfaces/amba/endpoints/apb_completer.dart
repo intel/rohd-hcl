@@ -45,15 +45,14 @@ abstract class ApbCompleter extends Module {
 
   /// Constructor.
   ApbCompleter({required ApbInterface apb, super.name = 'apb_completer'}) {
-    this.apb = apb.clone()
-      ..connectIO(this, apb,
-          inputTags: {
-            ApbDirection.fromRequester,
-            ApbDirection.fromRequesterExceptSelect,
-            ApbDirection.misc
-          },
-          outputTags: {ApbDirection.fromCompleter},
-          uniquify: (orig) => '${name}_$orig');
+    this.apb = addInterfacePorts(apb,
+        inputTags: {
+          ApbDirection.fromRequester,
+          ApbDirection.fromRequesterExceptSelect,
+          ApbDirection.misc
+        },
+        outputTags: {ApbDirection.fromCompleter},
+        uniquify: (orig) => '${name}_$orig');
 
     downstreamValid = Logic(name: 'downstreamValid');
     upstreamValid = Logic(name: 'upstreamValid');

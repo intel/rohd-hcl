@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // interface_port_helper_test.dart
-// Tests HCL interface-port registration helpers.
+// Tests ROHD interface-port registration methods with HCL interfaces.
 //
 // 2026 October 10
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -59,7 +59,7 @@ class _SelectedInterfaceModule extends Module {
   late final ReadyValidInterface<_Payload> channel;
 
   _SelectedInterfaceModule(ReadyValidInterface<_Payload> source) {
-    channel = addInterface(
+    channel = addInterfacePorts(
       source,
       inputTags: {PairDirection.fromProvider},
       outputTags: {PairDirection.fromConsumer},
@@ -72,7 +72,7 @@ class _PairInterfaceModule extends Module {
   late final ReadyValidInterface<_Payload> channel;
 
   _PairInterfaceModule(ReadyValidInterface<_Payload> source) {
-    channel = addPairInterface(
+    channel = addPairInterfacePorts(
       source,
       PairRole.consumer,
       uniquify: (original) => 'pair_$original',
@@ -125,7 +125,7 @@ class _NestedPairModule extends Module {
 
   _NestedPairModule(ReadyValidInterface<_Payload> source)
       : super(definitionName: 'NestedPairInterfaceHarness') {
-    channel = addPairInterface(
+    channel = addPairInterfacePorts(
       source,
       PairRole.consumer,
       uniquify: (original) => 'parent_$original',
@@ -137,7 +137,7 @@ class _NestedPairModule extends Module {
 void main() {
   tearDown(Simulator.reset);
 
-  test('addInterface registers selected typed structure ports', () async {
+  test('addInterfacePorts registers selected typed structure ports', () async {
     final source = ReadyValidInterface<_Payload>(
       _Payload(),
       contract: ReadyValidContract.irrevocable,
@@ -152,14 +152,14 @@ void main() {
 
     await module.build();
     expect(
-      module.generateSynth(),
+      module.dumpSystemVerilog(),
       contains('input logic [8:0] selected_payload'),
     );
-    expect(module.generateSynth(), contains('payload_data'));
-    expect(module.generateSynth(), contains('payload_last'));
+    expect(module.dumpSystemVerilog(), contains('payload_data'));
+    expect(module.dumpSystemVerilog(), contains('payload_last'));
   });
 
-  test('addPairInterface registers the selected role', () {
+  test('addPairInterfacePorts registers the selected role', () {
     final source = ReadyValidInterface<_Payload>(_Payload());
     final module = _PairInterfaceModule(source);
 
@@ -195,7 +195,7 @@ void main() {
           : module.outputs['retyped_payload'];
       expect(payloadPort, isA<_Payload>());
       await module.build();
-      final systemVerilog = module.generateSynth();
+      final systemVerilog = module.dumpSystemVerilog();
       expect(
         systemVerilog,
         contains(
@@ -236,7 +236,7 @@ void main() {
       expect(payloadPort, isA<Logic>());
       await module.build();
       expect(
-        module.generateSynth(),
+        module.dumpSystemVerilog(),
         contains(
           '${role == PairRole.consumer ? 'input' : 'output'} '
           'logic [8:0] retyped_payload',
@@ -297,7 +297,7 @@ void main() {
 
     await module.build();
     expect(module.hierarchyString(), contains('_PairInterfaceModule'));
-    final systemVerilog = module.generateSynth();
+    final systemVerilog = module.dumpSystemVerilog();
     expect(systemVerilog, contains('NestedPairInterfaceHarness'));
     expect(systemVerilog, contains('input logic [8:0] parent_payload'));
     expect(systemVerilog, contains('pair_payload_data'));

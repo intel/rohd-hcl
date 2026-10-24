@@ -36,8 +36,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           'FloatingPointSqrtSimple does not support explicit-J-bit inputs.');
     }
 
-    final outputSqrt = a.clone(name: 'sqrt') as FpType;
-    output('sqrt') <= outputSqrt;
+    final outputSqrt = sqrt;
     late final error = output('error');
 
     // check to see if we do sqrt at all or just return a
@@ -85,9 +84,10 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           Const(0, width: extraPrecision)
         ].swizzle().named('aFixed');
 
-    final aFixedAdj = aFixed.clone(name: 'aFixedAdj')
-      ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
-          .named('oddMantissaMux'));
+    final shiftedFixed = aFixed.clone(name: 'shiftedFixed')
+      ..gets([aFixed.slice(-2, 0), Const(0)].swizzle());
+    final aFixedAdj =
+        mux<FixedPoint>(isExpOdd, shiftedFixed, aFixed).namedTyped('aFixedAdj');
 
     final fixedSqrt = FixedPointSqrt(aFixedAdj).sqrt;
     final retainedSignificand = fixedSqrt
@@ -226,9 +226,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           outputSqrt < outputSqrt.quietNaNFrom(a),
         ]),
         ElseIf(isZero, [
-          outputSqrt.sign < a.sign,
-          outputSqrt.exponent < a.exponent,
-          outputSqrt.mantissa < a.mantissa,
+          outputSqrt < a,
         ]),
         ElseIf(a.sign, [
           outputSqrt < outputSqrt.nan,

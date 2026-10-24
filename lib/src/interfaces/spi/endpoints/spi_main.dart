@@ -54,7 +54,7 @@ class SpiMain extends Module {
 
     addOutput('done');
 
-    intf = intf.clone()..pairConnectIO(this, intf, PairRole.provider);
+    intf = addPairInterfacePorts(intf, PairRole.provider);
 
     final isRunning = Logic(name: 'isRunning');
 
