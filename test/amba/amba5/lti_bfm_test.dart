@@ -351,7 +351,7 @@ void main() {
     if (dumpWaves) {
       final mod = LtiSubordinate(ltiBfmTest.sIntf, [ltiBfmTest.cluster]);
       await mod.build();
-      WaveDumper(mod);
+      mod.dumpWaves();
     }
 
     await ltiBfmTest.start();

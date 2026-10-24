@@ -173,7 +173,7 @@ void main() {
         readyValidBfmTest.data,
       );
       await mod.build();
-      WaveDumper(mod);
+      mod.dumpWaves();
     }
 
     await readyValidBfmTest.start();

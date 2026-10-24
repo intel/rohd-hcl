@@ -16,18 +16,16 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// rouding to nearest even. If the input exceeds the floating point range,
 /// the output will be infinity. E4M3 is not supported as this format doesn't
 /// support infinity.
-class FixedToFloat extends Module {
+class FixedToFloat<T extends FloatingPoint> extends Module {
   /// Output port [float]
-  // Expose typed FloatingPoint output via addTypedOutput and wire internal
-  // converted float into it. This avoids relying on plain output('float').
-  late final FloatingPoint float;
+  late final T float;
 
   /// Internal representation of the output port.
   @protected
-  late final FloatingPoint outFloat;
+  late final T outFloat;
 
   /// The internal [FloatingPoint] logic to set
-  late final FloatingPoint _convertedFloat;
+  late final T _convertedFloat;
 
   /// Constructor for fixed to floating-point conversion. This component takes
   /// a [fixed] point input number to convert, producing a floating-point output
@@ -58,15 +56,11 @@ class FixedToFloat extends Module {
 
     final fixedAsLogic = fixed.packed;
     final exponentWidth = outFloat.exponent.width;
-    _convertedFloat = outFloat.clone();
+    _convertedFloat = outFloat.cloneTyped();
     final mantissaWidth =
         outFloat.mantissa.width - (outFloat.explicitJBit ? 1 : 0);
-    // Create a typed output and drive it from the internal converted float.
-    final typedFloatOut = addTypedOutput('float', _convertedFloat.clone);
-    typedFloatOut <= _convertedFloat;
-    // Also set the public `float` handle to the typed output instance so
-    // consumers that expect a FloatingPoint object can use `float` directly.
-    float = typedFloatOut;
+    float = addTypedOutput('float', _convertedFloat.cloneTyped)
+      ..gets(_convertedFloat);
 
     leadingDigitPredict = (leadingDigitPredict != null)
         ? addInput('leadingDigitPredict', leadingDigitPredict,

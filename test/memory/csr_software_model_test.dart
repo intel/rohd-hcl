@@ -219,7 +219,121 @@ void main() {
         throwsArgumentError);
     expect(state.snapshot(), before);
     expect(state.addressOf('control', 'plain'), 4);
-    expect(top.generateSynth, throwsUnsupportedError);
+    expect(top.dumpSystemVerilog, throwsUnsupportedError);
+  });
+
+  test('sparse refresh preserves simultaneous backdoors and command visibility',
+      () async {
+    final clk = Logic()..put(0);
+    final reset = Logic()..put(0);
+    final reads = List.generate(
+        2,
+        (_) => DataPortInterface(16, 8)
+          ..addr.put(0)
+          ..en.put(1));
+    final writes = List.generate(
+        2,
+        (_) => DataPortInterface(16, 8)
+          ..addr.put(0)
+          ..en.put(0)
+          ..data.put(0));
+    final tops = [
+      for (final implementation in CsrImplementation.values)
+        CsrTop(
+            config: csrSoftwareTestConfig(),
+            clk: clk,
+            reset: reset,
+            frontRead: reads[implementation.index],
+            frontWrite: writes[implementation.index],
+            allowLargerRegisters: true,
+            implementationConfiguration:
+                CsrImplementationConfiguration(implementation: implementation)),
+    ];
+    for (final top in tops) {
+      for (final hardware in top.backdoorInterfaces.expand((ports) => ports)) {
+        hardware.wrEn?.put(0);
+        hardware.wrData?.put(0);
+      }
+      await top.build();
+    }
+    Future<void> compare() async {
+      await Simulator.tick();
+      for (final output in tops[1].outputs.entries) {
+        expect(output.value.value, tops[0].output(output.key).value,
+            reason: output.key);
+      }
+    }
+
+    reset.inject(1);
+    await Simulator.tick();
+    clk.inject(1);
+    await compare();
+    clk.inject(0);
+    reset.inject(0);
+    for (final top in tops) {
+      final mixed = top.getBackdoorPortsByName('control', 'mixed');
+      final plain = top.getBackdoorPortsByName('control', 'plain');
+      mixed.wrEn!.inject(1);
+      mixed.wrData!.inject(0x1007);
+      plain.wrEn!.inject(1);
+      plain.wrData!.inject(0x4567);
+    }
+    await compare();
+    clk.inject(1);
+    await compare();
+    clk.inject(0);
+    await compare();
+    for (final address in [
+      LogicValue.ofInt(0, 8),
+      LogicValue.ofInt(4, 8),
+      LogicValue.ofInt(24, 8),
+      LogicValue.filled(8, LogicValue.x),
+    ]) {
+      for (final write in writes) {
+        write.addr.inject(address);
+        write.en.inject(1);
+        write.data.inject(0x00f0);
+      }
+      await compare();
+      clk.inject(1);
+      await compare();
+      clk.inject(0);
+      await compare();
+    }
+    reset.inject(1);
+    clk.inject(1);
+    await compare();
+  });
+
+  test('raw state changes refresh exposed outputs without losing other state',
+      () async {
+    final top = CsrTop(
+        config: csrSoftwareTestConfig(),
+        clk: Logic(),
+        reset: Logic(),
+        frontRead: null,
+        frontWrite: null,
+        implementationConfiguration: const CsrImplementationConfiguration(
+            implementation: CsrImplementation.software));
+    await top.build();
+    final state = top.softwareModel!;
+    final mixed = top.getBackdoorPortsByName('control', 'mixed').rdData!;
+    final plain = top.getBackdoorPortsByName('control', 'plain').rdData!;
+    state
+      ..load({}, replace: true)
+      ..poke(4, LogicValue.ofInt(0xbeef, 16));
+    expect(plain.value.toInt(), 0xbeef);
+    expect(mixed.value.toInt(), 0x0fa0);
+    state.load(
+        {0: LogicValue.ofInt(0x0f12, 16), 4: LogicValue.ofInt(0x3333, 16)});
+    expect(mixed.value.toInt(), 0x0f12);
+    expect(plain.value.toInt(), 0x3333);
+    state.load({4: LogicValue.ofInt(0x4444, 16)});
+    expect(mixed.value.toInt(), 0x0f12);
+    expect(plain.value.toInt(), 0x4444);
+    state.load({}, replace: true);
+    expect(mixed.value.toInt(), 0x0fa0);
+    expect(plain.value.toInt(), 0x1234);
   });
 
   test('scope supports indirect concrete CsrTop construction', () {

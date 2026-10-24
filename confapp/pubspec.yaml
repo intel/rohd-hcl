@@ -22,7 +22,7 @@ dependencies:
   rohd_devtools_widgets: ^0.1.1
   rohd_hcl: ^0.3.0
   rohd_hierarchy: ^0.1.0
-  rohd_schematic_viewer: 0.2.0
+  rohd_schematic_viewer: 0.2.5
   rohd_source_navigator: ^0.1.0
   # 0.5.0 also pulls in its CodeEditor clipboard stack; only highlighting is used.
   syntax_highlight: ^0.4.0
@@ -32,6 +32,24 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   test: ^1.20.0
+
+dependency_overrides:
+  rohd_devtools_widgets:
+      git:
+        url: https://github.com/intel/rohd.git
+        ref: main
+        path: packages/rohd_devtools_widgets
+  rohd_hierarchy:
+      git:
+        url: https://github.com/intel/rohd.git
+        ref: main
+        path: packages/rohd_hierarchy
+  rohd_source_navigator:
+      git:
+        url: https://github.com/intel/rohd.git
+        ref: main
+        path: packages/rohd_source_navigator
+
 
 flutter:
   uses-material-design: true

@@ -30,7 +30,7 @@ class SpiConfigurator extends Configurator {
   String get subcategory => 'spi-endpoints';
 
   /// Number of serial bits per transaction.
-  final IntConfigKnob dataLengthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataLengthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Gasket role.
   final ChoiceConfigKnob<SpiRole> roleKnob = ChoiceConfigKnob(

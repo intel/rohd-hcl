@@ -31,6 +31,10 @@ class _PortableFallbackField extends CsrFieldConfig {
   int transformIllegalValue() => fallback.single;
 }
 
+// Compiling and linking against SystemC can exceed the default 30s timeout
+// when the full suite runs in parallel.
+const _compileTimeout = Timeout(Duration(minutes: 3));
+
 Future<void> _compileAndRun(String header, String source) async {
   final directory = await Directory.systemTemp.createTemp('hcl_csr_systemc_');
   try {
@@ -38,6 +42,7 @@ Future<void> _compileAndRun(String header, String source) async {
     await File('${directory.path}/test.cpp').writeAsString(source);
     final compile = await Process.run('g++', [
       '-std=c++17',
+      '-O0',
       '${directory.path}/test.cpp',
       '-lsystemc',
       '-o',
@@ -54,6 +59,40 @@ Future<void> _compileAndRun(String header, String source) async {
 void main() {
   tearDown(Simulator.reset);
 
+  test('backdoor algorithms do not grow with register count', () {
+    String algorithms(int count) {
+      final description = CsrModelDescription.fromConfig(
+        CsrTopConfig(name: 'compact', blockSize: 1024, blocks: [
+          CsrBlockConfig(name: 'b', baseAddr: 0, registers: [
+            for (var i = 0; i < count; i++)
+              CsrInstanceConfig(
+                  arch: CsrConfig(
+                      name: 'r$i',
+                      access: CsrAccess.readWrite,
+                      fields: const []),
+                  addr: i * 4,
+                  width: 32),
+          ]),
+        ]),
+        instanceName: 'compact',
+        frontRead: MemoryPortGeometry(addressWidth: 10, dataWidth: 32),
+        frontWrite: MemoryPortGeometry(addressWidth: 10, dataWidth: 32),
+        hardwareRegisters: null,
+      );
+      final header = description.generateSystemC(className: 'Compact');
+      for (final name in [
+        ...description.inputPorts.keys,
+        ...description.outputPorts.keys
+      ]) {
+        expect(header, contains('$name{"$name"};'));
+      }
+      return header.substring(header.indexOf('  void tick()'),
+          header.indexOf('  static constexpr const char* register_metadata'));
+    }
+
+    expect(algorithms(128), algorithms(1));
+  });
+
   for (final asynchronous in [false, true]) {
     for (final (label, registerWidth, dataWidth, addressWidth) in [
       ('fields', null, 16, 8),
@@ -62,7 +101,7 @@ void main() {
       ('padded', 16, 64, 8),
     ]) {
       test('compiled behavioral SystemC $label matches RTL async=$asynchronous',
-          () async {
+          timeout: _compileTimeout, () async {
         final clk = Logic()..put(0);
         final reset = Logic()..put(0);
         final config = registerWidth == null
@@ -232,7 +271,7 @@ void main() {
   }
 
   test('standalone SystemC uses frozen custom fallback without a ROHD runtime',
-      () async {
+      timeout: _compileTimeout, () async {
     final field = _PortableFallbackField();
     final description = CsrModelDescription.fromConfig(
       CsrTopConfig(name: 'frozen', blockSize: 2, blocks: [
@@ -271,7 +310,7 @@ int sc_main(int,char**) {
   });
 
   test('strict two-state policy reports unknown output before first reset',
-      () async {
+      timeout: _compileTimeout, () async {
     final description = CsrModelDescription.fromConfig(
       CsrTopConfig(name: 'strict', blockSize: 2, blocks: [
         CsrBlockConfig(name: 'b', baseAddr: 0, registers: [
@@ -315,7 +354,7 @@ int sc_main(int,char**) {
       for (final asynchronous in [false, true]) (width, asynchronous),
   ]) {
     test('two-state $width-bit boundary async=$asynchronous rejects unknowns',
-        () async {
+        timeout: _compileTimeout, () async {
       final top = CsrTop(
         config: CsrTopConfig(
             name: 'boundary',

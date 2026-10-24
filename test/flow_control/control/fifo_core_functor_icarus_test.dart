@@ -161,7 +161,7 @@ void main() {
         final harness = _NestedFifoHarness(depth: depth);
         await harness.build();
         expect(harness.hierarchyString(), contains('fifo_core'));
-        final systemVerilog = harness.generateSynth();
+        final systemVerilog = harness.dumpSystemVerilog();
         expect(
           systemVerilog,
           contains('FifoCore_fifo_core_D${depth}_R1_B0_S1_O0_E0_PL8_W8'),
@@ -204,7 +204,7 @@ void main() {
     expect(firstDefinition, repeatedDefinition);
     expect(firstDefinition, isNot(distinctDefinition));
 
-    final systemVerilog = harness.generateSynth();
+    final systemVerilog = harness.dumpSystemVerilog();
     expect(
       RegExp('module ${RegExp.escape(firstDefinition)}\\b')
           .allMatches(systemVerilog),

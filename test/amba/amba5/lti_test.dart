@@ -13,26 +13,22 @@ import 'package:test/test.dart';
 
 class LtiSubordinate extends Module {
   LtiSubordinate(Axi5SystemInterface sIntf, List<LtiCluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <LtiCluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.consumer));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.consumer));
     }
   }
 }
 
 class LtiMain extends Module {
   LtiMain(Axi5SystemInterface sIntf, List<LtiCluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <LtiCluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.provider));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.provider));
     }
   }
 }

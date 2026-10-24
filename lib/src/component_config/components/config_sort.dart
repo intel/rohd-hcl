@@ -20,10 +20,10 @@ class BitonicSortConfigurator extends Configurator {
   String get subcategory => 'ordering';
 
   /// A knob controlling the number of items to sort.
-  final IntConfigKnob lengthOfListKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob lengthOfListKnob = PositiveIntConfigKnob(value: 4);
 
   /// A knob controlling the width of each element to sort.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob logicWidthKnob = PositiveIntConfigKnob(value: 4);
 
   /// A knob controlling whether to sort in ascending (or descending) order.
   final ToggleConfigKnob isAscendingKnob = ToggleConfigKnob(value: true);

@@ -119,8 +119,8 @@ Future<void> main() async {
           expect(setBits, 1);
         }
 
-        expect(binToGray.generateSynth(), isNot(contains('case (')));
-        expect(grayToBin.generateSynth(), isNot(contains('case (')));
+        expect(binToGray.dumpSystemVerilog(), isNot(contains('case (')));
+        expect(grayToBin.dumpSystemVerilog(), isNot(contains('case (')));
       }
 
       await checkBitDiff(width: 64);

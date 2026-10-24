@@ -14,19 +14,19 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Base class for fixed-point square root
-abstract class FixedPointSqrtBase extends Module {
+abstract class FixedPointSqrtBase<T extends FixedPoint> extends Module {
   /// Width of the input and output fields.
   final int width;
 
   /// The value [a], named this way to allow for a local variable 'a'.
   @protected
-  late final FixedPoint a;
+  late final T a;
 
   /// getter for the computed output.
-  late final FixedPoint sqrt;
+  late final T sqrt;
 
   /// Square root a fixed point number [a], returning result in [sqrt].
-  FixedPointSqrtBase(FixedPoint a,
+  FixedPointSqrtBase(T a,
       {super.name = 'fixed_point_square_root',
       super.reserveName,
       super.reserveDefinitionName,
@@ -37,14 +37,14 @@ abstract class FixedPointSqrtBase extends Module {
                 definitionName ?? 'FixedPointSquareRoot${a.width}') {
     this.a = addTypedInput('a', a);
 
-    sqrt = addTypedOutput('sqrt', a.clone);
+    sqrt = addTypedOutput('sqrt', a.cloneTyped);
   }
 }
 
 /// Implementation
 /// Algorithm explained here;
 /// https://projectf.io/posts/square-root-in-verilog/
-class FixedPointSqrt extends FixedPointSqrtBase {
+class FixedPointSqrt<T extends FixedPoint> extends FixedPointSqrtBase<T> {
   /// Constructor
   FixedPointSqrt(super.a) {
     if (a.signed) {
@@ -77,8 +77,7 @@ class FixedPointSqrt extends FixedPointSqrtBase {
     subtractionValue = Const(0, width: aLoc.width).named('subtraction');
     aLoc = [Const(0), a, Const(0)].swizzle().named('a_loc');
 
-    final outputSqrt = a.clone(name: 'sqrt');
-    output('sqrt') <= outputSqrt;
+    final outputSqrt = sqrt;
 
     // loop once through input value
     for (var i = 0; i < ((width + 2) >> 1); i++) {

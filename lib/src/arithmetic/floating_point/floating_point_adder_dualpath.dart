@@ -40,9 +40,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
           NativeAdder.new,
       List<int> Function(int) widthGen =
           CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)
-          ppTree = KoggeStone.new,
+      ParallelPrefixGenerator<Logic> ppTree = KoggeStone.new,
       super.name = 'floating_point_adder_dualpath',
       super.reserveName,
       super.reserveDefinitionName,
@@ -173,8 +171,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final isNaNFlopped = localFlop(isNaN);
     final invalidOperationFlopped = localFlop(invalidOperation);
     final inputIsNaNFlopped = localFlop(inputIsNaN);
-    final nanSignFlopped = localFlop(propagatedNaN.sign);
-    final nanMantissaFlopped = localFlop(propagatedNaN.mantissa);
+    final nanFlopped = localFlop(propagatedNaN);
 
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
@@ -582,12 +579,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     Combinational([
       If(isNaNFlopped, then: [
-        internalSum.sign <
-            mux(inputIsNaNFlopped, nanSignFlopped, internalSum.nan.sign),
-        internalSum.exponent < internalSum.nan.exponent,
-        internalSum.mantissa <
-            mux(inputIsNaNFlopped, nanMantissaFlopped,
-                internalSum.nan.mantissa),
+        internalSum < mux(inputIsNaNFlopped, nanFlopped, internalSum.nan),
       ], orElse: [
         If(isInfFlopped, then: [
           internalSum < internalSum.inf(sign: largerSignFlopped),

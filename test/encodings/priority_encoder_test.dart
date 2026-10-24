@@ -54,7 +54,7 @@ void main() {
     final inp = Logic(width: 87)..put(8);
     final dut = RecursiveModulePriorityEncoder(inp, generateValid: true);
     await dut.build();
-    File('recur.sv').writeAsStringSync(dut.generateSynth());
+    File('recur.sv').writeAsStringSync(dut.dumpSystemVerilog());
     expect(dut.out.value.toInt(), equals(3));
     expect(dut.valid!.value.toBool(), equals(true));
   });

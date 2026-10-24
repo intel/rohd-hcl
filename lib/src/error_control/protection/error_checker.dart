@@ -12,7 +12,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A transmitter for data which includes a [code] for checking and possibly
 /// correcting data at the receiving end.
-abstract class ErrorCheckingTransmitter extends Module {
+abstract class ErrorCheckingTransmitter<T extends Logic> extends Module {
   /// The code that in addition to original data that enables error detection.
   late final Logic code = output('code');
 
@@ -28,10 +28,10 @@ abstract class ErrorCheckingTransmitter extends Module {
   ///
   /// Should only be used by implementations of transmitters internally.
   @protected
-  late final Logic data;
+  late final T data;
 
   /// Creates a transmitter for [data].
-  ErrorCheckingTransmitter(Logic data,
+  ErrorCheckingTransmitter(T data,
       {required int codeWidth,
       required super.name,
       super.reserveName,
@@ -40,7 +40,7 @@ abstract class ErrorCheckingTransmitter extends Module {
       : super(
             definitionName:
                 definitionName ?? 'ErrorCheckingTransmitter_W${data.width}') {
-    this.data = addInput('data', data, width: data.width);
+    this.data = addTypedInput('data', data);
 
     addOutput('code', width: codeWidth);
     addOutput('transmission', width: codeWidth + data.width) <=
@@ -52,7 +52,7 @@ abstract class ErrorCheckingTransmitter extends Module {
 
 /// A receiver for data which includes a [code] for checking and possibly
 /// correcting.
-abstract class ErrorCheckingReceiver extends Module {
+abstract class ErrorCheckingReceiver<T extends Logic> extends Module {
   /// Whether or not there was an error (correctable or uncorrectable).
   Logic get error => output('error');
 
@@ -75,21 +75,27 @@ abstract class ErrorCheckingReceiver extends Module {
   Logic get code => output('code');
 
   /// The original data before any correction.
-  Logic get originalData => output('original_data');
+  late final T originalData;
 
   /// The [originalData] with any possible corrections applied.
   ///
   /// If [uncorrectableError], then this data is unreliable.  If this does not
   /// [supportsErrorCorrection], then this will be `null` and the port won't
   /// exist.
-  late final Logic? correctedData =
-      supportsErrorCorrection ? output('corrected_data') : null;
+  late final T? correctedData;
+
+  /// Raw received payload bits, before enum or other schema constraints.
+  ///
+  /// Error detection and correction operate on these bits, not on potentially
+  /// normalized [originalData].
+  @protected
+  late final Logic rawData;
 
   /// Implementation to calculate corrected data, if supported.
   ///
   /// Returns null if not [supportsErrorCorrection].
   @protected
-  Logic? calculateCorrectedData();
+  T? calculateCorrectedData();
 
   /// The input port bus provied to this receiver.
   ///
@@ -101,10 +107,15 @@ abstract class ErrorCheckingReceiver extends Module {
   final bool supportsErrorCorrection;
 
   /// Creates a receiver for [transmission].
+  ///
+  /// [dataSchema] supplies the payload layout, not a driver. Specialized [T]
+  /// requires a schema matching the payload width. Without a schema, [T] must
+  /// be [Logic], preserving the width-based scalar API.
   ErrorCheckingReceiver(Logic transmission,
       {required int codeWidth,
       required this.supportsErrorCorrection,
       required super.name,
+      T? dataSchema,
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
@@ -114,18 +125,31 @@ abstract class ErrorCheckingReceiver extends Module {
     if (codeWidth <= 0) {
       throw RohdHclException('Must provide non-empty code.');
     }
+    final dataWidth = transmission.width - codeWidth;
+    if (dataWidth <= 0) {
+      throw ArgumentError('Transmission must contain a non-empty payload.');
+    }
+    if (dataSchema == null && T != Logic) {
+      throw ArgumentError('A specialized payload type requires dataSchema.');
+    }
+    if (dataSchema != null && dataSchema.width != dataWidth) {
+      throw ArgumentError('dataSchema width must match the received payload.');
+    }
+    final schema = dataSchema ?? Logic(width: dataWidth) as T;
 
     this.transmission =
         addInput('transmission', transmission, width: transmission.width);
 
     addOutput('code', width: codeWidth) <=
         this.transmission.slice(-1, -codeWidth);
-    addOutput('original_data', width: transmission.width - codeWidth) <=
-        this.transmission.slice(-1 - codeWidth, 0);
-
-    if (supportsErrorCorrection) {
-      addOutput('corrected_data', width: originalData.width);
-    }
+    rawData = this.transmission.slice(-1 - codeWidth, 0);
+    // Keep schema constraints off the raw slice used for error calculations:
+    // directly connected signals share their wire's value constraints.
+    originalData = addTypedOutput('original_data', schema.cloneTyped)
+      ..gets(this.transmission.slice(-1 - codeWidth, 0));
+    correctedData = supportsErrorCorrection
+        ? addTypedOutput('corrected_data', schema.cloneTyped)
+        : null;
 
     addOutput('correctable_error');
     addOutput('uncorrectable_error');

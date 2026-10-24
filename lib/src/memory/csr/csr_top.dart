@@ -182,17 +182,15 @@ class CsrTop extends CsrContainer
       _backdoorIndexMaps.add({});
       for (var j = 0; j < blocks[i].registers.length; j++) {
         if (blocks[i].registers[j].backdoorAccessible) {
-          _backdoorInterfaces[i]
-              .add(CsrBackdoorInterface(config: blocks[i].registers[j]));
           backdoorInterfaces[i]
               .add(CsrBackdoorInterface(config: blocks[i].registers[j]));
-          _backdoorInterfaces[i].last.connectIO(
-              this, backdoorInterfaces[i].last,
+          _backdoorInterfaces[i].add(addInterfacePorts(
+              backdoorInterfaces[i].last,
               outputTags: {CsrBackdoorPortGroup.read},
               inputTags: {CsrBackdoorPortGroup.write},
               uniquify: (original) =>
                   '${name}_${blocks[i].name}_${blocks[i].registers[j].name}'
-                  '_backdoor_$original');
+                  '_backdoor_$original'));
           _backdoorIndexMaps[i][j] = _backdoorInterfaces[i].length - 1;
         }
       }
@@ -225,12 +223,11 @@ class CsrTop extends CsrContainer
           continue;
         }
         final external = CsrBackdoorInterface(config: register);
-        final internal = external.clone()
-          ..connectIO(this, external,
-              outputTags: {CsrBackdoorPortGroup.read},
-              inputTags: {CsrBackdoorPortGroup.write},
-              uniquify: (original) =>
-                  '${name}_${block.name}_${register.name}_backdoor_$original');
+        final internal = addInterfacePorts(external,
+            outputTags: {CsrBackdoorPortGroup.read},
+            inputTags: {CsrBackdoorPortGroup.write},
+            uniquify: (original) =>
+                '${name}_${block.name}_${register.name}_backdoor_$original');
         _backdoorIndexMaps[i][j] = backdoorInterfaces[i].length;
         backdoorInterfaces[i].add(external);
         _backdoorInterfaces[i].add(internal);

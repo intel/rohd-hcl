@@ -10,6 +10,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Static behavioral promises and dependency permissions for a ready/valid
 /// channel.
@@ -285,14 +286,14 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
         'but found ${sourcePayload.width}.',
       );
     }
-    if (sourcePayload is LogicStructure &&
-        data is LogicStructure &&
-        !_sameDeclaredPayloadShape(data, sourcePayload)) {
+    if (((sourcePayload is LogicStructure && data is LogicStructure) ||
+            (sourcePayload is LogicEnum && data is LogicEnum)) &&
+        !sameDeclaredPayloadShape(data, sourcePayload)) {
       throw PortTypeException.forIntendedName(
         data.name,
         'Expected ready/valid payload shape '
-        '${_payloadShapeIdentity(data)}, but found '
-        '${_payloadShapeIdentity(sourcePayload)}.',
+        '${payloadShapeIdentity(data)}, but found '
+        '${payloadShapeIdentity(sourcePayload)}.',
       );
     }
     return sourcePayload;
@@ -321,71 +322,6 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
     return cloned;
   }
 }
-
-bool _sameDeclaredPayloadShape(Logic template, Logic source) {
-  if (template is! LogicStructure || source is! LogicStructure) {
-    return template is! LogicStructure && source is! LogicStructure;
-  }
-  final templateStructure = template;
-  final sourceStructure = source;
-  if (templateStructure is LogicArray || sourceStructure is LogicArray) {
-    return templateStructure is LogicArray &&
-        sourceStructure is LogicArray &&
-        _sameIntList(
-          templateStructure.dimensions,
-          sourceStructure.dimensions,
-        ) &&
-        templateStructure.elementWidth == sourceStructure.elementWidth &&
-        templateStructure.numUnpackedDimensions ==
-            sourceStructure.numUnpackedDimensions;
-  }
-  if (templateStructure.elements.length != sourceStructure.elements.length) {
-    return false;
-  }
-  for (var index = 0; index < templateStructure.elements.length; index++) {
-    final templateElement = templateStructure.elements[index];
-    final sourceElement = sourceStructure.elements[index];
-    if (templateElement.name != sourceElement.name ||
-        templateElement.width != sourceElement.width ||
-        !_sameDeclaredPayloadShape(templateElement, sourceElement)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool _sameIntList(List<int> first, List<int> second) {
-  if (first.length != second.length) {
-    return false;
-  }
-  for (var index = 0; index < first.length; index++) {
-    if (first[index] != second[index]) {
-      return false;
-    }
-  }
-  return true;
-}
-
-String _payloadShapeIdentity(Logic logic) {
-  if (logic is LogicArray) {
-    return 'A${logic.dimensions.join('x')}_'
-        'E${logic.elementWidth}_U${logic.numUnpackedDimensions}';
-  }
-  if (logic is LogicStructure) {
-    final fields = logic.elements
-        .map(
-          (element) => 'N${_encodePayloadFieldName(element.name)}_'
-              '${_payloadShapeIdentity(element)}',
-        )
-        .join('_');
-    return 'S${logic.elements.length}_$fields';
-  }
-  return 'L${logic.width}';
-}
-
-String _encodePayloadFieldName(String name) => name.codeUnits
-    .map((codeUnit) => codeUnit.toRadixString(16).padLeft(4, '0'))
-    .join();
 
 void _copyPairInterfaceModifier(PairInterface source, PairInterface target) {
   // Match ROHD PairInterface.clone while the legacy callback remains supported.

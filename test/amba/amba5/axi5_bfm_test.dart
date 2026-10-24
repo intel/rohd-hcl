@@ -670,18 +670,18 @@ void main() {
         final mod = Axi5Subordinate(
             axi5BfmTest.sIntf, [axi5BfmTest.cluster as Axi5Cluster]);
         await mod.build();
-        WaveDumper(mod);
+        mod.dumpWaves();
       } else if (axi5BfmTest.axiType == Axi5LiteCluster) {
         final mod = Axi5LiteSubordinate(
             axi5BfmTest.sIntf, [axi5BfmTest.cluster as Axi5LiteCluster]);
         await mod.build();
-        WaveDumper(mod);
+        mod.dumpWaves();
       }
       if (axi5BfmTest.axiType == Ace5LiteCluster) {
         final mod = Ace5LiteSubordinate(
             axi5BfmTest.sIntf, [axi5BfmTest.cluster as Ace5LiteCluster]);
         await mod.build();
-        WaveDumper(mod);
+        mod.dumpWaves();
       }
     }
 
@@ -696,7 +696,7 @@ void main() {
       final mod =
           Axi5StreamSubordinate(axi5BfmTest.sIntf, [axi5BfmTest.stream]);
       await mod.build();
-      WaveDumper(mod);
+      mod.dumpWaves();
     }
 
     await axi5BfmTest.start();

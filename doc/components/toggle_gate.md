@@ -14,3 +14,14 @@ final toggleGate = ToggleGate(
 
 BigArithmeticUnit(dataIn: toggleGate.gatedData);
 ```
+
+`ToggleGate<T>` retains the payload type on its data port, saved value,
+selection, and `gatedData` output. For example, a `FloatingPoint32` input
+produces a statically typed `FloatingPoint32` output without a cast. Structures,
+enum signals, and typed arrays retain their layouts and codecs.
+
+Both constant and signal-driven reset values are supported. A structured reset
+signal retains its schema as a typed input; its layout must match the payload.
+Clock-gating controls, reset priority, capture timing, and enable-low hold
+behavior are unchanged. As with the underlying typed ROHD operations, use
+`ToggleGate<Logic>(...)` for a scalar `Const` payload.

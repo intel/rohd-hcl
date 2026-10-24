@@ -8,9 +8,59 @@ ROHD HCL provides an infrastructure for creating CSRs at a few different granula
 
 Each granularity will be discussed herein.
 
+## Using a CSR Top in Simulation
+
+A `CsrTop` can be built as RTL, as a software model, or both, depending on the
+`CsrImplementationConfiguration`:
+
+- `CsrImplementationConfiguration.software` builds no RTL blocks. The top exposes
+  `softwareModel`, which supports `poke`, `peek`, `snapshot`, and `load` without
+  driving ports. It can export a SystemC software model with `generateModelSystemC`.
+  Calling `dumpSystemVerilog` on it throws `UnsupportedError`.
+- The default RTL configuration builds hardware. `generateModelSystemC` throws
+  `StateError` on an RTL top, so an RTL top is not a software model.
+
+```dart
+final top = CsrTop(
+  config: config,
+  clk: clk,
+  reset: reset,
+  frontRead: DataPortInterface(16, 8),
+  frontWrite: DataPortInterface(16, 8),
+  implementationConfiguration: CsrImplementationConfiguration.software,
+);
+await top.build();
+
+final state = top.softwareModel!;
+final command = state.addressOf('control', 'command');
+state.poke(command, LogicValue.ofInt(0xbeef, 16));
+print(state.peek(command)); // 16'hbeef
+
+final header = top.generateModelSystemC(
+  className: 'DeviceCsrs',
+  options: const SystemCModelOptions(
+    portType: SystemCModelPortType.twoState,
+    unknownOutputs: SystemCUnknownOutputPolicy.zeroUntilReset,
+  ),
+);
+```
+
+A runnable version is in
+[`example/behavioral_model_example.dart`](../../example/behavioral_model_example.dart).
+For the general behavioral-model capability, the SystemC options, and the
+verification matrix that checks RTL, software, and SystemC legs against the same
+register behavior, see [Behavioral Models](./behavioral_models.md).
+
 ## Individual CSR Definition
 
 An individual CSR is an extension of a `LogicStructure` and its members are the fields of the register. The class in HW to create a CSR is called `Csr`. It is constructed by passing a configuration object of type `CsrInstanceConfig`.
+
+`Csr.withSet`, `getWriteData`, and `getBackdoorReadData` return `Csr` values,
+preserving the register configuration, named fields, and reserved-field layout.
+Whole-register write selection also uses typed CSR values internally, including
+split writes to registers wider than the frontdoor. Architectural frontdoor
+and backdoor buses remain packed bits; access policies and write priority are
+unchanged.
 
 ### CsrInstanceConfig
 
@@ -367,6 +417,17 @@ Loader-side splits can remain configuration metadata without constructing RTL
 blocks. Selective hub forwarding and automatic model-aware sharding remain
 downstream integration work.
 
+### Dart behavioral output scheduling
+
+Stored-state updates refresh only the affected exposed backdoors. Frontdoor
+signal changes separately refresh write-only command views, and outputs already
+holding the desired value are not deposited again. Reset and invalid-clock or
+unknown-address updates still refresh every affected register. This preserves
+command visibility, four-state values, and write priority without scanning all
+hardware readers after every ordinary clock edge or frontdoor signal change.
+Exposed field-level ROHD signals still incur the simulator's per-wire overhead;
+software state alone does not eliminate that cost.
+
 ### Behavioral SystemC and unsupported RTL export
 
 After building the top:
@@ -382,6 +443,11 @@ one-bit ports and `sc_signal<sc_lv<W>>` for wider ports. `peek` and `poke` are
 also available on the generated class. Custom `transformIllegalValue()`
 fallbacks are evaluated during Dart construction and serialized as constants.
 Addresses above 63 bits are explicitly unsupported by this backend.
+
+Backdoor port declarations retain their existing names. Width-grouped port
+tables connect them to shared write and read-driving loops; the behavioral
+algorithms are not unrolled once per register. Register and field metadata and
+port-table entries still grow with the exposed map size.
 
 The standalone backend works with released ROHD 0.6.11; no SystemC synthesizer
 dependency or ROHD upgrade is required. Its default ports preserve four states.

@@ -30,7 +30,7 @@ class ParityConfigurator extends Configurator {
   String get subcategory => 'protection';
 
   /// Width of the data input or received transmission.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Parity module direction.
   final ChoiceConfigKnob<ParityDirection> directionKnob = ChoiceConfigKnob(

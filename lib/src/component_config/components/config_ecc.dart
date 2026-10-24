@@ -23,7 +23,7 @@ class EccConfigurator extends Configurator {
       ChoiceConfigKnob(HammingType.values, value: HammingType.sec);
 
   /// A knob controlling the data width.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 4);
 
   @override
   Module createModule() => HammingEccReceiver(

@@ -187,7 +187,7 @@ void main() {
     if (dumpWaves) {
       final mod = ApbCompleterTestModule(apbBfmTest.intf);
       await mod.build();
-      WaveDumper(mod);
+      mod.dumpWaves();
     }
 
     await apbBfmTest.start();

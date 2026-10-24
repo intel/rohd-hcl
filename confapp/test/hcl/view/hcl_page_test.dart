@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as flutter_widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:rohd/rohd.dart' show SourceTracer;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 
@@ -73,17 +74,45 @@ Future<void> showOnlyGeneratedSv(WidgetTester tester) async {
 }
 
 Future<void> tapSidebarComponent(WidgetTester tester, String name) async {
-  final tile = find.text(name);
+  await tester.pump(const Duration(milliseconds: 300));
+  final component =
+      components.singleWhere((component) => component.name == name);
+  final scrollable = find
+      .descendant(
+        of: find.byType(ComponentsSidebar),
+        matching: find.byType(Scrollable),
+      )
+      .first;
+  final category = find.byKey(PageStorageKey<String>(
+    'component-category-${component.category.id}',
+  ));
+  await tester.scrollUntilVisible(category, 250, scrollable: scrollable);
+  final group = find.byKey(PageStorageKey<String>(
+    'component-group-${component.category.id}-${component.subcategory}',
+  ));
+  if (group.evaluate().isEmpty) {
+    await tester.tap(
+      find.descendant(of: category, matching: find.byType(ListTile)).first,
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+  await tester.ensureVisible(group);
+  await tester.pump(const Duration(milliseconds: 300));
+  final tile = find.byKey(ObjectKey(component));
+  if (tile.evaluate().isEmpty) {
+    await tester.tap(
+      find.descendant(of: group, matching: find.byType(ListTile)).first,
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+  }
   await tester.scrollUntilVisible(
     tile,
     250,
-    scrollable: find
-        .descendant(
-          of: find.byType(ComponentsSidebar),
-          matching: find.byType(Scrollable),
-        )
-        .first,
+    scrollable: scrollable,
   );
+  await tester.pump(const Duration(milliseconds: 300));
+  await tester.ensureVisible(tile);
+  await tester.pump(const Duration(milliseconds: 300));
   await tester.tap(tile);
 }
 
@@ -171,7 +200,10 @@ void main() {
     await pumpHclPage(tester);
 
     expect(find.text('Arithmetic'), findsOneWidget);
-    expect(find.text('accumulation'), findsWidgets);
+    expect(find.text('Accumulation'), findsNothing);
+    await tester.tap(find.text('Arithmetic'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Accumulation'), findsOneWidget);
   });
 
   testWidgets('uses a bundled monospace font for generated source',
@@ -214,6 +246,31 @@ void main() {
     expect(actualClearance, greaterThanOrEqualTo(minimumClearance));
   });
 
+  testWidgets('retains nested source traces while the source tab is hidden',
+      (tester) async {
+    await pumpHclPage(tester);
+    await showOnlyGeneratedSv(tester);
+    await tapSidebarComponent(tester, 'Ripple Carry Adder');
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('generateRTL')));
+    await pumpUntilOutputContains(tester, 'RippleCarryAdder');
+    expect(SourceTracer.isActive, isFalse);
+
+    await tester.tap(find.byTooltip('ROHD Source'));
+    for (var i = 0; i < 100; i++) {
+      if (tester.any(find.text('adder.dart'))) {
+        break;
+      }
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    expect(find.text('adder.dart'), findsOneWidget);
+    expect(find.text('ripple_carry_adder.dart'), findsOneWidget);
+    expect(SourceTracer.isActive, isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('should return changes when fields is manipulated',
       (tester) async {
     await pumpHclPage(tester);
@@ -237,6 +294,38 @@ void main() {
     await pumpUntilOutputContains(tester, 'RotateLeft');
 
     expect(observeOutput(tester), contains('RotateLeft'));
+  });
+
+  testWidgets('integer parameters validate, step and generate with the edit',
+      (tester) async {
+    await pumpHclPage(tester);
+    await showOnlyGeneratedSv(tester);
+    await tapSidebarComponent(tester, 'Rotate');
+    await tester.pump();
+    final rotate =
+        components.singleWhere((component) => component is RotateConfigurator)
+            as RotateConfigurator;
+    final field = find.descendant(
+      of: find.byKey(const Key('Original Width')),
+      matching: find.byType(TextFormField),
+    );
+    final original = rotate.originalWidthKnob.value;
+    await tester.enterText(field, '0');
+    await tester.pump();
+    expect(rotate.originalWidthKnob.value, original);
+    await tester.tap(find.byKey(const Key('generateRTL')));
+    await tester.pump();
+    expect(find.text('Must be at least 1'), findsOneWidget);
+
+    await tester.enterText(field, '0x10');
+    await tester.pump();
+    expect(rotate.originalWidthKnob.value, 16);
+    await tester.tap(find.byTooltip('Increase Original Width'));
+    await tester.pump();
+    expect(rotate.originalWidthKnob.value, 17);
+    await tester.tap(find.byKey(const Key('generateRTL')));
+    await pumpUntilOutputContains(tester, 'input logic [16:0]');
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('shows stable labels for type-valued choices', (tester) async {

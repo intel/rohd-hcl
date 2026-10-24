@@ -74,7 +74,7 @@ class ClockGateConfigurator extends _ClockControlConfigurator {
 /// A [Configurator] for [ToggleGate].
 class ToggleGateConfigurator extends _ClockControlConfigurator {
   /// Width of the gated data.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Optional reset value for the gated data.
   final IntOptionalConfigKnob resetValueKnob =

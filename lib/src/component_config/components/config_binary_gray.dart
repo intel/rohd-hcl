@@ -21,7 +21,7 @@ abstract class _BinaryGrayConfigurator extends Configurator {
   String get subcategory => 'gray';
 
   /// Width of the encoded value.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs =

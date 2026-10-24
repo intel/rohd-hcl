@@ -11,10 +11,10 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/clocking/gating/clock_gating.dart';
 
 /// A gate for signals to avoid toggling when not needed.
-class ToggleGate extends Module {
+class ToggleGate<T extends Logic> extends Module {
   /// The gated version of original data which will only toggle when the gate is
   /// enabled.
-  Logic get gatedData => output('gatedData');
+  late final T gatedData;
 
   /// Constructs a [ToggleGate] to reduce power consumption by reducing toggling
   /// of the [gatedData] signal when [enable] is not asserted.
@@ -31,7 +31,7 @@ class ToggleGate extends Module {
   /// elements.
   ToggleGate(
       {required Logic enable,
-      required Logic data,
+      required T data,
       required Logic clk,
       required Logic reset,
       dynamic resetValue,
@@ -42,22 +42,22 @@ class ToggleGate extends Module {
       String? definitionName})
       : super(definitionName: definitionName ?? 'ToggleGate_W${data.width}') {
     enable = addInput('enable', enable);
-    data = addInput('data', data, width: data.width);
+    data = addTypedInput('data', data);
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
     if (resetValue != null && resetValue is Logic) {
-      resetValue = addInput('resetValue', resetValue, width: resetValue.width);
+      resetValue = addTypedInput<Logic>('resetValue', resetValue);
     }
 
     if (clockGateControlIntf != null) {
-      clockGateControlIntf = clockGateControlIntf.clone()
-        ..pairConnectIO(this, clockGateControlIntf, PairRole.consumer);
+      clockGateControlIntf =
+          addPairInterfacePorts(clockGateControlIntf, PairRole.consumer);
     }
 
-    addOutput('gatedData', width: data.width);
+    gatedData = addTypedOutput('gatedData', data.cloneTyped);
 
-    final lastData = Logic(name: 'lastData', width: data.width);
+    final lastData = data.cloneTyped(name: 'lastData');
 
     final gateEnable = enable & (lastData.neq(data));
 
@@ -69,18 +69,20 @@ class ToggleGate extends Module {
     );
 
     lastData <=
-        flop(
+        flop<T>(
             clkGate.gatedClk,
             en: clkGate.isPresent ? null : gateEnable,
             reset: reset,
             resetValue: resetValue,
+            outputGenerator: data.cloneTyped,
             data);
 
     gatedData <=
-        mux(
+        mux<T>(
           enable,
           data,
           lastData,
+          outputGenerator: data.cloneTyped,
         );
   }
 }

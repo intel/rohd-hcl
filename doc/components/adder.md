@@ -49,6 +49,13 @@ Here is an example of instantiating a [ParallelPrefixAdder](https://intel.github
     print('${sum.value.toBigInt()}');
 ```
 
+Prefix adders retain carry-generation and carry-propagation signals as
+`GeneratePropagate` records through every prefix node, rather than concatenating
+and indexing two-bit vectors. The external operands, carry input, sum width, and
+combinational timing are unchanged. Custom `ParallelPrefixAdder.ppGen` callbacks
+must accept and return this record type; see
+[typed prefix networks](parallel_prefix_operations.md#adder-generator-migration).
+
 ## Ones' Complement Adder Subtractor
 
 A ones'-complement adder (and subtractor) is useful in efficient arithmetic operations as the

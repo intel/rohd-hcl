@@ -82,7 +82,7 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
     this.enable = (enable != null) ? addInput('enable', enable) : null;
     this.a = addTypedInput('a', a);
 
-    sqrt = addTypedOutput('sqrt', a.clone as FpType Function({String? name}));
+    sqrt = addTypedOutput('sqrt', a.cloneTyped);
     addOutput('error');
     internalStatus = FloatingPointStatus(name: 'internalStatus');
     status = addTypedOutput('status', internalStatus.clone);
@@ -90,6 +90,6 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
-  Logic localFlop(Logic input) =>
+  LogicType localFlop<LogicType extends Logic>(LogicType input) =>
       condFlop(clk, input, en: enable, reset: reset);
 }

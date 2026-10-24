@@ -93,7 +93,7 @@ abstract class Configurator {
 
     await mod.build();
 
-    return mod.generateSynth();
+    return mod.dumpSystemVerilog();
   }
 
   /// Creates a [Module] instance as configured.

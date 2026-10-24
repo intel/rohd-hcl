@@ -106,14 +106,9 @@ class Csr extends LogicStructure {
     String? logicName,
   }) : super(fields, name: logicName ?? config.name);
 
-  // Historically the CSR disallowed renaming because the architectural
-  // name is tied to its configuration. However, interface cloning and
-  // IO uniquification can pass a `name` to clone; to support that
-  // workflow we ignore the requested `name` here and preserve the
-  // CSR's configured name while still cloning the underlying elements.
-  /// Creates a clone of this CSR.
+  /// Creates a clone preserving this CSR's configuration and field layout.
   ///
-  /// The CSR is not allowed to be renamed, so [name] must be null.
+  /// [name] renames the signal, not the architectural name in [config].
   @override
   Csr clone({String? name}) => Csr._(
         config: config,
@@ -121,6 +116,12 @@ class Csr extends LogicStructure {
         fields: elements.map((e) => e.clone()).toList(),
         logicName: name,
       );
+
+  /// Replaces bits while preserving this CSR's configuration and fields.
+  @override
+  Csr withSet(int startIndex, Logic update) =>
+      // The base implementation updates leaves of the result of clone().
+      super.withSet(startIndex, update) as Csr;
 
   /// Accessor to the bits of a particular field
   /// within the CSR by name [name].
@@ -143,7 +144,7 @@ class Csr extends LogicStructure {
   /// frontdoor writes of `1` clear the bit, while backdoor writes of `1`
   /// set it (so a backdoor writer can raise a flag that a frontdoor
   /// writer later clears).
-  Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
+  Csr getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
     // if the whole register is ready only, return the current value
     if (access == CsrAccess.readOnly) {
       return this;
@@ -154,11 +155,11 @@ class Csr extends LogicStructure {
       // in this case, we have an implicit read/write field
       // so there is nothing special to do
       if (fields.isEmpty) {
-        return wd;
+        return clone()..gets(wd);
       }
 
       // otherwise, we need to look at the fields
-      var finalWd = wd;
+      var finalWd = clone()..gets(wd);
       var currIdx = 0;
       var currField = 0;
       for (var i = 0; i < elements.length; i++) {
@@ -233,13 +234,13 @@ class Csr extends LogicStructure {
   /// [frontdoorWriteValidFull] indicates a frontdoor write occurred to that
   /// bit this cycle, otherwise the field's reset value. All other bits pass
   /// through the register's current stored value unchanged.
-  Logic getBackdoorReadData(
+  Csr getBackdoorReadData(
       Logic frontdoorWriteValidFull, Logic frontdoorWriteDataFull) {
     if (fields.isEmpty) {
       return this;
     }
 
-    Logic finalRd = this;
+    var finalRd = this;
     var currIdx = 0;
     var currField = 0;
     for (var i = 0; i < elements.length; i++) {
