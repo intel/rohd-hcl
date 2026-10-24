@@ -10,6 +10,7 @@
 import 'package:confapp/hcl/cubit/component_cubit.dart';
 import 'package:confapp/hcl/hcl.dart';
 import 'package:confapp/hcl/view/screen/sidebar_widget.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as flutter_widgets;
 import 'package:flutter_test/flutter_test.dart';
@@ -326,6 +327,48 @@ void main() {
     await tester.tap(find.byKey(const Key('generateRTL')));
     await pumpUntilOutputContains(tester, 'input logic [16:0]');
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('components menu unpinned by lock icon slides in on hover',
+      (tester) async {
+    Finder tooltip(String message) => find.byWidgetPredicate(
+          (w) => w is Tooltip && w.message == message,
+        );
+
+    await pumpHclPage(tester);
+    expect(tooltip('Unpin components menu'), findsOneWidget);
+
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(const Offset(800, 450));
+    await tester.pump();
+
+    await tester.tap(tooltip('Unpin components menu'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tooltip('Pin components menu'), findsOneWidget);
+    expect(tester.getTopLeft(tooltip('Pin components menu')).dx, lessThan(0));
+
+    await mouse.moveTo(const Offset(4, 450));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+        tester.getTopLeft(tooltip('Pin components menu')).dx, greaterThan(0));
+
+    await mouse.moveTo(const Offset(800, 450));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.getTopLeft(tooltip('Pin components menu')).dx, lessThan(0));
+
+    await mouse.moveTo(const Offset(4, 450));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(tooltip('Pin components menu'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tooltip('Unpin components menu'), findsOneWidget);
+    expect(
+        tester.getTopLeft(tooltip('Unpin components menu')).dx, greaterThan(0));
   });
 
   testWidgets('shows stable labels for type-valued choices', (tester) async {
