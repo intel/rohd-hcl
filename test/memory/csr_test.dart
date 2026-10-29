@@ -603,7 +603,7 @@ void main() {
     );
     await csrTop.build();
 
-    final systemVerilog = csrTop.generateSynth();
+    final systemVerilog = csrTop.dumpSystemVerilog();
     expect(systemVerilog, contains("1'h0"));
     expect(systemVerilog, isNot(contains("0'h0")));
   });
