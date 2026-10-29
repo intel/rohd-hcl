@@ -566,6 +566,48 @@ void main() {
     await Simulator.simulationEnded;
   });
 
+  test('single-address CSR blocks use one-bit addresses in generated SV',
+      () async {
+    const dataWidth = 32;
+    final register = CsrInstanceConfig(
+      arch: CsrConfig(
+        access: CsrAccess.readWrite,
+        name: 'singleRegister',
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+    );
+    final block = CsrBlockConfig(
+      name: 'singleBlock',
+      baseAddr: 0,
+      blockSize: 1,
+      registers: [register],
+    );
+    final topConfig = CsrTopConfig(
+      name: 'singleTop',
+      blockSize: 1,
+      blocks: [block],
+    );
+
+    expect(block.minAddrBits(), 1);
+    expect(topConfig.blockOffsetWidthForBlock(block), 1);
+    expect(topConfig.minAddrBits(), 1);
+
+    final csrTop = CsrTop(
+      config: topConfig,
+      clk: Logic(),
+      reset: Logic(),
+      frontWrite: DataPortInterface(dataWidth, 1),
+      frontRead: DataPortInterface(dataWidth, 1),
+    );
+    await csrTop.build();
+
+    final systemVerilog = csrTop.generateSynth();
+    expect(systemVerilog, contains("1'h0"));
+    expect(systemVerilog, isNot(contains("0'h0")));
+  });
+
   test('writeOnesClear field clears only on write of 1', () async {
     const csrWidth = 8;
 
