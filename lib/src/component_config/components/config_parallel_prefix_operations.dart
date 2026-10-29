@@ -29,12 +29,13 @@ enum ParallelPrefixOperation {
 
 /// A [Configurator] for unary parallel-prefix operations.
 class ParallelPrefixOperationConfigurator extends Configurator {
-  static final Map<
-      Type,
-      ParallelPrefix Function(
-        List<Logic> inputs,
-        Logic Function(Logic lhs, Logic rhs) operation,
-      )> _treeGenerators = {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'prefix-networks';
+
+  static final Map<Type, ParallelPrefixGenerator<Logic>> _treeGenerators = {
     Ripple: Ripple.new,
     Sklansky: Sklansky.new,
     KoggeStone: KoggeStone.new,
@@ -42,7 +43,7 @@ class ParallelPrefixOperationConfigurator extends Configurator {
   };
 
   /// Input width.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Operation to instantiate.
   final ChoiceConfigKnob<ParallelPrefixOperation> operationKnob =

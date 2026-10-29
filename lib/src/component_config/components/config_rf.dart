@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_rf.dart
@@ -14,23 +14,29 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [RegisterFile]s.
 class RegisterFileConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.memory;
+
+  @override
+  String get subcategory => 'storage';
+
   /// Controls the number of entries in the RF.
-  final IntConfigKnob numEntriesKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob numEntriesKnob = PositiveIntConfigKnob(value: 4);
 
   /// Controls the width of the data.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Controls the width of the address.
-  final IntConfigKnob addrWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob addrWidthKnob = PositiveIntConfigKnob(value: 4);
 
   /// Controls whether write data is masked.
   final ToggleConfigKnob maskedWritesKnob = ToggleConfigKnob(value: false);
 
   /// Controls the number of write ports.
-  final IntConfigKnob numWritePortsKnobs = IntConfigKnob(value: 1);
+  final IntConfigKnob numWritePortsKnobs = NonNegativeIntConfigKnob(value: 1);
 
   /// Controls the number of read ports.
-  final IntConfigKnob numReadPortsKnobs = IntConfigKnob(value: 1);
+  final IntConfigKnob numReadPortsKnobs = PositiveIntConfigKnob(value: 1);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

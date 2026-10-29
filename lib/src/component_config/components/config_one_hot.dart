@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_one_hot.dart
@@ -12,6 +12,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [BinaryToOneHot] and [OneHotToBinary].
 class OneHotConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.encodings;
+
+  @override
+  String get subcategory => 'one-hot';
+
   /// Controls whether toggling from binary to one-hot or
   /// from one-hot to binary.
   final ChoiceConfigKnob<Type> directionKnob = ChoiceConfigKnob(
@@ -24,7 +30,7 @@ class OneHotConfigurator extends Configurator {
   );
 
   /// Controls the width of the input.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob inputWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// When available, controls whether to generate an error signal.
   final ToggleConfigKnob generateErrorKnob = ToggleConfigKnob(value: false);

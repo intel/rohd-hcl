@@ -14,11 +14,17 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FindPattern].
 class FindPatternConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.bitOperations;
+
+  @override
+  String get subcategory => 'search';
+
   /// Width of the bus being searched.
-  final IntConfigKnob busWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob busWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of the pattern input.
-  final IntConfigKnob patternWidthKnob = IntConfigKnob(value: 2);
+  final IntConfigKnob patternWidthKnob = PositiveIntConfigKnob(value: 2);
 
   /// Whether the search starts from the least-significant end of the bus.
   final ToggleConfigKnob fromStartKnob = ToggleConfigKnob(value: true);
@@ -27,7 +33,7 @@ class FindPatternConfigurator extends Configurator {
   final ToggleConfigKnob includeOccurrenceKnob = ToggleConfigKnob(value: false);
 
   /// Width of the optional Nth-occurrence input.
-  final IntConfigKnob occurrenceWidthKnob = IntConfigKnob(value: 3);
+  final IntConfigKnob occurrenceWidthKnob = PositiveIntConfigKnob(value: 3);
 
   /// Whether to generate an error output when the pattern is not found.
   final ToggleConfigKnob generateErrorKnob = ToggleConfigKnob(value: false);

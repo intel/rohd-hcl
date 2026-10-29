@@ -128,32 +128,32 @@ class FixedPoint extends LogicStructure {
   @override
   Logic lt(dynamic other) {
     final comparable = _verifyCompatible(other);
-    return mux(
-        Const(signed) & this[-1], super.gt(comparable), super.lt(comparable));
+    return mux(Const(signed) & (this[-1] ^ comparable[-1]), this[-1],
+        super.lt(comparable));
   }
 
   /// Less-than-or-equal-to.
   @override
   Logic lte(dynamic other) {
     final comparable = _verifyCompatible(other);
-    return mux(
-        Const(signed) & this[-1], super.gte(comparable), super.lte(comparable));
+    return mux(Const(signed) & (this[-1] ^ comparable[-1]), this[-1],
+        super.lte(comparable));
   }
 
   /// Greater-than.
   @override
   Logic gt(dynamic other) {
     final comparable = _verifyCompatible(other);
-    return mux(
-        Const(signed) & this[-1], super.lt(comparable), super.gt(comparable));
+    return mux(Const(signed) & (this[-1] ^ comparable[-1]), ~this[-1],
+        super.gt(comparable));
   }
 
   /// Greater-than.
   @override
   Logic gte(dynamic other) {
     final comparable = _verifyCompatible(other);
-    return mux(
-        Const(signed) & this[-1], super.lte(comparable), super.gte(comparable));
+    return mux(Const(signed) & (this[-1] ^ comparable[-1]), ~this[-1],
+        super.gte(comparable));
   }
 
   /// Multiply

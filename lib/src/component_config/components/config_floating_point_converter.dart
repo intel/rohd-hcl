@@ -14,21 +14,30 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FloatingPointConverter].
 class FloatingPointConverterConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'floating-point';
+
   /// Width of the source exponent.
-  final IntConfigKnob sourceExponentWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob sourceExponentWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of the source mantissa.
-  final IntConfigKnob sourceMantissaWidthKnob = IntConfigKnob(value: 23);
+  final IntConfigKnob sourceMantissaWidthKnob =
+      PositiveIntConfigKnob(value: 23);
 
   /// Whether the source format includes an explicit J bit.
   final ToggleConfigKnob sourceExplicitJBitKnob =
       ToggleConfigKnob(value: false);
 
   /// Width of the destination exponent.
-  final IntConfigKnob destinationExponentWidthKnob = IntConfigKnob(value: 5);
+  final IntConfigKnob destinationExponentWidthKnob =
+      PositiveIntConfigKnob(value: 5);
 
   /// Width of the destination mantissa.
-  final IntConfigKnob destinationMantissaWidthKnob = IntConfigKnob(value: 10);
+  final IntConfigKnob destinationMantissaWidthKnob =
+      PositiveIntConfigKnob(value: 10);
 
   /// Whether the destination format includes an explicit J bit.
   final ToggleConfigKnob destinationExplicitJBitKnob =

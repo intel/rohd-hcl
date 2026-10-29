@@ -79,8 +79,7 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
       this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
       // Retained for API compatibility with concrete multiplier variants.
       // ignore: avoid_unused_constructor_parameters
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
-          KoggeStone.new,
+      ParallelPrefixGenerator<Logic> ppGen = KoggeStone.new,
       super.name = 'floating_point_multiplier',
       super.reserveName,
       super.reserveDefinitionName,
@@ -101,8 +100,7 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
     internalProduct = (outProduct ?? a).clone(name: 'outSum') as FpTypeOut;
 
     // expose typed output and drive it from internalProduct
-    product = addTypedOutput(
-        'product', internalProduct.clone as FpTypeOut Function({String? name}));
+    product = addTypedOutput('product', internalProduct.cloneTyped);
     product <= internalProduct;
     internalStatus = FloatingPointStatus(name: 'internalStatus');
     status = addTypedOutput('status', internalStatus.clone);
@@ -121,6 +119,6 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
-  Logic localFlop(Logic input) =>
+  LogicType localFlop<LogicType extends Logic>(LogicType input) =>
       condFlop(clk, input, en: enable, reset: reset);
 }

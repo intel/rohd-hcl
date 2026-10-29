@@ -27,13 +27,13 @@ void main() {
       final clk = SimpleClockGenerator(10).clk;
       final reset = Logic();
       final rdPort = DataPortInterface(32, 8);
-      final rf = RegisterFile(clk, reset, [], [rdPort],
+      final rf = RegisterFile<Logic>(clk, reset, [], [rdPort],
           resetValue: resetValue, numEntries: numEntries);
 
       await rf.build();
 
       if (dumpWaves) {
-        WaveDumper(rf);
+        rf.dumpWaves();
       }
 
       unawaited(Simulator.run());

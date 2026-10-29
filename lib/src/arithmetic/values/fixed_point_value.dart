@@ -151,6 +151,16 @@ class FixedPointValue implements Comparable<FixedPointValue> {
     }
   }
 
+  /// Equal-to operation that returns a [LogicValue].
+  @Deprecated('This operator will be removed, please use == instead.')
+  LogicValue eq(FixedPointValue other) =>
+      compareTo(other) == 0 ? LogicValue.one : LogicValue.zero;
+
+  /// Not equal-to operation that returns a [LogicValue].
+  @Deprecated('This operator will be removed, please use != instead.')
+  LogicValue neq(FixedPointValue other) =>
+      compareTo(other) != 0 ? LogicValue.one : LogicValue.zero;
+
   /// Less-than operation.
   bool operator <(FixedPointValue other) => compareTo(other) < 0;
 

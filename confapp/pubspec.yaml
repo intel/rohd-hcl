@@ -22,7 +22,7 @@ dependencies:
   rohd_devtools_widgets: ^0.1.1
   rohd_hcl: ^0.3.0
   rohd_hierarchy: ^0.1.0
-  rohd_schematic_viewer: 0.2.0
+  rohd_schematic_viewer: 0.2.5
   rohd_source_navigator: ^0.1.0
   # 0.5.0 also pulls in its CodeEditor clipboard stack; only highlighting is used.
   syntax_highlight: ^0.4.0
@@ -33,32 +33,88 @@ dev_dependencies:
     sdk: flutter
   test: ^1.20.0
 
+dependency_overrides:
+  rohd_devtools_widgets:
+      git:
+        url: https://github.com/intel/rohd.git
+        ref: main
+        path: packages/rohd_devtools_widgets
+  rohd_hierarchy:
+      git:
+        url: https://github.com/intel/rohd.git
+        ref: main
+        path: packages/rohd_hierarchy
+  rohd_source_navigator:
+      git:
+        url: https://github.com/intel/rohd.git
+        ref: main
+        path: packages/rohd_source_navigator
+
+
 flutter:
   uses-material-design: true
   assets:
     - assets/rohd_src/
-    - assets/rohd_src/arbiters/
     - assets/rohd_src/arithmetic/
+    - assets/rohd_src/arithmetic/accumulation/
+    - assets/rohd_src/arithmetic/addition/
+    - assets/rohd_src/arithmetic/conversion/
+    - assets/rohd_src/arithmetic/division_and_roots/
     - assets/rohd_src/arithmetic/floating_point/
-    - assets/rohd_src/arithmetic/multiplier_components/
+    - assets/rohd_src/arithmetic/multiplication/
+    - assets/rohd_src/arithmetic/multiply_accumulate/
+    - assets/rohd_src/arithmetic/normalization/
+    - assets/rohd_src/arithmetic/prefix_networks/
     - assets/rohd_src/arithmetic/signals/
     - assets/rohd_src/arithmetic/signals/floating_point_logics/
     - assets/rohd_src/arithmetic/values/
     - assets/rohd_src/arithmetic/values/floating_point_values/
+    - assets/rohd_src/bit_operations/
+    - assets/rohd_src/bit_operations/population_count/
+    - assets/rohd_src/bit_operations/search/
+    - assets/rohd_src/bit_operations/shifting/
+    - assets/rohd_src/clocking/
+    - assets/rohd_src/clocking/cdc/
+    - assets/rohd_src/clocking/event_detection/
+    - assets/rohd_src/clocking/gating/
     - assets/rohd_src/component_config/
     - assets/rohd_src/component_config/components/
     - assets/rohd_src/component_config/config_knobs/
+    - assets/rohd_src/dataflow/
+    - assets/rohd_src/dataflow/ordering/
+    - assets/rohd_src/dataflow/reduction/
+    - assets/rohd_src/dataflow/selection/
+    - assets/rohd_src/dataflow/serialization/
     - assets/rohd_src/encodings/
-    - assets/rohd_src/error_checking/
-    - assets/rohd_src/gaskets/
-    - assets/rohd_src/gaskets/amba5/
-    - assets/rohd_src/gaskets/spi/
+    - assets/rohd_src/encodings/gray/
+    - assets/rohd_src/encodings/one_hot/
+    - assets/rohd_src/encodings/priority/
+    - assets/rohd_src/error_control/
+    - assets/rohd_src/error_control/protection/
+    - assets/rohd_src/flow_control/
+    - assets/rohd_src/flow_control/arbitration/
+    - assets/rohd_src/flow_control/attachments/
+    - assets/rohd_src/flow_control/control/
+    - assets/rohd_src/flow_control/ready_valid/
+    - assets/rohd_src/flow_control/ready_valid/queues/
+    - assets/rohd_src/flow_control/ready_valid/transport/
+    - assets/rohd_src/flow_control/storage/
     - assets/rohd_src/interfaces/
-    - assets/rohd_src/interfaces/amba4/
-    - assets/rohd_src/interfaces/amba5/
+    - assets/rohd_src/interfaces/amba/
+    - assets/rohd_src/interfaces/amba/amba4/
+    - assets/rohd_src/interfaces/amba/amba5/
+    - assets/rohd_src/interfaces/amba/endpoints/
+    - assets/rohd_src/interfaces/spi/
+    - assets/rohd_src/interfaces/spi/endpoints/
     - assets/rohd_src/memory/
+    - assets/rohd_src/memory/associative/
+    - assets/rohd_src/memory/behavioral/
+    - assets/rohd_src/memory/contracts/
     - assets/rohd_src/memory/csr/
     - assets/rohd_src/memory/csr/config/
+    - assets/rohd_src/memory/sequential/
+    - assets/rohd_src/memory/state/
+    - assets/rohd_src/memory/storage/
     - assets/rohd_src/models/
     - assets/rohd_src/models/amba/
     - assets/rohd_src/models/amba/amba4_bfm/
@@ -67,10 +123,9 @@ flutter:
     - assets/rohd_src/models/amba/amba5_bfm/axi_s/
     - assets/rohd_src/models/amba/amba5_bfm/lti/
     - assets/rohd_src/models/amba/apb_bfm/
+    - assets/rohd_src/models/memory/
     - assets/rohd_src/models/ready_valid_bfm/
     - assets/rohd_src/models/spi_bfm/
-    - assets/rohd_src/serialization/
-    - assets/rohd_src/summation/
     - assets/fonts/RobotoMono-LICENSE.txt
     - assets/third_party_notices.md
     - assets/rohd_icon.png

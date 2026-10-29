@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arithmetic_utils.dart
@@ -162,9 +162,12 @@ extension LogicList on List<Logic> {
 
     str.write(markDown ? dataSepStart : ' ' * emptyRight * (colWidth + 1));
     if (intValue) {
+      // Copy to a list literal so the extension method is chosen over the
+      // deprecated top-level rswizzle() in ROHD 0.6.11.
+      final bits = [...this];
       final vec = (shift >= 0)
-          ? this.rswizzle().zeroExtend(maxHigh) << shift
-          : this.rswizzle().zeroExtend(maxHigh) >>> -shift;
+          ? bits.rswizzle().zeroExtend(maxHigh) << shift
+          : bits.rswizzle().zeroExtend(maxHigh) >>> -shift;
 
       final vecC = vec.slice(highLimit, 0);
       final v = vecC.value.toBigInt().toUnsigned(maxHigh);

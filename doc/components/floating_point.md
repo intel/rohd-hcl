@@ -22,6 +22,56 @@ Appropriate string representations, comparison operations, and operators are ava
 
 A `FloatingPointValue` can be converted to a constant `FloatingPoint` signal with `toLogic()`. `FloatingPoint` signals support direct `+`, `-`, unary `-`, and `*` operators as well as `add`, `subtract`, and `multiply` methods. The named arithmetic methods optionally select a `FloatingPointRoundingMode` and default to round-nearest-even. Comparisons use `eq`, `neq`, `lt`, `lte`, `gt`, and `gte`; `>` and `>=` are also available as operators. ROHD reserves `<` and `<=` for signal assignment, so they cannot be comparison operators.
 
+The available rounding modes are `truncate`, `roundNearestEven`,
+`roundNearestTiesAway`, `roundTowardsZero`, `roundTowardsInfinity`, and
+`roundTowardsNegativeInfinity`. `truncate` and `roundTowardsZero` have the same
+finite-result behavior.
+
+Finite values can be converted exactly between fixed-point and floating-point
+representations with `FixedPointValue.toFloatingPointValue()` and
+`FloatingPointValue.toFixedPointValue()`. These conversions are independent of
+host `double` precision.
+
+### Typed transport and optional pipeline stages
+
+The shared `swap` and `condFlop` utilities preserve floating-point subtypes,
+fixed-point formats, and structured or typed-array payloads. For example,
+`final FloatingPoint32 registered = condFlop(clk, sample);` retains the
+floating-point fields without a cast. With a null clock, `condFlop` returns the
+original signal without adding latency. Enable and reset behavior are unchanged.
+When registering a scalar constant, use `condFlop<Logic>(clk, Const(...))` to
+request a driveable signal rather than an immutable constant output.
+
+Floating-point swap/sort modules independently preserve payload and metadata
+types as `FloatingPointSwap<FpType, MetaType>`,
+`FloatingPointConditionalSwap<FpType, MetaType>`,
+`FloatingPointSort<FpType, MetaType>`, and
+`FloatingPointSortByExp<FpType, MetaType>`. Optional metadata outputs have type
+`MetaType?`; fields are accessible without casting. Structured and typed-array
+metadata use typed muxes and must have matching recursive layouts, enum
+mappings, and value codecs.
+
+```dart
+final sorter = FloatingPointSort(a, b, metaA: packetA, metaB: packetB);
+final Packet firstMetadata = sorter.outMetaA!;
+```
+
+Calls with inferred type arguments remain supported. Explicit old
+`FloatingPointSort<FloatingPoint32>` annotations must now supply the metadata
+type, for example `FloatingPointSort<FloatingPoint32, Packet>`. Use `Logic` as
+the metadata type for scalar constants so outputs are driveable; with no
+metadata, optional outputs remain absent.
+
+The single-path and dual-path adders and the simple multiplier retain propagated
+NaNs as floating-point payloads through their optional pipeline stage, rather
+than transporting sign and mantissa as unrelated signals. Final NaN selection
+also uses a whole-payload typed mux. NaN payload selection, quieting,
+reset/enable behavior, exception flags, and latency are unchanged.
+Square-root selection also keeps fixed-point intermediates typed while leaving
+the underlying shifts and digit-recurrence arithmetic bit-oriented. Exponent,
+significand, rounding, and conversion calculations continue to operate on bits
+where that is the algorithm's intended representation.
+
 ### Subnormals As Zero
 
 Both for compatibility and for optimization we provide an option to flag floating-point numbers to be treated as zero when they become subnormal.  On input to a component, this is commonly known as Denormal-as-Zero (or DAZ).  On output from a component this is commonly known as Flush-to-Zero (FTZ).  By setting the boolean on the input `FloatingPoint` called `subNormalAsZero` you indicate DAZ for components that support this mode (our floating-point adders, currently).  By setting the same flag on the output `FloatingPoint`, you indicate FTZ.
@@ -35,6 +85,8 @@ Our `FloatingPointAdderSinglePath` and `FloatingPointConverter` modules currentl
 `FloatingPointAdderSinglePath` can be specified to produce an explicit j-bit output by providing an output of that type.  If an output is not provided, then the adder will produce an output of implicit-j-type unless both inputs are explicit-jbit.  
 
 Explicit J-bit computations are enabled by an `explicitJBit` constructor flag for `FloatingPoint` as well as `FloatingPointValue`.
+An explicit-J-bit NaN must also have at least one payload bit beyond its J bit;
+a one-bit explicit mantissa cannot represent a quiet NaN.
 
 ### Floating Point Constants
 
@@ -71,7 +123,7 @@ Finally, we have a [random value constructor](https://intel.github.io/rohd-hcl/r
 
 ### Populators
 
-A `FloatingPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FloatingPointValue` predictably across different special subtypes. The general pattern is to call the `populator` static function on a `FloatingPointValue` (or special subtype), then subsequently call one of the population methods on the provided populator to receive a completed object.  Some examples are shown below:
+A `FloatingPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FloatingPointValue` predictably across different special subtypes. The general pattern is to call the `populator` static function on a `FloatingPointValue` (or special subtype), then subsequently call one of the population methods on the provided populator to receive a completed object. Some examples are shown below:
 
 ```dart
 // a [FloatingPointBF16Value] with a value representing the selected constant
@@ -91,7 +143,9 @@ or
 
 $$lowerBoundFPV <= generatedFPV < upperBoundFPV$$
 
-or any other variants of $<$, $<=$, $>$, and $>=$, as well as limiting the `FloatingPointValue` generation to normals or subnormals. An example of its use is
+or any other variants of $<$, $<=$, $>$, and $>=$. Use `genNormal` and
+`genSubNormal` to constrain generation to normal or subnormal values,
+respectively. An example of its use is
 
 ```dart
 const exponentWidth = 4;
@@ -121,6 +175,9 @@ A single path [FloatingPointAdderSinglePath](https://intel.github.io/rohd-hcl/ro
 
 A second `FloatingPointAdderDualPath` component is available which is optimized for latency.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
 
+Both adders accept a `roundingMode`, defaulting to
+`FloatingPointRoundingMode.roundNearestEven`.
+
 ## FloatingPointSqrt
 
 The [FloatingPointSqrtSimple](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointSqrtSimple-class.html)
@@ -129,7 +186,8 @@ It accepts normal and subnormal inputs, produces correctly rounded normal or
 subnormal outputs, and supports both odd and even mantissa widths. It also
 handles the floating-point special values defined by the input format. The
 component currently requires the implicit-J-bit representation; explicit-J-bit
-inputs are not supported. It is not optimized for circuit performance, but
+inputs are not supported. Its rounding mode defaults to
+`FloatingPointRoundingMode.roundNearestEven`. It is not optimized for circuit performance, but
 provides the key functional behavior of floating-point square root using the logical
 [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html)
 and literal
@@ -138,7 +196,7 @@ type abstractions.
 
 ## FloatingPointMultiplier
 
-A very basic [FloatingPointMultiplierSimple] component is available which does not perform any rounding. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and multiplies them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output 'product'.  
+A [FloatingPointMultiplierSimple] component takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and multiplies them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output `product`. Its `roundingMode` applies when output fields are narrower than the full-precision result and defaults to `FloatingPointRoundingMode.truncate`.
 
 It has options to control its performance:
 
@@ -149,7 +207,13 @@ It has options to control its performance:
 
 ## FloatingPointConverter
 
-A [FloatingPointConverter] component translates arbitrary width floating-point logic structures from one size to another, including handling subnormals, infinities, and performs RNE rounding.
+A [FloatingPointConverter] component translates arbitrary-width floating-point
+logic structures from one size to another, including handling subnormals and
+infinities. Its `roundingMode` selects how discarded precision and finite
+overflow are rounded, defaulting to
+`FloatingPointRoundingMode.roundNearestEven`. The converter rejects a source
+configured for denormal-as-zero (DAZ) or a destination configured for
+flush-to-zero (FTZ).
 
 Here is an example using the converter to translate from 32-bit single-precision floating point to 16-bit brain (bfloat16) floating-point format.
 

@@ -14,14 +14,20 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [AsyncFifo].
 class AsyncFifoConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.flowControl;
+
+  @override
+  String get subcategory => 'storage';
+
   /// Width of the FIFO data input and output.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Number of FIFO entries. This must be a power of two.
-  final IntConfigKnob depthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob depthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Number of synchronizer stages between the clock domains.
-  final IntConfigKnob syncStagesKnob = IntConfigKnob(value: 2);
+  final IntConfigKnob syncStagesKnob = IntConfigKnob(value: 2, minValue: 2);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_ecc.dart
@@ -12,12 +12,18 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [HammingEccReceiver] and [HammingEccTransmitter].
 class EccConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.errorControl;
+
+  @override
+  String get subcategory => 'protection';
+
   /// A knob controlling the [HammingType].
   final ChoiceConfigKnob<HammingType> typeKnob =
       ChoiceConfigKnob(HammingType.values, value: HammingType.sec);
 
   /// A knob controlling the data width.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 4);
 
   @override
   Module createModule() => HammingEccReceiver(

@@ -14,17 +14,23 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Cam].
 class CamConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.memory;
+
+  @override
+  String get subcategory => 'associative';
+
   /// Number of CAM entries.
-  final IntConfigKnob entryCountKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob entryCountKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of each lookup tag.
-  final IntConfigKnob tagWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob tagWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Number of independent write ports.
-  final IntConfigKnob writePortCountKnob = IntConfigKnob(value: 1);
+  final IntConfigKnob writePortCountKnob = NonNegativeIntConfigKnob(value: 1);
 
   /// Number of independent lookup ports.
-  final IntConfigKnob lookupPortCountKnob = IntConfigKnob(value: 1);
+  final IntConfigKnob lookupPortCountKnob = PositiveIntConfigKnob(value: 1);
 
   /// Whether to expose valid-entry count, full, and empty outputs.
   final ToggleConfigKnob validTrackingKnob = ToggleConfigKnob(value: false);

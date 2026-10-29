@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_compound_adder.dart
@@ -13,14 +13,20 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [CompoundAdder].
 class CompoundAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'addition';
+
   /// Adder selection control.
   final adderSelectionKnob = AdderSelectKnob();
 
   /// A knob controlling the width of the inputs to the adder.
-  final IntConfigKnob logicWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob logicWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling the sub-adder block width.
-  final IntConfigKnob blockWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob blockWidthKnob = PositiveIntConfigKnob(value: 4);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

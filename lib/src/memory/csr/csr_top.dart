@@ -17,7 +17,40 @@ import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 /// Individual blocks are addressable using some number of
 /// MSBs of the incoming address and registers within the given block
 /// are addressable using the remaining LSBs of the incoming address.
-class CsrTop extends CsrContainer {
+class CsrTop extends CsrContainer
+    with SystemVerilog
+    implements BehavioralModelProvider {
+  /// Resolved construction policy. Existing callers default to RTL.
+  late final CsrImplementationConfiguration implementationConfiguration;
+
+  /// Whole-top software state, or `null` for the RTL implementation.
+  CsrSoftwareModel? get softwareModel => _softwareModel;
+  CsrSoftwareModel? _softwareModel;
+
+  @override
+  CsrSoftwareModel? get behavioralModel => _softwareModel;
+
+  /// Exports the software implementation as a compact behavioral SystemC class.
+  ///
+  /// This explicit backend works on ROHD 0.6.11 without a SystemC synthesizer.
+  /// Surrounding systems must bind this class at the CSR top boundary.
+  ///
+  /// [options] controls boundary types and unknown outputs independently of
+  /// storage selection and CSR architectural configuration.
+  String generateModelSystemC({
+    required String className,
+    SystemCModelOptions options = const SystemCModelOptions(),
+  }) {
+    final model = _softwareModel;
+    if (model == null) {
+      throw StateError('Behavioral SystemC export requires software CSRs.');
+    }
+    return model.generateSystemC(
+      className: className,
+      options: options,
+    );
+  }
+
   /// What increment value to use when deriving logical addresses
   /// for registers that are wider than the frontdoor data width.
   final int logicalRegisterIncrement;
@@ -94,6 +127,7 @@ class CsrTop extends CsrContainer {
       this.logicalRegisterIncrement = 1,
       super.reserveName,
       super.reserveDefinitionName,
+      CsrImplementationConfiguration? implementationConfiguration,
       String? definitionName})
       : super(
             definitionName: definitionName ??
@@ -103,6 +137,17 @@ class CsrTop extends CsrContainer {
                     'LR${allowLargerRegisters}_'
                     'RI$logicalRegisterIncrement') {
     _validate();
+    this.implementationConfiguration =
+        implementationConfiguration ?? CsrImplementationScope.current;
+    if (this.implementationConfiguration.implementation ==
+        CsrImplementation.software) {
+      _buildSoftwareModel();
+      return;
+    }
+    if (this.implementationConfiguration.hardwareRegisters != null) {
+      throw ArgumentError(
+          'Selective CSR hardware exposure requires software implementation.');
+    }
 
     for (final block in config.blocks) {
       DataPortInterface? blockFdWrite;
@@ -127,6 +172,7 @@ class CsrTop extends CsrContainer {
           frontWrite: blockFdWrite,
           frontRead: blockFdRead,
           allowLargerRegisters: allowLargerRegisters,
+          logicalRegisterIncrement: logicalRegisterIncrement,
           asyncReset: config.asyncReset));
     }
 
@@ -136,23 +182,104 @@ class CsrTop extends CsrContainer {
       _backdoorIndexMaps.add({});
       for (var j = 0; j < blocks[i].registers.length; j++) {
         if (blocks[i].registers[j].backdoorAccessible) {
-          _backdoorInterfaces[i]
-              .add(CsrBackdoorInterface(config: blocks[i].registers[j]));
           backdoorInterfaces[i]
               .add(CsrBackdoorInterface(config: blocks[i].registers[j]));
-          _backdoorInterfaces[i].last.connectIO(
-              this, backdoorInterfaces[i].last,
+          _backdoorInterfaces[i].add(addInterfacePorts(
+              backdoorInterfaces[i].last,
               outputTags: {CsrBackdoorPortGroup.read},
               inputTags: {CsrBackdoorPortGroup.write},
               uniquify: (original) =>
                   '${name}_${blocks[i].name}_${blocks[i].registers[j].name}'
-                  '_backdoor_$original');
+                  '_backdoor_$original'));
           _backdoorIndexMaps[i][j] = _backdoorInterfaces[i].length - 1;
         }
       }
     }
 
     _buildLogic();
+  }
+
+  void _buildSoftwareModel() {
+    final selected = implementationConfiguration.hardwareRegisters;
+    final remaining = selected == null ? <String>{} : Set<String>.of(selected);
+    final hardware = <int, CsrBackdoorInterface>{};
+    for (var i = 0; i < blocks.length; i++) {
+      backdoorInterfaces.add([]);
+      _backdoorInterfaces.add([]);
+      _backdoorIndexMaps.add({});
+      final block = blocks[i];
+      for (var j = 0; j < block.registers.length; j++) {
+        final register = block.registers[j];
+        final key = '${block.name}/${register.name}';
+        final expose = selected == null || selected.contains(key);
+        if (!expose) {
+          continue;
+        }
+        remaining.remove(key);
+        if (!register.backdoorAccessible) {
+          if (selected != null) {
+            throw ArgumentError('CSR $key has no hardware backdoor access.');
+          }
+          continue;
+        }
+        final external = CsrBackdoorInterface(config: register);
+        final internal = addInterfacePorts(external,
+            outputTags: {CsrBackdoorPortGroup.read},
+            inputTags: {CsrBackdoorPortGroup.write},
+            uniquify: (original) =>
+                '${name}_${block.name}_${register.name}_backdoor_$original');
+        _backdoorIndexMaps[i][j] = backdoorInterfaces[i].length;
+        backdoorInterfaces[i].add(external);
+        _backdoorInterfaces[i].add(internal);
+        hardware[block.baseAddr + register.addr] = internal;
+      }
+    }
+    if (remaining.isNotEmpty) {
+      throw ArgumentError('Unknown hardware CSR selection: $remaining.');
+    }
+    _softwareModel = CsrSoftwareModel(
+      description: CsrModelDescription.fromConfig(
+        config,
+        instanceName: name,
+        frontRead: frontRead == null
+            ? null
+            : MemoryPortGeometry(
+                addressWidth: frontRead!.addrWidth,
+                dataWidth: frontRead!.dataWidth),
+        frontWrite: frontWrite == null
+            ? null
+            : MemoryPortGeometry(
+                addressWidth: frontWrite!.addrWidth,
+                dataWidth: frontWrite!.dataWidth),
+        hardwareRegisters: selected,
+        logicalRegisterIncrement: logicalRegisterIncrement,
+        allowLargerRegisters: allowLargerRegisters,
+      ),
+      clk: clk,
+      reset: reset,
+      frontRead: frontRead,
+      frontWrite: frontWrite,
+      hardware: hardware,
+    );
+  }
+
+  /// Software tops are custom leaves, not wire-only/default RTL definitions.
+  ///
+  /// Classify without invoking an unsupported Verilog exporter: other
+  /// backends query this property when instantiating their parent hierarchy.
+  @override
+  DefinitionGenerationType get generatedDefinitionType => _softwareModel != null
+      ? DefinitionGenerationType.custom
+      : super.generatedDefinitionType;
+
+  @override
+  String? definitionVerilog(String definitionType) {
+    if (implementationConfiguration.implementation ==
+        CsrImplementation.software) {
+      throw UnsupportedError('Software CSRs require a behavioral simulation '
+          'backend; RTL export is not a software-model implementation.');
+    }
+    return null;
   }
 
   /// Accessor to the config of a particular register block

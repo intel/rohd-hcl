@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_serialization.dart
@@ -12,6 +12,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Serializer] and [Deserializer].
 class SerializationConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.dataflow;
+
+  @override
+  String get subcategory => 'serialization';
+
   /// Controls whether we are serializing or deserializing.
   final ChoiceConfigKnob<Type> directionKnob = ChoiceConfigKnob(
     [Serializer, Deserializer],
@@ -23,10 +29,10 @@ class SerializationConfigurator extends Configurator {
   );
 
   /// Controls the width of the input.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob inputWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Controls the length of the input.
-  final IntConfigKnob inputLengthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob inputLengthKnob = PositiveIntConfigKnob(value: 16);
 
   /// When available, controls whether to generate an error signal.
   final ToggleConfigKnob enableKnob = ToggleConfigKnob(value: false);
@@ -44,6 +50,7 @@ class SerializationConfigurator extends Configurator {
             reset: reset,
             definitionName: 'Serializer')
         : Deserializer(deserializeIn, inputLengthKnob.value,
+            valueCodec: LogicValueCodec.logicValue,
             enable: enableKnob.value ? enable : null,
             clk: clk,
             reset: reset,

@@ -2,6 +2,8 @@
   "config": {
     "default": true,
     "MD013": false,
+    // Allow repeated headings (e.g., "Bug fixes") under different releases.
+    "MD024": { "siblings_only": true },
     "MD041": false
   },
 

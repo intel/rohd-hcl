@@ -308,6 +308,64 @@ void main() {
     await Simulator.reset();
   });
 
+  test('CSR candidates preserve configuration, fields and reserved layout', () {
+    final config = CsrInstanceConfig(
+        arch: CsrConfig(name: 'typed', access: CsrAccess.readWrite, fields: [
+          CsrFieldConfig(
+              start: 0, width: 2, name: 'ro', access: CsrFieldAccess.readOnly),
+          CsrFieldConfig(
+              start: 4, width: 2, name: 'rw', access: CsrFieldAccess.readWrite),
+          CsrFieldConfig(
+              start: 6, width: 2, name: 'wo', access: CsrFieldAccess.writeOnly),
+          CsrFieldConfig(
+              start: 8,
+              width: 2,
+              name: 'w1c',
+              access: CsrFieldAccess.writeOnesClear),
+          CsrFieldConfig(
+              start: 10,
+              width: 2,
+              name: 'legal',
+              access: CsrFieldAccess.readWriteLegal,
+              legalValues: const [0, 1]),
+        ]),
+        addr: 0,
+        width: 16);
+    final csr = Csr(config)..put(0xffff);
+    final input = Logic(width: 16)..put(0xaaaa);
+    void check(Csr candidate, int expected) {
+      expect(identical(candidate.config, csr.config), isTrue);
+      expect(candidate.rsvdIndices, csr.rsvdIndices);
+      expect(candidate.elements.map((e) => e.name),
+          csr.elements.map((e) => e.name));
+      expect(candidate.value, LogicValue.ofInt(expected, 16));
+    }
+
+    // Includes ordinary, reserved, read-only, write-only, W1C and legal fields.
+    check(csr.getWriteData(input), 0xf1ef);
+    check(csr.getWriteData(input, isBackdoorWrite: true), 0xf3ef);
+    check(
+        csr.getBackdoorReadData(Const(0xc0, width: 16), Const(0x80, width: 16)),
+        0xffbf);
+    check(csr.withSet(3, Const(0, width: 10)), 0xe007);
+    expect(csr.getWriteData(input).getField('rw').width, 2);
+    expect(csr.value, LogicValue.ofInt(0xffff, 16));
+  });
+
+  test('implicit writable CSR fields remain structured', () {
+    final csr = Csr(CsrInstanceConfig(
+        arch: CsrConfig(
+            name: 'implicit', access: CsrAccess.readWrite, fields: const []),
+        addr: 1,
+        width: 8));
+    final input = Logic(width: 8)..put(0xa5);
+    final candidate = csr.getWriteData(input);
+    expect(identical(candidate.config, csr.config), isTrue);
+    expect(candidate.getField('data').value, input.value);
+    input.put(0x3c);
+    expect(candidate.getField('data').value, input.value);
+  });
+
   test('simple individual CSRs', () {
     const dataWidth1 = 32;
     const dataWidth2 = 8;
@@ -506,6 +564,48 @@ void main() {
 
     await Simulator.endSimulation();
     await Simulator.simulationEnded;
+  });
+
+  test('single-address CSR blocks use one-bit addresses in generated SV',
+      () async {
+    const dataWidth = 32;
+    final register = CsrInstanceConfig(
+      arch: CsrConfig(
+        access: CsrAccess.readWrite,
+        name: 'singleRegister',
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+    );
+    final block = CsrBlockConfig(
+      name: 'singleBlock',
+      baseAddr: 0,
+      blockSize: 1,
+      registers: [register],
+    );
+    final topConfig = CsrTopConfig(
+      name: 'singleTop',
+      blockSize: 1,
+      blocks: [block],
+    );
+
+    expect(block.minAddrBits(), 1);
+    expect(topConfig.blockOffsetWidthForBlock(block), 1);
+    expect(topConfig.minAddrBits(), 1);
+
+    final csrTop = CsrTop(
+      config: topConfig,
+      clk: Logic(),
+      reset: Logic(),
+      frontWrite: DataPortInterface(dataWidth, 1),
+      frontRead: DataPortInterface(dataWidth, 1),
+    );
+    await csrTop.build();
+
+    final systemVerilog = csrTop.generateSynth();
+    expect(systemVerilog, contains("1'h0"));
+    expect(systemVerilog, isNot(contains("0'h0")));
   });
 
   test('writeOnesClear field clears only on write of 1', () async {

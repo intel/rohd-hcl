@@ -10,6 +10,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A utility class for floating point operations.
 abstract class FloatingPointUtilities {
@@ -27,10 +28,8 @@ abstract class FloatingPointUtilities {
         .named('doSwap');
 
     final swapped = swap(doSwap, toSort);
-    final larger =
-        (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
-    final smaller =
-        (swapped.$2.clone(name: 'smaller')..gets(swapped.$2)) as FpType;
+    final larger = swapped.$1.namedTyped('larger');
+    final smaller = swapped.$2.namedTyped('smaller');
 
     return (sorted: (larger, smaller), didSwap: doSwap);
   }
@@ -45,16 +44,19 @@ abstract class FloatingPointUtilities {
 
     final swapped = swap(doSwap, toSort);
 
-    final larger =
-        (swapped.$1.clone(name: 'larger')..gets(swapped.$1)) as FpType;
-    final smaller =
-        (swapped.$2.clone(name: 'smaller')..gets(swapped.$2)) as FpType;
+    final larger = swapped.$1.namedTyped('larger');
+    final smaller = swapped.$2.namedTyped('smaller');
     return (sorted: (larger, smaller), didSwap: doSwap);
   }
 }
 
 /// A module that swaps two floating point values.
-abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
+///
+/// Payload [FpType] and optional metadata [MetaType] are independently typed.
+/// Metadata must have matching recursive layouts and value codecs. Use [Logic]
+/// as [MetaType] for scalar constants so outputs are driveable.
+abstract class FloatingPointSwap<FpType extends FloatingPoint,
+    MetaType extends Logic> extends Module {
   /// The first output floating point values after the swap.
   late final FpType outA;
 
@@ -62,10 +64,10 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
   late final FpType outB;
 
   /// The first output metadata value after the swap.
-  Logic? get outMetaA => tryOutput('outMetaA');
+  late final MetaType? outMetaA;
 
   /// The second output metadata value after the swap.
-  Logic? get outMetaB => tryOutput('outMetaB');
+  late final MetaType? outMetaB;
 
   /// The first floating point value to swap.
   @protected
@@ -73,7 +75,7 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
 
   /// The first metadata value to swap.
   @protected
-  late final Logic? metaA;
+  late final MetaType? metaA;
 
   /// The second floating point value to swap.
   @protected
@@ -81,13 +83,13 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
 
   /// The second  metadata value to swap.
   @protected
-  late final Logic? metaB;
+  late final MetaType? metaB;
 
   /// Constructs a [FloatingPointSwap] module that swaps two floating point
   /// values.
   FloatingPointSwap(FpType a, FpType b,
-      {Logic? metaA,
-      Logic? metaB,
+      {MetaType? metaA,
+      MetaType? metaB,
       super.name = 'floating_point_swap',
       super.reserveName,
       super.reserveDefinitionName,
@@ -102,32 +104,31 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint> extends Module {
           'FloatingPointSwap requires both metaA and metaB to be either '
           'both null or both non-null.');
     }
-    this.metaA =
-        (metaA != null) ? addInput('inMetaA', metaA, width: metaA.width) : null;
-    this.metaB =
-        (metaB != null) ? addInput('inMetaB', metaB, width: metaB.width) : null;
-
     if (metaA != null && metaB != null) {
-      // We have metadata to swap.
-      if (metaA.width != metaB.width) {
+      if (!sameDeclaredPayloadShape(metaA, metaB)) {
         throw RohdHclException('FloatingPointSwap requires metaA and metaB to '
-            'have the same width.');
+            'have matching layouts and value codecs.');
       }
-      addOutput('outMetaA', width: metaA.width);
-      addOutput('outMetaB', width: metaB.width);
+      outMetaA = addTypedOutput('outMetaA', metaA.cloneTyped);
+      outMetaB = addTypedOutput('outMetaB', metaB.cloneTyped);
+    } else {
+      outMetaA = null;
+      outMetaB = null;
     }
+    this.metaA = (metaA != null) ? addTypedInput('inMetaA', metaA) : null;
+    this.metaB = (metaB != null) ? addTypedInput('inMetaB', metaB) : null;
 
-    this.a = (a.clone(name: 'a') as FpType)..gets(addTypedInput('a', a));
-    this.b = (b.clone(name: 'b') as FpType)..gets(addTypedInput('b', b));
+    this.a = addTypedInput('a', a);
+    this.b = addTypedInput('b', b);
 
-    outA = addTypedOutput('outA', a.clone as FpType Function({String? name}));
-    outB = addTypedOutput('outB', b.clone as FpType Function({String? name}));
+    outA = addTypedOutput('outA', a.cloneTyped);
+    outB = addTypedOutput('outB', b.cloneTyped);
   }
 }
 
 /// A module that swaps two floating point values based on a condition.
-class FloatingPointConditionalSwap<FpType extends FloatingPoint>
-    extends FloatingPointSwap<FpType> {
+class FloatingPointConditionalSwap<FpType extends FloatingPoint,
+    MetaType extends Logic> extends FloatingPointSwap<FpType, MetaType> {
   /// The swap condition.
   @protected
   late final Logic doSwap;
@@ -154,16 +155,16 @@ class FloatingPointConditionalSwap<FpType extends FloatingPoint>
     if ((metaA != null) & (metaB != null)) {
       final (swapMetaA, swapMetaB) =
           swap(this.doSwap, (super.metaA!, super.metaB!));
-      output('outMetaA') <= swapMetaA;
-      output('outMetaB') <= swapMetaB;
+      outMetaA! <= swapMetaA;
+      outMetaB! <= swapMetaB;
     }
   }
 }
 
 /// A module that sorts two floating point values, output the larger one
 /// first.
-class FloatingPointSort<FpType extends FloatingPoint>
-    extends FloatingPointSwap<FpType> {
+class FloatingPointSort<FpType extends FloatingPoint, MetaType extends Logic>
+    extends FloatingPointSwap<FpType, MetaType> {
   /// Constructs a [FloatingPointSort] module that sorts two floating point
   /// values so that the larger one is first.
   FloatingPointSort(super.a, super.b,
@@ -181,16 +182,16 @@ class FloatingPointSort<FpType extends FloatingPoint>
     outB <= smaller;
     if ((metaA != null) & (metaB != null)) {
       final (swapMetaA, swapMetaB) = swap(doSwap, (super.metaA!, super.metaB!));
-      output('outMetaA') <= swapMetaA;
-      output('outMetaB') <= swapMetaB;
+      outMetaA! <= swapMetaA;
+      outMetaB! <= swapMetaB;
     }
   }
 }
 
 /// A module that sorts two floating point values by exponent output the one
 /// with the larger exponent first.
-class FloatingPointSortByExp<FpType extends FloatingPoint>
-    extends FloatingPointSwap<FpType> {
+class FloatingPointSortByExp<FpType extends FloatingPoint,
+    MetaType extends Logic> extends FloatingPointSwap<FpType, MetaType> {
   /// Constructs a [FloatingPointSortByExp] module that sorts two floating point
   /// values so that the one with the larger exponent is first.
   FloatingPointSortByExp(
@@ -212,8 +213,8 @@ class FloatingPointSortByExp<FpType extends FloatingPoint>
     outB <= smaller;
     if ((metaA != null) & (metaB != null)) {
       final (swapMetaA, swapMetaB) = swap(doSwap, (super.metaA!, super.metaB!));
-      output('outMetaA') <= swapMetaA;
-      output('outMetaB') <= swapMetaB;
+      outMetaA! <= swapMetaA;
+      outMetaB! <= swapMetaB;
     }
   }
 }

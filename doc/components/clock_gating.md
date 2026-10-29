@@ -27,8 +27,7 @@ class CounterWithSimpleClockGate extends Module {
     reset = addInput('reset', reset);
 
     // We clone the incoming interface, receiving all config information with it
-    cgIntf = ClockGateControlInterface.clone(cgIntf)
-      ..pairConnectIO(this, cgIntf, PairRole.consumer);
+    cgIntf = addPairInterfacePorts(cgIntf, PairRole.consumer);
 
     // In this case, we want to enable the clock any time we're incrementing
     final clkEnable = incr;
@@ -46,7 +45,7 @@ class CounterWithSimpleClockGate extends Module {
         flop(
           // access the gated clock from the component
           clkGate.gatedClk,
-          // by default, `controlled` signals are delayed by 1 cycle
+          // delayed when delayControlledSignals is enabled
           count + clkGate.controlled(incr).zeroExtend(count.width),
           reset: reset,
         );
@@ -60,7 +59,15 @@ Some important pieces to note here are:
 - We pass it a `ClockGateControlInterface` which brings with it any potential custom control. When we punch ports for this design, we use the `clone` constructor, which carries said configuration information.
 - We enable the clock any time `incr` is asserted to increment the counter.
 - Use the gated clock on the downstream flop for the counter.
-- Use a "controlled" version of `incr`, which by default is delayed by one cycle.
+- Use a "controlled" version of `incr`; set `delayControlledSignals: true` to
+  delay it by one cycle (the default is no delay).
+
+`controlled<T>(signal)` preserves the payload's type, width, and layout,
+including structures, enums, and typed arrays with value codecs. Delays use
+the free clock and honor the supplied `resetValue`. Repeated calls with the
+same signal return the same delayed signal. When gating is absent or delays
+are disabled, the original signal is returned unchanged. Request
+`controlled<Logic>(Const(...))` for a driveable delayed scalar constant.
 
 The `ClockGateControlInterface` comes with an optional `enableOverride` which can force the clocks to always be enabled. It also contains a boolean `isPresent` which can control whether clock gating should be generated at all. Since configuration information is automatically carried down through the hierarchy, this means you *can turn on or off clock gating generation through an entire hierarchy without modifying your design*.
 

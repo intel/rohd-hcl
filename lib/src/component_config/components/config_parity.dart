@@ -23,8 +23,14 @@ enum ParityDirection {
 
 /// A [Configurator] for parity transmitters and receivers.
 class ParityConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.errorControl;
+
+  @override
+  String get subcategory => 'protection';
+
   /// Width of the data input or received transmission.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Parity module direction.
   final ChoiceConfigKnob<ParityDirection> directionKnob = ChoiceConfigKnob(

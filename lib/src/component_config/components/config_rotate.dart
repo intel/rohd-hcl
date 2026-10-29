@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_rotate.dart
@@ -13,6 +13,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for rotation.
 class RotateConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.bitOperations;
+
+  @override
+  String get subcategory => 'shifting';
+
   /// A knob controlling the direction of rotation.
   final directionKnob = ChoiceConfigKnob<RotateDirection>(
     RotateDirection.values,
@@ -20,13 +26,13 @@ class RotateConfigurator extends Configurator {
   );
 
   /// A knob controlling the width of the input to be rotated.
-  final IntConfigKnob originalWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob originalWidthKnob = PositiveIntConfigKnob(value: 16);
 
   /// A knob controlling the width of the control for rotation amount.
-  final IntConfigKnob rotateWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob rotateWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling the maximum amount to rotate by to support.
-  final IntConfigKnob maxAmountKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob maxAmountKnob = PositiveIntConfigKnob(value: 8);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

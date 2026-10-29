@@ -7,6 +7,7 @@
 // 2023 December
 
 import 'package:confapp/hcl/cubit/component_cubit.dart';
+import 'package:confapp/hcl/view/screen/dock_lock_icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
@@ -36,10 +37,24 @@ final divider = Divider(color: white.withValues(alpha: 0.3), height: 1);
 /// Displays the available configurable components.
 class ComponentsSidebar extends StatefulWidget {
   /// Creates a component sidebar with the given [width].
-  const ComponentsSidebar({required this.width, super.key});
+  ///
+  /// When [onTogglePinned] is provided, a lock button is shown in the header
+  /// reflecting [pinned].
+  const ComponentsSidebar({
+    required this.width,
+    this.pinned = true,
+    this.onTogglePinned,
+    super.key,
+  });
 
   /// The width of the sidebar.
   final double width;
+
+  /// Whether the sidebar is pinned open (shown in the layout).
+  final bool pinned;
+
+  /// Called when the user presses the lock button in the header.
+  final VoidCallback? onTogglePinned;
 
   @override
   State<ComponentsSidebar> createState() => _ComponentsSidebarState();
@@ -47,7 +62,13 @@ class ComponentsSidebar extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DoubleProperty('width', width));
+    properties
+      ..add(DoubleProperty('width', width))
+      ..add(FlagProperty('pinned', value: pinned, ifTrue: 'pinned'))
+      ..add(ObjectFlagProperty<VoidCallback>.has(
+        'onTogglePinned',
+        onTogglePinned,
+      ));
   }
 }
 
@@ -55,34 +76,123 @@ class _ComponentsSidebarState extends State<ComponentsSidebar> {
   @override
   Widget build(BuildContext context) {
     final comCubit = context.read<ComponentCubit>();
+    final componentsByCategory =
+        <ComponentCategory, Map<String, List<Configurator>>>{
+      for (final category in ComponentCategory.values) category: {},
+    };
+    for (final component in comCubit.components) {
+      (componentsByCategory[component.category]![component.subcategory] ??= [])
+          .add(component);
+    }
+
     return BlocBuilder<ComponentCubit, Configurator>(
       builder: (context, selectedComponent) => Container(
         width: widget.width,
         color: canvasColor,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(8, 6, 8, 12),
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(8, 8, 8, 12),
-              child: Text(
-                'Components',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
+        child: ListTileTheme(
+          minVerticalPadding: 0,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+            children: [
+              Row(
+                children: [
+                  const Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(8, 4, 8, 6),
+                      child: Text(
+                        'Components',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (widget.onTogglePinned != null)
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      color: Colors.white,
+                      tooltip: widget.pinned
+                          ? 'Unpin components menu'
+                          : 'Pin components menu',
+                      icon: DockLockIcon(
+                        locked: widget.pinned,
+                        color: Colors.white,
+                      ),
+                      onPressed: widget.onTogglePinned,
+                    ),
+                ],
               ),
-            ),
-            for (final component in comCubit.components)
-              Padding(
-                padding: const EdgeInsets.only(left: 16),
-                child: _ComponentTile(
-                  component: component,
-                  selected: component == selectedComponent,
-                  onTap: () => comCubit.setSelectedComponent(component),
-                ),
-              ),
-          ],
+              for (final category in ComponentCategory.values)
+                if (componentsByCategory[category]!.isNotEmpty)
+                  ExpansionTile(
+                    key: PageStorageKey<String>(
+                      'component-category-${category.id}',
+                    ),
+                    maintainState: true,
+                    minTileHeight: 36,
+                    dense: true,
+                    tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+                    iconColor: white.withValues(alpha: 0.82),
+                    collapsedIconColor: white.withValues(alpha: 0.82),
+                    shape: const Border(),
+                    collapsedShape: const Border(),
+                    title: Text(
+                      category.label,
+                      style: TextStyle(
+                        color: white.withValues(alpha: 0.82),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    children: [
+                      for (final subcategory
+                          in componentsByCategory[category]!.keys.toList()
+                            ..sort())
+                        ExpansionTile(
+                          key: PageStorageKey<String>(
+                            'component-group-${category.id}-$subcategory',
+                          ),
+                          maintainState: true,
+                          minTileHeight: 32,
+                          dense: true,
+                          tilePadding:
+                              const EdgeInsets.only(left: 16, right: 8),
+                          childrenPadding: const EdgeInsets.only(left: 24),
+                          iconColor: white.withValues(alpha: 0.72),
+                          collapsedIconColor: white.withValues(alpha: 0.72),
+                          shape: const Border(),
+                          collapsedShape: const Border(),
+                          title: Text(
+                            subcategory
+                                .split('-')
+                                .map((word) => word.isEmpty
+                                    ? word
+                                    : '${word[0].toUpperCase()}'
+                                        '${word.substring(1)}')
+                                .join(' '),
+                            style: TextStyle(
+                              color: white.withValues(alpha: 0.72),
+                              fontSize: 12,
+                            ),
+                          ),
+                          children: [
+                            for (final component in componentsByCategory[
+                                category]![subcategory]!)
+                              _ComponentTile(
+                                key: ObjectKey(component),
+                                component: component,
+                                selected: component == selectedComponent,
+                                onTap: () =>
+                                    comCubit.setSelectedComponent(component),
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
+            ],
+          ),
         ),
       ),
     );
@@ -94,6 +204,7 @@ class _ComponentTile extends StatelessWidget {
     required this.component,
     required this.selected,
     required this.onTap,
+    super.key,
   });
 
   final Configurator component;
@@ -101,24 +212,23 @@ class _ComponentTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 1),
-        child: Material(
-          color: selected ? accentCanvasColor : Colors.transparent,
+  Widget build(BuildContext context) => Material(
+        color: selected ? accentCanvasColor : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
+        child: InkWell(
           borderRadius: BorderRadius.circular(6),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(6),
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-              child: Text(
-                component.name,
-                style: TextStyle(
-                  color: selected
-                      ? Colors.white
-                      : Colors.white.withValues(alpha: 0.72),
-                  fontSize: 14,
-                ),
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 32),
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Text(
+              component.name,
+              style: TextStyle(
+                color: selected
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.72),
+                fontSize: 14,
               ),
             ),
           ),

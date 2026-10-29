@@ -29,3 +29,29 @@ final sortMod = BitonicSort(clk, reset, toSort: toSort,  isAscending: false, nam
 
 await sortMod.build();
 ```
+
+## Typed payloads
+
+`BitonicSort<T>` preserves `T` on its input ports, intermediate registers, and
+`sorted` outputs. Structures and typed arrays must have matching recursive
+layouts, including array dimensions and codecs. A singleton remains
+combinational; the pipeline latency for larger sequences is unchanged.
+
+The default comparison calls the payload's `lt` method, so floating-point and
+signed fixed-point signals use their numeric comparisons rather than unsigned
+packed-bit ordering. To retain packed ordering, pass the signals' `.packed`
+representations instead.
+
+For records, supply a strict one-bit `isLessThan` comparison:
+
+```dart
+final sorter = BitonicSort<Sample>(clk, reset,
+    toSort: samples,
+    isLessThan: (a, b) => a.key.lt(b.key));
+final Sample first = sorter.sorted.first;
+```
+
+The complete record travels with its key. The comparison is propagated through
+all recursive sort and merge stages, in both ascending and descending modes.
+For scalar constant inputs, request `BitonicSort<Logic>(...)` explicitly so
+mutable ports and pipeline registers are not inferred as `Const`.

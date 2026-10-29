@@ -16,13 +16,14 @@ of this abstract `Module`:
 - [Compression Tree Multiplier](#compression-tree-multiplier)
 
 An additional kind of abstract module provided is a
-[MultiplierAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/MultiplyAccumulate-class.html) module which multiplies two numbers represented
-as two `Logic`s and adds the result to a third `Logic` with width
-equal to the sum of the widths of the main inputs. Similar to the `Multiplier`,
-the signs of the operands are either fixed by a parameter,
-or runtime selectable, e.g.:   `signedMultiplicand` or `selectSignedMultiplicand`.
-The output of the multiply-accumulate also has a signal telling us if the result is to be
-treated as signed.
+[MultiplyAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/MultiplyAccumulate-class.html)
+module which multiplies two numbers represented as `Logic`s and adds the
+result to a third `Logic` addend. Its default output width is the sum of the
+input operand widths plus one; `outputWidth` can select another width.
+`GenericMultiplyAccumulate` supports a `c` addend of arbitrary width, while
+`CompressionTreeMultiplyAccumulate` requires `c` to be `a.width + b.width + 1`
+bits wide. Similar to `Multiplier`, operand signedness can be configured
+statically or selected at runtime.
 
 We have a
 high-performance implementation:
@@ -125,12 +126,12 @@ Here is an example of use of the `CompressionTreeMultiplier` with one signed inp
 
 ## Compression Tree Multiply Accumulate
 
-A compression tree multiply-accumulate is similar to a compress tree
+A compression tree multiply-accumulate is similar to a compression tree
 multiplier, but it inserts an additional addend into the compression
 tree to allow for accumulation into this third input.
 
 The additional parameters of the
-[CompressionTreeMultiplyAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplyAccumulate-class.html) over the [CompressionTreeMltiplier](#compression-tree-multiplier) are:
+[CompressionTreeMultiplyAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplyAccumulate-class.html) over the [CompressionTreeMultiplier](#compression-tree-multiplier) are:
 
 - The accumulate input term `c` which must have width as sum of the two operand widths + 1.
 - Addend signage:
@@ -139,7 +140,8 @@ OR
   - An optional `selectSignedAddend` control signal allows for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
-The output width of the `CompressionTreeMultiplier` is the sum of the product term widths plus one to accommodate the additional accumulate term.
+The default output width is the sum of the operand widths plus one to
+accommodate the additional accumulate term.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inputs as signed:
 
@@ -149,7 +151,7 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inp
     const radix = 8;
     final a = Logic(name: 'a', width: widthA);
     final b = Logic(name: 'b', width: widthB);
-    final c = Logic(name: 'c', width: widthA + widthB);
+    final c = Logic(name: 'c', width: widthA + widthB + 1);
 
     a.put(-15);
     b.put(3);
@@ -160,7 +162,36 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inp
 
     final accumulate = multiplier.accumulate;
 
-    print('${accumulate.value.toBigInt().toSigned(widthA + widthB)}');
+    print('${accumulate.value.toBigInt().toSigned(widthA + widthB + 1)}');
+```
+
+## Generic Multiply-Accumulate
+
+`GenericMultiplyAccumulate` composes a selected multiplier generator with a
+separately selected adder generator. Unlike the fused compression-tree MAC,
+this provides flexibility to use a native, compression-tree, or custom
+multiplier strategy, at the cost of a separate multiplication and addition
+path. It also supports an addend `c` wider than the product without discarding
+its upper bits internally.
+
+The optional `outputWidth` sets the `accumulate` output width. It defaults to
+`a.width + b.width + 1`; narrower outputs keep the low bits, while wider
+outputs extend according to the result signedness. Select a width sufficient
+for the desired range, especially when `c` is wider than the product.
+`multiplierIdentity` and `adderIdentity` should be supplied when custom
+generators need distinct automatic HDL definition names.
+
+```dart
+final mac = GenericMultiplyAccumulate(
+  a,
+  b,
+  c,
+  NativeMultiplier.new,
+  signedMultiplicand: true,
+  signedMultiplier: true,
+  signedAddend: true,
+  outputWidth: 24,
+);
 ```
 
 ## Dot Product

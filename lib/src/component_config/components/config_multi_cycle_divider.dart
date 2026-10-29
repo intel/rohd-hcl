@@ -14,8 +14,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [MultiCycleDivider].
 class MultiCycleDividerConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'division-and-roots';
+
   /// Width of the dividend, divisor, quotient, and remainder.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 16);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 16);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs =

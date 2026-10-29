@@ -15,7 +15,9 @@ import 'package:confapp/hcl/cubit/theme_cubit.dart';
 import 'package:confapp/hcl/module_source_assets.dart';
 import 'package:confapp/hcl/view/screen/browser_interop.dart';
 import 'package:confapp/hcl/view/screen/dart_syntax_code_controller.dart';
+import 'package:confapp/hcl/view/screen/dock_lock_icon.dart';
 import 'package:confapp/hcl/view/screen/flc_trace_data.dart';
+import 'package:confapp/hcl/view/screen/integer_knob_control.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' as flutter_widgets;
@@ -24,7 +26,8 @@ import 'package:highlight/languages/cpp.dart' as highlight_cpp;
 import 'package:highlight/languages/verilog.dart' as highlight_verilog;
 import 'package:material_ui/material_ui.dart' as material_ui;
 import 'package:material_ui/material_ui.dart';
-import 'package:rohd/rohd.dart' show Module, NetlistSynthesizer, SynthBuilder;
+import 'package:rohd/rohd.dart'
+    show Module, NetlistSynthesizer, SourceTracer, SystemVerilogService;
 import 'package:rohd_devtools_widgets/rohd_devtools_widgets.dart'
     show
         LocalCrossProbeChannel,
@@ -154,6 +157,15 @@ class _SVGeneratorState extends State<SVGenerator>
   );
 
   late TabController _tabController;
+
+  static const double _toolbarTriggerHeight = 18;
+
+  /// Whether the output app bar is pinned into the layout.
+  bool _toolbarPinned = true;
+
+  /// Drives the hover slide of the unpinned output app bar.
+  late final AnimationController _toolbarController;
+  late final Animation<Offset> _toolbarSlide;
   late final _ConfappRohdExtensionClient _sourceFormatClient;
   late final StreamSubscription<Configurator> _componentSubscription;
 
@@ -316,6 +328,21 @@ class _SVGeneratorState extends State<SVGenerator>
   @override
   void initState() {
     super.initState();
+    _toolbarController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _toolbarSlide = Tween<Offset>(
+      begin: const Offset(0, -1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _toolbarController,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      ),
+    );
+    _sourceTracer = null;
     _sourceFormatClient = _ConfappRohdExtensionClient(
       getModuleFormats: _getModuleFormats,
       lookupFrames: _lookupSignalFrames,
@@ -331,6 +358,7 @@ class _SVGeneratorState extends State<SVGenerator>
     final componentCubit = context.read<ComponentCubit>();
     final rtlCubit = context.read<SystemVerilogCubit>();
     _componentSubscription = componentCubit.stream.listen((component) {
+      _clearSourceTracer();
       _generationRequestId++;
       rtlCubit.initializeData();
       _disposeRohdSubtabs();
@@ -351,7 +379,6 @@ class _SVGeneratorState extends State<SVGenerator>
         _lastRtlRes = null;
         _lastScRes = null;
         _lastModuleName = null;
-        _lastEmbeddedFlcData = null;
         _highlightedScLine = null;
       });
       // Set up the primary ROHD source subtab (no FLC until Generate).
@@ -493,12 +520,7 @@ class _SVGeneratorState extends State<SVGenerator>
   String? _lastScRes;
   String? _lastModuleName;
 
-  /// Trace data cached from a trace-enabled ROHD netlist.
-  ///
-  /// The stable ROHD 0.6.11 dependency does not emit this data. Keeping the
-  /// cache separate from [_flcData] lets a future trace-enabled netlist retain
-  /// its data until the ROHD Source tab is opened.
-  FlcData? _lastEmbeddedFlcData;
+  late SourceTracer? _sourceTracer;
 
   // ── End tab visibility checkboxes ─────────────────────────────────────
 
@@ -1263,22 +1285,13 @@ class _SVGeneratorState extends State<SVGenerator>
     }
   }
 
-  FlcData? _currentFlcData() {
-    final flcData = _flcData;
-    if (flcData != null) {
-      return flcData;
-    }
-    return _lastEmbeddedFlcData;
-  }
-
   EmbeddedFlcSourceNavigation get _flcSourceNavigation =>
       EmbeddedFlcSourceNavigation(
-        _currentFlcData(),
+        _flcData,
         primaryModule: _flcModuleName ?? _lastModuleName,
       );
 
-  bool get _canReceiveSourceCrossProbe =>
-      EmbeddedFlcSourceNavigation(_flcData).isAvailable;
+  bool get _canReceiveSourceCrossProbe => _flcSourceNavigation.isAvailable;
 
   Future<Set<String>> _getModuleFormats(
     String module, {
@@ -1298,15 +1311,8 @@ class _SVGeneratorState extends State<SVGenerator>
         format: format,
       );
 
-  /// Ensure embedded FLC data is available for source navigation.
-  ///
-  /// Trace-enabled future ROHD versions embed this data in their netlist.
-  /// Stable ROHD 0.6.11 leaves source navigation unavailable.
+  /// Ensure generated FLC data is available for source navigation.
   Future<bool> _ensureFlcDataLoaded() async {
-    if (_flcData != null && !_flcData!.isEmpty) {
-      return true;
-    }
-
     if (_lastBuiltModule == null ||
         _lastRtlRes == null ||
         _lastModuleName == null) {
@@ -2027,6 +2033,7 @@ class _SVGeneratorState extends State<SVGenerator>
   }
 
   void _invalidateGeneratedOutputs() {
+    _clearSourceTracer();
     final component = context.read<ComponentCubit>().state;
     context.read<SystemVerilogCubit>().initializeData();
     _disposeRohdSubtabs();
@@ -2047,10 +2054,20 @@ class _SVGeneratorState extends State<SVGenerator>
       _lastRtlRes = null;
       _lastScRes = null;
       _lastModuleName = null;
-      _lastEmbeddedFlcData = null;
       _moduleName = '';
     });
     _initPrimaryRohdSubtab(component);
+  }
+
+  void _clearSourceTracer([SourceTracer? expected]) {
+    final tracer = expected ?? _sourceTracer;
+    if (tracer == null) {
+      return;
+    }
+    SourceTracer.clearIfCurrent(tracer);
+    if (identical(_sourceTracer, tracer)) {
+      _sourceTracer = null;
+    }
   }
 
   Widget _generateKnobControl(String label, ConfigKnob<dynamic> knob) {
@@ -2063,7 +2080,21 @@ class _SVGeneratorState extends State<SVGenerator>
     );
     final key = Key(label);
 
-    if (knob is TextConfigKnob) {
+    if (knob is IntConfigKnob) {
+      selector = IntegerKnobControl(
+        key: key,
+        label: label,
+        knob: knob,
+        onChanged: _invalidateGeneratedOutputs,
+      );
+    } else if (knob is IntOptionalConfigKnob) {
+      selector = IntegerKnobControl(
+        key: key,
+        label: label,
+        knob: knob,
+        onChanged: _invalidateGeneratedOutputs,
+      );
+    } else if (knob is TextConfigKnob) {
       selector = TextFormField(
         key: key,
         initialValue: knob.valueString,
@@ -2764,24 +2795,38 @@ class _SVGeneratorState extends State<SVGenerator>
     Configurator component, {
     required int generationRequestId,
   }) async {
-    final mod = component.createModule();
-    await mod.build();
-    if (!_isCurrentGeneration(generationRequestId)) {
-      return false;
+    _clearSourceTracer();
+    if (SourceTracer.isActive) {
+      throw StateError(
+        'Cannot generate Confapp source traces while another SourceTracer '
+        'is active.',
+      );
     }
-    final moduleName = mod.definitionName;
-    final rtlRes = mod.generateSynth();
+    final sourceTracer = SourceTracer.activate();
+    _sourceTracer = sourceTracer;
+    try {
+      final mod = component.createModule();
+      await mod.build();
+      if (!_isCurrentGeneration(generationRequestId)) {
+        return false;
+      }
+      final moduleName = mod.definitionName;
+      final svService = SystemVerilogService(mod, register: false);
+      final rtlRes = svService.output;
+      final flcData = bundledSourceFlcData(svService);
 
-    _rohdNetlistJson = null;
-    _hierarchyService = null;
-    _flcData = null;
-    _flcModuleName = null;
-    _lastEmbeddedFlcData = null;
-    _lastBuiltModule = mod;
-    _lastRtlRes = rtlRes;
-    _lastScRes = 'SystemC generation is unavailable with this ROHD version.';
-    _lastModuleName = moduleName;
-    return true;
+      _rohdNetlistJson = null;
+      _hierarchyService = null;
+      _flcData = flcData;
+      _flcModuleName = moduleName;
+      _lastBuiltModule = mod;
+      _lastRtlRes = rtlRes;
+      _lastScRes = 'SystemC generation is unavailable with this ROHD version.';
+      _lastModuleName = moduleName;
+      return true;
+    } finally {
+      _clearSourceTracer(sourceTracer);
+    }
   }
 
   /// Step: Generate ROHD netlist JSON → Tab 0 (ROHD Schematic).
@@ -2793,9 +2838,7 @@ class _SVGeneratorState extends State<SVGenerator>
     if (mod == null || !_isCurrentGeneration(requestId)) {
       return;
     }
-    final synthesizer = NetlistSynthesizer();
-    final builder = SynthBuilder(mod, synthesizer);
-    final netlistJson = synthesizer.generateCombinedJson(builder, mod);
+    final netlistJson = NetlistSynthesizer().synthesizeToJson(mod);
     if (!_isCurrentGeneration(requestId)) {
       return;
     }
@@ -2867,34 +2910,7 @@ class _SVGeneratorState extends State<SVGenerator>
     }
   }
 
-  /// Cache source trace data embedded by a trace-enabled ROHD netlist.
-  ///
-  /// ROHD 0.6.11 does not provide a runtime trace registry. Future ROHD
-  /// versions can embed `rohd.src_trace` attributes in the generated netlist,
-  /// which keeps this integration dormant but functional when data is present.
-  FlcData? _captureEmbeddedFlcData() {
-    final cached = _lastEmbeddedFlcData;
-    if (cached != null) {
-      return cached;
-    }
-    final netlistJson = _rohdNetlistJson;
-    if (netlistJson == null) {
-      return null;
-    }
-
-    final flcData = embeddedFlcDataFromNetlistJson(netlistJson);
-    _lastEmbeddedFlcData = flcData;
-    if (flcData != null) {
-      debugPrint(
-        '[FlcData] Loaded embedded netlist trace '
-        '(${flcData.files.length} files, '
-        'modules: ${flcData.moduleNames.join(', ')})',
-      );
-    }
-    return flcData;
-  }
-
-  /// Step: Load embedded FLC trace data → Tab 1 (ROHD Source / cross-probe).
+  /// Step: Load generated FLC trace data → Tab 1 (ROHD Source / cross-probe).
   Future<void> _generateFlcTrace(
     Configurator component, {
     int? generationRequestId,
@@ -2908,19 +2924,11 @@ class _SVGeneratorState extends State<SVGenerator>
       return;
     }
 
-    if (_rohdNetlistJson == null) {
-      await _generateRohdSchematic(generationRequestId: requestId);
-      if (!_isCurrentGeneration(requestId)) {
-        return;
-      }
-    }
-    final flcData = _captureEmbeddedFlcData();
-
     await _buildCrossProbeAndHighlight(
       component,
       rtlRes,
       moduleName,
-      capturedFlcData: flcData,
+      capturedFlcData: _flcData,
       generationRequestId: requestId,
     );
   }
@@ -2952,10 +2960,8 @@ class _SVGeneratorState extends State<SVGenerator>
           await _generateRohdSchematic();
         }
       case 1:
-        if (_flcData == null) {
-          final component = context.read<ComponentCubit>().state;
-          await _generateFlcTrace(component);
-        }
+        final component = context.read<ComponentCubit>().state;
+        await _generateFlcTrace(component);
         _scheduleSourceFormatRefresh();
       case 3:
         if (_yosysJson == null && !_synthSchematicLoading) {
@@ -3014,10 +3020,6 @@ class _SVGeneratorState extends State<SVGenerator>
                       if (_tabEnabled[3]) {
                         _generateSynthSchematic();
                       }
-
-                      // Retain embedded trace data, when supplied by a future
-                      // trace-enabled ROHD netlist, even if Source is hidden.
-                      _captureEmbeddedFlcData();
 
                       // Tab 1: ROHD Source (FLC/cross-probe)
                       if (_tabEnabled[1]) {
@@ -3131,7 +3133,7 @@ class _SVGeneratorState extends State<SVGenerator>
     }
   }
 
-  /// Load the ROHD source and populate its subtabs from embedded [FlcData].
+  /// Load the ROHD source and populate its subtabs from generated [FlcData].
   Future<void> _buildCrossProbeAndHighlight(
     Configurator component,
     String svText,
@@ -3157,14 +3159,13 @@ class _SVGeneratorState extends State<SVGenerator>
       final flcData = capturedFlcData ?? FlcData.empty();
       if (capturedFlcData != null) {
         debugPrint(
-          '[FlcData] Built from embedded netlist trace '
+          '[FlcData] Built from bundled-source trace '
           '(${flcData.files.length} files, '
           'modules: ${flcData.moduleNames.join(', ')})',
         );
       } else {
         debugPrint(
-          '[FlcData] No embedded trace data available; '
-          'ROHD 0.6.11 does not emit source traces',
+          '[FlcData] No source trace data available',
         );
       }
 
@@ -3323,6 +3324,7 @@ class _SVGeneratorState extends State<SVGenerator>
   @override
   void dispose() {
     unawaited(_componentSubscription.cancel());
+    _toolbarController.dispose();
     _tabController.dispose();
     _svController?.dispose();
     _scController?.dispose();
@@ -3357,6 +3359,7 @@ class _SVGeneratorState extends State<SVGenerator>
     _editorCrossProbeService.dispose();
     _crossProbeChannel.dispose();
     _sourceFormatClient.dispose();
+    _clearSourceTracer();
     yosysWorker.dispose();
     super.dispose();
   }
@@ -3479,83 +3482,8 @@ class _SVGeneratorState extends State<SVGenerator>
                   child: Card(
                     child: Container(
                       margin: const EdgeInsets.all(10),
-                      child: Scaffold(
-                        appBar: AppBar(
-                          title: const Text('Generated Outputs'),
-                          actions: [
-                            // Tab-visibility checkboxes
-                            for (var i = 0; i < _tabLabels.length; i++)
-                              Tooltip(
-                                message: _tabTooltips[i],
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(4),
-                                  onTap: () {
-                                    if (_tabEnabled[i] &&
-                                        _visibleTabs.length == 1) {
-                                      return;
-                                    }
-                                    setState(() {
-                                      _tabEnabled[i] = !_tabEnabled[i];
-                                      _rebuildTabController(
-                                        selectLogical:
-                                            _tabEnabled[i] ? i : null,
-                                      );
-                                    });
-                                    // Lazy generation when a tab is enabled.
-                                    if (_tabEnabled[i] &&
-                                        _lastBuiltModule != null) {
-                                      unawaited(_lazyGenerate(i));
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2, vertical: 4),
-                                    child: Opacity(
-                                      opacity: _tabEnabled[i] ? 1.0 : 0.35,
-                                      child: _tabIconWidget(i),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            const SizedBox(width: 8),
-                            BlocBuilder<ThemeCubit, material_ui.ThemeMode>(
-                              builder: (context, themeMode) {
-                                final isDark =
-                                    themeMode == material_ui.ThemeMode.dark;
-                                return Tooltip(
-                                  message: isDark
-                                      ? 'Switch to light theme'
-                                      : 'Switch to dark theme',
-                                  child: IconButton(
-                                    icon: Text(
-                                      isDark ? '☀️' : '🌙',
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
-                                    onPressed: () {
-                                      context.read<ThemeCubit>().toggleTheme();
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                          bottom: TabBar(
-                            controller: _tabController,
-                            isScrollable: true,
-                            tabs: [
-                              for (final i in _visibleTabs)
-                                Tab(child: _tabLabelWidget(i)),
-                            ],
-                          ),
-                        ),
-                        body: IndexedStack(
-                          index: _tabController.index,
-                          children: [
-                            for (final i in _visibleTabs)
-                              _tabContentForIndex(i, screenHeight, screenWidth),
-                          ],
-                        ),
-                      ),
+                      child: _buildOutputScaffold(
+                          context, screenHeight, screenWidth),
                     ),
                   ),
                 ),
@@ -3565,6 +3493,155 @@ class _SVGeneratorState extends State<SVGenerator>
         );
       },
     );
+  }
+
+  /// Builds the output pane scaffold. When the toolbar is unpinned, the app
+  /// bar is hidden and slides down when the pointer reaches the top edge.
+  Widget _buildOutputScaffold(
+      BuildContext context, double screenHeight, double screenWidth) {
+    final appBar = AppBar(
+      title: const Text('Generated Outputs'),
+      actions: [
+        // Tab-visibility checkboxes
+        for (var i = 0; i < _tabLabels.length; i++)
+          Tooltip(
+            message: _tabTooltips[i],
+            child: InkWell(
+              borderRadius: BorderRadius.circular(4),
+              onTap: () {
+                if (_tabEnabled[i] && _visibleTabs.length == 1) {
+                  return;
+                }
+                setState(() {
+                  _tabEnabled[i] = !_tabEnabled[i];
+                  _rebuildTabController(
+                    selectLogical: _tabEnabled[i] ? i : null,
+                  );
+                });
+                // Lazy generation when a tab is enabled.
+                if (_tabEnabled[i] && _lastBuiltModule != null) {
+                  unawaited(_lazyGenerate(i));
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+                child: Opacity(
+                  opacity: _tabEnabled[i] ? 1.0 : 0.35,
+                  child: _tabIconWidget(i),
+                ),
+              ),
+            ),
+          ),
+        const SizedBox(width: 8),
+        BlocBuilder<ThemeCubit, material_ui.ThemeMode>(
+          builder: (context, themeMode) {
+            final isDark = themeMode == material_ui.ThemeMode.dark;
+            return Tooltip(
+              message:
+                  isDark ? 'Switch to light theme' : 'Switch to dark theme',
+              child: IconButton(
+                icon: Text(
+                  isDark ? '☀️' : '🌙',
+                  style: const TextStyle(fontSize: 20),
+                ),
+                onPressed: () {
+                  context.read<ThemeCubit>().toggleTheme();
+                },
+              ),
+            );
+          },
+        ),
+        IconButton(
+          tooltip:
+              _toolbarPinned ? 'Unpin output toolbar' : 'Pin output toolbar',
+          icon: DockLockIcon(
+            locked: _toolbarPinned,
+            color: IconTheme.of(context).color ?? Colors.white,
+            edge: DockEdge.top,
+          ),
+          onPressed: _toggleToolbarPinned,
+        ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabs: [
+          for (final i in _visibleTabs) Tab(child: _tabLabelWidget(i)),
+        ],
+      ),
+    );
+
+    final body = IndexedStack(
+      index: _tabController.index,
+      children: [
+        for (final i in _visibleTabs)
+          _tabContentForIndex(i, screenHeight, screenWidth),
+      ],
+    );
+
+    if (_toolbarPinned) {
+      return Scaffold(appBar: appBar, body: body);
+    }
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(child: body),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) => _showToolbar(),
+              child: const SizedBox(
+                width: double.infinity,
+                height: _toolbarTriggerHeight,
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SlideTransition(
+              position: _toolbarSlide,
+              child: MouseRegion(
+                onExit: (_) => _hideToolbar(),
+                child: Material(
+                  elevation: 8,
+                  child: SizedBox(
+                    height: appBar.preferredSize.height,
+                    child: appBar,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _toggleToolbarPinned() {
+    setState(() {
+      _toolbarPinned = !_toolbarPinned;
+    });
+    if (!_toolbarPinned) {
+      _toolbarController.reverse();
+    }
+  }
+
+  void _showToolbar() {
+    if (!_toolbarPinned) {
+      _toolbarController.forward();
+    }
+  }
+
+  void _hideToolbar() {
+    if (!_toolbarPinned) {
+      _toolbarController.reverse();
+    }
   }
 
   @override
