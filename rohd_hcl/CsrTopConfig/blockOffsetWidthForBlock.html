@@ -65,14 +65,18 @@
 <section class="desc markdown">
   <p>Returns the number of address offset bits needed to index within
 <code>block</code>, derived from the effective block size.</p>
+<p>A one-address block still needs a one-bit hardware address so generated
+constants and interfaces never have a zero width.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int blockOffsetWidthForBlock(CsrBlockConfig block) =&gt;
-    (blockSizeForBlock(block) - 1).bitLength;</code></pre>
+  <pre class="language-dart"><code class="language-dart">int blockOffsetWidthForBlock(CsrBlockConfig block) {
+  final width = (blockSizeForBlock(block) - 1).bitLength;
+  return width == 0 ? 1 : width;
+}</code></pre>
 </section>
 
 

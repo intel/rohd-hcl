@@ -86,7 +86,8 @@ int minAddrBits() {
       maxAddr = highestBlockAddr;
     }
   }
-  return maxAddr.bitLength;
+  final width = maxAddr.bitLength;
+  return width == 0 ? 1 : width;
 }</code></pre>
 </section>
 

@@ -70,6 +70,8 @@
   <p>Method to determine the minimum number of address bits
 needed to address all registers in the block. This is
 based on the maximum register address offset.</p>
+<p>A one-address block still needs a one-bit hardware address so generated
+constants and interfaces never have a zero width.</p>
 </section>
 
 
@@ -77,7 +79,10 @@ based on the maximum register address offset.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-int minAddrBits() =&gt; (minBlockSize() - 1).bitLength;</code></pre>
+int minAddrBits() {
+  final width = (minBlockSize() - 1).bitLength;
+  return width == 0 ? 1 : width;
+}</code></pre>
 </section>
 
 
