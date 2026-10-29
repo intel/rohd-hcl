@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_block_config.dart
@@ -109,8 +109,14 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// Method to determine the minimum number of address bits
   /// needed to address all registers in the block. This is
   /// based on the maximum register address offset.
+  ///
+  /// A one-address block still needs a one-bit hardware address so generated
+  /// constants and interfaces never have a zero width.
   @override
-  int minAddrBits() => (minBlockSize() - 1).bitLength;
+  int minAddrBits() {
+    final width = (minBlockSize() - 1).bitLength;
+    return width == 0 ? 1 : width;
+  }
 
   /// Method to determine the maximum register size.
   /// This is important for interface data width validation.

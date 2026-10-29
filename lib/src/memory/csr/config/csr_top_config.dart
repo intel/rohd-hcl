@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_top_config.dart
@@ -56,8 +56,13 @@ class CsrTopConfig extends CsrContainerConfig {
 
   /// Returns the number of address offset bits needed to index within
   /// [block], derived from the effective block size.
-  int blockOffsetWidthForBlock(CsrBlockConfig block) =>
-      (blockSizeForBlock(block) - 1).bitLength;
+  ///
+  /// A one-address block still needs a one-bit hardware address so generated
+  /// constants and interfaces never have a zero width.
+  int blockOffsetWidthForBlock(CsrBlockConfig block) {
+    final width = (blockSizeForBlock(block) - 1).bitLength;
+    return width == 0 ? 1 : width;
+  }
 
   /// Accessor to the config of a particular register block
   /// within the module by name [name].
@@ -150,7 +155,8 @@ class CsrTopConfig extends CsrContainerConfig {
         maxAddr = highestBlockAddr;
       }
     }
-    return maxAddr.bitLength;
+    final width = maxAddr.bitLength;
+    return width == 0 ? 1 : width;
   }
 
   /// Method to determine the maximum register size.
