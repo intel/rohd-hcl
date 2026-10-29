@@ -20,7 +20,7 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
   final int depth;
 
   /// The main output of the shift register after going through all the stages.
-  T get dataOut => output('${dataName}_out') as T;
+  late final T dataOut;
 
   /// The width of the data passing through this shfit register.
   final int width;
@@ -29,8 +29,7 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
   /// the input data after passing through `n + 1` flops.
   ///
   /// The length is equal to [depth]. The last entry is the same as [dataOut].
-  late final List<T> stages = UnmodifiableListView(
-      List.generate(depth, (i) => output(_stageName(i)) as T));
+  late final List<T> stages;
 
   /// The name of the signal (and output pin) for the [i]th stage.
   String _stageName(int i) => '${dataName}_stage_$i';
@@ -67,42 +66,38 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
             definitionName: definitionName ??
                 'ShiftRegister_W${dataIn.width}'
                     '_D$depth') {
-    dataIn = addTypedInput('${dataName}_in', dataIn);
+    dataIn = addTypedInput<T>('${dataName}_in', dataIn);
     clk = addInput('clk', clk);
 
-    addTypedOutput('${dataName}_out', dataIn.cloneTyped);
+    T outputClone({String? name}) => dataIn.cloneTyped(name: name);
+
+    dataOut = addTypedOutput<T>('${dataName}_out', outputClone);
 
     final Map<Logic, dynamic>? resetValues;
     final List<Logic>? resetValueList;
 
     if (reset != null) {
       reset = addInput('reset', reset);
-      resetValueList =
-          makeResetValues(resetValue, numEntries: depth, entryWidth: width);
-      for (final value in resetValueList) {
-        if ((dataIn is LogicStructure || dataIn is LogicEnum) &&
-            (value is LogicStructure || value is LogicEnum) &&
-            !sameDeclaredPayloadShape(dataIn, value)) {
-          throw RohdHclException(
-              'ShiftRegister reset signal layout must match the payload.');
-        }
-      }
+      resetValueList = _makeTypedResetValues(dataIn, resetValue);
       resetValues = {};
     } else {
       resetValueList = null;
       resetValues = null;
     }
 
+    final stageSignals = <T>[];
     var dataStage = dataIn;
     var conds = <Conditional>[];
 
     for (var i = 0; i < depth; i++) {
-      final stageI = addTypedOutput(_stageName(i), dataIn.cloneTyped);
+      final stageI = addTypedOutput<T>(_stageName(i), outputClone);
+      stageSignals.add(stageI);
       conds.add(stageI < dataStage);
 
       resetValues?[stageI] = resetValueList![i];
       dataStage = stageI;
     }
+    stages = UnmodifiableListView(stageSignals);
 
     if (enable != null) {
       enable = addInput('enable', enable);
@@ -120,4 +115,83 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
 
     dataOut <= dataStage;
   }
+
+  List<Logic> _makeTypedResetValues(T schema, dynamic resetValue) {
+    if (resetValue is List) {
+      if (resetValue.length != depth) {
+        throw RohdHclException(
+          'resetValue list length (${resetValue.length}) does not match '
+          'depth ($depth)',
+        );
+      }
+      return [
+        for (final (index, value) in resetValue.indexed)
+          _resolveTypedResetValue(
+            schema,
+            value,
+            name: 'resetValue_$index',
+          ),
+      ];
+    }
+
+    if (resetValue is Map<int, dynamic>) {
+      if (resetValue.keys.any((key) => key < 0 || key >= depth)) {
+        throw RohdHclException(
+          'resetValue map has keys outside of valid range '
+          '(0 to ${depth - 1})',
+        );
+      }
+      return [
+        for (var index = 0; index < depth; index++)
+          _resolveTypedResetValue(
+            schema,
+            resetValue[index],
+            name: 'resetValue_$index',
+          ),
+      ];
+    }
+
+    final common = _resolveTypedResetValue(
+      schema,
+      resetValue,
+      name: 'resetValue',
+    );
+    return List<Logic>.filled(depth, common);
+  }
+
+  Logic _resolveTypedResetValue(
+    T schema,
+    dynamic resetValue, {
+    required String name,
+  }) {
+    if (resetValue is Logic) {
+      if (resetValue.width != width) {
+        throw RohdHclException(
+          'Entry $resetValue does not have expected width $width.',
+        );
+      }
+      if (_requiresPayloadShape(schema)) {
+        if (!sameDeclaredPayloadShape(schema, resetValue)) {
+          throw RohdHclException(
+            'ShiftRegister reset signal layout must match the payload.',
+          );
+        }
+        return addTypedInput<T>(name, resetValue as T);
+      }
+      return addInput(name, resetValue, width: width);
+    }
+
+    if (resetValue is LogicValue && resetValue.width != width) {
+      throw RohdHclException(
+        'Entry $resetValue does not have expected width $width.',
+      );
+    }
+
+    return Const(resetValue ?? 0, width: width);
+  }
+
+  static bool _requiresPayloadShape(Logic payload) =>
+      payload is LogicStructure ||
+      payload is LogicEnum ||
+      payload is TypedLogicArray;
 }
