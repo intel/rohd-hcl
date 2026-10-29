@@ -34,7 +34,7 @@ class Extrema<T extends Logic> extends Module {
   Logic get index => output('index');
 
   /// The [val] of the extrema.
-  T get val => output('val') as T;
+  late final T val;
 
   /// The combinational depth of the balanced indexed reduction tree.
   late final int treeDepth;
@@ -75,7 +75,7 @@ class Extrema<T extends Logic> extends Module {
     }
     final logics = [
       for (var i = 0; i < signals.length; i++)
-        addTypedInput('signal$i', signals[i])
+        addTypedInput<T>('signal$i', signals[i])
     ];
 
     // Find the max width of all inputs.
@@ -114,6 +114,7 @@ class Extrema<T extends Logic> extends Module {
     );
     treeDepth = tree.depth;
     addOutput('index', width: indexWidth) <= tree.out.index;
-    addTypedOutput('val', tree.out.payload.cloneTyped) <= tree.out.payload;
+    T valueClone({String? name}) => tree.out.payload.cloneTyped(name: name);
+    val = addTypedOutput<T>('val', valueClone)..gets(tree.out.payload);
   }
 }

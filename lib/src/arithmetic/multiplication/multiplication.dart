@@ -4,3 +4,4 @@
 export 'carry_save_multiplier.dart';
 export 'multiplier.dart';
 export 'multiplier_components.dart';
+export 'unsigned_mul_with_overflow.dart';

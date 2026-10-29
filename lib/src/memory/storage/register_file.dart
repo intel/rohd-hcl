@@ -15,7 +15,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class RegisterFile<LogicType extends Logic> extends Memory<LogicType>
     with ResettableEntries {
   /// Accesses the read data for the provided [index].
-  LogicType rdData(int index) => output('rd_data_$index') as LogicType;
+  LogicType rdData(int index) => reads[index].data;
 
   /// The number of entries in the RF.
   final int numEntries;
