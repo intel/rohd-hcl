@@ -7,6 +7,7 @@ export 'arithmetic_utils.dart';
 export 'conversion/conversion.dart';
 export 'division_and_roots/division_and_roots.dart';
 export 'floating_point/floating_point.dart';
+export 'log2_ceil.dart';
 export 'multiplication/multiplication.dart';
 export 'multiply_accumulate/multiply_accumulate_components.dart';
 export 'normalization/normalization.dart';

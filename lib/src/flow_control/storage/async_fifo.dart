@@ -63,7 +63,7 @@ class AsyncFifo<T extends Logic> extends Module {
   ///
   /// This is the data that will be read when read enable is asserted.
   /// The data is valid when [empty] is low.
-  T get readData => output('readData') as T;
+  late final T readData;
 
   /// The depth of the FIFO (number of entries).
   ///
@@ -97,7 +97,7 @@ class AsyncFifo<T extends Logic> extends Module {
   Logic get _readEnable => input('readEnable');
 
   /// Write data input (write clock domain).
-  T get _writeData => input('writeData') as T;
+  late final T _writeData;
 
   /// Address width for the FIFO memory.
   final int _addrWidth;
@@ -145,11 +145,12 @@ class AsyncFifo<T extends Logic> extends Module {
     addInput('writeReset', writeReset);
     addInput('readReset', readReset);
     addInput('writeEnable', writeEnable);
-    writeData = addTypedInput('writeData', writeData);
+    _writeData = addTypedInput<T>('writeData', writeData);
     addInput('readEnable', readEnable);
 
     // Add outputs
-    addTypedOutput('readData', writeData.cloneTyped);
+    T readDataClone({String? name}) => _writeData.cloneTyped(name: name);
+    readData = addTypedOutput<T>('readData', readDataClone);
     addOutput('full');
     addOutput('empty');
 

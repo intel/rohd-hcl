@@ -6,3 +6,4 @@ export 'compound_adder.dart';
 export 'ones_complement_adder.dart';
 export 'ripple_carry_adder.dart';
 export 'sign_magnitude_adder.dart';
+export 'unsigned_add_with_overflow.dart';
