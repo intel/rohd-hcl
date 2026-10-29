@@ -72,6 +72,7 @@ flutter:
     - assets/rohd_src/bit_operations/
     - assets/rohd_src/bit_operations/population_count/
     - assets/rohd_src/bit_operations/search/
+    - assets/rohd_src/bit_operations/selection/
     - assets/rohd_src/bit_operations/shifting/
     - assets/rohd_src/clocking/
     - assets/rohd_src/clocking/cdc/
