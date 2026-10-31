@@ -7,6 +7,8 @@
 // 2023
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -24,7 +26,17 @@ class RotateRoundRobinArbiter extends StatefulArbiter
       : super(
             definitionName: definitionName ??
                 'RotateRoundRobinArbiter_W${requests.length}') {
-    final preference = Logic(name: 'preference', width: log2Ceil(count));
+    if (count == 0) {
+      // Nothing to arbitrate between, and nothing to drive: `grants` is empty
+      // too.  The other arbiters accept an empty request list, so this one
+      // does as well rather than failing deep inside the rotation math.
+      return;
+    }
+
+    // A single request needs no rotation, but `log2Ceil(1)` is 0 and a
+    // 0-bit preference cannot hold the result of the increment below.
+    final preference =
+        Logic(name: 'preference', width: max(1, log2Ceil(count)));
 
     final rotatedReqs = requests
         .rswizzle()
