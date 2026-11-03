@@ -77,8 +77,8 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Logic eq(dynamic other) {
-  final comparable = _verifyCompatible(other);
-  return super.eq(comparable);
+  final promoted = _promoteWith(other, carry: false);
+  return promoted.left.packed.eq(promoted.right.packed);
 }</code></pre>
 </section>
 

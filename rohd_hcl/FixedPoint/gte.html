@@ -76,11 +76,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-Logic gte(dynamic other) {
-  final comparable = _verifyCompatible(other);
-  return mux(
-      Const(signed) &amp; this[-1], super.lte(comparable), super.gte(comparable));
-}</code></pre>
+Logic gte(dynamic other) =&gt; ~lt(other);</code></pre>
 </section>
 
 

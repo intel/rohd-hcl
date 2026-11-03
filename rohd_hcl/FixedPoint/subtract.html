@@ -71,15 +71,25 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FixedPoint subtract(dynamic other) {
-  final comparable = _verifyCompatible(other);
-  final resultIntegerWidth = integerWidth + (signed ? 1 : 0);
-  final resultWidth = resultIntegerWidth + fractionWidth + 1;
-  final left = signed ? signExtend(resultWidth) : zeroExtend(resultWidth);
-  final right = signed
-      ? comparable.signExtend(resultWidth)
-      : comparable.zeroExtend(resultWidth);
-  return FixedPoint.of(left - right,
-      integerWidth: resultIntegerWidth, fractionWidth: fractionWidth);
+  final comparable = _requireFixedPoint(other);
+  final resultIntegerWidth = max(integerWidth, comparable.integerWidth) +
+      ((signed | comparable.signed) ? 1 : 0);
+  final resultFractionWidth = max(fractionWidth, comparable.fractionWidth);
+  final left = _widenTo(
+    integerWidth: resultIntegerWidth,
+    fractionWidth: resultFractionWidth,
+    signed: true,
+  );
+  final right = comparable._widenTo(
+    integerWidth: resultIntegerWidth,
+    fractionWidth: resultFractionWidth,
+    signed: true,
+  );
+  return FixedPoint.of(
+    left.packed - right.packed,
+    integerWidth: resultIntegerWidth,
+    fractionWidth: resultFractionWidth,
+  );
 }</code></pre>
 </section>
 

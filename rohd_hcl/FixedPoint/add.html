@@ -71,16 +71,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FixedPoint add(dynamic other) {
-  final comparable = _verifyCompatible(other);
-  final resultWidth = width + 1;
-  final left = signed ? signExtend(resultWidth) : zeroExtend(resultWidth);
-  final right = signed
-      ? comparable.signExtend(resultWidth)
-      : comparable.zeroExtend(resultWidth);
-  return FixedPoint.of(left + right,
-      signed: signed,
-      integerWidth: integerWidth + 1,
-      fractionWidth: fractionWidth);
+  final promoted = _promoteWith(other, carry: true);
+  return FixedPoint.of(
+    promoted.left.packed + promoted.right.packed,
+    signed: promoted.signed,
+    integerWidth: promoted.left.integerWidth,
+    fractionWidth: promoted.left.fractionWidth,
+  );
 }</code></pre>
 </section>
 

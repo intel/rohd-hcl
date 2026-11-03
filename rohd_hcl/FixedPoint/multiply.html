@@ -71,18 +71,30 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FixedPoint multiply(dynamic other) {
-  final comparable = _verifyCompatible(other);
+  final comparable = _requireFixedPoint(other);
+  final resultSigned = signed | comparable.signed;
   &#47;&#47; ROHD&#39;s native `Multiply` gate truncates its output to the input width
   &#47;&#47; and always treats operands as unsigned, so it cannot produce a correct
   &#47;&#47; full-precision signed product. `NativeMultiplier` sign&#47;zero-extends
   &#47;&#47; the operands and produces a full double-width product instead.
-  final product = NativeMultiplier(this, comparable,
-          signedMultiplicand: signed, signedMultiplier: signed)
+  final left = _widenTo(
+    integerWidth: integerWidth,
+    fractionWidth: fractionWidth,
+    signed: resultSigned,
+  );
+  final right = comparable._widenTo(
+    integerWidth: comparable.integerWidth,
+    fractionWidth: comparable.fractionWidth,
+    signed: resultSigned,
+  );
+  final product = NativeMultiplier(left, right,
+          signedMultiplicand: resultSigned, signedMultiplier: resultSigned)
       .product;
   return FixedPoint.of(product,
-      signed: signed,
-      integerWidth: 2 * integerWidth + (signed ? 1 : 0),
-      fractionWidth: 2 * fractionWidth);
+      signed: resultSigned,
+      integerWidth:
+          integerWidth + comparable.integerWidth + (resultSigned ? 1 : 0),
+      fractionWidth: fractionWidth + comparable.fractionWidth);
 }</code></pre>
 </section>
 

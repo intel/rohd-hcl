@@ -77,9 +77,10 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Logic gt(dynamic other) {
-  final comparable = _verifyCompatible(other);
-  return mux(
-      Const(signed) &amp; this[-1], super.lt(comparable), super.gt(comparable));
+  final promoted = _promoteWith(other, carry: false);
+  return promoted.signed
+      ? _signedGt(promoted.left.packed, promoted.right.packed)
+      : promoted.left.packed.gt(promoted.right.packed);
 }</code></pre>
 </section>
 

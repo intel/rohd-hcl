@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the cast method from the FixedPoint class, for the Dart programming language.">
+  <title>cast method - FixedPoint class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></li>
+    <li class="self-crumb">cast method</li>
+  </ol>
+  <div class="self-name">cast</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;FixedPoint-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">cast</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>
+<span class="name ">cast</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="cast-param-integerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">integerWidth</span>, </span></li>
+<li><span class="parameter" id="cast-param-fractionWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionWidth</span>, </span></li>
+<li><span class="parameter" id="cast-param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">signed</span>, </span></li>
+<li><span class="parameter" id="cast-param-overflow"><span class="type-annotation"><a href="../../rohd_hcl/FixedPointOverflowMode.html">FixedPointOverflowMode</a></span> <span class="parameter-name">overflow</span> = <span class="default-value">FixedPointOverflowMode.wrap</span>, </span></li>
+<li><span class="parameter" id="cast-param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Converts this signal to another Q format.</p>
+<p>Widening appends zero fractional bits and sign- or zero-extends the
+integer part. Narrowing drops fractional bits using <code>roundingMode</code>.
+Overflow either wraps or clamps according to <code>overflow</code>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FixedPoint cast({
+  required int integerWidth,
+  required int fractionWidth,
+  bool? signed,
+  FixedPointOverflowMode overflow = FixedPointOverflowMode.wrap,
+  FloatingPointRoundingMode roundingMode = FloatingPointRoundingMode.truncate,
+}) {
+  if (integerWidth &lt; 0 || fractionWidth &lt; 0) {
+    throw ArgumentError(&#39;Fixed-point widths must be non-negative.&#39;);
+  }
+  final targetSigned = signed ?? this.signed;
+  final targetWidth = integerWidth + fractionWidth + (targetSigned ? 1 : 0);
+  if (targetWidth == 0) {
+    throw ArgumentError(&#39;Fixed-point format must have a positive width.&#39;);
+  }
+
+  Logic rescaled;
+  if (fractionWidth &gt;= this.fractionWidth) {
+    final padding = fractionWidth - this.fractionWidth;
+    rescaled =
+        padding == 0 ? packed : [packed, Const(0, width: padding)].swizzle();
+  } else {
+    final discarded = this.fractionWidth - fractionWidth;
+    final sign = this.signed ? packed[-1] : Const(0);
+    final magnitude = mux(sign, ~packed + 1, packed);
+    final retained = magnitude.getRange(discarded, magnitude.width);
+    final rounder = FloatingPointRounder(
+      magnitude,
+      discarded,
+      roundingMode: roundingMode,
+      sign: sign,
+    );
+    final roundedMagnitude = retained.zeroExtend(retained.width + 1) +
+        rounder.doRound.zeroExtend(retained.width + 1);
+    rescaled = mux(sign, ~roundedMagnitude + 1, roundedMagnitude);
+  }
+
+  final workingWidth =
+      rescaled.width &gt; targetWidth ? rescaled.width + 1 : targetWidth + 1;
+  final working = this.signed
+      ? rescaled.signExtend(workingWidth)
+      : rescaled.zeroExtend(workingWidth);
+  final wrapped = working.getRange(0, targetWidth);
+
+  if (overflow == FixedPointOverflowMode.wrap) {
+    final result = Logic(width: targetWidth)..gets(wrapped);
+    return FixedPoint(
+      integerWidth: integerWidth,
+      fractionWidth: fractionWidth,
+      signed: targetSigned,
+    )..gets(result);
+  }
+
+  final maximum = targetSigned
+      ? (BigInt.one &lt;&lt; (targetWidth - 1)) - BigInt.one
+      : (BigInt.one &lt;&lt; targetWidth) - BigInt.one;
+  final minimum = targetSigned ? -(BigInt.one &lt;&lt; (targetWidth - 1)) : 0;
+  final maxValue = Const(maximum, width: workingWidth);
+  final minValue = Const(minimum, width: workingWidth);
+  final aboveMaximum = targetSigned
+      ? _signedGt(working, maxValue)
+      : (this.signed
+          ? ~working[-1] &amp; working.gt(maxValue)
+          : working.gt(maxValue));
+  final belowMinimum = targetSigned
+      ? _signedLt(working, minValue)
+      : (this.signed ? working[-1] : Const(0));
+  final saturated = mux(
+    aboveMaximum,
+    Const(maximum, width: targetWidth),
+    mux(belowMinimum, Const(minimum, width: targetWidth), wrapped),
+  );
+  final result = Logic(width: targetWidth)..gets(saturated);
+  return FixedPoint(
+    integerWidth: integerWidth,
+    fractionWidth: fractionWidth,
+    signed: targetSigned,
+  )..gets(result);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></li>
+    <li class="self-crumb">cast method</li>
+</ol>
+
+    <h5>FixedPoint class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
