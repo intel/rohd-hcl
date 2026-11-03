@@ -15,6 +15,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+export '../fixed_point_format.dart';
 export 'fixed_point_populator.dart';
 
 /// An immutable representation of (un)signed fixed-point values following
@@ -260,6 +261,55 @@ class FixedPointValue implements Comparable<FixedPointValue> {
 
   /// Negate operation for [FixedPointValue].
   FixedPointValue negate() => clonePopulator().ofLogicValue((~value) + 1);
+
+  /// Converts this value to the requested Q format.
+  ///
+  /// Increasing [fractionWidth] appends zero fractional bits. Reducing it
+  /// rounds according to [roundingMode]. If the converted value cannot fit the
+  /// requested integer width, [FixedPointOverflowMode.wrap] retains the low
+  /// bits while [FixedPointOverflowMode.saturate] clamps to the representable
+  /// range.
+  FixedPointValue cast({
+    required int integerWidth,
+    required int fractionWidth,
+    bool? signed,
+    FixedPointOverflowMode overflow = FixedPointOverflowMode.wrap,
+    FloatingPointRoundingMode roundingMode = FloatingPointRoundingMode.truncate,
+  }) {
+    if (integerWidth < 0 || fractionWidth < 0) {
+      throw ArgumentError('Fixed-point widths must be non-negative.');
+    }
+
+    final targetSigned = signed ?? this.signed;
+    final targetWidth = integerWidth + fractionWidth + (targetSigned ? 1 : 0);
+    if (targetWidth == 0) {
+      throw ArgumentError('Fixed-point format must have a positive width.');
+    }
+
+    final exact = toScaledBigInt();
+    final shift = exact.exponent + fractionWidth;
+    var scaled = shift >= 0
+        ? exact.significand << shift
+        : roundBigIntByPowerOfTwo(exact.significand, -shift,
+            roundingMode: roundingMode);
+    final minimum =
+        targetSigned ? -(BigInt.one << (targetWidth - 1)) : BigInt.zero;
+    final maximum = targetSigned
+        ? (BigInt.one << (targetWidth - 1)) - BigInt.one
+        : (BigInt.one << targetWidth) - BigInt.one;
+
+    if (scaled < minimum || scaled > maximum) {
+      if (overflow == FixedPointOverflowMode.saturate) {
+        scaled = scaled < minimum ? minimum : maximum;
+      }
+    }
+
+    return FixedPointValue.populatorWithSignedness(
+      integerWidth: integerWidth,
+      fractionWidth: fractionWidth,
+      signed: targetSigned,
+    ).ofLogicValue(LogicValue.ofBigInt(scaled, targetWidth));
+  }
 
   /// Addition operation that returns a [FixedPointValue].
   /// The result is signed if one of the operands is signed.

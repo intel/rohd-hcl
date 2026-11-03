@@ -49,6 +49,43 @@ also available as operators. ROHD reserves `<` and `<=` for signal assignment,
 so they cannot be comparison operators. A `FixedPointValue` can be converted
 to a constant `FixedPoint` signal with `toLogic()`.
 
+### Format promotion and conversion
+
+Scalar arithmetic accepts different Q formats. Before addition, subtraction,
+comparison, or multiplication, operands are aligned to the greater fractional
+width and integer width. If either operand is signed, both are promoted to a
+signed representation. Addition and subtraction reserve an additional integer
+bit for carry or borrow; multiplication preserves the sum of both fractional
+widths and the full integer product width. For example, signed Q2.10 plus
+signed Q5.20 produces signed Q6.20, while unsigned Q2.10 multiplied by signed
+Q5.20 produces signed Q8.30.
+
+Use `cast` to select an explicit output format for either a `FixedPoint` signal
+or a `FixedPointValue`. Increasing fractional precision appends zero bits and
+increasing integer precision sign- or zero-extends the value. Reducing
+fractional precision uses the supplied `FloatingPointRoundingMode`; it
+defaults to truncation. The `overflow` argument defaults to
+`FixedPointOverflowMode.wrap`; select `FixedPointOverflowMode.saturate` to
+clamp values outside the target range.
+
+```dart
+final quantized = accumulator.cast(
+  integerWidth: 3,
+  fractionWidth: 12,
+  roundingMode: FloatingPointRoundingMode.roundNearestEven,
+  overflow: FixedPointOverflowMode.saturate,
+);
+```
+
+### Fixed-point collections
+
+`FixedPointArray` is an immutable collection of independent `FixedPoint`
+signals. Its `+`, `-`, and `multiply` operations are elementwise and apply the
+same format-promotion rules as scalar arithmetic. Both arrays must have the
+same length. `FixedPointArray` is intended for statically indexed signal
+collections; use ROHD `LogicArray` when the design requires dynamic
+hardware-indexed packed or unpacked storage.
+
 ## FixedToFloat
 
 The [FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html) component converts a fixed-point signal to a floating point signal specified by exponent and mantissa width. The output is rounded to the nearest even (RNE) when applicable and set to infinity if the input exceed the representable range.
