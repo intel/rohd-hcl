@@ -139,7 +139,7 @@ void main() {
     final module = _MixedFormatFixedPointModule();
     await module.build();
 
-    final systemVerilog = module.generateSynth();
+    final systemVerilog = module.dumpSystemVerilog();
     expect(systemVerilog, contains('[26:0] sum'));
     expect(systemVerilog, contains('[38:0] product'));
   });
