@@ -58,9 +58,13 @@ core's enqueue and dequeue actions. Future protocol combinations reuse that
 core-and-directional-attachment pattern rather than introducing another FIFO
 wrapper architecture.
 
-Payload cloning preserves array rank, leaf types, and value codecs. A full
-FIFO does not accept a replacement on the same cycle it dequeues: upstream
-`ready` becomes high after that edge releases a slot.
+Payload cloning preserves array rank, leaf types, and value codecs. By default,
+a full FIFO does not accept a replacement on the same cycle it dequeues:
+upstream `ready` becomes high after that edge releases a slot. Set
+`allowSameCycleReplacement: true` to opt into full-FIFO replacement; while
+full, upstream `ready` then reflects whether the downstream transfer will
+release the retained head on the edge. This changes only full-buffer
+admission, not empty-FIFO bypass behavior.
 
 Create and retain the interface instances at the composition boundary, then
 pass them into the FIFO. Continue to use those caller-owned interfaces to

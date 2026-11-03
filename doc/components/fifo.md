@@ -110,7 +110,11 @@ dependency properties of one attachment. P00 provides:
 one Ready/Valid ingress attachment and one Ready/Valid egress attachment.
 It intentionally retains its existing no-full-replacement behavior by giving
 the ingress attachment `~full` rather than the core's more permissive
-`canEnqueue` action.
+`canEnqueue` action. Set `allowSameCycleReplacement: true` when a scalar
+Ready/Valid boundary must accept a new item on the same edge that a retained
+full-FIFO head transfers. The option maps ingress eligibility to
+`canEnqueue`, explicitly requires that core capability, and gives the wrapper
+a distinct generated definition. It does not enable empty-FIFO bypass.
 
 Later protocol families add their own typed attachments to the same core
 action boundary. For example, a credited ingress may own admission accounting

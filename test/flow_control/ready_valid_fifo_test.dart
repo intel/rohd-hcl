@@ -196,6 +196,104 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  test('ReadyValidFifo preserves default full-drain backpressure', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final upstream = ReadyValidInterface<SimpleOp>(SimpleOp());
+    final downstream = ReadyValidInterface<SimpleOp>(SimpleOp());
+    final fifoModule = ReadyValidFifo<SimpleOp>(
+      clk: clk,
+      reset: reset,
+      upstream: upstream,
+      downstream: downstream,
+      depth: 1,
+    );
+
+    await fifoModule.build();
+    unawaited(Simulator.run());
+    try {
+      reset.inject(1);
+      upstream.valid.inject(0);
+      downstream.ready.inject(0);
+      await clk.nextPosedge;
+      reset.inject(0);
+
+      await clk.nextNegedge;
+      upstream
+        ..valid.inject(1)
+        ..data.op.inject(1)
+        ..data.data.inject(0x11);
+      await Simulator.tick();
+      await clk.nextPosedge;
+
+      await clk.nextNegedge;
+      upstream
+        ..data.op.inject(2)
+        ..data.data.inject(0x22);
+      downstream.ready.inject(1);
+      await Simulator.tick();
+
+      expect(upstream.ready.value, LogicValue.zero);
+      expect(downstream.valid.value, LogicValue.one);
+      expect(downstream.data.data.value.toInt(), 0x11);
+    } finally {
+      await Simulator.endSimulation();
+    }
+  });
+
+  test('ReadyValidFifo optionally replaces a full retained entry', () async {
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+    final upstream = ReadyValidInterface<SimpleOp>(SimpleOp());
+    final downstream = ReadyValidInterface<SimpleOp>(SimpleOp());
+    final fifoModule = ReadyValidFifo<SimpleOp>(
+      clk: clk,
+      reset: reset,
+      upstream: upstream,
+      downstream: downstream,
+      depth: 1,
+      allowSameCycleReplacement: true,
+    );
+
+    await fifoModule.build();
+    unawaited(Simulator.run());
+    try {
+      reset.inject(1);
+      upstream.valid.inject(0);
+      downstream.ready.inject(0);
+      await clk.nextPosedge;
+      reset.inject(0);
+
+      await clk.nextNegedge;
+      upstream
+        ..valid.inject(1)
+        ..data.op.inject(1)
+        ..data.data.inject(0x11);
+      await Simulator.tick();
+      await clk.nextPosedge;
+
+      await clk.nextNegedge;
+      upstream
+        ..data.op.inject(2)
+        ..data.data.inject(0x22);
+      downstream.ready.inject(1);
+      await Simulator.tick();
+
+      expect(upstream.ready.value, LogicValue.one);
+      expect(downstream.valid.value, LogicValue.one);
+      expect(downstream.data.data.value.toInt(), 0x11);
+      await clk.nextPosedge;
+
+      upstream.valid.inject(0);
+      downstream.ready.inject(0);
+      await Simulator.tick();
+      expect(downstream.valid.value, LogicValue.one);
+      expect(downstream.data.data.value.toInt(), 0x22);
+    } finally {
+      await Simulator.endSimulation();
+    }
+  });
+
   test('ReadyValidFifo empty behavior and ordering', () async {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();

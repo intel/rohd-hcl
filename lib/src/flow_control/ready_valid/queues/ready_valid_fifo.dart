@@ -34,6 +34,13 @@ class ReadyValidFifo<LogicType extends Logic> extends Module {
   /// FIFO depth
   final int depth;
 
+  /// Whether a downstream transfer can make room for an upstream enqueue.
+  ///
+  /// The default preserves the conservative historical behavior: an upstream
+  /// offer waits until after a full FIFO drains. When enabled, a full FIFO may
+  /// accept a replacement on the same edge that its retained head transfers.
+  final bool allowSameCycleReplacement;
+
   /// Module clock
   @protected
   late final Logic clk;
@@ -51,10 +58,14 @@ class ReadyValidFifo<LogicType extends Logic> extends Module {
     required ReadyValidInterface<LogicType> upstream,
     required ReadyValidInterface<LogicType> downstream,
     this.depth = 8,
+    this.allowSameCycleReplacement = false,
     String name = 'ready_valid_fifo',
   }) : super(
-            definitionName: 'ReadyValidFifo_${upstream.data.name}',
-            name: name) {
+          definitionName: allowSameCycleReplacement
+              ? 'ReadyValidFifo_R1_${upstream.data.name}'
+              : 'ReadyValidFifo_${upstream.data.name}',
+          name: name,
+        ) {
     // Build the internal logic
     final writeEnable = Logic(name: '${name}_write_en');
     final readEnable = Logic(name: '${name}_read_en');
@@ -86,17 +97,20 @@ class ReadyValidFifo<LogicType extends Logic> extends Module {
         enqueue: writeEnable,
         dequeue: readEnable,
         payload: writeData,
+        requirements: FifoCoreRequirements(
+          fullReplacement: allowSameCycleReplacement,
+        ),
       ),
       name: '${name}_fifo',
     );
     fifo = binding.module;
 
     ReadyValidIngressAttachmentPolicy<LogicType>(
-      supportsSameCycleReplacement: false,
+      supportsSameCycleReplacement: allowSameCycleReplacement,
       storageDepth: depth,
     ).attach(
       upstream: this.upstream,
-      canAccept: ~binding.full,
+      canAccept: allowSameCycleReplacement ? binding.canEnqueue : ~binding.full,
       accept: writeEnable,
       payload: writeData,
     );
