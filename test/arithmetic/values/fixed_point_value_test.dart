@@ -198,6 +198,53 @@ void main() {
     }
   });
 
+  test('FixedPointValue cast supports rounding and saturation', () {
+    final positive = FixedPointValue.populatorWithSignedness(
+      integerWidth: 2,
+      fractionWidth: 3,
+    ).ofDouble(1.375);
+    expect(
+      positive
+          .cast(
+            integerWidth: 2,
+            fractionWidth: 1,
+            roundingMode: FloatingPointRoundingMode.roundNearestTiesAway,
+          )
+          .toDouble(),
+      1.5,
+    );
+
+    final negative = FixedPointValue.populatorWithSignedness(
+      integerWidth: 3,
+      fractionWidth: 2,
+    ).ofDouble(-1.75);
+    expect(
+      negative
+          .cast(
+            integerWidth: 3,
+            fractionWidth: 0,
+            roundingMode: FloatingPointRoundingMode.roundTowardsZero,
+          )
+          .toDouble(),
+      -1,
+    );
+
+    final wide = FixedPointValue.populatorWithSignedness(
+      integerWidth: 4,
+      fractionWidth: 0,
+    ).ofDouble(7);
+    expect(
+      wide
+          .cast(
+            integerWidth: 2,
+            fractionWidth: 0,
+            overflow: FixedPointOverflowMode.saturate,
+          )
+          .toDouble(),
+      3,
+    );
+  });
+
   // Check that fixed-point value conversion uses the same rounding modes as
   // floating-point value and hardware conversion APIs.
   test('FixedPointValue: ofDouble supports every rounding mode', () {
