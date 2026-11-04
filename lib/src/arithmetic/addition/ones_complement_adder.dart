@@ -120,7 +120,7 @@ class OnesComplementAdder extends Adder {
                   [if (generateEndAroundCarry) magnitude else magnitudep1]
                       .first,
                   ~magnitude)
-            ].swizzle(),
+            ].concat(),
             adderSum);
     _sign <= mux(doSubtract, ~endAround, Const(0));
   }

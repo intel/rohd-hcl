@@ -222,7 +222,7 @@ class Fifo<LogicType extends Logic> extends Module {
       }, [
         Case(
             conditionalType: ConditionalType.unique,
-            [_writeEnable, _readEnable].swizzle(),
+            [_writeEnable, _readEnable].concat(),
             [
               // write, no read
               CaseItem(Const(LogicValue.ofString('10')),

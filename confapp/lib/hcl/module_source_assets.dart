@@ -12,12 +12,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Maps configurable module runtime types to bundled ROHD source assets.
 const moduleSourceAssets = <String, String>{
+  'AbsoluteValue': 'rohd_src/arithmetic/normalization/absolute_value.dart',
   'ApbCsrCompleter':
       'rohd_src/interfaces/amba/endpoints/apb_csr_completer.dart',
   'AsyncFifo': 'rohd_src/flow_control/storage/async_fifo.dart',
   'BinaryToOneHot': 'rohd_src/encodings/one_hot/binary_to_one_hot.dart',
   'BinaryToGrayConverter': 'rohd_src/encodings/gray/binary_gray.dart',
   'BitonicSort': 'rohd_src/dataflow/ordering/sort.dart',
+  'BitwiseMux': 'rohd_src/bit_operations/selection/bitwise_mux.dart',
   'Cam': 'rohd_src/memory/associative/cam.dart',
   'CarrySaveMultiplier':
       'rohd_src/arithmetic/multiplication/carry_save_multiplier.dart',
@@ -27,6 +29,8 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/addition/compound_adder.dart',
   'CaseOneHotToBinary':
       'rohd_src/encodings/one_hot/case_one_hot_to_binary.dart',
+  'CeilDivide': 'rohd_src/arithmetic/division_and_roots/ceil_divide.dart',
+  'CircularPointer': 'rohd_src/arithmetic/accumulation/circular_pointer.dart',
   'ClockGate': 'rohd_src/clocking/gating/clock_gating.dart',
   'CompressionTreeDotProduct':
       'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
@@ -36,6 +40,8 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/multiplication/multiplier.dart',
   'Counter': 'rohd_src/arithmetic/accumulation/counter.dart',
   'Count': 'rohd_src/bit_operations/population_count/count.dart',
+  'CsrBlock': 'rohd_src/memory/csr/csr_block.dart',
+  'CsrTop': 'rohd_src/memory/csr/csr_top.dart',
   'Deserializer': 'rohd_src/dataflow/serialization/serialization.dart',
   'EdgeDetector': 'rohd_src/clocking/event_detection/edge_detector.dart',
   'Extrema': 'rohd_src/dataflow/selection/extrema.dart',
@@ -71,6 +77,7 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/flow_control/arbitration/mask_round_robin_arbiter.dart',
   'MultiCycleDivider': 'rohd_src/arithmetic/division_and_roots/divider.dart',
   'NativeMultiplier': 'rohd_src/arithmetic/multiplication/multiplier.dart',
+  'OneHotMux': 'rohd_src/bit_operations/selection/one_hot_mux.dart',
   'OnesComplementAdder':
       'rohd_src/arithmetic/addition/ones_complement_adder.dart',
   'ParallelPrefixAdder':
@@ -87,7 +94,11 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
   'ParityReceiver': 'rohd_src/error_control/protection/parity.dart',
   'ParityTransmitter': 'rohd_src/error_control/protection/parity.dart',
+  'Pad': 'rohd_src/bit_operations/shifting/pad.dart',
   'PriorityArbiter': 'rohd_src/flow_control/arbitration/priority_arbiter.dart',
+  'PriorityMux': 'rohd_src/bit_operations/selection/priority_mux.dart',
+  'ReadyValidFifo':
+      'rohd_src/flow_control/ready_valid/queues/ready_valid_fifo.dart',
   'RecursiveModulePriorityEncoder':
       'rohd_src/encodings/priority/priority_encoder.dart',
   'RecursivePriorityEncoder':
@@ -96,10 +107,13 @@ const moduleSourceAssets = <String, String>{
   'ReductionTree': 'rohd_src/dataflow/reduction/reduction_tree.dart',
   'RippleCarryAdder': 'rohd_src/arithmetic/addition/ripple_carry_adder.dart',
   'RotateLeft': 'rohd_src/bit_operations/shifting/rotate.dart',
+  'RotateLeftFixed': 'rohd_src/bit_operations/shifting/rotate.dart',
   'RotateRight': 'rohd_src/bit_operations/shifting/rotate.dart',
+  'RotateRightFixed': 'rohd_src/bit_operations/shifting/rotate.dart',
   'RotateRoundRobinArbiter':
       'rohd_src/flow_control/arbitration/rotate_round_robin_arbiter.dart',
   'Serializer': 'rohd_src/dataflow/serialization/serialization.dart',
+  'SetBits': 'rohd_src/bit_operations/shifting/set_bits.dart',
   'ShiftRegister': 'rohd_src/memory/sequential/shift_register.dart',
   'SignMagnitudeAdder':
       'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
@@ -109,18 +123,24 @@ const moduleSourceAssets = <String, String>{
   'SpiMain': 'rohd_src/interfaces/spi/endpoints/spi_main.dart',
   'SpiSub': 'rohd_src/interfaces/spi/endpoints/spi_sub.dart',
   'Sum': 'rohd_src/arithmetic/accumulation/sum.dart',
+  'Synchronizer': 'rohd_src/clocking/cdc/synchronizer.dart',
   'ToggleGate': 'rohd_src/clocking/gating/toggle_gate.dart',
   'TreeOneHotToBinary':
       'rohd_src/encodings/one_hot/tree_one_hot_to_binary.dart',
+  'WithSet': 'rohd_src/bit_operations/shifting/with_set.dart',
+  'XnorPopcount': 'rohd_src/bit_operations/population_count/xnor_popcount.dart',
+  'XorPopcount': 'rohd_src/bit_operations/population_count/xor_popcount.dart',
 };
 
 /// Returns the bundled ROHD source asset for [module], if one is indexed.
 String? moduleSourceAsset(Module module) => switch (module) {
+      AbsoluteValue() => moduleSourceAssets['AbsoluteValue'],
       ApbCsrCompleter() => moduleSourceAssets['ApbCsrCompleter'],
       AsyncFifo() => moduleSourceAssets['AsyncFifo'],
       BinaryToOneHot() => moduleSourceAssets['BinaryToOneHot'],
       BinaryToGrayConverter() => moduleSourceAssets['BinaryToGrayConverter'],
       BitonicSort() => moduleSourceAssets['BitonicSort'],
+      BitwiseMux() => moduleSourceAssets['BitwiseMux'],
       Cam() => moduleSourceAssets['Cam'],
       CarrySaveMultiplier() => moduleSourceAssets['CarrySaveMultiplier'],
       CarrySelectCompoundAdder() =>
@@ -128,6 +148,8 @@ String? moduleSourceAsset(Module module) => switch (module) {
       CarrySelectOnesComplementCompoundAdder() =>
         moduleSourceAssets['CarrySelectOnesComplementCompoundAdder'],
       CaseOneHotToBinary() => moduleSourceAssets['CaseOneHotToBinary'],
+      CeilDivide() => moduleSourceAssets['CeilDivide'],
+      CircularPointer() => moduleSourceAssets['CircularPointer'],
       ClockGate() => moduleSourceAssets['ClockGate'],
       CompressionTreeDotProduct() =>
         moduleSourceAssets['CompressionTreeDotProduct'],
@@ -138,6 +160,8 @@ String? moduleSourceAsset(Module module) => switch (module) {
       GatedCounter() => moduleSourceAssets['GatedCounter'],
       Counter() => moduleSourceAssets['Counter'],
       Count() => moduleSourceAssets['Count'],
+      CsrBlock() => moduleSourceAssets['CsrBlock'],
+      CsrTop() => moduleSourceAssets['CsrTop'],
       Deserializer() => moduleSourceAssets['Deserializer'],
       EdgeDetector() => moduleSourceAssets['EdgeDetector'],
       Extrema() => moduleSourceAssets['Extrema'],
@@ -167,6 +191,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
       MaskRoundRobinArbiter() => moduleSourceAssets['MaskRoundRobinArbiter'],
       MultiCycleDivider() => moduleSourceAssets['MultiCycleDivider'],
       NativeMultiplier() => moduleSourceAssets['NativeMultiplier'],
+      OneHotMux() => moduleSourceAssets['OneHotMux'],
       OnesComplementAdder() => moduleSourceAssets['OnesComplementAdder'],
       ParallelPrefixAdder() => moduleSourceAssets['ParallelPrefixAdder'],
       ParallelPrefixDecr() => moduleSourceAssets['ParallelPrefixDecr'],
@@ -178,7 +203,10 @@ String? moduleSourceAsset(Module module) => switch (module) {
         moduleSourceAssets['ParallelPrefixPriorityFinder'],
       ParityReceiver() => moduleSourceAssets['ParityReceiver'],
       ParityTransmitter() => moduleSourceAssets['ParityTransmitter'],
+      Pad() => moduleSourceAssets['Pad'],
       PriorityArbiter() => moduleSourceAssets['PriorityArbiter'],
+      PriorityMux() => moduleSourceAssets['PriorityMux'],
+      ReadyValidFifo() => moduleSourceAssets['ReadyValidFifo'],
       RecursiveModulePriorityEncoder() =>
         moduleSourceAssets['RecursiveModulePriorityEncoder'],
       RecursivePriorityEncoder() =>
@@ -187,10 +215,14 @@ String? moduleSourceAsset(Module module) => switch (module) {
       ReductionTree() => moduleSourceAssets['ReductionTree'],
       RippleCarryAdder() => moduleSourceAssets['RippleCarryAdder'],
       RotateLeft() => moduleSourceAssets['RotateLeft'],
+      RotateLeftFixed() => moduleSourceAssets['RotateLeftFixed'],
       RotateRight() => moduleSourceAssets['RotateRight'],
+      RotateRightFixed() => moduleSourceAssets['RotateRightFixed'],
       RotateRoundRobinArbiter() =>
         moduleSourceAssets['RotateRoundRobinArbiter'],
       Serializer() => moduleSourceAssets['Serializer'],
+      SetBits() => moduleSourceAssets['SetBits'],
+      Synchronizer() => moduleSourceAssets['Synchronizer'],
       ShiftRegister() => moduleSourceAssets['ShiftRegister'],
       SignMagnitudeAdder() => moduleSourceAssets['SignMagnitudeAdder'],
       SignMagnitudeDualAdder() => moduleSourceAssets['SignMagnitudeDualAdder'],
@@ -200,6 +232,9 @@ String? moduleSourceAsset(Module module) => switch (module) {
       Sum() => moduleSourceAssets['Sum'],
       ToggleGate() => moduleSourceAssets['ToggleGate'],
       TreeOneHotToBinary() => moduleSourceAssets['TreeOneHotToBinary'],
+      WithSet() => moduleSourceAssets['WithSet'],
+      XnorPopcount() => moduleSourceAssets['XnorPopcount'],
+      XorPopcount() => moduleSourceAssets['XorPopcount'],
       _ => null,
     };
 

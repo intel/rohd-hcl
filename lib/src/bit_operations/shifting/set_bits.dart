@@ -45,7 +45,7 @@ class SetBits extends Module {
       for (var i = inp.width - 1; i >= 0; i--)
         Const(lsbs ? i : inp.width - 1 - i, width: count.width).lt(count)
     ];
-    final selected = selectBits.swizzle();
+    final selected = selectBits.concat();
     result <= (fill ? inp | selected : inp & ~selected);
   }
 }

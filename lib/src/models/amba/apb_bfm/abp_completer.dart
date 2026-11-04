@@ -1,7 +1,7 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// apb_completer.dart
+// abp_completer.dart
 // An agent for completing APB requests.
 //
 // 2023 June 12
@@ -90,7 +90,7 @@ class ApbCompleterAgent extends Agent {
         for (var i = 0; i < strobe.width; i++)
           (strobe[i].toBool() ? newData : originalData)
               .getRange(i * 8, i * 8 + 8)
-      ].rswizzle();
+      ].rconcat();
 
   /// Receives one packet (or returns if not selected).
   Future<void> _receive() async {

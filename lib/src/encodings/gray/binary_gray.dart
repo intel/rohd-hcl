@@ -64,7 +64,7 @@ class BinaryToGrayConverter extends Module {
         return currentBit ^ previousIndex;
       }
     }).toList();
-    return binList.swizzle();
+    return binList.concat();
   }
 }
 
@@ -101,7 +101,7 @@ class GrayToBinaryConverter extends Module {
     for (var bit = inputWidth - 2; bit >= 0; bit--) {
       binaryBits[bit] = binaryBits[bit + 1] ^ gray[bit];
     }
-    binaryVal <= binaryBits.rswizzle();
+    binaryVal <= binaryBits.rconcat();
   }
 
   /// Converts a Gray code value represented by [gray] to binary.
@@ -125,6 +125,6 @@ class GrayToBinaryConverter extends Module {
       return binaryBit;
     }).toList();
 
-    return binaryList.swizzle();
+    return binaryList.concat();
   }
 }

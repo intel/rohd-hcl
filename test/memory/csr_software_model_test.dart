@@ -305,6 +305,66 @@ void main() {
     await compare();
   });
 
+  test('write-only backdoor preserves known bits with unknown data or enable',
+      () async {
+    final clk = Logic()..put(0);
+    final reset = Logic()..put(0);
+    final writes = List.generate(
+        2,
+        (_) => DataPortInterface(16, 8)
+          ..addr.put(0)
+          ..en.put(0)
+          ..data.put(0));
+    final tops = [
+      for (final implementation in CsrImplementation.values)
+        CsrTop(
+            config: csrSoftwareTestConfig(),
+            clk: clk,
+            reset: reset,
+            frontRead: null,
+            frontWrite: writes[implementation.index],
+            allowLargerRegisters: true,
+            implementationConfiguration:
+                CsrImplementationConfiguration(implementation: implementation)),
+    ];
+    for (final top in tops) {
+      for (final hardware in top.backdoorInterfaces.expand((ports) => ports)) {
+        hardware.wrEn?.put(0);
+        hardware.wrData?.put(0);
+      }
+      await top.build();
+    }
+
+    reset.inject(1);
+    await Simulator.tick();
+    clk.inject(1);
+    await Simulator.tick();
+    clk.inject(0);
+    reset.inject(0);
+    await Simulator.tick();
+
+    Future<void> check(
+        LogicValue data, LogicValue enable, String expected) async {
+      for (final write in writes) {
+        write.data.inject(data);
+        write.en.inject(enable);
+      }
+      await Simulator.tick();
+      for (final top in tops) {
+        final value = top
+            .getBackdoorPortsByName('control', 'mixed')
+            .rdData!
+            .value
+            .getRange(4, 8);
+        expect(value, LogicValue.ofString(expected));
+      }
+    }
+
+    await check(
+        LogicValue.ofString('000000001x1z0000'), LogicValue.one, '1x1x');
+    await check(LogicValue.ofInt(0x00b0, 16), LogicValue.x, '101x');
+  });
+
   test('raw state changes refresh exposed outputs without losing other state',
       () async {
     final top = CsrTop(

@@ -69,7 +69,7 @@ class MultiplicandSelector {
         for (var i = len; i < width; i++)
           mux(selectSignedMultiplicand, sign, Const(0))
       ];
-      extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
+      extendedMultiplicand = (multiplicand.elements + extension).rconcat();
     }
     for (var pos = 0; pos < numMultiples; pos++) {
       final ratio = pos + 1;
@@ -96,7 +96,7 @@ class MultiplicandSelector {
     final columnMultiples = [
       for (var i = 0; i < multiples.elements.length; i++)
         multiples.elements[i][col]
-    ].swizzle().named('multiples_c$col', naming: Naming.mergeable);
+    ].concat().named('multiples_c$col', naming: Naming.mergeable);
     return columnMultiples.reversed;
   }
 

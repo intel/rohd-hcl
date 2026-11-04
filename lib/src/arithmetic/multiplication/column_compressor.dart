@@ -135,7 +135,7 @@ class CompressTerm implements Comparable<CompressTerm> {
       case CompressTermType.sum:
         // xor the eval of the terms
         final termValues = [for (final term in inputs) term.evaluate()];
-        final sum = termValues.swizzle().xor();
+        final sum = termValues.concat().xor();
         value = sum;
       case CompressTermType.carry:
         final termValues = [for (final term in inputs) term.evaluate()];
@@ -286,9 +286,9 @@ class ColumnCompressor extends Module {
     }
     rowBits.addAll(List.filled(_rowShift[row], Const(0)));
     if (width > rowBits.length) {
-      return rowBits.swizzle().zeroExtend(width);
+      return rowBits.concat().zeroExtend(width);
     }
-    return rowBits.swizzle().getRange(0, width);
+    return rowBits.concat().getRange(0, width);
   }
 
   /// Core iterator for column compressor routine
@@ -306,11 +306,11 @@ class ColumnCompressor extends Module {
           if (depth > 3) {
             inputs.add(queue.removeFirst());
             compressor = Compressor3(
-                [for (final i in inputs) i.logic].swizzle(),
+                [for (final i in inputs) i.logic].concat(),
                 name: 'cmp3_iter${iteration}_col$col');
           } else {
             compressor = Compressor2(
-                [for (final i in inputs) i.logic].swizzle(),
+                [for (final i in inputs) i.logic].concat(),
                 name: 'cmp2_iter${iteration}_col$col');
           }
           final t = CompressTerm(

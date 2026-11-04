@@ -1,7 +1,7 @@
 // Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// multiplier_accumulate.dart
+// multiply_accumulate.dart
 // MultiplyAccumulate abstract class and implementations.
 // (formerly part of multiply.dart)
 //
@@ -296,7 +296,7 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
 
     final ppgRows = [
       for (var row = 0; row < ppg.partialProducts.length; row++)
-        ppg.partialProducts[row].rswizzle()
+        ppg.partialProducts[row].rconcat()
     ];
 
     final compressor = ColumnCompressor(ppgRows, ppg.rowShift,

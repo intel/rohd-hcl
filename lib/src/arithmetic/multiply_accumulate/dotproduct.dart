@@ -158,7 +158,7 @@ class CompressionTreeDotProduct extends DotProductBase {
     });
     final vec = [
       for (var row = 0; row < ppg.rows; row++)
-        ppg.partialProducts[row].rswizzle()
+        ppg.partialProducts[row].rconcat()
     ];
     final columnCompressor = ColumnCompressor(vec, ppg.rowShift);
     final adder = adderGen(columnCompressor.add0, columnCompressor.add1);

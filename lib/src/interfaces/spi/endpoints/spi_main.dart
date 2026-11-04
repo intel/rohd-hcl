@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/spi/endpoints/spi_shift_register.dart';
 
 /// Main component for Serial Peripheral Interface (SPI).
 class SpiMain extends Module {
@@ -24,10 +25,11 @@ class SpiMain extends Module {
   /// chip select on [SpiInterface.csb], shift data out on [SpiInterface.mosi],
   /// and shift data in from [SpiInterface.miso]. Data to shift out is provided
   /// on [busIn]. Data shifted in from [SpiInterface.miso] will be available on
-  /// [busOut]. After data is available on [busIn], pulsing [reset] will load
-  /// the data, and pulsing [start] will begin transmitting data until all bits
-  /// from [busIn] are shifted out. After transmissions is complete [done]
-  /// signal will go high.
+  /// [busOut]. [reset] clears the receive state and prepares a transmit load.
+  /// Hold [busIn] stable through the first falling SPI clock edge after reset;
+  /// its most significant bit is driven before the first rising edge and the
+  /// rest is loaded on that rising edge.
+  /// Pulsing [start] begins the transfer. [done] goes high when it completes.
   SpiMain(SpiInterface intf,
       {required Logic clk,
       required Logic reset,
@@ -79,20 +81,15 @@ class SpiMain extends Module {
           asyncReset: true,
         );
 
-    // Shift register in from MISO.
-    // NOTE: Reset values are set to busIn values.
-    final shiftReg = ShiftRegister(
-      intf.miso,
-      clk: intf.sclk,
-      depth: intf.dataLength,
+    final shiftReg = buildSpiShiftRegister(
+      serialIn: intf.miso,
+      clock: intf.sclk,
+      width: intf.dataLength,
       reset: reset,
-      asyncReset: true,
-      resetValue: busIn.elements,
+      parallelIn: busIn,
     );
 
-    // busOut bits are connected to the corresponding shift register data stage.
-    // NOTE: dataStage0 corresponds to the last bit shifted in.
-    busOut <= shiftReg.stages.rswizzle();
+    busOut <= shiftReg.parallelOut;
 
     // SCLK runs off clk when isRunning is true or start is pulsed high.
     intf.sclk <= ~clk & (isRunning | start);
@@ -100,9 +97,6 @@ class SpiMain extends Module {
     // CS is active low. It will go low when isRunning or start is pulsed high.
     intf.csb <= ~(isRunning | start);
 
-    // MOSI is connected shift register dataOut.
-    intf.mosi <=
-        flop(~intf.sclk, shiftReg.dataOut,
-            reset: reset, asyncReset: true, resetValue: busIn[-1]);
+    intf.mosi <= shiftReg.serialOut;
   }
 }

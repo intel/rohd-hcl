@@ -318,7 +318,7 @@ class GatedCounter extends Counter {
         : _decrementingInterfaces
             .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
             .toList()
-            .swizzle()
+            .concat()
             .or());
 
   late final _anyIncrements = Logic(name: 'anyIncrements')
@@ -327,7 +327,7 @@ class GatedCounter extends Counter {
         : _incrementingInterfaces
             .map((intf) => intf.amount.or() & (intf.enable ?? Const(1)))
             .toList()
-            .swizzle()
+            .concat()
             .or());
 
   /// Enable for the clock gate for the upper portion of the counter.
@@ -537,7 +537,7 @@ class GatedCounter extends Counter {
       lowerGatedClock = lowerClkGate.gatedClk;
       upperGatedClock = upperClkGate.gatedClk;
 
-      count <= [upperCount, lowerCount].swizzle();
+      count <= [upperCount, lowerCount].concat();
     }
   }
 }

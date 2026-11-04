@@ -114,14 +114,14 @@ class HammingEccTransmitter<T extends Logic>
     var calculatedCode = [
       for (var i = 0; i < hammingCodeWidth; i++)
         Logic(name: 'p${1 << i}')..gets(parityBits[i]!),
-    ].rswizzle();
+    ].rconcat();
 
     if (hammingType.hasExtraParityBit) {
       // extra parity bit is calculated by calculating parity across entire rest
       // of the transmission
       final pExtra = Logic(name: 'pExtra')
-        ..gets(ParityTransmitter([calculatedCode, data].swizzle()).code);
-      calculatedCode = [pExtra, calculatedCode].swizzle();
+        ..gets(ParityTransmitter([calculatedCode, data].concat()).code);
+      calculatedCode = [pExtra, calculatedCode].concat();
     }
 
     return calculatedCode;
@@ -180,7 +180,7 @@ class HammingEccReceiver<T extends Logic> extends ErrorCheckingReceiver<T> {
               if (encodingToDataMap.containsKey(i))
                 Logic(name: 'd${encodingToDataMap[i]! + 1}')
                   ..gets(rawData[encodingToDataMap[i]] ^ correction[i - 1])
-          ].rswizzle();
+          ].rconcat();
     }
 
     Logic? extraErr;

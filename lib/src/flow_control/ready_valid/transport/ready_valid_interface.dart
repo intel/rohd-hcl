@@ -226,13 +226,8 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
     final outputIncludesProvider =
         outputTagSet?.contains(PairDirection.fromProvider) ?? false;
     final nonNullUniquify = uniquify ?? (original) => original;
-    // Keep ROHD's deprecated naming compatibility on this typed port path.
-    // ignore: deprecated_member_use
-    final nonNullModify = modify ?? (original) => original;
-    String transformPortName(String original) =>
-        nonNullUniquify(nonNullModify(original));
-    final portName = transformPortName(dataName);
-    final validPortName = transformPortName('valid');
+    final portName = nonNullUniquify(dataName);
+    final validPortName = nonNullUniquify('valid');
 
     if (inputIncludesProvider) {
       final sourcePayload = _validatePayloadCompatibility(
@@ -313,20 +308,10 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
   }
 
   @override
-  ReadyValidInterface<LogicType> clone() {
-    final cloned = ReadyValidInterface(
-      data.clone() as LogicType,
-      contract: contract,
-    );
-    _copyPairInterfaceModifier(this, cloned);
-    return cloned;
-  }
-}
-
-void _copyPairInterfaceModifier(PairInterface source, PairInterface target) {
-  // Match ROHD PairInterface.clone while the legacy callback remains supported.
-  // ignore: deprecated_member_use
-  target.modify = source.modify;
+  ReadyValidInterface<LogicType> clone() => ReadyValidInterface(
+        data.clone() as LogicType,
+        contract: contract,
+      );
 }
 
 /// A ready/valid interface where ready and valid assert independently.
@@ -338,11 +323,8 @@ class ReadyAndValidInterface<LogicType extends Logic>
       : super(contract: ReadyValidContract.readyAndValid);
 
   @override
-  ReadyAndValidInterface<LogicType> clone() {
-    final cloned = ReadyAndValidInterface(data.clone() as LogicType);
-    _copyPairInterfaceModifier(this, cloned);
-    return cloned;
-  }
+  ReadyAndValidInterface<LogicType> clone() =>
+      ReadyAndValidInterface(data.clone() as LogicType);
 }
 
 /// A ready/valid interface where ready must be asserted before valid can be
@@ -384,11 +366,8 @@ class ReadyThenValidInterface<LogicType extends Logic>
   }
 
   @override
-  ReadyThenValidInterface<LogicType> clone() {
-    final cloned = ReadyThenValidInterface(data.clone() as LogicType);
-    _copyPairInterfaceModifier(this, cloned);
-    return cloned;
-  }
+  ReadyThenValidInterface<LogicType> clone() =>
+      ReadyThenValidInterface(data.clone() as LogicType);
 }
 
 /// A ready/valid interface where ready may be computed after valid.
@@ -400,11 +379,8 @@ class ValidThenReadyInterface<LogicType extends Logic>
       : super(contract: ReadyValidContract.validThenReady);
 
   @override
-  ValidThenReadyInterface<LogicType> clone() {
-    final cloned = ValidThenReadyInterface(data.clone() as LogicType);
-    _copyPairInterfaceModifier(this, cloned);
-    return cloned;
-  }
+  ValidThenReadyInterface<LogicType> clone() =>
+      ValidThenReadyInterface(data.clone() as LogicType);
 }
 
 /// A valid-first ready/valid interface that holds an offer stable until it is
@@ -417,9 +393,6 @@ class IrrevocableReadyValidInterface<LogicType extends Logic>
       : super(contract: ReadyValidContract.irrevocable);
 
   @override
-  IrrevocableReadyValidInterface<LogicType> clone() {
-    final cloned = IrrevocableReadyValidInterface(data.clone() as LogicType);
-    _copyPairInterfaceModifier(this, cloned);
-    return cloned;
-  }
+  IrrevocableReadyValidInterface<LogicType> clone() =>
+      IrrevocableReadyValidInterface(data.clone() as LogicType);
 }

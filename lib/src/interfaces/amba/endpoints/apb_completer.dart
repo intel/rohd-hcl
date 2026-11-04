@@ -101,10 +101,8 @@ abstract class ApbCompleter extends Module {
   // no power management built in so we ignore apb.wakeup if present
   void _build() {
     apb.ready <=
-        (fsm.currentState.eq(Const(ApbCompleterState.selected.index,
-                    width: fsm.currentState.width)) |
-                fsm.currentState.eq(Const(ApbCompleterState.access.index,
-                    width: fsm.currentState.width))) &
+        (fsm.currentState.eq(ApbCompleterState.selected) |
+                fsm.currentState.eq(ApbCompleterState.access)) &
             upstreamValid;
   }
 }

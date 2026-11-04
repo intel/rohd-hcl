@@ -281,25 +281,29 @@ class Cam<T extends Logic> extends Module {
     for (final lookupPort in lookupPorts) {
       // This boundary intentionally compares bit identity, including enum and
       // floating-point encodings, rather than invoking numeric equality.
-      final validTag = [Const(1), lookupPort.tag].swizzle();
+      final validTag = [Const(1), lookupPort.tag].concat();
 
       Combinational([
-        Case(validTag, [
-          for (var i = 0; i < numEntries; i++)
-            CaseItem(
-              [
-                _validBits[i],
-                _storageBank.at([i])
-              ].swizzle(),
-              [
-                lookupPort.idx < Const(i, width: lookupPort.idWidth),
-                lookupPort.hit < Const(1),
-              ],
-            )
-        ], defaultItem: [
-          lookupPort.idx < Const(0, width: lookupPort.idWidth),
-          lookupPort.hit < Const(0)
-        ]),
+        Case(
+            validTag,
+            [
+              for (var i = 0; i < numEntries; i++)
+                CaseItem(
+                  [
+                    _validBits[i],
+                    _storageBank.at([i])
+                  ].concat(),
+                  [
+                    lookupPort.idx < Const(i, width: lookupPort.idWidth),
+                    lookupPort.hit < Const(1),
+                  ],
+                )
+            ],
+            exactMatch: true,
+            defaultItem: [
+              lookupPort.idx < Const(0, width: lookupPort.idWidth),
+              lookupPort.hit < Const(0)
+            ]),
       ]);
     }
 

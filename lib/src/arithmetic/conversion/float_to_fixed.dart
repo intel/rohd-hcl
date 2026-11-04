@@ -155,7 +155,7 @@ class FloatToFixed<T extends FixedPoint> extends Module {
 
     final jBit = Logic(name: 'jBit')..gets(float.isNormal);
     final fullMantissa =
-        [jBit, mantissaFractionBits].swizzle().named('fullMantissa');
+        [jBit, mantissaFractionBits].concat().named('fullMantissa');
 
     final eWidth = max((this.fractionWidth + this.integerWidth).log2Ceil,
             float.exponent.width) +
@@ -196,7 +196,7 @@ class FloatToFixed<T extends FixedPoint> extends Module {
     // Buffer a guard bit below the mantissa; all pre-truncated and shifted-out
     // bits contribute to sticky.
     final bufferedFullMantissa =
-        [fullMantissa, Const(0)].swizzle().named('bufferedFullMantissa');
+        [fullMantissa, Const(0)].concat().named('bufferedFullMantissa');
     final bufferedOutputWidth = outputWidth + 1;
     final bufferedPreNumber =
         ((bufferedOutputWidth >= bufferedFullMantissa.width)
@@ -345,19 +345,19 @@ class Float8ToFixed extends Module {
 
     final exponent = Logic(name: 'exponent', width: 5)
       ..gets(mux(
-          mode, [Const(0), float.slice(6, 3)].swizzle(), float.slice(6, 2)));
+          mode, [Const(0), float.slice(6, 3)].concat(), float.slice(6, 2)));
 
     final jBit = Logic(name: 'jBit')..gets(exponent.or());
 
     final mantissa = Logic(name: 'mantissa', width: 4)
-      ..gets(mux(mode, [jBit, float.slice(2, 0)].swizzle(),
-          [Const(0), jBit, float.slice(1, 0)].swizzle()));
+      ..gets(mux(mode, [jBit, float.slice(2, 0)].concat(),
+          [Const(0), jBit, float.slice(1, 0)].concat()));
 
     final shift = Logic(name: 'shift', width: exponent.width)
       ..gets(mux(jBit, exponent - 1, Const(0, width: exponent.width)));
 
     final number = Logic(name: 'number', width: 33)
-      ..gets([Const(0, width: 29), mantissa].swizzle() << shift);
+      ..gets([Const(0, width: 29), mantissa].concat() << shift);
 
     fixed <= mux(float[float.width - 1], ~number + 1, number);
   }

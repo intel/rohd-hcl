@@ -558,15 +558,11 @@ void main() {
     }
 
     void checkMainBusOut(SpiPairTest test, int data) {
-      if (test.main.busOut.value.toInt() != data) {
-        test.logger.severe('main busOut: ${test.main.busOut.value}');
-      }
+      expect(test.main.busOut.value.toInt(), data, reason: 'main busOut');
     }
 
     void checkSubBusOut(SpiPairTest test, int data) {
-      if (test.sub.busOut.value.toInt() != data) {
-        test.logger.severe('sub busOut: ${test.sub.busOut.value}');
-      }
+      expect(test.sub.busOut.value.toInt(), data, reason: 'sub busOut');
     }
 
     test('main busIn injects, both busOut checks, no gaps', () async {

@@ -10,6 +10,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/amba/protocol_enum_view.dart';
 
 // TODO(kimmeljo): parity check signals...
 
@@ -45,11 +46,25 @@ mixin Axi5RequestSignals on Axi5BaseInterface {
   /// Width is equal to [sizeWidth].
   Logic? get size => tryPort('${prefix}SIZE');
 
+  /// Read-only enum view of [size], or null when the signal is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [size] remains raw.
+  late final LogicEnum<Axi5SizeField>? sizeEnum =
+      protocolEnumView(size, Axi5SizeField.values, (value) => value.value);
+
   /// Burst type, indicates how address changes between
   /// each transfer in a transaction.
   ///
   /// Width is equal to [burstWidth].
   Logic? get burst => tryPort('${prefix}BURST');
+
+  /// Read-only enum view of [burst], or null when the signal is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [burst] remains raw.
+  late final LogicEnum<Axi5BurstField>? burstEnum =
+      protocolEnumView(burst, Axi5BurstField.values, (value) => value.value);
 
   /// Quality of service identifier for a transaction.
   ///

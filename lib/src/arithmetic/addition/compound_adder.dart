@@ -183,9 +183,9 @@ class CarrySelectCompoundAdder extends CompoundAdder {
       blockStartIdx += blockWidth;
     }
 
-    sum <= [sumList0F.swizzle(), carry0].swizzle().named('sum_inner').reversed;
+    sum <= [sumList0F.concat(), carry0].concat().named('sum_inner').reversed;
     sumP1 <=
-        [sumList1F.swizzle(), carry1].swizzle().named('sumP1_inner').reversed;
+        [sumList1F.concat(), carry1].concat().named('sumP1_inner').reversed;
   }
 }
 

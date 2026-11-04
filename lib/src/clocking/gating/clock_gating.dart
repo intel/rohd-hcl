@@ -44,7 +44,7 @@ class ClockGateControlInterface extends PairInterface {
           [
             enable,
             if (intf.hasEnableOverride) intf.enableOverride!,
-          ].swizzle().or());
+          ].concat().or());
 
   /// A function that generates the gated clock signal based on the provided
   /// `intf`, `clk`, and `enable` signals.

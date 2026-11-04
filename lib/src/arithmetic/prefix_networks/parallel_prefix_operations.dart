@@ -215,7 +215,7 @@ class ParallelPrefixOrScan extends Module {
                 definitionName ?? 'ParallelPrefixOrScan_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
     final u = ppGen(inp.elements, (a, b) => a | b);
-    addOutput('out', width: inp.width) <= u.val.rswizzle();
+    addOutput('out', width: inp.width) <= u.val.rconcat();
   }
 }
 
@@ -299,8 +299,8 @@ class ParallelPrefixAdder extends Adder {
               (i) => ((i == 0)
                       ? aPin[i] ^ bPin[i] ^ cin
                       : aPin[i] ^ bPin[i] ^ u.val[i - 1].generate)
-                  .named('t_$i')).rswizzle()
-        ].swizzle();
+                  .named('t_$i')).rconcat()
+        ].concat();
   }
 }
 
@@ -326,7 +326,7 @@ class ParallelPrefixIncr extends Module {
                 inp.width,
                 (i) =>
                     ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
-            .rswizzle());
+            .rconcat());
   }
 }
 
@@ -352,6 +352,6 @@ class ParallelPrefixDecr extends Module {
         (List<Logic>.generate(
             inp.width,
             (i) => ((i == 0) ? complement[i] : inp[i] ^ u.val[i - 1])
-                .named('o_$i')).rswizzle());
+                .named('o_$i')).rconcat());
   }
 }

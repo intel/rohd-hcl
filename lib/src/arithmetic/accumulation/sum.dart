@@ -9,33 +9,11 @@
 
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 import 'package:rohd_hcl/src/arithmetic/accumulation/summation_base.dart';
-
-/// An extension on [SumInterface] to provide additional functionality for
-/// computing in [Sum].
-extension on SumInterface {
-  /// Adjusts the [nextVal] by the amount specified in this interface, to be
-  /// used within a [Combinational.ssa] block.
-  List<Conditional> _combAdjustments(Logic Function(Logic) s, Logic nextVal) {
-    final conds = <Conditional>[
-      if (increments)
-        nextVal.incr(s: s, val: amount.zeroExtend(nextVal.width))
-      else
-        nextVal.decr(s: s, val: amount.zeroExtend(nextVal.width)),
-    ];
-
-    if (hasEnable) {
-      return [If(enable!, then: conds)];
-    } else {
-      return conds;
-    }
-  }
-}
 
 BigInt _biggestUnsignedValue(int width) => (BigInt.one << width) - BigInt.one;
 
@@ -218,70 +196,53 @@ class Sum extends SummationBase {
     final preAdjustmentValue =
         Logic(name: 'preAdjustmentValue', width: internalWidth);
 
-    // here we use an `ssa` block to iteratively update the value of
-    // `internalValue` based on the adjustments from the interfaces and
-    // saturation/roll-over behavior
-    //
-    // For more details, see:
-    // https://intel.github.io/rohd-website/blog/combinational-ssa/
-    Combinational.ssa((s) {
-      final overflowUnderflowAdjustments = <Iff>[];
-      if (canOverflow) {
-        overflowUnderflowAdjustments.add(
-          Iff.s(
-            overflowed,
-            s(internalValue) <
-                (saturates
-                    ? upperSaturation
-                    : ((s(internalValue) - upperSaturation - 1) % range +
-                        lowerSaturation)),
-          ),
-        );
+    var rawValue = initialValueLogicExt + zeroPoint;
+    for (final (index, intf) in interfaces.indexed) {
+      final amount = intf.amount.zeroExtend(internalWidth);
+      final adjusted = intf.increments ? rawValue + amount : rawValue - amount;
+      if (intf.hasEnable) {
+        final next = Logic(name: 'adjusted_$index', width: internalWidth);
+        Combinational([
+          next < rawValue,
+          If(intf.enable!, then: [next < adjusted]),
+        ]);
+        rawValue = next;
+      } else {
+        rawValue = adjusted;
       }
-      if (canUnderflow) {
-        final underflowAdjustment = s(internalValue) <
-            (saturates
-                ? lowerSaturation
-                : (upperSaturation -
-                    ((lowerSaturation - s(internalValue) - 1) % range)));
-        if (canOverflow) {
-          overflowUnderflowAdjustments.add(
-            ElseIf.s(underflowed, underflowAdjustment),
-          );
-        } else {
-          overflowUnderflowAdjustments.add(
-            Iff.s(underflowed, underflowAdjustment),
-          );
-        }
-      }
+    }
+    preAdjustmentValue <= rawValue;
 
-      return [
-        // initialize
-        s(internalValue) < initialValueLogicExt + zeroPoint,
+    overflowed <=
+        (canOverflow ? preAdjustmentValue.gt(upperSaturation) : Const(0));
+    underflowed <=
+        (canUnderflow ? preAdjustmentValue.lt(lowerSaturation) : Const(0));
 
-        // perform increments and decrements per-interface
-        ...interfaces
-            .map((e) => e._combAdjustments(s, internalValue))
-            .flattened,
-
-        // identify if we're at a max/min case
-        if (canOverflow)
-          overflowed < s(internalValue).gt(upperSaturation)
-        else
-          overflowed < Const(0),
-        if (canUnderflow)
-          underflowed < s(internalValue).lt(lowerSaturation)
-        else
-          underflowed < Const(0),
-
-        // useful as an internal node for debug/visibility
-        preAdjustmentValue < s(internalValue),
-
-        // handle saturation or over/underflow
-        if (overflowUnderflowAdjustments.isNotEmpty)
-          If.block(overflowUnderflowAdjustments),
-      ];
-    });
+    final overflowUnderflowAdjustments = <Iff>[];
+    if (canOverflow) {
+      overflowUnderflowAdjustments.add(Iff.s(
+          overflowed,
+          internalValue <
+              (saturates
+                  ? upperSaturation
+                  : ((preAdjustmentValue - upperSaturation - 1) % range +
+                      lowerSaturation))));
+    }
+    if (canUnderflow) {
+      final underflowAdjustment = internalValue <
+          (saturates
+              ? lowerSaturation
+              : (upperSaturation -
+                  ((lowerSaturation - preAdjustmentValue - 1) % range)));
+      overflowUnderflowAdjustments.add(canOverflow
+          ? ElseIf.s(underflowed, underflowAdjustment)
+          : Iff.s(underflowed, underflowAdjustment));
+    }
+    Combinational([
+      internalValue < preAdjustmentValue,
+      if (overflowUnderflowAdjustments.isNotEmpty)
+        If.block(overflowUnderflowAdjustments),
+    ]);
 
     equalsMax <= internalValue.eq(upperSaturation);
     equalsMin <= internalValue.eq(lowerSaturation);

@@ -87,12 +87,12 @@ class CarrySaveMultiplier extends Multiplier {
                   Const(0),
                   ...List.generate(a.width - 1,
                       (index) => p.get(_sum[(a.width + b.width - 2) - index]))
-                ].swizzle(),
+                ].concat(),
             p.get(rCarryB) <
                 <Logic>[
                   ...List.generate(a.width,
                       (index) => p.get(_carry[(a.width + b.width - 2) - index]))
-                ].swizzle()
+                ].concat()
           ],
     ];
 
@@ -122,6 +122,6 @@ class CarrySaveMultiplier extends Multiplier {
             a.width,
             (index) => _pipeline.get(_sum[a.width - index - 1]),
           )
-        ].swizzle().named('productWide').slice(product.width - 1, 0);
+        ].concat().named('productWide').slice(product.width - 1, 0);
   }
 }

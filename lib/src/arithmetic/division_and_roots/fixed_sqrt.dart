@@ -75,7 +75,7 @@ class FixedPointSqrt<T extends FixedPoint> extends FixedPointSqrtBase<T> {
     solution = Const(0, width: aLoc.width).named('solution');
     remainder = Const(0, width: aLoc.width).named('remainder');
     subtractionValue = Const(0, width: aLoc.width).named('subtraction');
-    aLoc = [Const(0), a, Const(0)].swizzle().named('a_loc');
+    aLoc = [Const(0), a, Const(0)].concat().named('a_loc');
 
     final outputSqrt = sqrt;
 
@@ -85,14 +85,14 @@ class FixedPointSqrt<T extends FixedPoint> extends FixedPointSqrtBase<T> {
       remainder = [
         remainder.slice(width + 2 - 3, 0),
         aLoc.slice(aLoc.width - 1 - (i * 2), aLoc.width - 2 - (i * 2))
-      ].swizzle().named('remainder_iter$i');
+      ].concat().named('remainder_iter$i');
       subtractionValue = [solution.slice(width + 2 - 3, 0), Const(1, width: 2)]
-          .swizzle()
+          .concat()
           .named('subtraction_value_iter$i');
       solution = [
         solution.slice(width + 2 - 2, 0),
         subtractionValue.lte(remainder)
-      ].swizzle().named('solution_iter$i');
+      ].concat().named('solution_iter$i');
       remainder = mux(subtractionValue.lte(remainder),
               remainder - subtractionValue, remainder)
           .named('remainder_mux_iter$i');
@@ -102,15 +102,15 @@ class FixedPointSqrt<T extends FixedPoint> extends FixedPointSqrtBase<T> {
     for (var i = 0; i < ((width + 2) >> 1) - 1; i++) {
       // don't try to append bits from a, they are done
       remainder = [remainder.slice(width + 2 - 3, 0), Const(0, width: 2)]
-          .swizzle()
+          .concat()
           .named('remainder_final_iter$i');
       subtractionValue = [solution.slice(width + 2 - 3, 0), Const(1, width: 2)]
-          .swizzle()
+          .concat()
           .named('subtraction_value_final_iter$i');
       solution = [
         solution.slice(width + 2 - 2, 0),
         subtractionValue.lte(remainder)
-      ].swizzle().named('solution_final_iter$i');
+      ].concat().named('solution_final_iter$i');
       remainder = mux(subtractionValue.lte(remainder),
               remainder - subtractionValue, remainder)
           .named('remainder_finalmux_iter$i');

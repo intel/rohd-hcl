@@ -16,6 +16,29 @@ The AXI-S interface definition is mostly independent but does share some base de
 
 For code examples of how to work with both individual channel interfaces and clusters, see `test/amba/amba<x>/axi<x>_test.dart`.
 
+### Typed protocol field views
+
+AXI4 and AXI5 address channels expose optional `sizeEnum` and `burstEnum`
+views, and their read and write response channels expose `respEnum`. LTI
+read-response channels provide an `LtiRespField`-typed `respEnum`. Each view
+is created only when requested and is `null` if its raw field is absent. For
+example:
+
+```dart
+final ar = Axi4ArChannelInterface();
+final isIncrementing = ar.burstEnum!.eq(Axi4BurstField.incr);
+```
+
+These are derived views for reading, not additional ports or drivers. Continue
+to connect and drive the raw `size`, `burst`, and `resp` signals; those retain
+all bits, including reserved values, X, and Z. The mappings include only enum
+encodings that fit the configured field width. In ROHD functional simulation,
+an unmapped or unknown value becomes X in the view, and `valueEnum` throws for
+such a value. AXI5/ACE response extensions not represented by `Axi5RespField`
+are consequently unmapped, but remain available on the raw response signal.
+Generated HDL does not necessarily enforce the same normalization for invalid
+encodings; use the raw signals when inspecting reserved or unknown values.
+
 ## HW
 
 There are no current HW implementations for AXI-based controllers. This will be done in future work.

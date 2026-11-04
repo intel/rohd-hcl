@@ -94,7 +94,7 @@ class FindPattern extends Module {
       // Append result to the index list
       indexList.add(valCheck & nVal.eq(count));
     }
-    final indexBinary = OneHotToBinary(indexList.rswizzle());
+    final indexBinary = OneHotToBinary(indexList.rconcat());
     final bin = indexBinary.binary;
     addOutput('index', width: bin.width);
     index <= bin;

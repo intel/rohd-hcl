@@ -4,6 +4,17 @@ The Flutter configuration app exposes selected ROHD-HCL components through
 editable configuration knobs and presents generated ROHD schematics, ROHD
 source, SystemVerilog, and synthesized schematics.
 
+The catalog includes bitwise, one-hot, and priority muxes; XOR and XNOR
+popcounts; and variable or fixed rotations. The synchronizer is for control
+signals, not arbitrary multi-bit data transfers. The ready/valid FIFO exposes
+its same-cycle replacement option.
+Circular pointer increments must be less than the configured slot count.
+
+The CSR Example selects either a `CsrTop` or its `CsrBlock`. Both use the same
+minimal block containing two read/write registers at addresses 0 and 1, with
+reset values 0 and 1. Register width and synchronous versus asynchronous reset
+are configurable; the register definitions themselves are fixed examples.
+
 For workspace setup, dependency sources, running the app, and browser
 validation, see [DEVELOPER.md](DEVELOPER.md).
 

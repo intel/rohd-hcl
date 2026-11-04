@@ -37,6 +37,6 @@ class RippleCarryAdder extends Adder {
     }
 
     sumList.add(carry!);
-    sum <= sumList.rswizzle();
+    sum <= sumList.rconcat();
   }
 }

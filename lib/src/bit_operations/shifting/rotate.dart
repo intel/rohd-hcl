@@ -159,7 +159,7 @@ class _RotateFixed extends Module {
     return [
       original.getRange(0, split),
       original.getRange(split),
-    ].swizzle();
+    ].concat();
   }
 }
 
@@ -282,7 +282,7 @@ extension RotateLogicValue on LogicValue {
     return [
       getRange(0, split),
       getRange(split),
-    ].swizzle();
+    ].concat();
   }
 
   /// Rotates this value by [rotateAmount] to the left.

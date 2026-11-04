@@ -316,7 +316,7 @@ abstract class PartialProductMatrix extends Module {
     beforeGenerateOutputs?.call(_array);
     for (var row = 0; row < _array.rows; row++) {
       addOutput('row_$row', width: _array.partialProducts[row].length) <=
-          _array.partialProducts[row].rswizzle();
+          _array.partialProducts[row].rconcat();
     }
     _outputsGenerated = true;
   }

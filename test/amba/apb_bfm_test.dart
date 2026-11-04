@@ -113,7 +113,7 @@ class ApbBfmTest extends Test {
               originalData.getRange(i * 8, i * 8 + 8)
             else
               LogicValue.filled(8, LogicValue.zero)
-        ].rswizzle();
+        ].rconcat();
 
     // normal writes
     for (var i = 0; i < numTransfers; i++) {

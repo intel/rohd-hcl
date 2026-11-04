@@ -283,43 +283,37 @@ extension CsrModelSystemC on CsrModelDescription {
             '($writeAddress)>=reg.block_base &&'
             ' ($writeAddress)<reg.block_base+reg.block_size)'
             ' : sc_dt::SC_LOGIC_X);')
+        ..writeln('      bool address_known=$writeValid;')
+        ..writeln('      auto it=address_known ? writes.find($writeAddress)'
+            ' : writes.end();')
+        ..writeln('      int offset=it==writes.end() ? 0 : it->second.offset,'
+            ' count=std::min(${writePort.dataWidth},reg.width-offset);')
+        ..writeln('      word data=$writeData;')
         ..writeln('      for(const auto& f:reg.fields) {')
         ..writeln('        if(f.access!=$writeOnly) continue;')
-        ..writeln('        if(enable!=sc_dt::SC_LOGIC_0 && (')
-        ..writeln('          (!known(enable) &&'
-            ' (reg.width>${writePort.dataWidth} || !($writeValid))) ||')
-        ..writeln('          (enable==sc_dt::SC_LOGIC_1 && !($writeValid) &&'
-            ' reg.width<=${writePort.dataWidth})))')
-        ..writeln('          for(int i=f.start;i<f.start+f.width;++i)'
-            ' value[i]=sc_dt::SC_LOGIC_X;')
-        ..writeln('      }')
-        ..writeln('      if($writeValid) { auto it=writes.find($writeAddress);')
-        ..writeln('        if(it!=writes.end() && it->second.index==index) {')
-        ..writeln('          int offset=it->second.offset,'
-            ' count=std::min(${writePort.dataWidth},reg.width-offset);')
-        ..writeln('          word data=$writeData;')
-        ..writeln('          for(const auto& f:reg.fields) {')
-        ..writeln('            if(f.access!=$writeOnly) continue;')
-        ..writeln(
-            '            if(f.start<offset+count && f.start+f.width>offset'
-            ' && enable!=sc_dt::SC_LOGIC_0) {')
-        ..writeln('              for(int i=f.start;i<f.start+f.width;++i)')
-        ..writeln('                value[i]=!known(enable)'
-            ' ? sc_dt::SC_LOGIC_X : i>=offset && i<offset+count'
-            ' ? sc_dt::sc_logic(data[i-offset]) : sc_dt::SC_LOGIC_0;')
-        ..writeln('            }')
-        ..writeln('          }')
+        ..writeln('        bool overlaps=it!=writes.end() &&'
+            ' it->second.index==index && f.start<offset+count &&'
+            ' f.start+f.width>offset;')
+        ..writeln('        sc_dt::sc_logic selected=address_known'
+            ' ? sc_dt::sc_logic(overlaps) : sc_dt::SC_LOGIC_X;')
+        ..writeln('        sc_dt::sc_logic select=enable & selected;')
+        ..writeln('        if(select==sc_dt::SC_LOGIC_0) continue;')
+        ..writeln('        for(int i=f.start;i<f.start+f.width;++i) {')
+        ..writeln('          sc_dt::sc_logic written=sc_dt::SC_LOGIC_0;')
+        ..writeln('          if(!address_known &&'
+            ' reg.width>${writePort.dataWidth}) written=sc_dt::SC_LOGIC_X;')
+        ..writeln('          else if((overlaps || !address_known) &&'
+            ' i>=offset && i<offset+count)')
+        ..writeln('            written=sc_dt::sc_logic(data[i-offset]) &'
+            ' sc_dt::sc_logic(data[i-offset]);')
+        ..writeln('          if(select==sc_dt::SC_LOGIC_1 ||'
+            ' sc_dt::sc_logic(value[i])==written) value[i]=written;')
+        ..writeln('          else value[i]=sc_dt::SC_LOGIC_X;')
         ..writeln('        }')
         ..writeln('      }')
         ..writeln('    }');
     }
     source
-      ..writeln('    for(const auto& f:reg.fields) {')
-      ..writeln('      if(f.access==${CsrFieldAccess.writeOnly.index} &&'
-          ' !slice(value,f.start,f.width).is_01())')
-      ..writeln('        for(int i=f.start;i<f.start+f.width;++i)'
-          ' value[i]=sc_dt::SC_LOGIC_X;')
-      ..writeln('    }')
       ..writeln('    return value;')
       ..writeln('  }')
       ..writeln('  void drive() {');

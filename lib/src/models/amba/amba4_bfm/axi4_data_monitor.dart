@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_data_monitor.dart
@@ -66,8 +66,8 @@ class Axi4DataChannelMonitor extends Monitor<Axi4DataPacket> {
         if (lastCheck) {
           add(
             Axi4DataPacket(
-                data: _dataBuf.rswizzle(),
-                strb: (isWr ? _strbBuf.rswizzle() : null),
+                data: _dataBuf.rconcat(),
+                strb: (isWr ? _strbBuf.rconcat() : null),
                 id: rIntf.id?.previousValue,
                 user: rIntf.user?.previousValue,
                 resp: (isRd

@@ -92,25 +92,25 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final fl = mux(
             ~larger.isNormal ^ Const(larger.explicitJBit),
-            [larger.mantissa, Const(0)].swizzle(),
+            [larger.mantissa, Const(0)].concat(),
             mux(
                 larger.isNormal,
-                [Const(1), larger.mantissa].swizzle(),
+                [Const(1), larger.mantissa].concat(),
                 [
                   larger.mantissa.getRange(0, mantissaWidth - 1),
                   Const(0, width: 2)
-                ].swizzle()))
+                ].concat()))
         .named('fullLarger');
     final fs = mux(
             ~smaller.isNormal ^ Const(smaller.explicitJBit),
-            [smaller.mantissa, Const(0)].swizzle(),
+            [smaller.mantissa, Const(0)].concat(),
             mux(
                 smaller.isNormal,
-                [Const(1), smaller.mantissa].swizzle(),
+                [Const(1), smaller.mantissa].concat(),
                 [
                   smaller.mantissa.getRange(0, mantissaWidth - 1),
                   Const(0, width: 2)
-                ].swizzle()))
+                ].concat()))
         .named('fullSmaller');
 
     // Seidel: flp  larger preshift, normally in [2,4).
@@ -131,7 +131,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         min(mantissaWidth + 3, pow(2, exponentWidth).toInt() - 3);
 
     final smallerFullRPath = [smallShift, Const(0, width: extendWidthRPath)]
-        .swizzle()
+        .concat()
         .named('smallerFullRpath');
 
     final smallerAlignRPath = (smallerFullRPath >>> exponentSubtractor.sum)
@@ -204,7 +204,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
       lowAdderRPathSum.slice(
           lowAdderRPathSum.width - 2, lowAdderRPathSum.width - 3),
       preStickyRPath
-    ].swizzle().named('earlyGRSRpath');
+    ].concat().named('earlyGRSRpath');
 
     final sumRPath =
         significandAdderRPath.sum.slice(mantissaWidth + 1, 0).named('sumRpath');
@@ -225,23 +225,23 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     // R pipestage here:
 
     final shiftGRSRPath =
-        [earlyGRSRPath[2], stickyBitRPath].swizzle().named('shiftGRSRpath');
+        [earlyGRSRPath[2], stickyBitRPath].concat().named('shiftGRSRpath');
     final mergedSumRPath = mux(
             sumLeadZeroRPath,
             [sumRPath, earlyGRSRPath]
-                .swizzle()
+                .concat()
                 .named('sumEarlyGRSRpath')
                 .slice(sumRPath.width + 1, 0),
-            [sumRPath, shiftGRSRPath].swizzle())
+            [sumRPath, shiftGRSRPath].concat())
         .named('mergedSumRpath');
 
     final mergedSumP1RPath = mux(
             sumP1LeadZeroRPath,
             [sumP1RPath, earlyGRSRPath]
-                .swizzle()
+                .concat()
                 .named('sumP1EarlyGRSRPath')
                 .slice(sumRPath.width + 1, 0),
-            [sumP1RPath, shiftGRSRPath].swizzle().named('sumP1ShiftGRSRPath'))
+            [sumP1RPath, shiftGRSRPath].concat().named('sumP1ShiftGRSRPath'))
         .named('mergedSumP1RPath');
 
     final sumRounderRPath = FloatingPointRounder.fromGRS(

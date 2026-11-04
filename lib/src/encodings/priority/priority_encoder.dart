@@ -81,10 +81,10 @@ class RecursivePriorityEncoder extends PriorityEncoder {
             ret < Const(0, width: 2),
           ]),
           ElseIf(r, [
-            ret < [Const(0), Const(1)].swizzle(),
+            ret < [Const(0), Const(1)].concat(),
           ]),
           Else([
-            ret < [Const(1), Const(0)].swizzle(),
+            ret < [Const(1), Const(0)].concat(),
           ]),
         ]),
       ]);
@@ -104,20 +104,20 @@ class RecursivePriorityEncoder extends PriorityEncoder {
       final ret = Logic(width: right.width + 1, name: 'merge_d$depth');
       final rhs = ((right.width > 1)
               ? [Const(0), Const(1), right.slice(-2, 0)]
-                  .swizzle()
+                  .concat()
                   .named('zo_right_d$depth')
-              : [Const(0), Const(1)].swizzle().named('zo_d$depth'))
+              : [Const(0), Const(1)].concat().named('zo_d$depth'))
           .named('right_d$depth');
       Combinational([
         If.block([
           Iff(l & r, [
             ret <
                 [Const(1), Const(0, width: right.width)]
-                    .swizzle()
+                    .concat()
                     .named('lr_d$depth'),
           ]),
           ElseIf(~l, [
-            ret < [Const(0), left.slice(-1, 0)].swizzle().named('zl_d$depth'),
+            ret < [Const(0), left.slice(-1, 0)].concat().named('zl_d$depth'),
           ]),
           Else([
             ret < rhs,
@@ -159,10 +159,10 @@ class RecursiveModulePriorityEncoderNode extends Module {
             ret < Const(0, width: 2),
           ]),
           ElseIf(r, [
-            ret < [Const(0), Const(1)].swizzle(),
+            ret < [Const(0), Const(1)].concat(),
           ]),
           Else([
-            ret < [Const(1), Const(0)].swizzle(),
+            ret < [Const(1), Const(0)].concat(),
           ]),
         ]),
       ]);
@@ -186,18 +186,18 @@ class RecursiveModulePriorityEncoderNode extends Module {
       addOutput('ret', width: right.width + 1);
       final rhs = ((right.width > 1)
               ? [Const(0), Const(1), right.slice(-2, 0)]
-                  .swizzle()
+                  .concat()
                   .named('zo_right')
-              : [Const(0), Const(1)].swizzle().named('zo'))
+              : [Const(0), Const(1)].concat().named('zo'))
           .named('rhs');
       Combinational([
         If.block([
           Iff(l & r, [
             ret <
-                [Const(1), Const(0, width: right.width)].swizzle().named('lr'),
+                [Const(1), Const(0, width: right.width)].concat().named('lr'),
           ]),
           ElseIf(~l, [
-            ret < [Const(0), left.slice(-1, 0)].swizzle().named('zl'),
+            ret < [Const(0), left.slice(-1, 0)].concat().named('zl'),
           ]),
           Else([
             ret < rhs,

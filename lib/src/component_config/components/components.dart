@@ -1,15 +1,25 @@
 // Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// components.dart
+// Exports for component configurators.
+//
+// 2023 December 6
+// Author: Max Korbel <max.korbel@intel.com>
 
 export 'config_adders.dart';
 export 'config_apb_csr_completer.dart';
+export 'config_arithmetic_primitives.dart';
 export 'config_async_fifo.dart';
 export 'config_binary_gray.dart';
+export 'config_bit_manipulation.dart';
+export 'config_bitwise_popcount.dart';
 export 'config_cam.dart';
 export 'config_carry_save_multiplier.dart';
 export 'config_clock_gating.dart';
 export 'config_compound_adder.dart';
 export 'config_count.dart';
+export 'config_csr_example.dart';
 export 'config_dot_product.dart';
 export 'config_ecc.dart';
 export 'config_edge_detector.dart';
@@ -29,12 +39,14 @@ export 'config_leading_digit_anticipate.dart';
 export 'config_multi_cycle_divider.dart';
 export 'config_multiplier.dart';
 export 'config_multiply_accumulate.dart';
+export 'config_mux.dart';
 export 'config_one_hot.dart';
 export 'config_parallel_prefix_adder.dart';
 export 'config_parallel_prefix_operations.dart';
 export 'config_parity.dart';
 export 'config_priority_arbiter.dart';
 export 'config_priority_encoder.dart';
+export 'config_ready_valid_fifo.dart';
 export 'config_reduction_tree.dart';
 export 'config_rf.dart';
 export 'config_ripple_carry_adder.dart';
@@ -46,3 +58,4 @@ export 'config_signed_shifter.dart';
 export 'config_sort.dart';
 export 'config_spi.dart';
 export 'config_summation.dart';
+export 'config_synchronizer.dart';

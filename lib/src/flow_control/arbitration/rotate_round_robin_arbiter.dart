@@ -27,12 +27,12 @@ class RotateRoundRobinArbiter extends StatefulArbiter
     final preference = Logic(name: 'preference', width: count.log2Ceil);
 
     final rotatedReqs = requests
-        .rswizzle()
+        .rconcat()
         .rotateRight(preference, maxAmount: count - 1)
         .elements;
     final priorityArb = PriorityArbiter(rotatedReqs);
     final unRotatedGrants = priorityArb.grants
-        .rswizzle()
+        .rconcat()
         .rotateLeft(preference, maxAmount: count - 1);
 
     Sequential(clk, reset: reset, [

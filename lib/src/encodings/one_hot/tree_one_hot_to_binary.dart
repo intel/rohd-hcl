@@ -91,7 +91,7 @@ class _NodeOneHotToBinary extends Module {
           reserveName: reserveName,
           reserveDefinitionName: reserveDefinitionName);
       final response = subNode.binary;
-      binary <= [anyHi, response].swizzle();
+      binary <= [anyHi, response].concat();
 
       if (generateMultiple) {
         final anyLo = lo.or().named('any_lo');

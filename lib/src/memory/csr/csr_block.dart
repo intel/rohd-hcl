@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_block.dart
@@ -203,7 +203,7 @@ class CsrBlock extends CsrContainer {
                           csrs[i].getRange(0, j * dataWidth),
                         normalizedFrontWriteData.getRange(
                             0, rem == 0 ? dataWidth : rem)
-                      ].rswizzle())
+                      ].rconcat())
                       .getRange(
                           j * dataWidth,
                           rem == 0
@@ -220,7 +220,7 @@ class CsrBlock extends CsrContainer {
                         normalizedFrontWriteData,
                         if ((j + 1) * dataWidth < csrs[i].config.width)
                           csrs[i].getRange((j + 1) * dataWidth),
-                      ].rswizzle())
+                      ].rconcat())
                       .getRange(j * dataWidth, (j + 1) * dataWidth));
             }
           }
@@ -248,12 +248,12 @@ class CsrBlock extends CsrContainer {
                 if (j * dataWidth > 0) Const(0, width: j * dataWidth),
                 Const(1, width: 1).replicate(chunkWidth),
                 if (highWidth > 0) Const(0, width: highWidth),
-              ].rswizzle();
+              ].rconcat();
               dataCases[key] = [
                 if (j * dataWidth > 0) Const(0, width: j * dataWidth),
                 chunkData,
                 if (highWidth > 0) Const(0, width: highWidth),
-              ].rswizzle();
+              ].rconcat();
             }
             frontdoorWriteValidFull = mux(
                 frontWrite!.en,

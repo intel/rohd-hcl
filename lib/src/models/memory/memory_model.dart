@@ -88,7 +88,7 @@ class MemoryModel<T extends Logic> extends Memory<T> {
                     storage
                         .readData(addrValue)
                         .getRange(index * 8, (index + 1) * 8)
-              ].rswizzle(),
+              ].rconcat(),
             );
           } else {
             storage.writeData(addrValue, wrPort.data.previousValue!);

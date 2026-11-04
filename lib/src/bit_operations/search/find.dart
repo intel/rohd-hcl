@@ -74,7 +74,7 @@ class Find extends Module {
     }
 
     final oneHotBinary =
-        OneHotToBinary(oneHotList.rswizzle(), generateError: generateError);
+        OneHotToBinary(oneHotList.rconcat(), generateError: generateError);
     // Upon search complete, we get the position value in binary `bin` form
     final bin = oneHotBinary.binary;
     addOutput('index', width: bin.width);

@@ -34,7 +34,7 @@ extension EvaluateLivePartialProduct on PartialProductGeneratorBase {
     final maxW = maxWidth();
     var accum = BigInt.from(0);
     for (var row = 0; row < rows; row++) {
-      final pp = partialProducts[row].rswizzle().value;
+      final pp = partialProducts[row].rconcat().value;
       final value = pp.zeroExtend(maxW) << rowShift[row];
       if (pp.isValid) {
         accum += value.toBigInt();

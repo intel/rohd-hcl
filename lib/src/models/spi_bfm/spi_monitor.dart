@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_monitor.dart
@@ -47,12 +47,12 @@ class SpiMonitor extends Monitor<SpiPacket> {
 
       if (dataListWrite.length == intf.dataLength) {
         add(SpiPacket(
-            data: dataListWrite.swizzle(), direction: SpiDirection.main));
+            data: dataListWrite.concat(), direction: SpiDirection.main));
         dataListWrite.clear();
       }
       if (dataListRead.length == intf.dataLength) {
         add(SpiPacket(
-            data: dataListRead.swizzle(), direction: SpiDirection.sub));
+            data: dataListRead.concat(), direction: SpiDirection.sub));
         dataListRead.clear();
       }
     });
