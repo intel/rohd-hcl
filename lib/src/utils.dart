@@ -7,18 +7,12 @@
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 
-/// Computes the bit width needed to store [w] addresses.
-int log2Ceil(int w) => (log(w) / log(2)).ceil();
-
 /// Returns the minimum number of bits needed to represent [val] distinct
 /// values, with a minimum of 1 (since 0-width signals are not valid in
 /// hardware).
 ///
-/// Equivalent to `max(1, log2Ceil(val))`.
-int widthFor(int val) => max(1, log2Ceil(val));
-
-/// Returns whether [n] is a power of two.
-bool isPowerOfTwo(int n) => n != 0 && (n & (n - 1) == 0);
+/// Equivalent to `max(1, val.log2Ceil)`.
+int widthFor(int val) => max(1, val.log2Ceil);
 
 /// This extension will eventually move to ROHD once it is proven useful.
 extension LogicValueBitString on LogicValue {

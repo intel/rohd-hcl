@@ -24,7 +24,7 @@ class RotateRoundRobinArbiter extends StatefulArbiter
       : super(
             definitionName: definitionName ??
                 'RotateRoundRobinArbiter_W${requests.length}') {
-    final preference = Logic(name: 'preference', width: log2Ceil(count));
+    final preference = Logic(name: 'preference', width: count.log2Ceil);
 
     final rotatedReqs = requests
         .rswizzle()

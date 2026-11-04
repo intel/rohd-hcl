@@ -9,7 +9,6 @@
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
-import 'package:rohd_hcl/src/utils.dart';
 
 /// A storage for memory models.
 abstract class MemoryStorage {
@@ -104,7 +103,7 @@ abstract class MemoryStorage {
       throw RohdHclException('dataWidth must be a multiple of bitsPerAddress.');
     }
 
-    final bitsPerChar = log2Ceil(radix);
+    final bitsPerChar = radix.log2Ceil;
     final charsPerLine = dataWidth ~/ bitsPerChar;
     final addrIncrPerLine = dataWidth ~/ bitsPerAddress;
 
@@ -231,7 +230,7 @@ abstract class MemoryStorage {
       return '';
     }
 
-    final bitsPerChar = log2Ceil(radix);
+    final bitsPerChar = radix.log2Ceil;
 
     final addrs = addresses.sorted();
 

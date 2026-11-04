@@ -95,7 +95,7 @@ class HammingEccTransmitter<T extends Logic>
     for (var i = 1;
         i <= transmission.width - hammingType._extraParityBits;
         i++) {
-      if (!isPowerOfTwo(i)) {
+      if (!i.isPowerOfTwo) {
         final ilv = LogicValue.ofInt(i, hammingCodeWidth);
 
         for (var p = 0; p < hammingCodeWidth; p++) {
@@ -221,14 +221,14 @@ class HammingEccReceiver<T extends Logic> extends ErrorCheckingReceiver<T> {
   /// The number of Hamming code bits that must have been included in a
   /// transmission of [transmissionWidth], not including any extra parity bit.
   static int _codeWidthFromTransmissionWidth(int transmissionWidth) =>
-      log2Ceil(transmissionWidth + 1);
+      (transmissionWidth + 1).log2Ceil;
 
   /// Builds a mapping from Hamming bits encoding to data position (1-indexed).
   Map<int, int> _encodingToData() {
     final mapping = <int, int>{};
     var dataIdx = 0;
     for (var encodedIdx = 1; encodedIdx <= transmission.width; encodedIdx++) {
-      if (!isPowerOfTwo(encodedIdx)) {
+      if (!encodedIdx.isPowerOfTwo) {
         mapping[encodedIdx] = dataIdx++;
       }
     }

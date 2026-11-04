@@ -472,7 +472,7 @@ void main() {
           for (final signedMultiplier
               in (selectSignedMultiplier == null) ? [false, true] : [false]) {
             for (final radix in [4]) {
-              for (final width in [1 + log2Ceil(radix)]) {
+              for (final width in [1 + radix.log2Ceil]) {
                 final signedMultiplicandConfig = StaticOrRuntimeParameter(
                     name: 'signedMultiplicand',
                     runtimeConfig: selectSignedMultiplicand,
@@ -531,7 +531,7 @@ void main() {
         _signControls[modes.addend],
       );
       testMultiplyAccumulateRandom(
-        1 + log2Ceil(4),
+        1 + 4.log2Ceil,
         _randomIterations,
         'mac_${modes.multiplicand}_${modes.multiplier}_${modes.addend}',
         curryMultiplyAccumulate(

@@ -69,8 +69,8 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
 
     final bias = float.floatingPointValue.bias;
     final iWidth = (1 +
-            max(log2Ceil(max(1, fixed.fractionWidth)),
-                max(log2Ceil(fixed.width), float.exponent.width)))
+            max(max(1, fixed.fractionWidth).log2Ceil,
+                max(fixed.width.log2Ceil, float.exponent.width)))
         .toInt();
 
     // Special handling needed for E4M3 as it does not support inf

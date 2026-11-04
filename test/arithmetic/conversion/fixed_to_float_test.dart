@@ -267,7 +267,7 @@ void main() {
     final fixed = FixedPoint(integerWidth: 34, fractionWidth: 33);
     final fixedValue = fixed.valuePopulator().ofLogicValue(tsum.value);
     fixed.put(fixedValue);
-    final leadingDigit = Const(32, width: log2Ceil(68) + 2);
+    final leadingDigit = Const(32, width: 68.log2Ceil + 2);
     final dut = FixedToFloat(
       fixed,
       FloatingPoint(exponentWidth: 8, mantissaWidth: 23),

@@ -126,7 +126,7 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     const length = 1024;
-    final width = log2Ceil(length);
+    final width = length.log2Ceil;
     final vec = <Logic>[];
 
     var count = 0;
@@ -134,7 +134,7 @@ void main() {
       vec.add(Const(i, width: width));
       count = count + i;
     }
-    final control = Logic(width: log2Ceil(vec.length))..put(0);
+    final control = Logic(width: (vec.length).log2Ceil)..put(0);
     final muxTree = ReductionTreeGenerator<Logic, Logic>(vec, muxReduce,
         clk: clk, depthBetweenFlops: 2, control: control);
 

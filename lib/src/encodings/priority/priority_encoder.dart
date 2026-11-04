@@ -44,7 +44,7 @@ abstract class PriorityEncoder extends Module {
     if (generateValid) {
       addOutput('valid');
     }
-    addOutput('out', width: log2Ceil(inp.width + 1));
+    addOutput('out', width: (inp.width + 1).log2Ceil);
   }
 }
 
@@ -247,7 +247,7 @@ class ParallelPrefixPriorityEncoder extends PriorityEncoder {
       : super(
             definitionName: definitionName ??
                 'ParallelPrefixPriorityEncoder_W${inp.width}') {
-    final sz = log2Ceil(inp.width + 1);
+    final sz = (inp.width + 1).log2Ceil;
     final u = ParallelPrefixPriorityFinder(inp, ppGen: ppGen);
     final pos = OneHotToBinary(u.out)
         .binary

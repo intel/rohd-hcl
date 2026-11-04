@@ -77,7 +77,7 @@ class FixedToFloatConfigurator extends Configurator {
           explicitJBit: outputExplicitJBitKnob.value,
         ),
         leadingDigitPredict: leadingDigitPredictionKnob.value
-            ? Logic(width: log2Ceil(integerWidthKnob.value))
+            ? Logic(width: integerWidthKnob.value.log2Ceil)
             : null,
         roundingMode: roundingModeKnob.value,
         definitionName: 'FixedToFloat',

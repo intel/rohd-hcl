@@ -155,7 +155,7 @@ void main() {
     for (final signedMultiplicand in [false, true]) {
       for (final signedMultiplier in [false, true]) {
         for (final radix in [2, 4]) {
-          final width = log2Ceil(radix) + (signedMultiplier ? 1 : 0);
+          final width = radix.log2Ceil + (signedMultiplier ? 1 : 0);
           for (final signExtension
               in SignExtension.values.where((e) => e != SignExtension.none)) {
             testPartialProductExhaustive(
@@ -185,7 +185,7 @@ void main() {
 
     for (final signedMultiplicand in [false, true]) {
       for (final signedMultiplier in [false, true]) {
-        final width = log2Ceil(radix) + (signedMultiplier ? 1 : 0);
+        final width = radix.log2Ceil + (signedMultiplier ? 1 : 0);
         testPartialProductSingle(
           'singleton_R${radix}_W$width'
           '_SD${signedMultiplicand ? 1 : 0}'
@@ -218,7 +218,7 @@ void main() {
                 in (!selectMultiplier ? [false, true] : [false])) {
               for (final signExtension in SignExtension.values
                   .where((e) => e != SignExtension.none)) {
-                final width = log2Ceil(radix) + (signMultiplier ? 1 : 0);
+                final width = radix.log2Ceil + (signMultiplier ? 1 : 0);
                 testPartialProductExhaustive(
                   'select_R${radix}_W$width'
                   '_SD${signMultiplicand ? 1 : 0}'
@@ -287,7 +287,7 @@ void main() {
 
   group('PartialProduct: width/radix/extension sweep', () {
     for (var radix = 2; radix < 16; radix *= 2) {
-      final shift = log2Ceil(radix);
+      final shift = radix.log2Ceil;
       for (var width = shift; width < min(5, 2 * shift); width++) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
@@ -309,7 +309,7 @@ void main() {
   });
   group('PartialProduct: rectangle/radix/extension sweep', () {
     for (var radix = 2; radix < 8; radix *= 2) {
-      final shift = log2Ceil(radix);
+      final shift = radix.log2Ceil;
       for (final signedMultiplicand in [false, true]) {
         final widthX = shift + 2;
         for (final signedMultiplier in [false, true]) {
@@ -345,7 +345,7 @@ void main() {
 
   group('PartialProduct: minimum width', () {
     for (var radix = 2; radix < 32; radix *= 2) {
-      final shift = log2Ceil(radix);
+      final shift = radix.log2Ceil;
       for (var width = shift; width < min(5, 2 * shift); width++) {
         for (final signExtension
             in SignExtension.values.where((e) => e != SignExtension.none)) {
@@ -368,7 +368,7 @@ void main() {
 
   group('PartialProduct: minimum rectangle', () {
     for (var radix = 2; radix < 32; radix *= 2) {
-      final shift = log2Ceil(radix);
+      final shift = radix.log2Ceil;
       // At high radices, the unsigned and signed extremes cover the
       // rectangular boundary without repeating the mixed-sign cases already
       // exhaustively covered at lower radices.

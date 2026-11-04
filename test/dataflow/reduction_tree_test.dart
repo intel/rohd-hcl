@@ -62,7 +62,7 @@ void main() {
 
   test('reduction tree of muxes -- large singleton', () async {
     const length = 16;
-    final width = log2Ceil(length);
+    final width = length.log2Ceil;
     final vec = <Logic>[];
 
     // First sum will be length *(length-1) /2
@@ -72,7 +72,7 @@ void main() {
       count = count + i;
     }
     const controlValue = 14;
-    final control = Const(controlValue, width: log2Ceil(vec.length));
+    final control = Const(controlValue, width: vec.length.log2Ceil);
     final muxTree = ReductionTree<Logic, Logic>(vec, muxReduce,
         control: control, name: 'mux');
     await muxTree.build();
@@ -83,7 +83,7 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
 
     const length = 1024;
-    final width = log2Ceil(length);
+    final width = length.log2Ceil;
     final vec = <Logic>[];
 
     var count = 0;
@@ -91,7 +91,7 @@ void main() {
       vec.add(Const(i, width: width));
       count = count + i;
     }
-    final control = Logic(width: log2Ceil(vec.length))..put(0);
+    final control = Logic(width: (vec.length).log2Ceil)..put(0);
     final muxTree = ReductionTree<Logic, Logic>(vec, muxReduce,
         clk: clk, depthBetweenFlops: 2, control: control, name: 'mux');
 

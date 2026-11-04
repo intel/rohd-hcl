@@ -7,8 +7,6 @@
 // 2024 May 15
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
-import 'dart:math';
-
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -50,18 +48,18 @@ class RadixEncoder {
 
   /// Constructor for setting up a radix encoding block
   RadixEncoder(this.radix) {
-    if (pow(2.0, log2Ceil(radix)) != radix) {
+    if (!radix.isPowerOfTwo) {
       throw RohdHclException('radix must be a power of 2');
     }
   }
 
   /// Encode a multiplier slice into the Booth encoded value
   RadixEncode encode(Logic multiplierSlice, int row) {
-    if (multiplierSlice.width != log2Ceil(radix) + 1) {
+    if (multiplierSlice.width != radix.log2Ceil + 1) {
       throw RohdHclException('multiplier slice width ${multiplierSlice.width}'
-          'must be same length as log(radix)+1=${log2Ceil(radix) + 1}');
+          'must be same length as log(radix)+1=${radix.log2Ceil + 1}');
     }
-    final width = log2Ceil(radix) + 1;
+    final width = radix.log2Ceil + 1;
     final inputXor = Logic(width: width);
     inputXor <=
         (multiplierSlice ^ (multiplierSlice >>> 1))
@@ -128,25 +126,25 @@ class MultiplierEncoder {
     // Unsigned encoding wants to overlap past the multipler
     if (signedMultiplier) {
       rows = ((multiplier.width + (signedMultiplier ? 0 : 1)) /
-              log2Ceil(radixEncoder.radix))
+              radixEncoder.radix.log2Ceil)
           .ceil();
     } else {
-      rows = (((multiplier.width + 1) % (log2Ceil(radixEncoder.radix)) == 0)
+      rows = (((multiplier.width + 1) % (radixEncoder.radix.log2Ceil) == 0)
               ? 0
               : 1) +
-          ((multiplier.width + 1) ~/ log2Ceil(radixEncoder.radix));
+          ((multiplier.width + 1) ~/ radixEncoder.radix.log2Ceil);
     }
     // slices overlap by 1 and start at -1a
     if (selectSignedMultiplier == null) {
       _extendedMultiplier = (signedMultiplier
-              ? multiplier.signExtend(rows * (log2Ceil(radixEncoder.radix)))
-              : multiplier.zeroExtend(rows * (log2Ceil(radixEncoder.radix))))
+              ? multiplier.signExtend(rows * (radixEncoder.radix.log2Ceil))
+              : multiplier.zeroExtend(rows * (radixEncoder.radix.log2Ceil)))
           .named('extended_multiplier', naming: Naming.mergeable);
     } else {
       final len = multiplier.width;
       final sign = multiplier[len - 1];
       final extension = [
-        for (var i = len; i < (rows * (log2Ceil(radixEncoder.radix))); i++)
+        for (var i = len; i < (rows * (radixEncoder.radix.log2Ceil)); i++)
           mux(selectSignedMultiplier, sign, Const(0))
       ];
       _extendedMultiplier = (multiplier.elements + extension)
@@ -163,13 +161,13 @@ class MultiplierEncoder {
     if (row >= rows) {
       throw RohdHclException('row $row is not < number of encoding rows $rows');
     }
-    final base = row * log2Ceil(_encoder.radix);
+    final base = row * _encoder.radix.log2Ceil;
     final multiplierSlice = [
       if (row > 0)
-        _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base - 1)
+        _extendedMultiplier.slice(base + _encoder.radix.log2Ceil - 1, base - 1)
       else
         [
-          _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base),
+          _extendedMultiplier.slice(base + _encoder.radix.log2Ceil - 1, base),
           Const(0)
         ].swizzle()
     ].first.named('mult_slice_r$row', naming: Naming.mergeable);

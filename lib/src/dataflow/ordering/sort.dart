@@ -13,8 +13,6 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
-import 'package:rohd_hcl/src/utils.dart';
-
 /// An abstract class for all sort algorithm.
 abstract class Sort<T extends Logic> extends Module {
   /// The list of [Logic] to sort.
@@ -220,7 +218,7 @@ class BitonicSort<T extends Logic> extends Sort<T> {
   List<T> get sorted => UnmodifiableListView(_outputs);
 
   /// The [latency] of the bitonic sort algorithm.
-  int get latency => List.generate(log2Ceil(_inputs.length) + 1, (i) => i)
+  int get latency => List.generate(_inputs.length.log2Ceil + 1, (i) => i)
       .reduce((a, b) => a + b);
 
   /// Constructs a [Module] to sort list of [Logic].

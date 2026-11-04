@@ -530,7 +530,7 @@ void main() {
 
   // Regression test for https://github.com/intel/rohd-hcl/issues/166: a
   // 1-element array previously produced a 0-wide count output
-  // (log2Ceil(1)==0), causing a build failure. Verify it builds and outputs
+  // (1.log2Ceil == 0), causing a build failure. Verify it builds and outputs
   // the single element with done asserted on the first cycle.
   test('serializer single element array', () async {
     const width = 8;
