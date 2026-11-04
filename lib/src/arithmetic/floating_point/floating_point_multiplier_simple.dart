@@ -75,7 +75,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     // narrower or wider than the inputs.
     final expCalcWidth = max(
         max(exponentWidth, max(a.exponent.width, b.exponent.width)) + 2,
-        log2Ceil(rawMantissaWidth + 1) + 1);
+        (rawMantissaWidth + 1).log2Ceil + 1);
     final addBias =
         (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
             .named('addBias');

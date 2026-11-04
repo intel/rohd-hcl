@@ -128,7 +128,7 @@ class AsyncFifo<T extends Logic> extends Module {
     this.syncStages = 2,
     super.name = 'async_fifo',
   })  : dataWidth = writeData.width,
-        _addrWidth = log2Ceil(depth),
+        _addrWidth = depth.log2Ceil,
         super(definitionName: 'AsyncFifo_D${depth}_W${writeData.width}') {
     if (depth <= 0) {
       throw RohdHclException('Depth must be at least 1.');

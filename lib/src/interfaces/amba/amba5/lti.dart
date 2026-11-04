@@ -38,7 +38,7 @@ abstract class LtiTransportInterface extends Axi5BaseInterface {
     ]);
 
     setPorts([
-      if (vcCount > 1) Logic.port('${prefix}VC', log2Ceil(vcCount)),
+      if (vcCount > 1) Logic.port('${prefix}VC', vcCount.log2Ceil),
     ], [
       if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);

@@ -76,7 +76,7 @@ abstract class LeadingZeroAnticipateBase extends Module {
     leadOneEncoderConverse = RecursiveModulePriorityEncoder(fReverse.reversed,
         generateValid: true, name: 'leadone_detect_converse');
 
-    addOutput('leadingOne', width: log2Ceil(fForward.width + 1));
+    addOutput('leadingOne', width: (fForward.width + 1).log2Ceil);
     addOutput('validLeadOne');
   }
 }
@@ -182,7 +182,7 @@ class LeadingDigitAnticipate extends Module {
     final leadingPos = leadingEncoder.out;
     final validLead = leadingEncoder.valid!;
 
-    addOutput('leadingDigit', width: log2Ceil(findFromMSB.width + 1)) <=
+    addOutput('leadingDigit', width: (findFromMSB.width + 1).log2Ceil) <=
         leadingPos;
     addOutput('validLeadDigit') <= validLead;
   }

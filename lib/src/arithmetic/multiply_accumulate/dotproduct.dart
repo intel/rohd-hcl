@@ -44,7 +44,7 @@ class DotProductBase extends Module {
   /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
   /// something other null, `bool`, or [Logic] will result in a throw.
   ///
-  /// The output [product] will be [log2Ceil(multiplicands.length)] wider than
+  /// The output [product] will be `multiplicands.length.log2Ceil` wider than
   /// the sum of one multiplicand width and one multiplier width to accommodate
   /// the increasing accumulation value.
   DotProductBase(List<Logic> multiplicands, List<Logic> multipliers,

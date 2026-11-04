@@ -147,7 +147,7 @@ class Fifo<LogicType extends Logic> extends Module {
     }
 
     if (generateOccupancy) {
-      addOutput('occupancy', width: log2Ceil(depth + 1));
+      addOutput('occupancy', width: (depth + 1).log2Ceil);
     }
 
     if (initialValues == null) {
@@ -425,7 +425,7 @@ class FifoTracker extends Tracker {
           const TrackerField('Time', columnWidth: 8),
           const TrackerField('Command', columnWidth: 2),
           TrackerField('Data',
-              columnWidth: fifo.dataWidth ~/ 4 + log2Ceil(fifo.dataWidth) + 1),
+              columnWidth: fifo.dataWidth ~/ 4 + fifo.dataWidth.log2Ceil + 1),
           TrackerField('Occupancy', columnWidth: fifo.depth ~/ 10 + 1),
         ]) {
     fifo._clk.posedge.listen((event) {

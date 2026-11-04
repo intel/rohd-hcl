@@ -75,8 +75,8 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
 
-    final wrPort = TagInterface(log2Ceil(numEntries), tagWidth);
-    final rdPort = TagInterface(log2Ceil(numEntries), tagWidth);
+    final wrPort = TagInterface(numEntries.log2Ceil, tagWidth);
+    final rdPort = TagInterface(numEntries.log2Ceil, tagWidth);
 
     final cam = Cam(
       clk,

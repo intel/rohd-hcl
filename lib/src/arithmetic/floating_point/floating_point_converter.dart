@@ -99,8 +99,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     final maxExpWidth = [
       source.exponent.width,
       destExponentWidth,
-      log2Ceil(source.mantissa.width + 2),
-      log2Ceil(destMantissaWidth + 2)
+      (source.mantissa.width + 2).log2Ceil,
+      (destMantissaWidth + 2).log2Ceil
     ].reduce(max);
     final sBias = source.bias.zeroExtend(maxExpWidth).named('sourceBias');
     final dBias = destination.bias.zeroExtend(maxExpWidth).named('destBias');

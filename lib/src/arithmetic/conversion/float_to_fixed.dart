@@ -157,7 +157,7 @@ class FloatToFixed<T extends FixedPoint> extends Module {
     final fullMantissa =
         [jBit, mantissaFractionBits].swizzle().named('fullMantissa');
 
-    final eWidth = max(log2Ceil(this.fractionWidth + this.integerWidth),
+    final eWidth = max((this.fractionWidth + this.integerWidth).log2Ceil,
             float.exponent.width) +
         2;
     final shift = Logic(name: 'shift', width: eWidth);

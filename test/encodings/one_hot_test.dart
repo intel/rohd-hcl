@@ -18,7 +18,7 @@ void main() {
     test('simple_encode', () {
       // Compute the binary value for a 1hot at position 'pos'
       for (var pos = 0; pos < 1000; pos++) {
-        final w = log2Ceil(pos + 1);
+        final w = (pos + 1).log2Ceil;
         final val = BigInt.two.pow(pos);
 
         expect(BinaryToOneHot(Const(pos, width: w)).encoded.value,
@@ -82,7 +82,7 @@ void main() {
 
           for (var i = 0; i < 1 << width; i++) {
             onehot.put(i);
-            if (i == 0 || !isPowerOfTwo(i)) {
+            if (i == 0 || !i.isPowerOfTwo) {
               expect(dut.error!.value.toBool(), isTrue, reason: '$i');
             } else {
               expect(dut.error!.value.toBool(), isFalse, reason: '$i');

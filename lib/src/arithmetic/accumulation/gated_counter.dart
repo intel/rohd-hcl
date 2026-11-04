@@ -143,7 +143,7 @@ class GatedCounter extends Counter {
     final maxValueBit = LogicValue.ofInferWidth(constantMaxValue).width - 1;
 
     final overflowDangerZoneStart = max(
-      maxValueBit - log2Ceil(_incrementingInterfaces.length),
+      maxValueBit - _incrementingInterfaces.length.log2Ceil,
       0,
     );
 
@@ -239,7 +239,7 @@ class GatedCounter extends Counter {
     // 0), and we are decrementing by a sufficiently large number (as judged by
     // enough lower bits of decr interfaces), then we may underflow
 
-    final dangerRange = log2Ceil(_decrementingInterfaces.length + 1);
+    final dangerRange = (_decrementingInterfaces.length + 1).log2Ceil;
     final underflowDangerBit = minValueBit + dangerRange;
     final inUnderflowDangerZone = Logic(name: 'inUnderflowDangerZone')
       ..gets(underflowDangerBit >= count.width
@@ -356,7 +356,7 @@ class GatedCounter extends Counter {
     // the first bit of the total count that's "dangerous" for enabling clock
     final incrDangerZoneStart = max(
       0,
-      clkGatePartitionIndex - log2Ceil(_incrementingInterfaces.length + 1),
+      clkGatePartitionIndex - (_incrementingInterfaces.length + 1).log2Ceil,
     );
 
     final currentCountInIncrDangerZone =
@@ -417,7 +417,7 @@ class GatedCounter extends Counter {
     Logic anyIntfEndangersDecr = Const(0);
 
     final decrDangerZoneStartIntf = max(
-        0, decrDangerZoneStart - log2Ceil(_decrementingInterfaces.length + 1));
+        0, decrDangerZoneStart - (_decrementingInterfaces.length + 1).log2Ceil);
     for (final intf in _decrementingInterfaces) {
       if (intf.width <= decrDangerZoneStartIntf) {
         // if it's too short, don't worry about it

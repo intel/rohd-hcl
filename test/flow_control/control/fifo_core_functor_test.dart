@@ -257,7 +257,7 @@ void main() {
               'slotReleased',
             }));
         expect(harness.payloadOut, isA<_Packet>());
-        expect(harness.occupancy!.width, log2Ceil(depth + 1));
+        expect(harness.occupancy!.width, (depth + 1).log2Ceil);
         unawaited(Simulator.run());
 
         reset.inject(1);

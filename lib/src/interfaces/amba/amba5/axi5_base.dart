@@ -95,7 +95,7 @@ abstract class Axi5TransportInterface extends Axi5BaseInterface {
 
     setPorts([
       if (useCrediting) Logic.port('${prefix}PENDING'),
-      if (useCrediting && numRp > 0) Logic.port('${prefix}RP', log2Ceil(numRp)),
+      if (useCrediting && numRp > 0) Logic.port('${prefix}RP', numRp.log2Ceil),
       if (useCrediting && sharedCredits) Logic.port('${prefix}SHAREDCRD')
     ], [
       if (main) PairDirection.fromProvider else PairDirection.fromConsumer,

@@ -80,8 +80,8 @@ class _NodeOneHotToBinary extends Module {
         }
       }
     } else {
-      final mid = 1 << (log2Ceil(wid) - 1);
-      addOutput('binary', width: log2Ceil(mid + 1));
+      final mid = 1 << (wid.log2Ceil - 1);
+      addOutput('binary', width: (mid + 1).log2Ceil);
       final hi = onehot.getRange(mid).zeroExtend(mid).named('hi');
       final lo = onehot.getRange(0, mid).zeroExtend(mid).named('lo');
       final recurse = lo | hi;

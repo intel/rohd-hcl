@@ -140,7 +140,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         .slice(smallerAlignRPath.width - 1,
             smallerAlignRPath.width - largeOperand.width)
         .named('smallerOperandRpath');
-    final farShiftWidth = max(delta.width, log2Ceil(smallShift.width) + 1);
+    final farShiftWidth = max(delta.width, smallShift.width.log2Ceil + 1);
     final farShift = mux(
             delta
                 .zeroExtend(farShiftWidth)

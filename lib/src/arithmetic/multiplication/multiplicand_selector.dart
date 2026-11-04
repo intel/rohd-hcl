@@ -46,7 +46,7 @@ class MultiplicandSelector {
   /// in which case [signedMultiplicand] must be `false`.
   MultiplicandSelector(this.radix, this.multiplicand,
       {Logic? selectSignedMultiplicand, bool signedMultiplicand = false})
-      : shift = log2Ceil(radix) {
+      : shift = radix.log2Ceil {
     if (signedMultiplicand && (selectSignedMultiplicand != null)) {
       throw RohdHclException('sign reconfiguration requires signed=false');
     }

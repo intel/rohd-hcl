@@ -9,7 +9,6 @@
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// State object for Divider processing.
 class _MultiCycleDividerState {
@@ -132,7 +131,7 @@ class MultiCycleDivider extends Module {
       super.reserveDefinitionName,
       String? definitionName})
       : dataWidth = interface.dataWidth,
-        logDataWidth = log2Ceil(interface.dataWidth),
+        logDataWidth = interface.dataWidth.log2Ceil,
         super(
             definitionName:
                 definitionName ?? 'MultiCycleDivider_W${interface.dataWidth}') {

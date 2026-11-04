@@ -33,10 +33,10 @@ class RotateRoundRobinArbiter extends StatefulArbiter
       return;
     }
 
-    // A single request needs no rotation, but `log2Ceil(1)` is 0 and a
+    // A single request needs no rotation, but `1.log2Ceil` is 0 and a
     // 0-bit preference cannot hold the result of the increment below.
     final preference =
-        Logic(name: 'preference', width: max(1, log2Ceil(count)));
+        Logic(name: 'preference', width: max(1, count.log2Ceil));
 
     final rotatedReqs = requests
         .rswizzle()

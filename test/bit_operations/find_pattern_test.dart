@@ -73,21 +73,21 @@ void main() {
     test('where n is 0', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(0, width: log2Ceil(8) + 1);
+      final n = Const(0, width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern, n: n);
       expect(findPattern.index.value.toInt(), equals(0));
     });
     test('where n is 2 (find the 3rd occurrence, n is zero-index)', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(2, width: log2Ceil(8) + 1);
+      final n = Const(2, width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern, n: n);
       expect(findPattern.index.value.toInt(), equals(5));
     });
     test('where n is outside bound', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(5, width: log2Ceil(8) + 1);
+      final n = Const(5, width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern, n: n, generateError: true);
       expect(findPattern.error!.value.toInt(), equals(1));
     });
@@ -97,21 +97,21 @@ void main() {
     test('where n is 0', () {
       final bus = Const(bin('01010110'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(0, width: log2Ceil(8) + 1);
+      final n = Const(0, width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern, fromStart: false, n: n);
       expect(findPattern.index.value.toInt(), equals(0));
     });
     test('where n is 2 (find the 3rd occurrence, n is zero-index)', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(2, width: log2Ceil(8) + 1);
+      final n = Const(2, width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern, fromStart: false, n: n);
       expect(findPattern.index.value.toInt(), equals(6));
     });
     test('where n is outside bound', () {
       final bus = Const(bin('10101001'), width: 8);
       final pattern = Const(bin('01'), width: 2);
-      final n = Const(5, width: log2Ceil(8) + 1);
+      final n = Const(5, width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern,
           fromStart: false, n: n, generateError: true);
       expect(findPattern.error!.value.toInt(), equals(1));
@@ -142,7 +142,7 @@ void main() {
     test('where n is defined, from start', () {
       final bus = Logic(width: 8);
       final pattern = Logic(width: 2);
-      final n = Logic(width: log2Ceil(8) + 1);
+      final n = Logic(width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern, n: n, generateError: true);
 
       bus.put(bin('10110101'));
@@ -187,7 +187,7 @@ void main() {
     test('where n is defined, from end', () {
       final bus = Logic(width: 8);
       final pattern = Logic(width: 2);
-      final n = Logic(width: log2Ceil(8) + 1);
+      final n = Logic(width: 8.log2Ceil + 1);
       final findPattern = FindPattern(bus, pattern,
           fromStart: false, n: n, generateError: true);
 

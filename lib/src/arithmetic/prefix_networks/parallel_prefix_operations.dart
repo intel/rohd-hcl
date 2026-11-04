@@ -16,7 +16,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// This computes the power of 2 less than x
-int largestPow2LessThan(int x) => pow(2, log2Ceil(x) - 1).toInt();
+int largestPow2LessThan(int x) => pow(2, x.log2Ceil - 1).toInt();
 
 /// Constructs a prefix network retaining payload type [T].
 typedef ParallelPrefixGenerator<T extends Logic> = ParallelPrefix<T> Function(

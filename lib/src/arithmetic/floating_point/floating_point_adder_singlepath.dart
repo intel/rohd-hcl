@@ -129,7 +129,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         (smallExtendedMantissa >>> expDiff).named('smallShiftedMantissa');
 
     // Compute sticky bits past extendedWidth: expDiff - extendedWidth
-    final int posWidth = max(expDiff.width, log2Ceil(smallMantissa.width));
+    final int posWidth = max(expDiff.width, smallMantissa.width.log2Ceil);
     final eD = expDiff.zeroExtend(posWidth).named('eD');
     final eW = Const(extendedWidth, width: posWidth).named('eW');
     final rem =

@@ -46,7 +46,7 @@ class FindConfigurator extends Configurator {
         countOne: countOneKnob.value,
         generateError: generateErrorKnob.value,
         n: includeNKnob.value
-            ? Logic(width: log2Ceil(busWidthKnob.value))
+            ? Logic(width: busWidthKnob.value.log2Ceil)
             : null,
       );
 

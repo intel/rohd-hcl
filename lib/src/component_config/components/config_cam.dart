@@ -58,7 +58,7 @@ class CamConfigurator extends Configurator {
           'A CAM cannot have a negative number of write ports.');
     }
 
-    final indexWidth = log2Ceil(entryCountKnob.value);
+    final indexWidth = entryCountKnob.value.log2Ceil;
     final writePorts = List<TagInterface>.generate(writePortCountKnob.value,
         (_) => TagInterface(indexWidth, tagWidthKnob.value));
     final lookupPorts = List<TagInterface>.generate(lookupPortCountKnob.value,

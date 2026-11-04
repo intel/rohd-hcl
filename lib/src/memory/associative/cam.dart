@@ -224,7 +224,7 @@ class Cam<T extends Logic> extends Module {
       if (!sameDeclaredPayloadShape(schema, port.tag)) {
         throw RohdHclException('CAM ports must have matching tag layouts.');
       }
-      if (port.idWidth < log2Ceil(numEntries)) {
+      if (port.idWidth < widthFor(numEntries)) {
         throw RohdHclException('CAM index width ${port.idWidth} cannot address '
             '$numEntries entries.');
       }
@@ -271,7 +271,7 @@ class Cam<T extends Logic> extends Module {
 
     // Create valid tracking outputs if enabled
     if (enableValidTracking) {
-      final countWidth = log2Ceil(numEntries + 1);
+      final countWidth = widthFor(numEntries + 1);
       addOutput('valid_count', width: countWidth);
       addOutput('full');
       addOutput('empty');

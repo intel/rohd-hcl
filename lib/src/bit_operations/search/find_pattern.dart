@@ -72,7 +72,7 @@ class FindPattern extends Module {
     }
 
     // Initialize counter pattern occurrence to 0
-    Logic count = Const(0, width: log2Ceil(bus.width + 1));
+    Logic count = Const(0, width: (bus.width + 1).log2Ceil);
     final nVal = ((n ?? Const(0)) + 1).zeroExtend(count.width);
 
     for (var i = 0; i <= bus.width - pattern.width; i = i + 1) {

@@ -73,14 +73,14 @@ void main() {
     test('n is 0', () {
       final bus = Const(bin('11010100'), width: 8);
       final mod =
-          Find(bus, countOne: false, n: Const(0, width: log2Ceil(8) + 1));
+          Find(bus, countOne: false, n: Const(0, width: 8.log2Ceil + 1));
       expect(mod.index.value.toInt(), 0);
     });
 
     test('when n is 2 (find 3rd zero; n is zero index)', () {
       final bus = Const(bin('10101011'), width: 8);
       final mod =
-          Find(bus, countOne: false, n: Const(2, width: log2Ceil(8) + 1));
+          Find(bus, countOne: false, n: Const(2, width: 8.log2Ceil + 1));
       expect(mod.index.value.toInt(), 6);
     });
 
@@ -88,7 +88,7 @@ void main() {
       final bus = Const(bin('00000000'), width: 8);
       final mod = Find(bus,
           countOne: false,
-          n: Const(10, width: log2Ceil(10) + 1),
+          n: Const(10, width: 10.log2Ceil + 1),
           generateError: true);
       expect(mod.error!.value.toInt(), 1);
     });
@@ -96,7 +96,7 @@ void main() {
     test('if all 0s', () {
       final bus = Const(bin('00000000'), width: 8);
       final mod =
-          Find(bus, countOne: false, n: Const(7, width: log2Ceil(8) + 1));
+          Find(bus, countOne: false, n: Const(7, width: 8.log2Ceil + 1));
       expect(mod.index.value.toInt(), 7);
     });
 
@@ -104,7 +104,7 @@ void main() {
       final bus = Const(bin('11111111'), width: 8);
       final mod = Find(bus,
           countOne: false,
-          n: Const(7, width: log2Ceil(8) + 1),
+          n: Const(7, width: 8.log2Ceil + 1),
           generateError: true);
       expect(mod.error!.value.toInt(), 1);
     });
@@ -113,33 +113,33 @@ void main() {
   group('find nth one', () {
     test('n is 0', () {
       final bus = Const(bin('11010100'), width: 8);
-      final mod = Find(bus, n: Const(0, width: log2Ceil(8) + 1));
+      final mod = Find(bus, n: Const(0, width: 8.log2Ceil + 1));
       expect(mod.index.value.toInt(), 2);
     });
 
     test('when n is 2 (find 3rd zero; n is zero index)', () {
       final bus = Const(bin('10101011'), width: 8);
-      final mod = Find(bus, n: Const(2, width: log2Ceil(8) + 1));
+      final mod = Find(bus, n: Const(2, width: 8.log2Ceil + 1));
       expect(mod.index.value.toInt(), 3);
     });
 
     test('n is outside bound', () {
       final bus = Const(bin('11111111'), width: 8);
       final mod =
-          Find(bus, n: Const(10, width: log2Ceil(10) + 1), generateError: true);
+          Find(bus, n: Const(10, width: 10.log2Ceil + 1), generateError: true);
       expect(mod.error!.value.toInt(), 1);
     });
 
     test('if all 0s', () {
       final bus = Const(bin('00000000'), width: 8);
       final mod =
-          Find(bus, n: Const(7, width: log2Ceil(8) + 1), generateError: true);
+          Find(bus, n: Const(7, width: 8.log2Ceil + 1), generateError: true);
       expect(mod.error!.value.toInt(), 1);
     });
 
     test('if all 1s', () {
       final bus = Const(bin('11111111'), width: 8);
-      final mod = Find(bus, n: Const(7, width: log2Ceil(8) + 1));
+      final mod = Find(bus, n: Const(7, width: 8.log2Ceil + 1));
       expect(mod.index.value.toInt(), 7);
     });
   });
