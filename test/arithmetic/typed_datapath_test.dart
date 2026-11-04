@@ -267,11 +267,11 @@ void main() {
               decode: (value) => (bits: value),
               encode: (value) => value.bits)));
 
-  test('swap retains existing conservative unknown-control behavior', () {
+  test('swap resolves identical inputs with unknown control', () {
     final (first, second) = swap(Logic()..put(LogicValue.x),
         (Logic(width: 8)..put(5), Logic(width: 8)..put(5)));
-    expect(first.value, LogicValue.filled(8, LogicValue.x));
-    expect(second.value, LogicValue.filled(8, LogicValue.x));
+    expect(first.value, LogicValue.ofInt(5, 8));
+    expect(second.value, LogicValue.ofInt(5, 8));
   });
 
   test('condFlop honors an explicit output schema only when clocked', () {

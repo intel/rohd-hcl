@@ -255,8 +255,14 @@ class LtiBfmTest extends Test {
     sIntf.clk <= SimpleClockGenerator(10).clk;
     sIntf.resetN.put(1);
 
-    final la = LtiLaChannelInterface(config: LtiLaChannelConfig(), vcCount: 8);
-    final lr = LtiLrChannelInterface(config: LtiLrChannelConfig(), vcCount: 8);
+    final la = LtiLaChannelInterface(
+        config: LtiLaChannelConfig(addrWidth: 8, idWidth: 2, ogWidth: 2),
+        vcCount: 8,
+        idMixInEnable: true);
+    final lr = LtiLrChannelInterface(
+        config: LtiLrChannelConfig(addrWidth: 8, idWidth: 2),
+        vcCount: 8,
+        idMixInEnable: true);
     final lc = LtiLcChannelInterface(config: LtiLcChannelConfig());
     final lt = LtiLtChannelInterface(config: LtiLtChannelConfig());
     final lm = LtiManagementInterface();

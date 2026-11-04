@@ -416,6 +416,82 @@ void main() {
     expect(f4b.value, LogicValue.ofInt(0x1, 1));
   });
 
+  test('CSR writes normalize high impedance bits to unknown', () {
+    const dataWidth = 12;
+    final csr = Csr(CsrInstanceConfig(
+      arch: CsrConfig(
+        name: 'highImpedanceWrite',
+        access: CsrAccess.readWrite,
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+    ));
+    final writeData = Logic(width: dataWidth)..put('zzzzzzzz1111');
+
+    expect(
+      csr.getWriteData(writeData).value,
+      LogicValue.ofString('xxxxxxxx1111'),
+    );
+  });
+
+  test('CSR frontdoor and backdoor writes normalize high impedance data',
+      () async {
+    const dataWidth = 12;
+    final register = CsrInstanceConfig(
+      arch: CsrConfig(
+        name: 'highImpedanceRegister',
+        access: CsrAccess.readWrite,
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+      isBackdoorWritable: true,
+    );
+    final clk = SimpleClockGenerator(10).clk;
+    final frontWrite = DataPortInterface(dataWidth, 1);
+    final block = CsrBlock(
+      config: CsrBlockConfig(
+        name: 'highImpedanceBlock',
+        baseAddr: 0,
+        registers: [register],
+      ),
+      clk: clk,
+      reset: Logic()..put(0),
+      frontWrite: frontWrite,
+      frontRead: null,
+    );
+    final backdoor = block.getBackdoorPortsByName(register.name);
+    final expected = LogicValue.ofString('xxxxxxxx1111');
+
+    frontWrite.en.put(0);
+    frontWrite.addr.put(register.addr);
+    frontWrite.data.put(0);
+    backdoor.wrEn!.put(0);
+    backdoor.wrData!.put(0);
+    await block.build();
+    final csr = block.csrs.single;
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    await clk.nextNegedge;
+    frontWrite.en.inject(1);
+    frontWrite.data.inject('zzzzzzzz1111');
+    await clk.nextNegedge;
+    frontWrite.en.inject(0);
+    expect(csr.value, expected);
+
+    await clk.nextNegedge;
+    backdoor.wrEn!.inject(1);
+    backdoor.wrData!.inject('zzzzzzzz1111');
+    await clk.nextNegedge;
+    backdoor.wrEn!.inject(0);
+    expect(csr.value, expected);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
   test('simple CSR block', () async {
     const csrWidth = 32;
 
