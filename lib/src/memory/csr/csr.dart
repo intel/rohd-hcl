@@ -151,15 +151,19 @@ class Csr extends LogicStructure {
     }
     // register can be written, but still need to look at the fields...
     else {
+      // A CSR cannot retain a high-impedance value as architectural state.
+      // XOR with zero preserves 0, 1, and X while converting Z to X.
+      final normalizedWd = clone()..gets(wd ^ Const(0, width: wd.width));
+
       // special case of no explicit fields defined
       // in this case, we have an implicit read/write field
       // so there is nothing special to do
       if (fields.isEmpty) {
-        return clone()..gets(wd);
+        return normalizedWd;
       }
 
       // otherwise, we need to look at the fields
-      var finalWd = clone()..gets(wd);
+      var finalWd = normalizedWd;
       var currIdx = 0;
       var currField = 0;
       for (var i = 0; i < elements.length; i++) {
@@ -188,7 +192,8 @@ class Csr extends LogicStructure {
         // clear the bit; backdoor writes of 1 set the bit instead.
         final chk3 = fields[currField].access == CsrFieldAccess.writeOnesClear;
         if (chk3) {
-          final wdField = wd.getRange(currIdx, currIdx + elements[i].width);
+          final wdField =
+              normalizedWd.getRange(currIdx, currIdx + elements[i].width);
           finalWd = finalWd.withSet(currIdx,
               isBackdoorWrite ? elements[i] | wdField : elements[i] & ~wdField);
           currField++;
@@ -201,7 +206,7 @@ class Csr extends LogicStructure {
           // make sure the value is in fact legal
           // and transform it if not
           final origVal =
-              wd.getRange(currIdx, currIdx + fields[currField].width);
+              normalizedWd.getRange(currIdx, currIdx + fields[currField].width);
           final legalCases = <Logic, Logic>{};
           for (var i = 0; i < fields[currField].legalValues.length; i++) {
             legalCases[Const(fields[currField].legalValues[i],

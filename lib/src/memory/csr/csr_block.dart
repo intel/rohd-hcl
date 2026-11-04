@@ -173,6 +173,8 @@ class CsrBlock extends CsrContainer {
       Logic? frontdoorWriteDataFull;
       if (frontWritePresent) {
         final dataWidth = frontWrite!.dataWidth;
+        final normalizedFrontWriteData =
+            frontWrite!.data ^ Const(0, width: dataWidth);
         if (dataWidth < csrs[i].config.width) {
           final rem = csrs[i].config.width % dataWidth;
           final targ = (csrs[i].config.width / dataWidth).ceil();
@@ -199,7 +201,8 @@ class CsrBlock extends CsrContainer {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        frontWrite!.data.getRange(0, rem == 0 ? dataWidth : rem)
+                        normalizedFrontWriteData.getRange(
+                            0, rem == 0 ? dataWidth : rem)
                       ].rswizzle())
                       .getRange(
                           j * dataWidth,
@@ -214,7 +217,7 @@ class CsrBlock extends CsrContainer {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        frontWrite!.data,
+                        normalizedFrontWriteData,
                         if ((j + 1) * dataWidth < csrs[i].config.width)
                           csrs[i].getRange((j + 1) * dataWidth),
                       ].rswizzle())
@@ -237,8 +240,8 @@ class CsrBlock extends CsrContainer {
               final chunkWidth =
                   j == targ - 1 ? (rem == 0 ? dataWidth : rem) : dataWidth;
               final chunkData = j == targ - 1
-                  ? frontWrite!.data.getRange(0, chunkWidth)
-                  : frontWrite!.data;
+                  ? normalizedFrontWriteData.getRange(0, chunkWidth)
+                  : normalizedFrontWriteData;
               final highWidth =
                   csrs[i].config.width - j * dataWidth - chunkWidth;
               validCases[key] = [
@@ -271,14 +274,14 @@ class CsrBlock extends CsrContainer {
           // direct application of write data
           addrCheck =
               frontWrite!.addr.eq(Const(csrs[i].addr, width: addrWidth));
-          dataToWrite = csrs[i]
-              .getWriteData(frontWrite!.data.getRange(0, csrs[i].config.width));
+          dataToWrite = csrs[i].getWriteData(
+              normalizedFrontWriteData.getRange(0, csrs[i].config.width));
 
           if (hasWriteOnlyField && config.registers[i].isFrontdoorWritable) {
             frontdoorWriteValidFull =
                 (frontWrite!.en & addrCheck).replicate(csrs[i].config.width);
             frontdoorWriteDataFull =
-                frontWrite!.data.getRange(0, csrs[i].config.width);
+                normalizedFrontWriteData.getRange(0, csrs[i].config.width);
           }
         }
       }
