@@ -403,35 +403,36 @@ class CsrSoftwareModel
         final offset = target?.$2 ?? 0;
         final count = min(front.dataWidth, entry.config.width - offset);
         for (final field in exposed.commands) {
-          final unknown = !enable.isValid &&
-                  (entry.config.width > front.dataWidth ||
-                      !front.addr.value.isValid ||
-                      target?.$1 == entry) ||
-              enable == LogicValue.one &&
-                  !front.addr.value.isValid &&
-                  entry.config.width <= front.dataWidth;
-          if (unknown) {
-            value = value.withSet(
-                field.start, LogicValue.filled(field.width, LogicValue.x));
-          } else if (target?.$1 == entry &&
-              enable == LogicValue.one &&
+          final stored = value.getRange(field.start, field.start + field.width);
+          final overlaps = target?.$1 == entry &&
               field.start < offset + count &&
-              field.start + field.width > offset) {
+              field.start + field.width > offset;
+          final selected =
+              address.isValid ? LogicValue.ofBool(overlaps) : LogicValue.x;
+          final select = enable & selected;
+          var command = LogicValue.ofInt(0, field.width);
+          if (!address.isValid && entry.config.width > front.dataWidth) {
+            command = LogicValue.filled(field.width, LogicValue.x);
+          } else if (overlaps ||
+              (!address.isValid && entry.config.width <= front.dataWidth)) {
             final start = max(field.start, offset);
             final end = min(field.start + field.width, offset + count);
-            final update =
-                front.data.value.getRange(start - offset, end - offset);
-            final command = LogicValue.ofInt(0, field.width)
-                .withSet(start - field.start, update);
-            value = value.withSet(field.start, command);
+            final data = front.data.value & front.data.value;
+            command = command.withSet(start - field.start,
+                data.getRange(start - offset, end - offset));
           }
-        }
-      }
-      for (final field in exposed.commands) {
-        // ROHD's mux propagates an invalid selected operand to the whole field.
-        if (!value.getRange(field.start, field.start + field.width).isValid) {
-          value = value.withSet(
-              field.start, LogicValue.filled(field.width, LogicValue.x));
+          final result = select == LogicValue.zero
+              ? stored
+              : select == LogicValue.one
+                  ? command
+                  : LogicValue.ofIterable([
+                      for (var bit = 0; bit < field.width; bit++)
+                        if (stored[bit] == command[bit])
+                          stored[bit]
+                        else
+                          LogicValue.x,
+                    ]);
+          value = value.withSet(field.start, result);
         }
       }
       if (exposed.output.value != value) {

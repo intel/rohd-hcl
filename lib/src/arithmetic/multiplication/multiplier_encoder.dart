@@ -1,7 +1,7 @@
 // Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// muliplier_encoder.dart
+// multiplier_encoder.dart
 // Generation of Booth Encoded partial products for multiplication
 //
 // 2024 May 15
@@ -81,12 +81,12 @@ class RadixEncoder {
         for (var j = 0; j < width - 1; j++)
           if (multiplesDisagree[j].isZero)
             if (senseMultiples[j].isZero) ~inputXor[j] else inputXor[j]
-      ].swizzle().and().named('multiple${i}_of_${multiplierSlice.name}',
+      ].concat().and().named('multiple${i}_of_${multiplierSlice.name}',
           naming: Naming.mergeable));
     }
 
     final multiplesR = multiples
-        .rswizzle()
+        .rconcat()
         .named('multiples_reversed_r$row', naming: Naming.mergeable);
 
     return RadixEncode._(multiplesR,
@@ -148,7 +148,7 @@ class MultiplierEncoder {
           mux(selectSignedMultiplier, sign, Const(0))
       ];
       _extendedMultiplier = (multiplier.elements + extension)
-          .rswizzle()
+          .rconcat()
           .named('extended_multiplier', naming: Naming.mergeable);
     }
     for (var i = 0; i < rows; i++) {
@@ -169,7 +169,7 @@ class MultiplierEncoder {
         [
           _extendedMultiplier.slice(base + _encoder.radix.log2Ceil - 1, base),
           Const(0)
-        ].swizzle()
+        ].concat()
     ].first.named('mult_slice_r$row', naming: Naming.mergeable);
     return _encoder.encode(multiplierSlice, row);
   }

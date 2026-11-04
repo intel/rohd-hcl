@@ -24,6 +24,13 @@ The outputs of the divider module are:
 
 The numerical inputs (`dividend`, `divisor`, `quotient`, `remainder`) are parametrized by a constructor parameter called `dataWidth`. All other signals have a width of 1.
 
+Internally, the existing state machine uses a three-bit `LogicEnum`, preserving
+the encodings 0 through 4 for ready, processing, accumulate, convert, and
+done. In ROHD functional simulation, invalid state encodings or partially
+unknown state values are normalized to X; generated HDL need not enforce this
+normalization. The state machine's behavior with invalid or unknown state or
+control values is not guaranteed to match the previous untyped implementation.
+
 ## Protocol Description
 
 To initiate a new request, it is expected that the requestor drive `validIn` to high along with the numerical values for `dividend`, `divisor` and the `isSigned` indicator. The first cycle in which `readyIn` is high where the above occurs is the cycle in which the operation is accepted by the divider.

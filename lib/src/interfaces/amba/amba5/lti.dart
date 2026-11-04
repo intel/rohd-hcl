@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/amba/protocol_enum_view.dart';
 
 /// Next level in the hierarchy to handle the flow control schemes.
 abstract class LtiTransportInterface extends Axi5BaseInterface {
@@ -387,6 +388,13 @@ class LtiLrChannelInterface extends LtiTransportInterface
         Axi5ProtSignals,
         Axi5DebugSignals,
         Axi5ResponseSignals {
+  /// Read-only LTI response enum view, or null when [resp] is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [resp] remains raw.
+  late final LogicEnum<LtiRespField>? respEnum =
+      protocolEnumView(resp, LtiRespField.values, (value) => value.value);
+
   /// Enable ID signal mixin
   final bool idMixInEnable;
 

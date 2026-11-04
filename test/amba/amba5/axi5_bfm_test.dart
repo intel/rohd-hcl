@@ -184,7 +184,7 @@ class SimpleAxi5SubordinateBfm extends Agent {
         for (var i = 0; i < strobe.width; i++)
           (strobe[i].toBool() ? newData : originalData)
               .getRange(i * 8, i * 8 + 8)
-      ].rswizzle();
+      ].rconcat();
 
   @override
   Future<void> run(Phase phase) async {
@@ -325,7 +325,7 @@ class SimpleAxi5StreamSubordinateBfm extends Agent {
         for (var i = 0; i < strobe.width; i++)
           (strobe[i].toBool() ? newData : originalData)
               .getRange(i * 8, i * 8 + 8)
-      ].rswizzle();
+      ].rconcat();
 
   @override
   Future<void> run(Phase phase) async {

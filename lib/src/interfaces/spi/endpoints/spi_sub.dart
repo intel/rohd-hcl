@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/spi/endpoints/spi_shift_register.dart';
 
 /// Sub component for Serial Peripheral Interface (SPI).
 class SpiSub extends Module {
@@ -25,11 +26,11 @@ class SpiSub extends Module {
   /// from [SpiInterface.mosi], and shift data out from [SpiInterface.miso].
   /// Data shifted in from [SpiInterface.mosi] will be available on [busOut].
   ///
-  /// If [busIn] and [reset] are provided, data to shift out will be loaded from
-  /// [busIn]. After data is available on [busIn], pulsing [reset] will load the
-  /// data asynchronously, and a bit of data will be transmitted per pulse of
-  /// [SpiInterface.sclk]. After all data is shifted out, an optional [done]
-  /// signal will indicate completion.
+  /// If [busIn] and [reset] are provided, reset clears the receive state and
+  /// prepares a transmit load. Hold [busIn] stable through the first enabled
+  /// falling SPI clock edge after reset; its most significant bit is driven
+  /// before the first rising edge and the rest is loaded on that rising edge.
+  /// An optional [done] indicates completion.
   SpiSub(
       {required SpiInterface intf,
       Logic? busIn,
@@ -73,28 +74,17 @@ class SpiSub extends Module {
     // Bus Output from Sub
     addOutput('busOut', width: intf.dataLength);
 
-    // Shift Register in from MOSI.
-    // NOTE: Reset values are set to busIn values.
-    final shiftReg = ShiftRegister(
-      intf.mosi,
+    final shiftReg = buildSpiShiftRegister(
+      serialIn: intf.mosi,
       enable: ~intf.csb,
-      clk: intf.sclk,
-      depth: intf.dataLength,
+      clock: intf.sclk,
+      width: intf.dataLength,
       reset: reset,
-      asyncReset: true,
-      resetValue: busIn?.elements,
+      parallelIn: busIn,
     );
 
-    // busOut bits are connected to the corresponding shift register data stage.
-    // NOTE: dataStage0 corresponds to the last bit shifted in.
-    busOut <= shiftReg.stages.rswizzle();
+    busOut <= shiftReg.parallelOut;
 
-    // MISO is connected to shift register dataOut.
-    intf.miso <=
-        flop(~intf.sclk, shiftReg.dataOut,
-            en: ~intf.csb,
-            reset: reset,
-            asyncReset: true,
-            resetValue: busIn?[-1]);
+    intf.miso <= shiftReg.serialOut;
   }
 }

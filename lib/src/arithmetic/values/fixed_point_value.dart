@@ -24,7 +24,7 @@ export 'fixed_point_populator.dart';
 @immutable
 class FixedPointValue implements Comparable<FixedPointValue> {
   /// The fixed point value bit storage in two's complement.
-  late final LogicValue value = [integer, fraction].swizzle();
+  late final LogicValue value = [integer, fraction].concat();
 
   /// The integer valuue portion.
   late final LogicValue integer;

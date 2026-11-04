@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sign_magnitude_value.dart
@@ -19,7 +19,7 @@ export 'sign_magnitude_value_populator.dart';
 class SignMagnitudeValue implements Comparable<SignMagnitudeValue> {
   /// The sign magnitude value is stored as [sign] and [magnitude], but the
   /// combined [value] is also provided for convenience.
-  late final LogicValue value = [sign, magnitude].swizzle();
+  late final LogicValue value = [sign, magnitude].concat();
 
   /// The sign bit.
   late final LogicValue sign;

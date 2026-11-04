@@ -76,6 +76,43 @@ void main() {
             .createModule(),
         asset: 'rohd_src/bit_operations/shifting/rotate.dart',
       ),
+      for (final direction in RotateDirection.values)
+        (
+          name: 'fixed ${direction.name} rotation',
+          module: (RotateConfigurator()
+                ..fixedKnob.value = true
+                ..directionKnob.value = direction)
+              .createModule(),
+          asset: 'rohd_src/bit_operations/shifting/rotate.dart',
+        ),
+      for (final implementation in MuxImplementation.values)
+        (
+          name: '${implementation.name} multiplexer',
+          module: (MuxConfigurator()..implementationKnob.value = implementation)
+              .createModule(),
+          asset: switch (implementation) {
+            MuxImplementation.bitwise =>
+              'rohd_src/bit_operations/selection/bitwise_mux.dart',
+            MuxImplementation.oneHot =>
+              'rohd_src/bit_operations/selection/one_hot_mux.dart',
+            MuxImplementation.priority =>
+              'rohd_src/bit_operations/selection/priority_mux.dart',
+          },
+        ),
+      (
+        name: 'XNOR popcount',
+        module: (BitwisePopcountConfigurator()
+              ..operationKnob.value = BitwisePopcountOperation.xnor)
+            .createModule(),
+        asset: 'rohd_src/bit_operations/population_count/xnor_popcount.dart',
+      ),
+      (
+        name: 'CSR block',
+        module: (CsrExampleConfigurator()
+              ..boundaryKnob.value = CsrExampleBoundary.block)
+            .createModule(),
+        asset: 'rohd_src/memory/csr/csr_block.dart',
+      ),
       (
         name: 'dual-path floating-point adder',
         module: (FloatingPointAdderConfigurator()

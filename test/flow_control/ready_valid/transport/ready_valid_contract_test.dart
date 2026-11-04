@@ -34,28 +34,6 @@ class _Packet extends LogicStructure {
   _Packet clone({String? name}) => _Packet._clone(this, name: name);
 }
 
-void _setLegacyModifier(
-  PairInterface interface,
-  String Function(String original)? modifier,
-) {
-  // Exercise the legacy ROHD modifier compatibility path.
-  // ignore: deprecated_member_use
-  interface.modify = modifier;
-}
-
-String Function(String original)? _legacyModifier(PairInterface interface) =>
-    // Inspect the legacy callback only for clone compatibility coverage.
-    // ignore: deprecated_member_use
-    interface.modify;
-
-CloneType _copyLegacyModifier<CloneType extends PairInterface>(
-  PairInterface source,
-  CloneType target,
-) {
-  _setLegacyModifier(target, _legacyModifier(source));
-  return target;
-}
-
 class _ConsumerPortHarness extends Module {
   late final ReadyValidInterface<_Packet> channel;
 
@@ -80,10 +58,10 @@ class _ProviderPortHarness extends Module {
   }
 }
 
-class _ModifiedPortHarness extends Module {
+class _DirectPortHarness extends Module {
   late final ReadyValidInterface<_Packet> channel;
 
-  _ModifiedPortHarness(
+  _DirectPortHarness(
     ReadyValidInterface<_Packet> source,
     PairRole role, {
     String Function(String original)? uniquify,
@@ -92,7 +70,6 @@ class _ModifiedPortHarness extends Module {
       source.data.clone(),
       contract: source.contract,
     );
-    _setLegacyModifier(channel, (original) => 'modified_$original');
     channel.pairConnectIO(
       this,
       source,
@@ -165,12 +142,9 @@ class _ExtendedReadyValidInterface extends ReadyValidInterface<_Packet> {
   }
 
   @override
-  _ExtendedReadyValidInterface clone() => _copyLegacyModifier(
-        this,
-        _ExtendedReadyValidInterface(
-          data.clone(),
-          contract: contract,
-        ),
+  _ExtendedReadyValidInterface clone() => _ExtendedReadyValidInterface(
+        data.clone(),
+        contract: contract,
       );
 }
 
@@ -361,7 +335,8 @@ void main() {
       );
     });
 
-    test('every built-in clone preserves an independent modifier field', () {
+    test('every built-in clone preserves its contract and independent data',
+        () {
       final variants = <ReadyValidInterface<Logic>>[
         ReadyValidInterface<Logic>(Logic(width: 8)),
         ReadyAndValidInterface<Logic>(Logic(width: 8)),
@@ -371,15 +346,9 @@ void main() {
       ];
 
       for (final source in variants) {
-        String originalModifier(String name) => 'original_$name';
-        String replacementModifier(String name) => 'replacement_$name';
-        _setLegacyModifier(source, originalModifier);
         final cloned = source.clone();
-
-        expect(_legacyModifier(cloned), same(originalModifier));
-        _setLegacyModifier(cloned, replacementModifier);
-        expect(_legacyModifier(source), same(originalModifier));
-        expect(_legacyModifier(cloned), same(replacementModifier));
+        expect(cloned.contract, source.contract);
+        expect(cloned.data, isNot(same(source.data)));
       }
     });
 
@@ -476,14 +445,14 @@ void main() {
     for (final role in PairRole.values) {
       for (final withUniquify in [false, true]) {
         test(
-            'applies modify${withUniquify ? ' then uniquify' : ''} '
-            'consistently as $role', () async {
-          final harness = _ModifiedPortHarness(
+            'connects directly ${withUniquify ? 'with' : 'without'} uniquify '
+            'as $role', () async {
+          final harness = _DirectPortHarness(
             ReadyValidInterface<_Packet>(_Packet()),
             role,
             uniquify: withUniquify ? (original) => 'unique_$original' : null,
           );
-          final prefix = withUniquify ? 'unique_modified_' : 'modified_';
+          final prefix = withUniquify ? 'unique_' : '';
           final payloadName = '${prefix}packet';
           final validName = '${prefix}valid';
           final readyName = '${prefix}ready';
@@ -503,10 +472,12 @@ void main() {
             );
             expect(harness.outputs[payloadName], isA<_Packet>());
           }
-          expect(
-            {...harness.inputs.keys, ...harness.outputs.keys},
-            isNot(contains('packet')),
-          );
+          if (withUniquify) {
+            expect(
+              {...harness.inputs.keys, ...harness.outputs.keys},
+              isNot(contains('packet')),
+            );
+          }
 
           await harness.build();
           final systemVerilog = harness.dumpSystemVerilog();
@@ -534,16 +505,13 @@ void main() {
         for (final extended in [false, true]) {
           for (final withUniquify in [false, true]) {
             test(
-                '${helper.name} clones source modifier as $role'
+                '${helper.name} clones source as $role'
                 '${extended ? ' with sidebands' : ''}'
-                '${withUniquify ? ' then uniquifies' : ''}', () async {
+                '${withUniquify ? ' with uniquify' : ' without uniquify'}',
+                () async {
               final source = extended
                   ? _ExtendedReadyValidInterface(_Packet())
                   : ReadyValidInterface<_Packet>(_Packet());
-              _setLegacyModifier(
-                source,
-                (original) => 'modified_$original',
-              );
               final harness = _SourceCloneHarness(
                 source,
                 role,
@@ -551,7 +519,7 @@ void main() {
                 uniquify:
                     withUniquify ? (original) => 'unique_$original' : null,
               );
-              final prefix = withUniquify ? 'unique_modified_' : 'modified_';
+              final prefix = withUniquify ? 'unique_' : '';
               final payloadName = '${prefix}packet';
               final validName = '${prefix}valid';
               final readyName = '${prefix}ready';
@@ -559,8 +527,7 @@ void main() {
                 payloadName,
                 validName,
                 if (extended) '${prefix}last',
-                if (extended)
-                  '${withUniquify ? 'unique_' : ''}metadata_modified_code',
+                if (extended) '${prefix}metadata_code',
               };
 
               if (role == PairRole.consumer) {
@@ -602,8 +569,7 @@ void main() {
                   systemVerilog,
                   contains('$providerDirection logic ${prefix}last'),
                 );
-                final metadataName = '${withUniquify ? 'unique_' : ''}'
-                    'metadata_modified_code';
+                final metadataName = '${prefix}metadata_code';
                 expect(
                   systemVerilog,
                   contains('$providerDirection logic [2:0] $metadataName'),

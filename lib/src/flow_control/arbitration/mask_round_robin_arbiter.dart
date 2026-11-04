@@ -5,6 +5,7 @@
 // Implementation of a masked round-robin arbiter.
 //
 // 2023
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -55,7 +56,7 @@ class MaskRoundRobinArbiter extends StatefulArbiter
         // Example:
         // [_grants] [requestMask]
         // 00001000   11110000
-        Case(grants.rswizzle(), conditionalType: ConditionalType.unique, [
+        Case(grants.rconcat(), conditionalType: ConditionalType.unique, [
           for (var i = 0; i < count; i++)
             CaseItem(
                 Const(LogicValue.filled(count, LogicValue.zero)
@@ -76,7 +77,7 @@ class MaskRoundRobinArbiter extends StatefulArbiter
       // CaseZ uses [_grantMask] to set the [_grants] based on the
       // least significant bit
       CaseZ(
-        _grantMask.rswizzle(), conditionalType: ConditionalType.priority,
+        _grantMask.rconcat(), conditionalType: ConditionalType.priority,
         [
           for (var i = 0; i < count; i++)
             CaseItem(
@@ -95,7 +96,7 @@ class MaskRoundRobinArbiter extends StatefulArbiter
                 (g == 0
                     ? requests[g]
                     : ~requests
-                            .rswizzle()
+                            .rconcat()
                             .named('requestsComplement')
                             .getRange(0, g)
                             .or() &

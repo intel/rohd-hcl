@@ -5,6 +5,7 @@
 // Tests for configurators.
 //
 // 2023 December 6
+// Author: Max Korbel <max.korbel@intel.com>
 
 import 'dart:convert';
 
@@ -574,37 +575,37 @@ void main() {
     final cfg = ParallelPrefixAdderConfigurator();
 
     final sv = await cfg.generateSV();
-    expect(sv, contains('swizzle'));
+    expect(sv, contains('concat'));
   });
 
   test('compound adder configurator', () async {
     final cfg = CompoundAdderConfigurator();
     final svDefault = await cfg.generateSV();
-    expect(svDefault, contains('swizzle'));
+    expect(svDefault, contains('concat'));
 
     cfg.adderSelectionKnob.parallelPrefixAdderKnob.value = true;
     final sv = await cfg.generateSV();
-    expect(sv, contains('swizzle'));
+    expect(sv, contains('concat'));
   });
 
   test('floating point simple adder configurator', () async {
     final cfg = FloatingPointAdderConfigurator();
 
     final svDefault = await cfg.generateSV();
-    expect(svDefault, contains('swizzle'));
+    expect(svDefault, contains('concat'));
 
     cfg.adderSelectionKnob.parallelPrefixAdderKnob.value = true;
 
     var sv = await cfg.generateSV();
-    expect(sv, contains('swizzle'));
+    expect(sv, contains('concat'));
 
     cfg.adderSelectionKnob.parallelPrefixTypeKnob.value = Sklansky;
     sv = await cfg.generateSV();
-    expect(sv, contains('swizzle'));
+    expect(sv, contains('concat'));
 
     cfg.pipelinedKnob.value = true;
     sv = await cfg.generateSV();
-    expect(sv, contains('swizzle'));
+    expect(sv, contains('concat'));
   });
 
   test('floating point multiplier configurator', () async {
@@ -613,7 +614,7 @@ void main() {
         true;
 
     final sv = await cfg.generateSV();
-    expect(sv, contains('swizzle'));
+    expect(sv, contains('concat'));
   });
 
   test('sum configurator', () {

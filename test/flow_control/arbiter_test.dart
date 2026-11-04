@@ -24,7 +24,7 @@ void main() {
 
     final arb = PriorityArbiter(reqs);
 
-    final grantVec = arb.grants.rswizzle();
+    final grantVec = arb.grants.rconcat();
 
     vector.put(bin('00000000'));
     expect(grantVec.value, LogicValue.ofString('00000000'));
@@ -54,7 +54,7 @@ void main() {
           final reset = Logic();
           final reqs = List.generate(width, (i) => vector[i]);
           final arb = rrArbType.constructor(reqs, clk: clk, reset: reset);
-          final grants = arb.grants.rswizzle();
+          final grants = arb.grants.rconcat();
           await arb.build();
           unawaited(Simulator.run());
 
@@ -101,7 +101,7 @@ void main() {
           final reset = Logic();
           final reqs = List.generate(width, (i) => vector[i]);
           final arb = rrArbType.constructor(reqs, clk: clk, reset: reset);
-          final grants = arb.grants.rswizzle();
+          final grants = arb.grants.rconcat();
           await arb.build();
           unawaited(Simulator.run());
 
@@ -161,7 +161,7 @@ void main() {
           await clk.nextNegedge;
           reset.inject(0);
           for (var i = 0; i < 30; i++) {
-            expect(arbiter.grants.rswizzle().value.toInt(), 1 << (i % 8));
+            expect(arbiter.grants.rconcat().value.toInt(), 1 << (i % 8));
             await clk.nextNegedge;
           }
 
@@ -185,7 +185,7 @@ void main() {
           await clk.nextNegedge;
           reset.inject(0);
           for (var i = 0; i < 30; i++) {
-            expect(arbiter.grants.rswizzle().value.toInt(),
+            expect(arbiter.grants.rconcat().value.toInt(),
                 1 << (i % arbiter.count));
             await clk.nextNegedge;
           }

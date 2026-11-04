@@ -41,8 +41,8 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
       final rowBits = [for (final c in rowLogic) c.value].reversed.toList()
         ..addAll(List.filled(rowShift[row], LogicValue.zero));
       final rowBitsExtend = rowBits.length < width
-          ? rowBits.swizzle().zeroExtend(width)
-          : rowBits.swizzle();
+          ? rowBits.concat().zeroExtend(width)
+          : rowBits.concat();
       final val = rowBitsExtend.toBigInt();
       accum += val;
       ts

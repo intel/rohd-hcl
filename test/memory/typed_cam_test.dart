@@ -371,6 +371,16 @@ void main() {
       Vector({'clk': 0, 'valid0': 1, 'data0': LogicValue.ofString('0010000z')},
           {}),
       Vector({'clk': 1}, {'hit0': 1, 'found0': 1, 'hit1': 0}),
+      Vector({
+        'clk': 0,
+        'write0': 0,
+        'query0': LogicValue.ofString('0010000z'),
+        'query1': LogicValue.ofString('0010000x')
+      }, {
+        'hit0': 1,
+        'found0': 0,
+        'hit1': 0
+      }),
     ]);
   });
 

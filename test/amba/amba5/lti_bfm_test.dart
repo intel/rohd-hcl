@@ -27,7 +27,7 @@ LogicValue toOneHot(int vc, int width) {
   return ohLit
       .map((e) => e == 1 ? LogicValue.one : LogicValue.zero)
       .toList()
-      .rswizzle();
+      .rconcat();
 }
 
 /// Simple main component BFM

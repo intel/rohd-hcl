@@ -15,7 +15,7 @@ workspace:
 dependencies:
   collection: ^1.18.0
   meta: ^1.9.1
-  rohd: ^0.6.11
+  rohd: ^0.7.0
   rohd_vf: ^0.6.0
 
 dev_dependencies:
@@ -25,6 +25,5 @@ dev_dependencies:
 
 dependency_overrides:
   rohd:
-    git:
-      url: https://github.com/intel/rohd.git
-      ref: main
+    path: ~/rohd
+

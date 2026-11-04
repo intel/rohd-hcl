@@ -77,6 +77,6 @@ class EdgeDetector extends Module {
         [
           if (edgeType case Edge.pos || Edge.any) ~previousValue & signal,
           if (edgeType case Edge.neg || Edge.any) previousValue & ~signal,
-        ].swizzle().or();
+        ].concat().or();
   }
 }

@@ -1,7 +1,7 @@
 // Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// apb_completer.dart
+// apb_csr_completer.dart
 // Base implementation for APB completer HW and associated variants.
 //
 // 2025 December
@@ -50,7 +50,7 @@ class ApbCsrCompleter extends ApbCompleter {
       List.generate(
           strobe.width,
           (i) => mux(strobe[i], newData.getRange(i * 8, (i + 1) * 8),
-              originalData.getRange(i * 8, (i + 1) * 8))).rswizzle();
+              originalData.getRange(i * 8, (i + 1) * 8))).rconcat();
 
   void _buildCustomLogic() {
     // we drop the following APB inputs on the floor

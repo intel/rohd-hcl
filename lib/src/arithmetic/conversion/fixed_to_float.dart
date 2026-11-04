@@ -114,7 +114,7 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
         absValueShifted = ([
                   absValue,
                   Const(0, width: mantissaWidth + 2 - absValue.width)
-                ].swizzle() <<
+                ].concat() <<
                 estimatedJBit)
             .named('absValueShifted');
       } else {
@@ -153,7 +153,7 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
         absValueShifted = ([
                   absValue,
                   Const(0, width: mantissaWidth + 2 - absValue.width)
-                ].swizzle() <<
+                ].concat() <<
                 jBit)
             .named('absValueShifted');
       } else {
@@ -180,7 +180,7 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
         .zeroExtend(_convertedFloat.mantissa.width)
         .named('subnormalMantissa');
     final normalMantissa = (outFloat.explicitJBit
-            ? [Const(1), mantissaRounded].swizzle()
+            ? [Const(1), mantissaRounded].concat()
             : mantissaRounded)
         .named('normalMantissa');
 

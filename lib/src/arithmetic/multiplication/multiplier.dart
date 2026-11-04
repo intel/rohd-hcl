@@ -186,7 +186,7 @@ class NativeMultiplier extends Multiplier {
         for (var i = len; i < pW; i++)
           mux(selectSignedMultiplicand!, sign, Const(0))
       ];
-      extendedMultiplicand = (a.elements + extension).rswizzle();
+      extendedMultiplicand = (a.elements + extension).rconcat();
     }
     if (selectSignedMultiplier == null) {
       extendedMultiplier =
@@ -200,7 +200,7 @@ class NativeMultiplier extends Multiplier {
           mux(selectSignedMultiplier!, sign, Const(0))
       ];
       extendedMultiplier = (b.elements + extension)
-          .rswizzle()
+          .rconcat()
           .named('extended_multiplier', naming: Naming.mergeable);
     }
 

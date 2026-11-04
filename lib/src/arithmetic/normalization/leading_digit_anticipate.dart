@@ -175,7 +175,7 @@ class LeadingDigitAnticipate extends Module {
         .named('lowBitsWide')
         .slice(t.width - 2, 1);
 
-    findFromMSB <= [lowBits, ~t[0] & t[1]].swizzle();
+    findFromMSB <= [lowBits, ~t[0] & t[1]].concat();
 
     final leadingEncoder = RecursiveModulePriorityEncoder(findFromMSB,
         generateValid: true, name: 'leading-pos');

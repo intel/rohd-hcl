@@ -1,9 +1,17 @@
 ## Unreleased (0.3.0)
 
+- Reworked sum accumulation to avoid generated combinational feedback warnings, and added a divider state-case default. Floating-point overflow uses a full magnitude comparison without an always-false mantissa comparison.
+- Fixed single-path floating-point addition of infinities and NaNs when input J-bit formats differ, including infinity signs and invalid-operation status. Shared NaN propagation now preserves the selected input's format and payload. Corrected the truncating exhaustive test's overflow oracle.
+- APB state comparisons now use the FSM's enum encoding. The multi-cycle divider retains its existing three-bit state machine using `LogicEnum`; invalid or unknown state/control behavior can differ from the untyped implementation.
+- AXI4/AXI5 request and response channels and LTI read responses provide opt-in typed enum views. Raw ports remain unchanged; invalid-value normalization in functional simulation is not guaranteed in generated HDL. See [AXI](doc/components/amba/axi.md).
+- Added configurators for absolute value, circular pointers, ceil division, mux and bitwise-popcount variants, bit manipulation, synchronizers, ready/valid FIFOs, and a two-register CSR example. Rotation now also offers fixed left and right implementations.
 - Confapp integer parameters now use validated numeric steppers with unit increment/decrement, hexadecimal input, and optional blank values. Added `PositiveIntConfigKnob` (minimum 1), `NonNegativeIntConfigKnob` (minimum 0), and optional `IntConfigKnob.minValue`; ordinary integer knobs retain signed values. Applicable component parameters declare their lower bounds while retaining defaults and saved JSON formats. Invalid integer text and below-minimum assignments now throw rather than silently retaining old values.
 - Confapp groups the existing component catalog into compact, expandable, initially collapsed category and subcategory menus using configurator metadata. Saved configuration names and the registered component set are unchanged.
 
 ### Breaking changes
+
+- SPI main and sub gaskets now asynchronously clear receive state and capture transmit data on the first enabled SPI rising edge instead of asynchronously loading `busIn` on reset. Hold `busIn` stable through the first falling SPI edge; `busOut` is zero immediately after reset. This avoids dynamic asynchronous reset values. See [SPI Gaskets](doc/components/spi_gaskets.md).
+- Ready/valid interfaces no longer preserve the deprecated `PairInterface.modify` callback. Pass `uniquify` when connecting or registering an interface instead; naming is now configured at the connection rather than stored on the clone.
 
 - Interface registration now uses ROHD's `addInterfacePorts` and `addPairInterfacePorts` APIs throughout components, tests, and examples. Tag selection, pair roles, typed payloads, and port naming are unchanged.
 
@@ -71,14 +79,14 @@
 - `MemoryModel<T>` preserves typed payload interfaces and drives behavioral readback through raw leaf bits, supporting domain-specific structures such as `FixedPoint` without semantic value conversions. Raw storage, four-state values, latency, masks, and reset behavior are retained.
 - `FloatToFixed<T>` accepts an optional signed `outFixed` schema, preserves its concrete subtype internally and on output, and validates explicit width compatibility. Scalar defaults remain unchanged. `Float8ToFixed` preserves structured input schemas while retaining its intentionally mode-dependent scalar output.
 - Final propagated/default NaN selection in floating-point adders and the simple multiplier now uses whole-payload typed muxes.
-- Added bit operations and arithmetic: `Pad` (widens to a minimum width with zeros or ones at the LSB or MSB end), `SetBits` (sets a count of LSBs or MSBs to zeros or ones), `WithSet`, `OneHotMux`, `PriorityMux`, `BitwiseMux` (N inputs, per-bit one-hot selects), `UnsignedAddWithOverflow`, `UnsignedMulWithOverflow`, `CeilDivide`, `Log2Ceil`, `AbsoluteValue` (widened by one bit so the minimum value is representable), `BitwisePopcount` with `XorPopcount` and `XnorPopcount`, and `CircularPointer` for wrapping slot indices of any slot count.
+- Added bit operations and arithmetic: `Pad` (widens to a minimum width with zeros or ones at the LSB or MSB end), `SetBits` (sets a count of LSBs or MSBs to zeros or ones), `WithSet`, `OneHotMux`, `PriorityMux`, `BitwiseMux` (N inputs, per-bit one-hot selects), `UnsignedAddWithOverflow`, `UnsignedMulWithOverflow`, `CeilDivide`, `Log2Ceil`, `AbsoluteValue` (widened by one bit so the minimum value is representable), `BitwisePopcount` with `XorPopcount` and `XnorPopcount`, and `CircularPointer` for wrapping slot indices of any slot count. The one-hot mux addresses <https://github.com/intel/rohd-hcl/issues/95>.
 
 - Added `TagInterface<T>.typed(idWidth, schema)` and `Cam<T>` with typed tag ports, cloning, and storage. Width-based scalar interfaces remain supported. CAM lookups retain bit-identity matching, duplicate-index priority, and write/invalidation behavior; layouts/codecs and index capacity are validated explicitly.
 
 - Preserved structures, enum mappings, and typed-array schemas through prefix ports, callback results, recursive networks, and internal aliases. Added explicit structured-layout validation while retaining scalar widths and operand order.
 - Prefix adders now use typed generate/propagate records internally; external arithmetic ports and carry behavior are unchanged.
 
-- Preserved structured, enum, and typed-array payloads through shift-register stages and asynchronous FIFO ports/storage without changing delay or CDC behavior.
+- Preserved structured, enum, and typed-array payloads through shift-register stages and asynchronous FIFO ports/storage without changing delay or CDC behavior (<https://github.com/intel/rohd-hcl/issues/257>).
 - Extrema now selects typed payload/index candidates using typed muxes and supports a custom strict `isLessThan` comparator for record keys.
 
 - Added typed data/control propagation through bitonic sort stages, both reduction implementations, and ToggleGate storage/selection. Sorting supports a custom strict `isLessThan` comparator while transporting complete records and typed arrays.
@@ -87,13 +95,13 @@
 - Shared swaps and optional flops preserve floating-point subtypes, fixed-point formats, enum mappings, and typed-array schemas. Floating-point swap/sort metadata ports now retain structured payloads; arithmetic field operations and pipeline timing are unchanged.
 
 - Extended typed storage regressions to check unpacked payloads with Icarus and to compare plain and typed FIFOs with SystemC using explicit clock edges.
-- Preserved typed payloads through `DataPortInterface.typed`, `MaskedDataPortInterface.typed`, generic `Memory<T>`/`RegisterFile<T>`, and synchronous FIFO storage. Register files now use a `TypedLogicArray<T, LogicValue>` bank, including structured, enum, multidimensional, and rank-zero payloads. Existing width-based ports remain available. Ready/valid adapters share recursive typed-array shape validation and FIFO definition identities.
+- Preserved typed payloads through `DataPortInterface.typed`, `MaskedDataPortInterface.typed`, generic `Memory<T>`/`RegisterFile<T>`, and synchronous FIFO storage. Register files now use a `TypedLogicArray<T, LogicValue>` bank, including structured, enum, multidimensional, and rank-zero payloads (<https://github.com/intel/rohd-hcl/issues/256>). Existing width-based ports remain available. Ready/valid adapters share recursive typed-array shape validation and FIFO definition identities.
 - Refactored AMBA support to add AXI4-Lite, AXI4-Stream, ACE, and ACE-Lite protocol variants while preserving the existing AXI APIs (<https://github.com/intel/rohd-hcl/pull/251>).
 - Added an abstract `ApbCompleter` and an `ApbCsrCompleter` implementation for connecting APB transactions to CSR blocks (<https://github.com/intel/rohd-hcl/pull/270>).
 - Added `AsyncFifo` for safely transferring data between clock domains (<https://github.com/intel/rohd-hcl/issues/168>, <https://github.com/intel/rohd-hcl/pull/279>).
 - Added `ReadyValidInterface`, `ReadyValidFifo`, and `Cam` capabilities in preparation for cache componentry (<https://github.com/intel/rohd-hcl/pull/281>).
 - Finalized the ready/valid interface foundation with value-based `ReadyValidContract` metadata, typed payload port registration, accepted/stalled predicates, composability checks, clone-preserved contracts, and independent, ready-first, valid-first, and irrevocable interface variants. Typed registration preserves provider sidebands and nested pair subinterfaces, and supports validated packed bridges between plain and structured payload ports.
-- Preserved deprecated `PairInterface.modify` compatibility for typed ready/valid payload and valid ports, applying `modify` before `uniquify` consistently with ROHD's ready and recursive interface traversal and retaining the callback through every built-in ready/valid clone.
+- Ready/valid typed payload and valid ports use the same `uniquify` naming as ready and recursive interface traversal.
 - Added the protocol-neutral `HardwareCoreFunctor` construction seam and a typed `FifoCoreFunctor` implementation over `Fifo`, including explicit full-replacement and empty-bypass capability requirements. FIFO core definition identities include a deterministic recursive payload-shape signature so equal-width but structurally different payloads cannot collide. Concrete ready/valid, credit, routing, and scheduling attachments remain later component work.
 - Corrected a fully initialized `Fifo` to wrap its reset write pointer, preserving same-cycle full dequeue/replacement behavior at depth one and non-power-of-two depths.
 - Added the `Counter.upDown` convenience constructor for incrementing and decrementing by one (<https://github.com/intel/rohd-hcl/pull/271>).
@@ -101,7 +109,7 @@
 - Added optional early termination to `Serializer` and `Deserializer` for dynamically sized inputs (<https://github.com/intel/rohd-hcl/issues/277>, <https://github.com/intel/rohd-hcl/pull/278>).
 - Added regression coverage for the single-element `Serializer` count-width case (<https://github.com/intel/rohd-hcl/issues/166>).
 - Exposed the module `name` argument on round-robin and related arbiters (<https://github.com/intel/rohd-hcl/pull/255>).
-- Expanded CSR support with heterogeneous block sizes (<https://github.com/intel/rohd-hcl/pull/285>), configurable asynchronous reset through `CsrTopConfig` (<https://github.com/intel/rohd-hcl/pull/310>), and write-only fields for command, trigger, and pulse semantics (<https://github.com/intel/rohd-hcl/issues/308>, <https://github.com/intel/rohd-hcl/pull/313>).
+- Expanded CSR support with heterogeneous block sizes (<https://github.com/intel/rohd-hcl/pull/285>), configurable asynchronous reset through `CsrTopConfig` (<https://github.com/intel/rohd-hcl/issues/295>, <https://github.com/intel/rohd-hcl/pull/310>), and write-only fields for command, trigger, and pulse semantics (<https://github.com/intel/rohd-hcl/issues/308>, <https://github.com/intel/rohd-hcl/pull/313>).
 
 #### IEEE rounding compatibility
 
@@ -179,13 +187,17 @@
 
 ### Bug fixes
 
+- Corrected CAM functional lookup matching when stored tags or query bits
+  contain X or Z, using ROHD's opt-in exact four-state case matching.
+- Corrected CSR software and SystemC backdoor reads of write-only fields to
+  preserve known bits when write data or enable contains unknown values.
 - Corrected signed `FixedPoint` signal comparisons for negative and mixed-sign operands, enabling numeric ordering in typed sort modules.
 
 - Corrected AXI5 mixin signal widths to match the protocol specification (<https://github.com/intel/rohd-hcl/pull/280>).
 - Ensured the `Serializer` counter has a valid width for single-element inputs (<https://github.com/intel/rohd-hcl/pull/284>).
 - Fixed `loadMemString` data loss across discontinuous sections whose starting addresses are not word-aligned (<https://github.com/intel/rohd-hcl/pull/293>).
 - Prevented `FifoChecker` from reading an invalid previous error value and crashing the simulator (<https://github.com/intel/rohd-hcl/pull/292>).
-- Fixed AXI4 memory-subordinate multi-beat writes so each beat is stored at its corresponding address and stale queued data cannot leak across bursts (<https://github.com/intel/rohd-hcl/pull/289>).
+- Fixed AXI4 memory-subordinate multi-beat writes so each beat is stored at its corresponding address and stale queued data cannot leak across bursts (<https://github.com/intel/rohd-hcl/issues/290>, <https://github.com/intel/rohd-hcl/pull/289>).
 - Fixed CSR frontdoor decoding for non-power-of-two-aligned block base addresses and corrected the minimum required address width calculation (<https://github.com/intel/rohd-hcl/issues/294>, <https://github.com/intel/rohd-hcl/pull/309>).
 - Implemented the documented write-ones-clear CSR behavior, with software writes clearing bits and backdoor hardware writes setting them (<https://github.com/intel/rohd-hcl/issues/296>, <https://github.com/intel/rohd-hcl/pull/311>).
 - Enabled independent AXI4 subordinate read and write response-delay callbacks and corrected their timing behavior (<https://github.com/intel/rohd-hcl/issues/303>, <https://github.com/intel/rohd-hcl/pull/312>).

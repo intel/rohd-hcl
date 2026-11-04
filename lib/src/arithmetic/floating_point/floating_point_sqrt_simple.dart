@@ -44,7 +44,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final isNaN = a.isNaN.named('isNan');
     final isZero = a.isAZero.named('isZero');
     final rawSignificand =
-        [a.isNormal, a.mantissa].swizzle().named('rawSignificand');
+        [a.isNormal, a.mantissa].concat().named('rawSignificand');
     final leadingOne = RecursiveModulePriorityEncoder(rawSignificand.reversed,
             generateValid: true, name: 'leading_one')
         .out
@@ -68,7 +68,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
             normalizationShift.zeroExtend(exponentCalcWidth))
         .named('deBiasExp');
     final shiftedExp = [deBiasExp[-1], deBiasExp.slice(deBiasExp.width - 1, 1)]
-        .swizzle()
+        .concat()
         .named('shiftedExp');
     final isExpOdd = deBiasExp[0];
 
@@ -82,10 +82,10 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           Const(0, width: 2),
           normalizedSignificand,
           Const(0, width: extraPrecision)
-        ].swizzle().named('aFixed');
+        ].concat().named('aFixed');
 
     final shiftedFixed = aFixed.clone(name: 'shiftedFixed')
-      ..gets([aFixed.slice(-2, 0), Const(0)].swizzle());
+      ..gets([aFixed.slice(-2, 0), Const(0)].concat());
     final aFixedAdj =
         mux<FixedPoint>(isExpOdd, shiftedFixed, aFixed).namedTyped('aFixedAdj');
 
@@ -163,7 +163,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
         <({Logic mantissa, Logic carry, Logic inexact})>[];
     for (var shift = 1; shift <= a.mantissa.width + 1; shift++) {
       final subnormalInput = [Const(0, width: shift), retainedSignificand]
-          .swizzle()
+          .concat()
           .named('subnormalInput$shift');
       final subnormalRounder = FloatingPointRounder(subnormalInput, shift,
           roundingMode: roundingMode, sign: a.sign, extraSticky: inexact);

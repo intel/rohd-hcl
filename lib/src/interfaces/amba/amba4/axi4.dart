@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
+import 'package:rohd_hcl/src/interfaces/amba/protocol_enum_view.dart';
 
 /// AXI4 clock and reset.
 class Axi4SystemInterface extends PairInterface {
@@ -140,11 +141,25 @@ abstract class Axi4RequestChannelInterface extends Axi4ChannelInterface {
   /// Width is equal to [sizeWidth].
   Logic? get size => tryPort('${prefix}SIZE');
 
+  /// Read-only enum view of [size], or null when the signal is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [size] remains raw.
+  late final LogicEnum<Axi4SizeField>? sizeEnum =
+      protocolEnumView(size, Axi4SizeField.values, (value) => value.value);
+
   /// Burst type, indicates how address changes between
   /// each transfer in a transaction.
   ///
   /// Width is equal to [burstWidth].
   Logic? get burst => tryPort('${prefix}BURST');
+
+  /// Read-only enum view of [burst], or null when the signal is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [burst] remains raw.
+  late final LogicEnum<Axi4BurstField>? burstEnum =
+      protocolEnumView(burst, Axi4BurstField.values, (value) => value.value);
 
   /// Provides information about atomic characteristics of a transaction.
   ///
@@ -372,6 +387,13 @@ abstract class Axi4BaseRChannelInterface extends Axi4DataChannelInterface {
   /// Width is equal to [respWidth].
   Logic? get resp => tryPort('RRESP');
 
+  /// Read-only enum view of [resp], or null when the signal is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [resp] remains raw.
+  late final LogicEnum<Axi4RespField>? respEnum =
+      protocolEnumView(resp, Axi4RespField.values, (value) => value.value);
+
   /// Constructor.
   Axi4BaseRChannelInterface({
     super.idWidth = 4,
@@ -465,6 +487,13 @@ abstract class Axi4ResponseChannelInterface extends Axi4ChannelInterface {
   ///
   /// Width is equal to [respWidth].
   Logic? get resp => tryPort('${prefix}RESP');
+
+  /// Read-only enum view of [resp], or null when the signal is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [resp] remains raw.
+  late final LogicEnum<Axi4RespField>? respEnum =
+      protocolEnumView(resp, Axi4RespField.values, (value) => value.value);
 
   /// Constructor.
   Axi4ResponseChannelInterface({

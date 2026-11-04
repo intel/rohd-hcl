@@ -18,7 +18,7 @@ dependencies:
   flutter_bloc: ^9.0.0
   highlight: ^0.7.0
   material_ui: ^1.1.1
-  rohd: ^0.6.11
+  rohd: ^0.7.0
   rohd_devtools_widgets: ^0.1.1
   rohd_hcl: ^0.3.0
   rohd_hierarchy: ^0.1.0
@@ -35,20 +35,20 @@ dev_dependencies:
 
 dependency_overrides:
   rohd_devtools_widgets:
-      git:
-        url: https://github.com/intel/rohd.git
-        ref: main
-        path: packages/rohd_devtools_widgets
+    git:
+      url: https://github.com/intel/rohd.git
+      ref: main
+      path: packages/rohd_devtools_widgets
   rohd_hierarchy:
-      git:
-        url: https://github.com/intel/rohd.git
-        ref: main
-        path: packages/rohd_hierarchy
+    git:
+      url: https://github.com/intel/rohd.git
+      ref: main
+      path: packages/rohd_hierarchy
   rohd_source_navigator:
-      git:
-        url: https://github.com/intel/rohd.git
-        ref: main
-        path: packages/rohd_source_navigator
+    git:
+      url: https://github.com/intel/rohd.git
+      ref: main
+      path: packages/rohd_source_navigator
 
 
 flutter:

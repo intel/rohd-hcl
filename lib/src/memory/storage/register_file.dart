@@ -81,7 +81,7 @@ class RegisterFile<LogicType extends Logic> extends Memory<LogicType>
                                       .getRange(index * 8, (index + 1) * 8),
                                   _storageBank.at([entry]).getRange(
                                       index * 8, (index + 1) * 8))
-                          ].rswizzle()
+                          ].rconcat()
                         : wrPort.data),
               ])),
       ]),

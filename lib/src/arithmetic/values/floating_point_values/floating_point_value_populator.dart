@@ -145,7 +145,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
       else
         LogicValue.zero,
       components.mantissa
-    ].swizzle();
+    ].concat();
     return FloatingPointValue(
         sign: components.sign,
         exponent: components.exponent,
@@ -752,7 +752,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
               LogicValue.one,
               LogicValue.one,
               LogicValue.filled(mantissaWidth - 2, LogicValue.zero)
-            ].swizzle());
+            ].concat());
       }
       final implicit = FloatingPointValue.populator(
               exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
@@ -763,7 +763,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
           sign: implicit.sign,
           exponent: implicit.exponent,
           mantissa: [LogicValue.ofBool(explicitJBitValue), implicit.mantissa]
-              .swizzle());
+              .concat());
     }
     final components = _constantComponents(constantFloatingPoint);
 
@@ -865,14 +865,14 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
 
     var expVal = (exponent64.toInt() - fp64.bias) + bias;
     final mantissa64n = ((expVal <= 0)
-        ? [LogicValue.one, fp64.mantissa].swizzle() >>>
+        ? [LogicValue.one, fp64.mantissa].concat() >>>
             (-expVal +
                 (!explicitJBit & (fp64.exponent.toInt() > 0)
                     ? 1
                     : explicitJBit
                         ? 1
                         : 0))
-        : [LogicValue.one, fp64.mantissa].swizzle());
+        : [LogicValue.one, fp64.mantissa].concat());
 
     var mantissa = mantissa64n.slice(fp64Mw - (explicitJBit ? 0 : 1),
         fp64Mw - mantissaWidth + (explicitJBit ? 1 : 0));
@@ -900,7 +900,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
               mantissa = [
                 LogicValue.one,
                 LogicValue.zero.zeroExtend(mantissa.width - 1)
-              ].swizzle();
+              ].concat();
             }
           }
         }
@@ -1323,16 +1323,16 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
     // Note that we never have both gt/gte or lt/lte null because of Infinity.
     var gtSign = (trimGt ?? trimGte)?.sign;
     var gtMagnitude =
-        (trimGt != null) ? [trimGt.exponent, trimGt.mantissa].swizzle() : null;
+        (trimGt != null) ? [trimGt.exponent, trimGt.mantissa].concat() : null;
     var gteMagnitude = (trimGte != null)
-        ? [trimGte.exponent, trimGte.mantissa].swizzle()
+        ? [trimGte.exponent, trimGte.mantissa].concat()
         : null;
 
     var ltSign = (trimLt ?? trimLte)?.sign;
     var ltMagnitude =
-        (trimLt != null) ? [trimLt.exponent, trimLt.mantissa].swizzle() : null;
+        (trimLt != null) ? [trimLt.exponent, trimLt.mantissa].concat() : null;
     var lteMagnitude = (trimLte != null)
-        ? [trimLte.exponent, trimLte.mantissa].swizzle()
+        ? [trimLte.exponent, trimLte.mantissa].concat()
         : null;
     if ((!doGenSubNormal) & negNormals & posNormals) {
       // We need to pick a side to generate from.
@@ -1343,7 +1343,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
         gtMagnitude = null;
         final rhGte =
             cloneConstant(FloatingPointConstants.smallestPositiveNormal);
-        gteMagnitude = [rhGte.exponent, rhGte.mantissa].swizzle();
+        gteMagnitude = [rhGte.exponent, rhGte.mantissa].concat();
       } else {
         // Generate negative normals.
         ltSign = LogicValue.one;
@@ -1351,7 +1351,7 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
         final lhLte =
             cloneConstant(FloatingPointConstants.smallestPositiveNormal)
                 .negate() as FpvType;
-        lteMagnitude = [lhLte.exponent, lhLte.mantissa].swizzle();
+        lteMagnitude = [lhLte.exponent, lhLte.mantissa].concat();
       }
       if ((!doGenNormal) & !negSubNormals & !posSubNormals) {
         throw RohdHclException(
@@ -1366,13 +1366,13 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
         gtSign = LogicValue.zero;
         gtMagnitude = null;
         final rhGte = cloneConstant(FloatingPointConstants.positiveZero);
-        gteMagnitude = [rhGte.exponent, rhGte.mantissa].swizzle();
+        gteMagnitude = [rhGte.exponent, rhGte.mantissa].concat();
       } else {
         // Generate negative subnormals.
         ltSign = LogicValue.one;
         ltMagnitude = null;
         final lhLte = cloneConstant(FloatingPointConstants.negativeZero);
-        lteMagnitude = [lhLte.exponent, lhLte.mantissa].swizzle();
+        lteMagnitude = [lhLte.exponent, lhLte.mantissa].concat();
       }
     }
     final tgt = (gtMagnitude != null)

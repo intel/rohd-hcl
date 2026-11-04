@@ -166,8 +166,8 @@ extension LogicList on List<Logic> {
       // deprecated top-level rswizzle() in ROHD 0.6.11.
       final bits = [...this];
       final vec = (shift >= 0)
-          ? bits.rswizzle().zeroExtend(maxHigh) << shift
-          : bits.rswizzle().zeroExtend(maxHigh) >>> -shift;
+          ? bits.rconcat().zeroExtend(maxHigh) << shift
+          : bits.rconcat().zeroExtend(maxHigh) >>> -shift;
 
       final vecC = vec.slice(highLimit, 0);
       final v = vecC.value.toBigInt().toUnsigned(maxHigh);

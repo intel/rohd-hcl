@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/amba/protocol_enum_view.dart';
 
 /// A top-level Interface from which all of AXI-5 can derive.
 abstract class Axi5BaseInterface extends PairInterface {
@@ -1163,6 +1164,13 @@ class Axi5RChannelInterface extends Axi5TransportInterface
         Axi5DebugSignals,
         Axi5ChunkSignals,
         Axi5ResponseSignals {
+  /// Read-only AXI response enum view, or null when [resp] is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [resp] remains raw.
+  late final LogicEnum<Axi5RespField>? respEnum =
+      protocolEnumView(resp, Axi5RespField.values, (value) => value.value);
+
   /// Enable User signal mixin
   final bool userMixInEnable;
 
@@ -1377,6 +1385,13 @@ class Axi5BChannelInterface extends Axi5TransportInterface
         Axi5MemRespDataTagSignals,
         Axi5DebugSignals,
         Axi5ResponseSignals {
+  /// Read-only AXI response enum view, or null when [resp] is absent.
+  ///
+  /// In functional simulation, unmapped or unknown values become X in the
+  /// view. Generated HDL may differ; [resp] remains raw.
+  late final LogicEnum<Axi5RespField>? respEnum =
+      protocolEnumView(resp, Axi5RespField.values, (value) => value.value);
+
   /// Enable User signal mixin
   final bool userMixInEnable;
 

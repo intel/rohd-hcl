@@ -7,7 +7,7 @@
 // 2024 April 1
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
-//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
+//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 
@@ -243,7 +243,7 @@ class FloatingPoint extends LogicStructure {
       quietMantissa = [
         if (explicitJBit) Const(1),
         Const(1),
-      ].swizzle();
+      ].concat();
     } else {
       Logic payload;
       if (sourcePayloadWidth == 0) {
@@ -258,7 +258,7 @@ class FloatingPoint extends LogicStructure {
         if (explicitJBit) Const(1),
         Const(1),
         payload,
-      ].swizzle();
+      ].concat();
     }
     final quiet = clone(name: 'quietNaN');
     quiet.sign <= source.sign;
@@ -268,14 +268,14 @@ class FloatingPoint extends LogicStructure {
   }
 
   /// Propagate the first signaling NaN, otherwise the first quiet NaN.
+  /// Each input is interpreted using its own floating-point format.
   FloatingPoint propagateNaN(FloatingPoint first, FloatingPoint second) {
     final selectSecond = (~first.isSignalingNaN &
             (second.isSignalingNaN | (~first.isNaN & second.isNaN)))
         .named('selectSecondNaN');
-    final selected = mux<FloatingPoint>(selectSecond, second, first,
-            outputGenerator: first.clone)
-        .namedTyped('selectedNaN');
-    return quietNaNFrom(selected);
+    return mux<FloatingPoint>(
+        selectSecond, quietNaNFrom(second), quietNaNFrom(first),
+        outputGenerator: clone);
   }
 
   FloatingPoint _constant(FloatingPointValue value, {Logic? sign}) {

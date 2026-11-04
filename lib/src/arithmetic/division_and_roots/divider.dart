@@ -10,25 +10,22 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 
-/// State object for Divider processing.
-class _MultiCycleDividerState {
-  /// Width of state in bits.
-  static int width = 3;
-
+/// States for divider processing.
+enum _MultiCycleDividerState {
   /// Ready for a new division.
-  static Logic ready = Const(0, width: width);
+  ready,
 
   /// Processing a current step in the algorithm.
-  static Logic process = Const(1, width: width);
+  processing,
 
   /// Accumulating the result of a current step in the algorithm.
-  static Logic accumulate = Const(2, width: width);
+  accumulate,
 
   /// Converting the final result of the algorithm.
-  static Logic convert = Const(3, width: width);
+  convert,
 
   /// Division complete.
-  static Logic done = Const(4, width: width);
+  done,
 }
 
 /// Internal interface to the Divider.
@@ -185,12 +182,13 @@ class MultiCycleDivider extends Module {
     final signOut = Logic(name: 'signOut');
     final signNum = Logic(name: 'signNum');
 
-    // to manage FSM
-    // # of states is fixed
-    final currentState =
-        Logic(name: 'currentState', width: _MultiCycleDividerState.width);
-    final nextState =
-        Logic(name: 'nextState', width: _MultiCycleDividerState.width);
+    final currentState = LogicEnum<_MultiCycleDividerState>(
+        _MultiCycleDividerState.values,
+        width: 3,
+        name: 'currentState');
+    final nextState = currentState.clone(name: 'nextState');
+    LogicEnum<_MultiCycleDividerState> state(_MultiCycleDividerState value) =>
+        currentState.clone()..getsEnum(value);
 
     // internal buffers for computation
     // accumulator that contains dividend
@@ -233,15 +231,15 @@ class MultiCycleDivider extends Module {
       tmpDifference < 0,
       nextState < _MultiCycleDividerState.ready,
       Case(currentState, [
-        CaseItem(_MultiCycleDividerState.done, [
+        CaseItem(state(_MultiCycleDividerState.done), [
           // can move to ready as long as outside indicates consumption
-          nextState <
-              mux(intf.readyOut, _MultiCycleDividerState.ready,
-                  _MultiCycleDividerState.done)
+          If(intf.readyOut,
+              then: [nextState < _MultiCycleDividerState.ready],
+              orElse: [nextState < _MultiCycleDividerState.done])
         ]),
-        CaseItem(_MultiCycleDividerState.convert,
+        CaseItem(state(_MultiCycleDividerState.convert),
             [nextState < _MultiCycleDividerState.done]),
-        CaseItem(_MultiCycleDividerState.accumulate, [
+        CaseItem(state(_MultiCycleDividerState.accumulate), [
           tmpDifference < lastDifference,
           If.block([
             Iff(~tmpDifference.or() | (bBuf > aBuf), [
@@ -250,10 +248,10 @@ class MultiCycleDivider extends Module {
               nextState < _MultiCycleDividerState.convert
             ]),
             // more processing to do
-            Else([nextState < _MultiCycleDividerState.process])
+            Else([nextState < _MultiCycleDividerState.processing])
           ])
         ]),
-        CaseItem(_MultiCycleDividerState.process, [
+        CaseItem(state(_MultiCycleDividerState.processing), [
           tmpShift < (bBuf << currIndex),
           If(
               // special case: b is most negative #
@@ -271,20 +269,20 @@ class MultiCycleDivider extends Module {
                 // move to accumulate if tmpDifference <= 0
                 If(~tmpShift.or() | tmpDifference[-1] | ~tmpDifference.or(),
                     then: [nextState < _MultiCycleDividerState.accumulate],
-                    orElse: [nextState < _MultiCycleDividerState.process])
+                    orElse: [nextState < _MultiCycleDividerState.processing])
               ])
         ]),
-        CaseItem(_MultiCycleDividerState.ready, [
+        CaseItem(state(_MultiCycleDividerState.ready), [
           If(intf.validIn, then: [
-            nextState <
-                mux(~intf.divisor.or(), _MultiCycleDividerState.done,
-                    _MultiCycleDividerState.process)
+            If(~intf.divisor.or(),
+                then: [nextState < _MultiCycleDividerState.done],
+                orElse: [nextState < _MultiCycleDividerState.processing])
             // move straight to DONE if divide-by-0
           ], orElse: [
             nextState < _MultiCycleDividerState.ready
           ])
         ])
-      ])
+      ], defaultItem: [])
     ]);
 
     // capture input arguments a, b into internal buffers
@@ -357,7 +355,7 @@ class MultiCycleDivider extends Module {
         Iff(intf.reset, [currIndex < Const(0, width: logDataWidth)]),
         ElseIf(
           currentState.eq(_MultiCycleDividerState
-              .process), // increment current index each PROCESS cycle
+              .processing), // increment current index each PROCESS cycle
           [currIndex < (currIndex + Const(1, width: logDataWidth))],
         ),
         Else(
@@ -381,7 +379,7 @@ class MultiCycleDivider extends Module {
         ]),
         ElseIf(
             currentState.eq(_MultiCycleDividerState
-                .process), // didn't exceed a_buf, so count as success
+                .processing), // didn't exceed a_buf, so count as success
             [
               If(~tmpDifference[-1], then: [
                 lastSuccess <

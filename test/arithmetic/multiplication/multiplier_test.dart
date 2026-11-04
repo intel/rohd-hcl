@@ -884,7 +884,7 @@ void main() {
 
     final vec = <Logic>[];
     for (var row = 0; row < ppG0.rows; row++) {
-      vec.add(ppG0.partialProducts[row].rswizzle());
+      vec.add(ppG0.partialProducts[row].rconcat());
     }
     final cc = ColumnCompressor(vec, ppG0.rowShift);
     final multiplier0 = CompressionTreeMultiplier(a, b);
@@ -932,12 +932,12 @@ void main() {
 
     final bits_3_678 = ppG0.getAbsoluteAll(3, [6, 7, 8]);
 
-    expect(bits_3_678.swizzle().value, equals(Const(0, width: 3).value));
+    expect(bits_3_678.concat().value, equals(Const(0, width: 3).value));
 
     ppG0.setAbsoluteAll(3, 6, [Const(1), Const(1), Const(0)]);
 
-    expect(ppG0.getAbsoluteAll(3, [6, 7, 8]).swizzle().value,
-        equals([Const(1), Const(1), Const(0)].swizzle().value));
+    expect(ppG0.getAbsoluteAll(3, [6, 7, 8]).concat().value,
+        equals([Const(1), Const(1), Const(0)].concat().value));
 
     ppG0
       ..muxAbsolute(0, 4, select, Const(0))
@@ -954,7 +954,7 @@ void main() {
 
     final rows = [
       for (var row = 0; row < ppG0.rows; row++)
-        ppG0.partialProducts[row].rswizzle(),
+        ppG0.partialProducts[row].rconcat(),
     ];
     final cc = ColumnCompressor(rows, ppG0.rowShift, dontCompress: true);
     const expectedRep = '''

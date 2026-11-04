@@ -5,6 +5,7 @@
 // Abstract definitions for error checking transmitters and receivers.
 //
 // 2024 January 18
+// Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
@@ -44,7 +45,7 @@ abstract class ErrorCheckingTransmitter<T extends Logic> extends Module {
 
     addOutput('code', width: codeWidth);
     addOutput('transmission', width: codeWidth + data.width) <=
-        [code, this.data].swizzle();
+        [code, this.data].concat();
 
     code <= calculateCode();
   }

@@ -18,7 +18,7 @@ void main() {
     final roundBit = Logic();
     final sticky = Logic();
     final sign = Logic();
-    final vector = [retainedLsb, guard, roundBit, sticky].swizzle();
+    final vector = [retainedLsb, guard, roundBit, sticky].concat();
 
     for (final mode in FloatingPointRoundingMode.values) {
       final explicit = FloatingPointRounder.fromGRS(

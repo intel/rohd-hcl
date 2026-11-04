@@ -71,7 +71,7 @@ class FullAdder extends Adder {
     if (carryIn == null) {
       throw RohdHclException('FullAdder must have a carryIn input');
     }
-    sum <= [carryIn! & (a ^ b) | a & b, (a ^ b) ^ carryIn!].swizzle();
+    sum <= [carryIn! & (a ^ b) | a & b, (a ^ b) ^ carryIn!].concat();
   }
 }
 

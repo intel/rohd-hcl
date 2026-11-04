@@ -13,9 +13,12 @@ import 'dart:math';
 
 import 'package:logging/logging.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
+
+import '../../verilator_test_utils.dart';
 
 // helper method to compute 2's complement representation
 // of the provided value based on its bit width
@@ -606,6 +609,77 @@ void main() {
   });
 
   group('divider tests', () {
+    test('reset and handshakes agree across simulation backends', () async {
+      final intf = MultiCycleDividerInterface(dataWidth: 8);
+      final dut = MultiCycleDivider(intf);
+      await dut.build();
+
+      final vectors = <Vector>[];
+      void cycle({
+        required int readyIn,
+        required int validOut,
+        int reset = 0,
+        int valid = 0,
+        int ready = 0,
+        int dividend = 0,
+        int divisor = 1,
+        int? quotient,
+        int? remainder,
+        int? divZero,
+      }) {
+        final inputs = {
+          'multi_cycle_divider_reset': reset,
+          'multi_cycle_divider_validIn': valid,
+          'multi_cycle_divider_readyOut': ready,
+          'multi_cycle_divider_dividend': dividend,
+          'multi_cycle_divider_divisor': divisor,
+          'multi_cycle_divider_isSigned': 0,
+        };
+        vectors
+          ..add(Vector({...inputs, 'multi_cycle_divider_clk': 0}, {}))
+          ..add(Vector({
+            ...inputs,
+            'multi_cycle_divider_clk': 1
+          }, {
+            'multi_cycle_divider_readyIn': readyIn,
+            'multi_cycle_divider_validOut': validOut,
+            if (quotient != null) 'multi_cycle_divider_quotient': quotient,
+            if (remainder != null) 'multi_cycle_divider_remainder': remainder,
+            if (divZero != null) 'multi_cycle_divider_divZero': divZero,
+          }));
+      }
+
+      cycle(reset: 1, readyIn: 1, validOut: 0);
+      cycle(valid: 1, readyIn: 0, validOut: 0);
+      cycle(reset: 1, readyIn: 1, validOut: 0);
+      cycle(valid: 1, readyIn: 0, validOut: 0);
+      cycle(readyIn: 0, validOut: 0);
+      cycle(readyIn: 0, validOut: 0);
+      cycle(readyIn: 0, validOut: 1, quotient: 0, remainder: 0, divZero: 0);
+      cycle(readyIn: 0, validOut: 1, quotient: 0, remainder: 0, divZero: 0);
+      cycle(ready: 1, readyIn: 1, validOut: 0);
+      cycle(
+          valid: 1,
+          dividend: 7,
+          divisor: 0,
+          readyIn: 0,
+          validOut: 1,
+          divZero: 1);
+      cycle(readyIn: 0, validOut: 1, divZero: 1);
+      cycle(ready: 1, readyIn: 1, validOut: 0);
+      cycle(valid: 1, dividend: 1, readyIn: 0, validOut: 0);
+      cycle(readyIn: 0, validOut: 0);
+      cycle(readyIn: 0, validOut: 0);
+      cycle(readyIn: 0, validOut: 1, quotient: 1, remainder: 0, divZero: 0);
+      cycle(readyIn: 0, validOut: 1, quotient: 1, remainder: 0, divZero: 0);
+      cycle(ready: 1, readyIn: 1, validOut: 0);
+
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      SimCompare.checkIverilogVector(dut, vectors);
+      expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+      expectNoVerilatorWarnings(dut, ['WIDTHEXPAND', 'CASEINCOMPLETE']);
+    });
+
     test('VF tests', () async {
       // Set the logger level
       Logger.root.level = Level.SEVERE;

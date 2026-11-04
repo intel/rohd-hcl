@@ -231,7 +231,8 @@ void main() {
           for (var i = 0; i < 2; i++) {
             reads[i].addr.inject(requestedAddress);
             writes[i].addr.inject(requestedAddress);
-            writes[i].en.inject(cycle == 9
+            writes[i].en.inject(cycle == 9 ||
+                    (registerWidth == null && (cycle == 10 || cycle == 15))
                 ? LogicValue.x
                 : LogicValue.ofInt(cycle % 3 == 0 ? 0 : 1, 1));
             writes[i].data.inject(data);

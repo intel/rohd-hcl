@@ -23,7 +23,7 @@ class PriorityArbiter extends Arbiter {
             definitionName:
                 definitionName ?? 'PriorityArbiter_W${requests.length}') {
     Combinational([
-      CaseZ(requests.rswizzle(), conditionalType: ConditionalType.priority, [
+      CaseZ(requests.rconcat(), conditionalType: ConditionalType.priority, [
         for (var i = 0; i < count; i++)
           CaseItem(
             Const(

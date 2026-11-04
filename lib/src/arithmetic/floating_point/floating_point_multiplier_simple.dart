@@ -58,11 +58,11 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
           'support flush to zero (FTZ)');
     }
 
-    final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
-            [a.mantissa, Const(0)].swizzle())
+    final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].concat(),
+            [a.mantissa, Const(0)].concat())
         .named('aMantissa');
-    final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
-            [b.mantissa, Const(0)].swizzle())
+    final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].concat(),
+            [b.mantissa, Const(0)].concat())
         .named('bMantissa');
 
     // Raw (unrounded) product mantissa width, independent of the output
@@ -136,7 +136,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
         ? [
             mantissa,
             Const(0, width: mantissaWidth + 1 - mantissa.width, fill: true)
-          ].swizzle().named('extendMantissa')
+          ].concat().named('extendMantissa')
         : mantissa.named('fullMantissa');
 
     final shiftAmount = mux(
