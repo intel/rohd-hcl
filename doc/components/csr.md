@@ -8,9 +8,59 @@ ROHD HCL provides an infrastructure for creating CSRs at a few different granula
 
 Each granularity will be discussed herein.
 
+## Using a CSR Top in Simulation
+
+A `CsrTop` can be built as RTL, as a software model, or both, depending on the
+`CsrImplementationConfiguration`:
+
+- `CsrImplementationConfiguration.software` builds no RTL blocks. The top exposes
+  `softwareModel`, which supports `poke`, `peek`, `snapshot`, and `load` without
+  driving ports. It can export a SystemC software model with `generateModelSystemC`.
+  Calling `dumpSystemVerilog` on it throws `UnsupportedError`.
+- The default RTL configuration builds hardware. `generateModelSystemC` throws
+  `StateError` on an RTL top, so an RTL top is not a software model.
+
+```dart
+final top = CsrTop(
+  config: config,
+  clk: clk,
+  reset: reset,
+  frontRead: DataPortInterface(16, 8),
+  frontWrite: DataPortInterface(16, 8),
+  implementationConfiguration: CsrImplementationConfiguration.software,
+);
+await top.build();
+
+final state = top.softwareModel!;
+final command = state.addressOf('control', 'command');
+state.poke(command, LogicValue.ofInt(0xbeef, 16));
+print(state.peek(command)); // 16'hbeef
+
+final header = top.generateModelSystemC(
+  className: 'DeviceCsrs',
+  options: const SystemCModelOptions(
+    portType: SystemCModelPortType.twoState,
+    unknownOutputs: SystemCUnknownOutputPolicy.zeroUntilReset,
+  ),
+);
+```
+
+A runnable version is in
+[`example/behavioral_model_example.dart`](../../example/behavioral_model_example.dart).
+For the general behavioral-model capability, the SystemC options, and the
+verification matrix that checks RTL, software, and SystemC legs against the same
+register behavior, see [Behavioral Models](./behavioral_models.md).
+
 ## Individual CSR Definition
 
 An individual CSR is an extension of a `LogicStructure` and its members are the fields of the register. The class in HW to create a CSR is called `Csr`. It is constructed by passing a configuration object of type `CsrInstanceConfig`.
+
+`Csr.withSet`, `getWriteData`, and `getBackdoorReadData` return `Csr` values,
+preserving the register configuration, named fields, and reserved-field layout.
+Whole-register write selection also uses typed CSR values internally, including
+split writes to registers wider than the frontdoor. Architectural frontdoor
+and backdoor buses remain packed bits; access policies and write priority are
+unchanged.
 
 ### CsrInstanceConfig
 
@@ -253,3 +303,277 @@ The following attributes and methods of `CsrTop` are exposed:
 - Accessors to all of the member attributes of the underlying `CsrTopConfig`.
 - `CsrBackdoorInterface getBackdoorPortsByName(String block, String reg)` which returns the `CsrBackdoorInterface` for the register with name `reg` within the block with name `block`. This enables encapsulating modules to drive/consume the backdoor read/write outputs.
 - `CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr)` which returns the `CsrBackdoorInterface` for the register with address `regAddr` within the block with base address `blockAddr`. This enables encapsulating modules to drive/consume the backdoor read/write outputs.
+
+## Whole-top software implementation
+
+`CsrTop` accepts an optional `implementationConfiguration`, independent of
+`CsrTopConfig`. Existing callers still construct synthesizable RTL with the
+existing concrete type and hardware backdoor interfaces. `CsrBlock` and
+`CsrBlock.csrs` are unchanged.
+
+For a large simulation-only map, select software state before construction:
+
+```dart
+final top = CsrTop(
+  config: config,
+  clk: clk,
+  reset: reset,
+  frontRead: readPort,
+  frontWrite: writePort,
+  implementationConfiguration: CsrImplementationConfiguration.software,
+);
+await top.build();
+```
+
+This models the entire top without constructing RTL blocks, individual register
+modules, register state signals, or internal forwarding networks. Clock/reset
+handling is shared across the top. Normal frontdoor writes use indexed state;
+reset and full snapshot/load operations necessarily visit the register map.
+The software state starts unknown, just as RTL does before reset.
+
+### Hardware exposure versus software inspection
+
+`CsrImplementationConfiguration.software` exposes **no** per-register hardware
+ports. All registers remain available through the frontdoor and software state
+API, subject to their respective semantics. Select hardware-connected registers
+explicitly when parent logic needs live structured reads or hardware writes:
+
+```dart
+const policy = CsrImplementationConfiguration(
+  implementation: CsrImplementation.software,
+  hardwareRegisters: {'control/command', 'status/value'},
+);
+```
+
+Keys are `block/register` configuration names. Requested names and architectural
+backdoor accessibility are validated. Existing backdoor lookup methods work for
+exposed registers and throw for unexposed registers. An empty set exposes none;
+`null` exposes all architecturally backdoor-accessible registers. In particular,
+selecting `implementation: CsrImplementation.software` without specifying the
+set retains full hardware exposure; it does not provide the same connectivity
+savings as the `software` convenience constant.
+
+Only selected hardware views allocate `CsrBackdoorInterface`/`Csr` signals and
+input listeners. Their cost scales with exposure, not the complete register map.
+Selective exposure is not supported by the RTL implementation.
+
+`top.softwareModel` is non-null only for software tops. Its raw state API does
+not allocate signals:
+
+```dart
+final state = top.softwareModel!;
+final address = state.addressOf('control', 'command');
+final value = state.peek(address);
+final saved = state.snapshot();
+state.poke(address, value);
+state.load(saved); // Overlay: unspecified registers retain their state.
+state.load({}, replace: true); // Unspecified registers take reset values.
+```
+
+Addresses are absolute logical register addresses, `block.baseAddr + reg.addr`,
+with no implicit conversion to bytes. Wide-register chunk addresses are
+frontdoor accesses, not separate entries in the raw state API. Values must have
+the exact register width; unknown addresses and width mismatches throw. Loads
+validate every entry before changing state. Raw poke/load bypass write
+permissions and field side effects: they do not perform W1C operations or emit
+write-only command pulses. Connected read outputs update immediately.
+
+The model preserves combinational frontdoor reads (including the existing
+read-enable behavior), synchronous write timing, configured reset mode,
+frontdoor-over-hardware-write priority, reserved/read-only fields, W1C
+hardware-set/software-clear behavior, legal-value transformations, and
+write-only command visibility. As in the current RTL implementation,
+register-level `readOnly` also prevents architectural hardware-backdoor writes;
+raw software loading is distinct. Four-state handling follows ROHD 0.6.11,
+including its procedural Z-to-X conversion and mux invalid-value propagation.
+
+`allowLargerRegisters` and `logicalRegisterIncrement` apply to both
+implementations. The top now forwards a non-default increment to RTL blocks
+as documented; older top construction inadvertently ignored that parameter.
+
+### Indirect construction
+
+A zone-local policy can select models for code that constructs concrete
+`CsrTop` instances internally:
+
+```dart
+final system = CsrImplementationScope.run(
+  CsrImplementationConfiguration.software,
+  () => buildSystem(),
+);
+```
+
+An explicit constructor policy overrides the scope; outside it RTL remains
+the default. Selection must surround construction, not just `build()`. Parent
+code that enumerates every configured hardware backdoor must itself understand
+selective exposure, or disable its backdoor forwarding.
+
+The downstream `CsrHub` was construction-tested unchanged in both same-domain
+and CDC paths with two 6,325-register software tops. For that hub, disable
+hardware forwarding with `backdoorAccess: false` and raise
+`maxBlocksPerCsrTop`/`maxCsrTopsPerHub` to avoid RTL-oriented sharding. This is
+not automatic hub-policy integration or a CDC transaction-conformance result.
+Loader-side splits can remain configuration metadata without constructing RTL
+blocks. Selective hub forwarding and automatic model-aware sharding remain
+downstream integration work.
+
+### Dart behavioral output scheduling
+
+Stored-state updates refresh only the affected exposed backdoors. Frontdoor
+signal changes separately refresh write-only command views, and outputs already
+holding the desired value are not deposited again. Reset and invalid-clock or
+unknown-address updates still refresh every affected register. This preserves
+command visibility, four-state values, and write priority without scanning all
+hardware readers after every ordinary clock edge or frontdoor signal change.
+Exposed field-level ROHD signals still incur the simulator's per-wire overhead;
+software state alone does not eliminate that cost.
+
+### Behavioral SystemC and unsupported RTL export
+
+After building the top:
+
+```dart
+final header = top.generateModelSystemC(className: 'DeviceCsrs');
+```
+
+This emits a standalone SystemC header with software-held register metadata and
+state, indexed address maps, and two shared processes, not thousands of RTL
+submodules. Bind the top's existing port names using `sc_signal<sc_logic>` for
+one-bit ports and `sc_signal<sc_lv<W>>` for wider ports. `peek` and `poke` are
+also available on the generated class. Custom `transformIllegalValue()`
+fallbacks are evaluated during Dart construction and serialized as constants.
+Addresses above 63 bits are explicitly unsupported by this backend.
+
+Backdoor port declarations retain their existing names. Width-grouped port
+tables connect them to shared write and read-driving loops; the behavioral
+algorithms are not unrolled once per register. Register and field metadata and
+port-table entries still grow with the exposed map size.
+
+The standalone backend works with released ROHD 0.6.11; no SystemC synthesizer
+dependency or ROHD upgrade is required. Its default ports preserve four states.
+
+For a generated two-state hierarchy, use
+`generateModelSystemC(className: 'DeviceCsrs', options: options)` with
+`SystemCModelOptions(portType: SystemCModelPortType.twoState,
+unknownOutputs: SystemCUnknownOutputPolicy.zeroUntilReset)`. Ports then
+use `bool`, `sc_uint<W>` up to 64 bits, and `sc_biguint<W>` above 64 bits, while
+register storage and field operations remain four-state. Before the first
+reset, an output containing unknown bits drives zero. After the first reset,
+such an output raises `SC_REPORT_ERROR("CSR_UNKNOWN_OUTPUT", portName)` and is
+not written. Unknown bits are never silently coerced after reset. Raw `peek`
+still observes the four-state state. Reset must be applied before normal use.
+
+The downstream `rohd_tools` exporter now accepts a `behavioralDefinition`
+callback, also available through `ScBehavioralScope` for indirect generator
+calls. The callback selects software tops during synthesis:
+
+```dart
+String? behavioralDefinition(Module module, String className) =>
+    generateBehavioralSystemC(module, className,
+        options: const SystemCModelOptions(
+            portType: SystemCModelPortType.twoState,
+            unknownOutputs: SystemCUnknownOutputPolicy.zeroUntilReset));
+
+final result = await ScBehavioralScope.run(
+  behavioralDefinition,
+  () => writeScSynthFiles(system, outputDirectory, naming, baseName),
+);
+await writeScPerModuleHeaders(outputDirectory, naming, result.headerDecls);
+```
+
+These exporter APIs are in the separate downstream package, not HCL. Once the
+provider is installed, nested software tops are substituted automatically;
+ordinary parent/APB/CDC logic continues through its normal backend. Existing
+generator entry points can be enclosed in the scope without changing their
+internal export calls. Construction must separately use the software policy.
+The downstream consumer must explicitly resolve an HCL revision containing
+this API and its existing ROHD SystemC backend; dependency pins are not changed
+by the adapter.
+
+The integrated exporter preserves builder-assigned unique type names,
+device-prefix naming, per-module header/source splitting, and umbrella
+finalization. Register metadata remains part of each class declaration so
+different CSR maps are not deduplicated accidentally. Unsupported custom
+leaves without a provider fail explicitly. Using a raw
+`SynthBuilder(..., SystemCSynthesizer())` bypasses this downstream adapter.
+
+### Portable memory-model foundation
+
+`CsrTop` implements the opt-in `BehavioralModelProvider` capability. Its
+`behavioralModel` is null for RTL and exposes the selected portable model for
+software instances. Exporters use `generateBehavioralSystemC` instead of CSR
+type checks; unrelated objects and RTL instances return null, while supported
+model export failures propagate. No existing memory class must adopt this
+capability to retain its current behavior.
+
+`CsrModelDescription.fromConfig` elaborates immutable metadata directly from
+architectural configuration, without constructing a top, signals, runtime
+state, or simulator listeners. It captures frontdoor `MemoryPortGeometry`,
+reset mode, chunk addresses, selected hardware-port names, and deep-copied
+register/field configuration. Custom `transformIllegalValue` callbacks are
+evaluated once and frozen as four-state values. Both `CsrSoftwareModel` and
+the description's `generateSystemC` use that same metadata; export does not
+capture runtime state or reevaluate callbacks. A description can be shared by
+independent runtimes or exported without ever creating a ROHD module.
+
+`SystemCModelOptions` describes the execution boundary, not memory backing.
+Four-state ports are the default. Two-state ports default to reporting
+**all** unknown outputs as errors, including before reset. The
+`zeroUntilReset` policy above is an explicit CSR integration choice, not an
+implicit convention for every future memory family.
+
+`MemoryStateAccess<Image>` is an optional raw-state contract. CSR implements
+it with `Map<int, LogicValue>` images and absolute logical register addresses.
+`MemoryStorageState` adapts existing `MemoryStorage` using word addresses:
+an unpopulated sparse entry returns null, distinct from a stored X value.
+Its raw access bypasses alignment and invalid-transaction callbacks. Images
+are immutable snapshots; loads validate completely before mutation and support
+overlay or replace. Replace resets omitted CSR registers to their reset values
+and clears omitted sparse-storage entries. Raw access does not apply
+architectural field-write side effects.
+
+`MemoryValueCodec` serializes exact `{width, bits}` values with X/Z and widths
+beyond native integers. It rejects malformed/truncated values and never
+silently discards bits.
+
+These are reusable foundations, not a generic RAM timing engine. Register-file,
+CAM, and legacy storage APIs remain unchanged. Full backing stores, loaders,
+banking, SRAM/RF variants, and RAM timing/collision/mask semantics remain later
+work; those engines must supply paired ROHD and compiled SystemC conformance
+using family-specific descriptions rather than inheriting CSR semantics.
+
+Integration checks compiled and executed two distinct 6,325-register models in
+a generated parent (three definitions total), and a 1,000-register software
+model behind generated `ApbCsrCompleter` logic, including byte-strobed write
+and readback. CDC transaction conformance remains a separate follow-up.
+
+Software tops deliberately reject SystemVerilog synthesis with an
+`UnsupportedError`; they never emit an empty functional shell or silently
+construct RTL. Use the default RTL policy for synthesizable output. A custom
+Verilog software-memory/DPI bridge has not been located or integrated, so
+behavioral Verilog remains a follow-up.
+
+### Conformance and scale measurements
+
+The software tests compare RTL, Dart, and compiled/executed SystemC traces,
+including unknown controls/data, reset modes, write-only fields spanning
+chunks, scalar ports, and data wider than 64 bits or the stored registers.
+Additional tests exercise synchronous upstream sampling, non-default address
+increments, software loads, explicit scope overrides, APB response latency,
+and 1,000/6,325-register construction with zero or fixed selected exposure.
+
+For reproducible measurements, run each implementation in a fresh process:
+
+```sh
+dart run tool/csr_model_benchmark.dart --count=1000
+dart run tool/csr_model_benchmark.dart --count=1000 --software
+dart run tool/csr_model_benchmark.dart --count=6325 --software
+dart run tool/csr_model_benchmark.dart --software --yaml=/path/to/map.yaml
+```
+
+The optional YAML adapter supports the inspected module/blocks/registers schema;
+it is not a replacement for the downstream loader. No external map is included.
+`--systemc-output=/path/to/model.h` writes behavioral output for software runs.
+JSON output separates configuration, construction, build, export, simulation,
+module count, and process peak RSS. Compare like-for-like exposure and workload;
+YAML parsing and shared-host conditions can dominate memory/timing.

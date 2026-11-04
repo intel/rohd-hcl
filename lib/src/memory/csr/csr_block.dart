@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_block.dart
@@ -73,13 +73,12 @@ class CsrBlock extends CsrContainer {
 
     for (var i = 0; i < csrs.length; i++) {
       if (csrs[i].config.backdoorAccessible) {
-        _backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
         backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
-        _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
+        _backdoorInterfaces.add(addInterfacePorts(backdoorInterfaces.last,
             outputTags: {CsrBackdoorPortGroup.read},
             inputTags: {CsrBackdoorPortGroup.write},
             uniquify: (original) =>
-                '${name}_${csrs[i].config.name}_backdoor_$original');
+                '${name}_${csrs[i].config.name}_backdoor_$original'));
         _backdoorIndexMap[i] = _backdoorInterfaces.length - 1;
       }
     }
@@ -165,7 +164,7 @@ class CsrBlock extends CsrContainer {
       // the register is wider than the data width of the frontdoor
       // which is only permissible if [allowLargerRegisters] is true.
       Logic? addrCheck;
-      Logic? dataToWrite;
+      Csr? dataToWrite;
       final hasWriteOnlyField = csrs[i]
           .config
           .fields
@@ -174,6 +173,8 @@ class CsrBlock extends CsrContainer {
       Logic? frontdoorWriteDataFull;
       if (frontWritePresent) {
         final dataWidth = frontWrite!.dataWidth;
+        final normalizedFrontWriteData =
+            frontWrite!.data ^ Const(0, width: dataWidth);
         if (dataWidth < csrs[i].config.width) {
           final rem = csrs[i].config.width % dataWidth;
           final targ = (csrs[i].config.width / dataWidth).ceil();
@@ -187,7 +188,7 @@ class CsrBlock extends CsrContainer {
 
           // we write the portion of the register that
           // corresponds to this logical address
-          final wrCases = <Logic, Logic>{};
+          final wrCases = <Logic, Csr>{};
           for (var j = 0; j < targ; j++) {
             final key = Const(csrs[i].addr + j * logicalRegisterIncrement,
                 width: addrWidth);
@@ -200,8 +201,9 @@ class CsrBlock extends CsrContainer {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        frontWrite!.data.getRange(0, rem == 0 ? dataWidth : rem)
-                      ].rswizzle())
+                        normalizedFrontWriteData.getRange(
+                            0, rem == 0 ? dataWidth : rem)
+                      ].rconcat())
                       .getRange(
                           j * dataWidth,
                           rem == 0
@@ -215,17 +217,18 @@ class CsrBlock extends CsrContainer {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        frontWrite!.data,
+                        normalizedFrontWriteData,
                         if ((j + 1) * dataWidth < csrs[i].config.width)
                           csrs[i].getRange((j + 1) * dataWidth),
-                      ].rswizzle())
+                      ].rconcat())
                       .getRange(j * dataWidth, (j + 1) * dataWidth));
             }
           }
-          dataToWrite = cases(
+          dataToWrite = cases<Csr>(
               frontWrite!.addr,
               conditionalType: ConditionalType.unique,
               wrCases,
+              outputGenerator: csrs[i].clone,
               defaultValue: csrs[i]);
 
           if (hasWriteOnlyField && config.registers[i].isFrontdoorWritable) {
@@ -237,20 +240,20 @@ class CsrBlock extends CsrContainer {
               final chunkWidth =
                   j == targ - 1 ? (rem == 0 ? dataWidth : rem) : dataWidth;
               final chunkData = j == targ - 1
-                  ? frontWrite!.data.getRange(0, chunkWidth)
-                  : frontWrite!.data;
+                  ? normalizedFrontWriteData.getRange(0, chunkWidth)
+                  : normalizedFrontWriteData;
               final highWidth =
                   csrs[i].config.width - j * dataWidth - chunkWidth;
               validCases[key] = [
                 if (j * dataWidth > 0) Const(0, width: j * dataWidth),
                 Const(1, width: 1).replicate(chunkWidth),
                 if (highWidth > 0) Const(0, width: highWidth),
-              ].rswizzle();
+              ].rconcat();
               dataCases[key] = [
                 if (j * dataWidth > 0) Const(0, width: j * dataWidth),
                 chunkData,
                 if (highWidth > 0) Const(0, width: highWidth),
-              ].rswizzle();
+              ].rconcat();
             }
             frontdoorWriteValidFull = mux(
                 frontWrite!.en,
@@ -271,14 +274,14 @@ class CsrBlock extends CsrContainer {
           // direct application of write data
           addrCheck =
               frontWrite!.addr.eq(Const(csrs[i].addr, width: addrWidth));
-          dataToWrite = csrs[i]
-              .getWriteData(frontWrite!.data.getRange(0, csrs[i].config.width));
+          dataToWrite = csrs[i].getWriteData(
+              normalizedFrontWriteData.getRange(0, csrs[i].config.width));
 
           if (hasWriteOnlyField && config.registers[i].isFrontdoorWritable) {
             frontdoorWriteValidFull =
                 (frontWrite!.en & addrCheck).replicate(csrs[i].config.width);
             frontdoorWriteDataFull =
-                frontWrite!.data.getRange(0, csrs[i].config.width);
+                normalizedFrontWriteData.getRange(0, csrs[i].config.width);
           }
         }
       }

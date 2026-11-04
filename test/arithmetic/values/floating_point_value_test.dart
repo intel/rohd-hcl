@@ -798,6 +798,18 @@ void main() {
       }
     });
 
+    test('FPV: deprecated random flags remain supported', () {
+      // Preserve coverage for arguments deprecated after v0.2.1.
+      // ignore: deprecated_member_use_from_same_package
+      final normal = populator().random(Random(1), normal: true);
+      // Preserve coverage for arguments deprecated after v0.2.1.
+      // ignore: deprecated_member_use_from_same_package
+      final subnormal = populator().random(Random(2), subNormal: true);
+
+      expect(normal.isNormal(), isTrue);
+      expect(subnormal.isSubnormal(), isTrue);
+    });
+
     test('FPV: constrained random testing key intervals', () {
       final points = [
         populator().ofConstant(FloatingPointConstants.negativeInfinity),

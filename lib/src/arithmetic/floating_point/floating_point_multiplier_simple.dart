@@ -58,11 +58,11 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
           'support flush to zero (FTZ)');
     }
 
-    final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].swizzle(),
-            [a.mantissa, Const(0)].swizzle())
+    final aMantissa = mux(a.isNormal, [a.isNormal, a.mantissa].concat(),
+            [a.mantissa, Const(0)].concat())
         .named('aMantissa');
-    final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].swizzle(),
-            [b.mantissa, Const(0)].swizzle())
+    final bMantissa = mux(b.isNormal, [b.isNormal, b.mantissa].concat(),
+            [b.mantissa, Const(0)].concat())
         .named('bMantissa');
 
     // Raw (unrounded) product mantissa width, independent of the output
@@ -75,7 +75,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     // narrower or wider than the inputs.
     final expCalcWidth = max(
         max(exponentWidth, max(a.exponent.width, b.exponent.width)) + 2,
-        log2Ceil(rawMantissaWidth + 1) + 1);
+        (rawMantissaWidth + 1).log2Ceil + 1);
     final addBias =
         (a.bias.zeroExtend(expCalcWidth) + b.bias.zeroExtend(expCalcWidth))
             .named('addBias');
@@ -112,8 +112,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
     final isNaNLatch = localFlop(isNaN);
     final invalidOperationLatch = localFlop(invalidOperation);
     final inputIsNaNLatch = localFlop(inputIsNaN);
-    final nanSignLatch = localFlop(propagatedNaN.sign);
-    final nanMantissaLatch = localFlop(propagatedNaN.mantissa);
+    final nanLatch = localFlop(propagatedNaN);
 
     final leadingOnePosPre =
         priorityGen(mantissa.reversed, name: 'leading_one_encoder')
@@ -137,7 +136,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
         ? [
             mantissa,
             Const(0, width: mantissaWidth + 1 - mantissa.width, fill: true)
-          ].swizzle().named('extendMantissa')
+          ].concat().named('extendMantissa')
         : mantissa.named('fullMantissa');
 
     final shiftAmount = mux(
@@ -226,11 +225,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
 
     Combinational([
       If(isNaNLatch, then: [
-        internalProduct.sign <
-            mux(inputIsNaNLatch, nanSignLatch, product.nan.sign),
-        internalProduct.exponent < product.nan.exponent,
-        internalProduct.mantissa <
-            mux(inputIsNaNLatch, nanMantissaLatch, product.nan.mantissa),
+        internalProduct < mux(inputIsNaNLatch, nanLatch, product.nan),
       ], orElse: [
         If(isInfLatch, then: [
           internalProduct < product.inf(sign: resultSign),

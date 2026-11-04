@@ -232,7 +232,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
         for (var i = 0; i < strobe.width; i++)
           (strobe[i].toBool() ? newData : originalData)
               .getRange(i * 8, i * 8 + 8)
-      ].rswizzle();
+      ].rconcat();
 
   // find the index of the region that the provided address falls in
   // if none, return -1
@@ -377,7 +377,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
       final currData = _dataReadResponseDataQueue[mapIdx][0]
           .map((d) => d.zeroExtend(rIntf.dataWidth))
           .toList()
-          .rswizzle();
+          .rconcat();
       final error = respondWithError != null && respondWithError!(packet);
 
       // check the request's region for legality
@@ -625,7 +625,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
               _strobeData(rdData, dataToWrite[i].data, dataToWrite[i].strb!);
           final wrData = (dSize < strobedData.width)
               ? [strobedData.getRange(0, dSize), rdData.getRange(dSize)]
-                  .rswizzle()
+                  .rconcat()
               : strobedData;
           storage.writeData(addrsToWrite[i], wrData);
         }

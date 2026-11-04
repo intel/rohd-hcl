@@ -40,7 +40,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
   /// The result of [FloatingPoint] conversion
   @protected
   late final FpTypeOut _destination =
-      destination.clone(name: 'destination') as FpTypeOut;
+      destination.cloneTyped(name: 'destination');
 
   /// Convert a [FloatingPoint] logic structure from one format to another.
   /// - [source] is the source format [FloatingPoint] logic structure.
@@ -87,8 +87,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     destMantissaWidth = destination.mantissa.width;
     source = addTypedInput('source', source);
 
-    final destOut = addTypedOutput('destination',
-        _destination.clone as FpTypeOut Function({String? name}));
+    final destOut = addTypedOutput('destination', _destination.cloneTyped);
     destOut <= _destination;
     destination <= destOut;
     _status = FloatingPointStatus(name: 'internalStatus');
@@ -100,8 +99,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     final maxExpWidth = [
       source.exponent.width,
       destExponentWidth,
-      log2Ceil(source.mantissa.width + 2),
-      log2Ceil(destMantissaWidth + 2)
+      (source.mantissa.width + 2).log2Ceil,
+      (destMantissaWidth + 2).log2Ceil
     ].reduce(max);
     final sBias = source.bias.zeroExtend(maxExpWidth).named('sourceBias');
     final dBias = destination.bias.zeroExtend(maxExpWidth).named('destBias');
@@ -109,7 +108,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     final mantissa = [
       source.isNormal & ~Const(source.explicitJBit),
       source.mantissa
-    ].swizzle().named('mantissa');
+    ].concat().named('mantissa');
 
     final nan = source.isNaN;
     final Logic overflow;
@@ -226,7 +225,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               ? [
                   sliceMantissa,
                   Const(0, width: destMantissaWidth - newMantissa.width + 1)
-                ].swizzle()
+                ].concat()
               : roundedMantissa)
           .named('destMantissa');
 
@@ -290,7 +289,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       final tns = (nextShift - (se - newSe) + jBitAdjust).named('tns');
 
       final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
-          .swizzle()
+          .concat()
           .named('fullMantissa');
 
       final shiftMantissa =
@@ -315,7 +314,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       final roundAdder = adderGen(
           postPredRndMantissa,
           [Const(0, width: destMantissaWidth - 1), rounder.doRound]
-              .swizzle()
+              .concat()
               .named('rndIncrement'));
       final roundIncExp = roundAdder.sum[-1];
       final rawMantissa = roundAdder.sum;

@@ -97,9 +97,10 @@ more detail.
 ## Unit Testing
 
  A good component has unit tests to validate the component and provide examples
- of use. We use the Dart testing framework which requires that tests are stored
- in the `test/` directory and are named ending in `_test.dart`. An example of
- unit tests for a component is shown below.  Note that grouping of tests can
+ of use. We use the Dart testing framework, with tests stored under `test/` in
+ the directory matching the component family (for example, `test/memory/`).
+ Test files end in `_test.dart`. An example of unit tests for a component is
+ shown below. Note that grouping of tests can
  reuse a common component built for multiple tests.  Also note that each test
  with sequential logic will need a `SimpleClockGenerator`, a `Simulator.run()`
  and an `endSimulation`. Some helper methods (like `.waitCycles`) are available
@@ -152,6 +153,13 @@ void main() {
 Prefer using `waitCycles` instead of `nextPosedge` and use `inject` instead of
 `put` when working with sequential tests.
 
+For a parameterized test matrix, construct one DUT for each unique elaboration
+configuration, then drive all of that configuration's value vectors through the
+same DUT. Do not instantiate every configuration while registering tests in a
+loop: use a lazy factory inside each test callback so unexecuted configurations
+do not consume simulator memory. Construct separate DUTs only when a parameter
+changes the generated hardware.
+
 When testing a combinational path, and you `inject` inputs after a positive
 clock edge, if you sample at the next clock edge, you will miss the
 combinational value.  Instead, use the output `previousValue` at the next clock
@@ -165,9 +173,25 @@ functionality.
 
 ## ROHD-HCL Component Integration
 
-After implementing a component, export it from the appropriate library barrel
-and `lib/rohd_hcl.dart`. Add focused tests under `test/`, including a
-nested-parent build test for every composable module.
+After implementing a component, place it in the matching
+`lib/src/<category>/<subcategory>/` directory (see the source layout in
+[README.md](./README.md)) and export it from that subcategory's barrel. The
+category barrels are already exported by `lib/rohd_hcl.dart`. Add focused tests
+under `test/<category>/`, including a nested-parent build test for every
+composable module. When a category has more than about six direct test files,
+split tests into subdirectories matching the source subcategories under
+`lib/src/`.
+
+For a component that must accept and emit different transport protocols, keep
+the hardware core protocol-neutral. Define typed action/payload requests and
+bindings with `HardwareCoreFunctor`, then add one typed directional attachment
+per boundary. Each attachment owns its protocol handshake or accounting and
+maps it to the core actions; it also publishes
+`DirectionalAttachmentCapabilities` so composition behavior is explicit.
+Do not introduce a universal protocol interface or duplicate a core for each
+protocol pair. P00 establishes synchronous and ready/valid attachments over
+the FIFO core; later branches add credit or other protocol attachments using
+the same core-and-attachment seam.
 
 Every documented, synthesizable public `Module` must have a `Configurator`
 under `lib/src/component_config/components/` and an entry in
@@ -178,6 +202,8 @@ runtime-selectable controls as generated named `Logic` inputs. Pure
 `LogicStructure`/`Interface` APIs, callback-only implementation primitives,
 and simulation-only models do not require configurators. The registry drives
 both the configuration app and documentation netlist generation.
+Override each configurator's `category` and `subcategory` to match the source
+directory.
 
 Complete the Confapp source-asset, generated-view, and regression-test work
 described in [the Confapp README](../confapp/README.md). Application setup and

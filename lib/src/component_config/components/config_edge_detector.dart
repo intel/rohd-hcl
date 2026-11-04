@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_edge_detector.dart
@@ -15,6 +15,12 @@ import 'package:rohd_vf/rohd_vf.dart';
 
 /// A [Configurator] for [EdgeDetector].
 class EdgeDetectorConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.clocking;
+
+  @override
+  String get subcategory => 'event-detection';
+
   /// A knob controlling the type of edge detector.
   final ChoiceConfigKnob<Edge> edgeTypeKnob =
       ChoiceConfigKnob(Edge.values, value: Edge.pos);

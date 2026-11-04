@@ -7,18 +7,12 @@
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 
-/// Computes the bit width needed to store [w] addresses.
-int log2Ceil(int w) => (log(w) / log(2)).ceil();
-
 /// Returns the minimum number of bits needed to represent [val] distinct
 /// values, with a minimum of 1 (since 0-width signals are not valid in
 /// hardware).
 ///
-/// Equivalent to `max(1, log2Ceil(val))`.
-int widthFor(int val) => max(1, log2Ceil(val));
-
-/// Returns whether [n] is a power of two.
-bool isPowerOfTwo(int n) => n != 0 && (n & (n - 1) == 0);
+/// Equivalent to `max(1, val.log2Ceil)`.
+int widthFor(int val) => max(1, val.log2Ceil);
 
 /// This extension will eventually move to ROHD once it is proven useful.
 extension LogicValueBitString on LogicValue {
@@ -90,35 +84,48 @@ extension SignedBigInt on BigInt {
 /// - If [asyncReset] is `true`, the [reset] signal (if provided) will be
 ///   treated as an async reset. If [asyncReset] is `false`, the reset signal
 ///   will be treated as synchronous.
-Logic condFlop(
+///
+/// Preserves [LogicType] and runtime structured layouts. [outputGenerator] can
+/// supply an explicit registered output schema. A null [clk] returns [d]
+/// unchanged. Use `condFlop<Logic>` for scalar constants or nets that need a
+/// driveable registered result.
+LogicType condFlop<LogicType extends Logic>(
   Logic? clk,
-  Logic d, {
+  LogicType d, {
   Logic? en,
   Logic? reset,
   dynamic resetValue,
   bool asyncReset = false,
-}) =>
-    (clk == null)
-        ? d
-        : flop(clk, d,
-                en: en,
-                reset: reset,
-                resetValue: resetValue,
-                asyncReset: asyncReset)
-            .named('${d.name}_flopped');
+  LogicType Function({String? name})? outputGenerator,
+}) {
+  if (clk == null) {
+    return d;
+  }
+  final clone = d.cloneTyped;
+  final registered = flop<LogicType>(clk, d,
+      en: en,
+      reset: reset,
+      resetValue: resetValue,
+      asyncReset: asyncReset,
+      outputGenerator: outputGenerator ??
+          (d is LogicStructure || d is LogicEnum ? clone : null));
+  return registered.cloneTyped(name: '${d.name}_flopped')..gets(registered);
+}
 
 /// Swap two [Logic] structures based on a conditional [doSwap].
 (LogicType, LogicType) swap<LogicType extends Logic>(
     Logic doSwap, (LogicType, LogicType) toSwap) {
-  final in1 = toSwap.$1.named('swapIn1_${toSwap.$1.name}');
-  final in2 = toSwap.$2.named('swapIn2_${toSwap.$2.name}');
-
-  LogicType clone({String? name}) => toSwap.$1.clone(name: name) as LogicType;
-
-  final out1 = mux(doSwap, in2, in1).named('swapOut1');
-  final out2 = mux(doSwap, in1, in2).named('swapOut2');
-  final first = clone(name: 'swapOut1')..gets(out1);
-  final second = clone(name: 'swapOut2')..gets(out2);
-
-  return (first, second);
+  final (in1, in2) = toSwap;
+  final firstClone = in1.cloneTyped;
+  final secondClone = in2.cloneTyped;
+  final out1 = mux<LogicType>(doSwap, in2, in1,
+      outputGenerator:
+          in1 is LogicStructure || in1 is LogicEnum ? firstClone : null);
+  final out2 = mux<LogicType>(doSwap, in1, in2,
+      outputGenerator:
+          in2 is LogicStructure || in2 is LogicEnum ? secondClone : null);
+  return (
+    out1.cloneTyped(name: 'swapOut1')..gets(out1),
+    out2.cloneTyped(name: 'swapOut2')..gets(out2),
+  );
 }

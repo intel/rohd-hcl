@@ -1,0 +1,422 @@
+// Copyright (C) 2025-2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// dotproduct_test.dart
+// An integer dot-product set of unit tests..
+//
+// 2025 July 23
+// Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
+import 'dart:math';
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:test/test.dart';
+
+const _randomIterations = 20;
+
+void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
+  final dotProductModules = [
+    CompressionTreeDotProduct.new,
+    GeneralDotProduct.new
+  ];
+
+  test('dot product definition names include adder identity', () {
+    final multiplicands = [Logic(width: 4), Logic(width: 4)];
+    final multipliers = [Logic(width: 4), Logic(width: 4)];
+
+    final compressionNative =
+        CompressionTreeDotProduct(multiplicands, multipliers);
+    final compressionRipple = CompressionTreeDotProduct(
+        multiplicands, multipliers,
+        adderGen: RippleCarryAdder.new, adderIdentity: 'rippleCarry');
+    final generalNative = GeneralDotProduct(multiplicands, multipliers);
+    final generalRipple = GeneralDotProduct(multiplicands, multipliers,
+        adderGen: RippleCarryAdder.new, adderIdentity: 'rippleCarry');
+
+    expect(compressionNative.definitionName, contains('Addnative'));
+    expect(compressionRipple.definitionName, contains('AddrippleCarry'));
+    expect(compressionNative.definitionName,
+        isNot(compressionRipple.definitionName));
+    expect(generalNative.definitionName, contains('Addnative'));
+    expect(generalRipple.definitionName, contains('AddrippleCarry'));
+    expect(generalNative.definitionName, isNot(generalRipple.definitionName));
+  });
+
+  test('dotproduct width mismatch test', () {
+    final multiplicands = [
+      Logic(width: 3, name: 'a_0'),
+      Logic(width: 4, name: 'a_1'),
+      Logic(width: 3, name: 'a_2'),
+      Logic(width: 3, name: 'a_3')
+    ];
+    final multipliers = [
+      Logic(width: 3, name: 'b_0'),
+      Logic(width: 3, name: 'b_1'),
+      Logic(width: 3, name: 'b_2'),
+      Logic(width: 3, name: 'b_3')
+    ];
+    final multiplicands2 = [
+      Logic(width: 4, name: 'b_0'),
+      Logic(width: 4, name: 'b_1'),
+      Logic(width: 4, name: 'b_2'),
+      Logic(width: 4, name: 'b_3')
+    ];
+
+    CompressionTreeDotProduct(multipliers, multipliers);
+    try {
+      CompressionTreeDotProduct(multiplicands, multipliers);
+      fail('Should throw on a multiplicand width mismatch');
+    } on RohdHclException catch (e) {
+      expect(e.message, contains('Multiplicands must all have the same width'));
+    }
+
+    expect(
+      () => CompressionTreeDotProduct(multiplicands2, multipliers),
+      throwsA(
+        isA<RohdHclException>().having(
+          (error) => error.message,
+          'message',
+          contains('requires equal multiplicand and multiplier widths'),
+        ),
+      ),
+    );
+    final mixedWidth = GeneralDotProduct(multiplicands2, multipliers);
+    expect(mixedWidth.product.width, 9);
+    expect(
+      mixedWidth.definitionName,
+      contains('GeneralDotProduct_L4_A4_B3_R2_native'),
+    );
+  });
+
+  test('general dot product composes mixed-width compression multipliers', () {
+    final multiplicands = [Logic(width: 4), Logic(width: 4)];
+    final multipliers = [Logic(width: 3), Logic(width: 3)];
+    const leftValues = [0, 1, 7, 8, 15];
+    const rightValues = [0, 1, 3, 7];
+
+    for (final signedMultiplicand in [false, true]) {
+      for (final signedMultiplier in [false, true]) {
+        final dotProduct = GeneralDotProduct(
+          multiplicands,
+          multipliers,
+          signedMultiplicand: signedMultiplicand,
+          signedMultiplier: signedMultiplier,
+          multiplierGen: _compressionTreeMultiplier,
+          multiplierIdentity: 'compressionTreeR4',
+        );
+        for (final left0 in leftValues) {
+          for (final left1 in leftValues) {
+            for (final right0 in rightValues) {
+              for (final right1 in rightValues) {
+                multiplicands[0].put(left0);
+                multiplicands[1].put(left1);
+                multipliers[0].put(right0);
+                multipliers[1].put(right1);
+                final expected = BigInt.from(left0).toCondSigned(
+                          4,
+                          signed: signedMultiplicand,
+                        ) *
+                        BigInt.from(right0).toCondSigned(
+                          3,
+                          signed: signedMultiplier,
+                        ) +
+                    BigInt.from(left1).toCondSigned(
+                          4,
+                          signed: signedMultiplicand,
+                        ) *
+                        BigInt.from(right1).toCondSigned(
+                          3,
+                          signed: signedMultiplier,
+                        );
+                final computed =
+                    dotProduct.product.value.toBigInt().toCondSigned(
+                          dotProduct.product.width,
+                          signed: signedMultiplicand || signedMultiplier,
+                        );
+                expect(
+                  computed,
+                  expected,
+                  reason: 'left=[$left0,$left1] right=[$right0,$right1] '
+                      'signed=[$signedMultiplicand,$signedMultiplier]',
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test('dotproduct signed-variants boundary sweep', () {
+    // A compression-tree multiplier requires at least three bits. These
+    // patterns preserve the unsigned and signed boundaries in every lane:
+    // zero, one, maximum positive, minimum signed, and minus one.
+    const widths = [3, 3];
+    const boundaryValues = [0, 1, 3, 4, 7];
+    final boundaryVectors = [
+      for (final first in boundaryValues)
+        for (final second in boundaryValues)
+          [BigInt.from(first), BigInt.from(second)],
+    ];
+    final depth = widths.length;
+    final multiplicands = [
+      for (var i = 0; i < depth; i++) Logic(width: widths[i])..put(0)
+    ];
+    final multipliers = [
+      for (var i = 0; i < depth; i++) Logic(width: widths[i])..put(0)
+    ];
+
+    for (final signedMultiplicand in [false, true]) {
+      for (final signedMultiplier in [false, true]) {
+        for (final dotProductModule in dotProductModules) {
+          // Create the dot product module with the current parameters.
+          // Note that the `dotProduct` function is a constructor for the
+          // respective dot product module.
+          final dotProduct = dotProductModule(multiplicands, multipliers,
+              signedMultiplicand: signedMultiplicand,
+              signedMultiplier: signedMultiplier);
+
+          for (final candValues in boundaryVectors) {
+            for (final multValues in boundaryVectors) {
+              for (var m = 0; m < multiplicands.length; m++) {
+                multiplicands[m].put(candValues[m]);
+                multipliers[m].put(multValues[m]);
+              }
+              final expected = List.generate(
+                      candValues.length,
+                      (i) =>
+                          candValues[i].toCondSigned(widths[i],
+                              signed: signedMultiplicand) *
+                          multValues[i].toCondSigned(widths[i],
+                              signed: signedMultiplier))
+                  .reduce((sum, product) => sum + product)
+                  .toCondSigned(dotProduct.product.width,
+                      signed: signedMultiplier | signedMultiplicand);
+              final computedLogic = dotProduct.product;
+              final computed = computedLogic.value.toBigInt().toCondSigned(
+                  computedLogic.width,
+                  signed: signedMultiplier | signedMultiplicand);
+
+              expect(computed, equals(expected), reason: '''
+          multiplicands=$candValues
+          multipliers=$multValues
+          computed=$computed, expected=$expected
+          computedBits=${dotProduct.product.value.bitString}
+          expectedBits=${expected.toRadixString(2)}
+  ''');
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test('dotproduct signed-variants random', () {
+    const iterations = _randomIterations;
+
+    const widths = [4, 4, 4, 4, 4];
+    final depth = widths.length;
+
+    final multiplicands = [
+      for (var i = 0; i < depth; i++) Logic(width: widths[i])..put(0)
+    ];
+    final multipliers = [
+      for (var i = 0; i < depth; i++) Logic(width: widths[i])..put(0)
+    ];
+
+    for (final signedMultiplicand in [false, true]) {
+      for (final signedMultiplier in [false, true]) {
+        for (final dotProductModule in dotProductModules) {
+          final dotProduct = dotProductModule(multiplicands, multipliers,
+              signedMultiplicand: signedMultiplicand,
+              signedMultiplier: signedMultiplier);
+
+          final rv = Random(57);
+          for (var iteration = 0; iteration < iterations; iteration++) {
+            final candValues = [
+              for (var i = 0; i < depth; i++)
+                rv.nextLogicValue(width: widths[i])
+            ];
+            final multValues = [
+              for (var i = 0; i < depth; i++)
+                rv.nextLogicValue(width: widths[i])
+            ];
+
+            for (var m = 0; m < multiplicands.length; m++) {
+              multiplicands[m].put(candValues[m]);
+              multipliers[m].put(multValues[m]);
+            }
+
+            final productWidth = dotProduct.product.width;
+
+            final expected = List.generate(
+                    candValues.length,
+                    (i) =>
+                        candValues[i].toBigInt().toCondSigned(widths[i],
+                            signed: signedMultiplicand) *
+                        multValues[i]
+                            .toBigInt()
+                            .toCondSigned(widths[i], signed: signedMultiplier))
+                .reduce((sum, product) => sum + product)
+                .toCondSigned(productWidth,
+                    signed: signedMultiplier | signedMultiplicand);
+            final computedLogic = dotProduct.product;
+            final computed = computedLogic.value.toBigInt().toCondSigned(
+                computedLogic.width,
+                signed: signedMultiplier | signedMultiplicand);
+            expect(computed, equals(expected), reason: '''
+          multiplicands=${candValues.map((m) => m.toBigInt())}
+          multipliers=${multValues.map((m) => m.toBigInt())}
+          computed=$computed, expected=$expected
+          computedBits=${dotProduct.product.value.bitString}
+          expectedBits=${expected.toCondSigned(productWidth).toRadixString(2)}
+  ''');
+          }
+        }
+      }
+    }
+  });
+
+  test('general dotproduct dynamically extends partial sums', () {
+    const width = 4;
+    const length = 5;
+    final multiplicands = [
+      for (var i = 0; i < length; i++) Logic(width: width)..put(0xf)
+    ];
+    final multipliers = [
+      for (var i = 0; i < length; i++) Logic(width: width)..put(0xf)
+    ];
+    final signedMultiplicand = Logic(name: 'signedMultiplicand')..put(0);
+    final signedMultiplier = Logic(name: 'signedMultiplier')..put(0);
+    final dotProduct = GeneralDotProduct(
+      multiplicands,
+      multipliers,
+      signedMultiplicand: signedMultiplicand,
+      signedMultiplier: signedMultiplier,
+    );
+
+    expect(dotProduct.product.value.toBigInt(), equals(BigInt.from(1125)),
+        reason: 'unsigned partial sums must be zero-extended');
+
+    signedMultiplicand.put(1);
+    signedMultiplier.put(1);
+    expect(dotProduct.product.value.toBigInt(), equals(BigInt.from(5)),
+        reason: 'signed partial sums must be sign-extended');
+  });
+
+  test('dotproduct singleton', () {
+    const widths = [3, 3];
+    final depth = widths.length;
+    const signedMultiplicand = true;
+    const signedMultiplier = true;
+
+    final multiplicands = [
+      for (var i = 0; i < depth; i++) Logic(width: widths[i])
+    ];
+    final multipliers = [
+      for (var i = 0; i < depth; i++) Logic(width: widths[i])
+    ];
+
+    final candValues = [4, 6];
+    final multValues = [7, 4];
+    final signedCandValues = [
+      for (var i = 0; i < depth; i++)
+        BigInt.from(candValues[i])
+            .toCondSigned(widths[i], signed: signedMultiplicand)
+    ];
+    final signedMultValues = [
+      for (var i = 0; i < depth; i++)
+        BigInt.from(multValues[i])
+            .toCondSigned(widths[i], signed: signedMultiplier)
+    ];
+    for (var m = 0; m < multiplicands.length; m++) {
+      multiplicands[m].put(BigInt.from(candValues[m])
+          .toCondSigned(widths[m], signed: signedMultiplicand));
+      multipliers[m].put(BigInt.from(multValues[m])
+          .toCondSigned(widths[m], signed: signedMultiplier));
+    }
+    final dotProduct = CompressionTreeDotProduct(multiplicands, multipliers,
+        signedMultiplicand: signedMultiplicand,
+        signedMultiplier: signedMultiplier);
+
+    final expected = List.generate(
+            candValues.length, (i) => signedCandValues[i] * signedMultValues[i])
+        .reduce((sum, product) => sum + product)
+        .toCondSigned(dotProduct.product.width,
+            signed: signedMultiplier | signedMultiplicand);
+    final computedLogic = dotProduct.product;
+    final computed = computedLogic.value.toBigInt();
+    expect(computed, equals(expected), reason: '''
+          multiplicands=$candValues
+          multipliers=$multValues
+          computed=$computed, expected=$expected
+          computedBits=${dotProduct.product.value.toRadixString()}
+          expectedBits=${expected.toRadixString(2)}
+  ''');
+  });
+
+  test('dotproduct trivial case', () {
+    const width = 4;
+    final multiplicands = [Logic(width: width), Logic(width: width)];
+    final multipliers = [Logic(width: width), Logic(width: width)];
+
+    final multiplicandValues = [4, 8];
+    final multiplierValues = [2, 3];
+
+    for (var i = 0; i < multiplicands.length; i++) {
+      multiplicands[i].put(multiplicandValues[i]);
+      multipliers[i].put(multiplierValues[i]);
+    }
+    final dotProduct = GeneralDotProduct(multiplicands, multipliers);
+
+    final expected = List.generate(multiplicands.length,
+            (i) => multiplicandValues[i] * multiplierValues[i])
+        .reduce((sum, product) => sum + product);
+    final computedLogic = dotProduct.product;
+    final computed = computedLogic.value.toInt();
+    expect(computed, equals(expected), reason: '''
+          multiplicands=$multiplicandValues
+          multipliers=$multiplierValues
+          computed=$computed, expected=$expected
+          computedBits=${dotProduct.product.value.toRadixString()}
+          expectedBits=${expected.toRadixString(2)}
+          ''');
+  });
+
+  test('dotproduct synthesis', () async {
+    final multiplicands = <Logic>[];
+    final multipliers = <Logic>[];
+    for (var i = 0; i < 4; i++) {
+      multiplicands.add(Logic(width: 32, name: 'a_$i'));
+      multipliers.add(Logic(width: 32, name: 'b_$i'));
+    }
+    final dotProduct = CompressionTreeDotProduct(multiplicands, multipliers,
+        productRadix: 8, definitionName: 'DotProduct');
+    await dotProduct.build();
+    expect(dotProduct.dumpSystemVerilog(), isNotEmpty);
+  });
+}
+
+Multiplier _compressionTreeMultiplier(
+  Logic a,
+  Logic b, {
+  Logic? clk,
+  Logic? reset,
+  Logic? enable,
+  dynamic signedMultiplicand,
+  dynamic signedMultiplier,
+}) =>
+    CompressionTreeMultiplier(
+      a,
+      b,
+      clk: clk,
+      reset: reset,
+      enable: enable,
+      signedMultiplicand: signedMultiplicand,
+      signedMultiplier: signedMultiplier,
+    );

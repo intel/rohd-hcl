@@ -111,8 +111,8 @@ class Axi4BfmTest extends Test {
         user: LogicValue.ofInt(0, awIntfC.userWidth), // not supported
       ),
       Axi4DataPacket(
-        data: pData.rswizzle(),
-        strb: pStrobes.rswizzle(),
+        data: pData.rconcat(),
+        strb: pStrobes.rconcat(),
         user: LogicValue.ofInt(0, wIntfC.userWidth), // not supported
         id: LogicValue.ofInt(laneId, wIntfC.idWidth),
       )
@@ -1091,11 +1091,11 @@ class Axi4WriteComplianceEvilTest extends Test {
     );
     final req1b = Axi4DataPacket(
       data: [LogicValue.ofInt(0x0, wIntf.wIntf.dataWidth)]
-          .rswizzle(), // don't care
+          .rconcat(), // don't care
       id: LogicValue.ofInt(0x0, wIntf.wIntf.idWidth), // don't care
       user: LogicValue.ofInt(0, wIntf.wIntf.userWidth), // not supported
       strb: [LogicValue.ofInt(0x0, wIntf.wIntf.dataWidth)]
-          .rswizzle(), // don't care
+          .rconcat(), // don't care
     );
     sequencer.add(req1a);
     sequencerD.add(req1b);
@@ -1129,7 +1129,7 @@ class Axi4WriteComplianceEvilTest extends Test {
         LogicValue.ofInt(0x0, wIntf.wIntf.dataWidth),
         LogicValue.ofInt(0x0, wIntf.wIntf.dataWidth),
         LogicValue.ofInt(0x0, wIntf.wIntf.dataWidth)
-      ].rswizzle(), // bad
+      ].rconcat(), // bad
       id: LogicValue.ofInt(0x1, wIntf.wIntf.idWidth), // don't care
       user: LogicValue.ofInt(0, wIntf.wIntf.userWidth), // not supported
       strb: [
@@ -1137,7 +1137,7 @@ class Axi4WriteComplianceEvilTest extends Test {
         LogicValue.ofInt(0x0, wIntf.wIntf.strbWidth),
         LogicValue.ofInt(0x0, wIntf.wIntf.strbWidth),
         LogicValue.ofInt(0x0, wIntf.wIntf.strbWidth)
-      ].rswizzle(), // bad
+      ].rconcat(), // bad
     );
     sequencer.add(req2a);
     sequencerD.add(req2b);
@@ -1394,7 +1394,7 @@ void main() {
     if (dumpWaves) {
       final mod = Axi4Subordinate(axi4BfmTest.sIntf, axi4BfmTest.lanes);
       await mod.build();
-      WaveDumper(mod);
+      mod.dumpWaves();
     }
 
     await axi4BfmTest.start();

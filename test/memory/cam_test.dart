@@ -32,40 +32,37 @@ void main() {
         Cam(clk, reset, [wrPort, wrPort2], [rdPort, rdPort2], numEntries: 32);
 
     await cam.build();
+    reset.put(1);
+    wrPort.en.put(0);
+    wrPort2.en.put(0);
     unawaited(Simulator.run());
 
-    await clk.nextPosedge;
-    await clk.nextPosedge;
-    wrPort.en.inject(0);
-    reset.inject(1);
-    await clk.nextPosedge;
-    reset.inject(0);
-    await clk.nextPosedge;
+    try {
+      await clk.nextPosedge;
+      await clk.nextNegedge;
+      reset.put(0);
 
-    wrPort.en.inject(1);
-    wrPort2.en.inject(1);
-    wrPort.hit.inject(1);
-    wrPort2.hit.inject(1);
-    wrPort.idx.inject(14);
-    wrPort.tag.inject(42);
-    wrPort2.idx.inject(29);
-    wrPort2.tag.inject(7);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
-    wrPort.en.inject(0);
-    wrPort2.en.inject(0);
-    await clk.nextPosedge;
-    rdPort.tag.inject(42);
-    rdPort2.tag.inject(7);
-    await clk.nextPosedge;
-    expect(rdPort.hit.value, LogicValue.one);
-    expect(rdPort.idx.value.toInt(), 14);
-    expect(rdPort2.hit.value, LogicValue.one);
-    expect(rdPort2.idx.value.toInt(), 29);
-    await clk.nextPosedge;
-    await clk.nextPosedge;
-
-    await Simulator.endSimulation();
+      wrPort.en.put(1);
+      wrPort2.en.put(1);
+      wrPort.hit.put(1);
+      wrPort2.hit.put(1);
+      wrPort.idx.put(14);
+      wrPort.tag.put(42);
+      wrPort2.idx.put(29);
+      wrPort2.tag.put(7);
+      await clk.nextNegedge;
+      wrPort.en.put(0);
+      wrPort2.en.put(0);
+      rdPort.tag.put(42);
+      rdPort2.tag.put(7);
+      await clk.nextNegedge;
+      expect(rdPort.hit.value, LogicValue.one);
+      expect(rdPort.idx.value.toInt(), 14);
+      expect(rdPort2.hit.value, LogicValue.one);
+      expect(rdPort2.idx.value.toInt(), 29);
+    } finally {
+      await Simulator.endSimulation();
+    }
   });
 
   test('Cam with valid tracking', () async {
@@ -75,8 +72,8 @@ void main() {
     final clk = SimpleClockGenerator(10).clk;
     final reset = Logic();
 
-    final wrPort = TagInterface(log2Ceil(numEntries), tagWidth);
-    final rdPort = TagInterface(log2Ceil(numEntries), tagWidth);
+    final wrPort = TagInterface(numEntries.log2Ceil, tagWidth);
+    final rdPort = TagInterface(numEntries.log2Ceil, tagWidth);
 
     final cam = Cam(
       clk,

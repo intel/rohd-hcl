@@ -22,10 +22,10 @@ class OutputWidthSelectKnob extends GroupOfKnobs {
   OutputWidthSelectKnob() : super({}, name: 'Output width selection');
 
   /// Controls the width of the output exponent.
-  final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob exponentWidthKnob = PositiveIntConfigKnob(value: 4);
 
   /// Controls the width of the output mantissa.
-  final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 5);
+  final IntConfigKnob mantissaWidthKnob = PositiveIntConfigKnob(value: 5);
 
   /// Whether the output format includes an explicit J bit.
   final ToggleConfigKnob explicitJBitKnob = ToggleConfigKnob(value: false);
@@ -45,6 +45,12 @@ class OutputWidthSelectKnob extends GroupOfKnobs {
 
 /// A [Configurator] for [FloatingPointMultiplierSimple]s.
 class FloatingPointMultiplierSimpleConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'floating-point';
+
   /// Select the type of mantissa multiplier.
   final multiplierSelectKnob = MultiplierSelectKnob(
     allowSigned: false,
@@ -53,10 +59,10 @@ class FloatingPointMultiplierSimpleConfigurator extends Configurator {
   );
 
   /// Controls the width of the exponent.
-  final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob exponentWidthKnob = PositiveIntConfigKnob(value: 4);
 
   /// Controls the width of the mantissa.
-  final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 5);
+  final IntConfigKnob mantissaWidthKnob = PositiveIntConfigKnob(value: 5);
 
   /// Whether the input formats include an explicit J bit.
   final ToggleConfigKnob inputExplicitJBitKnob = ToggleConfigKnob(value: false);

@@ -23,14 +23,20 @@ enum DotProductImplementation {
 
 /// A [Configurator] for documented dot-product implementations.
 class DotProductConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'multiply-accumulate';
+
   /// Number of products to accumulate.
-  final IntConfigKnob laneCountKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob laneCountKnob = PositiveIntConfigKnob(value: 4);
 
   /// Width of every multiplicand.
-  final IntConfigKnob multiplicandWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob multiplicandWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of every multiplier.
-  final IntConfigKnob multiplierWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob multiplierWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Dot-product implementation to instantiate.
   final ChoiceConfigKnob<DotProductImplementation> implementationKnob =
@@ -50,7 +56,7 @@ class DotProductConfigurator extends Configurator {
   );
 
   /// Radix of the general implementation's reduction tree.
-  final IntConfigKnob reductionRadixKnob = IntConfigKnob(value: 2);
+  final IntConfigKnob reductionRadixKnob = IntConfigKnob(value: 2, minValue: 2);
 
   /// Multiplicand signedness selection.
   final StaticOrRuntimeBoolKnob signedMultiplicandKnob =

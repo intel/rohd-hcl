@@ -9,7 +9,6 @@
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
-import 'package:rohd_hcl/src/utils.dart';
 
 /// A storage for memory models.
 abstract class MemoryStorage {
@@ -104,7 +103,7 @@ abstract class MemoryStorage {
       throw RohdHclException('dataWidth must be a multiple of bitsPerAddress.');
     }
 
-    final bitsPerChar = log2Ceil(radix);
+    final bitsPerChar = radix.log2Ceil;
     final charsPerLine = dataWidth ~/ bitsPerChar;
     final addrIncrPerLine = dataWidth ~/ bitsPerAddress;
 
@@ -207,6 +206,16 @@ abstract class MemoryStorage {
     padToAlignment();
   }
 
+  /// Loads a Verilog-compliant hexadecimal memory file.
+  ///
+  /// Use [loadMemString] instead.
+  // This was deprecated after v0.2.1 and remains supported in v0.3.0.
+  // ignore: remove_deprecations_in_breaking_versions
+  @Deprecated('Use `loadMemString` instead.')
+  void loadMemHex(String hexMemContents) {
+    loadMemString(hexMemContents);
+  }
+
   /// Dumps the contents of memory to a verilog-compliant hex file.
   ///
   /// The address will increment each [bitsPerAddress] bits of data between
@@ -221,7 +230,7 @@ abstract class MemoryStorage {
       return '';
     }
 
-    final bitsPerChar = log2Ceil(radix);
+    final bitsPerChar = radix.log2Ceil;
 
     final addrs = addresses.sorted();
 

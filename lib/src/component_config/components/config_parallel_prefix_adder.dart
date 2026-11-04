@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_parallel_prefix_adder.dart
@@ -14,12 +14,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [ParallelPrefixAdder]s.
 class ParallelPrefixAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'prefix-networks';
+
   /// Map from Type to Function for Parallel Prefix generator
-  static Map<
-          Type,
-          ParallelPrefix Function(
-              List<Logic> inps, Logic Function(Logic term1, Logic term2) op)>
-      generatorMap = {
+  static Map<Type, ParallelPrefixGenerator<GeneratePropagate>> generatorMap = {
     Ripple: Ripple.new,
     Sklansky: Sklansky.new,
     KoggeStone: KoggeStone.new,
@@ -39,7 +41,7 @@ class ParallelPrefixAdderConfigurator extends Configurator {
   );
 
   /// Controls the width of the data.!
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 4);
 
   @override
   Module createModule() => ParallelPrefixAdder(

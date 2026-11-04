@@ -1,10 +1,10 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// fixed_point_value_populator.dart
+// fixed_point_populator.dart
 // Populator for Fixed Point Values
 //
-// 2025 June 8, 2025
+// 2025 June 8
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
@@ -294,7 +294,7 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
         SignMagnitudeValue.populator(width: integerWidth + fractionWidth)
             .random(rv, gt: tgt, gte: tgte, lt: tlt, lte: tlte);
     final newValue =
-        signed ? [smv.sign, smv.magnitude].swizzle() : smv.magnitude;
+        signed ? [smv.sign, smv.magnitude].concat() : smv.magnitude;
     return ofLogicValue(newValue);
   }
 }

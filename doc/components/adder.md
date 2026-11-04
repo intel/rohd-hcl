@@ -49,12 +49,19 @@ Here is an example of instantiating a [ParallelPrefixAdder](https://intel.github
     print('${sum.value.toBigInt()}');
 ```
 
+Prefix adders retain carry-generation and carry-propagation signals as
+`GeneratePropagate` records through every prefix node, rather than concatenating
+and indexing two-bit vectors. The external operands, carry input, sum width, and
+combinational timing are unchanged. Custom `ParallelPrefixAdder.ppGen` callbacks
+must accept and return this record type; see
+[typed prefix networks](parallel_prefix_operations.md#adder-generator-migration).
+
 ## Ones' Complement Adder Subtractor
 
 A ones'-complement adder (and subtractor) is useful in efficient arithmetic operations as the
 end-around carry can be bypassed and used later.
 
-The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) can take a subtraction command as either a `Logic` `subtractIn` or a boolean `subtract` (the Logic overrides the boolean).  If `outputEndAroundCarry` is true, the end-around carry is output on `endAroundCarry` and the value will be one less than expected when `endAroundCarry` is high.  An `adderGen` adder function can be provided that generates your favorite internal adder (such as a parallel prefix adder).
+The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) accepts `subtract` as either a boolean static configuration or a one-bit `Logic` runtime control. The deprecated `subtractIn` argument remains for compatibility; use `subtract` for new code. If `outputEndAroundCarry` is true, the end-around carry is output on `endAroundCarry` and the value will be one less than expected when `endAroundCarry` is high. An `adderGen` adder function can be provided that generates your favorite internal adder (such as a parallel prefix adder).
 
 The output of [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) is a `sum` which is the magnitude, an optional `endAroundCarry` and a `sign`.
 
@@ -81,7 +88,7 @@ A sign magnitude adder is useful in situations where the sign of the addends is 
 
 If you can supply the largest magnitude number first, then you can disable a comparator generation inside by declaring the `largestMagnitudeFirst` option as true. Otherwise, the component will first sort the inputs.
 
-The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) uses a [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) internally.
+The [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html) uses a [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) internally. An optional `carryIn` can inject an additional carry into the magnitude computation, for example, a rounding increment from discarded bits.
 
 Here is an example of instantiating a [SignMagnitudeAdder](https://intel.github.io/rohd-hcl/rohd_hcl/SignMagnitudeAdder-class.html):
 
@@ -151,7 +158,7 @@ ROHD-HCL has an implementation of a `CompoundAdder` that uses a `OnesComplement`
 
 By providing `outputCarryOut` and/or `outputCarryOutP1` settings, the outputs `carryOut` and `carryOutP1` are provided which also ensures the adder does not convert to 2s complement but instead does the efficient 1s complement subtract (or add) and provides the end-around carry as an output.  Otherwise, the adder will add back the end-around carry to the result to convert back to 2s complement.  A `sign` and `signP1` is also output for the result.
 
-Both Logic control `subtractIn` and boolean control `subtract` are provided for enabling subtraction either by control signal or by a hard configuration (no signal control).
+The `subtract` option accepts either a one-bit `Logic` for runtime control or a boolean for static configuration. The deprecated `subtractIn` argument is retained for compatibility; use `subtract` for new code.
 
 ```dart
     final adder = CarrySelectOnesComplementCompoundAdder(a, b,

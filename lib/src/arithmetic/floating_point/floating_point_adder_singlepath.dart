@@ -66,7 +66,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
 
     final aExplicit = Const(a.explicitJBit);
     final bExplicit = Const(b.explicitJBit);
-    final swapper = FloatingPointSortByExp(fa, fb,
+    final swapper = FloatingPointSortByExp<FloatingPoint, Logic>(fa, fb,
         metaA: aExplicit, metaB: bExplicit, name: 'sorter_${a.name}_${b.name}');
     final larger = swapper.outA;
     final smaller = swapper.outB;
@@ -75,42 +75,41 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
 
     final effectiveSubtraction = (fa.sign ^ fb.sign).named('effSubtraction');
 
-    final isInf = (larger.isAnInfinity | smaller.isAnInfinity).named('isInf');
-    final invalidArithmetic = (larger.isAnInfinity &
-            smaller.isAnInfinity &
-            (larger.sign ^ smaller.sign))
-        .named('invalidArithmetic');
+    final isInf = (fa.isAnInfinity | fb.isAnInfinity).named('isInf');
+    final infSign = mux(fa.isAnInfinity, fa.sign, fb.sign).named('infSign');
+    final invalidArithmetic =
+        (fa.isAnInfinity & fb.isAnInfinity & (fa.sign ^ fb.sign))
+            .named('invalidArithmetic');
     final invalidOperation =
         (super.a.isSignalingNaN | super.b.isSignalingNaN | invalidArithmetic)
             .named('invalidOperation');
-    final isNaN =
-        (larger.isNaN | smaller.isNaN | invalidArithmetic).named('isNaN');
+    final isNaN = (fa.isNaN | fb.isNaN | invalidArithmetic).named('isNaN');
     final inputIsNaN = (super.a.isNaN | super.b.isNaN).named('inputIsNaN');
     final propagatedNaN = internalSum.propagateNaN(super.a, super.b);
 
     final expDiff = (larger.exponent - smaller.exponent).named('expDiff');
     final largeMantissa = mux(
             ~larger.isNormal ^ largerExplicit,
-            [larger.mantissa, Const(0)].swizzle(),
+            [larger.mantissa, Const(0)].concat(),
             mux(
                 larger.isNormal,
-                [Const(1), larger.mantissa].swizzle(),
+                [Const(1), larger.mantissa].concat(),
                 [
                   larger.mantissa.getRange(0, larger.mantissa.width - 1),
                   Const(0, width: 2)
-                ].swizzle()))
+                ].concat()))
         .named('largeMantissa');
 
     final smallMantissa = mux(
             ~smaller.isNormal ^ smallerExplicit,
-            [smaller.mantissa, Const(0)].swizzle(),
+            [smaller.mantissa, Const(0)].concat(),
             mux(
                 smaller.isNormal,
-                [Const(1), smaller.mantissa].swizzle(),
+                [Const(1), smaller.mantissa].concat(),
                 [
                   smaller.mantissa.getRange(0, smaller.mantissa.width - 1),
                   Const(0, width: 2)
-                ].swizzle()))
+                ].concat()))
         .named('smallMantissa');
 
     final extendedWidth = min(
@@ -124,12 +123,12 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final smallExtendedMantissa = [
       smallMantissa,
       Const(0, width: extendedWidth)
-    ].swizzle().named('smallExtendedMantissa');
+    ].concat().named('smallExtendedMantissa');
     final smallShiftedMantissa =
         (smallExtendedMantissa >>> expDiff).named('smallShiftedMantissa');
 
     // Compute sticky bits past extendedWidth: expDiff - extendedWidth
-    final int posWidth = max(expDiff.width, log2Ceil(smallMantissa.width));
+    final int posWidth = max(expDiff.width, smallMantissa.width.log2Ceil);
     final eD = expDiff.zeroExtend(posWidth).named('eD');
     final eW = Const(extendedWidth, width: posWidth).named('eW');
     final rem =
@@ -186,7 +185,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final predictor = LeadingZeroAnticipateCarry(
         Const(0),
         [largeFinalMantissa, Const(0, width: extendedWidth)]
-            .swizzle()
+            .concat()
             .slice(limitSize - 1, 0),
         effectiveSubtraction,
         smallShiftedMantissa.slice(limitSize - 1, 0),
@@ -203,11 +202,11 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final sumP1Flopped = localFlop(hSumP1);
     final carryFlopped = localFlop(carry);
     final isInfFlopped = localFlop(isInf);
+    final infSignFlopped = localFlop(infSign);
     final isNaNFlopped = localFlop(isNaN);
     final invalidOperationFlopped = localFlop(invalidOperation);
     final inputIsNaNFlopped = localFlop(inputIsNaN);
-    final nanSignFlopped = localFlop(propagatedNaN.sign);
-    final nanMantissaFlopped = localFlop(propagatedNaN.mantissa);
+    final nanFlopped = localFlop(propagatedNaN);
     final highBitsLSBFlopped = localFlop(highBitsLSB);
     final lowerBitsFlopped = localFlop(lowerBits);
     final lowBitsOrFlopped = localFlop(stickyBitsOr);
@@ -251,7 +250,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
             .named('trueLowBits');
 
     final fullSumWithIncrement =
-        [incrementHighLSB, trueLowBits].swizzle().named('fullMantissaWithIncr');
+        [incrementHighLSB, trueLowBits].concat().named('fullMantissaWithIncr');
 
     final fullMantissa = fullSumWithIncrement
         .slice(fullSumWithIncrement.width - 2, 0)
@@ -376,7 +375,7 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         mantissaRound = [
           mantissaRound,
           Const(0, width: mantissaWidth - mantissaRound.width)
-        ].swizzle().named('mantissaRoundFinal');
+        ].concat().named('mantissaRoundFinal');
       }
       roundingCarry = Const(0);
       roundingInexact = Const(0);
@@ -398,9 +397,13 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final maxFiniteExponent =
         Const(largestFinite.exponent).zeroExtend(exponentRoundWide.width);
     final maxFiniteMantissa = Const(largestFinite.mantissa);
+    final roundedMagnitude = [exponentRoundWide, mantissaRound].concat();
+    final maxFiniteMagnitude = [maxFiniteExponent, maxFiniteMantissa].concat();
+    // Keep the exponent guard so unknown mantissa bits cannot affect a result
+    // whose exponent is already known to be below the finite maximum.
     final overflow = (exponentRoundWide.gt(maxFiniteExponent) |
             (exponentRoundWide.eq(maxFiniteExponent) &
-                mantissaRound.gt(maxFiniteMantissa)))
+                roundedMagnitude.gt(maxFiniteMagnitude)))
         .named('overflow');
     final overflowToInfinity = switch (roundingMode) {
       FloatingPointRoundingMode.roundNearestEven ||
@@ -426,15 +429,10 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     Combinational([
       If.block([
         Iff(isNaNFlopped, [
-          internalSum.sign <
-              mux(inputIsNaNFlopped, nanSignFlopped, internalSum.nan.sign),
-          internalSum.exponent < internalSum.nan.exponent,
-          internalSum.mantissa <
-              mux(inputIsNaNFlopped, nanMantissaFlopped,
-                  internalSum.nan.mantissa),
+          internalSum < mux(inputIsNaNFlopped, nanFlopped, internalSum.nan),
         ]),
         ElseIf(isInfFlopped, [
-          internalSum < internalSum.inf(sign: trueSignFlopped),
+          internalSum < internalSum.inf(sign: infSignFlopped),
         ]),
         ElseIf(overflow & ~overflowToInfinity, [
           internalSum < internalSum.largestFinite(sign: trueSignFlopped),

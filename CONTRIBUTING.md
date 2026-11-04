@@ -47,6 +47,18 @@ to develop ROHD-HCL. Flutter provides the Dart SDK and is required because the
 pub workspace contains both the Dart `rohd_hcl` package and the Flutter
 `confapp` package.
 
+The root test suite also requires Icarus Verilog, Verilator, a C++17-capable
+`g++`, and SystemC headers and libraries. On Ubuntu, install these with:
+
+```shell
+sudo apt-get update
+sudo apt-get install -y iverilog verilator g++ libsystemc-dev
+```
+
+CI and the development-container setup install these dependencies. The CSR
+SystemC tests compile and execute generated models; missing native dependencies
+are test failures, not skipped coverage.
+
 ### Setup Recommendations
 
 #### On your own system
@@ -169,11 +181,19 @@ Here is an example of a recommended file header template:
 
 To add a new component to the library, you can follow the steps below, referencing other components as examples.
 
-1. Create the dart code for constructing the module in `lib/src`.
-1. Create unit tests in `test/`.
+1. Create the dart code for constructing the module in the matching
+   `lib/src/<category>/<subcategory>/` directory (see the source layout in
+   [doc/README.md](doc/README.md)) and export it from that subcategory's barrel.
+1. Create unit tests in `test/<category>/`, matching the component's
+   `lib/src/<category>/` family. When a category grows beyond roughly six
+   direct test files, split them into `test/<category>/<subcategory>/`
+   directories matching the source subcategories.
 1. Create a `Configurator` for the component (enabling things like schematic generation, web-app generation, etc.).
-   1. Create a new config in `lib/src/component_config/commponents`.
+   1. Create a new config in `lib/src/component_config/components`, overriding
+      `category` and `subcategory` to match the source directory.
    1. Update the component registry in `lib/src/component_config/components/component_registry.dart`.
+   1. Add the module's source path to `confapp/lib/hcl/module_source_assets.dart`
+      and run `bash tool/generate_confapp_assets.sh`.
 1. Add documentation to `doc/components/name.md`.
 
 Run `dart run gen/generate.dart` to generate native ROHD netlists in

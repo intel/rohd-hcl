@@ -308,6 +308,64 @@ void main() {
     await Simulator.reset();
   });
 
+  test('CSR candidates preserve configuration, fields and reserved layout', () {
+    final config = CsrInstanceConfig(
+        arch: CsrConfig(name: 'typed', access: CsrAccess.readWrite, fields: [
+          CsrFieldConfig(
+              start: 0, width: 2, name: 'ro', access: CsrFieldAccess.readOnly),
+          CsrFieldConfig(
+              start: 4, width: 2, name: 'rw', access: CsrFieldAccess.readWrite),
+          CsrFieldConfig(
+              start: 6, width: 2, name: 'wo', access: CsrFieldAccess.writeOnly),
+          CsrFieldConfig(
+              start: 8,
+              width: 2,
+              name: 'w1c',
+              access: CsrFieldAccess.writeOnesClear),
+          CsrFieldConfig(
+              start: 10,
+              width: 2,
+              name: 'legal',
+              access: CsrFieldAccess.readWriteLegal,
+              legalValues: const [0, 1]),
+        ]),
+        addr: 0,
+        width: 16);
+    final csr = Csr(config)..put(0xffff);
+    final input = Logic(width: 16)..put(0xaaaa);
+    void check(Csr candidate, int expected) {
+      expect(identical(candidate.config, csr.config), isTrue);
+      expect(candidate.rsvdIndices, csr.rsvdIndices);
+      expect(candidate.elements.map((e) => e.name),
+          csr.elements.map((e) => e.name));
+      expect(candidate.value, LogicValue.ofInt(expected, 16));
+    }
+
+    // Includes ordinary, reserved, read-only, write-only, W1C and legal fields.
+    check(csr.getWriteData(input), 0xf1ef);
+    check(csr.getWriteData(input, isBackdoorWrite: true), 0xf3ef);
+    check(
+        csr.getBackdoorReadData(Const(0xc0, width: 16), Const(0x80, width: 16)),
+        0xffbf);
+    check(csr.withSet(3, Const(0, width: 10)), 0xe007);
+    expect(csr.getWriteData(input).getField('rw').width, 2);
+    expect(csr.value, LogicValue.ofInt(0xffff, 16));
+  });
+
+  test('implicit writable CSR fields remain structured', () {
+    final csr = Csr(CsrInstanceConfig(
+        arch: CsrConfig(
+            name: 'implicit', access: CsrAccess.readWrite, fields: const []),
+        addr: 1,
+        width: 8));
+    final input = Logic(width: 8)..put(0xa5);
+    final candidate = csr.getWriteData(input);
+    expect(identical(candidate.config, csr.config), isTrue);
+    expect(candidate.getField('data').value, input.value);
+    input.put(0x3c);
+    expect(candidate.getField('data').value, input.value);
+  });
+
   test('simple individual CSRs', () {
     const dataWidth1 = 32;
     const dataWidth2 = 8;
@@ -356,6 +414,82 @@ void main() {
     expect(f4a.value, LogicValue.ofInt(0x1, 1));
     final f4b = csr2.getField('field4_1');
     expect(f4b.value, LogicValue.ofInt(0x1, 1));
+  });
+
+  test('CSR writes normalize high impedance bits to unknown', () {
+    const dataWidth = 12;
+    final csr = Csr(CsrInstanceConfig(
+      arch: CsrConfig(
+        name: 'highImpedanceWrite',
+        access: CsrAccess.readWrite,
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+    ));
+    final writeData = Logic(width: dataWidth)..put('zzzzzzzz1111');
+
+    expect(
+      csr.getWriteData(writeData).value,
+      LogicValue.ofString('xxxxxxxx1111'),
+    );
+  });
+
+  test('CSR frontdoor and backdoor writes normalize high impedance data',
+      () async {
+    const dataWidth = 12;
+    final register = CsrInstanceConfig(
+      arch: CsrConfig(
+        name: 'highImpedanceRegister',
+        access: CsrAccess.readWrite,
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+      isBackdoorWritable: true,
+    );
+    final clk = SimpleClockGenerator(10).clk;
+    final frontWrite = DataPortInterface(dataWidth, 1);
+    final block = CsrBlock(
+      config: CsrBlockConfig(
+        name: 'highImpedanceBlock',
+        baseAddr: 0,
+        registers: [register],
+      ),
+      clk: clk,
+      reset: Logic()..put(0),
+      frontWrite: frontWrite,
+      frontRead: null,
+    );
+    final backdoor = block.getBackdoorPortsByName(register.name);
+    final expected = LogicValue.ofString('xxxxxxxx1111');
+
+    frontWrite.en.put(0);
+    frontWrite.addr.put(register.addr);
+    frontWrite.data.put(0);
+    backdoor.wrEn!.put(0);
+    backdoor.wrData!.put(0);
+    await block.build();
+    final csr = block.csrs.single;
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    await clk.nextNegedge;
+    frontWrite.en.inject(1);
+    frontWrite.data.inject('zzzzzzzz1111');
+    await clk.nextNegedge;
+    frontWrite.en.inject(0);
+    expect(csr.value, expected);
+
+    await clk.nextNegedge;
+    backdoor.wrEn!.inject(1);
+    backdoor.wrData!.inject('zzzzzzzz1111');
+    await clk.nextNegedge;
+    backdoor.wrEn!.inject(0);
+    expect(csr.value, expected);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
   });
 
   test('simple CSR block', () async {
@@ -545,7 +679,7 @@ void main() {
     );
     await csrTop.build();
 
-    final systemVerilog = csrTop.generateSynth();
+    final systemVerilog = csrTop.dumpSystemVerilog();
     expect(systemVerilog, contains("1'h0"));
     expect(systemVerilog, isNot(contains("0'h0")));
   });

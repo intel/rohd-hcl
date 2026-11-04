@@ -78,19 +78,16 @@ abstract class CsrContainer extends Module {
 
     this.frontWrite = frontWrite == null
         ? null
-        : (frontWrite.clone()
-          ..connectIO(this, frontWrite,
-              inputTags: {DataPortGroup.control, DataPortGroup.data},
-              outputTags: {},
-              uniquify: (original) => 'frontWrite_$original'));
+        : addInterfacePorts(frontWrite,
+            inputTags: {DataPortGroup.control, DataPortGroup.data},
+            uniquify: (original) => 'frontWrite_$original');
 
     this.frontRead = frontRead == null
         ? null
-        : (frontRead.clone()
-          ..connectIO(this, frontRead,
-              inputTags: {DataPortGroup.control},
-              outputTags: {DataPortGroup.data},
-              uniquify: (original) => 'frontRead_$original'));
+        : addInterfacePorts(frontRead,
+            inputTags: {DataPortGroup.control},
+            outputTags: {DataPortGroup.data},
+            uniquify: (original) => 'frontRead_$original');
 
     _validate();
   }

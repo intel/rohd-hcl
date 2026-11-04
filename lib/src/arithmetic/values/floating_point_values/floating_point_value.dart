@@ -7,7 +7,7 @@
 // 2024 April 1
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
-//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
+//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 import 'package:meta/meta.dart';
@@ -23,7 +23,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 @immutable
 class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// The full floating point value concatenated as a [LogicValue].
-  late final LogicValue value = [sign, exponent, mantissa].swizzle();
+  late final LogicValue value = [sign, exponent, mantissa].concat();
 
   /// The sign of the [FloatingPointValue]: 1 means a negative value.
   late final LogicValue sign;
