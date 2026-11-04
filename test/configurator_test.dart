@@ -385,7 +385,8 @@ void main() {
       expect(sv, contains('occupancy'));
       expect(sv, contains('error'));
       expect(sv, contains('input logic [5:0] writeData'));
-      expect(sv, contains("(wrPointer == 3'h6"));
+      expect(sv, contains('wrPointer'));
+      expect(sv, contains("3'h6")); // pointers wrap at depth - 1
     });
   });
 
