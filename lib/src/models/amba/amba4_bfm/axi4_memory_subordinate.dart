@@ -472,7 +472,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
     // NOTE: we are dropping wUser on the floor for now...
     // The W-channel monitor fires once per burst with all beats aggregated in
-    // packet.data via rswizzle(); clear any stale entry then unpack each beat.
+    // packet.data via rconcat(); clear any stale entry then unpack each beat.
     _writeDataQueue[mapIdx].clear();
     final dw = wIntf.dataWidth;
     final sw = wIntf.strbWidth;

@@ -199,7 +199,7 @@ class RotateRightFixed extends _RotateFixed {
 extension RotateLogic on Logic {
   /// Returns a [Logic] rotated [direction] by [rotateAmount].
   ///
-  /// If [rotateAmount] is an [int], a fixed swizzle is generated.
+  /// If [rotateAmount] is an [int], a fixed concatenation is generated.
   ///
   /// If [rotateAmount] is another [Logic], a [_Rotate] is created to
   /// conditionally rotate by different amounts based on the value of
@@ -234,7 +234,7 @@ extension RotateLogic on Logic {
 
   /// Returns a [Logic] rotated left by [rotateAmount].
   ///
-  /// If [rotateAmount] is an [int], a fixed swizzle is generated.
+  /// If [rotateAmount] is an [int], a fixed concatenation is generated.
   ///
   /// If [rotateAmount] is another [Logic], a [RotateLeft] is created to
   /// conditionally rotate by different amounts based on the value of
@@ -251,7 +251,7 @@ extension RotateLogic on Logic {
 
   /// Returns a [Logic] rotated right by [rotateAmount].
   ///
-  /// If [rotateAmount] is an [int], a fixed swizzle is generated.
+  /// If [rotateAmount] is an [int], a fixed concatenation is generated.
   ///
   /// If [rotateAmount] is another [Logic], a [RotateRight] is created to
   /// conditionally rotate by different amounts based on the value of

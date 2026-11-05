@@ -32,9 +32,9 @@ final rotated = original.rotateRight(rotateAmount);
 
 Based on the type of `rotateAmount` (`int` vs `Logic`), this API will decide whether to use a "fixed" or "non-fixed" implementation.
 
-A "fixed" implementation will be implemented as a simple signal swizzle (no added gates or logic).
+A "fixed" implementation uses a simple signal concatenation (no added gates or logic).
 
-A "non-fixed" version is implemented as a case statement with a static swizzle per matching rotate amount.  For a "non-fixed" rotation, use the `maxAmount` argument to limit the amount of hardware generated in case you know the `rotateAmount` will never be greater than a certain value.
+A "non-fixed" version is implemented as a case statement with a static concatenation per matching rotate amount.  For a "non-fixed" rotation, use the `maxAmount` argument to limit the amount of hardware generated in case you know the `rotateAmount` will never be greater than a certain value.
 
 ### Module Types
 
