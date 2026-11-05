@@ -42,22 +42,18 @@ The [ROHD Forum](https://intel.github.io/rohd-website/forum/rohd-forum/) is a pe
 
 ### Requirements
 
-You must have [Flutter](https://docs.flutter.dev/get-started/install) installed
-to develop ROHD-HCL. Flutter provides the Dart SDK and is required because the
-pub workspace contains both the Dart `rohd_hcl` package and the Flutter
-`confapp` package.
+You must have [Flutter](https://docs.flutter.dev/get-started/install) installed to develop ROHD-HCL. Flutter provides the Dart SDK and is required because the pub workspace contains both the Dart `rohd_hcl` package and the Flutter `confapp` package.
 
-The root test suite also requires Icarus Verilog, Verilator, a C++17-capable
-`g++`, and SystemC headers and libraries. On Ubuntu, install these with:
+The root test suite also requires Icarus Verilog, Verilator, a C++17-capable `g++`, and SystemC headers and libraries. On Ubuntu, install these with:
 
 ```shell
 sudo apt-get update
 sudo apt-get install -y iverilog verilator g++ libsystemc-dev
 ```
 
-CI and the development-container setup install these dependencies. The CSR
-SystemC tests compile and execute generated models; missing native dependencies
-are test failures, not skipped coverage.
+CI and the development-container setup install these dependencies. The CSR SystemC tests compile and execute generated models; missing native dependencies are test failures, not skipped coverage.
+
+ROHD caches a precompiled SystemC header in `tmp_test/pch`. If SystemC is upgraded or replaced, linker errors mentioning a different `sc_api_version` can indicate a stale cache. When no tests are running, remove `tmp_test/pch/systemc.h.gch` and rerun the tests; ROHD rebuilds the header using the installed SystemC version.
 
 ### Setup Recommendations
 
@@ -98,15 +94,9 @@ flutter pub get
 dart test
 ```
 
-The root `pubspec.yaml` defines a pub workspace containing `confapp`, so
-dependency resolution is shared and should be run from the repository root.
-The app includes the root `analysis_options.yaml`, keeping both packages on the
-same analyzer policy while retaining app-specific generated-file exclusions.
-Open `rohd-hcl-multipackage.code-workspace` in VS Code to load both workspace
-packages as top-level folders.
+The root `pubspec.yaml` defines a pub workspace containing `confapp`, so dependency resolution is shared and should be run from the repository root. The app includes the root `analysis_options.yaml`, keeping both packages on the same analyzer policy while retaining app-specific generated-file exclusions. Open `rohd-hcl-multipackage.code-workspace` in VS Code to load both workspace packages as top-level folders.
 
-See [confapp/DEVELOPER.md](confapp/DEVELOPER.md) for the local checkout
-assumptions, dependency-source selection, and generated override workflow.
+See [confapp/DEVELOPER.md](confapp/DEVELOPER.md) for the local checkout assumptions, dependency-source selection, and generated override workflow.
 
 To validate both workspace packages:
 
@@ -196,13 +186,7 @@ To add a new component to the library, you can follow the steps below, referenci
       and run `bash tool/generate_confapp_assets.sh`.
 1. Add documentation to `doc/components/name.md`.
 
-Run `dart run gen/generate.dart` to generate native ROHD netlists in
-`build/*.rohd.json`. The ROHD schematic viewer loads these netlists directly;
-there is no HTML conversion step. The configuration app also offers a
-synthesized schematic by running Yosys in a web worker. For equivalent
-command-line conversion, install OSS CAD Suite with
-`tool/gh_actions/install_opencadsuite.sh` and run
-`tool/converters/verilog_json.sh <module.sv>`.
+Run `dart run gen/generate.dart` to generate native ROHD netlists in `build/*.rohd.json`. The ROHD schematic viewer loads these netlists directly; there is no HTML conversion step. The configuration app also offers a synthesized schematic by running Yosys in a web worker. For equivalent command-line conversion, install OSS CAD Suite with `tool/gh_actions/install_opencadsuite.sh` and run `tool/converters/verilog_json.sh <module.sv>`.
 
 The `confapp/` directory contains the source code for the Flutter configuration app, if you would like to run that locally.
 
