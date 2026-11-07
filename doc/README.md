@@ -12,6 +12,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 ```
 
 - [Static or Runtime Parameters](./static_or_runtime_parameters.md)
+- [Utilities and Building Blocks](./utilities.md)
 
 ## Source Layout
 
@@ -22,14 +23,14 @@ through subcategory barrels. The package barrel exports every category barrel.
 | Category | Barrel | Subcategories |
 | --- | --- | --- |
 | Arithmetic | [`arithmetic.dart`](../lib/src/arithmetic/arithmetic.dart) | `accumulation`, `addition`, `conversion`, `division_and_roots`, `floating_point`, `multiplication`, `multiply_accumulate`, `normalization`, `prefix_networks`, `signals`, `values` |
-| Bit operations | [`bit_operations.dart`](../lib/src/bit_operations/bit_operations.dart) | `population_count`, `search`, `shifting` |
+| Bit operations | [`bit_operations.dart`](../lib/src/bit_operations/bit_operations.dart) | `population_count`, `search`, `selection`, `shifting` |
 | Clocking | [`clocking.dart`](../lib/src/clocking/clocking.dart) | `cdc`, `event_detection`, `gating` |
 | Dataflow | [`dataflow.dart`](../lib/src/dataflow/dataflow.dart) | `ordering`, `reduction`, `selection`, `serialization` |
 | Encodings | [`encodings.dart`](../lib/src/encodings/encodings.dart) | `gray`, `one_hot`, `priority` |
 | Error control | [`error_control.dart`](../lib/src/error_control/error_control.dart) | `protection` |
-| Flow control | [`flow_control.dart`](../lib/src/flow_control/flow_control.dart) | `arbitration`, `ready_valid`, `storage` |
+| Flow control | [`flow_control.dart`](../lib/src/flow_control/flow_control.dart) | `arbitration`, `attachments`, `control`, `ready_valid`, `storage` |
 | Interfaces | [`interfaces.dart`](../lib/src/interfaces/interfaces.dart) | `amba` (`amba4`, `amba5`, `endpoints`), `spi` (`endpoints`) |
-| Memory | [`memories.dart`](../lib/src/memory/memories.dart) | `associative`, `contracts`, `csr`, `sequential`, `state`, `storage` |
+| Memory | [`memories.dart`](../lib/src/memory/memories.dart) | `associative`, `behavioral`, `contracts`, `csr`, `sequential`, `state`, `storage` |
 | Models | [`models.dart`](../lib/src/models/models.dart) | `amba`, `memory`, `ready_valid_bfm`, `spi_bfm` |
 
 The configurator tags each configurable component with the same category and
@@ -56,6 +57,7 @@ subcategory, and the confapp sidebar groups components accordingly.
     - [Binary counter](./components/summation.md#counter)
     - [Gated counter](./components/summation.md#gated-counter)
     - Gray counter
+    - [Circular pointer](./components/arithmetic_primitives.md#circular-pointer)
   - Multipliers
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
@@ -65,12 +67,15 @@ subcategory, and the confapp sidebar groups components accordingly.
     - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Division and roots
     - [Multi Cycle Integer Divider](./components/divider.md)
+    - [Ceil division and logarithm](./components/arithmetic_primitives.md#division-and-logarithms)
     - [Fixed-Point Square Root](./components/fixed_point.md#fixedpointsqrt)
     - [Floating-Point Square Root](./components/floating_point.md#floatingpointsqrt)
     - Inverse square root
     - Log
   - Normalization
     - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
+    - [Absolute value](./components/arithmetic_primitives.md#absolute-value)
+  - [Unsigned arithmetic with overflow](./components/arithmetic_primitives.md#arithmetic-with-overflow)
   - Floating point
     - [Floating-Point Value Types](./components/floating_point.md#floatingpointvalue)
       - Double (64-bit)
@@ -95,10 +100,15 @@ subcategory, and the confapp sidebar groups components accordingly.
       - [Find N'th Pattern from Start/End](./components/find_pattern.md#find-nth-pattern-from-startend)
   - Population count
     - [Count bit occurrence](./components/count.md)
+    - [Bitwise population count](./components/bit_operations.md#bitwise-population-count)
     - Count pattern occurrence
+  - Selection
+    - [Multiplexers](./components/bit_operations.md#multiplexers)
   - Shifting
     - [Rotate](./components/rotate.md)
     - [SignedShifter](./components/shifter.md)
+    - [Padding and bit replacement](./components/bit_operations.md#padding-and-bit-replacement)
+  - [Leading and trailing zeros](./components/bit_operations.md#leading-and-trailing-zeros)
 - Clocking
   - Gating
     - [Clock gating](./components/clock_gating.md)
@@ -106,7 +116,7 @@ subcategory, and the confapp sidebar groups components accordingly.
   - Event detection
     - [Edge detection](./components/edge_detector.md)
   - Clock-domain crossing
-    - Synchronizer
+    - [Synchronizer](./components/async_fifo.md#synchronizer-module)
 - Dataflow
   - Selection
     - [Extrema](./components/extrema.md)
@@ -141,7 +151,8 @@ subcategory, and the confapp sidebar groups components accordingly.
     - [Synchronous FIFO](./components/fifo.md)
     - [Asynchronous / clock-crossing FIFO](./components/async_fifo.md)
   - Ready/Valid
-    - [Ready/valid interfaces and FIFO](./components/ready_valid.md)
+    - [Ready/valid interfaces and queue](./components/ready_valid.md)
+    - [Protocol composition and directional attachments](./components/protocol_composition.md)
   - Connect/Disconnect
   - Crediting
 - Interconnect
@@ -151,7 +162,7 @@ subcategory, and the confapp sidebar groups components accordingly.
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
-  - [CAMs](./components/memory.md#cam)
+  - [Associative memory and legacy CAM migration](./components/associative_memory.md)
   - [Shift register](./components/shift_register.md)
   - [Control/Status Registers (CSRs)](./components/csr.md)
   - [Behavioral models](./components/behavioral_models.md)

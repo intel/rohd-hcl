@@ -25,7 +25,8 @@ final toSort = <Logic>[
     Const(8, width: dataWidth)
 ];
 
-final sortMod = BitonicSort(clk, reset, toSort: toSort,  isAscending: false, name: 'top_level');
+final sortMod = BitonicSort<Logic>(clk, reset,
+    toSort: toSort, isAscending: false, name: 'top_level');
 
 await sortMod.build();
 ```

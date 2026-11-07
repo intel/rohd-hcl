@@ -113,7 +113,10 @@ depth: 20  (not a power of 2)
 
 ## Synchronizer Module
 
-The `Synchronizer` module is a reusable component for safely crossing single-bit or multi-bit control signals between clock domains.
+The `Synchronizer` module is a reusable component for crossing single-bit or
+appropriately encoded multi-bit control signals between clock domains. Each
+bit is synchronized independently; it does not make an arbitrary changing
+multi-bit value atomic or coherent.
 
 ```dart
 final sync = Synchronizer(
@@ -124,7 +127,8 @@ final sync = Synchronizer(
 );
 ```
 
-**Warning**: Synchronizers are only suitable for control signals, not data buses. For data transfer, always use an async FIFO.
+**Warning**: Synchronizers are only suitable for appropriate control signals,
+not arbitrary data buses. Use an async FIFO for data transfer.
 
 ## Example: Producer-Consumer System
 

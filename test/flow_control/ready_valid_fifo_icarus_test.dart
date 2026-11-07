@@ -3,6 +3,7 @@
 //
 // ready_valid_fifo_icarus_test.dart
 // Generated-RTL coverage for ReadyValidFifo admission policies.
+// ignore_for_file: deprecated_member_use_from_same_package
 //
 // 2026 October 30
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>

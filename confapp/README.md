@@ -123,6 +123,12 @@ locations.
 
 ### 5. Add regression coverage
 
+The catalog omits deprecated components such as `ReadyValidFifo` and `Cam`;
+their legacy configurators remain available to Dart callers. Their replacements
+have behavioral differences documented in
+[ready/valid](../doc/components/ready_valid.md) and
+[memory](../doc/components/memory.md).
+
 At minimum:
 
 - add functional and nested-composition tests for the component in `test/`;
@@ -131,6 +137,8 @@ At minimum:
   [`module_source_assets_test.dart`](test/hcl/module_source_assets_test.dart)
   to verify registry and bundled-source coverage.
 
+Run Confapp tests with `flutter test` from the `confapp` directory. A bare
+`dart test` reports this requirement; explicitly named paths bypass that guard.
 Run the tracing regression on both the VM and DDC web runtime:
 
 ```bash

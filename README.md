@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-BSD--3-blue)](https://github.com/intel/rohd-hcl/blob/main/LICENSE)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/intel/rohd-hcl/blob/main/CODE_OF_CONDUCT.md)
 
-# ROHD Hardware Component Libary
+# ROHD Hardware Component Library
 
 A hardware component library developed with [ROHD](https://intel.github.io/rohd-website/). This library aims to collect a set of reusable, configurable components that can be leveraged in other designs. These components are also intended as good examples of ROHD hardware implementations.
 
@@ -30,25 +30,23 @@ This project is *not* intended to be the *only* place for reusable hardware comp
 
 ## Component List
 
-See the [component list](https://github.com/intel/rohd-hcl/blob/main/doc/README.md) for documentation on components and plans for future component development.
+The library is organized into the same component families used by the
+configurator. Examples include:
 
-Some examples of component categories include:
+- **Arithmetic:** adders, multipliers, counters, and floating-point operations.
+- **Bit Operations:** searching, population counts, multiplexers, and shifting.
+- **Clocking:** clock gating, event detection, and clock-domain crossing.
+- **Dataflow:** sorting, selection, reduction, and serialization.
+- **Encodings:** Gray code, one-hot encoding, and priority encoders.
+- **Error Control:** error correction and parity.
+- **Flow Control:** arbiters, FIFOs, and ready/valid queues.
+- **Interfaces:** AMBA and SPI interfaces and endpoints.
+- **Memory:** register files, associative memories, shift registers, and CSRs.
+- **Models:** memory models and protocol bus functional models.
 
-- Encoders & Decoders
-- Arbiters
-- FIFOs & Queues
-- Find
-- Count
-- Sort
-- Arithmetic
-- Rotate
-- Counters
-- Pseudorandom
-- Error checking & correction
-- Data flow
-- Memory
-- Standard interfaces
-- Models
+The [component list](doc/README.md) describes the source layout, links to
+component documentation, and includes ideas for future development. The
+configurator offers a subset of the library's components.
 
-Copyright (C) 2023-2025 Intel Corporation  
+Copyright (C) 2023-2026 Intel Corporation  
 SPDX-License-Identifier: BSD-3-Clause

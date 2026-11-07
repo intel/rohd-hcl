@@ -8,6 +8,7 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:confapp/hcl/module_source_assets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -38,6 +39,24 @@ void main() {
       moduleSourceAsset(module),
       'rohd_src/arithmetic/multiplication/carry_save_multiplier.dart',
     );
+  });
+
+  test('ready/valid queue source is bundled', () async {
+    final module = ReadyValidQueueConfigurator().createModule();
+    final asset = moduleSourceAsset(module);
+    expect(asset,
+        'rohd_src/flow_control/ready_valid/queues/ready_valid_queue.dart');
+    final source = await rootBundle.loadString('assets/$asset');
+    expect(source, contains('class ReadyValidQueue'));
+  });
+
+  test('parallel associative memory source is bundled', () async {
+    final module = ParallelAssociativeMemoryConfigurator().createModule();
+    final asset = moduleSourceAsset(module);
+    expect(
+        asset, 'rohd_src/memory/associative/parallel_associative_memory.dart');
+    final source = await rootBundle.loadString('assets/$asset');
+    expect(source, contains('class ParallelAssociativeMemory'));
   });
 
   test('nondefault module implementations have indexed source assets', () {

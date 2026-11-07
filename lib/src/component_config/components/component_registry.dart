@@ -9,7 +9,7 @@
 
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A list of [Configurator]s for ROHD-HCL components.
+/// A list of non-deprecated [Configurator]s for the component catalog.
 List<Configurator> get componentRegistry => [
       RotateConfigurator(),
       AbsoluteValueConfigurator(),
@@ -23,7 +23,7 @@ List<Configurator> get componentRegistry => [
       CeilDivideConfigurator(),
       CircularPointerConfigurator(),
       GrayToBinaryConfigurator(),
-      CamConfigurator(),
+      ParallelAssociativeMemoryConfigurator(),
       ClockGateConfigurator(),
       FifoConfigurator(),
       EccConfigurator(),
@@ -65,7 +65,7 @@ List<Configurator> get componentRegistry => [
       PriorityEncoderConfigurator(),
       ParityConfigurator(),
       PadConfigurator(),
-      ReadyValidFifoConfigurator(),
+      ReadyValidQueueConfigurator(),
       ReductionTreeConfigurator(),
       SetBitsConfigurator(),
       SynchronizerConfigurator(),

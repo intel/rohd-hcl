@@ -7,6 +7,9 @@
 // 2026 August 29
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Retain the source mapping for the legacy FIFO.
+// ignore_for_file: deprecated_member_use
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -86,6 +89,8 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
   'ParallelPrefixIncr':
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+  'ParallelAssociativeMemory':
+      'rohd_src/memory/associative/parallel_associative_memory.dart',
   'ParallelPrefixOrScan':
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
   'ParallelPrefixPriorityEncoder':
@@ -99,6 +104,8 @@ const moduleSourceAssets = <String, String>{
   'PriorityMux': 'rohd_src/bit_operations/selection/priority_mux.dart',
   'ReadyValidFifo':
       'rohd_src/flow_control/ready_valid/queues/ready_valid_fifo.dart',
+  'ReadyValidQueue':
+      'rohd_src/flow_control/ready_valid/queues/ready_valid_queue.dart',
   'RecursiveModulePriorityEncoder':
       'rohd_src/encodings/priority/priority_encoder.dart',
   'RecursivePriorityEncoder':
@@ -207,6 +214,9 @@ String? moduleSourceAsset(Module module) => switch (module) {
       PriorityArbiter() => moduleSourceAssets['PriorityArbiter'],
       PriorityMux() => moduleSourceAssets['PriorityMux'],
       ReadyValidFifo() => moduleSourceAssets['ReadyValidFifo'],
+      ReadyValidQueue() => moduleSourceAssets['ReadyValidQueue'],
+      ParallelAssociativeMemory() =>
+        moduleSourceAssets['ParallelAssociativeMemory'],
       RecursiveModulePriorityEncoder() =>
         moduleSourceAssets['RecursiveModulePriorityEncoder'],
       RecursivePriorityEncoder() =>

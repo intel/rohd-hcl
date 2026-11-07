@@ -1,0 +1,3 @@
+# Explicit paths passed to dart test override this default.
+paths:
+  - tool/test/flutter_test_runner_guard.dart

@@ -24,7 +24,7 @@ final b = Logic(name: 'b', width: 8);
 a.put(5);
 b.put(5);
 
-final adder = adder(a, b);
+final adder = RippleCarryAdder(a, b);
 final sum = adder.sum;
 ```
 
@@ -61,7 +61,7 @@ must accept and return this record type; see
 A ones'-complement adder (and subtractor) is useful in efficient arithmetic operations as the
 end-around carry can be bypassed and used later.
 
-The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) accepts `subtract` as either a boolean static configuration or a one-bit `Logic` runtime control. The deprecated `subtractIn` argument remains for compatibility; use `subtract` for new code. If `outputEndAroundCarry` is true, the end-around carry is output on `endAroundCarry` and the value will be one less than expected when `endAroundCarry` is high. An `adderGen` adder function can be provided that generates your favorite internal adder (such as a parallel prefix adder).
+The [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) accepts `subtract` as either a boolean static configuration or a one-bit `Logic` runtime control. The deprecated `subtractIn` argument remains for compatibility; use `subtract` for new code. If `generateEndAroundCarry` is true, the end-around carry is output on `endAroundCarry` instead of being added to the sum. An `adderGen` function can provide the internal adder.
 
 The output of [OnesComplementAdder](https://intel.github.io/rohd-hcl/rohd_hcl/OnesComplementAdder-class.html) is a `sum` which is the magnitude, an optional `endAroundCarry` and a `sign`.
 
@@ -72,13 +72,13 @@ Here is an example of instantiating a [OnesComplementAdder](https://intel.github
     final a = Logic(width: width);
     final b = Logic(width: width);
 
-    a.put(av);
-    b.put(bv);
-    final carry = Logic();
+    a.put(7);
+    b.put(3);
     final adder = OnesComplementAdder(
-        a, b, outputEndAroundCarry: true, adderGen: adder.new,
+        a, b, generateEndAroundCarry: true, adderGen: NativeAdder.new,
         subtract: true);
-    final mag = adder.sum.value.toInt() + (adder.endAroundCarry!.value.isZero ? 0 : 1));
+    final mag = adder.sum.value.toInt() +
+        (adder.endAroundCarry!.value.isZero ? 0 : 1);
     final out = (adder.sign.value.toInt() == 1 ? -mag : mag);
 ```
 
@@ -104,7 +104,7 @@ Here is an example of instantiating a [SignMagnitudeAdder](https://intel.github.
     b.put(18);
     bSign.put(0);
 
-    final adder = SignMagnitudeAdder(aSign, a, bSign, b, adderGen: adder.new,
+    final adder = SignMagnitudeAdder(aSign, a, bSign, b, adderGen: NativeAdder.new,
         largestMagnitudeFirst: true);
 
     final sum = adder.sum;
@@ -125,13 +125,14 @@ The [CarrySelectCompoundAdder](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySe
 
 The compound adder forms a select chain around a set of adders specified by:
 
-- `adderGen`: an adder generator functor option to build the block adders with the default being a closure returning a functor returning `ParallelPrefixAdder`.  This functor has the signature: This functor has the signature:  
+- `adderGen`: an adder generator for the block adders. The default constructs a
+  `ParallelPrefixAdder`. Its signature is:
 
 ```dart
 (Logic a, Logic b, {Logic? carryIn, Logic? subtractIn, String name = ''})=> Adder
 ```
 
-- `splitSelectAdderAlgorithmSingleBlock:
+- `widthGen` selects the block widths:
   - The `CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit` algorithm splits the adder into blocks of n-bit adders with the first one width adjusted down.
   - The [CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock](https://intel.github.io/rohd-hcl/rohd_hcl/CarrySelectCompoundAdder/splitSelectAdderAlgorithmSingleBlock.html) algorithm generates only one sub-block with the full bit-width of the adder.
 
@@ -146,7 +147,7 @@ b.put(5);
 
 final adder = CarrySelectCompoundAdder(a, b);
 final sum = adder.sum;
-final sum1 = adder.sum1;
+final sum1 = adder.sumP1;
 
 final adder4BitBlock = CarrySelectCompoundAdder(a, b,
         widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
@@ -167,7 +168,7 @@ The `subtract` option accepts either a one-bit `Logic` for runtime control or a 
           outputCarryOutP1: true,
           widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
     final carryOut = adder.carryOut;
-    final carryOutP1 = adder.carryOutP1
+    final carryOutP1 = adder.carryOutP1;
     final sum = adder.sum;
     final sumP1 = adder.sumP1;
 ```
@@ -177,19 +178,10 @@ The `subtract` option accepts either a one-bit `Logic` for runtime control or a 
 As logic synthesis can replace a '+' in RTL with a wide variety of adder architectures on its own, we have a `NativeAdder` wrapper class that allows you to use the native '+' with any component that exposes an `Adder` functor as a parameter:
 
 ```dart
-// API definition: FloatingPointAdderSimple(super.a, super.b,
-//       {Logic? subtract,
-//       super.clk,
-//       super.reset,
-//       super.enable,
-//       Adder Function(Logic, Logic, {Logic? carryIn}) adderGen =
-//           ParallelPrefixAdder.new,
-//      List<int> Function(int) widthGen =
-//          CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-//       super.name = 'floating_point_adder_simple'})
-
-// Instantiate with a NativeAdder as the internal adder
-final adder = FloatingPointAdderSimple(a, b, adderGen: NativeAdder.new);
+final a = FloatingPoint32();
+final b = FloatingPoint32();
+final adder = FloatingPointAdderSinglePath(a, b, adderGen: NativeAdder.new);
 ```
 
-Note that there is a `CarrySelectCompoundAdder` used in the `FloatingPointAdderSimple`, (note that we are also passing in a width generator for the sub-adder splitting), and so the Adder functor is used inside that Compound Adder.  So here we are telling the `FloatingPointAdderSimple` to use a native '+' adder inside its compound adder for the mantissa.
+`FloatingPointAdderSinglePath` defaults to `NativeAdder`. Its `widthGen` can
+also configure the block splitting used by its internal compound adder.

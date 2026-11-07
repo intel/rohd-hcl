@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// set_bits_test.dart
+// Tests for set bits.
+//
+// 2026 October 28
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';

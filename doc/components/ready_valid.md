@@ -1,6 +1,6 @@
 # Ready/Valid Hardware
 
-ROHD-HCL provides typed ready/valid interfaces and a FIFO that buffers
+ROHD-HCL provides typed ready/valid interfaces and queues that buffer
 any `Logic` payload, including scalars, enums, structures, and typed arrays.
 
 ## Interfaces and handshaking
@@ -33,7 +33,7 @@ A `ReadyThenValidInterface` can be adapted with
 `toDownstreamReadyAndValid(clk, reset)`, which inserts a two-entry FIFO and
 returns an independently asserted ready/valid interface.
 
-Ready/valid `connectIO` registration preserves the concrete payload type,
+Ready/valid registration with `addPairInterfacePorts` preserves the concrete payload type,
 including `LogicStructure` payloads, by using ROHD typed module ports for data
 and scalar ports for ready and valid. Subclass provider sidebands and nested
 pair subinterfaces continue through normal ROHD traversal. When an
@@ -44,7 +44,57 @@ field or array shape. Pass `uniquify` when connecting or registering an
 interface to rename data, valid, ready, sidebands, and nested interface ports.
 Nested subinterface naming is applied before the connection's `uniquify`.
 
-## ReadyValidFifo
+## Elastic Buffers
+
+`ReadyValidRegister<T>` is a one-entry registered stage. An occupied stage can
+accept a replacement on the same edge its current item transfers.
+`ReadyValidFallThroughBuffer<T>` instead presents an upstream offer directly
+when empty and retains it if the offer stalls.
+
+`ReadyValidElasticPipeline<T>` connects `depth` one-entry stages. Its default
+registered stages have `depth` cycles of empty-pipeline latency; setting
+`fallThrough: true` allows bypass when all stages are empty. The depth must be
+at least one.
+
+These components expose `capacity`, `occupancy`, `empty`, and `full`; their
+occupancy counts retained entries, not an offer passing through an empty
+fall-through stage. Their downstream interfaces provide an irrevocable offer.
+
+For authors building a custom protocol shell around an action-driven core,
+see [protocol composition](protocol_composition.md).
+
+## ReadyValidQueue
+
+`ReadyValidQueue<T>` buffers a typed payload with an explicit visibility policy
+and storage architecture. `ReadyValidQueuePolicy.registered` waits until an
+item is stored before presenting it; `fallThrough` can pass an offer through
+an empty queue. `ReadyValidQueueStorage.registers` uses a pipeline of elastic
+registers, while `ring` uses a pointer-based FIFO. Both permit a full queue to
+accept a replacement when its current head transfers.
+
+The queue exposes `occupancy`, `empty`, `full`, `almostFull`, and `almostEmpty`.
+An optional synchronous `flush` discards retained items on its active edge;
+coordinate transfers on that edge with the flush, since newly accepted items
+are also discarded.
+
+```dart
+final queue = ReadyValidQueue<Logic>(
+  clk: clk,
+  reset: reset,
+  upstream: upstream,
+  downstream: downstream,
+  depth: 4,
+  policy: ReadyValidQueuePolicy.registered,
+  storage: ReadyValidQueueStorage.ring,
+);
+```
+
+## Legacy ReadyValidFifo
+
+`ReadyValidFifo` is deprecated but remains available for compatibility.
+For new designs use the queue above. Unlike the default legacy FIFO, a queue
+can accept a replacement on the same cycle a full queue drains, so check any
+upstream timing assumptions when migrating.
 
 `ReadyValidFifo<T extends Logic>` buffers a typed payload between upstream
 and downstream ready/valid interfaces. Its default depth is 8. The upstream

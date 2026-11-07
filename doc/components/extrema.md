@@ -24,7 +24,8 @@ position, retaining the selected payload type in `val`.
   * For ordinary `Logic` inputs, `val` has the largest input width.
   * For structured inputs, `val` retains the complete payload schema.
 
-The `List<Logic>` may contain `Logic`s of any width. They will all be considered positive unsigned numbers.
+Plain `Logic` inputs can have different widths and are compared as unsigned
+values. Typed payloads use the comparison semantics described below.
 
 `Extrema` will throw an exception if the `Logic` list is empty.
 
@@ -56,7 +57,7 @@ for domain-specific signals. For scalar constants, explicitly request
 Dart code:
 
 ```dart
-void main() {
+Future<void> main() async {
   // Example list of Logic signals.
      final signals = [
       Logic(width: 8)..put(LogicValue.of([LogicValue.one, LogicValue.zero])), //0b10

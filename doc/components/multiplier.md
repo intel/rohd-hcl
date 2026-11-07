@@ -4,8 +4,9 @@ ROHD-HCL provides an abstract [Multiplier](https://intel.github.io/rohd-hcl/rohd
 numbers represented as two `Logic`s, potentially of different widths,
 treating them as either signed (twos' complement) or unsigned. It
 produces the product as a `Logic` with width equal to the sum of the
-widths of the inputs. The signs of the operands are either fixed by a parameter,
-or runtime selectable, e.g.:   `signedMultiplicand` or `selectSignedMultiplicand`.
+widths of the inputs. Operand signedness can be fixed or selected at runtime
+through `signedMultiplicand` and `signedMultiplier`, each accepting a `bool`
+or a one-bit `Logic`.
 The output of the multiplier also has a signal telling us if the result is to be
 treated as signed.
 
@@ -134,10 +135,8 @@ The additional parameters of the
 [CompressionTreeMultiplyAccumulate](https://intel.github.io/rohd-hcl/rohd_hcl/CompressionTreeMultiplyAccumulate-class.html) over the [CompressionTreeMultiplier](#compression-tree-multiplier) are:
 
 - The accumulate input term `c` which must have width as sum of the two operand widths + 1.
-- Addend signage:
-  - `signedAddend` parameter: whether the addend (third argument) should be treated as signed (twos' complement) or unsigned
-OR
-  - An optional `selectSignedAddend` control signal allows for runtime control of signed or unsigned operation with the same hardware. `signedAddend` must be false if using this control signal.
+- `signedAddend` selects signed or unsigned interpretation of the addend.
+  Supply a `bool` for a static choice or a one-bit `Logic` for runtime control.
 - An optional `clk`, as well as `enable` and `reset` that are used to add a pipestage in the `ColumnCompressor` to allow for pipelined operation.
 
 The default output width is the sum of the operand widths plus one to

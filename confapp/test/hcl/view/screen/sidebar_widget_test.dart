@@ -53,6 +53,32 @@ Future<void> _openArithmetic(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('catalog shows replacement components instead of legacy ones',
+      (tester) async {
+    final components = componentRegistry
+        .where((component) =>
+            (component.category == ComponentCategory.flowControl &&
+                component.subcategory == 'ready-valid') ||
+            (component.category == ComponentCategory.memory &&
+                component.subcategory == 'associative'))
+        .toList();
+    await _pumpSidebar(tester, components);
+
+    await tester.tap(find.text('Flow Control'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ready Valid'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ready/Valid Queue'), findsOneWidget);
+    expect(find.text('Ready/Valid FIFO'), findsNothing);
+
+    await tester.tap(find.text('Memory'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Associative'));
+    await tester.pumpAndSettle();
+    expect(find.text('Parallel Associative Memory'), findsOneWidget);
+    expect(find.text('Content-Addressable Memory'), findsNothing);
+  });
+
   testWidgets('all categories and subcategories start collapsed',
       (tester) async {
     final registry = componentRegistry;

@@ -32,6 +32,19 @@ class. For background on basic parallel prefix adder structures, see
 <https://en.wikipedia.org/wiki/Kogge%E2%80%93Stone_adder>. In this
 case, the prefix trees carry named `GeneratePropagate` records at each node.
 
+## Priority Finding
+
+`ParallelPrefixPriorityFinder` produces a one-hot mask for the
+least-significant set bit, or zero when no bits are set. In contrast,
+`ParallelPrefixPriorityEncoder` returns the bit's binary position. Both
+accept a `ppGen` topology such as `BrentKung.new`.
+
+```dart
+final bits = Logic(width: 8);
+final finder = ParallelPrefixPriorityFinder(bits, ppGen: BrentKung.new);
+final Logic firstOneMask = finder.out;
+```
+
 ## Typed Prefix Networks
 
 `ParallelPrefix<T>`, `Ripple<T>`, `Sklansky<T>`, `KoggeStone<T>`, and

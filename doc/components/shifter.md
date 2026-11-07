@@ -9,11 +9,11 @@ The `SignedShifter` takes as input a Logic $shift$ and interprets $shift > 0$ as
 ```dart
    final bits = Const(16, width: 8);
    print(bits.value.toRadixString());
-   // Produces: 16'b1_0000
+   // Produces: 8'b0001_0000
    final shift = Logic(width: 3);
    final shifter = SignedShifter(bits, shift);
 
    shift.put(-1);
    print(shifter.shifted.value.toRadixString());
-   // Produces:   16'b1000
+   // Produces: 8'b0000_1000
    ```

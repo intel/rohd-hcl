@@ -7,6 +7,9 @@
 // 2025 October 21
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Exercise the deprecated FIFO's compatibility behavior.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';

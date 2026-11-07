@@ -8,10 +8,14 @@
 // 2025 October 21
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Deprecated compatibility APIs remain available for this release.
+// ignore_for_file: remove_deprecations_in_breaking_versions
+
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.dart';
 import 'package:rohd_hcl/src/flow_control/control/fifo_core_functor.dart';
+import 'package:rohd_hcl/src/flow_control/ready_valid/queues/ready_valid_queue.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
 import 'package:rohd_hcl/src/flow_control/storage/fifo.dart';
 
@@ -19,7 +23,16 @@ import 'package:rohd_hcl/src/flow_control/storage/fifo.dart';
 /// [ReadyValidInterface] for a given [LogicType] through an internal
 /// [Fifo] instance.
 ///
-///  The internal FIFO will buffer values of the  type parameter [LogicType].
+/// The internal FIFO buffers values of type [LogicType]. By default, it does
+/// not accept a replacement input on the same cycle that a full FIFO drains.
+///
+/// New designs should use [ReadyValidQueue] with an explicit queue policy and
+/// storage implementation.
+@Deprecated(
+  'Use ReadyValidQueue with policy: ReadyValidQueuePolicy.registered and '
+  'storage: ReadyValidQueueStorage.ring. Note that ReadyValidQueue can '
+  'accept a replacement item while full when the current head is accepted.',
+)
 class ReadyValidFifo<LogicType extends Logic> extends Module {
   /// Upstream interface accepted by this FIFO.
   late final ReadyValidInterface<LogicType> upstream;
@@ -50,6 +63,9 @@ class ReadyValidFifo<LogicType extends Logic> extends Module {
   late final Logic reset;
 
   /// Constructs a new [ReadyValidFifo].
+  @Deprecated(
+    'Use ReadyValidQueue with an explicit queue policy and storage.',
+  )
   ReadyValidFifo({
     required Logic clk,
     required Logic reset,

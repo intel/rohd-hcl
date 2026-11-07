@@ -171,12 +171,20 @@ Again, like [FloatingPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/Float
 
 ## FloatingPointAdder
 
-A single path [FloatingPointAdderSinglePath](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSinglePath-class.html) component is available which performs a straightforward processing of adding, normalizing, and rounding, but includes implicit and explicit j-bit handling. It takes two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)s and adds them, returning a normalized [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) on the output.  An option on input is the type of ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html) used in the critical internal addition of the mantissas.  Another is to use a width generator for partitioning the internal compound adder to tradeoff area for reduced latency in producing the mantissa and mantissa + 1 for rounding. If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
+A single path [FloatingPointAdderSinglePath](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPointAdderSinglePath-class.html) component performs addition, normalization, and rounding with implicit and explicit J-bit handling. It accepts two [FloatingPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint-class.html) inputs and produces `sum` and exception `status` outputs. The `adderGen` option selects the internal adder, and `widthGen` partitions the internal compound adder. An optional clock adds a pipeline stage, controlled by optional reset and enable signals.
 
 A second `FloatingPointAdderDualPath` component is available which is optimized for latency.  It is based on "Delay-Optimized Implementation of IEEE Floating-Point Addition", by Peter-Michael Seidel and Guy Even, using an R-path and an N-path to process far-apart exponents and use rounding and an N-path for exponents within 2 and subtraction, which is exact.  If you pass in an optional clock, a pipe stage will be added to help optimize frequency; an optional reset and enable are can control the pipe stage.
 
 Both adders accept a `roundingMode`, defaulting to
 `FloatingPointRoundingMode.roundNearestEven`.
+
+## Floating-Point Status
+
+The adders, multiplier, converter, and square root expose a typed
+`FloatingPointStatus` output named `status`. Its fields are `invalid`,
+`divideByZero`, `overflow`, `underflow`, and `inexact`. Underflow indicates a
+tiny result that is inexact after rounding. Consult each operation's contract
+for supported formats, rounding, and pipeline timing.
 
 ## FloatingPointSqrt
 

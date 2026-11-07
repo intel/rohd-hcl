@@ -7,6 +7,9 @@
 // 2026 October 23
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Exercise the legacy FIFO with typed payloads.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -106,6 +109,30 @@ class _ReadyValidHarness<T extends Logic> extends Module {
         upstream: upstream,
         downstream: downstream,
         depth: 3);
+    addOutput('result', width: schema.width) <= downstream.data;
+    addOutput('valid') <= downstream.valid;
+    addOutput('ready') <= upstream.ready;
+  }
+}
+
+class _ReadyValidQueueHarness<T extends Logic> extends Module {
+  late final ReadyValidQueue<T> queue;
+
+  _ReadyValidQueueHarness(T schema, ReadyValidQueueStorage storage) {
+    final upstream = ReadyValidInterface<T>(schema.cloneTyped());
+    final downstream = ReadyValidInterface<T>(schema.cloneTyped());
+    upstream.data <=
+        addInput('data', Logic(width: schema.width), width: schema.width);
+    upstream.valid <= addInput('write', Logic());
+    downstream.ready <= addInput('read', Logic());
+    queue = ReadyValidQueue<T>(
+      clk: addInput('clk', Logic()),
+      reset: addInput('reset', Logic()),
+      upstream: upstream,
+      downstream: downstream,
+      depth: 1,
+      storage: storage,
+    );
     addOutput('result', width: schema.width) <= downstream.data;
     addOutput('valid') <= downstream.valid;
     addOutput('ready') <= upstream.ready;
@@ -263,6 +290,28 @@ void main() {
       final dut = _ReadyValidHarness(schema);
       expect(
           sameDeclaredPayloadShape(dut.fifo.downstream.data, schema), isTrue);
+      await _compare(dut, [
+        Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
+        Vector({'clk': 1}, {'valid': 0}),
+        Vector({'clk': 0, 'reset': 0, 'write': 1}, {'ready': 1}),
+        Vector({'clk': 1}, {'valid': 1, 'result': 1}),
+        Vector({'clk': 0, 'write': 0, 'data': 2}, {'result': 1}),
+        Vector({'clk': 1}, {'valid': 1, 'result': 1}),
+        Vector({'clk': 0, 'read': 1}, {'result': 1}),
+        Vector({'clk': 1}, {'valid': 0}),
+      ]);
+    });
+  }
+
+  for (final storage in ReadyValidQueueStorage.values) {
+    test('ready/valid queue $storage retains typed array codec', () async {
+      final schema = TypedLogicArray<_Word, _WordValue>([2], _Word.new,
+          valueCodec: _wordCodec);
+      final dut = _ReadyValidQueueHarness(schema, storage);
+      expect(sameDeclaredPayloadShape(dut.queue.upstream.data, schema), isTrue);
+      expect(
+          sameDeclaredPayloadShape(dut.queue.downstream.data, schema), isTrue);
+      expect(dut.queue.downstream.data.valueCodec, same(_wordCodec));
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'valid': 0}),

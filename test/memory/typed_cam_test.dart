@@ -10,6 +10,9 @@
 @TestOn('vm')
 library;
 
+// Verify the deprecated CAM preserves typed tags.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

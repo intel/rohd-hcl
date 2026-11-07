@@ -8,7 +8,10 @@ It takes a binary Logic `bus` and counts all one or zero within the `bus`. A Cou
 That is to say, by default a Count will go for counting with a `countOne` which is set as `true` by default.
 The boolean `countOne` is optional. Only Logic `bus` is mandatory argument.
 
-This will return a Logic value labeled as `countOne` for `1` and `countZero` for `0`. The value is a result of count of all occurrence parsed (with `countOne` as `1` or `0`) through the entire Logic `bus`.
+Use the `count` getter to access the result. The generated output port is
+named `countOne` or `countZero` according to the selected operation. The
+optional `radix` controls the balanced reduction tree, and `treeDepth` reports
+its combinational depth.
 
 ## Count One
 

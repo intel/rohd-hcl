@@ -7,6 +7,9 @@
 // 2026 November 4
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Verify the legacy FIFO configurator remains available.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
@@ -34,10 +37,45 @@ void main() {
         'Set Bits',
         'With Set',
         'Synchronizer',
-        'Ready/Valid FIFO',
+        'Ready/Valid Queue',
+        'Parallel Associative Memory',
         'CSR Example',
       ]),
     );
+  });
+
+  test('catalog excludes legacy components and includes replacements', () {
+    final names = componentRegistry.map((configurator) => configurator.name);
+    expect(names, isNot(contains('Ready/Valid FIFO')));
+    expect(names, isNot(contains('Content-Addressable Memory')));
+    expect(names, contains('Ready/Valid Queue'));
+    expect(names, contains('Parallel Associative Memory'));
+  });
+
+  test('legacy configurators remain usable outside the catalog', () async {
+    final variants = <({
+      Configurator config,
+      Configurator restored,
+      Type type,
+    })>[
+      (
+        config: ReadyValidFifoConfigurator(),
+        restored: ReadyValidFifoConfigurator(),
+        type: ReadyValidFifo<Logic>,
+      ),
+      (
+        config: CamConfigurator(),
+        restored: CamConfigurator(),
+        type: Cam<Logic>,
+      ),
+    ];
+    for (final variant in variants) {
+      variant.restored.loadJson(variant.config.toJson());
+      expect(variant.restored.toJson(), variant.config.toJson());
+      expect(variant.restored.createModule().runtimeType, variant.type);
+      expect(await variant.config.generateSV(), contains('module '));
+      await _Parent(variant.config.createModule()).build();
+    }
   });
 
   test('all requested implementations generate and compose', () async {
@@ -75,7 +113,11 @@ void main() {
               : RotateRightFixed,
         ),
       (config: SynchronizerConfigurator(), type: Synchronizer),
-      (config: ReadyValidFifoConfigurator(), type: ReadyValidFifo<Logic>),
+      (config: ReadyValidQueueConfigurator(), type: ReadyValidQueue<Logic>),
+      (
+        config: ParallelAssociativeMemoryConfigurator(),
+        type: ParallelAssociativeMemory,
+      ),
       (
         config: CsrExampleConfigurator()
           ..boundaryKnob.value = CsrExampleBoundary.block,
@@ -136,6 +178,17 @@ void main() {
     expect(fifo.depth, 2);
     expect(fifo.upstream.data.width, 5);
     expect(fifo.allowSameCycleReplacement, isTrue);
+
+    final queue = (ReadyValidQueueConfigurator()
+          ..dataWidthKnob.value = 5
+          ..depthKnob.value = 2
+          ..fallThroughKnob.value = true
+          ..storageKnob.value = ReadyValidQueueStorage.ring)
+        .createModule() as ReadyValidQueue<Logic>;
+    expect(queue.depth, 2);
+    expect(queue.upstream.data.width, 5);
+    expect(queue.policy, ReadyValidQueuePolicy.fallThrough);
+    expect(queue.storage, ReadyValidQueueStorage.ring);
 
     final csr = (CsrExampleConfigurator()
           ..widthKnob.value = 12

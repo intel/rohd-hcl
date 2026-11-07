@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// circular_pointer_test.dart
+// Tests for circular pointer.
+//
+// 2026 October 28
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
 

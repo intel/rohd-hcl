@@ -118,7 +118,15 @@ models differ from RTL in simulation, see
 [Behavioral Models](./behavioral_models.md). CSRs are the first family that uses that
 capability.
 
-## Cam
+## Parallel Associative Memory
+
+`ParallelAssociativeMemory` provides indexed updates and combinational
+lookups with typed-key support. See the
+[associative memory guide](associative_memory.md) for ports, supported
+contracts, implementation selection, matcher/selector building blocks, and
+important differences from the deprecated `Cam`.
+
+## Legacy Cam
 
 A content-addressable memory or `Cam` is provided which allows for associative lookup using a `tag` that produces an index to help with building specialized forms of caches where the actual data is stored in a separate register file. The index is to be separately used as a linear address in another component (like a `RegisterFile`) to find the associated data.  In this case the `tag` is matched during a read and the position in memory is returned, which is the index. For the fill ports, the user can simply write a new tag at a given index location. This means the `Cam` is a fine-grained component for use in building associative look of positions of objects in another memory.
 

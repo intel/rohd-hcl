@@ -35,6 +35,8 @@ Based on the type of `rotateAmount` (`int` vs `Logic`), this API will decide whe
 A "fixed" implementation uses a simple signal concatenation (no added gates or logic).
 
 A "non-fixed" version is implemented as a case statement with a static concatenation per matching rotate amount.  For a "non-fixed" rotation, use the `maxAmount` argument to limit the amount of hardware generated in case you know the `rotateAmount` will never be greater than a certain value.
+Amounts outside the generated range select the unrotated input rather than
+being reduced modulo the signal width.
 
 ### Module Types
 

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // typed_control_protection_test.dart
-// Tests for typed control protection.
+// Tests for typed clock control and error protection.
 //
 // 2026 October 23
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>

@@ -10,7 +10,10 @@ It takes a Binary Logic `bus` and finds the position of any one or zero within t
 That is to say, By default a Find will go for finding the first occurrence when no `n` is passed. In addition, with `countOne` which is set as `true` by default to
 search only one (`1`). Both boolean `countOne` and Logic `n` are optional. Only Logic `bus` is mandatory argument.
 
-This has an output pin named as `find`, for the index position on the occurrence searched (`1`s or `0`s) taken from the LSB (Least Significant Bit).
+The `index` output gives the zero-based bit position from the LSB. `n` is also
+zero-based: zero selects the first occurrence. Set `generateError: true` to
+expose an `error` output indicating that the requested occurrence was not
+found.
 
 ## Find First
 

@@ -16,12 +16,15 @@ final predictor = LeadingDigitAnticipate(a, b);
 
 final sumShift = (a + b) << predictor.leadingDigit;
 
-final sumShiftFinal = mux(sumshift[-1], sumShift, sumShift << 1);
+final sumShiftFinal = mux(sumShift[-1], sumShift, sumShift << 1);
 ```
 
 ## LeadingZeroAnticipate
 
-ROHD-HCL also comes with a few leading-zero anticipate components which predict the leading-1 position (or the number of leading zeros) of a future ones-complement addition of two inputs. This can be used in parallel with a ones-complement adder to avoid having to do a leading-1 detect after the addition and therefore save delay. These anticipators guarantee a prediction of the position of a digit change at either `leadingZero` or `leadingZero`+ 1.
+ROHD-HCL also comes with leading-zero anticipate components which predict the
+leading-1 position (or the number of leading zeros) of a future ones-complement
+addition. These can run in parallel with the adder to save delay. The actual
+position is either the `leadingOne` prediction or `leadingOne + 1`.
 
 These components assume you are adding or subtracting two operands using ones-complement modules which produce an end-around-carry that can be used to decide which operand was bigger during subtraction.
 
@@ -55,11 +58,12 @@ But we can 'anticipate' the number of leading zeros instead of counting them:
 
 ```dart
 // Perform the addition
-final adder = OnesComplementAdder(aMantissa, bMantissa, subtract: aSign ^ bSign);
+final adder = OnesComplementAdder(aMantissa, bMantissa,
+    subtract: aSign ^ bSign, generateEndAroundCarry: true);
 
 // Perform the prediction in parallel: Look at the inputs of the adder to anticipate what the sum will look like.
 final predictor = LeadingZeroAnticipateCarry(aSign, aMantissa, bSign, bMantissa,
-endAroundCarry: adder.endAroundCarry);
+    endAroundCarry: adder.endAroundCarry!);
 
 final leadingZerosEstimate = predictor.leadingOne;
 

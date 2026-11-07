@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// counter_variable_bounds_test.dart
+// Tests for counter variable bounds.
+//
+// 2026 October 28
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
 

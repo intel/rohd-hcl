@@ -7,6 +7,9 @@
 // 2026 October 11
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Preserve the legacy CAM configurator and its existing port behavior.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:collection';
 
 import 'package:rohd/rohd.dart';

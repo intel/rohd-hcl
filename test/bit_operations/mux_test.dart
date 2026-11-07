@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// select_test.dart
+// mux_test.dart
 // Tests for OneHotMux and PriorityMux.
 //
 // 2026 October

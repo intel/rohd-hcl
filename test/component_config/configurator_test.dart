@@ -732,7 +732,7 @@ void main() {
           'Ones Complement Adder',
           'Sign Magnitude Adder',
           'Carry-Select Ones Complement Compound Adder',
-          'Content-Addressable Memory',
+          'Parallel Associative Memory',
           'Clock Gate',
           'Count',
           'Find Pattern',

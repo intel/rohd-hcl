@@ -9,6 +9,9 @@
 
 import 'dart:async';
 
+// Verify the deprecated CAM remains compatible.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';

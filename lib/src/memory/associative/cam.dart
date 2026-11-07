@@ -7,6 +7,9 @@
 // 2025 September 18
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Deprecated compatibility APIs remain available for this release.
+// ignore_for_file: remove_deprecations_in_breaking_versions
+
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -21,6 +24,10 @@ import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 /// For writes, `en` enables the write, `idx` is the destination address,
 /// `tag` is the data to write, and `hit` sets/clears the valid bit
 /// (hit=1 marks the entry valid, hit=0 marks it invalid).
+@Deprecated(
+  'Use AssociativeUpdatePortInterface or AssociativeLookupPortInterface; '
+  'typed keys can use their TypedAssociative equivalents.',
+)
 class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
   /// The width of data in the memory.
   final int tagWidth;
@@ -44,6 +51,9 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
 
   /// Constructs a new interface of specified [idWidth] and [tagWidth] for
   /// querying a CAM.
+  @Deprecated(
+    'Use AssociativeUpdatePortInterface or AssociativeLookupPortInterface.',
+  )
   TagInterface(this.idWidth, this.tagWidth) {
     if (T != Logic) {
       throw ArgumentError('Use TagInterface.typed for a specialized tag type.');
@@ -68,6 +78,10 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
   /// [tag] supplies a schema, not a driver. Drive the interface's
   /// [TagInterface.tag] for writes and queries. The argument order matches
   /// the width-based constructor.
+  @Deprecated(
+    'Use TypedAssociativeUpdatePortInterface or '
+    'TypedAssociativeLookupPortInterface.',
+  )
   TagInterface.typed(this.idWidth, T tag) : tagWidth = tag.width {
     setPorts([Logic.port('en'), tag.cloneTyped(name: 'tag')],
         [DataPortGroup.control]);
@@ -132,6 +146,8 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
 ///
 /// Lookup compares exact tag bit patterns, not domain-specific numeric
 /// equality. Packing is confined to the existing case-comparison boundary.
+@Deprecated(
+    'Use ParallelAssociativeMemory or parallelAssociativeMemoryFunctor.')
 class Cam<T extends Logic> extends Module {
   /// The number of entries in the Cam.
   final int numEntries;
@@ -196,6 +212,8 @@ class Cam<T extends Logic> extends Module {
   /// );
   /// // Use cam.full, cam.empty, and cam.validCount signals
   /// ```
+  @Deprecated(
+      'Use ParallelAssociativeMemory or parallelAssociativeMemoryFunctor.')
   Cam(Logic clk, Logic reset, List<TagInterface<T>> writePorts,
       List<TagInterface<T>> lookupPorts,
       {this.numEntries = 8,

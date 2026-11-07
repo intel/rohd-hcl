@@ -34,6 +34,8 @@ class ReadyValidFifoConfigurator extends Configurator {
         'Allow Same-Cycle Replacement': replacementKnob,
       };
   @override
+  // The legacy configurator retains the FIFO's conservative admission policy.
+  // ignore: deprecated_member_use_from_same_package
   Module createModule() => ReadyValidFifo<Logic>(
         clk: Logic(name: 'clk'),
         reset: Logic(name: 'reset'),
