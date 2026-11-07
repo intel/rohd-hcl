@@ -82,7 +82,7 @@
     required super.frontWrite,
     required super.frontRead,
     super.allowLargerRegisters,
-    this.logicalRegisterIncrement = 1,
+    super.logicalRegisterIncrement,
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName})
@@ -118,6 +118,7 @@
         frontWrite: blockFdWrite,
         frontRead: blockFdRead,
         allowLargerRegisters: allowLargerRegisters,
+        logicalRegisterIncrement: logicalRegisterIncrement,
         asyncReset: config.asyncReset));
   }
 
