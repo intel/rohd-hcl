@@ -67,8 +67,12 @@
   <p>Given some arbitrary data <code>wd</code> to write to this CSR,
 return the data that should actually be written based
 on the access control of the CSR and its fields.</p>
-<p><code>isBackdoorWrite</code> distinguishes a backdoor write from a frontdoor
-write. It only affects <a href="../../rohd_hcl/CsrFieldAccess.html">CsrFieldAccess.writeOnesClear</a> fields:
+<p>Register level access rules apply only to frontdoor writes: a
+<a href="../../rohd_hcl/CsrAccess.html">CsrAccess.readOnly</a> register is still backdoor writeable when the
+configuration says so, which is what makes a status register useful.
+Set <code>isBackdoorWrite</code> for such a write to skip that check.  Field level
+access rules are enforced for both paths, except that
+<a href="../../rohd_hcl/CsrFieldAccess.html">CsrFieldAccess.writeOnesClear</a> distinguishes the write source:
 frontdoor writes of <code>1</code> clear the bit, while backdoor writes of <code>1</code>
 set it (so a backdoor writer can raise a flag that a frontdoor
 writer later clears).</p>
@@ -80,7 +84,7 @@ writer later clears).</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
   &#47;&#47; if the whole register is ready only, return the current value
-  if (access == CsrAccess.readOnly) {
+  if (!isBackdoorWrite &amp;&amp; access == CsrAccess.readOnly) {
     return this;
   }
   &#47;&#47; register can be written, but still need to look at the fields...
