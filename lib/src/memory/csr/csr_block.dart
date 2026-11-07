@@ -24,10 +24,6 @@ class CsrBlock extends CsrContainer {
   /// CSRs in this block.
   final List<Csr> csrs;
 
-  /// What increment value to use when deriving logical addresses
-  /// for registers that are wider than the frontdoor data width.
-  final int logicalRegisterIncrement;
-
   /// Indicates whether the `reset` signal driving this block's registers
   /// should be treated as an asynchronous reset.
   ///
@@ -60,7 +56,7 @@ class CsrBlock extends CsrContainer {
     required super.frontWrite,
     required super.frontRead,
     super.allowLargerRegisters,
-    this.logicalRegisterIncrement = 1,
+    super.logicalRegisterIncrement,
     bool asyncReset = false,
     super.reserveName,
     super.reserveDefinitionName,

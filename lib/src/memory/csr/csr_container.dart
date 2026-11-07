@@ -54,6 +54,10 @@ abstract class CsrContainer extends Module {
   /// to any register that exceeds the data width of the frontdoor.
   final bool allowLargerRegisters;
 
+  /// What increment value to use when deriving logical addresses
+  /// for registers that are wider than the frontdoor data width.
+  final int logicalRegisterIncrement;
+
   /// Constructs a base container.
   CsrContainer(
       {required Logic clk,
@@ -62,6 +66,7 @@ abstract class CsrContainer extends Module {
       required DataPortInterface? frontRead,
       required this.config,
       this.allowLargerRegisters = false,
+      this.logicalRegisterIncrement = 1,
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
