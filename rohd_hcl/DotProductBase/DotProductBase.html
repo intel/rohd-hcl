@@ -124,10 +124,12 @@ the increasing accumulation value.</p>
         &quot;don&#39;t match preceding width.&quot;);
   }
 
-  signedMultiplicandParameter =
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
-  signedMultiplierParameter =
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+  signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
+      signedMultiplicand,
+      name: &#39;signedMultiplicand&#39;);
+  signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
+      signedMultiplier,
+      name: &#39;signedMultiplier&#39;);
 
   this.multiplicands = multiplicands
       .mapIndexed((i, multiplicand) =&gt; addInput(

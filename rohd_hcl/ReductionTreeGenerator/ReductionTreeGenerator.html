@@ -114,7 +114,8 @@ be used for creating a pipelined computation tree:</li>
   if (radix &lt; 2) {
     throw RohdHclException(&#39;Radix must be at least 2, got $radix&#39;);
   }
-  signExtensionParameter = StaticOrRuntimeParameter.ofDynamic(signExtend);
+  signExtensionParameter =
+      StaticOrRuntimeParameter.ofDynamic(signExtend, name: &#39;signExtend&#39;);
 
   controlOut = control != null ? Logic(width: control!.width) : null;
   _computed = _reductionTreeRecurse(sequence);

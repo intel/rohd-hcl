@@ -54,8 +54,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">StaticOrRuntimeParameter.ofDynamic</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="ofDynamic-param-config"><span class="type-annotation">dynamic</span> <span class="parameter-name">config</span></span></li>
-</ol>)
+      <span class="name ">StaticOrRuntimeParameter.ofDynamic</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="ofDynamic-param-config"><span class="type-annotation">dynamic</span> <span class="parameter-name">config</span>, {</span></li>
+<li><span class="parameter" id="ofDynamic-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
@@ -66,7 +67,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">factory StaticOrRuntimeParameter.ofDynamic(dynamic config) {
+  <pre class="language-dart"><code class="language-dart">factory StaticOrRuntimeParameter.ofDynamic(dynamic config, {String? name}) {
   if (config is StaticOrRuntimeParameter) {
     return config;
   } else if (config is bool) {
@@ -75,7 +76,11 @@
   } else if (config == null) {
     return StaticOrRuntimeParameter(name: &#39;boolean_config&#39;);
   } else if (config is Logic) {
-    return StaticOrRuntimeParameter(name: config.name, runtimeConfig: config);
+    return StaticOrRuntimeParameter(
+        name: config.naming == Naming.unnamed &amp;&amp; name != null
+            ? name
+            : config.name,
+        runtimeConfig: config);
   } else {
     throw RohdHclException(
         &#39;Unsupported configuration type: ${config.runtimeType}&#39;);

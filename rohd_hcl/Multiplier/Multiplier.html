@@ -108,11 +108,13 @@ control these flops when <code>clk</code> is provided.</p>
   a = addInput(&#39;a&#39;, a, width: a.width);
   b = addInput(&#39;b&#39;, b, width: b.width);
 
-  signedMultiplicandParameter =
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+  signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
+      signedMultiplicand,
+      name: &#39;signedMultiplicand&#39;);
   this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-  signedMultiplierParameter =
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+  signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
+      signedMultiplier,
+      name: &#39;signedMultiplier&#39;);
   this.signedMultiplier = signedMultiplierParameter.staticConfig;
 
   addOutput(&#39;product&#39;, width: a.width + b.width);

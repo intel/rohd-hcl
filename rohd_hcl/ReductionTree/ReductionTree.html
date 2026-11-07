@@ -125,7 +125,8 @@ reduced and passed into the operation.</li>
     throw RohdHclException(&#39;Radix must be at least 2, got $radix&#39;);
   }
 
-  signExtensionParameter = StaticOrRuntimeParameter.ofDynamic(signExtend);
+  signExtensionParameter =
+      StaticOrRuntimeParameter.ofDynamic(signExtend, name: &#39;signExtend&#39;);
   _sequence = [
     for (var i = 0; i &lt; sequence.length; i++)
       addInput(&#39;seq$i&#39;, sequence[i], width: sequence[i].width)

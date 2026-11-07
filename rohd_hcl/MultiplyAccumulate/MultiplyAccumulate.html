@@ -137,13 +137,16 @@ zero-extended based on <a href="../../rohd_hcl/MultiplyAccumulate/isAccumulateSi
   b = addInput(&#39;b&#39;, b, width: b.width);
   c = addInput(&#39;c&#39;, c, width: c.width);
 
-  signedMultiplicandParameter =
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+  signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
+      signedMultiplicand,
+      name: &#39;signedMultiplicand&#39;);
   this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-  signedMultiplierParameter =
-      StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+  signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
+      signedMultiplier,
+      name: &#39;signedMultiplier&#39;);
   this.signedMultiplier = signedMultiplierParameter.staticConfig;
-  signedAddendParameter = StaticOrRuntimeParameter.ofDynamic(signedAddend);
+  signedAddendParameter =
+      StaticOrRuntimeParameter.ofDynamic(signedAddend, name: &#39;signedAddend&#39;);
   this.signedAddend = signedAddendParameter.staticConfig;
 
   addOutput(&#39;accumulate&#39;, width: outputWidth ?? (a.width + b.width + 1));
