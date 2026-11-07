@@ -13,8 +13,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// A [Configurator] for [Serializer] and [Deserializer].
 class SerializationConfigurator extends Configurator {
   /// Controls whether we are serializing or deserializing.
-  final ChoiceConfigKnob<Type> directionKnob =
-      ChoiceConfigKnob([Serializer, Deserializer], value: Serializer);
+  final ChoiceConfigKnob<Type> directionKnob = ChoiceConfigKnob(
+    [Serializer, Deserializer],
+    value: Serializer,
+    choiceLabels: const {
+      Serializer: 'Serializer',
+      Deserializer: 'Deserializer',
+    },
+  );
 
   /// Controls the width of the input.
   final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);

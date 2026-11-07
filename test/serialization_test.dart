@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2025 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // serialization_test.dart
@@ -7,8 +7,6 @@
 // 2024 August 27
 // Author: desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 //
-// ignore_for_file: invalid_use_of_protected_member
-
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
@@ -184,6 +182,40 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  // This test exercises early termination of the serialization.
+  test('serializer endCount', () async {
+    const len = 10;
+    const width = 8;
+    const cutoff = 5;
+    final dataIn = LogicArray([len], width);
+    final clk = SimpleClockGenerator(10).clk;
+    final endCount = Logic(width: len.bitLength);
+    final reset = Logic();
+    final mod = Serializer(dataIn, clk: clk, reset: reset, endCount: endCount);
+
+    for (var i = 0; i < len; i++) {
+      dataIn.elements[i].put(i);
+    }
+
+    await mod.build();
+    unawaited(Simulator.run());
+
+    await clk.nextPosedge;
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    endCount.inject(cutoff - 1);
+
+    for (var i = 0; i < cutoff; i++) {
+      await clk.nextNegedge;
+      expect(mod.done.value.toBool(), i == cutoff - 1);
+      expect(mod.serialized.value.toInt(), i);
+      await clk.nextPosedge;
+    }
+
+    await Simulator.endSimulation();
+  });
+
   // This test does a careful check of the data transfer sequence to make sure
   // data transfer is in expected order by sequencing in first a set of 1s and
   // then a set of zeros and checking all transfers.
@@ -314,6 +346,50 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  // This test uses last to do an early completion of the deserialization.
+  test('deserializer last', () async {
+    const len = 6;
+    const cutoff = 3;
+    const width = 4;
+    final dataIn = Logic(width: width);
+    final clk = SimpleClockGenerator(10).clk;
+    final last = Logic();
+    final reset = Logic();
+    final mod = Deserializer(dataIn, len, clk: clk, reset: reset, last: last);
+    await mod.build();
+    unawaited(Simulator.run());
+
+    last.inject(0);
+    reset.inject(0);
+    await clk.nextPosedge;
+    reset.inject(1);
+
+    await clk.nextPosedge;
+    reset.inject(0);
+
+    final cutoffStr = StringBuffer();
+    for (var i = 0; i < cutoff; i++) {
+      dataIn.inject(i + 1);
+      cutoffStr.write('${i + 1}');
+      last.inject(i == cutoff - 1);
+      await clk.nextNegedge;
+      expect(mod.done.value.toBool(), false);
+      await clk.nextPosedge;
+    }
+
+    expect(mod.done.value.toBool(), true);
+    expect(mod.count.value.toInt(), 1);
+    expect(
+        mod.deserialized.value,
+        LogicValue.ofRadixString("${4 * cutoff}'h"
+                "${cutoffStr.toString().split('').reversed.join()}")
+            .zeroExtend(mod.deserialized.width));
+
+    await clk.nextPosedge;
+    await clk.nextPosedge;
+    await Simulator.endSimulation();
+  });
+
   // This test ensures that the clock cycles and counts of the serializer
   // line up when doing back-to-back transfers.
   test('serializer timing', () async {
@@ -432,6 +508,39 @@ void main() {
     await clk.nextPosedge;
 
     await clk.nextPosedge;
+    await Simulator.endSimulation();
+  });
+
+  // Regression test: a 1-element array previously produced a 0-wide count
+  // output (log2Ceil(1)==0), causing a build failure. Verify it builds and
+  // outputs the single element with done asserted on the first cycle.
+  test('serializer single element array', () async {
+    const width = 8;
+    final dataIn = LogicArray([1], width);
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic();
+
+    final mod = Serializer(dataIn, clk: clk, reset: reset);
+
+    dataIn.elements[0].put(42);
+
+    await mod.build();
+
+    // count must be at least 1 bit wide
+    expect(mod.count.width, greaterThanOrEqualTo(1));
+
+    unawaited(Simulator.run());
+
+    reset.inject(1);
+    await clk.nextPosedge;
+    reset.inject(0);
+    await clk.nextPosedge;
+
+    // With only 1 element, done and the correct value should appear immediately
+    await clk.nextNegedge;
+    expect(mod.serialized.value.toInt(), equals(42));
+    expect(mod.done.value.toBool(), isTrue);
+
     await Simulator.endSimulation();
   });
 }

@@ -91,7 +91,7 @@ abstract class SummationBase extends Module {
     }
 
     this.interfaces = interfaces
-        .mapIndexed((i, e) => SumInterface.clone(e)
+        .mapIndexed((i, e) => e.clone()
           ..pairConnectIO(this, e, PairRole.consumer,
               uniquify: (original) => '${original}_$i'))
         .toList();
@@ -137,7 +137,6 @@ abstract class SummationBase extends Module {
     } else {
       // if it's a LogicValue, then don't assume the width is necessary
       if (value is LogicValue) {
-        // ignore: parameter_assignments
         value = value.toBigInt();
       }
 

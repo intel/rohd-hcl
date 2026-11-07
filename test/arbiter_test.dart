@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arbiter_test.dart
@@ -16,7 +16,7 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
-  test('priority arbiter', () async {
+  test('priority arbiter', () {
     const width = 8;
 
     final vector = Logic(width: width);
@@ -231,6 +231,48 @@ void main() {
 
           // expect an equal number of grants between the two
           expect(grantCounts[0], grantCounts[1]);
+        });
+
+        test('single request', () async {
+          final clk = SimpleClockGenerator(10).clk;
+          final reset = Logic();
+          final req = Logic();
+          final arb = rrArbType.constructor([req], clk: clk, reset: reset);
+          await arb.build();
+
+          expect(arb.count, 1);
+
+          Simulator.setMaxSimTime(500);
+          unawaited(Simulator.run());
+
+          req.put(1);
+          reset.put(1);
+          await clk.nextNegedge;
+          await clk.nextNegedge;
+          reset.put(0);
+
+          // The only requester is the only thing that can be granted, on
+          // every cycle it asks.
+          for (var i = 0; i < 4; i++) {
+            expect(arb.grants[0].value, LogicValue.one);
+            await clk.nextNegedge;
+          }
+
+          req.put(0);
+          await clk.nextNegedge;
+          expect(arb.grants[0].value, LogicValue.zero);
+
+          await Simulator.endSimulation();
+        });
+
+        test('no requests', () async {
+          final clk = SimpleClockGenerator(10).clk;
+          final reset = Logic();
+          final arb = rrArbType.constructor([], clk: clk, reset: reset);
+          await arb.build();
+
+          expect(arb.count, 0);
+          expect(arb.grants, isEmpty);
         });
       });
     }

@@ -74,18 +74,15 @@ abstract class Multiplier extends Module {
   /// multiplication result.
   ///
   /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a [bool] as a signed multiplicand (default is
-  /// `false`, or unsigned) or dynamically with a 1-bit [Logic]
-  /// [selectSignedMultiplicand] input. You can pass either a [bool] (for static
-  /// configuration) or a [Logic] (dynamically configuring the type handled)
-  /// with a signal to this parameter, otherwise this constructor will throw.
+  /// [a] statically using a `bool` to indicate a signed multiplicand (default
+  /// is `false`, or unsigned) or dynamically with a 1-bit [Logic] input.
+  /// Passing something other null, `bool`, or [Logic] will result in a throw.
+  ///
   ///
   /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a [bool] as a signed multiplier (default is `false`, or
-  /// unsigned) or dynamically with a 1-bit [Logic] [selectSignedMultiplier]
-  /// input. You can pass either a [bool] (for static configuration) or a
-  /// [Logic] (dynamically configuring the type handled with a signal) to this
-  /// parameter, otherwise this constructor will throw.
+  /// statically using a `bool` to indicate a signed multiplier (default is
+  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
+  /// something other null, `bool`, or [Logic] will result in a throw.
   ///
   /// If [clk] is not null then a set of flops are used to make the multiply a
   /// 2-cycle latency operation. [reset] and [enable] are optional inputs to
@@ -110,11 +107,13 @@ abstract class Multiplier extends Module {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
-    signedMultiplicandParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplicand);
+    signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplicand,
+        name: 'signedMultiplicand');
     this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-    signedMultiplierParameter =
-        StaticOrRuntimeParameter.ofDynamic(signedMultiplier);
+    signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
+        signedMultiplier,
+        name: 'signedMultiplier');
     this.signedMultiplier = signedMultiplierParameter.staticConfig;
 
     addOutput('product', width: a.width + b.width);
@@ -124,38 +123,40 @@ abstract class Multiplier extends Module {
   }
 
   /// This is a helper function that prints out the kind of multiplicand
-  /// (selected by a [Logic] or set statically via [bool]).
+  /// (selected by a [Logic] or set statically via `bool`).
   /// - UD: unsigned multiplicand.
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
   static String signedMD(dynamic mdConfig) =>
-      ((mdConfig is! StaticOrRuntimeParameter) | (mdConfig == null))
-          ? 'UD'
-          : ((mdConfig as StaticOrRuntimeParameter).runtimeConfig != null)
-              ? 'SSD'
-              : mdConfig.staticConfig
-                  ? 'SD'
-                  : 'UD';
+      _signedConfigName(mdConfig, unsigned: 'UD', signed: 'SD', runtime: 'SSD');
 
   /// This is a helper function that prints out the kind of multiplier (selected
-  /// by a [Logic] or set statically via [bool]).)
+  /// by a [Logic] or set statically via `bool`).)
   /// - UM: unsigned multiplier.
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.
   static String signedML(dynamic mlConfig) =>
-      ((mlConfig is! StaticOrRuntimeParameter) | (mlConfig == null))
-          ? 'UM'
-          : (mlConfig as StaticOrRuntimeParameter).runtimeConfig != null
-              ? 'SSM'
-              : mlConfig.staticConfig
-                  ? 'SM'
-                  : 'UM';
+      _signedConfigName(mlConfig, unsigned: 'UM', signed: 'SM', runtime: 'SSM');
+
+  static String _signedConfigName(
+    dynamic config, {
+    required String unsigned,
+    required String signed,
+    required String runtime,
+  }) {
+    final parameter = StaticOrRuntimeParameter.ofDynamic(config);
+    return parameter.isRuntime
+        ? runtime
+        : parameter.staticConfig
+            ? signed
+            : unsigned;
+  }
 }
 
 /// A class which wraps the native '*' operator so that it can be passed
 /// into other modules as a parameter for using the native operation.
 class NativeMultiplier extends Multiplier {
-  /// The width of input [a] and [b] must be the same.
+  /// Inputs [a] and [b] may have independent widths.
   NativeMultiplier(super.a, super.b,
       {super.clk,
       super.reset,
@@ -171,9 +172,6 @@ class NativeMultiplier extends Multiplier {
                 'NativeMultiplier_W${a.width}x'
                     '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
                     '${Multiplier.signedML(signedMultiplier)}') {
-    if (a.width != b.width) {
-      throw RohdHclException('inputs of a and b should have same width.');
-    }
     final pW = a.width + b.width;
 
     final Logic extendedMultiplicand;

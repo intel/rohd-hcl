@@ -1,4 +1,4 @@
-// Copyright (C) 2021-2025 Intel Corporation
+// Copyright (C) 2021-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // memory_model.dart
@@ -80,12 +80,13 @@ class MemoryModel extends Memory {
               addrValue,
               [
                 for (var index = 0; index < dataWidth ~/ 8; index++)
-                  wrPort.mask.previousValue![index].toBool()
-                      ? wrPort.data.previousValue!
-                          .getRange(index * 8, (index + 1) * 8)
-                      : storage
-                          .readData(addrValue)
-                          .getRange(index * 8, (index + 1) * 8)
+                  if (wrPort.mask.previousValue![index].toBool())
+                    wrPort.data.previousValue!
+                        .getRange(index * 8, (index + 1) * 8)
+                  else
+                    storage
+                        .readData(addrValue)
+                        .getRange(index * 8, (index + 1) * 8)
               ].rswizzle(),
             );
           } else {

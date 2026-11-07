@@ -30,6 +30,10 @@ There is no guarantee that the `error` signal will hold high once asserted.  Beh
 
 Occupancy information can optionally be generated and provided if `generateOccupancy` is set.  The `occupancy` signal will indicate the number of items currently stored in the FIFO.
 
+## Initial Values
+
+If desired, the `initialValues` argument can be used to pre-load the FIFO with data upon reset.  The length of `initialValues` must be less than or equal to the `depth` of the FIFO.
+
 ## Example Schematic
 
 An example schematic for one configuration is viewable here: [FIFO Schematic](https://intel.github.io/rohd-hcl/Fifo.html)

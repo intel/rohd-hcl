@@ -58,11 +58,6 @@ void main() {
       WaveDumper(dut);
     }
 
-    if (printSv) {
-      // ignore: avoid_print
-      print(dut.generateSynth());
-    }
-
     if (doChecks) {
       checkCounter(dut);
     }
@@ -78,13 +73,6 @@ void main() {
     await (stimulus?.call() ?? clk.waitCycles(numCycles));
 
     await Simulator.endSimulation();
-
-    if (printActivity) {
-      // ignore: avoid_print
-      print('Upper activity: ${toggleCounter.upperActivity}');
-      // ignore: avoid_print
-      print('Lower activity: ${toggleCounter.lowerActivity}');
-    }
 
     return toggleCounter;
   }

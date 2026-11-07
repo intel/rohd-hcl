@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // summation_test_utils.dart
@@ -7,6 +7,7 @@
 // 2024 October
 // Author: Max Korbel <max.korbel@intel.com>
 
+// These white-box helpers drive protected summation inputs across variants.
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'dart:math';
@@ -41,12 +42,7 @@ int goldenSum(
   int initialValue = 0,
   bool debug = false,
 }) {
-  void log(String message) {
-    if (debug) {
-      // ignore: avoid_print
-      print(message);
-    }
-  }
+  void log(String message) {}
 
   log('width: $width');
 
@@ -56,7 +52,6 @@ int goldenSum(
 
   maxVal ??= (1 << width) - 1;
   if (maxVal > (1 << width) - 1) {
-    // ignore: parameter_assignments
     maxVal = (1 << width) - 1;
   }
   minVal ??= 0;
@@ -127,7 +122,7 @@ List<SumInterface> genRandomInterfaces(Random rand) {
 /// Sets up a listener on clock edges to check that counters are functioning
 /// properly.
 void checkCounter(Counter counter) {
-  final sub = counter.clk.posedge.listen((_) async {
+  final sub = counter.clk.posedge.listen((_) {
     final errPrefix = '@${Simulator.time}: ';
 
     if (counter is GatedCounter && !counter.saturates) {

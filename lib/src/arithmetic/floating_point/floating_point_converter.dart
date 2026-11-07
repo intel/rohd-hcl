@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_converter.dart
@@ -31,6 +31,12 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
   /// Output [FloatingPoint] computed
   final FpTypeOut destination;
 
+  /// IEEE 754 exception status for this conversion.
+  late final FloatingPointStatus status;
+
+  /// Internal exception status.
+  late final FloatingPointStatus _status;
+
   /// The result of [FloatingPoint] conversion
   @protected
   late final FpTypeOut _destination =
@@ -40,11 +46,15 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
   /// - [source] is the source format [FloatingPoint] logic structure.
   /// - [destination] is the destination format [FloatingPoint] logic
   /// structure.
+  /// - [roundingMode] selects how discarded precision and finite overflow are
+  /// rounded.
   /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
   /// leading one detection (default [RecursiveModulePriorityEncoder]).
   /// - [adderGen] can specify the [Adder] to use for exponent calculations.
   FloatingPointConverter(FpTypeIn source, this.destination,
-      {PriorityEncoder Function(Logic bitVector,
+      {FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven,
+      PriorityEncoder Function(Logic bitVector,
               {bool generateValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
@@ -57,8 +67,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         sourceMantissaWidth = source.mantissa.width,
         super(
             definitionName: definitionName ??
-                'FloatingPointConverter_${source.runtimeType}_'
-                    '${destination.runtimeType}') {
+                'FloatingPointConverter_'
+                    'SE${source.exponent.width}_'
+                    'SM${source.mantissa.width}_'
+                    'SJ${source.explicitJBit ? 1 : 0}_'
+                    'DE${destination.exponent.width}_'
+                    'DM${destination.mantissa.width}_'
+                    'DJ${destination.explicitJBit ? 1 : 0}_'
+                    'R${roundingMode.name}') {
     if (source.subNormalAsZero) {
       throw ArgumentError(
           'FloatingPointConverter does not support denormal as zero (DAZ)');
@@ -69,10 +85,15 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     }
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
-    source = (source.clone(name: 'source') as FpTypeIn)
-      ..gets(addInput('source', source, width: source.width));
-    addOutput('destination', width: _destination.width) <= _destination;
-    destination <= output('destination');
+    source = addTypedInput('source', source);
+
+    final destOut = addTypedOutput('destination',
+        _destination.clone as FpTypeOut Function({String? name}));
+    destOut <= _destination;
+    destination <= destOut;
+    _status = FloatingPointStatus(name: 'internalStatus');
+    status = addTypedOutput('status', _status.clone);
+    status <= _status;
 
     // maxExpWidth: mantissa +2:
     //     1 for the hidden jbit and 1 for going past with leadingOneDetect
@@ -91,7 +112,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     ].swizzle().named('mantissa');
 
     final nan = source.isNaN;
-    final Logic infinity;
+    final Logic overflow;
     final Logic destExponent;
     final Logic destMantissa;
     final Logic biasDiff;
@@ -99,11 +120,10 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     final Logic leadOne;
     final Logic leadOneValid;
     final Logic shift;
+    final Logic roundingInexact;
 
     if (destExponentWidth >= source.exponent.width) {
       // Narrow to Wide
-      infinity = source.isAnInfinity;
-
       if (destExponentWidth > source.exponent.width) {
         biasDiff = (dBias - sBias).named('biasDiff');
 
@@ -116,12 +136,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 .named('leadOne');
 
         fullDiff = mux(
-            Const(source.explicitJBit),
-            biasDiff +
-                source.exponent.zeroExtend(biasDiff.width) +
-                mux(~source.isNormal & Const(source.explicitJBit),
-                    Const(1, width: maxExpWidth), Const(0, width: maxExpWidth)),
-            biasDiff);
+                Const(source.explicitJBit),
+                biasDiff +
+                    source.exponent.zeroExtend(biasDiff.width) +
+                    (~source.isNormal & Const(source.explicitJBit))
+                        .zeroExtend(maxExpWidth),
+                biasDiff)
+            .named('fullDiff');
+
         shift = mux(fullDiff.gte(leadOne) & leadOneValid, leadOne, fullDiff)
             .named('shift');
       } else {
@@ -132,46 +154,79 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         shift = Const(0, width: maxExpWidth);
       }
 
-      final trueShift = shift +
-          mux(
-              Const(destination.explicitJBit) &
-                  source.isNormal &
-                  ~Const(source.explicitJBit),
-              Const(-1, width: maxExpWidth),
-              Const(0, width: maxExpWidth));
+      final trueShift = (shift +
+              (Const(destination.explicitJBit & !source.explicitJBit) &
+                      source.isNormal)
+                  .replicate(maxExpWidth))
+          .named('trueShift');
 
       final newMantissa = mux(trueShift[-1], mantissa >> (~trueShift + 1),
               mantissa << trueShift)
           .named('mantissaShift');
 
+      // Whether the shift above actually promoted a real leading bit into
+      // the topmost position of [newMantissa] (a full left-shift
+      // normalization landing exactly on the leading one), as opposed to
+      // that position still holding a placeholder or freshly shifted-in
+      // fill bit. This must check the final [trueShift] (not just [shift]),
+      // since the destination j-bit adjustment folded into [trueShift] can
+      // turn what would be a promoting left-shift into a net right-shift.
+      // When the destination doesn't store an explicit j-bit, any promoted
+      // bit is implicit and must still be dropped from the stored mantissa,
+      // matching the placeholder case.
+      final topBitMeaningful = (leadOneValid &
+              ~trueShift[-1] &
+              trueShift.eq(leadOne) &
+              Const(destination.explicitJBit))
+          .named('topBitMeaningful');
+
       final Logic roundedMantissa;
       final Logic roundIncExp;
       if (destMantissaWidth < source.mantissa.width) {
-        final rounder =
-            RoundRNE(newMantissa, source.mantissa.width - destMantissaWidth);
+        // The retained/rounded window shifts up by one bit position when
+        // the topmost bit of [newMantissa] is meaningful (see
+        // [topBitMeaningful]) versus when it is just a placeholder; compute
+        // both statically-sized variants and select the right one at
+        // runtime, since the window bounds must be compile-time constants.
+        final rounderPlaceholderTop = FloatingPointRounder(
+            newMantissa, source.mantissa.width - destMantissaWidth,
+            roundingMode: roundingMode, sign: source.sign);
+        final roundAdderPlaceholderTop = adderGen(
+            newMantissa.slice(newMantissa.width - 2,
+                newMantissa.width - destMantissaWidth - 1),
+            rounderPlaceholderTop.doRound.zeroExtend(destMantissaWidth));
 
-        final roundAdder = adderGen(
-            newMantissa.reversed.getRange(1, destMantissaWidth + 1).reversed,
-            rounder.doRound.zeroExtend(destMantissaWidth));
-        roundedMantissa = roundAdder.sum
-            .named('roundedMantissa')
-            .getRange(0, destMantissaWidth);
-        roundIncExp = roundAdder.sum[-1];
+        final rounderRealTop = FloatingPointRounder(
+            newMantissa, newMantissa.width - destMantissaWidth,
+            roundingMode: roundingMode, sign: source.sign);
+        final roundAdderRealTop = adderGen(
+            newMantissa.slice(
+                newMantissa.width - 1, newMantissa.width - destMantissaWidth),
+            rounderRealTop.doRound.zeroExtend(destMantissaWidth));
+
+        roundingInexact = mux(topBitMeaningful, rounderRealTop.inexact,
+                rounderPlaceholderTop.inexact)
+            .named('roundingInexact');
+        final roundAdderSum = mux(topBitMeaningful, roundAdderRealTop.sum,
+                roundAdderPlaceholderTop.sum)
+            .named('roundAdderSum');
+        roundedMantissa = roundAdderSum
+            .getRange(0, destMantissaWidth)
+            .named('roundedMantissa');
+        roundIncExp = roundAdderSum[-1];
       } else {
         roundedMantissa = newMantissa;
         roundIncExp = Const(0);
+        roundingInexact = Const(0);
       }
       final sliceMantissa = mux(
-          (Const(source.explicitJBit) | ~source.isNormal) &
-              Const(destination.explicitJBit),
-          newMantissa.slice(-1, 1),
-          newMantissa.slice(-2, 0));
+          topBitMeaningful, newMantissa.slice(-1, 1), newMantissa.slice(-2, 0));
 
       destMantissa = ((destMantissaWidth >= source.mantissa.width)
               ? [
                   sliceMantissa,
                   Const(0, width: destMantissaWidth - newMantissa.width + 1)
-                ].swizzle().named('clippedMantissa')
+                ].swizzle()
               : roundedMantissa)
           .named('destMantissa');
 
@@ -183,15 +238,23 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 fullDiff - (leadOne - Const(1, width: leadOne.width)),
                 fullDiff - shift)
             .named('predictSubExp');
-        preExponent =
-            mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
-                    .named('unRndDestExponent') +
-                roundIncExp.zeroExtend(predictSub.width).named('rndIncExp');
+        preExponent = mux(shift.gt(Const(0, width: shift.width)), predictSub,
+                predictExp) +
+            roundIncExp.zeroExtend(predictSub.width);
       } else {
         preExponent = se + roundIncExp.zeroExtend(se.width).named('rndIncExp');
       }
       destExponent =
           preExponent.getRange(0, destExponentWidth).named('destExponent');
+
+      final largestFinite = destination
+          .valuePopulator()
+          .ofConstant(FloatingPointConstants.largestNormal);
+      final maxDestExp = Const(largestFinite.exponent, width: maxExpWidth);
+      final maxDestMantissa = Const(largestFinite.mantissa);
+      overflow = destExponent.zeroExtend(maxExpWidth).gt(maxDestExp) |
+          (destExponent.zeroExtend(maxExpWidth).eq(maxDestExp) &
+              destMantissa.gt(maxDestMantissa));
     } else {
       // Wide to Narrow exponent
       final biasDiff = (sBias - dBias).named('biasDiff');
@@ -204,37 +267,46 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
           mux(leadOneValid, leadOnePre.zeroExtend(maxExpWidth), biasDiff)
               .named('leadOne');
 
-      final seW = se.zeroExtend(maxExpWidth);
       final newSe = mux(
-          leadOneValid & Const(source.explicitJBit) & source.isNormal,
-          mux(seW.gte(leadOne), seW - (leadOne - Const(1, width: maxExpWidth)),
-              Const(0, width: maxExpWidth)),
-          seW);
+              leadOneValid & Const(source.explicitJBit) & source.isNormal,
+              mux(
+                  se.gte(leadOne),
+                  se - (leadOne - Const(1, width: maxExpWidth)),
+                  Const(0, width: maxExpWidth)),
+              se)
+          .named('newExponent');
 
       final nextShift = mux(
-          biasDiff.gte(newSe),
-          (source.isNormal.zeroExtend(maxExpWidth).named('srcIsNormal') +
-                  (biasDiff - newSe).named('negSourceRebiased'))
-              .named('shiftSubnormal'),
-          Const(0, width: maxExpWidth));
+              biasDiff.gte(newSe),
+              source.isNormal.zeroExtend(maxExpWidth) + (biasDiff - newSe),
+              Const(0, width: maxExpWidth))
+          .named('nextShift');
 
-      final tns = nextShift -
-          (se - newSe) +
-          mux(Const(source.explicitJBit), Const(-1, width: maxExpWidth),
-              Const(0, width: maxExpWidth)) +
-          mux(Const(destination.explicitJBit), Const(1, width: maxExpWidth),
-              Const(0, width: maxExpWidth));
+      final jBitAdjust =
+          (Const((source.explicitJBit ? -1 : 0), width: maxExpWidth) +
+                  Const(destination.explicitJBit ? 1 : 0, width: maxExpWidth))
+              .named('jBitAdjust');
+
+      final tns = (nextShift - (se - newSe) + jBitAdjust).named('tns');
 
       final fullMantissa = [mantissa, Const(0, width: destMantissaWidth + 2)]
           .swizzle()
           .named('fullMantissa');
 
       final shiftMantissa =
-          mux(tns[-1], fullMantissa << ~tns + 1, fullMantissa >>> tns)
+          mux(tns[-1], fullMantissa << (~tns + 1), fullMantissa >>> tns)
               .named('shiftMantissa');
 
-      final rounder =
-          RoundRNE(shiftMantissa, fullMantissa.width - destMantissaWidth - 1);
+      final shiftedOutSticky =
+          (~tns[-1] & fullMantissa.neq(shiftMantissa << tns))
+              .named('shiftedOutSticky');
+
+      final rounder = FloatingPointRounder(
+          shiftMantissa, fullMantissa.width - destMantissaWidth - 1,
+          roundingMode: roundingMode,
+          sign: source.sign,
+          extraSticky: shiftedOutSticky);
+      roundingInexact = rounder.inexact;
 
       final postPredRndMantissa = shiftMantissa
           .slice(-2, shiftMantissa.width - destMantissaWidth - 1)
@@ -256,37 +328,57 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       destMantissa = sliceMantissa.getRange(0, destMantissaWidth);
 
       final predictEN = mux(biasDiff.gte(newSe), Const(0, width: maxExpWidth),
-              (newSe - biasDiff).named('sourceRebiased'))
+              newSe - biasDiff)
           .named('predictExponent');
 
       destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
-          .named('predictExpRounded')
-          .getRange(0, destExponentWidth);
+          .getRange(0, destExponentWidth)
+          .named('destExponent');
 
       final maxDestExp = Const(
           destination.floatingPointValue.maxExponent +
               destination.floatingPointValue.bias,
           width: maxExpWidth);
+      final largestFinite = destination
+          .valuePopulator()
+          .ofConstant(FloatingPointConstants.largestNormal);
+      final maxDestMantissa = Const(largestFinite.mantissa);
 
-      infinity = source.isAnInfinity |
-          (newSe.gt(biasDiff) & (newSe - biasDiff).gt(maxDestExp)) |
-          destExponent.zeroExtend(maxDestExp.width).gt(maxDestExp);
+      overflow = (newSe.gt(biasDiff) & (newSe - biasDiff).gt(maxDestExp)) |
+          destExponent.zeroExtend(maxDestExp.width).gt(maxDestExp) |
+          (destExponent.zeroExtend(maxDestExp.width).eq(maxDestExp) &
+              destMantissa.gt(maxDestMantissa));
     }
+    final overflowToInfinity = switch (roundingMode) {
+      FloatingPointRoundingMode.roundNearestEven ||
+      FloatingPointRoundingMode.roundNearestTiesAway =>
+        Const(1),
+      FloatingPointRoundingMode.truncate ||
+      FloatingPointRoundingMode.roundTowardsZero =>
+        Const(0),
+      FloatingPointRoundingMode.roundTowardsInfinity => ~source.sign,
+      FloatingPointRoundingMode.roundTowardsNegativeInfinity => source.sign,
+    };
+    final finiteOverflow =
+        (overflow & ~source.isAnInfinity & ~nan).named('finiteOverflow');
+    final finiteRoundingInexact =
+        (roundingInexact & ~source.isAnInfinity & ~nan)
+            .named('finiteRoundingInexact');
+    _status.invalid <= source.isSignalingNaN;
+    _status.divideByZero <= Const(0);
+    _status.overflow <= finiteOverflow;
+    _status.underflow <= ~destExponent.or() & finiteRoundingInexact;
+    _status.inexact <= finiteOverflow | finiteRoundingInexact;
     Combinational([
       If.block([
         Iff(nan, [
-          _destination <
-              FloatingPoint(
-                      exponentWidth: destExponentWidth,
-                      mantissaWidth: destMantissaWidth)
-                  .nan,
+          _destination < _destination.quietNaNFrom(source),
         ]),
-        ElseIf(infinity, [
-          _destination <
-              FloatingPoint(
-                      exponentWidth: destExponentWidth,
-                      mantissaWidth: destMantissaWidth)
-                  .inf(sign: source.sign),
+        ElseIf(source.isAnInfinity | (overflow & overflowToInfinity), [
+          _destination < _destination.inf(sign: source.sign),
+        ]),
+        ElseIf(overflow, [
+          _destination < _destination.largestFinite(sign: source.sign),
         ]),
         Else([
           _destination.sign < source.sign,

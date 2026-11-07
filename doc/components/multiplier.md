@@ -162,3 +162,45 @@ Here is an example of using the `CompressionTreeMultiplyAccumulate` with all inp
 
     print('${accumulate.value.toBigInt().toSigned(widthA + widthB)}');
 ```
+
+## Dot Product
+
+ROHD-HCL provides `CompressionTreeDotProduct` and `GeneralDotProduct`.
+`CompressionTreeDotProduct` combines every multiply's partial products into
+one column-compression tree and requires equal multiplicand and multiplier
+widths. `GeneralDotProduct` instantiates a selected multiplier per lane and
+uses a balanced `ReductionTree` for lossless accumulation.
+
+Both components accept two equal-length `List<Logic>` operand vectors. Every
+multiplicand must have one common width and every multiplier must have one
+common width. The two common widths may differ when using `GeneralDotProduct`
+with a multiplier generator that supports mixed widths, such as
+`CompressionTreeMultiplier`. `CompressionTreeDotProduct` retains its
+equal-width requirement because its fused partial-product matrix assumes a
+common lane geometry.
+
+Signedness for each operand vector can be a static `bool` or runtime 1-bit
+`Logic`. Static values are passed to child multipliers as static
+configuration; runtime values are passed as internal module inputs. The
+accumulated output widens by one bit at each reduction level as required to
+preserve the lossless sum.
+
+Here is an example use of `DotProduct` for a simple depth-2 dot-product computation.
+
+```dart
+    const width = 4;
+    final multiplicands = [Logic(width: width), Logic(width: width)];
+    final multipliers = [Logic(width: width), Logic(width: width)];
+
+    final multiplicandValues = [4, 8];
+    final multiplierValues = [2, 3];
+
+    for (var i = 0; i < multiplicands.length; i++) {
+      multiplicands[i].put(multiplicandValues[i]);
+      multipliers[i].put(multiplierValues[i]);
+    }
+    final dotProduct = GeneralDotProduct(multiplicands, multipliers);
+
+    final dotValue = dotProduct.product;
+    // Should be 4*2 + 8*3 = 32
+```

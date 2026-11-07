@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_rounding.dart
@@ -8,35 +8,110 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/arithmetic/values/floating_point_values/floating_point_rounding_mode.dart';
 
-// TODO(desmonddak): https://github.com/intel/rohd-hcl/issues/191 This can be
-// made a module with other rounding algorithms.
-
-// TODO(desmonddak): https://github.com/intel/rohd-hcl/issues/190 This does not
-// check for evenness of the input which requires an API change to provide the
-// final mantissa length as the entire mantissa may not be provided.
-
-/// A rounding class that performs rounding-nearest-even
-class RoundRNE {
-  /// Return whether to round the input or not.
+/// Determines whether discarded floating-point bits require an increment.
+class FloatingPointRounder {
+  /// Whether the retained value should be incremented.
   Logic get doRound => _doRound;
 
+  /// Whether any discarded bit is nonzero.
+  Logic get inexact => _inexact;
+
   late final Logic _doRound;
+  late final Logic _inexact;
 
-  /// Determine whether the input should be rounded up given
-  /// - [inp] the input bitvector to consider rounding
-  /// - [lsb] the bit position at which to consider rounding
-  RoundRNE(Logic inp, int lsb) {
-    final last = inp[lsb];
-    final guard = (lsb > 0) ? inp[lsb - 1] : Const(0);
-    final round = (lsb > 1) ? inp[lsb - 2] : Const(0);
-    final sticky = (lsb > 2) ? inp.getRange(0, lsb - 2).or() : Const(0);
+  /// Determines rounding for [inp], retaining bits from [lsb] upward.
+  ///
+  /// [extraSticky] includes discarded information no longer present in [inp].
+  /// [sign] is required for the directed rounding modes.
+  FloatingPointRounder(Logic inp, int lsb,
+      {required FloatingPointRoundingMode roundingMode,
+      Logic? sign,
+      Logic? extraSticky}) {
+    if (lsb < 0 || lsb >= inp.width) {
+      throw RangeError.range(lsb, 0, inp.width - 1, 'lsb');
+    }
+    _configure(
+        retainedLsb: inp[lsb],
+        guard: (lsb > 0) ? inp[lsb - 1] : Const(0),
+        roundBit: (lsb > 1) ? inp[lsb - 2] : Const(0),
+        sticky: (lsb > 2) ? inp.getRange(0, lsb - 2).or() : Const(0),
+        extraSticky: extraSticky,
+        roundingMode: roundingMode,
+        sign: sign);
+  }
 
-    _doRound = guard & (last | round | sticky);
+  /// Determines rounding from explicit retained and discarded-bit fields.
+  ///
+  /// [roundBit] and [sticky] default to zero for datapaths that collapse or do
+  /// not generate those positions. [extraSticky] includes discarded
+  /// information from an earlier alignment or normalization operation.
+  FloatingPointRounder.fromGRS(
+      {required Logic retainedLsb,
+      required Logic guard,
+      required FloatingPointRoundingMode roundingMode,
+      Logic? roundBit,
+      Logic? sticky,
+      Logic? extraSticky,
+      Logic? sign}) {
+    _configure(
+        retainedLsb: retainedLsb,
+        guard: guard,
+        roundBit: roundBit ?? Const(0),
+        sticky: sticky ?? Const(0),
+        extraSticky: extraSticky,
+        roundingMode: roundingMode,
+        sign: sign);
+  }
+
+  void _configure(
+      {required Logic retainedLsb,
+      required Logic guard,
+      required Logic roundBit,
+      required Logic sticky,
+      required FloatingPointRoundingMode roundingMode,
+      Logic? sign,
+      Logic? extraSticky}) {
+    for (final field in [
+      retainedLsb,
+      guard,
+      roundBit,
+      sticky,
+      if (extraSticky != null) extraSticky
+    ]) {
+      if (field.width != 1) {
+        throw ArgumentError.value(field, 'rounding field', 'must be 1 bit');
+      }
+    }
+    if (sign == null &&
+        (roundingMode == FloatingPointRoundingMode.roundTowardsInfinity ||
+            roundingMode ==
+                FloatingPointRoundingMode.roundTowardsNegativeInfinity)) {
+      throw ArgumentError.value(
+          sign, 'sign', 'is required for directed rounding');
+    }
+
+    final combinedSticky = sticky | (extraSticky ?? Const(0));
+    _inexact = (guard | roundBit | combinedSticky).named('inexact');
+    _doRound = switch (roundingMode) {
+      FloatingPointRoundingMode.truncate ||
+      FloatingPointRoundingMode.roundTowardsZero =>
+        Const(0),
+      FloatingPointRoundingMode.roundNearestEven =>
+        guard & (retainedLsb | roundBit | combinedSticky),
+      FloatingPointRoundingMode.roundNearestTiesAway => guard,
+      FloatingPointRoundingMode.roundTowardsInfinity => ~sign! & _inexact,
+      FloatingPointRoundingMode.roundTowardsNegativeInfinity =>
+        sign! & _inexact,
+    }
+        .named('doRound');
   }
 }
-// TODO(desmondak): https://github.com/intel/rohd-hcl/issues/173 investigate how
-// to implement other forms of rounding. Unify rounding modes. Here is what
-// CoPilot says: We can have a full Rounding class that takes
-// FloatingPointRoundingMode and does the appropriate rounding based on the
-// mode.
+
+/// Determines whether rounding-nearest-even requires an increment.
+class RoundRNE extends FloatingPointRounder {
+  /// Determines RNE rounding for [inp], retaining bits from [lsb] upward.
+  RoundRNE(super.inp, super.lsb)
+      : super(roundingMode: FloatingPointRoundingMode.roundNearestEven);
+}

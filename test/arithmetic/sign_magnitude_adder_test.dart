@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sign_magnitude_adder_test.dart
@@ -28,8 +28,10 @@ void checkSignMagnitudeAdder(SignMagnitudeAdder adder, LogicValue aSign,
     LogicValue aMagnitude, LogicValue bSign, LogicValue bMagnitude) {
   adder.aSign.put(aSign);
   adder.bSign.put(bSign);
+  // This white-box helper drives the adder's protected magnitude directly.
   // ignore: invalid_use_of_protected_member
   adder.a.put(aMagnitude);
+  // This white-box helper drives the adder's protected magnitude directly.
   // ignore: invalid_use_of_protected_member
   adder.b.put(bMagnitude);
 
@@ -144,7 +146,7 @@ void main() {
     await Simulator.reset();
   });
 
-  test('SignMagnitudeAdder case test', () async {
+  test('SignMagnitudeAdder case test', () {
     const width = 8;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -245,7 +247,7 @@ void main() {
     }
   });
 
-  test('SignMagnitudeAdder: trivial test', () async {
+  test('SignMagnitudeAdder: trivial test', () {
     const width = 4;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -264,7 +266,7 @@ void main() {
     expect(sum.value.toBigInt(), equals(BigInt.from(16)));
   });
 
-  test('SignMagnitudeDualAdder: trivial test', () async {
+  test('SignMagnitudeDualAdder: trivial test', () {
     const width = 64;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -281,7 +283,7 @@ void main() {
     expect(sum.value.toBigInt(), equals(BigInt.from(1)));
   });
 
-  test('SignMagnitudeAdder: four case test', () async {
+  test('SignMagnitudeAdder: four case test', () {
     const width = 6;
     final aSign = Logic(name: 'aSign');
     final a = Logic(name: 'a', width: width);
@@ -305,6 +307,33 @@ void main() {
           adderGen: RippleCarryAdder.new, largestMagnitudeFirst: true);
       expect(adder.sum.value.toInt(), equals(c[0].$1 == c[1].$1 ? 44 : 4));
     }
+  });
+
+  test('SignMagnitudeAdder: carryIn injects a rounding increment', () {
+    const width = 8;
+    final aSign = Logic(name: 'aSign')..put(0);
+    final a = Logic(name: 'a', width: width)..put(5);
+    final bSign = Logic(name: 'bSign')..put(0);
+    final b = Logic(name: 'b', width: width)..put(3);
+    final carryIn = Logic(name: 'carryIn');
+
+    final adder = SignMagnitudeAdder(aSign, a, bSign, b, carryIn: carryIn);
+    carryIn.put(0);
+    expect(adder.sum.value.toInt(), equals(8));
+    carryIn.put(1);
+    expect(adder.sum.value.toInt(), equals(9));
+
+    // Subtraction: 5 - 3 + carryIn.
+    bSign.put(1);
+    carryIn.put(0);
+    expect(adder.sum.value.toInt(), equals(2));
+    carryIn.put(1);
+    expect(adder.sum.value.toInt(), equals(3));
+
+    // Without a carryIn provided at all, the adder should have no
+    // carryIn input and behave as before.
+    final adderNoCarry = SignMagnitudeAdder(aSign, a, bSign, b);
+    expect(adderNoCarry.hasCarryIn, isFalse);
   });
 
   final generators = [Ripple.new, Sklansky.new, KoggeStone.new, BrentKung.new];

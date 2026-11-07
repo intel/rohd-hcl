@@ -6,9 +6,85 @@ Fixed-point binary representation of numbers is useful several applications incl
 
 A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /). A `FixedPointValuePopulator` can be used to construct `FixedPointValue` using different kinds of converters.
 
+## FixedPointValue Populator
+
+A `FixedPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FixedPointValue` predictably across different special subtypes. The general pattern is to call `FixedPointValue.populatorWithSignedness`, then subsequently call one of the population methods on the provided populator to receive a completed object. The deprecated `FixedPointValue.populator` remains available with its historical unsigned default.
+
+Included in the `FixedPointValuePopulator` is a `random()` floating-point value generator that can generate `FixedPointValue`s in a constrained range such as
+
+$$lowerBoundFXV < generatedFXV <= upperBoundFXV$$
+
+or
+
+$$lowerBoundFXV <= generatedFXV < upperBoundFXV$$
+
+or any other variants of $<$, $<=$, $>$, and $>=$. An example of its use is
+
+```dart
+const m = 4;
+const n = 4;
+FixedPointValuePopulator populator() =>
+    FixedPointValue.populatorWithSignedness(
+      integerWidth: m,
+      fractionWidth: n,
+    );
+
+final lt = populator().ofDouble(0.0);
+final gt = populator().ofDouble(0.5);
+final fxv = populator().random(Random(), lt: lt, gt: gt);
+```
+
+This example produces random `FixedPointValue` `fxv`s in the range $0.0 < fxv.toDouble() < 0.5$.
+
 ## FixedPoint
 
 The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html) type is an extension of [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.  
+
+`FixedPoint` supports direct `+`, `-`, and unary `-` operators as well as
+`add`, `subtract`, and `multiply` methods. Addition, subtraction, and
+`multiply` return full-precision results. The deprecated `*` operator retains
+its historical unsigned result behavior; new code should use `multiply`.
+Comparisons use `eq`, `neq`, `lt`, `lte`, `gt`, and `gte`; `>` and `>=` are
+also available as operators. ROHD reserves `<` and `<=` for signal assignment,
+so they cannot be comparison operators. A `FixedPointValue` can be converted
+to a constant `FixedPoint` signal with `toLogic()`.
+
+### Format promotion and conversion
+
+Scalar arithmetic accepts different Q formats. Before addition, subtraction,
+comparison, or multiplication, operands are aligned to the greater fractional
+width and integer width. If either operand is signed, both are promoted to a
+signed representation. Addition and subtraction reserve an additional integer
+bit for carry or borrow; multiplication preserves the sum of both fractional
+widths and the full integer product width. For example, signed Q2.10 plus
+signed Q5.20 produces signed Q6.20, while unsigned Q2.10 multiplied by signed
+Q5.20 produces signed Q8.30.
+
+Use `cast` to select an explicit output format for either a `FixedPoint` signal
+or a `FixedPointValue`. Increasing fractional precision appends zero bits and
+increasing integer precision sign- or zero-extends the value. Reducing
+fractional precision uses the supplied `FloatingPointRoundingMode`; it
+defaults to truncation. The `overflow` argument defaults to
+`FixedPointOverflowMode.wrap`; select `FixedPointOverflowMode.saturate` to
+clamp values outside the target range.
+
+```dart
+final quantized = accumulator.cast(
+  integerWidth: 3,
+  fractionWidth: 12,
+  roundingMode: FloatingPointRoundingMode.roundNearestEven,
+  overflow: FixedPointOverflowMode.saturate,
+);
+```
+
+### Fixed-point collections
+
+`FixedPointArray` is an immutable collection of independent `FixedPoint`
+signals. Its `+`, `-`, and `multiply` operations are elementwise and apply the
+same format-promotion rules as scalar arithmetic. Both arrays must have the
+same length. `FixedPointArray` is intended for statically indexed signal
+collections; use ROHD `LogicArray` when the design requires dynamic
+hardware-indexed packed or unpacked storage.
 
 ## FixedToFloat
 

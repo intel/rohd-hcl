@@ -17,7 +17,7 @@ import 'package:test/test.dart';
 
 class SpiMod extends Module {
   SpiMod(SpiInterface intf, {super.name = 'SpiModIntf'}) {
-    intf = SpiInterface.clone(intf)
+    intf = intf.clone()
       ..connectIO(this, intf,
           inputTags: [PairDirection.fromProvider, PairDirection.fromConsumer]);
   }

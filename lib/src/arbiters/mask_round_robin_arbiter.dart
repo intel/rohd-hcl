@@ -36,6 +36,7 @@ class MaskRoundRobinArbiter extends StatefulArbiter
   MaskRoundRobinArbiter(super.requests,
       {required super.clk,
       required super.reset,
+      super.name = 'mask_round_robin_arbiter',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
@@ -93,7 +94,12 @@ class MaskRoundRobinArbiter extends StatefulArbiter
             grants[g] <
                 (g == 0
                     ? requests[g]
-                    : ~requests.rswizzle().getRange(0, g).or() & requests[g]),
+                    : ~requests
+                            .rswizzle()
+                            .named('requestsComplement')
+                            .getRange(0, g)
+                            .or() &
+                        requests[g]),
         ],
       ),
     ]);

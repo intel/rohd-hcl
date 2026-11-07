@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // count.dart
@@ -6,8 +6,6 @@
 //
 // 2023 July 11
 // Author: Rahul Gautham Putcha <rahul.gautham.putcha@intel.com>
-
-import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/utils.dart';
@@ -17,10 +15,6 @@ class Count extends Module {
   /// [_output] is output of [Count] (use index for accessing from outside
   /// Module).
   late Logic _output;
-
-  /// [index] is an getter for output of [Count].
-  @Deprecated('Use `count` instead')
-  Logic get index => _output;
 
   /// The resulting count.
   Logic get count => _output;
@@ -37,9 +31,10 @@ class Count extends Module {
       String? definitionName})
       : super(definitionName: definitionName ?? 'Count_W${bus.width}') {
     bus = addInput('bus', bus, width: bus.width);
-    Logic count = Const(0, width: max(1, log2Ceil(bus.width + 1)));
+    Logic count = Const(0, width: widthFor(bus.width + 1));
     for (var i = 0; i < bus.width; i++) {
-      count += (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width);
+      count = (count + (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width))
+          .named('count_$i');
     }
     _output =
         addOutput('count${countOne ? "One" : "Zero"}', width: count.width);

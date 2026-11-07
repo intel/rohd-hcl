@@ -240,7 +240,6 @@ class ParallelPrefixAdder extends Adder {
     final l = List<Logic>.generate(a.width - 1,
         (i) => [a[i + 1] & b[i + 1], a[i + 1] | b[i + 1]].swizzle());
     final cin = carryIn ?? Const(0);
-    // ignore: cascade_invocations
     l.insert(
         0,
         [(a[0] & b[0]) | (a[0] & cin) | (b[0] & cin), a[0] | b[0] | cin]
@@ -309,12 +308,12 @@ class ParallelPrefixDecr extends Module {
             definitionName:
                 definitionName ?? 'ParallelPrefixDecr_W${inp.width}') {
     inp = addInput('inp', inp, width: inp.width);
-    final u = ppGen((~inp).elements, (lhs, rhs) => rhs & lhs);
+    final complement = (~inp).named('complement');
+    final u = ppGen(complement.elements, (lhs, rhs) => rhs & lhs);
     addOutput('out', width: inp.width) <=
         (List<Logic>.generate(
-                inp.width,
-                (i) =>
-                    ((i == 0) ? ~inp[i] : inp[i] ^ u.val[i - 1]).named('o_$i'))
-            .rswizzle());
+            inp.width,
+            (i) => ((i == 0) ? complement[i] : inp[i] ^ u.val[i - 1])
+                .named('o_$i')).rswizzle());
   }
 }

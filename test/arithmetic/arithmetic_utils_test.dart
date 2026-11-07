@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // arithmetic_utils_test.dart
@@ -7,21 +7,13 @@
 // 2024 October 7
 // Author: Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
-// ignore_for_file: avoid_print
-
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/arithmetic_utils.dart';
 import 'package:test/test.dart';
 
 void main() {
   final val = LogicValue.ofInt(200, 8);
-  final valL = Logic(width: val.width);
-  // ignore: cascade_invocations
-  valL.put(val);
-  final bigVal = LogicValue.ofString('1010101001101010010111101' * 8);
-  final bigValL = Logic(width: bigVal.width);
-  // ignore: cascade_invocations
-  bigValL.put(bigVal);
+  final valL = Logic(width: val.width)..put(val);
 
   test('listString alignment', () {
     {

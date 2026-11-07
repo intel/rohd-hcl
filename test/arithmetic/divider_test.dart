@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // divider_test.dart
@@ -6,8 +6,6 @@
 //
 // 2024 August
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
-
-// ignore_for_file: avoid_types_on_closure_parameters
 
 import 'dart:async';
 import 'dart:collection';
@@ -113,7 +111,7 @@ class MultiCycleDividerDriver extends Driver<MultiCycleDividerInputSeqItem> {
     unawaited(super.run(phase));
 
     // Listen to new items coming from the sequencer, and add them to a queue
-    sequencer.stream.listen((newItem) async {
+    sequencer.stream.listen((newItem) {
       _driverObjection ??= phase.raiseObjection('div_driver');
       unawaited(_driverObjection!.dropped
           .then((value) => logger.fine('Driver objection dropped')));

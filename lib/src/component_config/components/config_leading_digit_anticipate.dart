@@ -14,11 +14,18 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 class LeadingDigitAnticipateConfigurator extends Configurator {
   /// Controls whether we anticipate the leading digit change or count
   /// leading zeros.
-  final ChoiceConfigKnob<Type> anticipator = ChoiceConfigKnob([
-    LeadingDigitAnticipate,
-    LeadingZeroAnticipate,
-    LeadingZeroAnticipateCarry
-  ], value: LeadingDigitAnticipate);
+  final ChoiceConfigKnob<Type> anticipator = ChoiceConfigKnob(
+      [
+        LeadingDigitAnticipate,
+        LeadingZeroAnticipate,
+        LeadingZeroAnticipateCarry
+      ],
+      value: LeadingDigitAnticipate,
+      choiceLabels: const {
+        LeadingDigitAnticipate: 'LeadingDigitAnticipate',
+        LeadingZeroAnticipate: 'LeadingZeroAnticipate',
+        LeadingZeroAnticipateCarry: 'LeadingZeroAnticipateCarry',
+      });
 
   /// Controls the width of the input.
   final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);

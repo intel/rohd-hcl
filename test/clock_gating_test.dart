@@ -61,6 +61,10 @@ class CustomClockGateControlInterface extends ClockGateControlInterface {
                   override: intf.enableOverride!,
                   anotherOverride: intf.port('anotherOverride'),
                 ).gatedClk);
+
+  @override
+  CustomClockGateControlInterface clone() =>
+      CustomClockGateControlInterface(isPresent: isPresent);
 }
 
 class CounterWithSimpleClockGate extends Module {
@@ -73,8 +77,7 @@ class CounterWithSimpleClockGate extends Module {
       {bool withDelay = true, ClockGateControlInterface? cgIntf})
       : super(name: 'clk_gated_counter') {
     if (cgIntf != null) {
-      cgIntf = ClockGateControlInterface.clone(cgIntf)
-        ..pairConnectIO(this, cgIntf, PairRole.consumer);
+      cgIntf = cgIntf.clone()..pairConnectIO(this, cgIntf, PairRole.consumer);
     }
 
     clk = addInput('clk', clk);
@@ -128,7 +131,6 @@ void main() {
     expect(sv, contains('anotherOverride'));
     expect(sv, contains('CUSTOM_CLOCK_GATE'));
 
-    // ignore: invalid_use_of_protected_member
     expect(counter.tryInput('anotherOverride'), isNotNull);
 
     Simulator.setMaxSimTime(500);

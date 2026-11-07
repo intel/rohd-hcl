@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // float_to_fixed.dart
@@ -12,12 +12,51 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// Compares two's-complement signed [a] against a compile-time constant
+/// [threshold] (which may itself be negative), returning whether `a >=
+/// threshold`. [Logic.gte] alone is unsigned and gives incorrect results
+/// whenever either operand is negative.
+Logic _signedGteConst(Logic a, int threshold) {
+  final thresholdBits = Const(threshold, width: a.width);
+  // A same-width two's-complement bit pattern comparison via unsigned
+  // [Logic.gte] gives the correct signed result whenever both operands share
+  // the same sign; the only remaining cases are when [a]'s sign differs from
+  // [threshold]'s known (compile-time) sign, which can be resolved directly.
+  return threshold >= 0
+      ? mux(a[-1], Const(0), a.gte(thresholdBits))
+      : mux(a[-1], a.gte(thresholdBits), Const(1));
+}
+
+/// As [_signedGteConst], but strictly greater than (`a > threshold`).
+Logic _signedGtConst(Logic a, int threshold) {
+  final thresholdBits = Const(threshold, width: a.width);
+  return threshold >= 0
+      ? mux(a[-1], Const(0), a.gt(thresholdBits))
+      : mux(a[-1], a.gt(thresholdBits), Const(1));
+}
+
+int _fractionBitsWidth(FloatingPoint float) =>
+    float.mantissa.width - (float.explicitJBit ? 1 : 0);
+
+int _floatingPointBias(FloatingPoint float) => float.valuePopulator().bias;
+
+int _defaultIntegerWidth(FloatingPoint float) {
+  final bias = _floatingPointBias(float);
+  final fractionBitsWidth = _fractionBitsWidth(float);
+  return float.exponent.width == 4 && fractionBitsWidth == 3
+      ? bias + 2
+      : bias + 1;
+}
+
+int _defaultFractionWidth(FloatingPoint float) =>
+    _floatingPointBias(float) + _fractionBitsWidth(float) - 1;
+
 /// [FloatToFixed] converts a floating point input to a signed
 /// fixed-point output following Q notation (Qm.n format) as introduced by
-/// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
+/// (Texas Instruments): (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 /// Infinities and NaN's are not supported. Conversion is lossless.
 /// The output is in two's complement and in Qm.n format where:
-/// ```
+/// ```dart
 /// m = e_max - bias + 1
 /// n = mantissa + bias - 1
 /// ```
@@ -38,8 +77,8 @@ class FloatToFixed extends Module {
   late final FixedPoint _fixed =
       FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
 
-  /// Output fixed point port
-  late final FixedPoint fixed = _fixed.clone()..gets(output('fixed'));
+  /// Output fixed point port (exposed as a typed output)
+  late final FixedPoint fixed;
 
   /// Build a [FloatingPoint] to [FixedPoint] converter.
   /// - if [integerWidth] and [fractionWidth] are supplied, an m.n fixed-point
@@ -49,35 +88,51 @@ class FloatToFixed extends Module {
   /// - [checkOverflow] set to `true` will cause overflow detection to happen in
   ///   case that loss can occur and an optional output [overflow] will be
   ///   produced that returns `true` when overflow occurs.
+  /// - [roundingMode] selects how a fraction narrower than the incoming
+  ///   mantissa is rounded. Defaults to [FloatingPointRoundingMode.truncate],
+  ///   matching prior (rounding-free) behavior.
   FloatToFixed(FloatingPoint float,
       {super.name = 'FloatToFixed',
       int? integerWidth,
       int? fractionWidth,
       this.checkOverflow = false,
+      FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.truncate,
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
                 'FloatE${float.exponent.width}'
-                    'M${float.mantissa.width}ToFixed') {
-    float = float.clone()..gets(addInput('float', float, width: float.width));
+                    'M${float.mantissa.width}'
+                    'J${float.explicitJBit ? 1 : 0}ToFixed_'
+                    'I${integerWidth ?? _defaultIntegerWidth(float)}_'
+                    'F${fractionWidth ?? _defaultFractionWidth(float)}_'
+                    'R${roundingMode.name}_'
+                    'O${checkOverflow ? 1 : 0}') {
+    float = addTypedInput('float', float);
 
-    final bias = float.floatingPointValue.bias;
+    // [float.mantissa] includes the explicit j-bit as its top bit when
+    // [FloatingPoint.explicitJBit] is set; separate it out here so the rest
+    // of this component can work uniformly with just the fraction bits and
+    // its own independently-computed [jBit], matching the implicit-j-bit
+    // convention used throughout.
+    final fractionBitsWidth = _fractionBitsWidth(float);
+    final mantissaFractionBits = float.explicitJBit
+        ? float.mantissa.slice(fractionBitsWidth - 1, 0)
+        : float.mantissa;
+
     // E4M3 expands the max exponent by 1.
-    final noLossM = ((float.exponent.width == 4) & (float.mantissa.width == 3))
-        ? bias + 2
-        : bias + 1; // accomodate the jbit
-    final noLossN = bias + float.mantissa.width - 1;
-
-    // TODO(desmonddak): Check what happens with an explicitJBit FP
+    final noLossM = _defaultIntegerWidth(float);
+    final noLossN = _defaultFractionWidth(float);
 
     this.integerWidth = integerWidth ?? noLossM;
     this.fractionWidth = fractionWidth ?? noLossN;
     final outputWidth = this.integerWidth + this.fractionWidth + 1;
 
     final jBit = Logic(name: 'jBit')..gets(float.isNormal);
-    final fullMantissa = [jBit, float.mantissa].swizzle().named('fullMantissa');
+    final fullMantissa =
+        [jBit, mantissaFractionBits].swizzle().named('fullMantissa');
 
     final eWidth = max(log2Ceil(this.fractionWidth + this.integerWidth),
             float.exponent.width) +
@@ -98,11 +153,65 @@ class FloatToFixed extends Module {
               Const(noLossN - this.fractionWidth, width: eWidth)
                   .named('deltaN');
     }
-    // TODO(desmonddak): Could use signed shifter if we unified shift math
+    // [preNumber] is pre-truncated to output width, so subtract that implicit
+    // right shift from the remaining shift amount. A [SignedShifter] would
+    // double-count it.
     final shiftRight = ((fullMantissa.width > outputWidth)
             ? (~shift + 1) - (fullMantissa.width - outputWidth)
             : (~shift + 1))
         .named('shiftRight');
+
+    final preNumber = ((outputWidth >= fullMantissa.width)
+            ? fullMantissa.zeroExtend(outputWidth)
+            : fullMantissa.slice(-1, fullMantissa.width - outputWidth))
+        .named('newMantissaPreShift');
+
+    final unroundedNumber =
+        mux(shift[-1], preNumber >>> shiftRight, preNumber << shift)
+            .named('unroundedNumber');
+
+    // Buffer a guard bit below the mantissa; all pre-truncated and shifted-out
+    // bits contribute to sticky.
+    final bufferedFullMantissa =
+        [fullMantissa, Const(0)].swizzle().named('bufferedFullMantissa');
+    final bufferedOutputWidth = outputWidth + 1;
+    final bufferedPreNumber =
+        ((bufferedOutputWidth >= bufferedFullMantissa.width)
+                ? bufferedFullMantissa.zeroExtend(bufferedOutputWidth)
+                : bufferedFullMantissa.slice(
+                    -1, bufferedFullMantissa.width - bufferedOutputWidth))
+            .named('bufferedPreNumber');
+    final guard =
+        (bufferedPreNumber >>> shiftRight)[0].named('rightShiftGuard');
+    final safeShiftRight = mux(shiftRight.gte(bufferedPreNumber.width),
+            Const(bufferedPreNumber.width, width: shiftRight.width), shiftRight)
+        .named('safeShiftRight');
+    final preTruncationSticky = bufferedFullMantissa.width > bufferedOutputWidth
+        ? bufferedFullMantissa
+            .getRange(0, bufferedFullMantissa.width - bufferedOutputWidth)
+            .or()
+        : Const(0);
+    final sticky = ((bufferedPreNumber <<
+                    (Const(bufferedPreNumber.width,
+                            width: safeShiftRight.width) -
+                        safeShiftRight))
+                .or() |
+            preTruncationSticky)
+        .named('rightShiftSticky');
+    final rounder = FloatingPointRounder.fromGRS(
+        retainedLsb: unroundedNumber[0],
+        guard: guard,
+        sticky: sticky,
+        roundingMode: roundingMode,
+        sign: float.sign);
+
+    final roundingIncrement = (shift[-1] & rounder.doRound)
+        .zeroExtend(unroundedNumber.width + 1)
+        .named('roundingIncrement');
+    final roundedNumber =
+        (unroundedNumber.zeroExtend(unroundedNumber.width + 1) +
+                roundingIncrement)
+            .named('roundedNumber');
 
     if (checkOverflow &
         ((this.integerWidth < noLossM) | (this.fractionWidth < noLossN))) {
@@ -112,56 +221,80 @@ class FloatToFixed extends Module {
 
       final sWidth = max(eWidth, leadDetect.out.width);
       final fShift = shift.zeroExtend(sWidth).named('wideShift');
-      final leadOne = leadDetect.out
-          .named('leadOneRaw')
-          .zeroExtend(sWidth)
-          .named('leadOne');
+      final leadOne = leadDetect.out.zeroExtend(sWidth).named('leadOne');
 
+      // At the threshold, an exact negative power of two still fits in the
+      // asymmetric two's-complement range.
+      final threshold = outputWidth - fractionBitsWidth - 1;
+      final discardedBits = (-threshold).clamp(0, fractionBitsWidth);
+      final atThresholdIsExactPowerOfTwo = discardedBits < fractionBitsWidth
+          ? ~mantissaFractionBits
+              .getRange(discardedBits, fractionBitsWidth)
+              .or()
+          : Const(1);
+
+      final unroundedOverflow = Logic(name: 'unroundedOverflow');
       Combinational([
         If(jBit, then: [
-          overflow < shift.gte(outputWidth - float.mantissa.width - 1),
+          unroundedOverflow <
+              (_signedGtConst(shift, threshold) |
+                  (shift.eq(Const(threshold, width: shift.width)) &
+                      ~(float.sign & atThresholdIsExactPowerOfTwo))),
         ], orElse: [
           If(fShift.gt(leadOne), then: [
-            overflow <
-                (fShift - leadOne).gte(outputWidth - float.mantissa.width - 1),
+            unroundedOverflow < _signedGteConst(fShift - leadOne, threshold),
           ], orElse: [
-            overflow < Const(0),
+            unroundedOverflow < Const(0),
           ]),
         ]),
       ]);
+
+      // Rounding can carry a largest representable magnitude into the next
+      // integer. Include that carry in the signed destination range check.
+      final maxPositive = Const((BigInt.one << (outputWidth - 1)) - BigInt.one,
+          width: outputWidth + 1);
+      final maxNegativeMagnitude =
+          Const(BigInt.one << (outputWidth - 1), width: outputWidth + 1);
+      final roundingOverflow = shift[-1] &
+          rounder.doRound &
+          ((~float.sign &
+                  unroundedNumber.zeroExtend(outputWidth + 1).eq(maxPositive)) |
+              (float.sign &
+                  unroundedNumber
+                      .zeroExtend(outputWidth + 1)
+                      .eq(maxNegativeMagnitude)));
+
+      overflow <= unroundedOverflow | roundingOverflow;
       addOutput('overflow') <= overflow;
     }
-    final preNumber = ((outputWidth >= fullMantissa.width)
-            ? fullMantissa.zeroExtend(outputWidth)
-            : fullMantissa.slice(-1, fullMantissa.width - outputWidth))
-        .named('newMantissaPreShift');
-    // TODO(desmonddak): Rounder is needed when shifting right
 
-    final number = mux(shift[-1], preNumber >>> shiftRight, preNumber << shift)
-        .named('number');
+    final number =
+        roundedNumber.slice(unroundedNumber.width - 1, 0).named('number');
 
-    _fixed <= mux(float.sign, (~number + 1).named('negNumber'), number);
-    addOutput('fixed', width: outputWidth) <= _fixed;
+    _fixed <= mux(float.sign, ~number + 1, number).named('signedNumber');
+    final typedFixedOut = addTypedOutput('fixed', _fixed.clone);
+    typedFixedOut <= _fixed;
+    fixed = typedFixedOut;
   }
 }
 
 /// [Float8ToFixed] converts an 8-bit floating point (FP8) input
 /// to a signed fixed-point output following Q notation (Qm.n) as introduced by
-/// (Texas Instruments)[https://www.ti.com/lit/ug/spru565b/spru565b.pdf].
+/// (Texas Instruments): (https://www.ti.com/lit/ug/spru565b/spru565b.pdf).
 /// FP8 input must follow E4M3 or E5M2 as described in
-/// (FP8 formats for deep learning)[https://arxiv.org/pdf/2209.05433].
+/// (FP8 formats for deep learning): (https://arxiv.org/pdf/2209.05433).
 /// This component offers re-using the same hardware for both FP8 formats.
 /// Infinities and NaN's are not supported.
 /// The output is of type [Logic] and in two's complement.
 /// It can be cast to a [FixedPoint] by the consumer based on the mode.
 /// if `mode` is `true`:
 ///   Input is treated as E4M3 and converted to Q9.9
-///   `fixed[17:9] contains integer part
-///   `fixed[8:0] contains fractional part
+///   - `fixed[17:9]` contains integer part
+///   - `fixed[8:0]` contains fractional part
 /// else:
 ///    Input is treated as E5M2 and converted to Q16.16
-///   `fixed[31:16] contains integer part
-///   `fixed[15:0] contains fractional part
+///   - `fixed[31:16]` contains integer part
+///   - `fixed[15:0]` contains fractional part
 class Float8ToFixed extends Module {
   /// Output port [fixed]
   Logic get fixed => output('fixed');

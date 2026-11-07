@@ -103,23 +103,24 @@ class Csr extends LogicStructure {
     required this.config,
     required this.rsvdIndices,
     required List<Logic> fields,
-  }) : super(fields, name: config.name);
+    String? logicName,
+  }) : super(fields, name: logicName ?? config.name);
 
+  // Historically the CSR disallowed renaming because the architectural
+  // name is tied to its configuration. However, interface cloning and
+  // IO uniquification can pass a `name` to clone; to support that
+  // workflow we ignore the requested `name` here and preserve the
+  // CSR's configured name while still cloning the underlying elements.
   /// Creates a clone of this CSR.
   ///
   /// The CSR is not allowed to be renamed, so [name] must be null.
   @override
-  Csr clone({String? name}) {
-    if (name != null) {
-      throw RohdHclException('Cannot rename a CSR');
-    }
-
-    return Csr._(
-      config: config,
-      rsvdIndices: rsvdIndices,
-      fields: elements.map((e) => e.clone()).toList(),
-    );
-  }
+  Csr clone({String? name}) => Csr._(
+        config: config,
+        rsvdIndices: rsvdIndices,
+        fields: elements.map((e) => e.clone()).toList(),
+        logicName: name,
+      );
 
   /// Accessor to the bits of a particular field
   /// within the CSR by name [name].
@@ -136,9 +137,19 @@ class Csr extends LogicStructure {
   /// Given some arbitrary data [wd] to write to this CSR,
   /// return the data that should actually be written based
   /// on the access control of the CSR and its fields.
-  Logic getWriteData(Logic wd) {
+  ///
+  /// Register level access rules apply only to frontdoor writes: a
+  /// [CsrAccess.readOnly] register is still backdoor writeable when the
+  /// configuration says so, which is what makes a status register useful.
+  /// Set [isBackdoorWrite] for such a write to skip that check.  Field level
+  /// access rules are enforced for both paths, except that
+  /// [CsrFieldAccess.writeOnesClear] distinguishes the write source:
+  /// frontdoor writes of `1` clear the bit, while backdoor writes of `1`
+  /// set it (so a backdoor writer can raise a flag that a frontdoor
+  /// writer later clears).
+  Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
     // if the whole register is ready only, return the current value
-    if (access == CsrAccess.readOnly) {
+    if (!isBackdoorWrite && access == CsrAccess.readOnly) {
       return this;
     }
     // register can be written, but still need to look at the fields...
@@ -164,12 +175,25 @@ class Csr extends LogicStructure {
           continue;
         }
 
-        // if the given field is read only
-        // take the current value instead of the new value
+        // if the given field is read only or write only,
+        // take the current value instead of the new value:
+        // neither retains a written value as persistent storage.
         final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
-            fields[currField].access == CsrFieldAccess.writeOnesClear;
+            fields[currField].access == CsrFieldAccess.writeOnly;
         if (chk2) {
           finalWd = finalWd.withSet(currIdx, elements[i]);
+          currField++;
+          currIdx += elements[i].width;
+          continue;
+        }
+
+        // if the given field is write-ones-clear: frontdoor writes of 1
+        // clear the bit; backdoor writes of 1 set the bit instead.
+        final chk3 = fields[currField].access == CsrFieldAccess.writeOnesClear;
+        if (chk3) {
+          final wdField = wd.getRange(currIdx, currIdx + elements[i].width);
+          finalWd = finalWd.withSet(currIdx,
+              isBackdoorWrite ? elements[i] | wdField : elements[i] & ~wdField);
           currField++;
           currIdx += elements[i].width;
           continue;
@@ -204,5 +228,42 @@ class Csr extends LogicStructure {
       }
       return finalWd;
     }
+  }
+
+  /// Computes the value to drive on this CSR's backdoor read port.
+  ///
+  /// For [CsrFieldAccess.writeOnly] fields, this combinationally reflects
+  /// the current cycle's frontdoor write: [frontdoorWriteDataFull] where
+  /// [frontdoorWriteValidFull] indicates a frontdoor write occurred to that
+  /// bit this cycle, otherwise the field's reset value. All other bits pass
+  /// through the register's current stored value unchanged.
+  Logic getBackdoorReadData(
+      Logic frontdoorWriteValidFull, Logic frontdoorWriteDataFull) {
+    if (fields.isEmpty) {
+      return this;
+    }
+
+    Logic finalRd = this;
+    var currIdx = 0;
+    var currField = 0;
+    for (var i = 0; i < elements.length; i++) {
+      if (rsvdIndices.contains(i)) {
+        currIdx += elements[i].width;
+        continue;
+      }
+
+      if (fields[currField].access == CsrFieldAccess.writeOnly) {
+        final width = elements[i].width;
+        final valid =
+            frontdoorWriteValidFull.getRange(currIdx, currIdx + width).or();
+        final written =
+            frontdoorWriteDataFull.getRange(currIdx, currIdx + width);
+        finalRd = finalRd.withSet(currIdx, mux(valid, written, elements[i]));
+      }
+
+      currField++;
+      currIdx += elements[i].width;
+    }
+    return finalRd;
   }
 }

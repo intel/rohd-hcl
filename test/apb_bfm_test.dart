@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // apb_bfm_test.dart
@@ -81,9 +81,9 @@ class ApbBfmTest extends Test {
 
       final jsonStr =
           File('$outFolder/apbTracker.tracker.json').readAsStringSync();
-      final jsonContents = json.decode(jsonStr);
-      // ignore: avoid_dynamic_calls
-      expect(jsonContents['records'].length, 2 * numTransfers);
+      final jsonContents = json.decode(jsonStr) as Map<String, dynamic>;
+      final records = jsonContents['records'] as List<Object?>;
+      expect(records.length, 2 * numTransfers);
 
       Directory(outFolder).deleteSync(recursive: true);
     });
@@ -109,9 +109,10 @@ class ApbBfmTest extends Test {
 
     LogicValue strobedData(LogicValue originalData, LogicValue strobe) => [
           for (var i = 0; i < 4; i++)
-            strobe[i].toBool()
-                ? originalData.getRange(i * 8, i * 8 + 8)
-                : LogicValue.filled(8, LogicValue.zero)
+            if (strobe[i].toBool())
+              originalData.getRange(i * 8, i * 8 + 8)
+            else
+              LogicValue.filled(8, LogicValue.zero)
         ].rswizzle();
 
     // normal writes
@@ -184,7 +185,7 @@ void main() {
     Simulator.setMaxSimTime(3000);
 
     if (dumpWaves) {
-      final mod = ApbCompleter(apbBfmTest.intf);
+      final mod = ApbCompleterTestModule(apbBfmTest.intf);
       await mod.build();
       WaveDumper(mod);
     }

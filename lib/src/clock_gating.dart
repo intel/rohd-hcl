@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // clock_gating.dart
@@ -8,6 +8,7 @@
 // Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:rohd/rohd.dart';
+// ROHD does not expose the uniquifier required by this interface publicly.
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/uniquifier.dart';
 
@@ -26,6 +27,9 @@ class ClockGateControlInterface extends PairInterface {
   /// then no clock gating will occur and no clock gating logic will be
   /// generated.
   final bool isPresent;
+
+  /// Capture the additional ports that are part of this interface, if any.
+  late final List<Logic>? additionalPorts;
 
   /// A default implementation for clock gating, effectively just an AND of the
   /// clock and the enable signal, with an optional [enableOverride].
@@ -66,36 +70,25 @@ class ClockGateControlInterface extends PairInterface {
   ClockGateControlInterface({
     this.isPresent = true,
     this.hasEnableOverride = false,
-    List<Logic>? additionalPorts,
+    this.additionalPorts,
     this.gatedClockGenerator = defaultGenerateGatedClock,
   }) : super(portsFromProvider: [
           if (hasEnableOverride) Logic.port('en_override'),
           ...?additionalPorts,
         ]);
 
-  /// Creates a clone of [otherInterface] with the same configuration, including
-  /// any `additionalPorts` and `gatedClockGenerator` function. This should be
-  /// used to replicate interface configuration through hierarchies to carry
+  /// Creates a clone of with the same configuration, including any
+  /// `additionalPorts` and `gatedClockGenerator` function. This should be used
+  /// to replicate interface configuration through hierarchies to carry
   /// configuration information.
-  ///
-  /// If [isPresent] is provided, then it will override the [isPresent] value
-  /// from [otherInterface].
-  ///
-  /// If a [gatedClockGenerator] is provided, then it will override the
-  /// [gatedClockGenerator] function from [otherInterface].
-  ClockGateControlInterface.clone(
-    ClockGateControlInterface super.otherInterface, {
-    bool? isPresent,
-    Logic Function(
-      ClockGateControlInterface intf,
-      Logic clk,
-      Logic enable,
-    )? gatedClockGenerator,
-  })  : hasEnableOverride = otherInterface.hasEnableOverride,
-        isPresent = isPresent ?? otherInterface.isPresent,
-        gatedClockGenerator =
-            gatedClockGenerator ?? otherInterface.gatedClockGenerator,
-        super.clone();
+  @override
+  ClockGateControlInterface clone() => ClockGateControlInterface(
+      isPresent: isPresent,
+      hasEnableOverride: hasEnableOverride,
+      additionalPorts: (additionalPorts != null)
+          ? [for (final p in additionalPorts!) p.clone(name: p.name)]
+          : null,
+      gatedClockGenerator: gatedClockGenerator);
 }
 
 /// A generic and configurable clock gating block.
@@ -237,7 +230,7 @@ class ClockGate extends Module {
       // configuration
       _controlIntf = ClockGateControlInterface();
     } else {
-      _controlIntf = ClockGateControlInterface.clone(controlIntf)
+      _controlIntf = controlIntf.clone()
         ..pairConnectIO(this, controlIntf, PairRole.consumer);
     }
 
@@ -253,7 +246,7 @@ class ClockGate extends Module {
     if (_reset != null) {
       // we want to enable the clock during reset so that synchronous resets
       // work properly
-      internalEnable |= _reset!;
+      internalEnable |= _reset;
     }
 
     if (delayControlledSignals) {
@@ -268,6 +261,6 @@ class ClockGate extends Module {
 
     gatedClk <=
         _controlIntf!
-            .gatedClockGenerator(_controlIntf!, _freeClk, internalEnable);
+            .gatedClockGenerator(_controlIntf, _freeClk, internalEnable);
   }
 }

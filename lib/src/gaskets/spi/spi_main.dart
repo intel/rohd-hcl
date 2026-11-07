@@ -54,8 +54,7 @@ class SpiMain extends Module {
 
     addOutput('done');
 
-    intf = SpiInterface.clone(intf)
-      ..pairConnectIO(this, intf, PairRole.provider);
+    intf = intf.clone()..pairConnectIO(this, intf, PairRole.provider);
 
     final isRunning = Logic(name: 'isRunning');
 

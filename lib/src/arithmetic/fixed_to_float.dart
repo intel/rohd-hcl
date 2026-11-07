@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // fixed_to_float.dart
@@ -18,7 +18,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// support infinity.
 class FixedToFloat extends Module {
   /// Output port [float]
-  late final FloatingPoint float = outFloat.clone()..gets(output('float'));
+  // Expose typed FloatingPoint output via addTypedOutput and wire internal
+  // converted float into it. This avoids relying on plain output('float').
+  late final FloatingPoint float;
 
   /// Internal representation of the output port.
   @protected
@@ -36,24 +38,35 @@ class FixedToFloat extends Module {
   /// the input fixed-point number. A [LeadingDigitAnticipate] module can be
   /// used to provide this value from two inputs to an adder producing the
   /// fixed-point value input to this converter.
+  /// [roundingMode] selects how discarded precision is rounded.
   FixedToFloat(FixedPoint fixed, this.outFloat,
       {bool signed = true,
       Logic? leadingDigitPredict,
+      FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.roundNearestEven,
       super.name = 'FixedToFloat',
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'Fixed${fixed.width}ToFloatE${outFloat.exponent.width}'
-                    'M${outFloat.mantissa.width}') {
-    fixed = fixed.clone()..gets(addInput('fixed', fixed, width: fixed.width));
+                'Fixed${fixed.width}ToFloat_E${outFloat.exponent.width}'
+                    'M${outFloat.mantissa.width}_'
+                    'J${outFloat.explicitJBit ? 1 : 0}_'
+                    'R${roundingMode.name}') {
+    fixed = addTypedInput('fixed', fixed);
+
+    final fixedAsLogic = fixed.packed;
     final exponentWidth = outFloat.exponent.width;
-    final mantissaWidth = outFloat.mantissa.width;
-    _convertedFloat = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    addOutput('float', width: outFloat.width) <= _convertedFloat;
-    outFloat <= output('float');
+    _convertedFloat = outFloat.clone();
+    final mantissaWidth =
+        outFloat.mantissa.width - (outFloat.explicitJBit ? 1 : 0);
+    // Create a typed output and drive it from the internal converted float.
+    final typedFloatOut = addTypedOutput('float', _convertedFloat.clone);
+    typedFloatOut <= _convertedFloat;
+    // Also set the public `float` handle to the typed output instance so
+    // consumers that expect a FloatingPoint object can use `float` directly.
+    float = typedFloatOut;
 
     leadingDigitPredict = (leadingDigitPredict != null)
         ? addInput('leadingDigitPredict', leadingDigitPredict,
@@ -61,9 +74,8 @@ class FixedToFloat extends Module {
         : null;
 
     final bias = float.floatingPointValue.bias;
-    final eMax = pow(2, float.exponent.width) - 2;
     final iWidth = (1 +
-            max(log2Ceil(fixed.fractionWidth),
+            max(log2Ceil(max(1, fixed.fractionWidth)),
                 max(log2Ceil(fixed.width), float.exponent.width)))
         .toInt();
 
@@ -75,14 +87,13 @@ class FixedToFloat extends Module {
     final Logic absValue;
     if (signed) {
       // Extract sign bit
-      _convertedFloat.sign <= (fixed.signed ? fixed[-1] : Const(0));
+      _convertedFloat.sign <= (fixed.signed ? fixedAsLogic[-1] : Const(0));
 
       absValue = Logic(name: 'absValue', width: fixed.width)
-        ..gets(mux(_convertedFloat.sign, ~(fixed - 1), fixed));
+        ..gets(mux(_convertedFloat.sign, ~(fixedAsLogic - 1), fixedAsLogic));
     } else {
       _convertedFloat.sign <= Const(0);
-      absValue = Logic(name: 'absValue', width: fixed.width)
-        ..gets(mux(_convertedFloat.sign, fixed, fixed));
+      absValue = fixedAsLogic;
     }
 
     final maxShift = fixed.width - fixed.fractionWidth + bias - 2;
@@ -93,36 +104,42 @@ class FixedToFloat extends Module {
     if (leadingDigitPredict != null) {
       // 3 positions are possible:  The leadingDigitPredict can be one
       // ahead of, matching or one behindthe actual jBit after absolute value.
-      final fSign = fixed[-1].zeroExtend(leadingDigitPredict.width);
+      final fSign = fixedAsLogic[-1]
+          .zeroExtend(leadingDigitPredict.width)
+          .named('fixedSign');
 
       // If the lead is 1 for a negative, start at leadingDigitPredict - 1
       estimatedJBit = mux(
-          _convertedFloat.sign.eq(fixed[-1]),
-          mux(leadingDigitPredict.gte(fSign), leadingDigitPredict - fSign,
-              leadingDigitPredict),
-          Const(0, width: leadingDigitPredict.width));
+              _convertedFloat.sign.eq(fixedAsLogic[-1]),
+              mux(leadingDigitPredict.gte(fSign), leadingDigitPredict - fSign,
+                  leadingDigitPredict),
+              Const(0, width: leadingDigitPredict.width))
+          .named('estimatedJBit');
       // Shift by current preJ to inspect leading bit
-      if (absValue.width < float.mantissa.width + 2) {
-        absValueShifted = [
-              absValue,
-              Const(0, width: float.mantissa.width + 2 - absValue.width)
-            ].swizzle() <<
-            estimatedJBit;
+      if (absValue.width < mantissaWidth + 2) {
+        absValueShifted = ([
+                  absValue,
+                  Const(0, width: mantissaWidth + 2 - absValue.width)
+                ].swizzle() <<
+                estimatedJBit)
+            .named('absValueShifted');
       } else {
-        absValueShifted = absValue << estimatedJBit;
+        absValueShifted = (absValue << estimatedJBit).named('absValueShifted');
       }
       // Second Shift by one if leading digit is not '1'.
-      estimatedJBit =
-          mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1);
+      estimatedJBit = mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
+          .named('estimatedJBit2');
       absValueShifted =
-          mux(absValueShifted[-1], absValueShifted, absValueShifted << 1);
+          mux(absValueShifted[-1], absValueShifted, absValueShifted << 1)
+              .named('absValueShifted');
 
       // Third and final shift by one if leading digit is not '1'.
       jBit <=
           mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
               .zeroExtend(iWidth);
       absValueShifted =
-          mux(absValueShifted[-1], absValueShifted, absValueShifted << 1);
+          mux(absValueShifted[-1], absValueShifted, absValueShifted << 1)
+              .named('absValueShifted');
     } else {
       // No prediction given:  go find the leading digit
       final exactJBit = RecursiveModulePriorityEncoder(absValue.reversed)
@@ -138,55 +155,82 @@ class FixedToFloat extends Module {
         jBit <= exactJBit;
       }
       // Align mantissa
-      if (absValue.width < float.mantissa.width + 2) {
-        absValueShifted = [
-              absValue,
-              Const(0, width: float.mantissa.width + 2 - absValue.width)
-            ].swizzle() <<
-            jBit;
+      if (absValue.width < mantissaWidth + 2) {
+        absValueShifted = ([
+                  absValue,
+                  Const(0, width: mantissaWidth + 2 - absValue.width)
+                ].swizzle() <<
+                jBit)
+            .named('absValueShifted');
       } else {
-        absValueShifted = absValue << jBit;
+        absValueShifted = (absValue << jBit).named('absValueShiftedJ');
       }
     }
-    // TODO(desmonddak): refactor to use the roundRNE component.  Also:
-    // https://github.com/intel/rohd-hcl/issues/191
-
     // Extract mantissa
-    final mantissa = Logic(name: 'mantissa', width: float.mantissa.width);
+    final mantissa = Logic(name: 'mantissa', width: mantissaWidth);
     final guard = Logic(name: 'guardBit');
-    final sticky = Logic(name: 'stickBit');
-    mantissa <= absValueShifted.getRange(-float.mantissa.width - 1, -1);
-    guard <=
-        absValueShifted.getRange(
-            -float.mantissa.width - 2, -float.mantissa.width - 1);
-    sticky <= absValueShifted.getRange(0, -float.mantissa.width - 2).or();
+    final sticky = Logic(name: 'stickyBit');
+    mantissa <= absValueShifted.getRange(-mantissaWidth - 1, -1);
+    guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
+    sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
 
-    /// Round to nearest even: mantissa | guard sticky
-    final roundUp = (guard & (sticky | mantissa[0])).named('roundUp');
+    final rounder = FloatingPointRounder.fromGRS(
+        retainedLsb: mantissa[0],
+        guard: guard,
+        sticky: sticky,
+        roundingMode: roundingMode,
+        sign: _convertedFloat.sign);
     final mantissaRounded =
-        mux(roundUp, mantissa + 1, mantissa).named('roundedMantissa');
+        mux(rounder.doRound, mantissa + 1, mantissa).named('roundedMantissa');
+    final subnormalMantissa = mantissaRounded
+        .zeroExtend(_convertedFloat.mantissa.width)
+        .named('subnormalMantissa');
+    final normalMantissa = (outFloat.explicitJBit
+            ? [Const(1), mantissaRounded].swizzle()
+            : mantissaRounded)
+        .named('normalMantissa');
 
     // Calculate biased exponent
     final eRaw = mux(
             absValueShifted[-1],
-            (Const(bias + fixed.width - fixed.fractionWidth - 1,
-                        width: iWidth) -
-                    jBit)
-                .named('eShift'),
+            Const(bias + fixed.width - fixed.fractionWidth - 1, width: iWidth) -
+                jBit,
             Const(0, width: iWidth))
         .named('eRaw');
 
     // TODO(desmonddak): potential optimization --
     //  we may be able to predict this from absValue instead of after
     //  mantissa increment.
-    final eRawRne =
-        mux(roundUp & ~mantissaRounded.or(), eRaw + 1, eRaw).named('eRawRNE');
+    final eRawRne = mux(rounder.doRound & ~mantissaRounded.or(), eRaw + 1, eRaw)
+        .named('eRawRNE');
 
     // Select output handling corner cases
     final expoLessThanOne =
         (eRawRne[-1] | ~eRawRne.or()).named('expLessThanOne');
-    final expoMoreThanMax =
-        (~eRawRne[-1] & (eRawRne.gt(eMax))).named('expMoreThanMax');
+    final largestFinite = _convertedFloat
+        .valuePopulator()
+        .ofConstant(FloatingPointConstants.largestNormal);
+    final maxFiniteExponent =
+        Const(largestFinite.exponent).zeroExtend(eRawRne.width);
+    final expoMoreThanMax = (~eRawRne[-1] &
+            (eRawRne.gt(maxFiniteExponent) |
+                (eRawRne.eq(maxFiniteExponent) &
+                    normalMantissa.gt(Const(largestFinite.mantissa)))))
+        .named('expMoreThanMax');
+    final overflowToInfinity = outFloat.supportsInfinities
+        ? switch (roundingMode) {
+            FloatingPointRoundingMode.roundNearestEven ||
+            FloatingPointRoundingMode.roundNearestTiesAway =>
+              Const(1),
+            FloatingPointRoundingMode.truncate ||
+            FloatingPointRoundingMode.roundTowardsZero =>
+              Const(0),
+            FloatingPointRoundingMode.roundTowardsInfinity =>
+              ~_convertedFloat.sign,
+            FloatingPointRoundingMode.roundTowardsNegativeInfinity =>
+              _convertedFloat.sign,
+          }
+        : Const(0);
     Combinational([
       If.block([
         Iff(~absValue.or(), [
@@ -194,21 +238,24 @@ class FixedToFloat extends Module {
           _convertedFloat.exponent < Const(0, width: exponentWidth),
           _convertedFloat.mantissa < Const(0, width: float.mantissa.width),
         ]),
-        ElseIf(expoMoreThanMax, [
-          // Infinity
+        ElseIf(expoMoreThanMax & overflowToInfinity, [
           _convertedFloat.exponent <
               LogicValue.filled(exponentWidth, LogicValue.one),
           _convertedFloat.mantissa < Const(0, width: float.mantissa.width),
         ]),
+        ElseIf(expoMoreThanMax, [
+          _convertedFloat.exponent < Const(largestFinite.exponent),
+          _convertedFloat.mantissa < Const(largestFinite.mantissa),
+        ]),
         ElseIf(expoLessThanOne, [
           // Subnormal
           _convertedFloat.exponent < Const(0, width: exponentWidth),
-          _convertedFloat.mantissa < mantissaRounded
+          _convertedFloat.mantissa < subnormalMantissa
         ]),
         Else([
           // Normal
           _convertedFloat.exponent < eRawRne.slice(exponentWidth - 1, 0),
-          _convertedFloat.mantissa < mantissaRounded
+          _convertedFloat.mantissa < normalMantissa
         ])
       ])
     ]);

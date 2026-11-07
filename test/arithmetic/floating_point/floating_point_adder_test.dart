@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder_test.dart
@@ -71,36 +71,41 @@ void main() {
         final fv1 = test.$1;
         final fv2 = test.$2;
 
-        final doubleProduct = fv1.toDouble() + fv2.toDouble();
         final partWay = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .ofDouble(doubleProduct);
+            .add(fv1, fv2);
         final roundTrip = partWay.toDouble();
 
         fp1.put(fv1.value);
         fp2.put(fv2.value);
         final fpOut = adder.sum;
-        expect(fpOut.floatingPointValue, equals(partWay),
-            reason: '\t${fp1.floatingPointValue} '
-                '(${fp1.floatingPointValue.toDouble()})\n'
-                '\t${fp2.floatingPointValue} '
-                '(${fp2.floatingPointValue.toDouble()}) =\n'
-                '\t${fpOut.floatingPointValue} '
-                '(${fpOut.floatingPointValue.toDouble()}) actual\n'
-                '\t$partWay ($roundTrip) expected');
+        expect(fpOut.floatingPointValue.isNaN, equals(partWay.isNaN));
+        if (!fpOut.floatingPointValue.isNaN) {
+          expect(fpOut.floatingPointValue, equals(partWay),
+              reason: '\t${fp1.floatingPointValue} '
+                  '(${fp1.floatingPointValue.toDouble()})\n'
+                  '\t${fp2.floatingPointValue} '
+                  '(${fp2.floatingPointValue.toDouble()}) =\n'
+                  '\t${fpOut.floatingPointValue} '
+                  '(${fpOut.floatingPointValue.toDouble()}) actual\n'
+                  '\t$partWay ($roundTrip) expected');
+        }
 
         final partWayU = FloatingPointValue.populator(
                 exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-            .ofDoubleUnrounded(doubleProduct);
+            .add(fv1, fv2, roundingMode: FloatingPointRoundingMode.truncate);
         final roundTripU = partWay.toDouble();
-        expect(fpOut.floatingPointValue, equals(partWayU),
-            reason: '\t${fp1.floatingPointValue} '
-                '(${fp1.floatingPointValue.toDouble()})\n'
-                '\t${fp2.floatingPointValue} '
-                '(${fp2.floatingPointValue.toDouble()}) =\n'
-                '\t${fpOut.floatingPointValue} '
-                '(${fpOut.floatingPointValue.toDouble()}) actual\n'
-                '\t$partWayU ($roundTripU) expected');
+        expect(fpOut.floatingPointValue.isNaN, equals(partWayU.isNaN));
+        if (!fpOut.floatingPointValue.isNaN) {
+          expect(fpOut.floatingPointValue, equals(partWayU),
+              reason: '\t${fp1.floatingPointValue} '
+                  '(${fp1.floatingPointValue.toDouble()})\n'
+                  '\t${fp2.floatingPointValue} '
+                  '(${fp2.floatingPointValue.toDouble()}) =\n'
+                  '\t${fpOut.floatingPointValue} '
+                  '(${fpOut.floatingPointValue.toDouble()}) actual\n'
+                  '\t$partWayU ($roundTripU) expected');
+        }
       }
     }
   });

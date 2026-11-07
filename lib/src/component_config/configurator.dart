@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // configurator.dart
@@ -9,6 +9,7 @@
 import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
+// ROHD does not expose the sanitizer required for generated names publicly.
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/sanitizer.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

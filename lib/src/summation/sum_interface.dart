@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sum_interface.dart
@@ -73,14 +73,15 @@ class SumInterface extends PairInterface {
     ]);
   }
 
-  /// Creates a clone of this [SumInterface] for things like [pairConnectIO].
-  SumInterface.clone(SumInterface other)
-      : this(
-          fixedAmount: other.fixedAmount,
-          increments: other.increments,
-          width: other.width,
-          hasEnable: other.hasEnable,
-        );
+  /// Create a clone of the [SumInterface] with the same configuration,
+  /// including any `fixedAmount`, `increments`, and `hasEnable` properties.
+  @override
+  SumInterface clone() => SumInterface(
+        fixedAmount: fixedAmount,
+        increments: increments,
+        width: width,
+        hasEnable: hasEnable,
+      );
 
   @override
   String toString() => [

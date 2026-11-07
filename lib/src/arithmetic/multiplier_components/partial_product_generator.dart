@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // partial_product_generator.dart
@@ -9,7 +9,6 @@
 
 import 'dart:math';
 
-import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
@@ -19,10 +18,13 @@ class SignBit extends Logic {
   bool inverted = false;
 
   /// Construct a sign bit to store
-  SignBit(Logic inl, {this.inverted = false})
-      : super(name: '${inl.name}_signbit', naming: Naming.mergeable) {
+  SignBit(Logic inl, {this.inverted = false, String? name})
+      : super(name: name ?? inl.name, naming: Naming.mergeable) {
     this <= inl;
   }
+  @override
+  SignBit clone({String? name}) =>
+      SignBit(this, inverted: inverted, name: name);
 }
 
 /// A [PartialProductArray] is a class that holds a set of partial products
@@ -31,7 +33,7 @@ abstract class PartialProductArray {
   /// Name used for [PartialProductArray] instances.
   final String name;
 
-  /// Construct a basic [List<List<Logic>] to hold an array of partial products
+  /// Construct a basic [List<List<Logic>>] to hold an array of partial products
   /// as well as a rowShift array to hold the row shifts.
   PartialProductArray({this.name = 'ppa'});
 
@@ -94,7 +96,7 @@ abstract class PartialProductArray {
     }
   }
 
-  /// Mux the `[Logic] at absolute position ([row], [col]) conditionally by
+  /// Mux the [Logic] at absolute position ([row], [col]) conditionally by
   /// [condition] to [val].
   void muxAbsolute(int row, int col, Logic condition, Logic val) {
     final product = partialProducts[row];
@@ -259,12 +261,6 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
     }
     _build();
   }
-
-  /// Perform sign extension (defined in child classes).
-  @Deprecated('Replace this call with a construction of a '
-      '[PartialProductSignExtension] class')
-  @protected
-  void signExtend();
 
   /// Setup the partial products array ([partialProducts] and [rowShift]).
   void _build() {

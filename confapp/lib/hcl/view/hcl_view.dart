@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2024 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // hcl_view.dart
@@ -6,72 +6,66 @@
 //
 // 2023 December
 
+import 'package:confapp/hcl/cubit/theme_cubit.dart';
+import 'package:confapp/hcl/view/screen/content_widget.dart';
 import 'package:confapp/hcl/view/screen/sidebar_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:sidebarx/sidebarx.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:material_ui/material_ui.dart';
 
-import 'screen/content_widget.dart';
-
+/// The app view that hosts the component sidebar and generated-source panel.
 class HCLView extends StatelessWidget {
+  /// Creates the configuration app view.
   const HCLView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'ROHD-HCL',
-      theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0x00082E8A)),
-          useMaterial3: true,
-          scaffoldBackgroundColor: const Color(0x00BED9FF)),
-      home: const MainPage(title: 'ROHD-HCL'),
-    );
-  }
+  Widget build(BuildContext context) => BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'ROHD-HCL',
+          themeMode: themeMode,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF082E8A),
+            ),
+            useMaterial3: true,
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(0xFF082E8A),
+              brightness: Brightness.dark,
+            ),
+            useMaterial3: true,
+          ),
+          home: const MainPage(title: 'ROHD-HCL'),
+        ),
+      );
 }
 
-class MainPage extends StatefulWidget {
-  const MainPage({super.key, required this.title});
+/// The main application page containing the sidebar and content panel.
+class MainPage extends StatelessWidget {
+  /// Creates the main page with the displayed [title].
+  const MainPage({required this.title, super.key});
 
+  /// The page title.
   final String title;
 
   @override
-  State<MainPage> createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  final _controller = SidebarXController(selectedIndex: 0, extended: true);
-  List<Widget> drawerList = [];
-
-  late Configurator component;
-  List<Widget> textFormField = []; // shared variable
-
-  final ButtonStyle btnStyle =
-      ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20));
-
-  // Change the input form
-  void selectComponent(componentGenerator) {
-    textFormField = [];
-    component = componentGenerator;
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('title', title));
   }
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+    final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
       key: scaffoldKey,
-      body: Row(
+      body: const Row(
         children: [
-          ComponentsSidebar(
-            controller: _controller,
-            updateForm: selectComponent,
-          ),
-          Flexible(
-            child: SVGenerator(
-              controller: _controller,
-            ),
-          ),
+          ComponentsSidebar(width: 240),
+          Expanded(child: SVGenerator()),
         ],
       ),
     );

@@ -1,8 +1,8 @@
-// Copyright (C) 2025 Intel Corporation
-// SPDX-License-Indentifier: BSD-3-Clause
+// Copyright (C) 2025-2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
 //
-// fixed_point_sqrt.dart
-// An abstract base class defining the API for floating-point square root.
+// fixed_sqrt.dart
+// An abstract base class defining the API for fixed-point square root.
 //
 // 2025 March 3
 // Authors: James Farwell <james.c.farwell@intel.com>,
@@ -23,7 +23,7 @@ abstract class FixedPointSqrtBase extends Module {
   late final FixedPoint a;
 
   /// getter for the computed output.
-  late final FixedPoint sqrt = a.clone(name: 'sqrt')..gets(output('sqrt'));
+  late final FixedPoint sqrt;
 
   /// Square root a fixed point number [a], returning result in [sqrt].
   FixedPointSqrtBase(FixedPoint a,
@@ -35,9 +35,9 @@ abstract class FixedPointSqrtBase extends Module {
         super(
             definitionName:
                 definitionName ?? 'FixedPointSquareRoot${a.width}') {
-    this.a = a.clone(name: 'a')..gets(addInput('a', a, width: a.width));
+    this.a = addTypedInput('a', a);
 
-    addOutput('sqrt', width: width);
+    sqrt = addTypedOutput('sqrt', a.clone);
   }
 }
 
@@ -116,7 +116,8 @@ class FixedPointSqrt extends FixedPointSqrtBase {
               remainder - subtractionValue, remainder)
           .named('remainder_finalmux_iter$i');
     }
-    solution = (solution + 1).named('solution');
-    outputSqrt <= solution.slice(aLoc.width - 1, aLoc.width - a.width);
+    solution = (solution + 1).named('solutionPlusOne');
+    outputSqrt <=
+        solution.slice(aLoc.width - 1, aLoc.width - a.width).named('solutionF');
   }
 }

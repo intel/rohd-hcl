@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // sparse_memory_storage.dart
@@ -28,6 +28,7 @@ abstract class MemoryStorage {
 
   /// Default behavior for [onInvalidWrite].
   static void _defaultOnInvalidWrite() {
+    // The default callback must warn users without requiring a logging setup.
     // ignore: avoid_print
     print('WARNING: Memory was cleared by invalid write!');
   }
@@ -42,6 +43,7 @@ abstract class MemoryStorage {
 
   /// Default behavior for [onInvalidRead].
   static LogicValue _defaultOnInvalidRead(LogicValue addr, int dataWidth) {
+    // The default callback must warn users without requiring a logging setup.
     // ignore: avoid_print
     print('WARNING: reading from address $addr that has no data!');
     return LogicValue.filled(dataWidth, LogicValue.x);
@@ -83,7 +85,7 @@ abstract class MemoryStorage {
   /// separator between data.  Block comments (`/* */`) are not supported.
   ///
   /// Example input format:
-  /// ```
+  /// ```text
   /// @80000000
   /// B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
   /// 6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
@@ -112,7 +114,6 @@ abstract class MemoryStorage {
 
     void addChunk([String? chunk]) {
       if (chunk != null) {
-        // ignore: parameter_assignments
         chunk = chunk.trim();
 
         chunks.add(chunk);
@@ -177,18 +178,24 @@ abstract class MemoryStorage {
         final lineAddr = int.parse(line.substring(1), radix: 16);
         final lineAddrLv =
             LogicValue.ofInt(lineAddr - lineAddr % addrIncrPerLine, addrWidth);
-        if (getData(lineAddrLv) != null) {
-          // must reconstruct the bytes array ending at the provided address
-          final endOff = lineAddr % addrIncrPerLine;
-          final origData = getData(lineAddrLv);
-          chunks.clear();
 
-          if (endOff != 0) {
-            chunks.add(origData!
-                .getRange(0, endOff * bitsPerAddress)
-                .toInt()
-                .toRadixString(radix));
-          }
+        // if the address is not word-aligned, pre-fill the lower byte
+        // positions so that new data lands at the correct byte offset within
+        // the word.  When the word already has data (e.g. written by the
+        // previous section), preserve those lower bytes; otherwise use zeros.
+        final endOff = lineAddr % addrIncrPerLine;
+        if (endOff != 0) {
+          final lowerBytesCharsCount = endOff * bitsPerAddress ~/ bitsPerChar;
+          final origData = getData(lineAddrLv);
+          final lowerStr = origData != null
+              ? origData
+                  .getRange(0, endOff * bitsPerAddress)
+                  .toInt()
+                  .toRadixString(radix)
+                  .padLeft(lowerBytesCharsCount, '0')
+              : '0' * lowerBytesCharsCount;
+          chunks.add(lowerStr);
+          chunksLength += lowerStr.length;
         }
 
         address = lineAddrLv.toInt();
@@ -238,23 +245,6 @@ abstract class MemoryStorage {
     }
 
     return memString.toString();
-  }
-
-  /// Reads a verilog-compliant hex file and preloads memory with it.
-  ///
-  /// Example input format:
-  /// ```
-  /// @80000000
-  /// B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
-  /// 6F 00 40 00 93 02 10 00 17 03 00 00 13 03 83 02
-  /// 23 20 53 00 6F 00 00 00
-  /// @80000040
-  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  /// 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  /// ```
-  @Deprecated('Use `loadMemString` instead.')
-  void loadMemHex(String hexMemContents) {
-    loadMemString(hexMemContents);
   }
 
   /// Resets all memory to initial state.

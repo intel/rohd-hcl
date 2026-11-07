@@ -80,6 +80,7 @@ class DataPortInterface extends Interface<DataPortGroup> {
   }
 
   /// Makes a copy of this [Interface] with matching configuration.
+  @override
   DataPortInterface clone() => DataPortInterface(dataWidth, addrWidth);
 }
 
@@ -101,6 +102,18 @@ abstract class Memory extends Module {
   ///
   /// Must be non-negative.
   int get readLatency;
+
+  /// Exported access to connected external write ports.
+  List<DataPortInterface> get writes => _extWrites;
+
+  /// Exported access to connected external read ports.
+  List<DataPortInterface> get reads => _extReads;
+
+  /// External write ports passed into the RF constructor.
+  final List<DataPortInterface> _extWrites;
+
+  /// External read ports passed into the RF constructor.
+  final List<DataPortInterface> _extReads;
 
   /// Internal write ports.
   @protected
@@ -127,7 +140,9 @@ abstract class Memory extends Module {
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
-      : numWrites = writePorts.length,
+      : _extWrites = writePorts,
+        _extReads = readPorts,
+        numWrites = writePorts.length,
         numReads = readPorts.length,
         dataWidth = (writePorts.isNotEmpty)
             ? writePorts[0].dataWidth

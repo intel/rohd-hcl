@@ -7,36 +7,50 @@
 // 2023 June 12
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A flop-based memory.
-class RegisterFile extends Memory {
+/// A flop-based [Memory].
+class RegisterFile extends Memory with ResettableEntries {
   /// Accesses the read data for the provided [index].
   Logic rdData(int index) => rdPorts[index].data;
 
   /// The number of entries in the RF.
   final int numEntries;
 
+  /// Entry-indexed reset values for the [_storageBank].
+  late final List<Logic> _resetValues;
+
   /// Constructs a new RF.
   ///
   /// [MaskedDataPortInterface]s are supported on `writePorts`, but not on
   /// `readPorts`.
+  ///
+  /// The [resetValue] follows the semantics of [ResettableEntries].
   RegisterFile(super.clk, super.reset, super.writePorts, super.readPorts,
       {this.numEntries = 8,
       super.name = 'rf',
       super.reserveName,
       super.reserveDefinitionName,
-      String? definitionName})
+      String? definitionName,
+      dynamic resetValue})
       : super(
             definitionName: definitionName ??
                 'RegisterFile_WP${writePorts.length}'
                     '_RP${readPorts.length}_E$numEntries') {
+    _resetValues = makeResetValues(resetValue,
+        numEntries: numEntries, entryWidth: dataWidth);
     _buildLogic();
   }
 
   /// A testbench hook to access data at a given address.
   LogicValue? getData(LogicValue addr) => _storageBank[addr.toInt()].value;
+
+  /// A testbench hook to write data at a given address.
+  void setData(LogicValue addr, LogicValue value) {
+    _storageBank[addr.toInt()].put(value);
+  }
 
   /// Flop-based storage of all memory.
   late final List<Logic> _storageBank;
@@ -48,8 +62,7 @@ class RegisterFile extends Memory {
 
     Sequential(clk, [
       If(reset, then: [
-        // zero out entire storage bank on reset
-        ..._storageBank.map((e) => e < 0)
+        ..._storageBank.mapIndexed((i, e) => e < _resetValues[i])
       ], orElse: [
         for (var entry = 0; entry < numEntries; entry++)
           ...wrPorts.map((wrPort) =>

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_fixed_to_float.dart
@@ -18,8 +18,9 @@ class FixedToFloatConfigurator extends Configurator {
   final ToggleConfigKnob signKnob = ToggleConfigKnob(value: true);
 
   /// A knob controlling leading digit prediction.
-  final ToggleConfigKnob leadingDigitPredictionKnob =
-      ToggleConfigKnob(value: false);
+  final ToggleConfigKnob leadingDigitPredictionKnob = ToggleConfigKnob(
+    value: false,
+  );
 
   /// Width of integer part.
   final IntConfigKnob integerWidthKnob = IntConfigKnob(value: 8);
@@ -33,6 +34,15 @@ class FixedToFloatConfigurator extends Configurator {
   /// Width of mantissa, must be greater than 0.
   final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 23);
 
+  /// Whether the output format includes an explicit J bit.
+  final ToggleConfigKnob outputExplicitJBitKnob = ToggleConfigKnob(
+    value: false,
+  );
+
+  /// Rounding mode used for the conversion.
+  final FloatingPointRoundingModeKnob roundingModeKnob =
+      FloatingPointRoundingModeKnob();
+
   @override
   final String name = 'Fixed To Float Converter';
 
@@ -44,19 +54,26 @@ class FixedToFloatConfigurator extends Configurator {
     'Input fraction width': fractionWidthKnob,
     'Output exponent width': exponentWidthKnob,
     'Output mantissa width': mantissaWidthKnob,
+    'Output explicit J bit': outputExplicitJBitKnob,
+    'Rounding mode': roundingModeKnob,
   });
 
   @override
   Module createModule() => FixedToFloat(
-      FixedPoint(
+        FixedPoint(
           signed: signKnob.value,
           integerWidth: integerWidthKnob.value,
-          fractionWidth: fractionWidthKnob.value),
-      FloatingPoint(
+          fractionWidth: fractionWidthKnob.value,
+        ),
+        FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
-          mantissaWidth: mantissaWidthKnob.value),
-      leadingDigitPredict: leadingDigitPredictionKnob.value
-          ? Logic(width: log2Ceil(integerWidthKnob.value))
-          : null,
-      definitionName: 'FixedToFloat');
+          mantissaWidth: mantissaWidthKnob.value,
+          explicitJBit: outputExplicitJBitKnob.value,
+        ),
+        leadingDigitPredict: leadingDigitPredictionKnob.value
+            ? Logic(width: log2Ceil(integerWidthKnob.value))
+            : null,
+        roundingMode: roundingModeKnob.value,
+        definitionName: 'FixedToFloat',
+      );
 }

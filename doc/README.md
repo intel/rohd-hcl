@@ -5,6 +5,7 @@ Below is a list of components grouped by category. Ones with links are documente
 
 Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there are not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
 
+- [Static or Runtime Parameters](./static_or_runtime_parameters.md)
 - Encoders & Decoders
   - [1-hot to Binary](./components/onehot.md)
   - [Binary to 1-hot](./components/onehot.md)
@@ -53,6 +54,7 @@ Some in-development items will have opened issues, as well. Feel free to create 
     - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
     - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
     - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
+    - [Dot Product](./components/multiplier.md#dot-product)
     - [Booth Encoding and Compression Components](./components/multiplier_components.md)
   - Dividers
     - [Multi Cycle Integer Divider](./components/divider.md)
@@ -108,12 +110,12 @@ Some in-development items will have opened issues, as well. Feel free to create 
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
-  - Replacement Policies
-    - LRU
+  - [Cams](./components/memory.md#basic-cam)
   - [Memory Model](./components/memory.md#memory-models)
   - [Control/Status Registers (CSRs)](./components/csr.md)
 - Standard interfaces
-  - AXI
+  - [AXI](./components/amba/axi.md)
+  - [LTI](./components/amba/lti.md)
   - [APB](./components/standard_interfaces.md#apb)
   - AHB
   - SFI
@@ -125,14 +127,20 @@ Some in-development items will have opened issues, as well. Feel free to create 
   - DDR
   - HBM
 - Models
-  - [APB](./components/apb_bfm.md)
+  - [AXI](./components/amba/axi.md)
+  - [LTI](./components/amba/lti.md)
+  - [APB](./components/amba/apb_bfm.md)
   - [Ready/Valid](./components/ready_valid_bfm.md)
   - [SPI](./components/spi_bfm.md)
   - CXL
 - Gaskets
   - [SPI](./components/spi_gaskets.md)
 
+## Adding a New Component
+
+Please refer to [Component](./Component.md) for the best practices for creating new components.
+
 ----------------
 
-Copyright (C) 2023-2025 Intel Corporation  
+Copyright (C) 2023-2026 Intel Corporation
 SPDX-License-Identifier: BSD-3-Clause
