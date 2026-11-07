@@ -122,7 +122,8 @@ class ReductionTree extends Module {
       throw RohdHclException('Radix must be at least 2, got $radix');
     }
 
-    signExtensionParameter = StaticOrRuntimeParameter.ofDynamic(signExtend);
+    signExtensionParameter =
+        StaticOrRuntimeParameter.ofDynamic(signExtend, name: 'signExtend');
     _sequence = [
       for (var i = 0; i < sequence.length; i++)
         addInput('seq$i', sequence[i], width: sequence[i].width)

@@ -95,7 +95,7 @@ class StaticOrRuntimeParameter extends StaticOrRuntimeControl<bool> {
   }
 
   /// Factory constructor to create a [StaticOrRuntimeParameter] from a dynamic.
-  factory StaticOrRuntimeParameter.ofDynamic(dynamic config) {
+  factory StaticOrRuntimeParameter.ofDynamic(dynamic config, {String? name}) {
     if (config is StaticOrRuntimeParameter) {
       return config;
     } else if (config is bool) {
@@ -104,7 +104,11 @@ class StaticOrRuntimeParameter extends StaticOrRuntimeControl<bool> {
     } else if (config == null) {
       return StaticOrRuntimeParameter(name: 'boolean_config');
     } else if (config is Logic) {
-      return StaticOrRuntimeParameter(name: config.name, runtimeConfig: config);
+      return StaticOrRuntimeParameter(
+          name: config.naming == Naming.unnamed && name != null
+              ? name
+              : config.name,
+          runtimeConfig: config);
     } else {
       throw RohdHclException(
           'Unsupported configuration type: ${config.runtimeType}');
