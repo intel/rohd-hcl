@@ -82,7 +82,17 @@
     : super(
           definitionName: definitionName ??
               &#39;RotateRoundRobinArbiter_W${requests.length}&#39;) {
-  final preference = Logic(name: &#39;preference&#39;, width: log2Ceil(count));
+  if (count == 0) {
+    &#47;&#47; Nothing to arbitrate between, and nothing to drive: `grants` is empty
+    &#47;&#47; too.  The other arbiters accept an empty request list, so this one
+    &#47;&#47; does as well rather than failing deep inside the rotation math.
+    return;
+  }
+
+  &#47;&#47; A single request needs no rotation, but `log2Ceil(1)` is 0 and a
+  &#47;&#47; 0-bit preference cannot hold the result of the increment below.
+  final preference =
+      Logic(name: &#39;preference&#39;, width: max(1, log2Ceil(count)));
 
   final rotatedReqs = requests
       .rswizzle()
