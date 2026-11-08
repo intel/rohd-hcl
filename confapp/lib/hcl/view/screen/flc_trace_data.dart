@@ -51,8 +51,7 @@ FlcData? embeddedFlcDataFromNetlistJson(String netlistJson) {
   return flcData.isEmpty ? null : flcData;
 }
 
-/// Adapts [FlcData] to the source-query contract used by schematic viewer
-/// 0.2.0.
+/// Adapts [FlcData] to the schematic viewer's source-query contract.
 class EmbeddedFlcSourceNavigation {
   /// Creates source navigation backed by [flcData].
   const EmbeddedFlcSourceNavigation(
