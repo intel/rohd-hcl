@@ -3,3 +3,4 @@
 
 export 'fixed_to_float.dart';
 export 'float_to_fixed.dart';
+export 'numeric_narrowing.dart';

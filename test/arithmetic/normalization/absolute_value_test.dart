@@ -17,9 +17,8 @@ void main() {
     await Simulator.reset();
   });
 
-  test('widens by one bit so the most-negative value does not wrap', () async {
-    // Corners at width 4: zero, one, the largest positive value, the
-    // most-negative value (-8 -> 8), and -1 (-> 1).
+  test('computes exact signed magnitudes including the minimum value',
+      () async {
     const inputWidth = 4;
     final dut = AbsoluteValue(Logic(width: inputWidth));
 
@@ -29,7 +28,7 @@ void main() {
     await dut.build();
 
     final vectors = [
-      for (final raw in [0, 1, 7, 8, 9, 15])
+      for (var raw = 0; raw < (1 << inputWidth); raw++)
         Vector(
           {'value': raw},
           {

@@ -6,6 +6,7 @@ export 'addition/addition.dart';
 export 'arithmetic_utils.dart';
 export 'conversion/conversion.dart';
 export 'division_and_roots/division_and_roots.dart';
+export 'finite_field/finite_field.dart';
 export 'floating_point/floating_point.dart';
 export 'log2_ceil.dart';
 export 'multiplication/multiplication.dart';

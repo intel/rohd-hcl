@@ -11,7 +11,6 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-import 'package:rohd_hcl/src/arithmetic/accumulation/summation_base.dart';
 
 /// Keeps a count of the running sum of any number of sources with optional
 /// configuration for widths, saturation behavior, and restarting.

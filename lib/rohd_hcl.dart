@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'src/arithmetic/arithmetic.dart';
+export 'src/binary_math/binary_math.dart';
 export 'src/bit_operations/bit_operations.dart';
 export 'src/clocking/clocking.dart';
 export 'src/component_config/component_config.dart';

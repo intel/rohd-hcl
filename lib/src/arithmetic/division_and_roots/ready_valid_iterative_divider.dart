@@ -1,0 +1,158 @@
+// Copyright (C) 2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// ready_valid_iterative_divider.dart
+// Ready/valid shell for a variable-latency iterative divider.
+//
+// 2026 September 22
+// Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/arithmetic/division_and_roots/divider.dart';
+import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
+import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
+
+/// Describes one signed or unsigned integer division command.
+/// {@category Arithmetic}
+class DivisionRequest extends LogicStructure {
+  /// Numerator of the operation.
+  Logic get dividend => elements[0];
+
+  /// Denominator of the operation.
+  Logic get divisor => elements[1];
+
+  /// Selects signed division when high.
+  Logic get isSigned => elements[2];
+
+  /// Width of both operands.
+  final int dataWidth;
+
+  /// Creates a division command with equally wide operands.
+  DivisionRequest({required this.dataWidth, String? name})
+      : super(
+          [
+            Logic(name: 'dividend', width: dataWidth),
+            Logic(name: 'divisor', width: dataWidth),
+            Logic(name: 'isSigned'),
+          ],
+          name: name ?? 'divisionRequest',
+        );
+
+  DivisionRequest._clone(DivisionRequest original, {String? name})
+      : dataWidth = original.dataWidth,
+        super(
+          original.elements
+              .map((element) => element.clone(name: element.name))
+              .toList(),
+          name: name ?? original.name,
+        );
+
+  @override
+  DivisionRequest clone({String? name}) =>
+      DivisionRequest._clone(this, name: name);
+}
+
+/// Describes one completed integer division result.
+/// {@category Arithmetic}
+class DivisionResult extends LogicStructure {
+  /// Integer quotient.
+  Logic get quotient => elements[0];
+
+  /// Integer remainder.
+  Logic get remainder => elements[1];
+
+  /// Indicates that the divisor was zero.
+  Logic get divZero => elements[2];
+
+  /// Width of both numeric results.
+  final int dataWidth;
+
+  /// Creates a division result with equally wide numeric fields.
+  DivisionResult({required this.dataWidth, String? name})
+      : super(
+          [
+            Logic(name: 'quotient', width: dataWidth),
+            Logic(name: 'remainder', width: dataWidth),
+            Logic(name: 'divZero'),
+          ],
+          name: name ?? 'divisionResult',
+        );
+
+  DivisionResult._clone(DivisionResult original, {String? name})
+      : dataWidth = original.dataWidth,
+        super(
+          original.elements
+              .map((element) => element.clone(name: element.name))
+              .toList(),
+          name: name ?? original.name,
+        );
+
+  @override
+  DivisionResult clone({String? name}) =>
+      DivisionResult._clone(this, name: name);
+}
+
+/// Exposes an iterative divider as ready/valid command and retained-result channels.
+///
+/// At most one command is in flight. The divider accepts a command only while
+/// idle and holds the result valid and stable until the result channel accepts
+/// it. This shell intentionally owns the divider's result-ready link rather
+/// than adapting the direct `IterativeDividerEngine`, whose result pulse is
+/// auto-consumed for scheduled use.
+/// {@category Arithmetic}
+class ReadyValidIterativeDivider extends Module {
+  /// Width of the request operands and result fields.
+  final int dataWidth;
+
+  late final ReadyValidInterface<DivisionRequest> _upstream;
+  late final IrrevocableReadyValidInterface<DivisionResult> _downstream;
+
+  /// Creates a ready/valid shell for an iterative divider.
+  ReadyValidIterativeDivider({
+    required Logic clk,
+    required Logic reset,
+    required ReadyValidInterface<DivisionRequest> upstream,
+    required ReadyValidInterface<DivisionResult> downstream,
+    String name = 'ready_valid_iterative_divider',
+  })  : dataWidth = upstream.data.dataWidth,
+        super(
+          definitionName:
+              'ReadyValidIterativeDivider_W${upstream.data.dataWidth}',
+          name: name,
+        ) {
+    if (upstream.data.dataWidth != downstream.data.dataWidth) {
+      throw ArgumentError('Request and result widths must match.');
+    }
+    upstream.requireProviderComposableWith(ReadyValidContract.validThenReady,
+        consumerName: '$name command');
+    downstream.requireConsumerComposableWith(ReadyValidContract.irrevocable,
+        providerName: name);
+
+    clk = addInput('clk', clk);
+    reset = addInput('reset', reset);
+    _upstream = addPairInterface(upstream, PairRole.consumer,
+        uniquify: (original) => 'upstream_$original');
+    _downstream = addPairInterfaceFrom(
+      IrrevocableReadyValidInterface<DivisionResult>(downstream.data.clone()),
+      downstream,
+      PairRole.provider,
+      uniquify: (original) => 'downstream_$original',
+    );
+
+    final dividerInterface = MultiCycleDividerInterface(dataWidth: dataWidth);
+    dividerInterface.clk <= clk;
+    dividerInterface.reset <= reset;
+    dividerInterface.validIn <= _upstream.valid;
+    dividerInterface.dividend <= _upstream.data.dividend;
+    dividerInterface.divisor <= _upstream.data.divisor;
+    dividerInterface.isSigned <= _upstream.data.isSigned;
+    dividerInterface.readyOut <= _downstream.ready;
+    MultiCycleDivider(dividerInterface, name: '${name}_core');
+
+    _upstream.ready <= dividerInterface.readyIn;
+    _downstream.valid <= dividerInterface.validOut;
+    _downstream.data.quotient <= dividerInterface.quotient;
+    _downstream.data.remainder <= dividerInterface.remainder;
+    _downstream.data.divZero <= dividerInterface.divZero;
+  }
+}

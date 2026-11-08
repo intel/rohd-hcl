@@ -4,3 +4,5 @@
 export 'ceil_divide.dart';
 export 'divider.dart';
 export 'fixed_sqrt.dart';
+export 'iterative_divider_engine.dart';
+export 'ready_valid_iterative_divider.dart';
