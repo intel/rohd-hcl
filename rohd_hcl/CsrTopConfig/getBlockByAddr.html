@@ -72,7 +72,7 @@ within the module by relative address <code>addr</code>.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CsrBlockConfig getBlockByAddr(int addr) =&gt;
-    blocks.firstWhere((element) =&gt; element.baseAddr == addr);</code></pre>
+    getBlockByBigIntAddr(BigInt.from(addr));</code></pre>
 </section>
 
 

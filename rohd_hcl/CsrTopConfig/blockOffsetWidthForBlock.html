@@ -74,7 +74,7 @@ constants and interfaces never have a zero width.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">int blockOffsetWidthForBlock(CsrBlockConfig block) {
-  final width = (blockSizeForBlock(block) - 1).bitLength;
+  final width = (blockSizeForBlock(block) - BigInt.one).bitLength;
   return width == 0 ? 1 : width;
 }</code></pre>
 </section>

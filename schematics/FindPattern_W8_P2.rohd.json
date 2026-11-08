@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "OneHotToBinary_W7": {
       "attributes": {
@@ -162,7 +162,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -302,7 +302,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -397,6 +397,63 @@
             ],
             "Y": [
               30
+            ]
+          }
+        },
+        "concat_1": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53
+            ],
+            "B": [
+              54,
+              55,
+              56
+            ],
+            "Y": [
+              49,
+              50,
+              51,
+              52
+            ]
+          }
+        },
+        "add_0": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              57
+            ],
+            "B": [
+              58
+            ],
+            "Y": [
+              53,
+              59
             ]
           }
         },
@@ -516,7 +573,7 @@
             ]
           }
         },
-        "swizzle_2": {
+        "concat_2": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -734,7 +791,7 @@
             ]
           }
         },
-        "swizzle_3": {
+        "concat_3": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -916,7 +973,7 @@
             ]
           }
         },
-        "swizzle_4": {
+        "concat_4": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1098,7 +1155,7 @@
             ]
           }
         },
-        "swizzle_5": {
+        "concat_5": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1280,7 +1337,7 @@
             ]
           }
         },
-        "swizzle_6": {
+        "concat_6": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1462,7 +1519,7 @@
             ]
           }
         },
-        "swizzle_7": {
+        "concat_7": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1522,6 +1579,50 @@
               41,
               42,
               43
+            ]
+          }
+        },
+        "const_2_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              54,
+              55,
+              56
+            ]
+          }
+        },
+        "const_3_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              57
+            ]
+          }
+        },
+        "const_4_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              58
             ]
           }
         },
@@ -1675,7 +1776,7 @@
           },
           "attributes": {}
         },
-        "_subset_1_0_bus_equals_pattern_and__swizzled_equals__const_0_add__swizzled": {
+        "_subset_1_0_bus_equals_pattern_and__concatd_equals__const_0_add__concatd": {
           "bits": [
             22
           ],
@@ -1684,7 +1785,7 @@
           },
           "attributes": {}
         },
-        "_in1": {
+        "_subset_2_1_bus_equals_pattern_and__concatd_equals__const_0_add__concatd_add__concatd": {
           "bits": [
             23
           ],
@@ -1693,7 +1794,7 @@
           },
           "attributes": {}
         },
-        "_in2": {
+        "_subset_3_2_bus_equals_pattern_and__concatd_equals__const_0_add__concatd_add__concatd_add__concatd": {
           "bits": [
             24
           ],
@@ -1702,7 +1803,7 @@
           },
           "attributes": {}
         },
-        "_in3": {
+        "_subset_4_3_bus_equals_pattern_and__concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             25
           ],
@@ -1711,7 +1812,7 @@
           },
           "attributes": {}
         },
-        "_in4": {
+        "_subset_5_4_bus_equals_pattern_and__concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             26
           ],
@@ -1720,7 +1821,7 @@
           },
           "attributes": {}
         },
-        "_in5": {
+        "_subset_6_5_bus_equals_pattern_and__concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             27
           ],
@@ -1729,7 +1830,7 @@
           },
           "attributes": {}
         },
-        "_in6": {
+        "_subset_7_6_bus_equals_pattern_and__concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             28
           ],
@@ -1738,7 +1839,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_subset_1_0_bus_equals_pattern": {
           "bits": [
             29
           ],
@@ -1747,7 +1848,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_equals__const_0_add__swizzled": {
+        "_concatd_equals__const_0_add__concatd": {
           "bits": [
             30
           ],
@@ -1756,7 +1857,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_1_0_bus": {
+        "_subset_1_0_bus": {
           "bits": [
             31,
             32
@@ -1766,7 +1867,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled": {
+        "_in1__concatd": {
           "bits": [
             36,
             37,
@@ -1778,7 +1879,7 @@
           },
           "attributes": {}
         },
-        "_in0__const_0_add__swizzled": {
+        "_const_0_add__concatd": {
           "bits": [
             44,
             45,
@@ -1790,7 +1891,7 @@
           },
           "attributes": {}
         },
-        "_const_0_add__swizzled_carry": {
+        "_const_0_add__concatd_carry": {
           "bits": [
             48
           ],
@@ -1799,7 +1900,37 @@
           },
           "attributes": {}
         },
-        "_in0__const_0_add__swizzled_add__swizzled": {
+        "_concatd": {
+          "bits": [
+            49,
+            50,
+            51,
+            52
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add_const_1": {
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add_const_1_carry": {
+          "bits": [
+            59
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd": {
           "bits": [
             60,
             61,
@@ -1811,7 +1942,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled": {
+        "_concatd_equals__const_0_add__concatd_add__concatd": {
           "bits": [
             64
           ],
@@ -1820,7 +1951,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_2_1_bus_equals_pattern": {
+        "_subset_2_1_bus_equals_pattern": {
           "bits": [
             65
           ],
@@ -1829,7 +1960,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_2_1_bus": {
+        "_subset_2_1_bus": {
           "bits": [
             66,
             67
@@ -1839,7 +1970,7 @@
           },
           "attributes": {}
         },
-        "_swizzled": {
+        "_concatd_0": {
           "bits": [
             71,
             72,
@@ -1851,7 +1982,7 @@
           },
           "attributes": {}
         },
-        "_const_0_add__swizzled_add__swizzled_carry": {
+        "_const_0_add__concatd_add__concatd_carry": {
           "bits": [
             75
           ],
@@ -1860,7 +1991,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_0": {
+        "_concatd_1": {
           "bits": [
             76,
             77,
@@ -1872,7 +2003,7 @@
           },
           "attributes": {}
         },
-        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled": {
+        "_const_0_add__concatd_add__concatd_add__concatd": {
           "bits": [
             80,
             81,
@@ -1884,7 +2015,7 @@
           },
           "attributes": {}
         },
-        "_const_0_add__swizzled_add__swizzled_add__swizzled_carry": {
+        "_const_0_add__concatd_add__concatd_add__concatd_carry": {
           "bits": [
             84
           ],
@@ -1893,7 +2024,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled": {
+        "_concatd_equals__const_0_add__concatd_add__concatd_add__concatd": {
           "bits": [
             85
           ],
@@ -1902,7 +2033,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_3_2_bus_equals_pattern": {
+        "_subset_3_2_bus_equals_pattern": {
           "bits": [
             86
           ],
@@ -1911,7 +2042,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_3_2_bus": {
+        "_subset_3_2_bus": {
           "bits": [
             87,
             88
@@ -1921,7 +2052,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_1": {
+        "_concatd_2": {
           "bits": [
             92,
             93,
@@ -1933,7 +2064,7 @@
           },
           "attributes": {}
         },
-        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             96,
             97,
@@ -1945,7 +2076,7 @@
           },
           "attributes": {}
         },
-        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
           "bits": [
             100
           ],
@@ -1954,7 +2085,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             101
           ],
@@ -1963,7 +2094,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_4_3_bus_equals_pattern": {
+        "_subset_4_3_bus_equals_pattern": {
           "bits": [
             102
           ],
@@ -1972,7 +2103,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_4_3_bus": {
+        "_subset_4_3_bus": {
           "bits": [
             103,
             104
@@ -1982,7 +2113,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_2": {
+        "_concatd_3": {
           "bits": [
             108,
             109,
@@ -1994,7 +2125,7 @@
           },
           "attributes": {}
         },
-        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             112,
             113,
@@ -2006,7 +2137,7 @@
           },
           "attributes": {}
         },
-        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
           "bits": [
             116
           ],
@@ -2015,7 +2146,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             117
           ],
@@ -2024,7 +2155,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_5_4_bus_equals_pattern": {
+        "_subset_5_4_bus_equals_pattern": {
           "bits": [
             118
           ],
@@ -2033,7 +2164,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_5_4_bus": {
+        "_subset_5_4_bus": {
           "bits": [
             119,
             120
@@ -2043,7 +2174,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_3": {
+        "_concatd_4": {
           "bits": [
             124,
             125,
@@ -2055,7 +2186,7 @@
           },
           "attributes": {}
         },
-        "_in0__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             128,
             129,
@@ -2067,7 +2198,7 @@
           },
           "attributes": {}
         },
-        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
           "bits": [
             132
           ],
@@ -2076,7 +2207,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             133
           ],
@@ -2085,7 +2216,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_6_5_bus_equals_pattern": {
+        "_subset_6_5_bus_equals_pattern": {
           "bits": [
             134
           ],
@@ -2094,7 +2225,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_6_5_bus": {
+        "_subset_6_5_bus": {
           "bits": [
             135,
             136
@@ -2104,7 +2235,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_4": {
+        "_concatd_5": {
           "bits": [
             140,
             141,
@@ -2116,7 +2247,7 @@
           },
           "attributes": {}
         },
-        "_in1__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             144,
             145,
@@ -2128,7 +2259,7 @@
           },
           "attributes": {}
         },
-        "_const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_carry": {
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
           "bits": [
             148
           ],
@@ -2137,7 +2268,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled_equals__const_0_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled_add__swizzled": {
+        "_concatd_equals__const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
           "bits": [
             149
           ],
@@ -2146,7 +2277,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_7_6_bus_equals_pattern": {
+        "_subset_7_6_bus_equals_pattern": {
           "bits": [
             150
           ],
@@ -2155,7 +2286,7 @@
           },
           "attributes": {}
         },
-        "_in0__subset_7_6_bus": {
+        "_subset_7_6_bus": {
           "bits": [
             151,
             152
@@ -2181,6 +2312,32 @@
             41,
             42,
             43
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_3_h0": {
+          "bits": [
+            54,
+            55,
+            56
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h0": {
+          "bits": [
+            57
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_1_h1": {
+          "bits": [
+            58
           ],
           "attributes": {
             "computed": 1

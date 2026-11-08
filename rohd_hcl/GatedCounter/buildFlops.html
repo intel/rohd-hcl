@@ -97,6 +97,7 @@ void buildFlops() {
           summer.sum,
           reset: reset,
           resetValue: initialValueLogic,
+          asyncReset: asyncReset,
         );
   } else {
     final lowerClkGate = ClockGate(clk,
@@ -116,6 +117,7 @@ void buildFlops() {
       summer.sum.getRange(0, clkGatePartitionIndex),
       reset: reset,
       resetValue: initialValueLogic.getRange(0, clkGatePartitionIndex),
+      asyncReset: asyncReset,
     );
 
     final upperCount = flop(
@@ -123,12 +125,13 @@ void buildFlops() {
       summer.sum.getRange(clkGatePartitionIndex),
       reset: reset,
       resetValue: initialValueLogic.getRange(clkGatePartitionIndex),
+      asyncReset: asyncReset,
     );
 
     lowerGatedClock = lowerClkGate.gatedClk;
     upperGatedClock = upperClkGate.gatedClk;
 
-    count &lt;= [upperCount, lowerCount].swizzle();
+    count &lt;= [upperCount, lowerCount].concat();
   }
 }</code></pre>
 </section>

@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">recurseFinder</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="recurseFinder-param-seq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">seq</span>, [</span></li>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+<span class="name ">recurseFinder</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="recurseFinder-param-seq"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">seq</span>, [</span></li>
 <li><span class="parameter" id="recurseFinder-param-depth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span> = <span class="default-value">0</span></span></li>
 </ol>])
 
@@ -84,10 +84,10 @@
           ret &lt; Const(0, width: 2),
         ]),
         ElseIf(r, [
-          ret &lt; [Const(0), Const(1)].swizzle(),
+          ret &lt; [Const(0), Const(1)].concat(),
         ]),
         Else([
-          ret &lt; [Const(1), Const(0)].swizzle(),
+          ret &lt; [Const(1), Const(0)].concat(),
         ]),
       ]),
     ]);
@@ -107,20 +107,20 @@
     final ret = Logic(width: right.width + 1, name: &#39;merge_d$depth&#39;);
     final rhs = ((right.width &gt; 1)
             ? [Const(0), Const(1), right.slice(-2, 0)]
-                .swizzle()
+                .concat()
                 .named(&#39;zo_right_d$depth&#39;)
-            : [Const(0), Const(1)].swizzle().named(&#39;zo_d$depth&#39;))
+            : [Const(0), Const(1)].concat().named(&#39;zo_d$depth&#39;))
         .named(&#39;right_d$depth&#39;);
     Combinational([
       If.block([
         Iff(l &amp; r, [
           ret &lt;
               [Const(1), Const(0, width: right.width)]
-                  .swizzle()
+                  .concat()
                   .named(&#39;lr_d$depth&#39;),
         ]),
         ElseIf(~l, [
-          ret &lt; [Const(0), left.slice(-1, 0)].swizzle().named(&#39;zl_d$depth&#39;),
+          ret &lt; [Const(0), left.slice(-1, 0)].concat().named(&#39;zl_d$depth&#39;),
         ]),
         Else([
           ret &lt; rhs,

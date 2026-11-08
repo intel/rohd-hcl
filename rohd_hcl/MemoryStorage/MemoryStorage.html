@@ -57,11 +57,13 @@
       <span class="name ">MemoryStorage</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-addrWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span>, </span></li>
 <li><span class="parameter" id="param-dataWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span>, </span></li>
 <li><span class="parameter" id="param-onInvalidWrite"><span class="type-annotation">void</span> <span class="parameter-name">onInvalidWrite</span>()? = <span class="default-value">_defaultOnInvalidWrite</span>, </span></li>
-<li><span class="parameter" id="param-onInvalidRead"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">onInvalidRead</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span></li>
+<li><span class="parameter" id="param-onInvalidRead"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">onInvalidRead</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span></li>
 <li><span class="parameter" id="param-dataWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span></span></li>
 </ol>)?, </span></li>
-<li><span class="parameter" id="param-alignAddress"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">alignAddress</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span></span></li>
+<li><span class="parameter" id="param-alignAddress"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">alignAddress</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span></span></li>
 </ol>)?, </span></li>
+<li><span class="parameter" id="param-unknownAddressMatcher"><span class="type-annotation"><a href="../../rohd_hcl/UnknownAddressMatcher.html">UnknownAddressMatcher</a>?</span> <span class="parameter-name">unknownAddressMatcher</span>, </span></li>
+<li><span class="parameter" id="param-unknownAddressMappingId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">unknownAddressMappingId</span>, </span></li>
 </ol>})
     </section>
     
@@ -79,8 +81,11 @@
   void Function()? onInvalidWrite = _defaultOnInvalidWrite,
   LogicValue Function(LogicValue addr, int dataWidth)? onInvalidRead,
   LogicValue Function(LogicValue addr)? alignAddress,
+  this.unknownAddressMatcher,
+  this.unknownAddressMappingId,
 })  : onInvalidWrite = onInvalidWrite ?? _defaultOnInvalidWrite,
       onInvalidRead = onInvalidRead ?? _defaultOnInvalidRead,
+      hasCustomAddressAlignment = alignAddress != null,
       alignAddress = alignAddress ?? _defaultAlignAddress;</code></pre>
 </section>
 

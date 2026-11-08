@@ -74,15 +74,15 @@
   if (row &gt;= rows) {
     throw RohdHclException(&#39;row $row is not &lt; number of encoding rows $rows&#39;);
   }
-  final base = row * log2Ceil(_encoder.radix);
+  final base = row * _encoder.radix.log2Ceil;
   final multiplierSlice = [
     if (row &gt; 0)
-      _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base - 1)
+      _extendedMultiplier.slice(base + _encoder.radix.log2Ceil - 1, base - 1)
     else
       [
-        _extendedMultiplier.slice(base + log2Ceil(_encoder.radix) - 1, base),
+        _extendedMultiplier.slice(base + _encoder.radix.log2Ceil - 1, base),
         Const(0)
-      ].swizzle()
+      ].concat()
   ].first.named(&#39;mult_slice_r$row&#39;, naming: Naming.mergeable);
   return _encoder.encode(multiplierSlice, row);
 }</code></pre>

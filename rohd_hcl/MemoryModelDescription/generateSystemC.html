@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the generateSystemC method from the MemoryModelDescription class, for the Dart programming language.">
+  <title>generateSystemC method - MemoryModelDescription class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/MemoryModelDescription-class.html">MemoryModelDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+  </ol>
+  <div class="self-name">generateSystemC</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;MemoryModelDescription-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">generateSystemC</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+<span class="name ">generateSystemC</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="generateSystemC-param-className"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">className</span>, </span></li>
+<li><span class="parameter" id="generateSystemC-param-options"><span class="type-annotation"><a href="../../rohd_hcl/SystemCModelOptions-class.html">SystemCModelOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const SystemCModelOptions()</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Emits the default sparse-memory implementation at a four-state boundary.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">String generateSystemC({
+  required String className,
+  SystemCModelOptions options = const SystemCModelOptions(),
+}) {
+  if (!RegExp(r&#39;^[A-Za-z_][A-Za-z0-9_]*$&#39;).hasMatch(className)) {
+    throw ArgumentError.value(
+        className, &#39;className&#39;, &#39;Invalid C++ identifier.&#39;);
+  }
+  if (options.portType != SystemCModelPortType.fourState) {
+    throw UnsupportedError(&#39;MemoryModel SystemC requires four-state ports.&#39;);
+  }
+  if (registerFile != null) {
+    return _generateRegisterFileSystemC(className);
+  }
+  String portType(int width) =&gt; width == 1 ? &#39;bit&#39; : &#39;sc_dt::sc_lv&lt;$width&gt;&#39;;
+  String readVector(String port, int width, String type) =&gt;
+      width == 1 ? &#39;$type($port.read())&#39; : &#39;$port.read()&#39;;
+  final maskWidth = dataWidth % 8 == 0 ? dataWidth ~&#47; 8 : 1;
+  final source = StringBuffer()
+    ..writeln(&#39;#pragma once&#39;)
+    ..writeln(&#39;#include &lt;array&gt;&#39;)
+    ..writeln(&#39;#include &lt;vector&gt;&#39;)
+    ..writeln(systemCSparseStorageDefinition)
+    ..writeln(&#39;SC_MODULE($className) {&#39;)
+    ..writeln(&#39;  using bit=sc_dt::sc_logic;&#39;)
+    ..writeln(&#39;  using address=sc_dt::sc_lv&lt;$addressWidth&gt;;&#39;)
+    ..writeln(&#39;  using word=sc_dt::sc_lv&lt;$dataWidth&gt;;&#39;)
+    ..writeln(&#39;  using mask=sc_dt::sc_lv&lt;$maskWidth&gt;;&#39;)
+    ..writeln(&#39;  using storage=RohdHclSystemCSparseStorage&lt;$dataWidth&gt;;&#39;);
+  for (final (ports, direction) in [
+    (inputPorts, &#39;in&#39;),
+    (outputPorts, &#39;out&#39;)
+  ]) {
+    for (final port in ports.entries) {
+      source.writeln(&#39;  sc_core::sc_$direction&lt;${portType(port.value)}&gt; &#39;
+          &#39;${port.key}{&quot;${port.key}&quot;};&#39;);
+    }
+  }
+  source.writeln(&#39;&#39;&#39;
+struct write_sample { bit en; address addr; word data; mask bytes; };
+struct read_sample { bit en; address addr; };
+struct pending { int port, remaining; word value; };
+struct state {
+  storage words;
+  std::array&lt;write_sample, ${writeMasked.length}&gt; writes;
+  std::array&lt;read_sample, ${readMasked.length}&gt; reads;
+  std::array&lt;word, ${readMasked.length}&gt; outputs;
+  std::vector&lt;pending&gt; reads_pending;
+  bit reset=sc_dt::SC_LOGIC_X;
+};
+class image {
+  friend struct $className;
+  state value;
+  explicit image(const state&amp; s) : value(s) {}
+};
+state data;
+sc_core::sc_event sampled, changed, recompute;
+image snapshot() const { return image(data); }
+void restore(const image&amp; saved) {
+  data=saved.value;
+  changed.notify(sc_core::SC_ZERO_TIME);
+}
+static bool known(bit x) {
+  return x==sc_dt::SC_LOGIC_0 || x==sc_dt::SC_LOGIC_1;
+}
+static address scalar_address(bit x) { address v; v[0]=x; return v; }
+static word scalar_word(bit x) { word v; v[0]=x; return v; }
+static mask scalar_mask(bit x) { mask v; v[0]=x; return v; }
+static void check_address(const std::string&amp; value) {
+  if(value.size()!=$addressWidth ||
+      value.find_first_not_of(&quot;01&quot;)!=std::string::npos)
+    throw std::invalid_argument(&quot;Invalid memory address&quot;);
+}
+bool contains(const std::string&amp; addr) const {
+  check_address(addr); return data.words.contains(addr);
+}
+word peek(const std::string&amp; addr) const {
+  check_address(addr);
+  if(!data.words.contains(addr)) throw std::out_of_range(&quot;Unpopulated memory&quot;);
+  return data.words.read(addr,word(sc_dt::SC_LOGIC_X));
+}
+void poke(const std::string&amp; addr, const word&amp; value) {
+  check_address(addr); data.words.write(addr,value);
+}
+word read_word(const address&amp; addr) const {
+  auto key=addr.to_string();
+  if(!data.words.contains(key))
+    SC_REPORT_WARNING(&quot;MEMORY_INVALID_READ&quot;, &quot;Reading unpopulated memory&quot;);
+  return data.words.read(key,word(sc_dt::SC_LOGIC_X));
+}
+void input_changed() { sampled.notify(sc_core::SC_ZERO_TIME); }
+void sample() {
+  data.reset=reset.read();
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; writeMasked.length; i++) {
+    final mask = writeMasked[i]
+        ? readVector(&#39;wr_mask_$i&#39;, maskWidth, &#39;scalar_mask&#39;)
+        : &#39;mask(sc_dt::SC_LOGIC_1)&#39;;
+    source.writeln(&#39;    data.writes[$i]={wr_en_$i.read(),&#39;
+        &#39;${readVector(&#39;wr_addr_$i&#39;, addressWidth, &#39;scalar_address&#39;)},&#39;
+        &#39;${readVector(&#39;wr_data_$i&#39;, dataWidth, &#39;scalar_word&#39;)},$mask};&#39;);
+  }
+  for (var i = 0; i &lt; readMasked.length; i++) {
+    source.writeln(&#39;    data.reads[$i]={rd_en_$i.read(),&#39;
+        &#39;${readVector(&#39;rd_addr_$i&#39;, addressWidth, &#39;scalar_address&#39;)}};&#39;);
+  }
+  source.writeln(&#39;&#39;&#39;
+}
+void drive() {
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; readMasked.length; i++) {
+    source.writeln(dataWidth == 1
+        ? &#39;    rd_data_$i.write(bit(data.outputs[$i][0]));&#39;
+        : &#39;    rd_data_$i.write(data.outputs[$i]);&#39;);
+  }
+  source.writeln(&#39;&#39;&#39;
+}
+void tick() {
+  std::vector&lt;pending&gt; remaining;
+  for(auto item:data.reads_pending) {
+    if(--item.remaining==0) data.outputs[item.port]=item.value;
+    else remaining.push_back(item);
+  }
+  data.reads_pending=std::move(remaining);
+  changed.notify(sc_core::SC_ZERO_TIME);
+  if(data.reset==sc_dt::SC_LOGIC_1) { data.words.clear(); return; }
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; writeMasked.length; i++) {
+    source.writeln(&#39;&#39;&#39;
+  {
+    auto w=data.writes[$i];
+    bool enabled=w.en!=sc_dt::SC_LOGIC_0;
+&#39;&#39;&#39;);
+    if (writeMasked[i]) {
+      source.writeln(&#39;&#39;&#39;
+    bool any_mask=false;
+    for(int byte=0;byte&lt;$maskWidth;++byte)
+      if(w.bytes[byte]!=sc_dt::SC_LOGIC_0) any_mask=true;
+    enabled=enabled &amp;&amp; any_mask;
+&#39;&#39;&#39;);
+    }
+    source.writeln(&#39;&#39;&#39;
+    if(enabled &amp;&amp; !w.addr.is_01()) {
+      word affected(0);
+&#39;&#39;&#39;);
+    if (writeMasked[i]) {
+      source.writeln(&#39;&#39;&#39;
+      for(int byte=0;byte&lt;$maskWidth;++byte)
+        if(w.bytes[byte]!=sc_dt::SC_LOGIC_0)
+          for(int bit=byte*8;bit&lt;(byte+1)*8;++bit) affected[bit]=sc_dt::SC_LOGIC_1;
+&#39;&#39;&#39;);
+    } else {
+      source.writeln(&#39;        affected=word(sc_dt::SC_LOGIC_1);&#39;);
+    }
+    source.writeln(&#39;&#39;&#39;
+      data.words.write_uncertain(w.addr.to_string(),affected);
+      SC_REPORT_WARNING(&quot;MEMORY_INVALID_WRITE&quot;, &quot;Uncertain write address&quot;);
+    } else if(enabled) {
+&#39;&#39;&#39;);
+    if (writeMasked[i]) {
+      source.writeln(&#39;&#39;&#39;
+      if(!known(w.en) || !w.bytes.is_01())
+        SC_REPORT_WARNING(&quot;MEMORY_INVALID_WRITE&quot;, &quot;Uncertain write control&quot;);
+      bool need_old=false;
+      for(int byte=0;byte&lt;$maskWidth;++byte)
+        if(w.bytes[byte]==sc_dt::SC_LOGIC_0) need_old=true;
+      word result=need_old ? read_word(w.addr) : word(sc_dt::SC_LOGIC_X);
+      for(int byte=0;byte&lt;$maskWidth;++byte) {
+        if(w.bytes[byte]==sc_dt::SC_LOGIC_0) continue;
+        for(int bit=byte*8;bit&lt;(byte+1)*8;++bit)
+          result[bit]=(!known(w.en) || !known(w.bytes[byte]))
+            ? sc_dt::sc_logic(sc_dt::SC_LOGIC_X) : sc_dt::sc_logic(w.data[bit]);
+      }
+      data.words.write(w.addr.to_string(),result);
+&#39;&#39;&#39;);
+    } else {
+      source.writeln(&#39;&#39;&#39;
+      if(!known(w.en))
+        SC_REPORT_WARNING(&quot;MEMORY_INVALID_WRITE&quot;, &quot;Uncertain write enable&quot;);
+      data.words.write(w.addr.to_string(),
+          known(w.en) ? w.data : word(sc_dt::SC_LOGIC_X));
+&#39;&#39;&#39;);
+    }
+    source.writeln(&#39;      }\n    }&#39;);
+  }
+  if (readLatency == 0) {
+    source.writeln(&#39;    recompute.notify(sc_core::SC_ZERO_TIME);&#39;);
+  } else {
+    for (var i = 0; i &lt; readMasked.length; i++) {
+      source.writeln(&#39;&#39;&#39;
+  {
+    auto r=data.reads[$i];
+    word value=(!known(r.en) || r.en==sc_dt::SC_LOGIC_0 || !r.addr.is_01())
+        ? word(sc_dt::SC_LOGIC_X) : read_word(r.addr);
+&#39;&#39;&#39;);
+      if (readLatency == 1) {
+        source.writeln(&#39;      data.outputs[$i]=value;&#39;);
+      } else {
+        source.writeln(&#39;      data.reads_pending.push_back&#39;
+            &#39; ({$i,${readLatency - 1},value});&#39;);
+      }
+      source.writeln(&#39;    }&#39;);
+    }
+  }
+  source.writeln(&#39;  }&#39;);
+  if (asyncReset) {
+    source.writeln(&#39;  void reset_async() { data.words.clear(); }&#39;);
+  }
+  if (readLatency == 0) {
+    source.writeln(&#39;  void read_comb() {&#39;);
+    for (var i = 0; i &lt; readMasked.length; i++) {
+      source.writeln(&#39;&#39;&#39;
+  {
+    bit en=rd_en_$i.read();
+    address addr=${readVector(&#39;rd_addr_$i&#39;, addressWidth, &#39;scalar_address&#39;)};
+    data.outputs[$i]=(!known(en) || en==sc_dt::SC_LOGIC_0 || !addr.is_01())
+        ? word(sc_dt::SC_LOGIC_X) : read_word(addr);
+  }
+&#39;&#39;&#39;);
+    }
+    source.writeln(&#39;    changed.notify(sc_core::SC_ZERO_TIME);\n  }&#39;);
+  }
+  source.writeln(&#39;&#39;&#39;
+SC_CTOR($className) {
+  for(auto&amp; output:data.outputs) output=word(sc_dt::SC_LOGIC_Z);
+  SC_METHOD(tick); sensitive &lt;&lt; clk.pos(); dont_initialize();
+  SC_METHOD(input_changed); sensitive &lt;&lt; reset
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; writeMasked.length; i++) {
+    source.writeln(&#39;      &lt;&lt; wr_en_$i &lt;&lt; wr_addr_$i &lt;&lt; wr_data_$i&#39;
+        &#39;${writeMasked[i] ? &#39; &lt;&lt; wr_mask_$i&#39; : &#39;&#39;}&#39;);
+  }
+  for (var i = 0; i &lt; readMasked.length; i++) {
+    source.writeln(&#39;      &lt;&lt; rd_en_$i &lt;&lt; rd_addr_$i&#39;);
+  }
+  source
+    ..writeln(&#39;      ; dont_initialize();&#39;)
+    ..writeln(&#39;    SC_METHOD(sample); sensitive &lt;&lt; sampled;&#39;)
+    ..writeln(&#39;    SC_METHOD(drive); sensitive &lt;&lt; changed;&#39;);
+  if (asyncReset) {
+    source.writeln(&#39;    SC_METHOD(reset_async); sensitive &lt;&lt; reset.pos();&#39;
+        &#39; dont_initialize();&#39;);
+  }
+  if (readLatency == 0) {
+    source.writeln(&#39;    SC_METHOD(read_comb); sensitive &lt;&lt; recompute&#39;);
+    for (var i = 0; i &lt; readMasked.length; i++) {
+      source.writeln(&#39;      &lt;&lt; rd_en_$i &lt;&lt; rd_addr_$i&#39;);
+    }
+    source.writeln(&#39;      ; dont_initialize();&#39;);
+  }
+  source.writeln(&#39;  }\n};&#39;);
+  return source.toString();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/MemoryModelDescription-class.html">MemoryModelDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+</ol>
+
+    <h5>MemoryModelDescription class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

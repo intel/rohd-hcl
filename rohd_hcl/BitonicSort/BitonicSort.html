@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort</a></li>
+    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">BitonicSort.new constructor</li>
   </ol>
   <div class="self-name">BitonicSort.new</div>
@@ -49,14 +49,17 @@
       data-above-sidebar="rohd_hcl&#47;BitonicSort-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">BitonicSort</span> constructor 
+<h1><span class="kind-constructor">BitonicSort&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">BitonicSort</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, {</span></li>
-<li><span class="parameter" id="param-toSort"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">toSort</span>, </span></li>
+      <span class="name ">BitonicSort&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, {</span></li>
+<li><span class="parameter" id="param-toSort"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">toSort</span>, </span></li>
+<li><span class="parameter" id="param-isLessThan"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">isLessThan</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-a"><span class="type-annotation">T</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation">T</span> <span class="parameter-name">b</span></span></li>
+</ol>)?, </span></li>
 <li><span class="parameter" id="param-isAscending"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isAscending</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;bitonic_sort&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
@@ -66,7 +69,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Constructs a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> to sort list of <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>.</p>
+  <p>Constructs a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> to sort list of <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>.</p>
 <p>The sorting module will recursively split inputs into a bitonic sequence
 perform sorting based on <code>isAscending</code> flag given to the module.</p>
 <p>All elements of <code>toSort</code> must be the same width, and the length must be a
@@ -92,6 +95,7 @@ await sortMod.build();
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">BitonicSort(Logic clk, Logic reset,
     {required super.toSort,
+    super.isLessThan,
     super.isAscending,
     super.name = &#39;bitonic_sort&#39;,
     super.reserveName,
@@ -120,38 +124,47 @@ await sortMod.build();
         &#39;power of 2.&#39;);
   }
 
+  for (final signal in toSort.skip(1)) {
+    if (!sameDeclaredPayloadShape(toSort.first, signal)) {
+      throw RohdHclException(
+          &#39;Bitonic sort requires matching payload layouts.&#39;);
+    }
+  }
+
   for (var i = 0; i &lt; toSort.length; i++) {
-    _inputs.add(addInput(&#39;toSort$i&#39;, super.toSort.elementAt(i),
-        width: super.toSort.elementAt(i).width));
+    _inputs.add(addTypedInput(&#39;toSort$i&#39;, super.toSort.elementAt(i)));
   }
 
   if (_inputs.length &gt; 1) {
-    final sortLeft = BitonicSort(clk, reset,
+    final sortLeft = BitonicSort&lt;T&gt;(clk, reset,
         toSort: _inputs.getRange(0, _inputs.length ~&#47; 2),
+        isLessThan: isLessThan,
         name: &#39;sort_left_${_inputs.length ~&#47; 2}&#39;,
         reserveName: reserveName,
         reserveDefinitionName: reserveDefinitionName);
 
-    final sortRight = BitonicSort(clk, reset,
+    final sortRight = BitonicSort&lt;T&gt;(clk, reset,
         toSort: _inputs.getRange(_inputs.length ~&#47; 2, _inputs.length),
         isAscending: false,
+        isLessThan: isLessThan,
         name: &#39;sort_right_${_inputs.length ~&#47; 2}&#39;,
         reserveName: reserveName,
         reserveDefinitionName: reserveDefinitionName);
 
     final bitonicSequence = sortLeft.sorted + sortRight.sorted;
-    final mergeResult = _BitonicMerge(clk, reset,
+    final mergeResult = _BitonicMerge&lt;T&gt;(clk, reset,
             bitonicSequence: bitonicSequence,
             isAscending: isAscending,
+            isLessThan: isLessThan,
             reserveName: reserveName,
             reserveDefinitionName: reserveDefinitionName)
         .sorted;
     for (var i = 0; i &lt; mergeResult.length; i++) {
-      _outputs.add(addOutput(&#39;sorted_$i&#39;, width: _inputs[i].width));
+      _outputs.add(addTypedOutput(&#39;sorted_$i&#39;, _inputs[i].cloneTyped));
       _outputs[i] &lt;= mergeResult[i];
     }
   } else {
-    _outputs.add(addOutput(&#39;sorted_0&#39;, width: _inputs[0].width));
+    _outputs.add(addTypedOutput(&#39;sorted_0&#39;, _inputs[0].cloneTyped));
     _outputs[0] &lt;= _inputs[0];
   }
 }</code></pre>
@@ -169,7 +182,7 @@ await sortMod.build();
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort</a></li>
+    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">BitonicSort.new constructor</li>
 </ol>
 

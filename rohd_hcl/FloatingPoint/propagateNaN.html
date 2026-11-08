@@ -64,7 +64,8 @@
     </section>
     
 <section class="desc markdown">
-  <p>Propagate the first signaling NaN, otherwise the first quiet NaN.</p>
+  <p>Propagate the first signaling NaN, otherwise the first quiet NaN.
+Each input is interpreted using its own floating-point format.</p>
 </section>
 
 
@@ -75,9 +76,9 @@
   final selectSecond = (~first.isSignalingNaN &amp;
           (second.isSignalingNaN | (~first.isNaN &amp; second.isNaN)))
       .named(&#39;selectSecondNaN&#39;);
-  final selected = first.clone(name: &#39;selectedNaN&#39;)
-    ..gets(mux(selectSecond, second, first));
-  return quietNaNFrom(selected);
+  return mux&lt;FloatingPoint&gt;(
+      selectSecond, quietNaNFrom(second), quietNaNFrom(first),
+      outputGenerator: clone);
 }</code></pre>
 </section>
 

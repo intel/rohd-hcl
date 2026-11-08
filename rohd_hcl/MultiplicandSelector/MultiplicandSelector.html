@@ -55,9 +55,9 @@
     <section class="multi-line-signature">
       
       <span class="name ">MultiplicandSelector</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-radix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span>, </span></li>
-<li><span class="parameter" id="param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span></li>
-<li><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-multiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">multiplicand</span>, {</span></li>
+<li><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
 </ol>})
     </section>
     
@@ -66,9 +66,9 @@
 <code>multiplicand</code> to <a href="../../rohd_hcl/MultiplicandSelector/select.html">select</a> using a <a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a> argument.</p>
 <p><code>multiplicand</code> is base multiplicand multiplied by Booth encodings of
 the <a href="../../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a> during <a href="../../rohd_hcl/MultiplicandSelector/select.html">select</a>.</p>
-<p><code>signedMultiplicand</code> generates a fixed signed selector versus using
-<code>selectSignedMultiplicand</code> which is a runtime sign selection <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>
-in which case <code>signedMultiplicand</code> must be <code>false</code>.</p>
+<p><code>signedMultiplicand</code> is a static or runtime
+<a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>. <code>selectSignedMultiplicand</code> is the legacy
+runtime selector and cannot be combined with an active control.</p>
 </section>
 
 
@@ -76,11 +76,12 @@ in which case <code>signedMultiplicand</code> must be <code>false</code>.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">MultiplicandSelector(this.radix, this.multiplicand,
-    {Logic? selectSignedMultiplicand, bool signedMultiplicand = false})
-    : shift = log2Ceil(radix) {
-  if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
-    throw RohdHclException(&#39;sign reconfiguration requires signed=false&#39;);
-  }
+    {Logic? selectSignedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplicand})
+    : shift = radix.log2Ceil {
+  final control = resolveSignControl(
+      signedMultiplicand, selectSignedMultiplicand,
+      name: &#39;signedMultiplicand&#39;);
   if (!allowedRadices.contains(radix)) {
     throw RohdHclException(&#39;Radices outside of $allowedRadices &#39;
         &#39;are not yet supported&#39;);
@@ -89,18 +90,17 @@ in which case <code>signedMultiplicand</code> must be <code>false</code>.</p>
   final numMultiples = radix ~&#47; 2;
   multiples = LogicArray([numMultiples], width, name: &#39;multiples&#39;);
   final Logic extendedMultiplicand;
-  if (selectSignedMultiplicand == null) {
-    extendedMultiplicand = signedMultiplicand
+  if (!control.isRuntime) {
+    extendedMultiplicand = control.staticConfig
         ? multiplicand.signExtend(width)
         : multiplicand.zeroExtend(width);
   } else {
     final len = multiplicand.width;
     final sign = multiplicand[len - 1];
     final extension = [
-      for (var i = len; i &lt; width; i++)
-        mux(selectSignedMultiplicand, sign, Const(0))
+      for (var i = len; i &lt; width; i++) control.select(sign, Const(0))
     ];
-    extendedMultiplicand = (multiplicand.elements + extension).rswizzle();
+    extendedMultiplicand = (multiplicand.elements + extension).rconcat();
   }
   for (var pos = 0; pos &lt; numMultiples; pos++) {
     final ratio = pos + 1;

@@ -55,10 +55,10 @@
     <section class="multi-line-signature">
       
       <span class="name ">SpiMain</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-intf"><span class="type-annotation"><a href="../../rohd_hcl/SpiInterface-class.html">SpiInterface</a></span> <span class="parameter-name">intf</span>, {</span></li>
-<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-start"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">start</span>, </span></li>
-<li><span class="parameter" id="param-busIn"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">busIn</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-start"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">start</span>, </span></li>
+<li><span class="parameter" id="param-busIn"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">busIn</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;spiMain&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -72,10 +72,11 @@
 chip select on <a href="../../rohd_hcl/SpiInterface/csb.html">SpiInterface.csb</a>, shift data out on <a href="../../rohd_hcl/SpiInterface/mosi.html">SpiInterface.mosi</a>,
 and shift data in from <a href="../../rohd_hcl/SpiInterface/miso.html">SpiInterface.miso</a>. Data to shift out is provided
 on <code>busIn</code>. Data shifted in from <a href="../../rohd_hcl/SpiInterface/miso.html">SpiInterface.miso</a> will be available on
-<a href="../../rohd_hcl/SpiMain/busOut.html">busOut</a>. After data is available on <code>busIn</code>, pulsing <code>reset</code> will load
-the data, and pulsing <code>start</code> will begin transmitting data until all bits
-from <code>busIn</code> are shifted out. After transmissions is complete <a href="../../rohd_hcl/SpiMain/done.html">done</a>
-signal will go high.</p>
+<a href="../../rohd_hcl/SpiMain/busOut.html">busOut</a>. <code>reset</code> clears the receive state and prepares a transmit load.
+Hold <code>busIn</code> stable through the first falling SPI clock edge after reset;
+its most significant bit is driven before the first rising edge and the
+rest is loaded on that rising edge.
+Pulsing <code>start</code> begins the transfer. <a href="../../rohd_hcl/SpiMain/done.html">done</a> goes high when it completes.</p>
 </section>
 
 
@@ -108,7 +109,7 @@ signal will go high.</p>
 
   addOutput(&#39;done&#39;);
 
-  intf = intf.clone()..pairConnectIO(this, intf, PairRole.provider);
+  intf = addPairInterfacePorts(intf, PairRole.provider);
 
   final isRunning = Logic(name: &#39;isRunning&#39;);
 
@@ -133,20 +134,15 @@ signal will go high.</p>
         asyncReset: true,
       );
 
-  &#47;&#47; Shift register in from MISO.
-  &#47;&#47; NOTE: Reset values are set to busIn values.
-  final shiftReg = ShiftRegister(
-    intf.miso,
-    clk: intf.sclk,
-    depth: intf.dataLength,
+  final shiftReg = buildSpiShiftRegister(
+    serialIn: intf.miso,
+    clock: intf.sclk,
+    width: intf.dataLength,
     reset: reset,
-    asyncReset: true,
-    resetValue: busIn.elements,
+    parallelIn: busIn,
   );
 
-  &#47;&#47; busOut bits are connected to the corresponding shift register data stage.
-  &#47;&#47; NOTE: dataStage0 corresponds to the last bit shifted in.
-  busOut &lt;= shiftReg.stages.rswizzle();
+  busOut &lt;= shiftReg.parallelOut;
 
   &#47;&#47; SCLK runs off clk when isRunning is true or start is pulsed high.
   intf.sclk &lt;= ~clk &amp; (isRunning | start);
@@ -154,10 +150,7 @@ signal will go high.</p>
   &#47;&#47; CS is active low. It will go low when isRunning or start is pulsed high.
   intf.csb &lt;= ~(isRunning | start);
 
-  &#47;&#47; MOSI is connected shift register dataOut.
-  intf.mosi &lt;=
-      flop(~intf.sclk, shiftReg.dataOut,
-          reset: reset, asyncReset: true, resetValue: busIn[-1]);
+  intf.mosi &lt;= shiftReg.serialOut;
 }</code></pre>
 </section>
 

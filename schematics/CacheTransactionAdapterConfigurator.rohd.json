@@ -1,0 +1,7361 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "CacheTransactionAdapter_N2_S7_N006f007000650072006100740069006f006e_L2_N0061006400640072006500730073_L8_N0074006f006b0065006e_L2_N0064006100740061_L8_N00770072006900740065004d00610073006b_L1_N006c0069006e0065004d0065007400610064006100740061_L2_N00720065007100750065007300740043006f006e0074006500780074_L2_S6_N0074006f006b0065006e_L2_N007300740061007400750073_L2_N0064006100740061_L8_N006c0069006e0065004d0065007400610064006100740061_L2_N00720065007100750065007300740043006f006e0074006500780074_L2_N0072006500730075006c0074_L2_S6_N0074006f006b0065006e_L2_N00630061007500730065_L1_N0061006400640072006500730073_L8_N0064006100740061_L8_N006c0069006e0065004d0065007400610064006100740061_L2_N00720065007100750065007300740043006f006e0074006500780074_L2": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "input_request_cache_request": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionRequest<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "operation",
+                "width": 2,
+                "bits": [
+                  4,
+                  5
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13
+                ]
+              },
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  14,
+                  15
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "writeMask",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  25,
+                  26
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  27,
+                  28
+                ]
+              }
+            ]
+          }
+        },
+        "input_request_valid": {
+          "direction": "input",
+          "bits": [
+            29
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "output_response_ready": {
+          "direction": "input",
+          "bits": [
+            30
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "output_eviction_ready": {
+          "direction": "input",
+          "bits": [
+            31
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "cache_tokenConflict": {
+          "direction": "input",
+          "bits": [
+            32
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "cache_request_ready": {
+          "direction": "input",
+          "bits": [
+            33
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "cache_response_cache_response": {
+          "direction": "input",
+          "bits": [
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionResponse<Logic, Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  34,
+                  35
+                ]
+              },
+              {
+                "name": "status",
+                "width": 2,
+                "bits": [
+                  36,
+                  37
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  48,
+                  49
+                ]
+              },
+              {
+                "name": "result",
+                "width": 2,
+                "bits": [
+                  50,
+                  51
+                ]
+              }
+            ]
+          }
+        },
+        "cache_response_valid": {
+          "direction": "input",
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "cache_eviction_cache_eviction": {
+          "direction": "input",
+          "bits": [
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionEviction<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  53,
+                  54
+                ]
+              },
+              {
+                "name": "cause",
+                "width": 1,
+                "bits": [
+                  55
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  56,
+                  57,
+                  58,
+                  59,
+                  60,
+                  61,
+                  62,
+                  63
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  64,
+                  65,
+                  66,
+                  67,
+                  68,
+                  69,
+                  70,
+                  71
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  72,
+                  73
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  74,
+                  75
+                ]
+              }
+            ]
+          }
+        },
+        "cache_eviction_valid": {
+          "direction": "input",
+          "bits": [
+            76
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "input_request_ready": {
+          "direction": "output",
+          "bits": [
+            77
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "output_response_cache_response": {
+          "direction": "output",
+          "bits": [
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionResponse<Logic, Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  78,
+                  79
+                ]
+              },
+              {
+                "name": "status",
+                "width": 2,
+                "bits": [
+                  80,
+                  81
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  82,
+                  83,
+                  84,
+                  85,
+                  86,
+                  87,
+                  88,
+                  89
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  90,
+                  91
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  92,
+                  93
+                ]
+              },
+              {
+                "name": "result",
+                "width": 2,
+                "bits": [
+                  94,
+                  95
+                ]
+              }
+            ]
+          }
+        },
+        "output_response_valid": {
+          "direction": "output",
+          "bits": [
+            96
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "output_eviction_cache_eviction": {
+          "direction": "output",
+          "bits": [
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionEviction<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  97,
+                  98
+                ]
+              },
+              {
+                "name": "cause",
+                "width": 1,
+                "bits": [
+                  99
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  100,
+                  101,
+                  102,
+                  103,
+                  104,
+                  105,
+                  106,
+                  107
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  108,
+                  109,
+                  110,
+                  111,
+                  112,
+                  113,
+                  114,
+                  115
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  116,
+                  117
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  118,
+                  119
+                ]
+              }
+            ]
+          }
+        },
+        "output_eviction_valid": {
+          "direction": "output",
+          "bits": [
+            120
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "cache_request_cache_request": {
+          "direction": "output",
+          "bits": [
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138,
+            139,
+            140,
+            141,
+            142,
+            143,
+            144,
+            145
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionRequest<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "operation",
+                "width": 2,
+                "bits": [
+                  121,
+                  122
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  123,
+                  124,
+                  125,
+                  126,
+                  127,
+                  128,
+                  129,
+                  130
+                ]
+              },
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  131,
+                  132
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  133,
+                  134,
+                  135,
+                  136,
+                  137,
+                  138,
+                  139,
+                  140
+                ]
+              },
+              {
+                "name": "writeMask",
+                "width": 1,
+                "bits": [
+                  141
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  142,
+                  143
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  144,
+                  145
+                ]
+              }
+            ]
+          }
+        },
+        "cache_request_valid": {
+          "direction": "output",
+          "bits": [
+            146
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "cache_response_ready": {
+          "direction": "output",
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "cache_eviction_ready": {
+          "direction": "output",
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "duplicateRequest": {
+          "direction": "output",
+          "bits": [
+            149
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "invalidResponse": {
+          "direction": "output",
+          "bits": [
+            150
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "invalidEviction": {
+          "direction": "output",
+          "bits": [
+            151
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "struct_slice": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "Y": [
+              300,
+              301
+            ]
+          }
+        },
+        "struct_slice_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "Y": [
+              302,
+              303,
+              304,
+              305,
+              306,
+              307,
+              308,
+              309
+            ]
+          }
+        },
+        "struct_slice_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 10,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "Y": [
+              310,
+              311
+            ]
+          }
+        },
+        "struct_slice_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 12,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "Y": [
+              312,
+              313,
+              314,
+              315,
+              316,
+              317,
+              318,
+              319
+            ]
+          }
+        },
+        "struct_slice_3": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 20,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "Y": [
+              320
+            ]
+          }
+        },
+        "struct_slice_4": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 21,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "Y": [
+              321,
+              322
+            ]
+          }
+        },
+        "struct_slice_5": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 23,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "Y": [
+              323,
+              324
+            ]
+          }
+        },
+        "struct_slice_6": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 18,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "Y": [
+              325,
+              326
+            ]
+          }
+        },
+        "struct_slice_7": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 18,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "Y": [
+              327,
+              328
+            ]
+          }
+        },
+        "struct_slice_8": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 4,
+            "A_WIDTH": 18,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "Y": [
+              329,
+              330,
+              331,
+              332,
+              333,
+              334,
+              335,
+              336
+            ]
+          }
+        },
+        "struct_slice_9": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 12,
+            "A_WIDTH": 18,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "Y": [
+              337,
+              338
+            ]
+          }
+        },
+        "struct_slice_10": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 14,
+            "A_WIDTH": 18,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "Y": [
+              339,
+              340
+            ]
+          }
+        },
+        "struct_slice_11": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 16,
+            "A_WIDTH": 18,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "Y": [
+              341,
+              342
+            ]
+          }
+        },
+        "struct_slice_12": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 23,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "Y": [
+              343,
+              344
+            ]
+          }
+        },
+        "struct_slice_13": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 23,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "Y": [
+              345
+            ]
+          }
+        },
+        "struct_slice_14": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 23,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "Y": [
+              346,
+              347,
+              348,
+              349,
+              350,
+              351,
+              352,
+              353
+            ]
+          }
+        },
+        "struct_slice_15": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 11,
+            "A_WIDTH": 23,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "Y": [
+              354,
+              355,
+              356,
+              357,
+              358,
+              359,
+              360,
+              361
+            ]
+          }
+        },
+        "struct_slice_16": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 19,
+            "A_WIDTH": 23,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "Y": [
+              362,
+              363
+            ]
+          }
+        },
+        "struct_slice_17": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 21,
+            "A_WIDTH": 23,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "Y": [
+              364,
+              365
+            ]
+          }
+        },
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              29
+            ],
+            "B": [
+              77
+            ],
+            "Y": [
+              366
+            ]
+          }
+        },
+        "mux": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              366
+            ],
+            "A": [
+              367
+            ],
+            "B": [
+              368
+            ],
+            "Y": [
+              369
+            ]
+          }
+        },
+        "flipflop": {
+          "hide_name": 0,
+          "type": "$sdff",
+          "parameters": {
+            "WIDTH": 1,
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": "0"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              369
+            ],
+            "Q": [
+              152
+            ],
+            "SRST": [
+              3
+            ]
+          }
+        },
+        "not_": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              152
+            ],
+            "Y": [
+              370
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              371
+            ],
+            "B": [
+              370
+            ],
+            "Y": [
+              372
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              372
+            ],
+            "B": [
+              373
+            ],
+            "Y": [
+              374
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              374
+            ],
+            "B": [
+              375
+            ],
+            "Y": [
+              77
+            ]
+          }
+        },
+        "not__0": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              376
+            ],
+            "Y": [
+              375
+            ]
+          }
+        },
+        "or_": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              377
+            ],
+            "B": [
+              378
+            ],
+            "Y": [
+              376
+            ]
+          }
+        },
+        "and__3": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              153
+            ],
+            "B": [
+              379
+            ],
+            "Y": [
+              377
+            ]
+          }
+        },
+        "not__1": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              153
+            ],
+            "Y": [
+              380
+            ]
+          }
+        },
+        "or__0": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              380
+            ],
+            "B": [
+              381
+            ],
+            "Y": [
+              373
+            ]
+          }
+        },
+        "not__2": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              154
+            ],
+            "Y": [
+              381
+            ]
+          }
+        },
+        "and__4": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              154
+            ],
+            "B": [
+              382
+            ],
+            "Y": [
+              378
+            ]
+          }
+        },
+        "equals": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              155,
+              156
+            ],
+            "B": [
+              310,
+              311
+            ],
+            "Y": [
+              382
+            ]
+          }
+        },
+        "equals_0": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              155,
+              156
+            ],
+            "B": [
+              325,
+              326
+            ],
+            "Y": [
+              383
+            ]
+          }
+        },
+        "and__5": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              154
+            ],
+            "B": [
+              383
+            ],
+            "Y": [
+              384
+            ]
+          }
+        },
+        "or__1": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              385
+            ],
+            "B": [
+              384
+            ],
+            "Y": [
+              386
+            ]
+          }
+        },
+        "and__6": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              387
+            ],
+            "B": [
+              386
+            ],
+            "Y": [
+              96
+            ]
+          }
+        },
+        "and__7": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              388
+            ],
+            "B": [
+              52
+            ],
+            "Y": [
+              387
+            ]
+          }
+        },
+        "not__3": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              388
+            ]
+          }
+        },
+        "and__8": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              52
+            ],
+            "B": [
+              147
+            ],
+            "Y": [
+              389
+            ]
+          }
+        },
+        "and__9": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              389
+            ],
+            "B": [
+              153
+            ],
+            "Y": [
+              390
+            ]
+          }
+        },
+        "and__10": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              390
+            ],
+            "B": [
+              391
+            ],
+            "Y": [
+              392
+            ]
+          }
+        },
+        "mux_0": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              392
+            ],
+            "A": [
+              153
+            ],
+            "B": [
+              393
+            ],
+            "Y": [
+              394
+            ]
+          }
+        },
+        "mux_1": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              395
+            ],
+            "A": [
+              394
+            ],
+            "B": [
+              396
+            ],
+            "Y": [
+              397
+            ]
+          }
+        },
+        "flipflop_0": {
+          "hide_name": 0,
+          "type": "$sdff",
+          "parameters": {
+            "WIDTH": 1,
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": "0"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              397
+            ],
+            "Q": [
+              153
+            ],
+            "SRST": [
+              3
+            ]
+          }
+        },
+        "and__11": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              398
+            ],
+            "B": [
+              399
+            ],
+            "Y": [
+              395
+            ]
+          }
+        },
+        "and__12": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              366
+            ],
+            "B": [
+              400
+            ],
+            "Y": [
+              399
+            ]
+          }
+        },
+        "not__4": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              153
+            ],
+            "Y": [
+              400
+            ]
+          }
+        },
+        "mux_2": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              395
+            ],
+            "A": [
+              157,
+              158
+            ],
+            "B": [
+              310,
+              311
+            ],
+            "Y": [
+              401,
+              402
+            ]
+          }
+        },
+        "flipflop_1": {
+          "hide_name": 0,
+          "type": "$sdff",
+          "parameters": {
+            "WIDTH": 2,
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": "00"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              401,
+              402
+            ],
+            "Q": [
+              157,
+              158
+            ],
+            "SRST": [
+              3
+            ]
+          }
+        },
+        "equals_1": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              157,
+              158
+            ],
+            "B": [
+              310,
+              311
+            ],
+            "Y": [
+              379
+            ]
+          }
+        },
+        "concat": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 2,
+            "IN1_WIDTH": 8,
+            "IN2_WIDTH": 2,
+            "IN3_WIDTH": 8,
+            "IN4_WIDTH": 1,
+            "IN5_WIDTH": 2,
+            "IN6_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "[1:0]": "input",
+            "[9:2]": "input",
+            "[11:10]": "input",
+            "[19:12]": "input",
+            "[20]": "input",
+            "[22:21]": "input",
+            "[24:23]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[1:0]": [
+              300,
+              301
+            ],
+            "[9:2]": [
+              302,
+              303,
+              304,
+              305,
+              306,
+              307,
+              308,
+              309
+            ],
+            "[11:10]": [
+              310,
+              311
+            ],
+            "[19:12]": [
+              312,
+              313,
+              314,
+              315,
+              316,
+              317,
+              318,
+              319
+            ],
+            "[20]": [
+              320
+            ],
+            "[22:21]": [
+              321,
+              322
+            ],
+            "[24:23]": [
+              323,
+              324
+            ],
+            "Y": [
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187
+            ]
+          }
+        },
+        "mux_3": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 25
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              366
+            ],
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "B": [
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187
+            ],
+            "Y": [
+              403,
+              404,
+              405,
+              406,
+              407,
+              408,
+              409,
+              410,
+              411,
+              412,
+              413,
+              414,
+              415,
+              416,
+              417,
+              418,
+              419,
+              420,
+              421,
+              422,
+              423,
+              424,
+              425,
+              426,
+              427
+            ]
+          }
+        },
+        "flipflop_2": {
+          "hide_name": 0,
+          "type": "$sdff",
+          "parameters": {
+            "WIDTH": 25,
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": "0000000000000000000000000"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              403,
+              404,
+              405,
+              406,
+              407,
+              408,
+              409,
+              410,
+              411,
+              412,
+              413,
+              414,
+              415,
+              416,
+              417,
+              418,
+              419,
+              420,
+              421,
+              422,
+              423,
+              424,
+              425,
+              426,
+              427
+            ],
+            "Q": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "SRST": [
+              3
+            ]
+          }
+        },
+        "bussubset": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "Y": [
+              213,
+              214
+            ]
+          }
+        },
+        "bussubset_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "Y": [
+              215,
+              216,
+              217,
+              218,
+              219,
+              220,
+              221,
+              222
+            ]
+          }
+        },
+        "bussubset_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 10,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "Y": [
+              223,
+              224
+            ]
+          }
+        },
+        "bussubset_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 12,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "Y": [
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232
+            ]
+          }
+        },
+        "bussubset_3": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 20,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "Y": [
+              233
+            ]
+          }
+        },
+        "bussubset_4": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 21,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "Y": [
+              234,
+              235
+            ]
+          }
+        },
+        "bussubset_5": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 23,
+            "A_WIDTH": 25,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "Y": [
+              236,
+              237
+            ]
+          }
+        },
+        "mux_4": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              428
+            ],
+            "A": [
+              155,
+              156
+            ],
+            "B": [
+              310,
+              311
+            ],
+            "Y": [
+              429,
+              430
+            ]
+          }
+        },
+        "flipflop_3": {
+          "hide_name": 0,
+          "type": "$sdff",
+          "parameters": {
+            "WIDTH": 2,
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": "00"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              429,
+              430
+            ],
+            "Q": [
+              155,
+              156
+            ],
+            "SRST": [
+              3
+            ]
+          }
+        },
+        "and__13": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              431
+            ],
+            "B": [
+              432
+            ],
+            "Y": [
+              428
+            ]
+          }
+        },
+        "and__14": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              366
+            ],
+            "B": [
+              433
+            ],
+            "Y": [
+              431
+            ]
+          }
+        },
+        "not__5": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              154
+            ],
+            "Y": [
+              433
+            ]
+          }
+        },
+        "not__6": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              434
+            ],
+            "Y": [
+              432
+            ]
+          }
+        },
+        "or__2": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              435
+            ],
+            "B": [
+              436
+            ],
+            "Y": [
+              434
+            ]
+          }
+        },
+        "not__7": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              153
+            ],
+            "Y": [
+              436
+            ]
+          }
+        },
+        "mux_5": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              428
+            ],
+            "A": [
+              439
+            ],
+            "B": [
+              440
+            ],
+            "Y": [
+              441
+            ]
+          }
+        },
+        "flipflop_4": {
+          "hide_name": 0,
+          "type": "$sdff",
+          "parameters": {
+            "WIDTH": 1,
+            "CLK_POLARITY": 1,
+            "SRST_POLARITY": 1,
+            "SRST_VALUE": "0"
+          },
+          "attributes": {},
+          "port_directions": {
+            "CLK": "input",
+            "D": "input",
+            "Q": "output",
+            "SRST": "input"
+          },
+          "connections": {
+            "CLK": [
+              2
+            ],
+            "D": [
+              441
+            ],
+            "Q": [
+              154
+            ],
+            "SRST": [
+              3
+            ]
+          }
+        },
+        "mux_6": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              442
+            ],
+            "A": [
+              154
+            ],
+            "B": [
+              443
+            ],
+            "Y": [
+              439
+            ]
+          }
+        },
+        "and__15": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              444
+            ],
+            "B": [
+              445
+            ],
+            "Y": [
+              442
+            ]
+          }
+        },
+        "and__16": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              389
+            ],
+            "B": [
+              154
+            ],
+            "Y": [
+              444
+            ]
+          }
+        },
+        "equals_2": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              155,
+              156
+            ],
+            "B": [
+              325,
+              326
+            ],
+            "Y": [
+              445
+            ]
+          }
+        },
+        "equals_3": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              157,
+              158
+            ],
+            "B": [
+              325,
+              326
+            ],
+            "Y": [
+              446
+            ]
+          }
+        },
+        "and__17": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              153
+            ],
+            "B": [
+              446
+            ],
+            "Y": [
+              385
+            ]
+          }
+        },
+        "equals_4": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              157,
+              158
+            ],
+            "B": [
+              325,
+              326
+            ],
+            "Y": [
+              391
+            ]
+          }
+        },
+        "equals_5": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              157,
+              158
+            ],
+            "B": [
+              343,
+              344
+            ],
+            "Y": [
+              447
+            ]
+          }
+        },
+        "and__18": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              153
+            ],
+            "B": [
+              447
+            ],
+            "Y": [
+              448
+            ]
+          }
+        },
+        "or__4": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              448
+            ],
+            "B": [
+              449
+            ],
+            "Y": [
+              450
+            ]
+          }
+        },
+        "and__19": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              451
+            ],
+            "B": [
+              450
+            ],
+            "Y": [
+              120
+            ]
+          }
+        },
+        "and__20": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              452
+            ],
+            "B": [
+              76
+            ],
+            "Y": [
+              451
+            ]
+          }
+        },
+        "not__9": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              452
+            ]
+          }
+        },
+        "and__21": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              453
+            ],
+            "B": [
+              76
+            ],
+            "Y": [
+              454
+            ]
+          }
+        },
+        "and__22": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              454
+            ],
+            "B": [
+              455
+            ],
+            "Y": [
+              151
+            ]
+          }
+        },
+        "not__10": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              450
+            ],
+            "Y": [
+              455
+            ]
+          }
+        },
+        "not__11": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              453
+            ]
+          }
+        },
+        "and__23": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              456
+            ],
+            "B": [
+              450
+            ],
+            "Y": [
+              148
+            ]
+          }
+        },
+        "and__24": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              457
+            ],
+            "B": [
+              31
+            ],
+            "Y": [
+              456
+            ]
+          }
+        },
+        "not__12": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              457
+            ]
+          }
+        },
+        "and__25": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              154
+            ],
+            "B": [
+              458
+            ],
+            "Y": [
+              449
+            ]
+          }
+        },
+        "equals_6": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              155,
+              156
+            ],
+            "B": [
+              343,
+              344
+            ],
+            "Y": [
+              458
+            ]
+          }
+        },
+        "and__26": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              459
+            ],
+            "B": [
+              386
+            ],
+            "Y": [
+              147
+            ]
+          }
+        },
+        "and__27": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              460
+            ],
+            "B": [
+              30
+            ],
+            "Y": [
+              459
+            ]
+          }
+        },
+        "not__13": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              460
+            ]
+          }
+        },
+        "and__28": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              461
+            ],
+            "B": [
+              52
+            ],
+            "Y": [
+              462
+            ]
+          }
+        },
+        "and__29": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              462
+            ],
+            "B": [
+              463
+            ],
+            "Y": [
+              150
+            ]
+          }
+        },
+        "not__14": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              386
+            ],
+            "Y": [
+              463
+            ]
+          }
+        },
+        "not__15": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              461
+            ]
+          }
+        },
+        "and__30": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              464
+            ],
+            "B": [
+              376
+            ],
+            "Y": [
+              149
+            ]
+          }
+        },
+        "and__31": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              465
+            ],
+            "B": [
+              29
+            ],
+            "Y": [
+              464
+            ]
+          }
+        },
+        "not__16": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              465
+            ]
+          }
+        },
+        "not__17": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              371
+            ]
+          }
+        },
+        "and__32": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              466
+            ],
+            "B": [
+              152
+            ],
+            "Y": [
+              146
+            ]
+          }
+        },
+        "and__33": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              146
+            ],
+            "B": [
+              33
+            ],
+            "Y": [
+              467
+            ]
+          }
+        },
+        "mux_7": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              467
+            ],
+            "A": [
+              152
+            ],
+            "B": [
+              468
+            ],
+            "Y": [
+              367
+            ]
+          }
+        },
+        "not__18": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              466
+            ]
+          }
+        },
+        "struct_unpack_0_input_request_cache_request": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "input_request_cache_request",
+            "FIELD_COUNT": 7,
+            "FIELD_0_NAME": "operation",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "address",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 8,
+            "FIELD_2_NAME": "token",
+            "FIELD_2_OFFSET": 10,
+            "FIELD_2_WIDTH": 2,
+            "FIELD_3_NAME": "data",
+            "FIELD_3_OFFSET": 12,
+            "FIELD_3_WIDTH": 8,
+            "FIELD_4_NAME": "writeMask",
+            "FIELD_4_OFFSET": 20,
+            "FIELD_4_WIDTH": 1,
+            "FIELD_5_NAME": "lineMetadata",
+            "FIELD_5_OFFSET": 21,
+            "FIELD_5_WIDTH": 2,
+            "FIELD_6_NAME": "requestContext",
+            "FIELD_6_OFFSET": 23,
+            "FIELD_6_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "operation": "output",
+            "address": "output",
+            "token": "output",
+            "data": "output",
+            "writeMask": "output",
+            "lineMetadata": "output",
+            "requestContext": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "operation": [
+              300,
+              301
+            ],
+            "address": [
+              302,
+              303,
+              304,
+              305,
+              306,
+              307,
+              308,
+              309
+            ],
+            "token": [
+              310,
+              311
+            ],
+            "data": [
+              312,
+              313,
+              314,
+              315,
+              316,
+              317,
+              318,
+              319
+            ],
+            "writeMask": [
+              320
+            ],
+            "lineMetadata": [
+              321,
+              322
+            ],
+            "requestContext": [
+              323,
+              324
+            ]
+          }
+        },
+        "struct_unpack_1_cache_eviction_cache_eviction": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "cache_eviction_cache_eviction",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "token",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "cause",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "address",
+            "FIELD_2_OFFSET": 3,
+            "FIELD_2_WIDTH": 8,
+            "FIELD_3_NAME": "data",
+            "FIELD_3_OFFSET": 11,
+            "FIELD_3_WIDTH": 8,
+            "FIELD_4_NAME": "lineMetadata",
+            "FIELD_4_OFFSET": 19,
+            "FIELD_4_WIDTH": 2,
+            "FIELD_5_NAME": "requestContext",
+            "FIELD_5_OFFSET": 21,
+            "FIELD_5_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "token": "output",
+            "cause": "output",
+            "address": "output",
+            "data": "output",
+            "lineMetadata": "output",
+            "requestContext": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "token": [
+              343,
+              344
+            ],
+            "cause": [
+              345
+            ],
+            "address": [
+              346,
+              347,
+              348,
+              349,
+              350,
+              351,
+              352,
+              353
+            ],
+            "data": [
+              354,
+              355,
+              356,
+              357,
+              358,
+              359,
+              360,
+              361
+            ],
+            "lineMetadata": [
+              362,
+              363
+            ],
+            "requestContext": [
+              364,
+              365
+            ]
+          }
+        },
+        "struct_unpack_2_cache_response_cache_response": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "cache_response_cache_response",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "token",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "status",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 2,
+            "FIELD_2_NAME": "data",
+            "FIELD_2_OFFSET": 4,
+            "FIELD_2_WIDTH": 8,
+            "FIELD_3_NAME": "lineMetadata",
+            "FIELD_3_OFFSET": 12,
+            "FIELD_3_WIDTH": 2,
+            "FIELD_4_NAME": "requestContext",
+            "FIELD_4_OFFSET": 14,
+            "FIELD_4_WIDTH": 2,
+            "FIELD_5_NAME": "result",
+            "FIELD_5_OFFSET": 16,
+            "FIELD_5_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "token": "output",
+            "status": "output",
+            "data": "output",
+            "lineMetadata": "output",
+            "requestContext": "output",
+            "result": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "token": [
+              325,
+              326
+            ],
+            "status": [
+              327,
+              328
+            ],
+            "data": [
+              329,
+              330,
+              331,
+              332,
+              333,
+              334,
+              335,
+              336
+            ],
+            "lineMetadata": [
+              337,
+              338
+            ],
+            "requestContext": [
+              339,
+              340
+            ],
+            "result": [
+              341,
+              342
+            ]
+          }
+        },
+        "struct_concat_13_output_response_cache_response": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "output_response_cache_response",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "token",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "status",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 2,
+            "FIELD_2_NAME": "data",
+            "FIELD_2_OFFSET": 4,
+            "FIELD_2_WIDTH": 8,
+            "FIELD_3_NAME": "lineMetadata",
+            "FIELD_3_OFFSET": 12,
+            "FIELD_3_WIDTH": 2,
+            "FIELD_4_NAME": "requestContext",
+            "FIELD_4_OFFSET": 14,
+            "FIELD_4_WIDTH": 2,
+            "FIELD_5_NAME": "result",
+            "FIELD_5_OFFSET": 16,
+            "FIELD_5_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "token": "input",
+            "status": "input",
+            "data": "input",
+            "lineMetadata": "input",
+            "requestContext": "input",
+            "result": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "token": [
+              325,
+              326
+            ],
+            "status": [
+              327,
+              328
+            ],
+            "data": [
+              329,
+              330,
+              331,
+              332,
+              333,
+              334,
+              335,
+              336
+            ],
+            "lineMetadata": [
+              337,
+              338
+            ],
+            "requestContext": [
+              339,
+              340
+            ],
+            "result": [
+              341,
+              342
+            ],
+            "Y": [
+              78,
+              79,
+              80,
+              81,
+              82,
+              83,
+              84,
+              85,
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95
+            ]
+          }
+        },
+        "struct_concat_15_output_eviction_cache_eviction": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "output_eviction_cache_eviction",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "token",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "cause",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "address",
+            "FIELD_2_OFFSET": 3,
+            "FIELD_2_WIDTH": 8,
+            "FIELD_3_NAME": "data",
+            "FIELD_3_OFFSET": 11,
+            "FIELD_3_WIDTH": 8,
+            "FIELD_4_NAME": "lineMetadata",
+            "FIELD_4_OFFSET": 19,
+            "FIELD_4_WIDTH": 2,
+            "FIELD_5_NAME": "requestContext",
+            "FIELD_5_OFFSET": 21,
+            "FIELD_5_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "token": "input",
+            "cause": "input",
+            "address": "input",
+            "data": "input",
+            "lineMetadata": "input",
+            "requestContext": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "token": [
+              343,
+              344
+            ],
+            "cause": [
+              345
+            ],
+            "address": [
+              346,
+              347,
+              348,
+              349,
+              350,
+              351,
+              352,
+              353
+            ],
+            "data": [
+              354,
+              355,
+              356,
+              357,
+              358,
+              359,
+              360,
+              361
+            ],
+            "lineMetadata": [
+              362,
+              363
+            ],
+            "requestContext": [
+              364,
+              365
+            ],
+            "Y": [
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119
+            ]
+          }
+        },
+        "struct_concat_17_cache_request_cache_request": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "cache_request_cache_request",
+            "FIELD_COUNT": 7,
+            "FIELD_0_NAME": "operation",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "address",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 8,
+            "FIELD_2_NAME": "token",
+            "FIELD_2_OFFSET": 10,
+            "FIELD_2_WIDTH": 2,
+            "FIELD_3_NAME": "data",
+            "FIELD_3_OFFSET": 12,
+            "FIELD_3_WIDTH": 8,
+            "FIELD_4_NAME": "writeMask",
+            "FIELD_4_OFFSET": 20,
+            "FIELD_4_WIDTH": 1,
+            "FIELD_5_NAME": "lineMetadata",
+            "FIELD_5_OFFSET": 21,
+            "FIELD_5_WIDTH": 2,
+            "FIELD_6_NAME": "requestContext",
+            "FIELD_6_OFFSET": 23,
+            "FIELD_6_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "operation": "input",
+            "address": "input",
+            "token": "input",
+            "data": "input",
+            "writeMask": "input",
+            "lineMetadata": "input",
+            "requestContext": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "operation": [
+              213,
+              214
+            ],
+            "address": [
+              215,
+              216,
+              217,
+              218,
+              219,
+              220,
+              221,
+              222
+            ],
+            "token": [
+              223,
+              224
+            ],
+            "data": [
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232
+            ],
+            "writeMask": [
+              233
+            ],
+            "lineMetadata": [
+              234,
+              235
+            ],
+            "requestContext": [
+              236,
+              237
+            ],
+            "Y": [
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135,
+              136,
+              137,
+              138,
+              139,
+              140,
+              141,
+              142,
+              143,
+              144,
+              145
+            ]
+          }
+        },
+        "const_0_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              368
+            ]
+          }
+        },
+        "const_1_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              393
+            ]
+          }
+        },
+        "const_2_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              396
+            ]
+          }
+        },
+        "const_3_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              398
+            ]
+          }
+        },
+        "const_4_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              435
+            ]
+          }
+        },
+        "const_5_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              440
+            ]
+          }
+        },
+        "const_6_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              443
+            ]
+          }
+        },
+        "const_7_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              468
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "input_request_cache_request": {
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionRequest<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "operation",
+                "width": 2,
+                "bits": [
+                  4,
+                  5
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13
+                ]
+              },
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  14,
+                  15
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "writeMask",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  25,
+                  26
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  27,
+                  28
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "input_request_valid": {
+          "bits": [
+            29
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "output_response_ready": {
+          "bits": [
+            30
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "output_eviction_ready": {
+          "bits": [
+            31
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "cache_tokenConflict": {
+          "bits": [
+            32
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "cache_request_ready": {
+          "bits": [
+            33
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "cache_response_cache_response": {
+          "bits": [
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionResponse<Logic, Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  34,
+                  35
+                ]
+              },
+              {
+                "name": "status",
+                "width": 2,
+                "bits": [
+                  36,
+                  37
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  48,
+                  49
+                ]
+              },
+              {
+                "name": "result",
+                "width": 2,
+                "bits": [
+                  50,
+                  51
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "cache_response_valid": {
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "cache_eviction_cache_eviction": {
+          "bits": [
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionEviction<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  53,
+                  54
+                ]
+              },
+              {
+                "name": "cause",
+                "width": 1,
+                "bits": [
+                  55
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  56,
+                  57,
+                  58,
+                  59,
+                  60,
+                  61,
+                  62,
+                  63
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  64,
+                  65,
+                  66,
+                  67,
+                  68,
+                  69,
+                  70,
+                  71
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  72,
+                  73
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  74,
+                  75
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "cache_eviction_valid": {
+          "bits": [
+            76
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "input_request_ready": {
+          "bits": [
+            77
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "output_response_cache_response": {
+          "bits": [
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionResponse<Logic, Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  78,
+                  79
+                ]
+              },
+              {
+                "name": "status",
+                "width": 2,
+                "bits": [
+                  80,
+                  81
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  82,
+                  83,
+                  84,
+                  85,
+                  86,
+                  87,
+                  88,
+                  89
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  90,
+                  91
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  92,
+                  93
+                ]
+              },
+              {
+                "name": "result",
+                "width": 2,
+                "bits": [
+                  94,
+                  95
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "output_response_valid": {
+          "bits": [
+            96
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "output_eviction_cache_eviction": {
+          "bits": [
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionEviction<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  97,
+                  98
+                ]
+              },
+              {
+                "name": "cause",
+                "width": 1,
+                "bits": [
+                  99
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  100,
+                  101,
+                  102,
+                  103,
+                  104,
+                  105,
+                  106,
+                  107
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  108,
+                  109,
+                  110,
+                  111,
+                  112,
+                  113,
+                  114,
+                  115
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  116,
+                  117
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  118,
+                  119
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "output_eviction_valid": {
+          "bits": [
+            120
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "cache_request_cache_request": {
+          "bits": [
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138,
+            139,
+            140,
+            141,
+            142,
+            143,
+            144,
+            145
+          ],
+          "logic_type": {
+            "typeName": "CacheTransactionRequest<Logic, Logic, Logic>",
+            "fields": [
+              {
+                "name": "operation",
+                "width": 2,
+                "bits": [
+                  121,
+                  122
+                ]
+              },
+              {
+                "name": "address",
+                "width": 8,
+                "bits": [
+                  123,
+                  124,
+                  125,
+                  126,
+                  127,
+                  128,
+                  129,
+                  130
+                ]
+              },
+              {
+                "name": "token",
+                "width": 2,
+                "bits": [
+                  131,
+                  132
+                ]
+              },
+              {
+                "name": "data",
+                "width": 8,
+                "bits": [
+                  133,
+                  134,
+                  135,
+                  136,
+                  137,
+                  138,
+                  139,
+                  140
+                ]
+              },
+              {
+                "name": "writeMask",
+                "width": 1,
+                "bits": [
+                  141
+                ]
+              },
+              {
+                "name": "lineMetadata",
+                "width": 2,
+                "bits": [
+                  142,
+                  143
+                ]
+              },
+              {
+                "name": "requestContext",
+                "width": 2,
+                "bits": [
+                  144,
+                  145
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "cache_request_valid": {
+          "bits": [
+            146
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "cache_response_ready": {
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "cache_eviction_ready": {
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "duplicateRequest": {
+          "bits": [
+            149
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "invalidResponse": {
+          "bits": [
+            150
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "invalidEviction": {
+          "bits": [
+            151
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "staged": {
+          "bits": [
+            152
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_in0__s": {
+          "bits": [
+            153
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__s": {
+          "bits": [
+            154
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_d0__s": {
+          "bits": [
+            155,
+            156
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_q": {
+          "bits": [
+            157,
+            158
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "cache_request_token": {
+          "bits": [
+            310,
+            311
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_operation": {
+          "bits": [
+            300,
+            301
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request": {
+          "bits": [
+            163,
+            164,
+            165,
+            166,
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179,
+            180,
+            181,
+            182,
+            183,
+            184,
+            185,
+            186,
+            187
+          ],
+          "logic_type": {
+            "width": 25
+          },
+          "attributes": {}
+        },
+        "staged_data": {
+          "bits": [
+            188,
+            189,
+            190,
+            191,
+            192,
+            193,
+            194,
+            195,
+            196,
+            197,
+            198,
+            199,
+            200,
+            201,
+            202,
+            203,
+            204,
+            205,
+            206,
+            207,
+            208,
+            209,
+            210,
+            211,
+            212
+          ],
+          "logic_type": {
+            "width": 25
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_operation_0": {
+          "bits": [
+            213,
+            214
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_address": {
+          "bits": [
+            215,
+            216,
+            217,
+            218,
+            219,
+            220,
+            221,
+            222
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_token_0": {
+          "bits": [
+            223,
+            224
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_data": {
+          "bits": [
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            232
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_writeMask": {
+          "bits": [
+            233
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_lineMetadata": {
+          "bits": [
+            234,
+            235
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_requestContext": {
+          "bits": [
+            236,
+            237
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_address_0": {
+          "bits": [
+            302,
+            303,
+            304,
+            305,
+            306,
+            307,
+            308,
+            309
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_data_0": {
+          "bits": [
+            312,
+            313,
+            314,
+            315,
+            316,
+            317,
+            318,
+            319
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_writeMask_0": {
+          "bits": [
+            320
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_lineMetadata_0": {
+          "bits": [
+            321,
+            322
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_requestContext_0": {
+          "bits": [
+            323,
+            324
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_token": {
+          "bits": [
+            325,
+            326
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_status": {
+          "bits": [
+            327,
+            328
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_data": {
+          "bits": [
+            329,
+            330,
+            331,
+            332,
+            333,
+            334,
+            335,
+            336
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_lineMetadata": {
+          "bits": [
+            337,
+            338
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_requestContext": {
+          "bits": [
+            339,
+            340
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_result": {
+          "bits": [
+            341,
+            342
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_token": {
+          "bits": [
+            343,
+            344
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_cause": {
+          "bits": [
+            345
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_address": {
+          "bits": [
+            346,
+            347,
+            348,
+            349,
+            350,
+            351,
+            352,
+            353
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_data": {
+          "bits": [
+            354,
+            355,
+            356,
+            357,
+            358,
+            359,
+            360,
+            361
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_lineMetadata": {
+          "bits": [
+            362,
+            363
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_requestContext": {
+          "bits": [
+            364,
+            365
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "input_request_cache_request_operation": {
+          "bits": [
+            300,
+            301
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "input_request_cache_request_address": {
+          "bits": [
+            302,
+            303,
+            304,
+            305,
+            306,
+            307,
+            308,
+            309
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "input_request_cache_request_token": {
+          "bits": [
+            310,
+            311
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "input_request_cache_request_data": {
+          "bits": [
+            312,
+            313,
+            314,
+            315,
+            316,
+            317,
+            318,
+            319
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "input_request_cache_request_writeMask": {
+          "bits": [
+            320
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "input_request_cache_request_lineMetadata": {
+          "bits": [
+            321,
+            322
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "input_request_cache_request_requestContext": {
+          "bits": [
+            323,
+            324
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_cache_response_token": {
+          "bits": [
+            325,
+            326
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_cache_response_status": {
+          "bits": [
+            327,
+            328
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_cache_response_data": {
+          "bits": [
+            329,
+            330,
+            331,
+            332,
+            333,
+            334,
+            335,
+            336
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_cache_response_lineMetadata": {
+          "bits": [
+            337,
+            338
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_cache_response_requestContext": {
+          "bits": [
+            339,
+            340
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_response_cache_response_result": {
+          "bits": [
+            341,
+            342
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_cache_eviction_token": {
+          "bits": [
+            343,
+            344
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_cache_eviction_cause": {
+          "bits": [
+            345
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_cache_eviction_address": {
+          "bits": [
+            346,
+            347,
+            348,
+            349,
+            350,
+            351,
+            352,
+            353
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_cache_eviction_data": {
+          "bits": [
+            354,
+            355,
+            356,
+            357,
+            358,
+            359,
+            360,
+            361
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_cache_eviction_lineMetadata": {
+          "bits": [
+            362,
+            363
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_eviction_cache_eviction_requestContext": {
+          "bits": [
+            364,
+            365
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_valid_and_ready": {
+          "bits": [
+            366
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_out": {
+          "bits": [
+            367
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_d": {
+          "bits": [
+            369
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_staged_b": {
+          "bits": [
+            370
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b": {
+          "bits": [
+            371
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_and__staged_b": {
+          "bits": [
+            372
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_b_or__s_b": {
+          "bits": [
+            373
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_and__staged_b_and__s_b_or__s_b": {
+          "bits": [
+            374
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token_or__s_and__s_equals_token_b": {
+          "bits": [
+            375
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token_or__s_and__s_equals_token_0": {
+          "bits": [
+            376
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token": {
+          "bits": [
+            377
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__s_and__s_equals_token": {
+          "bits": [
+            378
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_equals_token": {
+          "bits": [
+            379
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_b": {
+          "bits": [
+            380
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__s_b": {
+          "bits": [
+            381
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__s_equals_token": {
+          "bits": [
+            382
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_equals_token_0": {
+          "bits": [
+            383
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token_0": {
+          "bits": [
+            384
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__s_and__s_equals_token": {
+          "bits": [
+            385
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__s_and__s_equals_token_or__s_and__s_equals_token": {
+          "bits": [
+            386
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_and_valid": {
+          "bits": [
+            387
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__reset_b": {
+          "bits": [
+            388
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__valid_and_ready": {
+          "bits": [
+            389
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_valid_and_ready_and__s": {
+          "bits": [
+            390
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_equals_token_1": {
+          "bits": [
+            391
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_valid_and_ready_and__s_and__s_equals_token": {
+          "bits": [
+            392
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_d0__out": {
+          "bits": [
+            394
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_1_and__valid_and_ready_and__s_b": {
+          "bits": [
+            395
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_out_0": {
+          "bits": [
+            397
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_valid_and_ready_and__s_b": {
+          "bits": [
+            399
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_b_0": {
+          "bits": [
+            400
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_out_1": {
+          "bits": [
+            401,
+            402
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_out_2": {
+          "bits": [
+            403,
+            404,
+            405,
+            406,
+            407,
+            408,
+            409,
+            410,
+            411,
+            412,
+            413,
+            414,
+            415,
+            416,
+            417,
+            418,
+            419,
+            420,
+            421,
+            422,
+            423,
+            424,
+            425,
+            426,
+            427
+          ],
+          "logic_type": {
+            "width": 25
+          },
+          "attributes": {}
+        },
+        "_valid_and_ready_and__s_b_and__const_0_or__s_b_b": {
+          "bits": [
+            428
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_out_3": {
+          "bits": [
+            429,
+            430
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in0__valid_and_ready_and__s_b": {
+          "bits": [
+            431
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_or__s_b_b": {
+          "bits": [
+            432
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_b_1": {
+          "bits": [
+            433
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_or__s_b": {
+          "bits": [
+            434
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_b_2": {
+          "bits": [
+            436
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_out_4": {
+          "bits": [
+            439
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_out_5": {
+          "bits": [
+            441
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_control__valid_and_ready_and__s_and__s_equals_token": {
+          "bits": [
+            442
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__valid_and_ready_and__s": {
+          "bits": [
+            444
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_equals_token_2": {
+          "bits": [
+            445
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_equals_token_3": {
+          "bits": [
+            446
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_equals_token_4": {
+          "bits": [
+            447
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token_1": {
+          "bits": [
+            448
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token_2": {
+          "bits": [
+            449
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token_or__s_and__s_equals_token": {
+          "bits": [
+            450
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__reset_b_and_valid": {
+          "bits": [
+            451
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_0": {
+          "bits": [
+            452
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_1": {
+          "bits": [
+            453
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_and_valid_0": {
+          "bits": [
+            454
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__s_and__s_equals_token_or__s_and__s_equals_token_b": {
+          "bits": [
+            455
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_and_ready": {
+          "bits": [
+            456
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_2": {
+          "bits": [
+            457
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_equals_token_5": {
+          "bits": [
+            458
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__reset_b_and_ready": {
+          "bits": [
+            459
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_3": {
+          "bits": [
+            460
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_4": {
+          "bits": [
+            461
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_and_valid_1": {
+          "bits": [
+            462
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_s_and__s_equals_token_or__s_and__s_equals_token_b_0": {
+          "bits": [
+            463
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_and_valid_2": {
+          "bits": [
+            464
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_5": {
+          "bits": [
+            465
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_6": {
+          "bits": [
+            466
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_control__valid_and_ready": {
+          "bits": [
+            467
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "output_response_cache_response_token": {
+          "bits": [
+            325,
+            326
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_response_cache_response_status": {
+          "bits": [
+            327,
+            328
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_response_cache_response_data": {
+          "bits": [
+            329,
+            330,
+            331,
+            332,
+            333,
+            334,
+            335,
+            336
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_response_cache_response_lineMetadata": {
+          "bits": [
+            337,
+            338
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_response_cache_response_requestContext": {
+          "bits": [
+            339,
+            340
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_response_cache_response_result": {
+          "bits": [
+            341,
+            342
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_eviction_cache_eviction_token": {
+          "bits": [
+            343,
+            344
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_eviction_cache_eviction_cause": {
+          "bits": [
+            345
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_eviction_cache_eviction_address": {
+          "bits": [
+            346,
+            347,
+            348,
+            349,
+            350,
+            351,
+            352,
+            353
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_eviction_cache_eviction_data": {
+          "bits": [
+            354,
+            355,
+            356,
+            357,
+            358,
+            359,
+            360,
+            361
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_eviction_cache_eviction_lineMetadata": {
+          "bits": [
+            362,
+            363
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "output_eviction_cache_eviction_requestContext": {
+          "bits": [
+            364,
+            365
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_cache_request_operation": {
+          "bits": [
+            213,
+            214
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_cache_request_address": {
+          "bits": [
+            215,
+            216,
+            217,
+            218,
+            219,
+            220,
+            221,
+            222
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_cache_request_token": {
+          "bits": [
+            223,
+            224
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_cache_request_data": {
+          "bits": [
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            232
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_cache_request_writeMask": {
+          "bits": [
+            233
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_cache_request_lineMetadata": {
+          "bits": [
+            234,
+            235
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "cache_request_cache_request_requestContext": {
+          "bits": [
+            236,
+            237
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "const_0_1_h1": {
+          "bits": [
+            368
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_1_h0": {
+          "bits": [
+            393
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_1_h1": {
+          "bits": [
+            396
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h1": {
+          "bits": [
+            398
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_1_h0": {
+          "bits": [
+            435
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_1_h1": {
+          "bits": [
+            440
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_6_1_h0": {
+          "bits": [
+            443
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_7_1_h0": {
+          "bits": [
+            468
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    }
+  }
+}

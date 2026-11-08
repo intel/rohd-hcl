@@ -83,6 +83,9 @@ to configure this component.</p>
 Map&lt;String, ConfigKnob&lt;dynamic&gt;&gt; get knobs =&gt; {
       ...super.knobs,
       &#39;Reset Value&#39;: resetValueKnob,
+      &#39;Asynchronous Reset&#39;: asyncResetKnob,
+      &#39;Track Overflow&#39;: trackOverflowKnob,
+      &#39;Track Underflow&#39;: trackUnderflowKnob,
       &#39;Clock Gating&#39;: clockGatingKnob,
       if (clockGatingKnob.value) ...{
         &#39;Clock Gating Partition Index&#39;: clockGatingPartitionIndexKnob,

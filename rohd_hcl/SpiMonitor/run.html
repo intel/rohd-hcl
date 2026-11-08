@@ -60,7 +60,7 @@
     </ol>
   </div>
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
-<span class="name ">run</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="run-param-phase"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Phase-class.html">Phase</a></span> <span class="parameter-name">phase</span></span></li>
+<span class="name ">run</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="run-param-phase"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd_vf/0.7.0/rohd_vf/Phase-class.html">Phase</a></span> <span class="parameter-name">phase</span></span></li>
 </ol>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -92,12 +92,12 @@ Future&lt;void&gt; run(Phase phase) async {
 
     if (dataListWrite.length == intf.dataLength) {
       add(SpiPacket(
-          data: dataListWrite.swizzle(), direction: SpiDirection.main));
+          data: dataListWrite.concat(), direction: SpiDirection.main));
       dataListWrite.clear();
     }
     if (dataListRead.length == intf.dataLength) {
       add(SpiPacket(
-          data: dataListRead.swizzle(), direction: SpiDirection.sub));
+          data: dataListRead.concat(), direction: SpiDirection.sub));
       dataListRead.clear();
     }
   });

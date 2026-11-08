@@ -68,7 +68,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Sets the <a href="../../rohd_hcl/ConfigKnob/value.html">value</a> from a <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>.</p>
+  <p>Sets the <a href="../../rohd_hcl/IntConfigKnob/value.html">value</a> from a <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>.</p>
 </section>
 
 
@@ -76,8 +76,13 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-void setValueFromString(String valueString) =&gt;
-    value = int.tryParse(valueString) ?? value;</code></pre>
+void setValueFromString(String valueString) {
+  final parsed = int.tryParse(valueString.trim());
+  if (parsed == null) {
+    throw ArgumentError.value(valueString, &#39;valueString&#39;, &#39;Invalid integer.&#39;);
+  }
+  value = parsed;
+}</code></pre>
 </section>
 
 

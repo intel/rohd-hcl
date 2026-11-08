@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "KoggeStone": {
       "attributes": {
@@ -82,7 +82,7 @@
         "o0": {
           "direction": "output",
           "bits": [
-            28
+            43
           ],
           "logic_type": {
             "width": 1
@@ -91,7 +91,7 @@
         "o1": {
           "direction": "output",
           "bits": [
-            11
+            20
           ],
           "logic_type": {
             "width": 1
@@ -100,7 +100,7 @@
         "o2": {
           "direction": "output",
           "bits": [
-            12
+            33
           ],
           "logic_type": {
             "width": 1
@@ -109,7 +109,7 @@
         "o3": {
           "direction": "output",
           "bits": [
-            13
+            21
           ],
           "logic_type": {
             "width": 1
@@ -118,7 +118,7 @@
         "o4": {
           "direction": "output",
           "bits": [
-            14
+            39
           ],
           "logic_type": {
             "width": 1
@@ -127,7 +127,7 @@
         "o5": {
           "direction": "output",
           "bits": [
-            15
+            27
           ],
           "logic_type": {
             "width": 1
@@ -136,7 +136,7 @@
         "o6": {
           "direction": "output",
           "bits": [
-            16
+            34
           ],
           "logic_type": {
             "width": 1
@@ -145,7 +145,7 @@
         "o7": {
           "direction": "output",
           "bits": [
-            17
+            22
           ],
           "logic_type": {
             "width": 1
@@ -169,13 +169,13 @@
           },
           "connections": {
             "A": [
-              11
+              20
             ],
             "B": [
-              21
+              29
             ],
             "Y": [
-              13
+              21
             ]
           }
         },
@@ -195,13 +195,13 @@
           },
           "connections": {
             "A": [
-              13
+              21
             ],
             "B": [
-              18
+              24
             ],
             "Y": [
-              17
+              22
             ]
           }
         },
@@ -221,13 +221,13 @@
           },
           "connections": {
             "A": [
-              19
+              25
             ],
             "B": [
-              22
+              30
             ],
             "Y": [
-              18
+              24
             ]
           }
         },
@@ -247,13 +247,13 @@
           },
           "connections": {
             "A": [
-              21
+              29
             ],
             "B": [
-              19
+              25
             ],
             "Y": [
-              20
+              26
             ]
           }
         },
@@ -273,13 +273,13 @@
           },
           "connections": {
             "A": [
-              11
-            ],
-            "B": [
               20
             ],
+            "B": [
+              26
+            ],
             "Y": [
-              15
+              27
             ]
           }
         },
@@ -305,7 +305,7 @@
               5
             ],
             "Y": [
-              21
+              29
             ]
           }
         },
@@ -331,7 +331,7 @@
               7
             ],
             "Y": [
-              19
+              25
             ]
           }
         },
@@ -357,7 +357,7 @@
               9
             ],
             "Y": [
-              22
+              30
             ]
           }
         },
@@ -383,7 +383,7 @@
               3
             ],
             "Y": [
-              11
+              20
             ]
           }
         },
@@ -403,13 +403,13 @@
           },
           "connections": {
             "A": [
-              12
+              33
             ],
             "B": [
-              23
+              36
             ],
             "Y": [
-              16
+              34
             ]
           }
         },
@@ -429,13 +429,13 @@
           },
           "connections": {
             "A": [
-              24
+              37
             ],
             "B": [
-              27
+              42
             ],
             "Y": [
-              23
+              36
             ]
           }
         },
@@ -455,13 +455,13 @@
           },
           "connections": {
             "A": [
-              26
+              41
             ],
             "B": [
-              24
+              37
             ],
             "Y": [
-              25
+              38
             ]
           }
         },
@@ -484,10 +484,10 @@
               2
             ],
             "B": [
-              25
+              38
             ],
             "Y": [
-              14
+              39
             ]
           }
         },
@@ -510,10 +510,10 @@
               2
             ],
             "B": [
-              26
+              41
             ],
             "Y": [
-              12
+              33
             ]
           }
         },
@@ -539,7 +539,7 @@
               4
             ],
             "Y": [
-              26
+              41
             ]
           }
         },
@@ -565,7 +565,7 @@
               6
             ],
             "Y": [
-              24
+              37
             ]
           }
         },
@@ -591,7 +591,7 @@
               8
             ],
             "Y": [
-              27
+              42
             ]
           }
         },
@@ -611,7 +611,7 @@
               2
             ],
             "Y": [
-              28
+              43
             ]
           }
         }
@@ -691,7 +691,7 @@
         },
         "o0": {
           "bits": [
-            28
+            43
           ],
           "logic_type": {
             "width": 1
@@ -700,7 +700,7 @@
         },
         "o1": {
           "bits": [
-            11
+            20
           ],
           "logic_type": {
             "width": 1
@@ -709,7 +709,7 @@
         },
         "o2": {
           "bits": [
-            12
+            33
           ],
           "logic_type": {
             "width": 1
@@ -718,7 +718,7 @@
         },
         "o3": {
           "bits": [
-            13
+            21
           ],
           "logic_type": {
             "width": 1
@@ -727,7 +727,7 @@
         },
         "o4": {
           "bits": [
-            14
+            39
           ],
           "logic_type": {
             "width": 1
@@ -736,7 +736,7 @@
         },
         "o5": {
           "bits": [
-            15
+            27
           ],
           "logic_type": {
             "width": 1
@@ -745,7 +745,7 @@
         },
         "o6": {
           "bits": [
-            16
+            34
           ],
           "logic_type": {
             "width": 1
@@ -754,51 +754,6 @@
         },
         "o7": {
           "bits": [
-            17
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "ks_skip2_i7": {
-          "bits": [
-            18
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "ks_skip1_i5": {
-          "bits": [
-            19
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "ks_skip2_i5": {
-          "bits": [
-            20
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "ks_skip1_i3": {
-          "bits": [
-            21
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "ks_skip1_i7": {
-          "bits": [
             22
           ],
           "logic_type": {
@@ -806,50 +761,280 @@
           },
           "attributes": {}
         },
-        "ks_skip2_i6": {
+        "o_0": {
           "bits": [
-            23
+            2
           ],
           "logic_type": {
             "width": 1
           },
-          "attributes": {}
+          "attributes": {
+            "preserved_name": 1
+          }
         },
-        "ks_skip1_i4": {
+        "o_1": {
+          "bits": [
+            20
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip1_i1": {
+          "bits": [
+            20
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip2_i3": {
+          "bits": [
+            21
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip4_i7": {
+          "bits": [
+            22
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "o_7": {
+          "bits": [
+            22
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip2_i7": {
           "bits": [
             24
           ],
           "logic_type": {
             "width": 1
           },
-          "attributes": {}
+          "attributes": {
+            "preserved_name": 1
+          }
         },
-        "ks_skip2_i4": {
+        "ks_skip1_i5": {
           "bits": [
             25
           ],
           "logic_type": {
             "width": 1
           },
-          "attributes": {}
+          "attributes": {
+            "preserved_name": 1
+          }
         },
-        "ks_skip1_i2": {
+        "ks_skip2_i5": {
           "bits": [
             26
           ],
           "logic_type": {
             "width": 1
           },
-          "attributes": {}
+          "attributes": {
+            "preserved_name": 1
+          }
         },
-        "ks_skip1_i6": {
+        "ks_skip4_i5": {
           "bits": [
             27
           ],
           "logic_type": {
             "width": 1
           },
-          "attributes": {}
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "o_5": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip1_i3": {
+          "bits": [
+            29
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip1_i7": {
+          "bits": [
+            30
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "o_3": {
+          "bits": [
+            21
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "o_2": {
+          "bits": [
+            33
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip2_i2": {
+          "bits": [
+            33
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip4_i6": {
+          "bits": [
+            34
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "o_6": {
+          "bits": [
+            34
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip2_i6": {
+          "bits": [
+            36
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip1_i4": {
+          "bits": [
+            37
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip2_i4": {
+          "bits": [
+            38
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip4_i4": {
+          "bits": [
+            39
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "o_4": {
+          "bits": [
+            39
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip1_i2": {
+          "bits": [
+            41
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "ks_skip1_i6": {
+          "bits": [
+            42
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
         }
       }
     },
@@ -893,68 +1078,6 @@
         }
       },
       "cells": {
-        "swizzle": {
-          "hide_name": 0,
-          "type": "$concat",
-          "parameters": {
-            "IN0_WIDTH": 1,
-            "IN1_WIDTH": 1,
-            "IN2_WIDTH": 1,
-            "IN3_WIDTH": 1,
-            "IN4_WIDTH": 1,
-            "IN5_WIDTH": 1,
-            "IN6_WIDTH": 1,
-            "IN7_WIDTH": 1
-          },
-          "attributes": {},
-          "port_directions": {
-            "[0]": "input",
-            "[1]": "input",
-            "[2]": "input",
-            "[3]": "input",
-            "[4]": "input",
-            "[5]": "input",
-            "[6]": "input",
-            "[7]": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "[0]": [
-              18
-            ],
-            "[1]": [
-              19
-            ],
-            "[2]": [
-              20
-            ],
-            "[3]": [
-              21
-            ],
-            "[4]": [
-              22
-            ],
-            "[5]": [
-              23
-            ],
-            "[6]": [
-              24
-            ],
-            "[7]": [
-              25
-            ],
-            "Y": [
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17
-            ]
-          }
-        },
         "kogge_stone": {
           "hide_name": 0,
           "type": "KoggeStone",
@@ -980,52 +1103,52 @@
           },
           "connections": {
             "i0": [
-              26
-            ],
-            "i1": [
-              27
-            ],
-            "i2": [
-              28
-            ],
-            "i3": [
-              29
-            ],
-            "i4": [
-              30
-            ],
-            "i5": [
-              31
-            ],
-            "i6": [
-              32
-            ],
-            "i7": [
-              33
-            ],
-            "o0": [
               18
             ],
-            "o1": [
+            "i1": [
               19
             ],
-            "o2": [
+            "i2": [
               20
             ],
-            "o3": [
+            "i3": [
               21
             ],
-            "o4": [
+            "i4": [
               22
             ],
-            "o5": [
+            "i5": [
               23
             ],
-            "o6": [
+            "i6": [
               24
             ],
-            "o7": [
+            "i7": [
               25
+            ],
+            "o0": [
+              10
+            ],
+            "o1": [
+              11
+            ],
+            "o2": [
+              12
+            ],
+            "o3": [
+              13
+            ],
+            "o4": [
+              14
+            ],
+            "o5": [
+              15
+            ],
+            "o6": [
+              16
+            ],
+            "o7": [
+              17
             ]
           }
         },
@@ -1054,7 +1177,7 @@
               9
             ],
             "Y": [
-              26
+              18
             ]
           }
         },
@@ -1083,7 +1206,7 @@
               9
             ],
             "Y": [
-              27
+              19
             ]
           }
         },
@@ -1112,7 +1235,7 @@
               9
             ],
             "Y": [
-              28
+              20
             ]
           }
         },
@@ -1141,7 +1264,7 @@
               9
             ],
             "Y": [
-              29
+              21
             ]
           }
         },
@@ -1170,7 +1293,7 @@
               9
             ],
             "Y": [
-              30
+              22
             ]
           }
         },
@@ -1199,7 +1322,7 @@
               9
             ],
             "Y": [
-              31
+              23
             ]
           }
         },
@@ -1228,7 +1351,7 @@
               9
             ],
             "Y": [
-              32
+              24
             ]
           }
         },
@@ -1257,7 +1380,7 @@
               9
             ],
             "Y": [
-              33
+              25
             ]
           }
         }
@@ -1295,7 +1418,7 @@
           },
           "attributes": {}
         },
-        "o0": {
+        "i0": {
           "bits": [
             18
           ],
@@ -1304,7 +1427,7 @@
           },
           "attributes": {}
         },
-        "o1": {
+        "i1": {
           "bits": [
             19
           ],
@@ -1313,7 +1436,7 @@
           },
           "attributes": {}
         },
-        "o2": {
+        "i2": {
           "bits": [
             20
           ],
@@ -1322,7 +1445,7 @@
           },
           "attributes": {}
         },
-        "o3": {
+        "i3": {
           "bits": [
             21
           ],
@@ -1331,7 +1454,7 @@
           },
           "attributes": {}
         },
-        "o4": {
+        "i4": {
           "bits": [
             22
           ],
@@ -1340,7 +1463,7 @@
           },
           "attributes": {}
         },
-        "o5": {
+        "i5": {
           "bits": [
             23
           ],
@@ -1349,7 +1472,7 @@
           },
           "attributes": {}
         },
-        "o6": {
+        "i6": {
           "bits": [
             24
           ],
@@ -1358,81 +1481,9 @@
           },
           "attributes": {}
         },
-        "o7": {
-          "bits": [
-            25
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "i0": {
-          "bits": [
-            26
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "i1": {
-          "bits": [
-            27
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "i2": {
-          "bits": [
-            28
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "i3": {
-          "bits": [
-            29
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "i4": {
-          "bits": [
-            30
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "i5": {
-          "bits": [
-            31
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "i6": {
-          "bits": [
-            32
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "i7": {
           "bits": [
-            33
+            25
           ],
           "logic_type": {
             "width": 1

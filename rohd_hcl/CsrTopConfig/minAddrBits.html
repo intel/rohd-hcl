@@ -79,9 +79,10 @@ address plus its effective size).</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 int minAddrBits() {
-  var maxAddr = 0;
+  var maxAddr = BigInt.zero;
   for (final block in blocks) {
-    final highestBlockAddr = block.baseAddr + blockSizeForBlock(block) - 1;
+    final highestBlockAddr =
+        block.baseAddr + blockSizeForBlock(block) - BigInt.one;
     if (highestBlockAddr &gt; maxAddr) {
       maxAddr = highestBlockAddr;
     }

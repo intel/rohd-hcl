@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/RegisterFile-class.html">RegisterFile</a></li>
+    <li><a href="../../rohd_hcl/RegisterFile-class.html">RegisterFile<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">setData method</li>
   </ol>
   <div class="self-name">setData</div>
@@ -55,8 +55,8 @@
     <section class="multi-line-signature">
       
 <span class="returntype">void</span>
-<span class="name ">setData</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="setData-param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span></li>
-<li><span class="parameter" id="setData-param-value"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">value</span></span></li>
+<span class="name ">setData</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="setData-param-addr"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">addr</span>, </span></li>
+<li><span class="parameter" id="setData-param-value"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">value</span></span></li>
 </ol>)
 
       
@@ -72,7 +72,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void setData(LogicValue addr, LogicValue value) {
-  _storageBank[addr.toInt()].put(value);
+  _storageBank.at([_index(addr)]).put(normalizeStoredValue(value));
 }</code></pre>
 </section>
 
@@ -88,7 +88,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/RegisterFile-class.html">RegisterFile</a></li>
+    <li><a href="../../rohd_hcl/RegisterFile-class.html">RegisterFile<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">setData method</li>
 </ol>
 

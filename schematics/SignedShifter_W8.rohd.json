@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "SignedShifter_W8": {
       "attributes": {
@@ -69,19 +69,9 @@
           },
           "connections": {
             "S": [
-              22
-            ],
-            "A": [
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
               30
             ],
-            "B": [
+            "A": [
               31,
               32,
               33,
@@ -90,6 +80,16 @@
               36,
               37,
               38
+            ],
+            "B": [
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46
             ],
             "Y": [
               14,
@@ -124,7 +124,7 @@
               13
             ],
             "Y": [
-              22
+              30
             ]
           }
         },
@@ -162,14 +162,14 @@
               13
             ],
             "Y": [
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38
             ]
           }
         },
@@ -201,20 +201,20 @@
               9
             ],
             "B": [
+              22,
+              23,
+              24,
+              25
+            ],
+            "Y": [
               39,
               40,
               41,
-              42
-            ],
-            "Y": [
-              31,
-              32,
-              33,
-              34,
-              35,
-              36,
-              37,
-              38
+              42,
+              43,
+              44,
+              45,
+              46
             ]
           }
         },
@@ -233,7 +233,7 @@
           },
           "connections": {
             "S": [
-              43
+              47
             ],
             "A": [
               10,
@@ -242,16 +242,16 @@
               13
             ],
             "B": [
-              44,
-              45,
-              46,
-              47
+              26,
+              27,
+              28,
+              29
             ],
             "Y": [
-              39,
-              40,
-              41,
-              42
+              22,
+              23,
+              24,
+              25
             ]
           }
         },
@@ -276,7 +276,7 @@
               13
             ],
             "Y": [
-              43
+              47
             ]
           }
         },
@@ -308,10 +308,10 @@
               55
             ],
             "Y": [
-              44,
-              45,
-              46,
-              47,
+              26,
+              27,
+              28,
+              29,
               56
             ]
           }
@@ -406,32 +406,44 @@
           },
           "attributes": {}
         },
-        "_control__subset_3_3_shift": {
+        "shift_absolute": {
           "bits": [
-            22
+            22,
+            23,
+            24,
+            25
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "shift_twosComplement": {
+          "bits": [
+            26,
+            27,
+            28,
+            29
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_subset_3_3_shift": {
+          "bits": [
+            30
           ],
           "logic_type": {
             "width": 1
           },
           "attributes": {}
         },
-        "_d0__bits_lshift_shift": {
-          "bits": [
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30
-          ],
-          "logic_type": {
-            "width": 8
-          },
-          "attributes": {}
-        },
-        "_d1__bits_rshift__out": {
+        "_bits_lshift_shift": {
           "bits": [
             31,
             32,
@@ -447,40 +459,32 @@
           },
           "attributes": {}
         },
-        "_shiftAmount__out": {
+        "_bits_rshift_shift_absolute": {
           "bits": [
             39,
             40,
             41,
-            42
+            42,
+            43,
+            44,
+            45,
+            46
           ],
           "logic_type": {
-            "width": 4
+            "width": 8
           },
           "attributes": {}
         },
-        "_subset_3_3_shift": {
+        "_control__subset_3_3_shift": {
           "bits": [
-            43
+            47
           ],
           "logic_type": {
             "width": 1
           },
           "attributes": {}
         },
-        "_d1__shift_b_add_const_1": {
-          "bits": [
-            44,
-            45,
-            46,
-            47
-          ],
-          "logic_type": {
-            "width": 4
-          },
-          "attributes": {}
-        },
-        "_in0__shift_b": {
+        "_shift_b": {
           "bits": [
             48,
             49,

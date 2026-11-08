@@ -68,8 +68,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Connects the <code>source</code> to this <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> using <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Interface/connectIO.html">Interface.connectIO</a> and
-returns a copy of the <code>source</code> that can be used within this module.</p>
+  <p>Registers <code>source</code> on this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns its internal clone.</p>
 </section>
 
 
@@ -82,12 +81,14 @@ returns a copy of the <code>source</code> that can be used within this module.</
         Iterable&lt;TagType&gt;? outputTags,
         Iterable&lt;TagType&gt;? inOutTags,
         String Function(String original)? uniquify}) =&gt;
-    (source.clone() as InterfaceType)
-      ..connectIO(this, source,
-          inputTags: inputTags,
-          outputTags: outputTags,
-          inOutTags: inOutTags,
-          uniquify: uniquify);</code></pre>
+    addInterfaceFrom(
+      source.clone() as InterfaceType,
+      source,
+      inputTags: inputTags,
+      outputTags: outputTags,
+      inOutTags: inOutTags,
+      uniquify: uniquify,
+    );</code></pre>
 </section>
 
 

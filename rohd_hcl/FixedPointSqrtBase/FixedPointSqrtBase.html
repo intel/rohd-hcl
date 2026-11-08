@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FixedPointSqrtBase-class.html">FixedPointSqrtBase</a></li>
+    <li><a href="../../rohd_hcl/FixedPointSqrtBase-class.html">FixedPointSqrtBase<span class="signature">&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FixedPointSqrtBase.new constructor</li>
   </ol>
   <div class="self-name">FixedPointSqrtBase.new</div>
@@ -49,12 +49,12 @@
       data-above-sidebar="rohd_hcl&#47;FixedPointSqrtBase-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">FixedPointSqrtBase</span> constructor 
+<h1><span class="kind-constructor">FixedPointSqrtBase&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">FixedPointSqrtBase</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> <span class="parameter-name">a</span>, {</span></li>
+      <span class="name ">FixedPointSqrtBase&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation">T</span> <span class="parameter-name">a</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fixed_point_square_root&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -70,7 +70,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FixedPointSqrtBase(FixedPoint a,
+  <pre class="language-dart"><code class="language-dart">FixedPointSqrtBase(T a,
     {super.name = &#39;fixed_point_square_root&#39;,
     super.reserveName,
     super.reserveDefinitionName,
@@ -81,7 +81,7 @@
               definitionName ?? &#39;FixedPointSquareRoot${a.width}&#39;) {
   this.a = addTypedInput(&#39;a&#39;, a);
 
-  sqrt = addTypedOutput(&#39;sqrt&#39;, a.clone);
+  sqrt = addTypedOutput(&#39;sqrt&#39;, a.cloneTyped);
 }</code></pre>
 </section>
 
@@ -97,7 +97,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FixedPointSqrtBase-class.html">FixedPointSqrtBase</a></li>
+    <li><a href="../../rohd_hcl/FixedPointSqrtBase-class.html">FixedPointSqrtBase<span class="signature">&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FixedPointSqrtBase.new constructor</li>
 </ol>
 

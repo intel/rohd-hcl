@@ -80,10 +80,6 @@ for folding in the final carry.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void signExtend() {
-  if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
-    throw RohdHclException(&#39;multiplicand sign reconfiguration requires &#39;
-        &#39;signedMultiplicand=false&#39;);
-  }
   if (isSignExtended) {
     throw RohdHclException(&#39;Partial Product array already sign-extended&#39;);
   }
@@ -107,12 +103,7 @@ void signExtend() {
 
   for (var row = 0; row &lt; rows; row++) {
     final addend = partialProducts[row];
-    final Logic sign;
-    if (selectSignedMultiplicand != null) {
-      sign = mux(selectSignedMultiplicand!, addend.last, signs[row]);
-    } else {
-      sign = signedMultiplicand ? addend.last : signs[row];
-    }
+    final sign = signedMultiplicandControl.select(addend.last, signs[row]);
     if (row == 0) {
       if (!signedMultiplicand) {
         addend.addAll(List.filled(shift, SignBit(sign)));
@@ -138,7 +129,7 @@ void signExtend() {
           finalCarryPos - (extensionRow.length + rowShift[finalCarryRow]),
           Const(0)))
       ..add(SignBit(signs[rows - 1]));
-  } else if (signedMultiplier | (selectSignedMultiplier != null)) {
+  } else if (signedMultiplier || ppg.signedMultiplierControl.isRuntime) {
     &#47;&#47; Create an extra row to hold the final carry bit
     partialProducts
         .add(List.filled(selector.width, Const(0), growable: true));

@@ -160,7 +160,7 @@ The range is interpreted as follows:</p>
       SignMagnitudeValue.populator(width: integerWidth + fractionWidth)
           .random(rv, gt: tgt, gte: tgte, lt: tlt, lte: tlte);
   final newValue =
-      signed ? [smv.sign, smv.magnitude].swizzle() : smv.magnitude;
+      signed ? [smv.sign, smv.magnitude].concat() : smv.magnitude;
   return ofLogicValue(newValue);
 }</code></pre>
 </section>

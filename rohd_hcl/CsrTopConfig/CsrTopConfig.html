@@ -71,10 +71,11 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CsrTopConfig({
   required super.name,
-  required this.blockSize,
+  required int blockSize,
   required List&lt;CsrBlockConfig&gt; blocks,
   bool asyncReset = false,
-})  : _asyncReset = asyncReset,
+})  : blockSize = BigInt.from(blockSize),
+      _asyncReset = asyncReset,
       blocks = List.unmodifiable(blocks) {
   _validate();
 }</code></pre>

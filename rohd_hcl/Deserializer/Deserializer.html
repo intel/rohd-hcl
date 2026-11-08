@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/Deserializer-class.html">Deserializer</a></li>
+    <li><a href="../../rohd_hcl/Deserializer-class.html">Deserializer<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">Deserializer.new constructor</li>
   </ol>
   <div class="self-name">Deserializer.new</div>
@@ -49,17 +49,18 @@
       data-above-sidebar="rohd_hcl&#47;Deserializer-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">Deserializer</span> constructor 
+<h1><span class="kind-constructor">Deserializer&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">Deserializer</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-serialized"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">serialized</span>, </span></li>
+      <span class="name ">Deserializer&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-serialized"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">serialized</span>, </span></li>
 <li><span class="parameter" id="param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span>, {</span></li>
-<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="param-last"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">last</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-valueCodec"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValueCodec-class.html">LogicValueCodec</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">valueCodec</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-last"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">last</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;deserializer&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -71,8 +72,12 @@
   <p>Build a <a href="../../rohd_hcl/Deserializer-class.html">Deserializer</a> that takes serialized input <code>serialized</code>
 and aggregates it into one wide output <a href="../../rohd_hcl/Deserializer/deserialized.html">deserialized</a> of length <code>length</code>.</p>
 <p>Updates one element per clock while <code>enable</code> (if connected) is high,
-emitting <a href="../../rohd_hcl/Deserializer/done.html">done</a> when completing the filling of wide output <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicArray-class.html">LogicArray</a>
-<a href="../../rohd_hcl/Deserializer/deserialized.html">deserialized</a>.</p>
+emitting <a href="../../rohd_hcl/Deserializer/done.html">done</a> when completing the filling of wide output
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/TypedLogicArray-class.html">TypedLogicArray</a> <a href="../../rohd_hcl/Deserializer/deserialized.html">deserialized</a>.</p>
+<p>A <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/TypedLogicArray-class.html">TypedLogicArray&lt;T, V&gt;</a> input gains an outer dimension of <code>length</code>.
+A scalar or structured <code>T</code> input produces a one-dimensional array.
+<code>valueCodec</code> describes the semantic value of each leaf <code>T</code>, not a whole
+array slice. Use <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValueCodec/logicValue-constant.html">LogicValueCodec.logicValue</a> for packed values.</p>
 <p>If <code>last</code> is connected, it is used as a potential early indicator for
 completion of the deserialization.</p>
 </section>
@@ -84,6 +89,7 @@ completion of the deserialization.</p>
   <pre class="language-dart"><code class="language-dart">Deserializer(Logic serialized, this.length,
     {required Logic clk,
     required Logic reset,
+    required LogicValueCodec&lt;V&gt; valueCodec,
     Logic? enable,
     Logic? last,
     super.name = &#39;deserializer&#39;,
@@ -93,6 +99,9 @@ completion of the deserialization.</p>
     : super(
           definitionName: definitionName ??
               &#39;Deserializer_W${serialized.width}_L$length&#39;) {
+  if (length &lt;= 0) {
+    throw ArgumentError.value(length, &#39;length&#39;, &#39;Must be positive.&#39;);
+  }
   clk = addInput(&#39;clk&#39;, clk);
   reset = addInput(&#39;reset&#39;, reset);
   if (enable != null) {
@@ -104,35 +113,58 @@ completion of the deserialization.</p>
     floppedLast = Logic(name: &#39;floppedLast&#39;)
       ..gets(flop(clk, reset: reset, en: (enable ?? Const(1)), last));
   }
-  serialized = (serialized is LogicArray)
-      ? addInputArray(&#39;serialized&#39;, serialized,
-          dimensions: serialized.dimensions,
-          elementWidth: serialized.elementWidth)
-      : addInput(&#39;serialized&#39;, serialized, width: serialized.width);
+  serialized = addTypedInput(&#39;serialized&#39;, serialized);
+  final List&lt;int&gt; dimensions;
+  final int numUnpackedDimensions;
+  final T prototype;
+  if (serialized is TypedLogicArray&lt;T, V&gt;) {
+    if (serialized.dimensions.any((dimension) =&gt; dimension &lt;= 0)) {
+      throw ArgumentError.value(serialized.dimensions, &#39;serialized&#39;,
+          &#39;Deserialization requires non-empty dimensions.&#39;);
+    }
+    dimensions = [length, ...serialized.dimensions];
+    numUnpackedDimensions = serialized.numUnpackedDimensions == 0
+        ? 0
+        : serialized.numUnpackedDimensions + 1;
+    prototype = serialized.arrayElements.first;
+  } else if (serialized is T &amp;&amp; serialized is! TypedLogicArray) {
+    dimensions = [length];
+    numUnpackedDimensions = 0;
+    prototype = serialized;
+  } else {
+    throw ArgumentError.value(serialized, &#39;serialized&#39;,
+        &#39;Expected a $T or TypedLogicArray&lt;$T, $V&gt;.&#39;);
+  }
   final cnt = Counter.simple(
       clk: clk,
       reset: reset,
       enable: enable,
       maxValue: length - 1,
       restart: (last ?? Const(0)) &amp; (enable ?? Const(1)));
+  final overflowed = cnt.overflowed;
+  if (overflowed == null) {
+    throw StateError(&#39;Deserializer requires Counter overflow tracking.&#39;);
+  }
   addOutput(&#39;count&#39;, width: cnt.width) &lt;= cnt.count;
   addOutput(&#39;done&#39;) &lt;=
-      cnt.overflowed | ((floppedLast ?? Const(0)) &amp; (enable ?? Const(1)));
-  addOutputArray(&#39;deserialized&#39;,
-          dimensions: (serialized is LogicArray)
-              ? ([length, ...serialized.dimensions])
-              : [length],
-          elementWidth: (serialized is LogicArray)
-              ? serialized.elementWidth
-              : serialized.width)
-      .elements
-      .forEachIndexed((i, d) =&gt;
-          d &lt;=
-          flop(
-              clk,
-              reset: reset,
-              en: (enable ?? Const(1)) &amp; count.eq(i),
-              serialized));
+      overflowed | ((floppedLast ?? Const(0)) &amp; (enable ?? Const(1)));
+  deserialized = addTypedOutput(
+      &#39;deserialized&#39;,
+      ({name = &#39;deserialized&#39;}) =&gt; TypedLogicArray&lt;T, V&gt;(
+            dimensions,
+            prototype.cloneTyped,
+            valueCodec: valueCodec,
+            name: name,
+            numUnpackedDimensions: numUnpackedDimensions,
+          ));
+  deserialized.elements.forEachIndexed((i, d) =&gt;
+      d &lt;=
+      flop(
+          clk,
+          reset: reset,
+          en: (enable ?? Const(1)) &amp; count.eq(i),
+          serialized,
+          outputGenerator: serialized.clone));
 }</code></pre>
 </section>
 
@@ -148,7 +180,7 @@ completion of the deserialization.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Deserializer-class.html">Deserializer</a></li>
+    <li><a href="../../rohd_hcl/Deserializer-class.html">Deserializer<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">Deserializer.new constructor</li>
 </ol>
 

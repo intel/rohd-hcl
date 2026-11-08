@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Cache.new constructor from Class Cache from the rohd_hcl library, for the Dart programming language.">
+  <title>Cache.new constructor - Cache - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/Cache-class.html">Cache<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">Cache.new constructor</li>
+  </ol>
+  <div class="self-name">Cache.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;Cache-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">Cache&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">Cache&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-lookup"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CacheLookupPort-class.html">CacheLookupPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">lookup</span>, </span></li>
+<li><span class="parameter" id="param-fill"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CacheFillPort-class.html">CacheFillPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">fill</span>, </span></li>
+<li><span class="parameter" id="param-setCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">setCount</span>, </span></li>
+<li><span class="parameter" id="param-waysPerSet"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">waysPerSet</span>, </span></li>
+<li><span class="parameter" id="param-replacement"><span class="type-annotation"><a href="../../rohd_hcl/CacheReplacement-class.html">CacheReplacement</a></span> <span class="parameter-name">replacement</span> = <span class="default-value">CacheReplacement.roundRobin</span>, </span></li>
+<li><span class="parameter" id="param-dataStorage"><span class="type-annotation"><a href="../../rohd_hcl/CacheDataStorage.html">CacheDataStorage</a></span> <span class="parameter-name">dataStorage</span> = <span class="default-value">CacheDataStorage.registerFile</span>, </span></li>
+<li><span class="parameter" id="param-dataMemory"><span class="type-annotation"><a href="../../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span> <span class="parameter-name">dataMemory</span>, </span></li>
+<li><span class="parameter" id="param-readDuringFill"><span class="type-annotation"><a href="../../rohd_hcl/CacheReadDuringFill.html">CacheReadDuringFill</a></span> <span class="parameter-name">readDuringFill</span> = <span class="default-value">CacheReadDuringFill.oldData</span>, </span></li>
+<li><span class="parameter" id="param-tagMemory"><span class="type-annotation"><a href="../../rohd_hcl/AssociativeMemoryFunctor-class.html">AssociativeMemoryFunctor</a></span> <span class="parameter-name">tagMemory</span> = <span class="default-value">parallelAssociativeMemoryFunctor</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;cache&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a cache with an explicit number of sets and ways.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Cache({
+  required Logic clk,
+  required Logic reset,
+  required CacheLookupPort&lt;T&gt; lookup,
+  required CacheFillPort&lt;T&gt; fill,
+  required this.setCount,
+  required this.waysPerSet,
+  this.replacement = CacheReplacement.roundRobin,
+  this.dataStorage = CacheDataStorage.registerFile,
+  MemoryArrayFunctor&lt;T&gt;? dataMemory,
+  this.readDuringFill = CacheReadDuringFill.oldData,
+  AssociativeMemoryFunctor tagMemory = parallelAssociativeMemoryFunctor,
+  super.name = &#39;cache&#39;,
+}) : super(
+        definitionName: &#39;Cache_S${setCount}_W${waysPerSet}_&#39;
+            &#39;A${fill.address.width}_${payloadShapeIdentity(fill.data)}_&#39;
+            &#39;${replacement.identity}_&#39;
+            &#39;${dataMemory?.identity ?? dataStorage.name}_&#39;
+            &#39;${readDuringFill.name}_&#39;
+            &#39;${tagMemory.identity}&#39;,
+      ) {
+  if (setCount &lt; 1 || (setCount &amp; (setCount - 1)) != 0) {
+    throw ArgumentError.value(setCount, &#39;setCount&#39;, &#39;Must be a power of 2.&#39;);
+  }
+
+  if (waysPerSet &lt; 1) {
+    throw ArgumentError.value(waysPerSet, &#39;waysPerSet&#39;, &#39;Must be positive.&#39;);
+  }
+  final setBits = (setCount - 1).bitLength;
+  if (fill.address.width &lt; max(1, setBits) ||
+      lookup.address.width != fill.address.width) {
+    throw ArgumentError(
+        &#39;Cache address widths must match and address all sets.&#39;);
+  }
+  if (clk.width != 1 || reset.width != 1) {
+    throw ArgumentError(&#39;Clock and reset must be bits.&#39;);
+  }
+  if (!sameDeclaredPayloadShape(fill.data, lookup.data)) {
+    throw ArgumentError(&#39;Cache port payload shapes must match.&#39;);
+  }
+
+  final fillAddress = fill.address;
+  final fillData = fill.data;
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final localLookup = addInterfacePorts(lookup,
+      inputTags: [PairDirection.fromProvider],
+      outputTags: [PairDirection.fromConsumer],
+      uniquify: (signal) =&gt; &#39;lookup_$signal&#39;);
+  final localFill = addInterfacePorts(fill,
+      inputTags: [PairDirection.fromProvider],
+      outputTags: [PairDirection.fromConsumer],
+      uniquify: _cacheFillSignalName);
+  final localLookupValid = localLookup.valid;
+  final localLookupAddress = localLookup.address;
+  final localFillValid = localFill.valid;
+  final localFillAddress = localFill.address;
+  final localFillData = localFill.data;
+  final localEvictionReady = localFill.evictionReady;
+  final localLookupReady = localLookup.ready;
+
+  final fillAccepted = Logic(name: &#39;fill_accepted&#39;);
+  final lookupHits = &lt;Logic&gt;[];
+  final lookupDataBySet = &lt;Logic&gt;[];
+  final readyBySet = &lt;Logic&gt;[];
+  final evictBySet = &lt;Logic&gt;[];
+  final evictAddressBySet = &lt;Logic&gt;[];
+  final evictDataBySet = &lt;Logic&gt;[];
+  final evictionDemandBySet = &lt;Logic&gt;[];
+  final wayWidth = max(1, (waysPerSet - 1).bitLength);
+
+  Logic selects(Logic address, int set) =&gt; setBits == 0
+      ? Const(1)
+      : storedIndexMatches(address.getRange(0, setBits), set);
+
+  for (var set = 0; set &lt; setCount; set++) {
+    final lookupSelected = selects(localLookupAddress, set);
+    final fillSelected = selects(localFillAddress, set);
+    final update = AssociativeUpdatePortInterface(
+        keyWidth: fillAddress.width, indexWidth: wayWidth);
+    final lookup = AssociativeLookupPortInterface(
+        keyWidth: fillAddress.width, indexWidth: wayWidth);
+    final fillLookup = AssociativeLookupPortInterface(
+        keyWidth: fillAddress.width, indexWidth: wayWidth);
+    final sideRead = AssociativeIndexedSideReadRequest(indexWidth: wayWidth);
+    final lookupAccess = ReplacementAccessInterface(waysPerSet);
+    final fillAccess = ReplacementAccessInterface(waysPerSet);
+    final allocation = ReplacementAllocationInterface(waysPerSet);
+    final dataWrite = DataPortInterface&lt;T&gt;.typed(localFillData, wayWidth);
+    final dataLookup = DataPortInterface&lt;T&gt;.typed(localFillData, wayWidth);
+    final dataEviction = DataPortInterface&lt;T&gt;.typed(localFillData, wayWidth);
+
+    lookup.en &lt;= localLookupReady &amp; localLookupValid &amp; lookupSelected;
+    lookup.key &lt;= localLookupAddress;
+    fillLookup.en &lt;= localFillValid &amp; ~localReset &amp; fillSelected;
+    fillLookup.key &lt;= localFillAddress;
+    allocation.en &lt;= fillLookup.en &amp; ~fillLookup.hit;
+    allocation.commit &lt;= fillAccepted &amp; fillSelected &amp; ~fillLookup.hit;
+    lookupAccess.en &lt;= lookup.hit;
+    lookupAccess.index &lt;= lookup.index;
+    fillAccess.en &lt;= fillLookup.hit;
+    fillAccess.index &lt;= fillLookup.index;
+    final selectedWay =
+        mux(fillLookup.hit, fillLookup.index, allocation.index);
+    update.en &lt;= fillAccepted &amp; fillSelected;
+    update.index &lt;= selectedWay;
+    update.key &lt;= localFillAddress;
+    update.entryValid &lt;= Const(1);
+    sideRead.index &lt;= allocation.index;
+
+    final binding = tagMemory(
+      clk: localClk,
+      reset: localReset,
+      updatePorts: [update],
+      lookupPorts: [lookup, fillLookup],
+      entryCount: waysPerSet,
+      sideReadRequest: sideRead,
+      requiresValidityMask: true,
+      lookupLatency: 0,
+      duplicateKeyPolicy: AssociativeDuplicateKeyPolicy.allow,
+      matchSelection: AssociativeMatchSelection.lowestIndex,
+      resultShape: AssociativeResultShape.selectedIndex,
+      lookupUpdatePolicy: AssociativeLookupUpdatePolicy.lookupAfterUpdate,
+      updateCollisionPolicy: AssociativeUpdateCollisionPolicy.highestPortWins,
+      requiredResetBehavior: AssociativeMemoryResetBehavior.clearValidity,
+      name: &#39;tags_$set&#39;,
+    );
+    final tags = binding.memory!;
+    final validity = (tags as AssociativeValidityMaskProvider).validMask!;
+    final sideResponse =
+        (tags as AssociativeIndexedSideReadProvider).sideReadResponse!;
+    final eligible =
+        Const((BigInt.one &lt;&lt; waysPerSet) - BigInt.one, width: waysPerSet);
+    final policy = replacement.build(
+      clk: localClk,
+      reset: localReset,
+      validMask: validity,
+      eligibleMask: eligible,
+      accesses: [lookupAccess, fillAccess],
+      allocations: [allocation],
+      entryCount: waysPerSet,
+      name: &#39;replacement_$set&#39;,
+    );
+    if (policy.entryCount != waysPerSet) {
+      throw StateError(&#39;Replacement factory ${replacement.identity} &#39;
+          &#39;built a policy with an incompatible entry count.&#39;);
+    }
+
+    dataWrite.en &lt;= update.en;
+    dataWrite.addr &lt;= selectedWay;
+    dataWrite.data &lt;= localFillData;
+    dataLookup.en &lt;= lookup.hit;
+    dataLookup.addr &lt;= lookup.index;
+    dataEviction.en &lt;= allocation.evict;
+    dataEviction.addr &lt;= allocation.index;
+    (dataMemory ?? _cacheDataMemory&lt;T&gt;(dataStorage))(
+      clk: localClk,
+      reset: localReset,
+      writePorts: [dataWrite],
+      readPorts: [dataLookup, dataEviction],
+      entryCount: waysPerSet,
+      readLatency: 0,
+      maxConcurrentReads: 2,
+      maxConcurrentWrites: 1,
+      name: &#39;data_$set&#39;,
+    );
+
+    lookupHits.add(lookup.hit);
+    lookupDataBySet.add(
+        mux(lookup.hit, dataLookup.data, Const(0, width: fillData.width)));
+    readyBySet.add(fillSelected &amp;
+        (fillLookup.hit |
+            (allocation.valid &amp; (~allocation.evict | localEvictionReady))));
+    evictBySet.add(allocation.evict);
+    evictionDemandBySet.add(fillLookup.en &amp; ~fillLookup.hit &amp; validity.and());
+    evictAddressBySet.add(mux(allocation.evict, sideResponse.key,
+        Const(0, width: fillAddress.width)));
+    evictDataBySet.add(mux(allocation.evict, dataEviction.data,
+        Const(0, width: fillData.width)));
+  }
+
+  Logic combine(List&lt;Logic&gt; values) =&gt;
+      values.reduce((left, right) =&gt; left | right);
+  localLookupReady &lt;= ~localReset &amp; ~combine(evictionDemandBySet);
+  localFill.ready &lt;= ~localReset &amp; combine(readyBySet);
+  fillAccepted &lt;= localFillValid &amp; localFill.ready;
+  final forward = readDuringFill == CacheReadDuringFill.forward
+      ? localLookupReady &amp;
+          localLookupValid &amp;
+          fillAccepted &amp;
+          storedAddressMatches(localLookupAddress, localFillAddress)
+      : Const(0);
+  localLookup.hit &lt;= forward | combine(lookupHits);
+  localLookup.data &lt;=
+      mux(forward, normalizeStoredLogic(localFillData),
+          combine(lookupDataBySet));
+  localFill.evictionValid &lt;= combine(evictBySet);
+  localFill.evictionAddress &lt;= combine(evictAddressBySet);
+  localFill.evictionData &lt;= combine(evictDataBySet);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/Cache-class.html">Cache<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">Cache.new constructor</li>
+</ol>
+
+    <h5>Cache class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

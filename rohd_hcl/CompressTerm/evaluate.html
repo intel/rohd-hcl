@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span>
 <span class="name ">evaluate</span>(<wbr>)
 
       
@@ -77,7 +77,7 @@
     case CompressTermType.sum:
       &#47;&#47; xor the eval of the terms
       final termValues = [for (final term in inputs) term.evaluate()];
-      final sum = termValues.swizzle().xor();
+      final sum = termValues.concat().xor();
       value = sum;
     case CompressTermType.carry:
       final termValues = [for (final term in inputs) term.evaluate()];

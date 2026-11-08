@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/FloatingPointMultiplier-class.html">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
-    <li class="self-crumb">localFlop method</li>
+    <li class="self-crumb">localFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt; method</li>
   </ol>
   <div class="self-name">localFlop</div>
   <form class="search navbar-right" role="search">
@@ -49,13 +49,13 @@
     data-above-sidebar="rohd_hcl&#47;FloatingPointMultiplier-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">localFlop</span> method 
+<h1><span class="kind-method">localFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">localFlop</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="localFlop-param-input"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">input</span></span></li>
+<span class="returntype">LogicType</span>
+<span class="name ">localFlop</span>&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="localFlop-param-input"><span class="type-annotation">LogicType</span> <span class="parameter-name">input</span></span></li>
 </ol>)
 
       
@@ -70,7 +70,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic localFlop(Logic input) =&gt;
+  <pre class="language-dart"><code class="language-dart">LogicType localFlop&lt;LogicType extends Logic&gt;(LogicType input) =&gt;
     condFlop(clk, input, en: enable, reset: reset);</code></pre>
 </section>
 
@@ -87,7 +87,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/FloatingPointMultiplier-class.html">FloatingPointMultiplier<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
-    <li class="self-crumb">localFlop method</li>
+    <li class="self-crumb">localFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt; method</li>
 </ol>
 
     <h5>FloatingPointMultiplier class</h5>

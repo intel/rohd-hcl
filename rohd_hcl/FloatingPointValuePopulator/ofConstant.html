@@ -85,7 +85,7 @@
             LogicValue.one,
             LogicValue.one,
             LogicValue.filled(mantissaWidth - 2, LogicValue.zero)
-          ].swizzle());
+          ].concat());
     }
     final implicit = FloatingPointValue.populator(
             exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1)
@@ -96,7 +96,7 @@
         sign: implicit.sign,
         exponent: implicit.exponent,
         mantissa: [LogicValue.ofBool(explicitJBitValue), implicit.mantissa]
-            .swizzle());
+            .concat());
   }
   final components = _constantComponents(constantFloatingPoint);
 

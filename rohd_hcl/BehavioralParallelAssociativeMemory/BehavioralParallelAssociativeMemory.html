@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the BehavioralParallelAssociativeMemory.new constructor from Class BehavioralParallelAssociativeMemory from the rohd_hcl library, for the Dart programming language.">
+  <title>BehavioralParallelAssociativeMemory.new constructor - BehavioralParallelAssociativeMemory - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/BehavioralParallelAssociativeMemory-class.html">BehavioralParallelAssociativeMemory</a></li>
+    <li class="self-crumb">BehavioralParallelAssociativeMemory.new constructor</li>
+  </ol>
+  <div class="self-name">BehavioralParallelAssociativeMemory.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;BehavioralParallelAssociativeMemory-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">BehavioralParallelAssociativeMemory</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">BehavioralParallelAssociativeMemory</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-updates"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span>&gt;</span></span> <span class="parameter-name">updates</span>, </span></li>
+<li><span class="parameter" id="param-lookups"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span>&gt;</span></span> <span class="parameter-name">lookups</span>, </span></li>
+<li><span class="parameter" id="param-entryCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryCount</span>, </span></li>
+<li><span class="parameter" id="param-contract"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span> <span class="parameter-name">contract</span>, </span></li>
+<li><span class="parameter" id="param-enableValidTracking"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableValidTracking</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-sideReadRequests"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/AssociativeIndexedSideReadRequest-class.html">AssociativeIndexedSideReadRequest</a></span>&gt;</span></span> <span class="parameter-name">sideReadRequests</span> = <span class="default-value">const []</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;behavioral_parallel_associative_memory&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a simulation-only implementation of the parallel RTL contract.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">BehavioralParallelAssociativeMemory({
+  required super.clk,
+  required super.reset,
+  required super.updates,
+  required super.lookups,
+  required super.entryCount,
+  required super.contract,
+  this.enableValidTracking = false,
+  List&lt;AssociativeIndexedSideReadRequest&gt; sideReadRequests = const [],
+  super.name = &#39;behavioral_parallel_associative_memory&#39;,
+})  : _sideReads = List.unmodifiable(sideReadRequests),
+      sideReadResponses = List.unmodifiable([
+        for (final _ in sideReadRequests)
+          AssociativeIndexedSideReadResponse(keyWidth: lookups.first.keyWidth)
+      ]),
+      super(definitionName: &#39;BehavioralParallelAssociativeMemory&#39;) {
+  if (contract.implementationKind !=
+          AssociativeMemoryImplementationKind.simulationOnly ||
+      contract.lookupLatency != 0 ||
+      contract.updateLatency != 0 ||
+      contract.duplicateKeyPolicy != AssociativeDuplicateKeyPolicy.allow ||
+      contract.lookupUpdatePolicy !=
+          AssociativeLookupUpdatePolicy.lookupAfterUpdate ||
+      contract.updateCollisionPolicy ==
+          AssociativeUpdateCollisionPolicy.disallow ||
+      contract.resetBehavior !=
+          AssociativeMemoryResetBehavior.clearValidity ||
+      contract.resetTiming != AssociativeMemoryResetTiming.synchronous ||
+      _sideReads.any((request) =&gt; request.index.width != indexWidth)) {
+    throw ArgumentError(&#39;The behavioral parallel associative memory requires &#39;
+        &#39;the parallel RTL contract.&#39;);
+  }
+  _model = AssociativeSoftwareModel(AssociativeMemoryRequest(
+    keyWidth: keyWidth,
+    indexWidth: indexWidth,
+    entryCount: entryCount,
+    updatePortCount: numUpdates,
+    lookupPortCount: numLookups,
+    lookupLatency: 0,
+    duplicateKeyPolicy: contract.duplicateKeyPolicy,
+    matchSelection: contract.matchSelection,
+    resultShape: contract.resultShape,
+    lookupUpdatePolicy: contract.lookupUpdatePolicy,
+    updateCollisionPolicy: contract.updateCollisionPolicy,
+    requiredResetBehavior: contract.resetBehavior,
+  ));
+  description = BehavioralParallelAssociativeDescription(
+    entryCount: entryCount,
+    keyWidth: keyWidth,
+    indexWidth: indexWidth,
+    updateCount: numUpdates,
+    matchVectors: [
+      for (final lookup in localLookups) lookup.matchVector != null
+    ],
+    sideReadCount: _sideReads.length,
+    trackValidity: enableValidTracking,
+    selection: contract.matchSelection,
+    collision: contract.updateCollisionPolicy,
+  );
+  _model._entries = List.generate(
+      entryCount,
+      (_) =&gt; (
+            key: LogicValue.filled(keyWidth, LogicValue.x),
+            valid: LogicValue.x
+          ));
+
+  if (enableValidTracking) {
+    addOutput(&#39;valid_count&#39;, width: (entryCount + 1).log2Ceil);
+    addOutput(&#39;full&#39;);
+    addOutput(&#39;empty&#39;);
+    addOutput(&#39;valid_mask&#39;, width: entryCount);
+  }
+  for (final (port, request) in _sideReads.indexed) {
+    final suffix = port == 0 ? &#39;&#39; : &#39;_$port&#39;;
+    _sideIndices.add(
+        addInput(&#39;side_read_index$suffix&#39;, request.index, width: indexWidth));
+    final key = addOutput(&#39;side_read_key$suffix&#39;, width: keyWidth);
+    final valid = addOutput(&#39;side_read_valid$suffix&#39;);
+    sideReadResponses[port].key &lt;= key;
+    sideReadResponses[port].entryValid &lt;= valid;
+  }
+
+  void refreshLookup(AssociativeLookupPortInterface lookup) {
+    final entries = _model._entries;
+    final result = _model._lookup(
+        AssociativeSoftwareLookup(key: lookup.key.value), entries);
+    final enabledHit = lookup.en.value &amp; result.hit;
+    lookup.hit.put(enabledHit);
+    lookup.index.put(selectLogicValue(enabledHit, result.index,
+        LogicValue.filled(indexWidth, LogicValue.zero)));
+    lookup.matchVector?.put(selectLogicValue(lookup.en.value,
+        result.matchVector, LogicValue.filled(entryCount, LogicValue.zero)));
+  }
+
+  void refreshSide(int port) {
+    final value = _sideIndices[port].value;
+    final AssociativeSoftwareEntry entry;
+    if (!value.isValid) {
+      entry = (
+        key: LogicValue.filled(keyWidth, LogicValue.x),
+        valid: LogicValue.x
+      );
+    } else if (value.toBigInt() &gt;= BigInt.from(entryCount)) {
+      entry = _model._emptyEntry();
+    } else {
+      entry = _model._readEntry(value.toInt());
+    }
+    final suffix = port == 0 ? &#39;&#39; : &#39;_$port&#39;;
+    output(&#39;side_read_key$suffix&#39;).put(entry.key);
+    output(&#39;side_read_valid$suffix&#39;).put(entry.valid);
+  }
+
+  void refresh() {
+    final entries = _model._entries;
+    if (enableValidTracking) {
+      final mask = LogicValue.of([for (final entry in entries) entry.valid]);
+      final width = (entryCount + 1).log2Ceil;
+      var count = LogicValue.filled(width, LogicValue.zero);
+      for (final entry in entries) {
+        count += entry.valid.zeroExtend(width);
+      }
+      validCount!.put(count);
+      full!.put(mask.and());
+      empty!.put(~mask.or());
+      validMask!.put(mask);
+    }
+    localLookups.forEach(refreshLookup);
+    for (var port = 0; port &lt; _sideIndices.length; port++) {
+      refreshSide(port);
+    }
+  }
+
+  _refresh = refresh;
+  for (final lookup in localLookups) {
+    lookup.en.glitch.listen((_) =&gt; refreshLookup(lookup));
+    lookup.key.glitch.listen((_) =&gt; refreshLookup(lookup));
+  }
+  for (final (port, index) in _sideIndices.indexed) {
+    index.glitch.listen((_) =&gt; refreshSide(port));
+  }
+  clk.changed.listen((event) {
+    if (!event.previousValue.isValid || !event.newValue.isValid) {
+      _model._entries = List.generate(
+          entryCount,
+          (_) =&gt; (
+                key: LogicValue.filled(keyWidth, LogicValue.x),
+                valid: LogicValue.x
+              ));
+      refresh();
+      return;
+    }
+    if (event.previousValue != LogicValue.zero ||
+        event.newValue != LogicValue.one) {
+      return;
+    }
+    final resetValue = reset.previousValue!;
+    final entries = _model._entries;
+    if (resetValue == LogicValue.one) {
+      _model._entries =
+          List.generate(entryCount, (_) =&gt; _model._emptyEntry());
+    } else if (resetValue != LogicValue.zero) {
+      _model._entries = List.generate(
+          entryCount,
+          (_) =&gt; (
+                key: LogicValue.filled(keyWidth, LogicValue.x),
+                valid: LogicValue.x
+              ));
+    } else {
+      final ordered = contract.updateCollisionPolicy ==
+              AssociativeUpdateCollisionPolicy.lowestPortWins
+          ? localUpdates.reversed
+          : localUpdates;
+      for (var index = 0; index &lt; entryCount; index++) {
+        for (final update in ordered) {
+          final select = update.en.previousValue! &amp;
+              storedValueIndexMatches(update.index.previousValue!, index);
+          if (select == LogicValue.one) {
+            entries[index] = (
+              key: normalizeStoredValue(update.key.previousValue!),
+              valid: normalizeStoredValue(update.entryValid.previousValue!)
+            );
+          } else if (select != LogicValue.zero) {
+            entries[index] = (
+              key: LogicValue.filled(keyWidth, LogicValue.x),
+              valid: LogicValue.x
+            );
+          }
+        }
+      }
+      _model._entries = entries;
+    }
+    refresh();
+  });
+  Simulator.injectAction(refresh);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/BehavioralParallelAssociativeMemory-class.html">BehavioralParallelAssociativeMemory</a></li>
+    <li class="self-crumb">BehavioralParallelAssociativeMemory.new constructor</li>
+</ol>
+
+    <h5>BehavioralParallelAssociativeMemory class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the AssociativeMatcher.new constructor from Class AssociativeMatcher from the rohd_hcl library, for the Dart programming language.">
+  <title>AssociativeMatcher.new constructor - AssociativeMatcher - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/AssociativeMatcher-class.html">AssociativeMatcher</a></li>
+    <li class="self-crumb">AssociativeMatcher.new constructor</li>
+  </ol>
+  <div class="self-name">AssociativeMatcher.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;AssociativeMatcher-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">AssociativeMatcher</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">AssociativeMatcher</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-query"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">query</span>, </span></li>
+<li><span class="parameter" id="param-storedKeys"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">storedKeys</span>, </span></li>
+<li><span class="parameter" id="param-validMask"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">validMask</span>, </span></li>
+<li><span class="parameter" id="param-comparator"><span class="type-annotation"><a href="../../rohd_hcl/AssociativeKeyComparator.html">AssociativeKeyComparator</a></span> <span class="parameter-name">comparator</span> = <span class="default-value">exactAssociativeKeyComparator</span>, </span></li>
+<li><span class="parameter" id="param-comparisonName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">comparisonName</span> = <span class="default-value">&#39;exact&#39;</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;associative_matcher&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates storage-independent associative matching.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">AssociativeMatcher({
+  required Logic query,
+  required List&lt;Logic&gt; storedKeys,
+  required Logic validMask,
+  AssociativeKeyComparator comparator = exactAssociativeKeyComparator,
+  String comparisonName = &#39;exact&#39;,
+  super.name = &#39;associative_matcher&#39;,
+})  : entryCount = storedKeys.length,
+      keyWidth = query.width,
+      super(
+        definitionName: &#39;AssociativeMatcher_E${storedKeys.length}_&#39;
+            &#39;W${query.width}_$comparisonName&#39;,
+      ) {
+  if (storedKeys.isEmpty) {
+    throw ArgumentError.value(storedKeys, &#39;storedKeys&#39;, &#39;Must not be empty.&#39;);
+  }
+  if (storedKeys.any((key) =&gt; key.width != keyWidth) ||
+      validMask.width != entryCount) {
+    throw ArgumentError(
+        &#39;Stored keys must match the query width and validMask must have &#39;
+        &#39;one bit per entry.&#39;);
+  }
+  if (comparisonName.isEmpty) {
+    throw ArgumentError.value(
+        comparisonName, &#39;comparisonName&#39;, &#39;Must not be empty.&#39;);
+  }
+
+  final localQuery = addInput(&#39;query&#39;, query, width: keyWidth);
+  final localValidMask = addInput(&#39;validMask&#39;, validMask, width: entryCount);
+  final localStoredKeys = List.generate(
+      entryCount,
+      (index) =&gt;
+          addInput(&#39;storedKey_$index&#39;, storedKeys[index], width: keyWidth));
+  final matches = List.generate(
+      entryCount,
+      (index) =&gt; (localValidMask[index] &amp;
+              comparator(
+                  query: localQuery,
+                  stored: localStoredKeys[index],
+                  index: index,
+                  name: name))
+          .named(&#39;${name}_match_$index&#39;));
+  if (matches.any((match) =&gt; match.width != 1)) {
+    throw ArgumentError.value(comparator, &#39;comparator&#39;,
+        &#39;Must return a one-bit result for every entry.&#39;);
+  }
+  final matchesLogic = matches.rconcat().named(&#39;${name}_matches&#39;);
+  final anyMatch = matchesLogic.or().named(&#39;${name}_any_match&#39;);
+  final moreThanOne =
+      (matchesLogic &amp; (matchesLogic - Const(1, width: entryCount)))
+          .or()
+          .named(&#39;${name}_more_than_one_match&#39;);
+
+  addOutput(&#39;matchVector&#39;, width: entryCount) &lt;= matchesLogic;
+  addOutput(&#39;hit&#39;) &lt;= anyMatch;
+  addOutput(&#39;multipleMatches&#39;) &lt;= moreThanOne;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/AssociativeMatcher-class.html">AssociativeMatcher</a></li>
+    <li class="self-crumb">AssociativeMatcher.new constructor</li>
+</ol>
+
+    <h5>AssociativeMatcher class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

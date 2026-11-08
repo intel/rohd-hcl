@@ -175,13 +175,8 @@ void signExtend() {
   &#47;&#47; Insert the lastRow sign:  Either in firstRow&#39;s Q if there is a
   &#47;&#47; collision or in another row if it lands beyond the Q sign extension
   final firstSign = Logic(name: &#39;firstsign&#39;, naming: Naming.mergeable);
-  if (selectSignedMultiplicand == null) {
-    firstSign &lt;=
-        (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
-  } else {
-    firstSign &lt;=
-        (SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0])));
-  }
+  firstSign &lt;=
+      SignBit(signedMultiplicandControl.select(firstAddend.last, signs[0]));
   final lastSign = SignBit(remainders[lastRow]);
   &#47;&#47; Compute Sign extension MSBs for firstRow
   final qLen = shift + 1;

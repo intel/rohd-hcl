@@ -87,7 +87,7 @@
 
   setPorts([
     if (useCrediting) Logic.port(&#39;${prefix}PENDING&#39;),
-    if (useCrediting &amp;&amp; numRp &gt; 0) Logic.port(&#39;${prefix}RP&#39;, log2Ceil(numRp)),
+    if (useCrediting &amp;&amp; numRp &gt; 0) Logic.port(&#39;${prefix}RP&#39;, widthFor(numRp)),
     if (useCrediting &amp;&amp; sharedCredits) Logic.port(&#39;${prefix}SHAREDCRD&#39;)
   ], [
     if (main) PairDirection.fromProvider else PairDirection.fromConsumer,

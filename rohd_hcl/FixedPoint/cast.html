@@ -97,7 +97,7 @@ Overflow either wraps or clamps according to <code>overflow</code>.</p>
   if (fractionWidth &gt;= this.fractionWidth) {
     final padding = fractionWidth - this.fractionWidth;
     rescaled =
-        padding == 0 ? packed : [packed, Const(0, width: padding)].swizzle();
+        padding == 0 ? packed : [packed, Const(0, width: padding)].concat();
   } else {
     final discarded = this.fractionWidth - fractionWidth;
     final sign = this.signed ? packed[-1] : Const(0);

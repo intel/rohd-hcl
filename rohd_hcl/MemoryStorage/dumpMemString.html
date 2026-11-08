@@ -83,7 +83,7 @@ which must be a positive power of 2 up to 16.</p>
     return &#39;&#39;;
   }
 
-  final bitsPerChar = log2Ceil(radix);
+  final bitsPerChar = radix.log2Ceil;
 
   final addrs = addresses.sorted();
 
@@ -93,13 +93,13 @@ which must be a positive power of 2 up to 16.</p>
 
   for (final addr in addrs) {
     if (currentAddr != addr) {
-      memString.writeln(&#39;@${addr.toInt().toRadixString(16)}&#39;);
+      memString.writeln(&#39;@${addr.toBigInt().toRadixString(16)}&#39;);
       currentAddr = addr;
     }
 
     final data = getData(addr)!;
     memString.writeln(data
-        .toInt()
+        .toBigInt()
         .toRadixString(radix)
         .padLeft(data.width ~&#47; bitsPerChar, &#39;0&#39;));
     currentAddr = currentAddr! +

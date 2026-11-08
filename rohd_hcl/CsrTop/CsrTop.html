@@ -55,14 +55,16 @@
     <section class="multi-line-signature">
       
       <span class="name ">CsrTop</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-config"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CsrTopConfig-class.html">CsrTopConfig</a></span> <span class="parameter-name">config</span>, </span></li>
-<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-frontWrite"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>?</span> <span class="parameter-name">frontWrite</span>, </span></li>
-<li><span class="parameter" id="param-frontRead"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a>?</span> <span class="parameter-name">frontRead</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-frontWrite"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span>?</span> <span class="parameter-name">frontWrite</span>, </span></li>
+<li><span class="parameter" id="param-frontRead"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span>?</span> <span class="parameter-name">frontRead</span>, </span></li>
 <li><span class="parameter" id="param-allowLargerRegisters"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowLargerRegisters</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-logicalRegisterIncrement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">logicalRegisterIncrement</span> = <span class="default-value">1</span>, </span></li>
+<li><span class="parameter" id="param-wideLogicalRegisterIncrement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a>?</span> <span class="parameter-name">wideLogicalRegisterIncrement</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-implementationConfiguration"><span class="type-annotation"><a href="../../rohd_hcl/CsrImplementationConfiguration-class.html">CsrImplementationConfiguration</a>?</span> <span class="parameter-name">implementationConfiguration</span>, </span></li>
 <li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
     </section>
@@ -83,8 +85,10 @@
     required super.frontRead,
     super.allowLargerRegisters,
     super.logicalRegisterIncrement,
+    super.wideLogicalRegisterIncrement,
     super.reserveName,
     super.reserveDefinitionName,
+    CsrImplementationConfiguration? implementationConfiguration,
     String? definitionName})
     : super(
           definitionName: definitionName ??
@@ -92,8 +96,22 @@
                   &#39;W${config.maxRegWidth()}_&#39;
                   &#39;BS${config.blockSize}_&#39;
                   &#39;LR${allowLargerRegisters}_&#39;
-                  &#39;RI$logicalRegisterIncrement&#39;) {
+                  &#39;RI${_incrementName(
+                logicalRegisterIncrement,
+                wideLogicalRegisterIncrement,
+              )}&#39;) {
   _validate();
+  this.implementationConfiguration =
+      implementationConfiguration ?? CsrImplementationScope.current;
+  if (this.implementationConfiguration.implementation ==
+      CsrImplementation.software) {
+    _buildSoftwareModel();
+    return;
+  }
+  if (this.implementationConfiguration.hardwareRegisters != null) {
+    throw ArgumentError(
+        &#39;Selective CSR hardware exposure requires software implementation.&#39;);
+  }
 
   for (final block in config.blocks) {
     DataPortInterface? blockFdWrite;
@@ -118,7 +136,8 @@
         frontWrite: blockFdWrite,
         frontRead: blockFdRead,
         allowLargerRegisters: allowLargerRegisters,
-        logicalRegisterIncrement: logicalRegisterIncrement,
+        wideLogicalRegisterIncrement: logicalRegisterIncrement,
+        addressExtent: config.blockSizeForBlock(block),
         asyncReset: config.asyncReset));
   }
 
@@ -128,17 +147,15 @@
     _backdoorIndexMaps.add({});
     for (var j = 0; j &lt; blocks[i].registers.length; j++) {
       if (blocks[i].registers[j].backdoorAccessible) {
-        _backdoorInterfaces[i]
-            .add(CsrBackdoorInterface(config: blocks[i].registers[j]));
         backdoorInterfaces[i]
             .add(CsrBackdoorInterface(config: blocks[i].registers[j]));
-        _backdoorInterfaces[i].last.connectIO(
-            this, backdoorInterfaces[i].last,
+        _backdoorInterfaces[i].add(addInterfacePorts(
+            backdoorInterfaces[i].last,
             outputTags: {CsrBackdoorPortGroup.read},
             inputTags: {CsrBackdoorPortGroup.write},
             uniquify: (original) =&gt;
                 &#39;${name}_${blocks[i].name}_${blocks[i].registers[j].name}&#39;
-                &#39;_backdoor_$original&#39;);
+                &#39;_backdoor_$original&#39;));
         _backdoorIndexMaps[i][j] = _backdoorInterfaces[i].length - 1;
       }
     }

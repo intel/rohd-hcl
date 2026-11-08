@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/Extrema-class.html">Extrema</a></li>
+    <li><a href="../../rohd_hcl/Extrema-class.html">Extrema<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">Extrema.new constructor</li>
   </ol>
   <div class="self-name">Extrema.new</div>
@@ -49,13 +49,18 @@
       data-above-sidebar="rohd_hcl&#47;Extrema-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">Extrema</span> constructor 
+<h1><span class="kind-constructor">Extrema&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">Extrema</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-signals"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">signals</span>, {</span></li>
+      <span class="name ">Extrema&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-signals"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">signals</span>, {</span></li>
 <li><span class="parameter" id="param-max"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">max</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="param-radix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">2</span>, </span></li>
+<li><span class="parameter" id="param-isLessThan"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">isLessThan</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-a"><span class="type-annotation">T</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation">T</span> <span class="parameter-name">b</span></span></li>
+</ol>)?, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;extrema&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
@@ -63,9 +68,15 @@
     </section>
     
 <section class="desc markdown">
-  <p>Finds an extrema of <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a> <code>signals</code>. Inputs need not be the same
-width, and will all be considered positive unsigned numbers.</p>
+  <p>Finds an extrema of <code>signals</code>, preserving the selected payload type <code>T</code>.
+Plain <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> inputs may differ in width and are zero-extended.
+Structured inputs must have matching layouts.</p>
 <p>If <code>max</code> is <code>true</code>, will find maximum value, else will find minimum.</p>
+<p><code>radix</code> controls the maximum number of candidates compared by each
+balanced reduction node. Equal candidates preserve the earliest index.
+<code>isLessThan</code> defaults to the payload's <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic/lt.html">Logic.lt</a> comparison. Supply it
+to compare record keys while transporting complete records. Use
+<code>Extrema&lt;Logic&gt;</code> for scalar constant inputs.</p>
 <p>Outputs the <a href="../../rohd_hcl/Extrema/index.html">index</a> and <a href="../../rohd_hcl/Extrema/val.html">val</a> of the extrema in the list of <code>signals</code>.</p>
 </section>
 
@@ -73,24 +84,31 @@ width, and will all be considered positive unsigned numbers.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Extrema(List&lt;Logic&gt; signals,
-    {bool max = true,
-    super.reserveName,
-    super.reserveDefinitionName,
-    String? definitionName})
-    : super(definitionName: definitionName ?? &#39;Extrema_L${signals.length}&#39;) {
-  &#47;&#47; List to consume inputs internally.
-  final logics = &lt;Logic&gt;[];
-
-  &#47;&#47; Adds input for every element in the signals list, to logics.
-  for (var i = 0; i &lt; signals.length; i++) {
-    logics.add(addInput(&#39;signal$i&#39;, signals[i], width: signals[i].width));
-  }
-
-  &#47;&#47; Check if list is empty
-  if (logics.isEmpty) {
+  <pre class="language-dart"><code class="language-dart">Extrema(
+  List&lt;T&gt; signals, {
+  bool max = true,
+  int radix = 2,
+  Logic Function(T a, T b)? isLessThan,
+  super.name = &#39;extrema&#39;,
+  super.reserveName,
+  super.reserveDefinitionName,
+  String? definitionName,
+}) : super(
+        definitionName: definitionName ??
+            &#39;Extrema_W${signals.map((signal) =&gt; signal.width).join(&#39;_&#39;)}_&#39;
+                &#39;${max ? &quot;Max&quot; : &quot;Min&quot;}_R$radix&#39;,
+      ) {
+  if (signals.isEmpty) {
     throw RohdHclException(&#39;List cannot be empty.&#39;);
   }
+  if (signals.any((s) =&gt; s is LogicStructure || s is LogicEnum) &amp;&amp;
+      signals.any((s) =&gt; !sameDeclaredPayloadShape(signals.first, s))) {
+    throw RohdHclException(&#39;Extrema payload layouts must match.&#39;);
+  }
+  final logics = [
+    for (var i = 0; i &lt; signals.length; i++)
+      addTypedInput&lt;T&gt;(&#39;signal$i&#39;, signals[i])
+  ];
 
   &#47;&#47; Find the max width of all inputs.
   var maxWidth = 0;
@@ -100,35 +118,36 @@ width, and will all be considered positive unsigned numbers.</p>
     }
   }
 
-  &#47;&#47; Check max width and prepend with 0s. Will make all inputs same width.
+  final unsigned = StaticOrRuntimeParameter.ofDynamic(false);
   for (var i = 0; i &lt; logics.length; i++) {
     if (logics[i].width &lt; maxWidth) {
-      logics[i] = logics[i].zeroExtend(maxWidth);
+      logics[i] = ReductionTree.alignInput(logics[i], maxWidth, unsigned);
     }
   }
 
-  &#47;&#47; Find indexWidth, initialize extremaIndex and extremaVal.
-  final indexWidth = log2Ceil(logics.length);
-  Logic extremaIndex = Const(0, width: indexWidth);
-  var extremaVal = logics[0];
-
-  &#47;&#47; If max is true, find max value. Else, find min value.
-  for (var i = 1; i &lt; logics.length; i++) {
-    final compareVal =
-        (max ? logics[i].gt(extremaVal) : logics[i].lt(extremaVal))
-            .named(&#39;compareVal_$i&#39;);
-    extremaVal = Logic(name: &#39;muxOut$i&#39;, width: maxWidth)
-      ..gets(mux(compareVal, logics[i], extremaVal).named(&#39;extremaVal_$i&#39;));
-    extremaIndex = mux(compareVal, Const(i, width: indexWidth), extremaIndex)
-        .named(&#39;extremaIndex_$i&#39;);
-  }
-
-  &#47;&#47; Generate outputs here.
-  addOutput(&#39;index&#39;, width: extremaIndex.width);
-  index &lt;= extremaIndex;
-
-  addOutput(&#39;val&#39;, width: extremaVal.width);
-  val &lt;= extremaVal;
+  final indexWidth = widthFor(logics.length);
+  final compare = isLessThan ?? (T a, T b) =&gt; a.lt(b);
+  final tree = ReductionTreeGenerator&lt;_IndexedCandidate&lt;T&gt;, Logic&gt;(
+    [
+      for (var i = 0; i &lt; logics.length; i++)
+        _IndexedCandidate(logics[i], indexWidth)
+          ..payload.gets(logics[i])
+          ..index.gets(Const(i, width: indexWidth)),
+    ],
+    (inputs, {depth = 0, control, name = &#39;extrema&#39;}) =&gt;
+        inputs.reduce((current, candidate) {
+      final selectCandidate = max
+          ? compare(current.payload, candidate.payload)
+          : compare(candidate.payload, current.payload);
+      return mux&lt;_IndexedCandidate&lt;T&gt;&gt;(selectCandidate, candidate, current,
+          outputGenerator: current.clone);
+    }),
+    radix: radix,
+  );
+  treeDepth = tree.depth;
+  addOutput(&#39;index&#39;, width: indexWidth) &lt;= tree.out.index;
+  T valueClone({String? name}) =&gt; tree.out.payload.cloneTyped(name: name);
+  val = addTypedOutput&lt;T&gt;(&#39;val&#39;, valueClone)..gets(tree.out.payload);
 }</code></pre>
 </section>
 
@@ -144,7 +163,7 @@ width, and will all be considered positive unsigned numbers.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Extrema-class.html">Extrema</a></li>
+    <li><a href="../../rohd_hcl/Extrema-class.html">Extrema<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">Extrema.new constructor</li>
 </ol>
 

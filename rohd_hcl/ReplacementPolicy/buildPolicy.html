@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the buildPolicy method from the ReplacementPolicy class, for the Dart programming language.">
+  <title>buildPolicy method - ReplacementPolicy class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/ReplacementPolicy-class.html">ReplacementPolicy</a></li>
+    <li class="self-crumb">buildPolicy method</li>
+  </ol>
+  <div class="self-name">buildPolicy</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;ReplacementPolicy-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">buildPolicy</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://pub.dev/documentation/meta/1.19.0/meta/protected-constant.html">protected</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">buildPolicy</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="buildPolicy-param-stateWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">stateWidth</span>, </span></li>
+<li><span class="parameter" id="buildPolicy-param-onAccess"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onAccess</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-state"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">state</span>, </span></li>
+<li><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">index</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="buildPolicy-param-select"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReplacementSelection.html">ReplacementSelection</a></span> <span class="parameter-name">select</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-state"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">state</span>, </span></li>
+<li><span class="parameter" id="param-candidates"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">candidates</span></span></li>
+</ol>), </span></li>
+<li><span class="parameter" id="buildPolicy-param-onAllocation"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">onAllocation</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-state"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">state</span>, </span></li>
+<li><span class="parameter" id="param-index"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">index</span></span></li>
+</ol>), </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Builds ordered access and allocation processing around a policy state.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@protected
+void buildPolicy({
+  required int stateWidth,
+  required Logic Function(Logic state, Logic index) onAccess,
+  required ReplacementSelection Function(Logic state, Logic candidates)
+      select,
+  required Logic Function(Logic state, Logic index) onAllocation,
+}) {
+  final state = Logic(name: &#39;replacementState&#39;, width: stateWidth);
+  final nextState = Logic(name: &#39;replacementNextState&#39;, width: stateWidth);
+  state &lt;= flop(clk, mux(reset, Const(0, width: stateWidth), nextState));
+  var pending = state;
+  Logic invalid = Const(0);
+  for (final access in localAccesses) {
+    final inRange = access.index
+        .zeroExtend(indexWidth + 1)
+        .lt(Const(entryCount, width: indexWidth + 1));
+    invalid = invalid | (access.en &amp; ~inRange);
+    pending =
+        mux(access.en &amp; inRange, onAccess(pending, access.index), pending);
+  }
+  invalidAccess &lt;= invalid;
+
+  Logic badCommit = Const(0);
+  for (final commit in localCommits) {
+    final inRange = commit.index
+        .zeroExtend(indexWidth + 1)
+        .lt(Const(entryCount, width: indexWidth + 1));
+    badCommit = badCommit | (commit.en &amp; ~inRange);
+    pending = mux(
+        commit.en &amp; inRange, onAllocation(pending, commit.index), pending);
+  }
+  Logic reserved = Const(0, width: entryCount);
+  for (final allocation in localAllocations) {
+    final available = eligibleMask &amp; ~reserved;
+    final unused = available &amp; ~validMask;
+    final candidates = mux(unused.or(), unused, available);
+    final choice = select(pending, candidates);
+    final granted = allocation.en &amp; choice.valid;
+    final committed = granted &amp; allocation.commit;
+    badCommit = badCommit | (allocation.commit &amp; ~granted);
+    allocation.valid &lt;= granted;
+    allocation.index &lt;=
+        mux(granted, choice.index, Const(0, width: indexWidth));
+    final selectedValid = [
+      for (var index = 0; index &lt; entryCount; index++)
+        validMask[index] &amp; storedIndexMatches(choice.index, index)
+    ].reduce((left, right) =&gt; left | right);
+    allocation.evict &lt;= granted &amp; selectedValid;
+    reserved = reserved |
+        [
+          for (var index = 0; index &lt; entryCount; index++)
+            granted &amp; storedIndexMatches(choice.index, index)
+        ].rconcat();
+    pending = mux(committed, onAllocation(pending, choice.index), pending);
+  }
+  invalidCommit &lt;= badCommit;
+  nextState &lt;= pending;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/ReplacementPolicy-class.html">ReplacementPolicy</a></li>
+    <li class="self-crumb">buildPolicy method</li>
+</ol>
+
+    <h5>ReplacementPolicy class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

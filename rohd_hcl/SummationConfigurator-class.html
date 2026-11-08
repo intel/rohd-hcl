@@ -55,7 +55,7 @@
 
     
 <section class="desc markdown">
-  <p>A configurator for a module like <code>SummationBase</code>.</p>
+  <p>A configurator for summation components.</p>
 </section>
 
 
@@ -105,6 +105,18 @@
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="category" class="property">
+  <span class="name"><a href="../rohd_hcl/SummationConfigurator/category.html">category</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/ComponentCategory.html">ComponentCategory</a></span>
+  
+
+</dt>
+<dd>
+  The taxonomy category for this configurable component.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="hashCode" class="property inherited">
   <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
   <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -132,24 +144,24 @@ to configure this component.
 
         <dt id="maxValueKnob" class="property">
   <span class="name"><a href="../rohd_hcl/SummationConfigurator/maxValueKnob.html">maxValueKnob</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/IntOptionalConfigKnob-class.html">IntOptionalConfigKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/StaticOrRuntimeIntKnob-class.html">StaticOrRuntimeIntKnob</a></span>
   
 
 </dt>
 <dd>
-  The maximum value.
+  The maximum value, statically or from a generated runtime input.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
 
         <dt id="minValueKnob" class="property">
   <span class="name"><a href="../rohd_hcl/SummationConfigurator/minValueKnob.html">minValueKnob</a></span>
-  <span class="signature">&#8594; <a href="../rohd_hcl/IntOptionalConfigKnob-class.html">IntOptionalConfigKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/StaticOrRuntimeIntKnob-class.html">StaticOrRuntimeIntKnob</a></span>
   
 
 </dt>
 <dd>
-  The minimum value.
+  The minimum value, statically or from a generated runtime input.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -203,6 +215,18 @@ variable naming requirements.
 
 </dd>
 
+        <dt id="subcategory" class="property">
+  <span class="name"><a href="../rohd_hcl/SummationConfigurator/subcategory.html">subcategory</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The taxonomy subcategory for this configurable component.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="sumInterfaceKnobs" class="property">
   <span class="name"><a href="../rohd_hcl/SummationConfigurator/sumInterfaceKnobs.html">sumInterfaceKnobs</a></span>
   <span class="signature">&#8594; <a href="../rohd_hcl/ListOfKnobsKnob-class.html">ListOfKnobsKnob</a></span>
@@ -238,13 +262,13 @@ variable naming requirements.
     <dl class="callables">
         <dt id="createModule" class="callable inherited">
   <span class="name"><a href="../rohd_hcl/Configurator/createModule.html">createModule</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Creates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> instance as configured.
+  Creates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> instance as configured.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>

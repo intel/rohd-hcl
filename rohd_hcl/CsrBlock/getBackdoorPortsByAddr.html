@@ -71,15 +71,8 @@ within the block by relative address <code>addr</code>.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CsrBackdoorInterface getBackdoorPortsByAddr(int addr) {
-  final idx = config.registers.indexOf(config.getRegisterByAddr(addr));
-  if (_backdoorIndexMap.containsKey(idx)) {
-    return backdoorInterfaces[_backdoorIndexMap[idx]!];
-  } else {
-    throw Exception(
-        &#39;Register address $addr not found in block ${config.name}&#39;);
-  }
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">CsrBackdoorInterface getBackdoorPortsByAddr(int addr) =&gt;
+    getBackdoorPortsByBigIntAddr(BigInt.from(addr));</code></pre>
 </section>
 
 

@@ -53,27 +53,33 @@
 </h1></div>
 
     
-      <section class="multi-line-signature">
-        
-        <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?
-        <span class="name ">selectSignedMultiplier</span>
-        <div class="features"><span class="feature">final</span></div>
 
-      </section>
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
       
+      <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+      get
+      <span class="name ">selectSignedMultiplier</span>
+      
+
+    </section>
+    
 <section class="desc markdown">
   <p>If not null, use this signal to select between signed and unsigned
 <a href="../../rohd_hcl/PartialProductGeneratorBase/multiplier.html">multiplier</a>.</p>
 </section>
 
-      
+    
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">final Logic? selectSignedMultiplier;</code></pre>
+  <pre class="language-dart"><code class="language-dart">Logic? get selectSignedMultiplier =&gt; signedMultiplierControl.runtimeConfig;</code></pre>
 </section>
 
+  </section>
 
-    
+
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->

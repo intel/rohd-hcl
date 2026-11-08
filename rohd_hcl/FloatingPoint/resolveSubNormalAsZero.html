@@ -72,15 +72,8 @@ mantissa resolved if not <a href="../../rohd_hcl/FloatingPoint/isNormal.html">is
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPoint resolveSubNormalAsZero() {
   if (subNormalAsZero) {
-    return clone()
-      ..gets(mux(
-          isNormal,
-          this,
-          FloatingPoint.zero(
-              exponentWidth: exponent.width,
-              mantissaWidth: mantissa.width,
-              explicitJBit: explicitJBit,
-              subNormalAsZero: subNormalAsZero)));
+    final zero = clone(name: &#39;subnormalZero&#39;)..gets(Const(0, width: width));
+    return mux&lt;FloatingPoint&gt;(isNormal, this, zero, outputGenerator: clone);
   } else {
     return this;
   }

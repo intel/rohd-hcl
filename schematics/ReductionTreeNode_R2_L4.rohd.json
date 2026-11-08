@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "ReductionTreeNode_R2_L2": {
       "attributes": {
@@ -309,40 +309,6 @@
             ]
           }
         },
-        "swizzle": {
-          "hide_name": 0,
-          "type": "$buf",
-          "parameters": {
-            "WIDTH": 8
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              66,
-              67,
-              68,
-              69,
-              70,
-              71,
-              72,
-              73
-            ],
-            "Y": [
-              50,
-              51,
-              52,
-              53,
-              54,
-              55,
-              56,
-              57
-            ]
-          }
-        },
         "reduction_0": {
           "hide_name": 0,
           "type": "ReductionTreeNode_R2_L2",
@@ -375,48 +341,14 @@
               17
             ],
             "out": [
-              66,
-              67,
-              68,
-              69,
-              70,
-              71,
-              72,
-              73
-            ]
-          }
-        },
-        "swizzle_0": {
-          "hide_name": 0,
-          "type": "$buf",
-          "parameters": {
-            "WIDTH": 8
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              74,
-              75,
-              76,
-              77,
-              78,
-              79,
-              80,
-              81
-            ],
-            "Y": [
-              58,
-              59,
-              60,
-              61,
-              62,
-              63,
-              64,
-              65
+              50,
+              51,
+              52,
+              53,
+              54,
+              55,
+              56,
+              57
             ]
           }
         },
@@ -452,14 +384,14 @@
               33
             ],
             "out": [
-              74,
-              75,
-              76,
-              77,
-              78,
-              79,
-              80,
-              81
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65
             ]
           }
         }
@@ -563,7 +495,7 @@
             "preserved_name": 1
           }
         },
-        "_in0__swizzled": {
+        "out_0": {
           "bits": [
             50,
             51,
@@ -579,7 +511,7 @@
           },
           "attributes": {}
         },
-        "_in1__swizzled": {
+        "out_1": {
           "bits": [
             58,
             59,
@@ -589,38 +521,6 @@
             63,
             64,
             65
-          ],
-          "logic_type": {
-            "width": 8
-          },
-          "attributes": {}
-        },
-        "out_0": {
-          "bits": [
-            66,
-            67,
-            68,
-            69,
-            70,
-            71,
-            72,
-            73
-          ],
-          "logic_type": {
-            "width": 8
-          },
-          "attributes": {}
-        },
-        "out_1": {
-          "bits": [
-            74,
-            75,
-            76,
-            77,
-            78,
-            79,
-            80,
-            81
           ],
           "logic_type": {
             "width": 8

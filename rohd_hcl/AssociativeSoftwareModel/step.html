@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the step method from the AssociativeSoftwareModel class, for the Dart programming language.">
+  <title>step method - AssociativeSoftwareModel class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/AssociativeSoftwareModel-class.html">AssociativeSoftwareModel</a></li>
+    <li class="self-crumb">step method</li>
+  </ol>
+  <div class="self-name">step</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;AssociativeSoftwareModel-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">step</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/AssociativeSoftwareResult.html">AssociativeSoftwareResult</a>?</span>&gt;</span></span>
+<span class="name ">step</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="step-param-lookups"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/AssociativeSoftwareLookup-class.html">AssociativeSoftwareLookup</a>?</span>&gt;</span></span> <span class="parameter-name">lookups</span>, </span></li>
+<li><span class="parameter" id="step-param-updates"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/AssociativeSoftwareUpdate-class.html">AssociativeSoftwareUpdate</a>?</span>&gt;</span></span> <span class="parameter-name">updates</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Samples requests and returns completions due on this step, by port.</p>
+<p>Validation and matching complete before any state is changed.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">List&lt;AssociativeSoftwareResult?&gt; step({
+  required List&lt;AssociativeSoftwareLookup?&gt; lookups,
+  required List&lt;AssociativeSoftwareUpdate?&gt; updates,
+}) {
+  if (lookups.length != configuration.lookupPortCount ||
+      updates.length != configuration.updatePortCount) {
+    throw ArgumentError(&#39;Request counts do not match configured ports.&#39;);
+  }
+  lookups.nonNulls.forEach(_validateLookup);
+  final newUpdates = &lt;_PendingUpdate&gt;[];
+  for (var port = 0; port &lt; updates.length; port++) {
+    final update = updates[port];
+    if (update == null) {
+      continue;
+    }
+    _validateEntry(update.index, (key: update.key, valid: update.valid));
+    newUpdates.add(_PendingUpdate(
+        _cycle + configuration.updateLatency,
+        port,
+        AssociativeSoftwareUpdate(
+            index: update.index,
+            key: normalizeStoredValue(update.key),
+            valid: normalizeStoredValue(update.valid))));
+  }
+  final allUpdates = [..._updates, ...newUpdates];
+  final current = _entries;
+  final dueUpdates =
+      allUpdates.where((update) =&gt; update.due == _cycle).toList();
+  final next = _applyUpdates(current, dueUpdates);
+  var projected = next;
+  final futureCycles = allUpdates
+      .where((update) =&gt; update.due &gt; _cycle)
+      .map((update) =&gt; update.due)
+      .toSet()
+      .toList()
+    ..sort();
+  for (final due in futureCycles) {
+    projected = _applyUpdates(
+        projected, allUpdates.where((update) =&gt; update.due == due));
+  }
+  final lookupState = configuration.lookupUpdatePolicy ==
+          AssociativeLookupUpdatePolicy.lookupBeforeUpdate
+      ? current
+      : next;
+  final newLookups = &lt;_PendingLookup&gt;[];
+  for (var port = 0; port &lt; lookups.length; port++) {
+    final lookup = lookups[port];
+    if (lookup != null) {
+      newLookups.add(_PendingLookup(_cycle + configuration.lookupLatency,
+          port, _lookup(lookup, lookupState)));
+    }
+  }
+  final dueLookups =
+      [..._lookups, ...newLookups].where((lookup) =&gt; lookup.due == _cycle);
+  final completed = List&lt;AssociativeSoftwareResult?&gt;.filled(
+      configuration.lookupPortCount, null);
+  for (final lookup in dueLookups) {
+    completed[lookup.port] = lookup.result;
+  }
+  if (dueUpdates.isNotEmpty) {
+    _entries = next;
+  }
+  _updates
+    ..removeWhere((update) =&gt; update.due == _cycle)
+    ..addAll(newUpdates.where((update) =&gt; update.due != _cycle));
+  _lookups
+    ..removeWhere((lookup) =&gt; lookup.due == _cycle)
+    ..addAll(newLookups.where((lookup) =&gt; lookup.due != _cycle));
+  _cycle++;
+  return List.unmodifiable(completed);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/AssociativeSoftwareModel-class.html">AssociativeSoftwareModel</a></li>
+    <li class="self-crumb">step method</li>
+</ol>
+
+    <h5>AssociativeSoftwareModel class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

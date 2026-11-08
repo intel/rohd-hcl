@@ -63,20 +63,22 @@
     
 <section class="desc markdown">
   <p>Negate the <a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a>.</p>
+<p>The result has the same runtime type as this value (for example a
+<a href="../../rohd_hcl/FloatingPoint32-class.html">FloatingPoint32</a>) so that it can be combined with this value using
+type-preserving operations such as <code>mux</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">FloatingPoint negate() =&gt; FloatingPoint._(
-      Logic()..gets(~sign),
-      Logic(width: exponent.width)..gets(exponent),
-      Logic(width: mantissa.width)..gets(mantissa),
-      explicitJBit,
-      subNormalAsZero,
-      name: name,
-    );</code></pre>
+  <pre class="language-dart"><code class="language-dart">FloatingPoint negate() {
+  final result = clone(name: name)
+    ..sign.gets(~sign)
+    ..exponent.gets(exponent)
+    ..mantissa.gets(mantissa);
+  return result;
+}</code></pre>
 </section>
 
 

@@ -54,14 +54,14 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">CompressionTreeDotProduct</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-multiplicands"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multiplicands</span>, </span></li>
-<li><span class="parameter" id="param-multipliers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multipliers</span>, {</span></li>
-<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+      <span class="name ">CompressionTreeDotProduct</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-multiplicands"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multiplicands</span>, </span></li>
+<li><span class="parameter" id="param-multipliers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multipliers</span>, {</span></li>
+<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="param-productRadix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">productRadix</span> = <span class="default-value">4</span>, </span></li>
-<li><span class="parameter" id="param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
 <li><span class="parameter" id="param-adderIdentity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">adderIdentity</span> = <span class="default-value">&#39;native&#39;</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;compression_tree_dotproduct&#39;</span>, </span></li>
@@ -114,12 +114,8 @@ used.</p>
     for (var i = 0; i &lt; multipliers.length; i++)
       PartialProductGenerator(
           multiplicands[i], multipliers[i], RadixEncoder(productRadix),
-          signedMultiplicand: signedMultiplicandParameter.staticConfig,
-          signedMultiplier: signedMultiplierParameter.staticConfig,
-          selectSignedMultiplicand:
-              signedMultiplicandParameter.getRuntimeInput(this),
-          selectSignedMultiplier:
-              signedMultiplierParameter.getRuntimeInput(this))
+          signedMultiplicand: signedMultiplicandParameter.forChild(this),
+          signedMultiplier: signedMultiplierParameter.forChild(this))
   ];
   for (final ppG in ppGenerators) {
     StopBitsSignExtension(ppG).signExtend();
@@ -132,7 +128,7 @@ used.</p>
   });
   final vec = [
     for (var row = 0; row &lt; ppg.rows; row++)
-      ppg.partialProducts[row].rswizzle()
+      ppg.partialProducts[row].rconcat()
   ];
   final columnCompressor = ColumnCompressor(vec, ppg.rowShift);
   final adder = adderGen(columnCompressor.add0, columnCompressor.add1);

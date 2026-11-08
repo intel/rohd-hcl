@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>
 <span class="name ">createModule</span>(<wbr>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -67,7 +67,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> instance as configured.</p>
+  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> instance as configured.</p>
 </section>
 
 
@@ -90,11 +90,14 @@ Module createModule() {
   if (clockGatingKnob.value) {
     return GatedCounter(
       sumIntfs,
-      resetValue: resetValueKnob.value,
+      resetValue: resetValueKnob.resolve(&#39;resetValue&#39;),
       width: widthKnob.value,
-      minValue: minValueKnob.value,
-      maxValue: maxValueKnob.value,
+      minValue: minValueKnob.resolve(&#39;minValue&#39;),
+      maxValue: maxValueKnob.resolve(&#39;maxValue&#39;),
       saturates: saturatesKnob.value,
+      asyncReset: asyncResetKnob.value,
+      trackOverflow: trackOverflowKnob.value,
+      trackUnderflow: trackUnderflowKnob.value,
       clk: Logic(),
       reset: Logic(),
       clkGatePartitionIndex: clockGatingPartitionIndexKnob.value,
@@ -103,11 +106,14 @@ Module createModule() {
   } else {
     return Counter(
       sumIntfs,
-      resetValue: resetValueKnob.value,
+      resetValue: resetValueKnob.resolve(&#39;resetValue&#39;),
       width: widthKnob.value,
-      minValue: minValueKnob.value,
-      maxValue: maxValueKnob.value,
+      minValue: minValueKnob.resolve(&#39;minValue&#39;),
+      maxValue: maxValueKnob.resolve(&#39;maxValue&#39;),
       saturates: saturatesKnob.value,
+      asyncReset: asyncResetKnob.value,
+      trackOverflow: trackOverflowKnob.value,
+      trackUnderflow: trackUnderflowKnob.value,
       clk: Logic(),
       reset: Logic(),
     );

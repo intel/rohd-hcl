@@ -54,8 +54,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ReadyValidInterface&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="param-data"><span class="type-annotation">LogicType</span> <span class="parameter-name">data</span></span></li>
-</ol>)
+      <span class="name ">ReadyValidInterface&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-data"><span class="type-annotation">LogicType</span> <span class="parameter-name">data</span>, {</span></li>
+<li><span class="parameter" id="param-contract"><span class="type-annotation"><a href="../../rohd_hcl/ReadyValidContract-class.html">ReadyValidContract</a></span> <span class="parameter-name">contract</span> = <span class="default-value">ReadyValidContract.unconstrained</span>, </span></li>
+</ol>})
     </section>
     
 <section class="desc markdown">
@@ -66,8 +67,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ReadyValidInterface(this.data)
-    : super(
+  <pre class="language-dart"><code class="language-dart">ReadyValidInterface(
+  this.data, {
+  this.contract = ReadyValidContract.unconstrained,
+}) : super(
         portsFromProvider: [data, Logic.port(&#39;valid&#39;)],
         portsFromConsumer: [Logic.port(&#39;ready&#39;)],
       );</code></pre>

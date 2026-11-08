@@ -55,20 +55,21 @@
     
       <section class="multi-line-signature">
         
-        <a href="../../rohd_hcl/IntOptionalConfigKnob-class.html">IntOptionalConfigKnob</a>
+        <a href="../../rohd_hcl/StaticOrRuntimeIntKnob-class.html">StaticOrRuntimeIntKnob</a>
         <span class="name ">maxValueKnob</span>
         <div class="features"><span class="feature">final</span></div>
 
       </section>
       
 <section class="desc markdown">
-  <p>The maximum value.</p>
+  <p>The maximum value, statically or from a generated runtime input.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">final IntOptionalConfigKnob maxValueKnob = IntOptionalConfigKnob(value: null);</code></pre>
+  <pre class="language-dart"><code class="language-dart">final StaticOrRuntimeIntKnob maxValueKnob =
+    StaticOrRuntimeIntKnob(staticValue: null, name: &#39;Maximum Value&#39;);</code></pre>
 </section>
 
 

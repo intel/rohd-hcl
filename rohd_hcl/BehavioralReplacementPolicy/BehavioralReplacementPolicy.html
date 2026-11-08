@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the BehavioralReplacementPolicy.new constructor from Class BehavioralReplacementPolicy from the rohd_hcl library, for the Dart programming language.">
+  <title>BehavioralReplacementPolicy.new constructor - BehavioralReplacementPolicy - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/BehavioralReplacementPolicy-class.html">BehavioralReplacementPolicy</a></li>
+    <li class="self-crumb">BehavioralReplacementPolicy.new constructor</li>
+  </ol>
+  <div class="self-name">BehavioralReplacementPolicy.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;BehavioralReplacementPolicy-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">BehavioralReplacementPolicy</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">BehavioralReplacementPolicy</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-validMask"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">validMask</span>, </span></li>
+<li><span class="parameter" id="param-eligibleMask"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">eligibleMask</span>, </span></li>
+<li><span class="parameter" id="param-accesses"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/ReplacementAccessInterface-class.html">ReplacementAccessInterface</a></span>&gt;</span></span> <span class="parameter-name">accesses</span>, </span></li>
+<li><span class="parameter" id="param-allocations"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/ReplacementAllocationInterface-class.html">ReplacementAllocationInterface</a></span>&gt;</span></span> <span class="parameter-name">allocations</span>, </span></li>
+<li><span class="parameter" id="param-entryCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryCount</span>, </span></li>
+<li><span class="parameter" id="param-kind"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/BehavioralReplacementKind.html">BehavioralReplacementKind</a></span> <span class="parameter-name">kind</span>, </span></li>
+<li><span class="parameter" id="param-commits"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/ReplacementCommitInterface-class.html">ReplacementCommitInterface</a></span>&gt;</span></span> <span class="parameter-name">commits</span> = <span class="default-value">const []</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;behavioral_replacement&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a software implementation of the replacement port protocol.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">BehavioralReplacementPolicy({
+  required super.clk,
+  required super.reset,
+  required super.validMask,
+  required super.eligibleMask,
+  required super.accesses,
+  required super.allocations,
+  required super.entryCount,
+  required this.kind,
+  super.commits,
+  super.name = &#39;behavioral_replacement&#39;,
+}) : super(
+          definitionName: &#39;BehavioralReplacement_${kind.name}_E${entryCount}_&#39;
+              &#39;H${accesses.length}_A${allocations.length}_&#39;
+              &#39;C${commits.length}&#39;) {
+  if (kind == BehavioralReplacementKind.treePseudoLru &amp;&amp;
+      (entryCount &amp; (entryCount - 1)) != 0) {
+    throw ArgumentError.value(
+        entryCount, &#39;entryCount&#39;, &#39;Tree pseudo-LRU requires a power of two.&#39;);
+  }
+  description = BehavioralReplacementDescription(
+      replacementKind: kind,
+      entryCount: entryCount,
+      accessCount: localAccesses.length,
+      commitCount: localCommits.length,
+      allocationCount: localAllocations.length);
+  final stateWidth = kind == BehavioralReplacementKind.roundRobin
+      ? indexWidth
+      : entryCount == 1
+          ? 1
+          : entryCount - 1;
+  _state = LogicValue.filled(stateWidth, LogicValue.x);
+
+  LogicValue value(Logic signal, {required bool previous}) =&gt;
+      previous ? signal.previousValue! : signal.value;
+
+  _Evaluation evaluate({required bool previous}) {
+    var pending = _state;
+    var invalidHit = LogicValue.zero;
+    var badCommit = LogicValue.zero;
+    final valid = value(validMask, previous: previous);
+    final eligible = value(eligibleMask, previous: previous);
+    final limit = LogicValue.ofInt(entryCount, indexWidth + 1);
+    for (final access in localAccesses) {
+      final index = value(access.index, previous: previous);
+      final enable = value(access.en, previous: previous);
+      final inRange = index.zeroExtend(indexWidth + 1) &lt; limit;
+      invalidHit |= enable &amp; ~inRange;
+      pending = selectLogicValue(
+          enable &amp; inRange, _onAccess(pending, index), pending);
+    }
+    for (final commit in localCommits) {
+      final index = value(commit.index, previous: previous);
+      final enable = value(commit.en, previous: previous);
+      final inRange = index.zeroExtend(indexWidth + 1) &lt; limit;
+      badCommit |= enable &amp; ~inRange;
+      pending = selectLogicValue(
+          enable &amp; inRange, _onAllocation(pending, index), pending);
+    }
+    var reserved = LogicValue.filled(entryCount, LogicValue.zero);
+    final results = &lt;_Allocation&gt;[];
+    for (final allocation in localAllocations) {
+      final enable = value(allocation.en, previous: previous);
+      final commit = value(allocation.commit, previous: previous);
+      final available = eligible &amp; ~reserved;
+      final unused = available &amp; ~valid;
+      final candidates = selectLogicValue(unused.or(), unused, available);
+      final choice = _select(pending, candidates);
+      final granted = enable &amp; choice.valid;
+      final committed = granted &amp; commit;
+      badCommit |= commit &amp; ~granted;
+      var selectedValid = LogicValue.zero;
+      final reservationBits = &lt;LogicValue&gt;[];
+      for (var index = 0; index &lt; entryCount; index++) {
+        final matches = storedValueIndexMatches(choice.index, index);
+        selectedValid |= valid[index] &amp; matches;
+        reservationBits.add(granted &amp; matches);
+      }
+      results.add((
+        valid: granted,
+        index: selectLogicValue(granted, choice.index,
+            LogicValue.filled(indexWidth, LogicValue.zero)),
+        evict: granted &amp; selectedValid,
+      ));
+      reserved |= LogicValue.of(reservationBits);
+      pending = selectLogicValue(
+          committed, _onAllocation(pending, choice.index), pending);
+    }
+    return (
+      nextState: pending,
+      invalidAccess: invalidHit,
+      invalidCommit: badCommit,
+      allocations: results,
+    );
+  }
+
+  void refresh() {
+    final result = evaluate(previous: false);
+    invalidAccess.put(result.invalidAccess);
+    invalidCommit.put(result.invalidCommit);
+    for (final (index, port) in localAllocations.indexed) {
+      final choice = result.allocations[index];
+      port.valid.put(choice.valid);
+      port.index.put(choice.index);
+      port.evict.put(choice.evict);
+    }
+  }
+
+  _refresh = refresh;
+  for (final signal in [
+    validMask,
+    eligibleMask,
+    for (final port in localAccesses) ...[port.en, port.index],
+    for (final port in localCommits) ...[port.en, port.index],
+    for (final port in localAllocations) ...[port.en, port.commit],
+  ]) {
+    signal.glitch.listen((_) =&gt; refresh());
+  }
+  clk.posedge.listen((_) {
+    _state = selectLogicValue(
+        reset.previousValue!,
+        LogicValue.filled(stateWidth, LogicValue.zero),
+        evaluate(previous: true).nextState);
+    refresh();
+  });
+  Simulator.injectAction(refresh);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/BehavioralReplacementPolicy-class.html">BehavioralReplacementPolicy</a></li>
+    <li class="self-crumb">BehavioralReplacementPolicy.new constructor</li>
+</ol>
+
+    <h5>BehavioralReplacementPolicy class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

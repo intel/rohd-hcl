@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">getWriteData</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="getWriteData-param-wd"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">wd</span>, {</span></li>
+<span class="returntype"><a href="../../rohd_hcl/Csr-class.html">Csr</a></span>
+<span class="name ">getWriteData</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="getWriteData-param-wd"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">wd</span>, {</span></li>
 <li><span class="parameter" id="getWriteData-param-isBackdoorWrite"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isBackdoorWrite</span> = <span class="default-value">false</span>, </span></li>
 </ol>})
 
@@ -82,22 +82,26 @@ writer later clears).</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
-  &#47;&#47; if the whole register is ready only, return the current value
+  <pre class="language-dart"><code class="language-dart">Csr getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
+  &#47;&#47; Frontdoor writes cannot update a read-only register.
   if (!isBackdoorWrite &amp;&amp; access == CsrAccess.readOnly) {
     return this;
   }
   &#47;&#47; register can be written, but still need to look at the fields...
   else {
+    &#47;&#47; A CSR cannot retain a high-impedance value as architectural state.
+    &#47;&#47; XOR with zero preserves 0, 1, and X while converting Z to X.
+    final normalizedWd = clone()..gets(wd ^ Const(0, width: wd.width));
+
     &#47;&#47; special case of no explicit fields defined
     &#47;&#47; in this case, we have an implicit read&#47;write field
     &#47;&#47; so there is nothing special to do
     if (fields.isEmpty) {
-      return wd;
+      return normalizedWd;
     }
 
     &#47;&#47; otherwise, we need to look at the fields
-    var finalWd = wd;
+    var finalWd = normalizedWd;
     var currIdx = 0;
     var currField = 0;
     for (var i = 0; i &lt; elements.length; i++) {
@@ -126,7 +130,8 @@ writer later clears).</p>
       &#47;&#47; clear the bit; backdoor writes of 1 set the bit instead.
       final chk3 = fields[currField].access == CsrFieldAccess.writeOnesClear;
       if (chk3) {
-        final wdField = wd.getRange(currIdx, currIdx + elements[i].width);
+        final wdField =
+            normalizedWd.getRange(currIdx, currIdx + elements[i].width);
         finalWd = finalWd.withSet(currIdx,
             isBackdoorWrite ? elements[i] | wdField : elements[i] &amp; ~wdField);
         currField++;
@@ -139,7 +144,7 @@ writer later clears).</p>
         &#47;&#47; make sure the value is in fact legal
         &#47;&#47; and transform it if not
         final origVal =
-            wd.getRange(currIdx, currIdx + fields[currField].width);
+            normalizedWd.getRange(currIdx, currIdx + fields[currField].width);
         final legalCases = &lt;Logic, Logic&gt;{};
         for (var i = 0; i &lt; fields[currField].legalValues.length; i++) {
           legalCases[Const(fields[currField].legalValues[i],

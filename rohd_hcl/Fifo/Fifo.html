@@ -54,11 +54,11 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Fifo&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, {</span></li>
-<li><span class="parameter" id="param-writeEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span></li>
+      <span class="name ">Fifo&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, {</span></li>
+<li><span class="parameter" id="param-writeEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">writeEnable</span>, </span></li>
 <li><span class="parameter" id="param-writeData"><span>required</span> <span class="type-annotation">LogicType</span> <span class="parameter-name">writeData</span>, </span></li>
-<li><span class="parameter" id="param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span></li>
+<li><span class="parameter" id="param-readEnable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">readEnable</span>, </span></li>
 <li><span class="parameter" id="param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
 <li><span class="parameter" id="param-generateError"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateError</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-generateOccupancy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateOccupancy</span> = <span class="default-value">false</span>, </span></li>
@@ -75,7 +75,7 @@
   <p>Constructs a <a href="../../rohd_hcl/Fifo-class.html">Fifo</a> with <a href="../../rohd_hcl/RegisterFile-class.html">RegisterFile</a>-based storage.</p>
 <p>If <code>initialValues</code> is provided, the <a href="../../rohd_hcl/Fifo-class.html">Fifo</a> will contain those values after
 <code>reset</code>. The length of <code>initialValues</code> must fit in the <code>depth</code>. The values
-may be either <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>s or constants compatible with <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue/of.html">LogicValue.of</a>.</p>
+may be either <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>s or constants compatible with <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue/of.html">LogicValue.of</a>.</p>
 </section>
 
 
@@ -113,21 +113,23 @@ may be either <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-clas
 
   &#47;&#47; set up read&#47;write ports
   addInput(&#39;writeEnable&#39;, writeEnable);
-  addTypedInput(&#39;writeData&#39;, writeData);
+  _writeData = addTypedInput(&#39;writeData&#39;, writeData);
   addInput(&#39;readEnable&#39;, readEnable);
-  readData = addTypedOutput(
-      &#39;readData&#39;, writeData.clone as LogicType Function({String? name}));
+  readData = addTypedOutput(&#39;readData&#39;, _writeData.cloneTyped);
 
   &#47;&#47; set up info ports
   addOutput(&#39;full&#39;);
   addOutput(&#39;empty&#39;);
+  addOutput(&#39;canEnqueue&#39;);
+  addOutput(&#39;outputValid&#39;);
+  addOutput(&#39;slotReleased&#39;);
 
   if (generateError) {
     addOutput(&#39;error&#39;);
   }
 
   if (generateOccupancy) {
-    addOutput(&#39;occupancy&#39;, width: log2Ceil(depth + 1));
+    addOutput(&#39;occupancy&#39;, width: (depth + 1).log2Ceil);
   }
 
   if (initialValues == null) {

@@ -87,7 +87,7 @@
     quietMantissa = [
       if (explicitJBit) Const(1),
       Const(1),
-    ].swizzle();
+    ].concat();
   } else {
     Logic payload;
     if (sourcePayloadWidth == 0) {
@@ -102,7 +102,7 @@
       if (explicitJBit) Const(1),
       Const(1),
       payload,
-    ].swizzle();
+    ].concat();
   }
   final quiet = clone(name: &#39;quietNaN&#39;);
   quiet.sign &lt;= source.sign;

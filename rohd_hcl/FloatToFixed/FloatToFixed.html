@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a></li>
+    <li><a href="../../rohd_hcl/FloatToFixed-class.html">FloatToFixed<span class="signature">&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatToFixed.new constructor</li>
   </ol>
   <div class="self-name">FloatToFixed.new</div>
@@ -49,15 +49,16 @@
       data-above-sidebar="rohd_hcl&#47;FloatToFixed-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">FloatToFixed</span> constructor 
+<h1><span class="kind-constructor">FloatToFixed&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">FloatToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-float"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">float</span>, {</span></li>
+      <span class="name ">FloatToFixed&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-float"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span> <span class="parameter-name">float</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;FloatToFixed&#39;</span>, </span></li>
 <li><span class="parameter" id="param-integerWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">integerWidth</span>, </span></li>
 <li><span class="parameter" id="param-fractionWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">fractionWidth</span>, </span></li>
+<li><span class="parameter" id="param-outFixed"><span class="type-annotation">T?</span> <span class="parameter-name">outFixed</span>, </span></li>
 <li><span class="parameter" id="param-checkOverflow"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">checkOverflow</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.truncate</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
@@ -79,6 +80,9 @@ produced that returns <code>true</code> when overflow occurs.</li>
 <li><code>roundingMode</code> selects how a fraction narrower than the incoming
 mantissa is rounded. Defaults to <a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode.truncate</a>,
 matching prior (rounding-free) behavior.</li>
+<li><code>outFixed</code> optionally supplies a signed output schema and is driven by
+<a href="../../rohd_hcl/FloatToFixed/fixed.html">fixed</a>. Its widths are used unless matching explicit widths are given.
+A specialized <code>T</code> requires <code>outFixed</code>.</li>
 </ul>
 </section>
 
@@ -90,6 +94,7 @@ matching prior (rounding-free) behavior.</li>
     {super.name = &#39;FloatToFixed&#39;,
     int? integerWidth,
     int? fractionWidth,
+    T? outFixed,
     this.checkOverflow = false,
     FloatingPointRoundingMode roundingMode =
         FloatingPointRoundingMode.truncate,
@@ -100,11 +105,22 @@ matching prior (rounding-free) behavior.</li>
           definitionName: definitionName ??
               &#39;FloatE${float.exponent.width}&#39;
                   &#39;M${float.mantissa.width}&#39;
-                  &#39;J${float.explicitJBit ? 1 : 0}ToFixed_&#39;
-                  &#39;I${integerWidth ?? _defaultIntegerWidth(float)}_&#39;
-                  &#39;F${fractionWidth ?? _defaultFractionWidth(float)}_&#39;
-                  &#39;R${roundingMode.name}_&#39;
+                  &#39;J${float.explicitJBit ? 1 : 0}ToFixed_I&#39;
+                  &#39;${integerWidth ?? _defaultIntegerWidth(float, outFixed)}_F&#39;
+                  &#39;${fractionWidth ?? _defaultFractionWidth(float, outFixed)}&#39;
+                  &#39;_R${roundingMode.name}_&#39;
                   &#39;O${checkOverflow ? 1 : 0}&#39;) {
+  if (outFixed == null &amp;&amp; T != FixedPoint) {
+    throw ArgumentError(&#39;A specialized output type requires outFixed.&#39;);
+  }
+  if (outFixed != null &amp;&amp;
+      (!outFixed.signed ||
+          (integerWidth != null &amp;&amp; integerWidth != outFixed.integerWidth) ||
+          (fractionWidth != null &amp;&amp;
+              fractionWidth != outFixed.fractionWidth))) {
+    throw ArgumentError(&#39;outFixed must be signed and its widths must match &#39;
+        &#39;any explicitly supplied widths.&#39;);
+  }
   float = addTypedInput(&#39;float&#39;, float);
 
   &#47;&#47; [float.mantissa] includes the explicit j-bit as its top bit when
@@ -121,15 +137,20 @@ matching prior (rounding-free) behavior.</li>
   final noLossM = _defaultIntegerWidth(float);
   final noLossN = _defaultFractionWidth(float);
 
-  this.integerWidth = integerWidth ?? noLossM;
-  this.fractionWidth = fractionWidth ?? noLossN;
+  this.integerWidth = integerWidth ?? outFixed?.integerWidth ?? noLossM;
+  this.fractionWidth = fractionWidth ?? outFixed?.fractionWidth ?? noLossN;
+  _fixed = outFixed != null
+      ? outFixed.cloneTyped(name: &#39;internalFixed&#39;)
+      : FixedPoint(
+          integerWidth: this.integerWidth,
+          fractionWidth: this.fractionWidth) as T;
   final outputWidth = this.integerWidth + this.fractionWidth + 1;
 
   final jBit = Logic(name: &#39;jBit&#39;)..gets(float.isNormal);
   final fullMantissa =
-      [jBit, mantissaFractionBits].swizzle().named(&#39;fullMantissa&#39;);
+      [jBit, mantissaFractionBits].concat().named(&#39;fullMantissa&#39;);
 
-  final eWidth = max(log2Ceil(this.fractionWidth + this.integerWidth),
+  final eWidth = max((this.fractionWidth + this.integerWidth).log2Ceil,
           float.exponent.width) +
       2;
   final shift = Logic(name: &#39;shift&#39;, width: eWidth);
@@ -168,7 +189,7 @@ matching prior (rounding-free) behavior.</li>
   &#47;&#47; Buffer a guard bit below the mantissa; all pre-truncated and shifted-out
   &#47;&#47; bits contribute to sticky.
   final bufferedFullMantissa =
-      [fullMantissa, Const(0)].swizzle().named(&#39;bufferedFullMantissa&#39;);
+      [fullMantissa, Const(0)].concat().named(&#39;bufferedFullMantissa&#39;);
   final bufferedOutputWidth = outputWidth + 1;
   final bufferedPreNumber =
       ((bufferedOutputWidth &gt;= bufferedFullMantissa.width)
@@ -267,9 +288,12 @@ matching prior (rounding-free) behavior.</li>
       roundedNumber.slice(unroundedNumber.width - 1, 0).named(&#39;number&#39;);
 
   _fixed &lt;= mux(float.sign, ~number + 1, number).named(&#39;signedNumber&#39;);
-  final typedFixedOut = addTypedOutput(&#39;fixed&#39;, _fixed.clone);
+  final typedFixedOut = addTypedOutput(&#39;fixed&#39;, _fixed.cloneTyped);
   typedFixedOut &lt;= _fixed;
   fixed = typedFixedOut;
+  if (outFixed != null) {
+    outFixed &lt;= fixed;
+  }
 }</code></pre>
 </section>
 
@@ -285,7 +309,7 @@ matching prior (rounding-free) behavior.</li>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a></li>
+    <li><a href="../../rohd_hcl/FloatToFixed-class.html">FloatToFixed<span class="signature">&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FloatToFixed.new constructor</li>
 </ol>
 

@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "FloatToFixed": {
       "attributes": {
@@ -5472,7 +5472,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -8225,7 +8225,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -8803,7 +8803,7 @@
             ]
           }
         },
-        "swizzle_1": {
+        "concat_1": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -8875,7 +8875,7 @@
             ]
           }
         },
-        "swizzle_2": {
+        "concat_2": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11506,7 +11506,7 @@
             ]
           }
         },
-        "swizzle_3": {
+        "concat_3": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11634,7 +11634,7 @@
             ]
           }
         },
-        "swizzle_4": {
+        "concat_4": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11823,7 +11823,7 @@
             ]
           }
         },
-        "swizzle_5": {
+        "concat_5": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -17716,7 +17716,7 @@
           },
           "attributes": {}
         },
-        "_d1__number_b_add_const_1": {
+        "_number_b_add_const_1": {
           "bits": [
             2669,
             2670,
@@ -18002,7 +18002,7 @@
           },
           "attributes": {}
         },
-        "_in0__number_b": {
+        "_number_b": {
           "bits": [
             2947,
             2948,
@@ -18297,7 +18297,7 @@
           },
           "attributes": {}
         },
-        "_in0__swizzled": {
+        "_concatd": {
           "bits": [
             3504,
             3505,
@@ -18584,7 +18584,7 @@
           },
           "attributes": {}
         },
-        "_swizzled_add_roundingIncrement_carry": {
+        "_concatd_add_roundingIncrement_carry": {
           "bits": [
             3783
           ],
@@ -18593,7 +18593,7 @@
           },
           "attributes": {}
         },
-        "_control__subset_10_10_shift": {
+        "_subset_10_10_shift": {
           "bits": [
             3785
           ],
@@ -18602,7 +18602,7 @@
           },
           "attributes": {}
         },
-        "_d0__newMantissaPreShift_lshift_shift": {
+        "_newMantissaPreShift_lshift_shift": {
           "bits": [
             3786,
             3787,
@@ -18888,7 +18888,7 @@
           },
           "attributes": {}
         },
-        "_d1__newMantissaPreShift_rshift_shiftRight": {
+        "_newMantissaPreShift_rshift_shiftRight": {
           "bits": [
             4064,
             4065,
@@ -19174,7 +19174,7 @@
           },
           "attributes": {}
         },
-        "_in0__shift_b": {
+        "_shift_b": {
           "bits": [
             4342,
             4343,
@@ -19202,7 +19202,7 @@
           },
           "attributes": {}
         },
-        "_original__bufferedPreNumber_rshift_shiftRight": {
+        "_bufferedPreNumber_rshift_shiftRight": {
           "bits": [
             4874,
             4875,
@@ -19489,7 +19489,7 @@
           },
           "attributes": {}
         },
-        "_in0__const_0_or_rightShiftGuard": {
+        "_const_0_or_rightShiftGuard": {
           "bits": [
             5154
           ],
@@ -19498,7 +19498,7 @@
           },
           "attributes": {}
         },
-        "_in1__const_0_or_rightShiftSticky": {
+        "_const_0_or_rightShiftSticky": {
           "bits": [
             5155
           ],
@@ -19507,7 +19507,7 @@
           },
           "attributes": {}
         },
-        "_in1__uor__bufferedPreNumber_lshift__const_279_subtract_safeShiftRight": {
+        "_uor__bufferedPreNumber_lshift__const_279_subtract_safeShiftRight": {
           "bits": [
             5158
           ],
@@ -19803,7 +19803,7 @@
           },
           "attributes": {}
         },
-        "_shiftAmount__const_279_subtract_safeShiftRight": {
+        "_const_279_subtract_safeShiftRight": {
           "bits": [
             5438,
             5439,
@@ -19822,7 +19822,7 @@
           },
           "attributes": {}
         },
-        "_control__shiftRight_greaterThanOrEqual_const_279": {
+        "_shiftRight_greaterThanOrEqual_const_279": {
           "bits": [
             5460
           ],
@@ -19831,7 +19831,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_exponent_subtract_const_1": {
           "bits": [
             5494,
             5495,

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the generateSystemC method from the InferredSramDescription class, for the Dart programming language.">
+  <title>generateSystemC method - InferredSramDescription class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/InferredSramDescription-class.html">InferredSramDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+  </ol>
+  <div class="self-name">generateSystemC</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;InferredSramDescription-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">generateSystemC</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+<span class="name ">generateSystemC</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="generateSystemC-param-className"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">className</span>, </span></li>
+<li><span class="parameter" id="generateSystemC-param-options"><span class="type-annotation"><a href="../../rohd_hcl/SystemCModelOptions-class.html">SystemCModelOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const SystemCModelOptions()</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates standalone SystemC using shared sparse storage.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">String generateSystemC({
+  required String className,
+  SystemCModelOptions options = const SystemCModelOptions(),
+}) {
+  if (!RegExp(r&#39;^[A-Za-z_][A-Za-z0-9_]*$&#39;).hasMatch(className)) {
+    throw ArgumentError.value(
+        className, &#39;className&#39;, &#39;Invalid C++ identifier.&#39;);
+  }
+  final twoState = options.portType == SystemCModelPortType.twoState;
+  String portType(int width) =&gt; twoState
+      ? width == 1
+          ? &#39;bool&#39;
+          : width &lt;= 64
+              ? &#39;sc_dt::sc_uint&lt;$width&gt;&#39;
+              : &#39;sc_dt::sc_biguint&lt;$width&gt;&#39;
+      : width == 1
+          ? &#39;sc_dt::sc_logic&#39;
+          : &#39;sc_dt::sc_lv&lt;$width&gt;&#39;;
+  String vector(String port, int width) {
+    if (width == 1) {
+      return twoState ? &#39;scalar(bit($port.read()))&#39; : &#39;scalar($port.read())&#39;;
+    }
+    return twoState ? &#39;sc_dt::sc_lv&lt;$width&gt;($port.read())&#39; : &#39;$port.read()&#39;;
+  }
+
+  final source = StringBuffer()
+    ..writeln(&#39;#pragma once&#39;)
+    ..writeln(systemCSparseStorageDefinition)
+    ..writeln(&#39;#include &lt;cstdint&gt;&#39;)
+    ..writeln(&#39;SC_MODULE($className) {&#39;)
+    ..writeln(&#39;  using bit=sc_dt::sc_logic;&#39;)
+    ..writeln(&#39;  using word=sc_dt::sc_lv&lt;$dataWidth&gt;;&#39;)
+    ..writeln(&#39;  using address=sc_dt::sc_lv&lt;$addressWidth&gt;;&#39;)
+    ..writeln(
+        &#39;  using storage_type=RohdHclSystemCSparseStorage&lt;$dataWidth&gt;;&#39;);
+  for (final (ports, direction) in [
+    (inputPorts, &#39;in&#39;),
+    (outputPorts, &#39;out&#39;)
+  ]) {
+    for (final port in ports.entries) {
+      source.writeln(&#39;  sc_core::sc_$direction&lt;${portType(port.value)}&gt; &#39;
+          &#39;${port.key}{&quot;${port.key}&quot;};&#39;);
+    }
+  }
+  source.writeln(&#39;&#39;&#39;
+struct image { storage_type::image storage; word output; bool resetSeen; };
+storage_type storage;
+sc_core::sc_signal&lt;word,sc_core::SC_MANY_WRITERS&gt; output{&quot;output&quot;};
+sc_core::sc_signal&lt;bool,sc_core::SC_MANY_WRITERS&gt; resetSeen{&quot;resetSeen&quot;};
+static sc_dt::sc_lv&lt;1&gt; scalar(bit value) {
+  sc_dt::sc_lv&lt;1&gt; result; result[0]=value; return result;
+}
+static word unknown() { return word(sc_dt::SC_LOGIC_X); }
+static bool inRange(const address&amp; addr) {
+  if(!addr.is_01()) return false;
+  sc_dt::sc_biguint&lt;$addressWidth&gt; number(addr);
+  return number &lt; std::uint64_t(${entryCount}ULL);
+}
+bool contains(const address&amp; addr) const {
+  if(!inRange(addr)) throw std::out_of_range(&quot;Invalid SRAM address&quot;);
+  return storage.contains(addr.to_string());
+}
+word peek(const address&amp; addr) const {
+  if(!inRange(addr)) throw std::out_of_range(&quot;Invalid SRAM address&quot;);
+  return storage.read(addr.to_string(),unknown());
+}
+void poke(const address&amp; addr, const word&amp; value) {
+  if(!inRange(addr)) throw std::out_of_range(&quot;Invalid SRAM address&quot;);
+  storage.write(addr.to_string(),value);
+}
+image snapshot() const {
+  return {storage.snapshot(),output.read(),resetSeen.read()};
+}
+void restore(const image&amp; saved) {
+  if(!saved.storage.uncertain.empty())
+    throw std::invalid_argument(&quot;Invalid SRAM image&quot;);
+  for(const auto&amp; item:saved.storage.entries) {
+    if(item.first.size()!=$addressWidth ||
+        item.first.find_first_not_of(&quot;01&quot;)!=std::string::npos)
+      throw std::invalid_argument(&quot;Invalid SRAM image address&quot;);
+    address addr(item.first.c_str());
+    if(!inRange(addr)) throw std::invalid_argument(&quot;SRAM image out of range&quot;);
+  }
+  storage.restore(saved.storage);
+  output.write(saved.output);
+  resetSeen.write(saved.resetSeen);
+}
+void tick() {
+  bit rst=${twoState ? &#39;bit(reset.read())&#39; : &#39;reset.read()&#39;};
+  bit we=${twoState ? &#39;bit(wr_en_0.read())&#39; : &#39;wr_en_0.read()&#39;};
+  bit re=${twoState ? &#39;bit(rd_en_0.read())&#39; : &#39;rd_en_0.read()&#39;};
+  if(rst==sc_dt::SC_LOGIC_1) {
+    resetSeen.write(true);
+    output.write(word(0));
+  } else if(we==sc_dt::SC_LOGIC_1) {
+    address addr=${vector(&#39;wr_addr_0&#39;, addressWidth)};
+    if(inRange(addr)) storage.write(addr.to_string(),${vector(&#39;wr_data_0&#39;, dataWidth)});
+  } else if(re==sc_dt::SC_LOGIC_1) {
+    address addr=${vector(&#39;rd_addr_0&#39;, addressWidth)};
+    output.write(inRange(addr) ? storage.read(addr.to_string(),unknown()) : unknown());
+  }
+}
+void emit() {
+  word value=output.read();
+&#39;&#39;&#39;);
+  if (twoState) {
+    final allow =
+        options.unknownOutputs == SystemCUnknownOutputPolicy.zeroUntilReset
+            ? &#39;!resetSeen.read()&#39;
+            : &#39;false&#39;;
+    final conversion = dataWidth == 1
+        ? &#39;bit(value[0])==sc_dt::SC_LOGIC_1&#39;
+        : &#39;${portType(dataWidth)}(value)&#39;;
+    source.writeln(&#39;&#39;&#39;
+  if(!value.is_01() &amp;&amp; !($allow))
+    SC_REPORT_ERROR(&quot;$className&quot;, &quot;Unknown SRAM output at two-state boundary&quot;);
+  if(value.is_01()) rd_data_0.write($conversion);
+  else rd_data_0.write(0);
+&#39;&#39;&#39;);
+  } else {
+    source.writeln(dataWidth == 1
+        ? &#39;    rd_data_0.write(bit(value[0]));&#39;
+        : &#39;    rd_data_0.write(value);&#39;);
+  }
+  source.writeln(&#39;&#39;&#39;
+}
+SC_CTOR($className) {
+  output.write(unknown()); resetSeen.write(false);
+  SC_METHOD(tick); sensitive &lt;&lt; clk.pos(); dont_initialize();
+  SC_METHOD(emit); sensitive &lt;&lt; output &lt;&lt; resetSeen;
+}
+};
+&#39;&#39;&#39;);
+  return source.toString();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/InferredSramDescription-class.html">InferredSramDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+</ol>
+
+    <h5>InferredSramDescription class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

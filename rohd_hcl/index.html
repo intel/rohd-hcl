@@ -64,6 +64,22 @@
     <section class="summary offset-anchor" id="classes">
       <h2>Classes</h2>
       <dl>
+          <dt id="AbsoluteValue">
+  <span class="name "><a href="../rohd_hcl/AbsoluteValue-class.html">AbsoluteValue</a></span> 
+
+</dt>
+<dd>
+  Computes the exact magnitude of a signed two's-complement value.
+</dd>
+
+          <dt id="AbsoluteValueConfigurator">
+  <span class="name "><a href="../rohd_hcl/AbsoluteValueConfigurator-class.html">AbsoluteValueConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures exact-width signed magnitude hardware.
+</dd>
+
           <dt id="Ace4AcChannelInterface">
   <span class="name "><a href="../rohd_hcl/Ace4AcChannelInterface-class.html">Ace4AcChannelInterface</a></span> 
 
@@ -457,8 +473,185 @@ as defined in ROHD-HCL.
   An abstract description of an arbiter module.
 </dd>
 
+          <dt id="AssociativeIndexedSideReadProvider">
+  <span class="name "><a href="../rohd_hcl/AssociativeIndexedSideReadProvider-class.html">AssociativeIndexedSideReadProvider</a></span> 
+
+</dt>
+<dd>
+  Optional combinational indexed access to stored key and validity.
+</dd>
+
+          <dt id="AssociativeIndexedSideReadRequest">
+  <span class="name "><a href="../rohd_hcl/AssociativeIndexedSideReadRequest-class.html">AssociativeIndexedSideReadRequest</a></span> 
+
+</dt>
+<dd>
+  Indexed side-read request for associative key and validity state.
+</dd>
+
+          <dt id="AssociativeIndexedSideReadResponse">
+  <span class="name "><a href="../rohd_hcl/AssociativeIndexedSideReadResponse-class.html">AssociativeIndexedSideReadResponse</a></span> 
+
+</dt>
+<dd>
+  Indexed side-read response containing key and validity state.
+</dd>
+
+          <dt id="AssociativeLookupPortInterface">
+  <span class="name "><a href="../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span> 
+
+</dt>
+<dd>
+  A combinational associative-memory lookup port.
+</dd>
+
+          <dt id="AssociativeMatcher">
+  <span class="name "><a href="../rohd_hcl/AssociativeMatcher-class.html">AssociativeMatcher</a></span> 
+
+</dt>
+<dd>
+  Produces a match vector without owning storage or choosing one match.
+</dd>
+
+          <dt id="AssociativeMatchSelector">
+  <span class="name "><a href="../rohd_hcl/AssociativeMatchSelector-class.html">AssociativeMatchSelector</a></span> 
+
+</dt>
+<dd>
+  Selects one entry from an associative match vector.
+</dd>
+
+          <dt id="AssociativeMemory">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemory-class.html">AssociativeMemory</a></span> 
+
+</dt>
+<dd>
+  A raw associative memory with fixed lookup timing and initiation interval.
+</dd>
+
+          <dt id="AssociativeMemoryBinding">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryBinding-class.html">AssociativeMemoryBinding</a></span> 
+
+</dt>
+<dd>
+  A resolved associative-memory implementation and its instantiated module.
+</dd>
+
+          <dt id="AssociativeMemoryCapabilities">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryCapabilities-class.html">AssociativeMemoryCapabilities</a></span> 
+
+</dt>
+<dd>
+  Static capabilities advertised by an associative-memory implementation.
+</dd>
+
+          <dt id="AssociativeMemoryContract">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span> 
+
+</dt>
+<dd>
+  Timing and behavior selected for one associative-memory binding.
+</dd>
+
+          <dt id="AssociativeMemoryFunctor">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryFunctor-class.html">AssociativeMemoryFunctor</a></span> 
+
+</dt>
+<dd>
+  A callable implementation for raw associative memory.
+</dd>
+
+          <dt id="AssociativeMemoryRequest">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryRequest-class.html">AssociativeMemoryRequest</a></span> 
+
+</dt>
+<dd>
+  An immutable requested associative-memory shape and behavior.
+</dd>
+
+          <dt id="AssociativeMultiIndexedSideReadProvider">
+  <span class="name "><a href="../rohd_hcl/AssociativeMultiIndexedSideReadProvider-class.html">AssociativeMultiIndexedSideReadProvider</a></span> 
+
+</dt>
+<dd>
+  Optional combinational access through multiple indexed side-read ports.
+</dd>
+
+          <dt id="AssociativePortInterface">
+  <span class="name "><a href="../rohd_hcl/AssociativePortInterface-class.html">AssociativePortInterface</a></span> 
+
+</dt>
+<dd>
+  Common shape shared by associative update and lookup ports.
+</dd>
+
+          <dt id="AssociativeSoftwareDescription">
+  <span class="name "><a href="../rohd_hcl/AssociativeSoftwareDescription-class.html">AssociativeSoftwareDescription</a></span> 
+
+</dt>
+<dd>
+  Portable port geometry for a clock-stepped associative software model.
+</dd>
+
+          <dt id="AssociativeSoftwareExecutionImage">
+  <span class="name "><a href="../rohd_hcl/AssociativeSoftwareExecutionImage-class.html">AssociativeSoftwareExecutionImage</a></span> 
+
+</dt>
+<dd>
+  Detached execution state, including in-flight updates and lookups.
+</dd>
+
+          <dt id="AssociativeSoftwareLookup">
+  <span class="name "><a href="../rohd_hcl/AssociativeSoftwareLookup-class.html">AssociativeSoftwareLookup</a></span> 
+
+</dt>
+<dd>
+  A sampled lookup. A null lookup means its port is disabled.
+</dd>
+
+          <dt id="AssociativeSoftwareModel">
+  <span class="name "><a href="../rohd_hcl/AssociativeSoftwareModel-class.html">AssociativeSoftwareModel</a></span> 
+
+</dt>
+<dd>
+  Clock-stepped software model for indexed CAM updates and associative lookup.
+</dd>
+
+          <dt id="AssociativeSoftwareState">
+  <span class="name "><a href="../rohd_hcl/AssociativeSoftwareState-class.html">AssociativeSoftwareState</a></span> 
+
+</dt>
+<dd>
+  Detached raw associative state. Entries omitted during load are unchanged,
+or reset when <code>replace</code> is requested.
+</dd>
+
+          <dt id="AssociativeSoftwareUpdate">
+  <span class="name "><a href="../rohd_hcl/AssociativeSoftwareUpdate-class.html">AssociativeSoftwareUpdate</a></span> 
+
+</dt>
+<dd>
+  A sampled update. A null update means its port is disabled.
+</dd>
+
+          <dt id="AssociativeUpdatePortInterface">
+  <span class="name "><a href="../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span> 
+
+</dt>
+<dd>
+  A port that updates one indexed associative-memory entry.
+</dd>
+
+          <dt id="AssociativeValidityMaskProvider">
+  <span class="name "><a href="../rohd_hcl/AssociativeValidityMaskProvider-class.html">AssociativeValidityMaskProvider</a></span> 
+
+</dt>
+<dd>
+  Optional combinational access to all stored validity bits.
+</dd>
+
           <dt id="AsyncFifo">
-  <span class="name "><a href="../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a></span> 
+  <span class="name "><a href="../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -1933,6 +2126,134 @@ AXI Subordinate. Regions can have access modes
 and can be leveraged for wrapping bursts.
 </dd>
 
+          <dt id="BehavioralCache">
+  <span class="name "><a href="../rohd_hcl/BehavioralCache-class.html">BehavioralCache</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Simulation-only transactional cache with concurrent outstanding requests.
+</dd>
+
+          <dt id="BehavioralCacheBackingStore">
+  <span class="name "><a href="../rohd_hcl/BehavioralCacheBackingStore-class.html">BehavioralCacheBackingStore</a></span> 
+
+</dt>
+<dd>
+  Sparse, persistent backing storage for <a href="../rohd_hcl/BehavioralCache-class.html">BehavioralCache</a>.
+</dd>
+
+          <dt id="BehavioralCacheBackingStoreImage">
+  <span class="name "><a href="../rohd_hcl/BehavioralCacheBackingStoreImage-class.html">BehavioralCacheBackingStoreImage</a></span> 
+
+</dt>
+<dd>
+  Detached sparse backing-store state, including opaque line metadata.
+</dd>
+
+          <dt id="BehavioralCacheImage">
+  <span class="name "><a href="../rohd_hcl/BehavioralCacheImage-class.html">BehavioralCacheImage</a></span> 
+
+</dt>
+<dd>
+  Detached full behavioral-cache state, including in-flight transactions.
+</dd>
+
+          <dt id="BehavioralCacheReplacement">
+  <span class="name "><a href="../rohd_hcl/BehavioralCacheReplacement-class.html">BehavioralCacheReplacement</a></span> 
+
+</dt>
+<dd>
+  Software replacement state used by a <a href="../rohd_hcl/BehavioralCache-class.html">BehavioralCache</a>.
+</dd>
+
+          <dt id="BehavioralCacheRoundRobin">
+  <span class="name "><a href="../rohd_hcl/BehavioralCacheRoundRobin-class.html">BehavioralCacheRoundRobin</a></span> 
+
+</dt>
+<dd>
+  Round-robin replacement which prefers invalid ways.
+</dd>
+
+          <dt id="BehavioralFixedPriorityCacheScheduler">
+  <span class="name "><a href="../rohd_hcl/BehavioralFixedPriorityCacheScheduler-class.html">BehavioralFixedPriorityCacheScheduler</a></span> 
+
+</dt>
+<dd>
+  Software equivalent of the fixed-priority cache scheduler.
+</dd>
+
+          <dt id="BehavioralModel">
+  <span class="name "><a href="../rohd_hcl/BehavioralModel-class.html">BehavioralModel</a></span> 
+
+</dt>
+<dd>
+  A portable behavioral implementation, not a synthesized RTL graph.
+</dd>
+
+          <dt id="BehavioralModelDescription">
+  <span class="name "><a href="../rohd_hcl/BehavioralModelDescription-class.html">BehavioralModelDescription</a></span> 
+
+</dt>
+<dd>
+  Simulator-independent elaborated metadata for a behavioral component.
+</dd>
+
+          <dt id="BehavioralModelProvider">
+  <span class="name "><a href="../rohd_hcl/BehavioralModelProvider-class.html">BehavioralModelProvider</a></span> 
+
+</dt>
+<dd>
+  Optional capability for modules with a portable behavioral implementation.
+</dd>
+
+          <dt id="BehavioralParallelAssociativeDescription">
+  <span class="name "><a href="../rohd_hcl/BehavioralParallelAssociativeDescription-class.html">BehavioralParallelAssociativeDescription</a></span> 
+
+</dt>
+<dd>
+  Frozen port geometry for a parallel associative behavioral model.
+</dd>
+
+          <dt id="BehavioralParallelAssociativeMemory">
+  <span class="name "><a href="../rohd_hcl/BehavioralParallelAssociativeMemory-class.html">BehavioralParallelAssociativeMemory</a></span> 
+
+</dt>
+<dd>
+  Software equivalent of the combinational-lookup parallel-flop memory.
+</dd>
+
+          <dt id="BehavioralReplacementDescription">
+  <span class="name "><a href="../rohd_hcl/BehavioralReplacementDescription-class.html">BehavioralReplacementDescription</a></span> 
+
+</dt>
+<dd>
+  Immutable configuration for a portable replacement policy.
+</dd>
+
+          <dt id="BehavioralReplacementImage">
+  <span class="name "><a href="../rohd_hcl/BehavioralReplacementImage-class.html">BehavioralReplacementImage</a></span> 
+
+</dt>
+<dd>
+  Detached state for a behavioral replacement policy.
+</dd>
+
+          <dt id="BehavioralReplacementPolicy">
+  <span class="name "><a href="../rohd_hcl/BehavioralReplacementPolicy-class.html">BehavioralReplacementPolicy</a></span> 
+
+</dt>
+<dd>
+  Software replacement policy using the same ports as <a href="../rohd_hcl/ReplacementPolicy-class.html">ReplacementPolicy</a>.
+</dd>
+
+          <dt id="BehavioralSystemCHierarchy">
+  <span class="name "><a href="../rohd_hcl/BehavioralSystemCHierarchy-class.html">BehavioralSystemCHierarchy</a></span> 
+
+</dt>
+<dd>
+  Generated SystemC source and the actual class name of its top module.
+</dd>
+
           <dt id="BinaryToGrayConfigurator">
   <span class="name "><a href="../rohd_hcl/BinaryToGrayConfigurator-class.html">BinaryToGrayConfigurator</a></span> 
 
@@ -1966,7 +2287,7 @@ and can be leveraged for wrapping bursts.
 </dd>
 
           <dt id="BitonicSort">
-  <span class="name "><a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a></span> 
+  <span class="name "><a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -1982,6 +2303,30 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/BitonicSort-class.html">BitonicSort</a>.
 </dd>
 
+          <dt id="BitwiseMux">
+  <span class="name "><a href="../rohd_hcl/BitwiseMux-class.html">BitwiseMux</a></span> 
+
+</dt>
+<dd>
+  Selects each output bit independently among N inputs.
+</dd>
+
+          <dt id="BitwisePopcount">
+  <span class="name "><a href="../rohd_hcl/BitwisePopcount-class.html">BitwisePopcount</a></span> 
+
+</dt>
+<dd>
+  Base hardware for counting equal or unequal corresponding bits.
+</dd>
+
+          <dt id="BitwisePopcountConfigurator">
+  <span class="name "><a href="../rohd_hcl/BitwisePopcountConfigurator-class.html">BitwisePopcountConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a bitwise comparison and population count.
+</dd>
+
           <dt id="BooleanConfig">
   <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/BooleanConfig-class.html">BooleanConfig</a></span> 
 
@@ -1991,7 +2336,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 </dd>
 
           <dt id="BrentKung">
-  <span class="name "><a href="../rohd_hcl/BrentKung-class.html">BrentKung</a></span> 
+  <span class="name "><a href="../rohd_hcl/BrentKung-class.html">BrentKung</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2006,12 +2351,156 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A Brute Sign Extension class.
 </dd>
 
-          <dt id="Cam">
-  <span class="name "><a href="../rohd_hcl/Cam-class.html">Cam</a></span> 
+          <dt id="Cache">
+  <span class="name "><a href="../rohd_hcl/Cache-class.html">Cache</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
-  A content-addressable memory (CAM) module.
+  A blocking cache with caller-managed fills and evictions.
+</dd>
+
+          <dt id="CacheConfigurator">
+  <span class="name "><a href="../rohd_hcl/CacheConfigurator-class.html">CacheConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the single-lookup, single-fill RTL cache.
+</dd>
+
+          <dt id="CacheFillPort">
+  <span class="name "><a href="../rohd_hcl/CacheFillPort-class.html">CacheFillPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  One caller-owned fill port and its associated eviction response.
+</dd>
+
+          <dt id="CacheLookupPort">
+  <span class="name "><a href="../rohd_hcl/CacheLookupPort-class.html">CacheLookupPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  One caller-owned cache lookup interface.
+</dd>
+
+          <dt id="CacheProtocolAdapter">
+  <span class="name "><a href="../rohd_hcl/CacheProtocolAdapter-class.html">CacheProtocolAdapter</a><span class="signature">&lt;<wbr><span class="type-parameter">Q extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">S extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Boundary implemented by an adapter for an external request/response protocol.
+</dd>
+
+          <dt id="CacheReplacement">
+  <span class="name "><a href="../rohd_hcl/CacheReplacement-class.html">CacheReplacement</a></span> 
+
+</dt>
+<dd>
+  Factory for the replacement policy used independently in each cache set.
+</dd>
+
+          <dt id="CacheSchedulerConfigurator">
+  <span class="name "><a href="../rohd_hcl/CacheSchedulerConfigurator-class.html">CacheSchedulerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a fixed-priority RTL cache resource scheduler.
+</dd>
+
+          <dt id="CacheSchedulerDescription">
+  <span class="name "><a href="../rohd_hcl/CacheSchedulerDescription-class.html">CacheSchedulerDescription</a></span> 
+
+</dt>
+<dd>
+  Portable geometry of a fixed-priority cache scheduler.
+</dd>
+
+          <dt id="CacheScheduleRequest">
+  <span class="name "><a href="../rohd_hcl/CacheScheduleRequest-class.html">CacheScheduleRequest</a></span> 
+
+</dt>
+<dd>
+  One candidate for an atomic grant from a cache scheduler.
+</dd>
+
+          <dt id="CacheSchedulerPorts">
+  <span class="name "><a href="../rohd_hcl/CacheSchedulerPorts-class.html">CacheSchedulerPorts</a></span> 
+
+</dt>
+<dd>
+  Resource and conflict signals shared by one scheduling decision.
+</dd>
+
+          <dt id="CacheTransactionAdapter">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionAdapter-class.html">CacheTransactionAdapter</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Buffers requests and tracks tokens across a transactional cache port.
+</dd>
+
+          <dt id="CacheTransactionAdapterConfigurator">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionAdapterConfigurator-class.html">CacheTransactionAdapterConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a protocol-neutral RTL cache transaction adapter.
+</dd>
+
+          <dt id="CacheTransactionCapabilities">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionCapabilities-class.html">CacheTransactionCapabilities</a></span> 
+
+</dt>
+<dd>
+  Static promises of a transactional cache implementation.
+</dd>
+
+          <dt id="CacheTransactionCore">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionCore-class.html">CacheTransactionCore</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Boundary implemented by a transactional cache core.
+</dd>
+
+          <dt id="CacheTransactionEviction">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionEviction-class.html">CacheTransactionEviction</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An existing block reported before replacement or invalidation.
+</dd>
+
+          <dt id="CacheTransactionPort">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionPort-class.html">CacheTransactionPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Request, response, and eviction channels for a transactional cache port.
+</dd>
+
+          <dt id="CacheTransactionRequest">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionRequest-class.html">CacheTransactionRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A request carrying separately typed block data, stored metadata and context.
+</dd>
+
+          <dt id="CacheTransactionResponse">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionResponse-class.html">CacheTransactionResponse</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Completion carrying the request token and context.
+</dd>
+
+          <dt id="Cam">
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/Cam-class.html">Cam</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A content-addressable memory (CAM) preserving tag type <code>T</code>.
 </dd>
 
           <dt id="CamConfigurator">
@@ -2019,7 +2508,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 
 </dt>
 <dd>
-  A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Cam-class.html">Cam</a>.
+  A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a class="deprecated" href="../rohd_hcl/Cam-class.html">Cam</a>.
 </dd>
 
           <dt id="CarrySaveMultiplier">
@@ -2070,12 +2559,45 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   Decodes a one-hot number into binary using a case block.
 </dd>
 
+          <dt id="CeilDivide">
+  <span class="name "><a href="../rohd_hcl/CeilDivide-class.html">CeilDivide</a></span> 
+
+</dt>
+<dd>
+  Divides <code>dividend</code> by <code>divisor</code> and rounds the quotient up.
+</dd>
+
+          <dt id="CeilDivideConfigurator">
+  <span class="name "><a href="../rohd_hcl/CeilDivideConfigurator-class.html">CeilDivideConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures unsigned division rounded up.
+</dd>
+
           <dt id="ChoiceConfigKnob">
   <span class="name "><a href="../rohd_hcl/ChoiceConfigKnob-class.html">ChoiceConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
 </dt>
 <dd>
   A <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a> for selecting one of multiple options.
+</dd>
+
+          <dt id="CircularPointer">
+  <span class="name "><a href="../rohd_hcl/CircularPointer-class.html">CircularPointer</a></span> 
+
+</dt>
+<dd>
+  A registered pointer that advances by a variable increment and wraps
+modulo <a href="../rohd_hcl/CircularPointer/slots.html">slots</a>.
+</dd>
+
+          <dt id="CircularPointerConfigurator">
+  <span class="name "><a href="../rohd_hcl/CircularPointerConfigurator-class.html">CircularPointerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a wrapping pointer.
 </dd>
 
           <dt id="ClockGate">
@@ -2099,7 +2621,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 
 </dt>
 <dd>
-  An <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Interface-class.html">Interface</a> for controlling <a href="../rohd_hcl/ClockGate-class.html">ClockGate</a>s.
+  An <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Interface-class.html">Interface</a> for controlling <a href="../rohd_hcl/ClockGate-class.html">ClockGate</a>s.
 </dd>
 
           <dt id="ColumnCompressor">
@@ -2203,7 +2725,7 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 
 </dt>
 <dd>
-  An object that enables a consisten API for configuring a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> and
+  An object that enables a consisten API for configuring a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and
 performing common tasks with it.
 </dd>
 
@@ -2240,12 +2762,28 @@ configuration for widths, saturation behavior, and restarting.
   A configurator for <a href="../rohd_hcl/Counter-class.html">Counter</a>.
 </dd>
 
+          <dt id="CountLeadingZeros">
+  <span class="name "><a href="../rohd_hcl/CountLeadingZeros-class.html">CountLeadingZeros</a></span> 
+
+</dt>
+<dd>
+  Counts the zeros above the most significant set bit of a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>.
+</dd>
+
+          <dt id="CountTrailingZeros">
+  <span class="name "><a href="../rohd_hcl/CountTrailingZeros-class.html">CountTrailingZeros</a></span> 
+
+</dt>
+<dd>
+  Counts the zeros below the least significant set bit of a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>.
+</dd>
+
           <dt id="Csr">
   <span class="name "><a href="../rohd_hcl/Csr-class.html">Csr</a></span> 
 
 </dt>
 <dd>
-  <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> representation of a Control and Status Register (CSR).
+  <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> representation of a Control and Status Register (CSR).
 </dd>
 
           <dt id="CsrBackdoorInterface">
@@ -2261,7 +2799,7 @@ configuration for widths, saturation behavior, and restarting.
 
 </dt>
 <dd>
-  <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> representation of a block of registers.
+  <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> representation of a block of registers.
 </dd>
 
           <dt id="CsrBlockConfig">
@@ -2280,6 +2818,14 @@ configuration for widths, saturation behavior, and restarting.
   Configuration for an architectural register.
 </dd>
 
+          <dt id="CsrExampleConfigurator">
+  <span class="name "><a href="../rohd_hcl/CsrExampleConfigurator-class.html">CsrExampleConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a small CSR example with two read/write registers.
+</dd>
+
           <dt id="CsrFieldConfig">
   <span class="name "><a href="../rohd_hcl/CsrFieldConfig-class.html">CsrFieldConfig</a></span> 
 
@@ -2288,12 +2834,68 @@ configuration for widths, saturation behavior, and restarting.
   Configuration for a register field.
 </dd>
 
+          <dt id="CsrImplementationConfiguration">
+  <span class="name "><a href="../rohd_hcl/CsrImplementationConfiguration-class.html">CsrImplementationConfiguration</a></span> 
+
+</dt>
+<dd>
+  Elaboration policy for a CSR top.
+</dd>
+
+          <dt id="CsrImplementationScope">
+  <span class="name "><a href="../rohd_hcl/CsrImplementationScope-class.html">CsrImplementationScope</a></span> 
+
+</dt>
+<dd>
+  Scoped construction policy, including indirectly constructed CSR tops.
+</dd>
+
           <dt id="CsrInstanceConfig">
   <span class="name "><a href="../rohd_hcl/CsrInstanceConfig-class.html">CsrInstanceConfig</a></span> 
 
 </dt>
 <dd>
   Configuration for a register instance.
+</dd>
+
+          <dt id="CsrModelDescription">
+  <span class="name "><a href="../rohd_hcl/CsrModelDescription-class.html">CsrModelDescription</a></span> 
+
+</dt>
+<dd>
+  Portable whole-top CSR metadata shared by ROHD and SystemC execution.
+</dd>
+
+          <dt id="CsrModelHardwarePorts">
+  <span class="name "><a href="../rohd_hcl/CsrModelHardwarePorts-class.html">CsrModelHardwarePorts</a></span> 
+
+</dt>
+<dd>
+  Frozen hardware port names for one explicitly exposed register.
+</dd>
+
+          <dt id="CsrModelRegisterDescription">
+  <span class="name "><a href="../rohd_hcl/CsrModelRegisterDescription-class.html">CsrModelRegisterDescription</a></span> 
+
+</dt>
+<dd>
+  Frozen configuration of one register, with no runtime signals or callbacks.
+</dd>
+
+          <dt id="CsrSoftwareExecutionImage">
+  <span class="name "><a href="../rohd_hcl/CsrSoftwareExecutionImage-class.html">CsrSoftwareExecutionImage</a></span> 
+
+</dt>
+<dd>
+  Detached CSR execution state, including sampled inputs and pending edges.
+</dd>
+
+          <dt id="CsrSoftwareModel">
+  <span class="name "><a href="../rohd_hcl/CsrSoftwareModel-class.html">CsrSoftwareModel</a></span> 
+
+</dt>
+<dd>
+  Software-held state for an entire CSR top.
 </dd>
 
           <dt id="CsrTop">
@@ -2313,7 +2915,7 @@ configuration for widths, saturation behavior, and restarting.
 </dd>
 
           <dt id="DataPortInterface">
-  <span class="name "><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span> 
+  <span class="name "><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2321,11 +2923,19 @@ configuration for widths, saturation behavior, and restarting.
 </dd>
 
           <dt id="Deserializer">
-  <span class="name "><a href="../rohd_hcl/Deserializer-class.html">Deserializer</a></span> 
+  <span class="name "><a href="../rohd_hcl/Deserializer-class.html">Deserializer</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">V</span>&gt;</span></span> 
 
 </dt>
 <dd>
   <a href="../rohd_hcl/Deserializer-class.html">Deserializer</a> aggregates data from a serialized stream.
+</dd>
+
+          <dt id="DirectionalAttachmentCapabilities">
+  <span class="name "><a href="../rohd_hcl/DirectionalAttachmentCapabilities-class.html">DirectionalAttachmentCapabilities</a></span> 
+
+</dt>
+<dd>
+  Construction-time behavior of one directional protocol attachment.
 </dd>
 
           <dt id="DotProductBase">
@@ -2370,7 +2980,7 @@ the previous clock cycle.
 </dd>
 
           <dt id="ErrorCheckingReceiver">
-  <span class="name "><a href="../rohd_hcl/ErrorCheckingReceiver-class.html">ErrorCheckingReceiver</a></span> 
+  <span class="name "><a href="../rohd_hcl/ErrorCheckingReceiver-class.html">ErrorCheckingReceiver</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2379,7 +2989,7 @@ correcting.
 </dd>
 
           <dt id="ErrorCheckingTransmitter">
-  <span class="name "><a href="../rohd_hcl/ErrorCheckingTransmitter-class.html">ErrorCheckingTransmitter</a></span> 
+  <span class="name "><a href="../rohd_hcl/ErrorCheckingTransmitter-class.html">ErrorCheckingTransmitter</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2388,11 +2998,11 @@ correcting data at the receiving end.
 </dd>
 
           <dt id="Extrema">
-  <span class="name "><a href="../rohd_hcl/Extrema-class.html">Extrema</a></span> 
+  <span class="name "><a href="../rohd_hcl/Extrema-class.html">Extrema</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
-  Determines the extremas (maximum or minimum) of a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a>.
+  Determines the extrema (maximum or minimum) of typed payloads.
 </dd>
 
           <dt id="ExtremaConfigurator">
@@ -2404,7 +3014,7 @@ correcting data at the receiving end.
 </dd>
 
           <dt id="Fifo">
-  <span class="name "><a href="../rohd_hcl/Fifo-class.html">Fifo</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/Fifo-class.html">Fifo</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2426,6 +3036,46 @@ dangerous conditions.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Fifo-class.html">Fifo</a>.
+</dd>
+
+          <dt id="FifoCoreBinding">
+  <span class="name "><a href="../rohd_hcl/FifoCoreBinding-class.html">FifoCoreBinding</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Constructed FIFO and its output-only protocol-neutral binding.
+</dd>
+
+          <dt id="FifoCoreCapabilities">
+  <span class="name "><a href="../rohd_hcl/FifoCoreCapabilities-class.html">FifoCoreCapabilities</a></span> 
+
+</dt>
+<dd>
+  Action semantics and configured shape of a <a href="../rohd_hcl/FifoCoreFunctor-class.html">FifoCoreFunctor</a>.
+</dd>
+
+          <dt id="FifoCoreFunctor">
+  <span class="name "><a href="../rohd_hcl/FifoCoreFunctor-class.html">FifoCoreFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Constructs typed synchronous <a href="../rohd_hcl/Fifo-class.html">Fifo</a> cores.
+</dd>
+
+          <dt id="FifoCoreRequest">
+  <span class="name "><a href="../rohd_hcl/FifoCoreRequest-class.html">FifoCoreRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Wrapper-owned actions and payload used to construct a <a href="../rohd_hcl/Fifo-class.html">Fifo</a>.
+</dd>
+
+          <dt id="FifoCoreRequirements">
+  <span class="name "><a href="../rohd_hcl/FifoCoreRequirements-class.html">FifoCoreRequirements</a></span> 
+
+</dt>
+<dd>
+  Capabilities required by a FIFO construction request.
 </dd>
 
           <dt id="FifoTracker">
@@ -2487,7 +3137,7 @@ Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">ht
 </dd>
 
           <dt id="FixedPointSqrt">
-  <span class="name "><a href="../rohd_hcl/FixedPointSqrt-class.html">FixedPointSqrt</a></span> 
+  <span class="name "><a href="../rohd_hcl/FixedPointSqrt-class.html">FixedPointSqrt</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2497,7 +3147,7 @@ Algorithm explained here;
 </dd>
 
           <dt id="FixedPointSqrtBase">
-  <span class="name "><a href="../rohd_hcl/FixedPointSqrtBase-class.html">FixedPointSqrtBase</a></span> 
+  <span class="name "><a href="../rohd_hcl/FixedPointSqrtBase-class.html">FixedPointSqrtBase</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2531,8 +3181,16 @@ Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">ht
 forms of <a href="../rohd_hcl/FixedPointValue-class.html">FixedPointValue</a>s.
 </dd>
 
+          <dt id="FixedPriorityCacheScheduler">
+  <span class="name "><a href="../rohd_hcl/FixedPriorityCacheScheduler-class.html">FixedPriorityCacheScheduler</a></span> 
+
+</dt>
+<dd>
+  Greedily grants feasible requests in ascending port order.
+</dd>
+
           <dt id="FixedToFloat">
-  <span class="name "><a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a></span> 
+  <span class="name "><a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2562,7 +3220,7 @@ FP8 input must follow E4M3 or E5M2 as described in
 (FP8 formats for deep learning): (<a href="https://arxiv.org/pdf/2209.05433">https://arxiv.org/pdf/2209.05433</a>).
 This component offers re-using the same hardware for both FP8 formats.
 Infinities and NaN's are not supported.
-The output is of type <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> and in two's complement.
+The output is of type <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> and in two's complement.
 It can be cast to a <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> by the consumer based on the mode.
 if <code>mode</code> is <code>true</code>:
   Input is treated as E4M3 and converted to Q9.9
@@ -2733,7 +3391,7 @@ if <code>mode</code> is <code>true</code>:
 </dd>
 
           <dt id="FloatingPointConditionalSwap">
-  <span class="name "><a href="../rohd_hcl/FloatingPointConditionalSwap-class.html">FloatingPointConditionalSwap</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/FloatingPointConditionalSwap-class.html">FloatingPointConditionalSwap</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, <span class="type-parameter">MetaType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2797,7 +3455,7 @@ if <code>mode</code> is <code>true</code>:
 </dd>
 
           <dt id="FloatingPointSort">
-  <span class="name "><a href="../rohd_hcl/FloatingPointSort-class.html">FloatingPointSort</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/FloatingPointSort-class.html">FloatingPointSort</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, <span class="type-parameter">MetaType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2806,7 +3464,7 @@ first.
 </dd>
 
           <dt id="FloatingPointSortByExp">
-  <span class="name "><a href="../rohd_hcl/FloatingPointSortByExp-class.html">FloatingPointSortByExp</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/FloatingPointSortByExp-class.html">FloatingPointSortByExp</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, <span class="type-parameter">MetaType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2847,7 +3505,7 @@ with the larger exponent first.
 </dd>
 
           <dt id="FloatingPointSwap">
-  <span class="name "><a href="../rohd_hcl/FloatingPointSwap-class.html">FloatingPointSwap</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/FloatingPointSwap-class.html">FloatingPointSwap</a><span class="signature">&lt;<wbr><span class="type-parameter">FpType extends <a href="../rohd_hcl/FloatingPoint-class.html">FloatingPoint</a></span>, <span class="type-parameter">MetaType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2900,7 +3558,7 @@ forms of <a href="../rohd_hcl/FloatingPointValue-class.html">FloatingPointValue<
 </dd>
 
           <dt id="FloatToFixed">
-  <span class="name "><a href="../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a></span> 
+  <span class="name "><a href="../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2946,6 +3604,14 @@ for power savings.
 <a href="../rohd_hcl/Multiplier-class.html">Multiplier</a> and <a href="../rohd_hcl/Adder-class.html">Adder</a> functions to construct the dot product computation.
 </dd>
 
+          <dt id="GeneratePropagate">
+  <span class="name "><a href="../rohd_hcl/GeneratePropagate-class.html">GeneratePropagate</a></span> 
+
+</dt>
+<dd>
+  Named carry-generation and carry-propagation signals for prefix addition.
+</dd>
+
           <dt id="GenericMultiplyAccumulate">
   <span class="name "><a href="../rohd_hcl/GenericMultiplyAccumulate-class.html">GenericMultiplyAccumulate</a></span> 
 
@@ -2983,7 +3649,7 @@ pluggable-generator convention already used for the final adder inside
 </dd>
 
           <dt id="HammingEccReceiver">
-  <span class="name "><a href="../rohd_hcl/HammingEccReceiver-class.html">HammingEccReceiver</a></span> 
+  <span class="name "><a href="../rohd_hcl/HammingEccReceiver-class.html">HammingEccReceiver</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -2992,12 +3658,68 @@ and possibly correction.
 </dd>
 
           <dt id="HammingEccTransmitter">
-  <span class="name "><a href="../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a></span> 
+  <span class="name "><a href="../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
   A transmitter for data which generates a Hamming code for error detection
 and possibly correction.
+</dd>
+
+          <dt id="HardwareCoreBinding">
+  <span class="name "><a href="../rohd_hcl/HardwareCoreBinding-class.html">HardwareCoreBinding</a></span> 
+
+</dt>
+<dd>
+  Result of constructing a protocol-neutral hardware core.
+</dd>
+
+          <dt id="HardwareCoreCapabilities">
+  <span class="name "><a href="../rohd_hcl/HardwareCoreCapabilities-class.html">HardwareCoreCapabilities</a></span> 
+
+</dt>
+<dd>
+  Construction-time metadata for one hardware-core functor.
+</dd>
+
+          <dt id="HardwareCoreFunctor">
+  <span class="name "><a href="../rohd_hcl/HardwareCoreFunctor-class.html">HardwareCoreFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">Request</span>, <span class="type-parameter">Binding extends <a href="../rohd_hcl/HardwareCoreBinding-class.html">HardwareCoreBinding</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Constructs a hardware core from a typed <code>Request</code> and returns its <code>Binding</code>.
+</dd>
+
+          <dt id="InferredSram">
+  <span class="name "><a href="../rohd_hcl/InferredSram-class.html">InferredSram</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A synchronous, single-port SRAM described as an inferable Verilog array.
+</dd>
+
+          <dt id="InferredSramConfigurator">
+  <span class="name "><a href="../rohd_hcl/InferredSramConfigurator-class.html">InferredSramConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the single-port, synchronous inferred SRAM.
+</dd>
+
+          <dt id="InferredSramDescription">
+  <span class="name "><a href="../rohd_hcl/InferredSramDescription-class.html">InferredSramDescription</a></span> 
+
+</dt>
+<dd>
+  Immutable port geometry and capacity for a single-port SRAM.
+</dd>
+
+          <dt id="InferredSramImage">
+  <span class="name "><a href="../rohd_hcl/InferredSramImage-class.html">InferredSramImage</a></span> 
+
+</dt>
+<dd>
+  A detached SRAM execution image, including the registered read output.
 </dd>
 
           <dt id="IntConfigKnob">
@@ -3016,8 +3738,17 @@ and possibly correction.
   A knob to store an <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>.
 </dd>
 
+          <dt id="IrrevocableReadyValidInterface">
+  <span class="name "><a href="../rohd_hcl/IrrevocableReadyValidInterface-class.html">IrrevocableReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A valid-first ready/valid interface that holds an offer stable until it is
+accepted.
+</dd>
+
           <dt id="KoggeStone">
-  <span class="name "><a href="../rohd_hcl/KoggeStone-class.html">KoggeStone</a></span> 
+  <span class="name "><a href="../rohd_hcl/KoggeStone-class.html">KoggeStone</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3075,6 +3806,14 @@ before an addition or subtraction.
 </dt>
 <dd>
   A knob wich holds a collection of other <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a>s.
+</dd>
+
+          <dt id="Log2Ceil">
+  <span class="name "><a href="../rohd_hcl/Log2Ceil-class.html">Log2Ceil</a></span> 
+
+</dt>
+<dd>
+  Computes the ceiling of the base-2 logarithm of <code>inp</code>.
 </dd>
 
           <dt id="LtiCluster">
@@ -3414,7 +4153,7 @@ before an addition or subtraction.
 </dd>
 
           <dt id="MaskedDataPortInterface">
-  <span class="name "><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></span> 
+  <span class="name "><a href="../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3430,20 +4169,84 @@ before an addition or subtraction.
 </dd>
 
           <dt id="Memory">
-  <span class="name "><a href="../rohd_hcl/Memory-class.html">Memory</a></span> 
+  <span class="name "><a href="../rohd_hcl/Memory-class.html">Memory</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
   A generic memory with variable numbers of read and write ports.
 </dd>
 
+          <dt id="MemoryArrayCapabilities">
+  <span class="name "><a href="../rohd_hcl/MemoryArrayCapabilities-class.html">MemoryArrayCapabilities</a></span> 
+
+</dt>
+<dd>
+  Fixed-timing capabilities of one memory array implementation.
+</dd>
+
+          <dt id="MemoryArrayFunctor">
+  <span class="name "><a href="../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A capability-checked factory for typed, fixed-timing memory arrays.
+</dd>
+
           <dt id="MemoryModel">
-  <span class="name "><a href="../rohd_hcl/MemoryModel-class.html">MemoryModel</a></span> 
+  <span class="name "><a href="../rohd_hcl/MemoryModel-class.html">MemoryModel</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
   A model of a <a href="../rohd_hcl/Memory-class.html">Memory</a> which uses a software-based <a href="../rohd_hcl/SparseMemoryStorage-class.html">SparseMemoryStorage</a> to
 store data.
+</dd>
+
+          <dt id="MemoryModelDescription">
+  <span class="name "><a href="../rohd_hcl/MemoryModelDescription-class.html">MemoryModelDescription</a></span> 
+
+</dt>
+<dd>
+  Simulator-independent geometry of an addressed software memory.
+</dd>
+
+          <dt id="MemoryModelImage">
+  <span class="name "><a href="../rohd_hcl/MemoryModelImage-class.html">MemoryModelImage</a></span> 
+
+</dt>
+<dd>
+  Detached memory state including delayed reads and their output values.
+</dd>
+
+          <dt id="MemoryPortGeometry">
+  <span class="name "><a href="../rohd_hcl/MemoryPortGeometry-class.html">MemoryPortGeometry</a></span> 
+
+</dt>
+<dd>
+  Addressed data-port geometry, without imposing latency or access rules.
+</dd>
+
+          <dt id="MemoryStateAccess">
+  <span class="name "><a href="../rohd_hcl/MemoryStateAccess-class.html">MemoryStateAccess</a><span class="signature">&lt;<wbr><span class="type-parameter">Image extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Optional raw software state access, separate from hardware port exposure.
+</dd>
+
+          <dt id="MemoryStateAccessCapabilities">
+  <span class="name "><a href="../rohd_hcl/MemoryStateAccessCapabilities-class.html">MemoryStateAccessCapabilities</a></span> 
+
+</dt>
+<dd>
+  Capabilities for direct memory-state access operations.
+</dd>
+
+          <dt id="MemoryStateAccessCapabilityProvider">
+  <span class="name "><a href="../rohd_hcl/MemoryStateAccessCapabilityProvider-class.html">MemoryStateAccessCapabilityProvider</a></span> 
+
+</dt>
+<dd>
+  Provides direct memory-state access capability information.
 </dd>
 
           <dt id="MemoryStorage">
@@ -3452,6 +4255,30 @@ store data.
 </dt>
 <dd>
   A storage for memory models.
+</dd>
+
+          <dt id="MemoryStorageImage">
+  <span class="name "><a href="../rohd_hcl/MemoryStorageImage-class.html">MemoryStorageImage</a></span> 
+
+</dt>
+<dd>
+  Immutable sparse state containing explicit words and symbolic writes.
+</dd>
+
+          <dt id="MemoryStorageState">
+  <span class="name "><a href="../rohd_hcl/MemoryStorageState-class.html">MemoryStorageState</a></span> 
+
+</dt>
+<dd>
+  Raw state adapter for existing storage without changing its legacy API.
+</dd>
+
+          <dt id="MemoryValueCodec">
+  <span class="name "><a href="../rohd_hcl/MemoryValueCodec-class.html">MemoryValueCodec</a></span> 
+
+</dt>
+<dd>
+  Lossless four-state values for images and generated behavioral metadata.
 </dd>
 
           <dt id="MultiCycleDivider">
@@ -3543,6 +4370,30 @@ store data.
 term and applies the multiplier function.
 </dd>
 
+          <dt id="MultiPortCache">
+  <span class="name "><a href="../rohd_hcl/MultiPortCache-class.html">MultiPortCache</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A multi-port cache with independently buffered eviction responses.
+</dd>
+
+          <dt id="MultiPortCacheConfigurator">
+  <span class="name "><a href="../rohd_hcl/MultiPortCacheConfigurator-class.html">MultiPortCacheConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the multiport RTL cache.
+</dd>
+
+          <dt id="MuxConfigurator">
+  <span class="name "><a href="../rohd_hcl/MuxConfigurator-class.html">MuxConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures bitwise, one-hot, and priority multiplexers.
+</dd>
+
           <dt id="NativeAdder">
   <span class="name "><a href="../rohd_hcl/NativeAdder-class.html">NativeAdder</a></span> 
 
@@ -3573,12 +4424,28 @@ partial product array shapes as it should work in all situations.
 A Partial Product Generator using None Sign Extension
 </dd>
 
+          <dt id="NonNegativeIntConfigKnob">
+  <span class="name "><a href="../rohd_hcl/NonNegativeIntConfigKnob-class.html">NonNegativeIntConfigKnob</a></span> 
+
+</dt>
+<dd>
+  An integer knob allowing zero and positive values, with no upper bound.
+</dd>
+
           <dt id="OneHotConfigurator">
   <span class="name "><a href="../rohd_hcl/OneHotConfigurator-class.html">OneHotConfigurator</a></span> 
 
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/BinaryToOneHot-class.html">BinaryToOneHot</a> and <a href="../rohd_hcl/OneHotToBinary-class.html">OneHotToBinary</a>.
+</dd>
+
+          <dt id="OneHotMux">
+  <span class="name "><a href="../rohd_hcl/OneHotMux-class.html">OneHotMux</a></span> 
+
+</dt>
+<dd>
+  Selects the OR of every case whose bit in <code>selector</code> is set.
 </dd>
 
           <dt id="OneHotToBinary">
@@ -3614,16 +4481,46 @@ ones-complement values, producing a magnitude and sign.
   A knob for selecting a different width output.
 </dd>
 
-          <dt id="ParallelPrefix">
-  <span class="name "><a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> 
+          <dt id="Pad">
+  <span class="name "><a href="../rohd_hcl/Pad-class.html">Pad</a></span> 
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> is the core parallel prefix tree structure node
-The output is a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> of multi-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> vectors (typically 2-bit) that
-represent things like carry-save or generate-propagate signaling in adder
-networks.  Each node in a parallel prefix tree transforms a row of inputs
-to an equal length row of outputs of these multi-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> values.
+  Widens <code>inp</code> to at least <code>atLeast</code> bits by inserting bits equal to <code>fill</code>
+at the least significant end (<code>lsbs</code> true) or the most significant end
+(<code>lsbs</code> false).
+</dd>
+
+          <dt id="PadConfigurator">
+  <span class="name "><a href="../rohd_hcl/PadConfigurator-class.html">PadConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures constant-fill padding.
+</dd>
+
+          <dt id="ParallelAssociativeMemory">
+  <span class="name "><a href="../rohd_hcl/ParallelAssociativeMemory-class.html">ParallelAssociativeMemory</a></span> 
+
+</dt>
+<dd>
+  A synthesizable associative memory using parallel flop storage and matching.
+</dd>
+
+          <dt id="ParallelAssociativeMemoryConfigurator">
+  <span class="name "><a href="../rohd_hcl/ParallelAssociativeMemoryConfigurator-class.html">ParallelAssociativeMemoryConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a parallel associative memory with scalar keys.
+</dd>
+
+          <dt id="ParallelPrefix">
+  <span class="name "><a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A parallel prefix network retaining the payload type <code>T</code>.
 </dd>
 
           <dt id="ParallelPrefixAdder">
@@ -3631,7 +4528,7 @@ to an equal length row of outputs of these multi-bit <a href="https://pub.dev/do
 
 </dt>
 <dd>
-  <a href="../rohd_hcl/Adder-class.html">Adder</a> based on <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
+  <a href="../rohd_hcl/Adder-class.html">Adder</a> based on a typed <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree.
 </dd>
 
           <dt id="ParallelPrefixAdderConfigurator">
@@ -3699,7 +4596,7 @@ to an equal length row of outputs of these multi-bit <a href="https://pub.dev/do
 </dd>
 
           <dt id="ParityReceiver">
-  <span class="name "><a href="../rohd_hcl/ParityReceiver-class.html">ParityReceiver</a></span> 
+  <span class="name "><a href="../rohd_hcl/ParityReceiver-class.html">ParityReceiver</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3707,7 +4604,7 @@ to an equal length row of outputs of these multi-bit <a href="https://pub.dev/do
 </dd>
 
           <dt id="ParityTransmitter">
-  <span class="name "><a href="../rohd_hcl/ParityTransmitter-class.html">ParityTransmitter</a></span> 
+  <span class="name "><a href="../rohd_hcl/ParityTransmitter-class.html">ParityTransmitter</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3747,7 +4644,7 @@ for manipulation by <a href="../rohd_hcl/PartialProductGeneratorBase-class.html"
 </dt>
 <dd>
   A <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a> class that generates a set of partial
- products. Essentially a set of shifted rows of <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> addends generated by
+ products. Essentially a set of shifted rows of <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> addends generated by
  Booth recoding and manipulated by sign extension, before being compressed.
 </dd>
 
@@ -3766,6 +4663,14 @@ their shifts. This is a base class for the <a href="../rohd_hcl/PartialProduct-c
 </dt>
 <dd>
   API for sign extension classes.
+</dd>
+
+          <dt id="PositiveIntConfigKnob">
+  <span class="name "><a href="../rohd_hcl/PositiveIntConfigKnob-class.html">PositiveIntConfigKnob</a></span> 
+
+</dt>
+<dd>
+  An integer knob allowing values of at least one, with no upper bound.
 </dd>
 
           <dt id="PriorityArbiter">
@@ -3808,6 +4713,14 @@ their shifts. This is a base class for the <a href="../rohd_hcl/PartialProduct-c
   A <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a> group for selecting a <a href="../rohd_hcl/PriorityEncoder-class.html">PriorityEncoder</a> implementation.
 </dd>
 
+          <dt id="PriorityMux">
+  <span class="name "><a href="../rohd_hcl/PriorityMux-class.html">PriorityMux</a></span> 
+
+</dt>
+<dd>
+  Selects the case for the least significant bit set in <code>selector</code>.
+</dd>
+
           <dt id="RadixEncode">
   <span class="name "><a href="../rohd_hcl/RadixEncode-class.html">RadixEncode</a></span> 
 
@@ -3826,7 +4739,7 @@ of the multiplicand that are needed for encoding.
 </dd>
 
           <dt id="ReadyAndValidInterface">
-  <span class="name "><a href="../rohd_hcl/ReadyAndValidInterface-class.html">ReadyAndValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/ReadyAndValidInterface-class.html">ReadyAndValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3834,7 +4747,7 @@ of the multiplicand that are needed for encoding.
 </dd>
 
           <dt id="ReadyThenValidInterface">
-  <span class="name "><a href="../rohd_hcl/ReadyThenValidInterface-class.html">ReadyThenValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/ReadyThenValidInterface-class.html">ReadyThenValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3850,8 +4763,49 @@ computed.
   A generic agent for ready/valid protocol.
 </dd>
 
+          <dt id="ReadyValidContract">
+  <span class="name "><a href="../rohd_hcl/ReadyValidContract-class.html">ReadyValidContract</a></span> 
+
+</dt>
+<dd>
+  Static behavioral promises and dependency permissions for a ready/valid
+channel.
+</dd>
+
+          <dt id="ReadyValidEgressAttachmentBinding">
+  <span class="name "><a href="../rohd_hcl/ReadyValidEgressAttachmentBinding-class.html">ReadyValidEgressAttachmentBinding</a></span> 
+
+</dt>
+<dd>
+  Returned ReadyValid-egress transfer mapping.
+</dd>
+
+          <dt id="ReadyValidEgressAttachmentPolicy">
+  <span class="name "><a href="../rohd_hcl/ReadyValidEgressAttachmentPolicy-class.html">ReadyValidEgressAttachmentPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Maps retained core output onto ReadyValid egress.
+</dd>
+
+          <dt id="ReadyValidElasticPipeline">
+  <span class="name "><a href="../rohd_hcl/ReadyValidElasticPipeline-class.html">ReadyValidElasticPipeline</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A pipeline of homogeneous registered or fall-through ready/valid stages.
+</dd>
+
+          <dt id="ReadyValidFallThroughBuffer">
+  <span class="name "><a href="../rohd_hcl/ReadyValidFallThroughBuffer-class.html">ReadyValidFallThroughBuffer</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A one-entry ready/valid buffer with a combinational empty-stage bypass.
+</dd>
+
           <dt id="ReadyValidFifo">
-  <span class="name "><a href="../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicStructure-class.html">LogicStructure</a></span>&gt;</span></span> 
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3860,8 +4814,32 @@ computed.
 <a href="../rohd_hcl/Fifo-class.html">Fifo</a> instance.
 </dd>
 
+          <dt id="ReadyValidFifoConfigurator">
+  <span class="name "><a href="../rohd_hcl/ReadyValidFifoConfigurator-class.html">ReadyValidFifoConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a ready/valid FIFO with a scalar payload.
+</dd>
+
+          <dt id="ReadyValidIngressAttachmentBinding">
+  <span class="name "><a href="../rohd_hcl/ReadyValidIngressAttachmentBinding-class.html">ReadyValidIngressAttachmentBinding</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Returned ReadyValid-ingress action mapping.
+</dd>
+
+          <dt id="ReadyValidIngressAttachmentPolicy">
+  <span class="name "><a href="../rohd_hcl/ReadyValidIngressAttachmentPolicy-class.html">ReadyValidIngressAttachmentPolicy</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Maps ReadyValid ingress onto an explicit core admission action.
+</dd>
+
           <dt id="ReadyValidInterface">
-  <span class="name "><a href="../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+  <span class="name "><a href="../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3873,7 +4851,7 @@ computed.
 
 </dt>
 <dd>
-  A <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Monitor-class.html">Monitor</a> for ready/valid protocol.
+  A <a href="https://pub.dev/documentation/rohd_vf/0.7.0/rohd_vf/Monitor-class.html">Monitor</a> for ready/valid protocol.
 </dd>
 
           <dt id="ReadyValidPacket">
@@ -3884,12 +4862,44 @@ computed.
   A packet to be transmitted over a ready/valid interface.
 </dd>
 
+          <dt id="ReadyValidQueue">
+  <span class="name "><a href="../rohd_hcl/ReadyValidQueue-class.html">ReadyValidQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A configurable ready/valid queue assembled from elastic storage stages.
+</dd>
+
+          <dt id="ReadyValidQueueConfigurator">
+  <span class="name "><a href="../rohd_hcl/ReadyValidQueueConfigurator-class.html">ReadyValidQueueConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a ready/valid queue with a scalar payload.
+</dd>
+
           <dt id="ReadyValidReceiverAgent">
   <span class="name "><a href="../rohd_hcl/ReadyValidReceiverAgent-class.html">ReadyValidReceiverAgent</a></span> 
 
 </dt>
 <dd>
-  An <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Agent-class.html">Agent</a> for receiving over a ready/valid protocol.
+  An <a href="https://pub.dev/documentation/rohd_vf/0.7.0/rohd_vf/Agent-class.html">Agent</a> for receiving over a ready/valid protocol.
+</dd>
+
+          <dt id="ReadyValidRegister">
+  <span class="name "><a href="../rohd_hcl/ReadyValidRegister-class.html">ReadyValidRegister</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A one-entry ready/valid register with no fall-through path.
+</dd>
+
+          <dt id="ReadyValidStorageStatus">
+  <span class="name "><a href="../rohd_hcl/ReadyValidStorageStatus-class.html">ReadyValidStorageStatus</a></span> 
+
+</dt>
+<dd>
+  Common retained-storage status exposed by ready/valid storage components.
 </dd>
 
           <dt id="ReadyValidTracker">
@@ -3905,7 +4915,7 @@ computed.
 
 </dt>
 <dd>
-  An <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Agent-class.html">Agent</a> for transmitting over a ready/valid protocol.
+  An <a href="https://pub.dev/documentation/rohd_vf/0.7.0/rohd_vf/Agent-class.html">Agent</a> for transmitting over a ready/valid protocol.
 </dd>
 
           <dt id="ReadyValidTransmitterDriver">
@@ -3913,7 +4923,7 @@ computed.
 
 </dt>
 <dd>
-  An <a href="https://pub.dev/documentation/rohd_vf/0.6.0/rohd_vf/Agent-class.html">Agent</a> for transmitting over a ready/valid protocol.
+  An <a href="https://pub.dev/documentation/rohd_vf/0.7.0/rohd_vf/Agent-class.html">Agent</a> for transmitting over a ready/valid protocol.
 </dd>
 
           <dt id="RecursiveModulePriorityEncoder">
@@ -3941,11 +4951,11 @@ computed.
 </dd>
 
           <dt id="ReductionTree">
-  <span class="name "><a href="../rohd_hcl/ReductionTree-class.html">ReductionTree</a></span> 
+  <span class="name "><a href="../rohd_hcl/ReductionTree-class.html">ReductionTree</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
-  Recursive Node for Reduction Tree
+  A recursive reduction tree retaining data type <code>T</code> and control type <code>C</code>.
 </dd>
 
           <dt id="ReductionTreeConfigurator">
@@ -3957,7 +4967,7 @@ computed.
 </dd>
 
           <dt id="ReductionTreeGenerator">
-  <span class="name "><a href="../rohd_hcl/ReductionTreeGenerator-class.html">ReductionTreeGenerator</a></span> 
+  <span class="name "><a href="../rohd_hcl/ReductionTreeGenerator-class.html">ReductionTreeGenerator</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3966,7 +4976,7 @@ inline so that the <a href="../rohd_hcl/ReductionTreeGenerator/operation.html">o
 </dd>
 
           <dt id="RegisterFile">
-  <span class="name "><a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a></span> 
+  <span class="name "><a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -3981,8 +4991,64 @@ inline so that the <a href="../rohd_hcl/ReductionTreeGenerator/operation.html">o
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a>s.
 </dd>
 
+          <dt id="RegisterFileModelConfiguration">
+  <span class="name "><a href="../rohd_hcl/RegisterFileModelConfiguration-class.html">RegisterFileModelConfiguration</a></span> 
+
+</dt>
+<dd>
+  Static configuration for a behavioral model of a <a href="../rohd_hcl/RegisterFile-class.html">RegisterFile</a>.
+</dd>
+
+          <dt id="ReplacementAccessInterface">
+  <span class="name "><a href="../rohd_hcl/ReplacementAccessInterface-class.html">ReplacementAccessInterface</a></span> 
+
+</dt>
+<dd>
+  An access to an existing entry.
+</dd>
+
+          <dt id="ReplacementAllocationInterface">
+  <span class="name "><a href="../rohd_hcl/ReplacementAllocationInterface-class.html">ReplacementAllocationInterface</a></span> 
+
+</dt>
+<dd>
+  A request for an allocation and its combinational response.
+</dd>
+
+          <dt id="ReplacementCommitInterface">
+  <span class="name "><a href="../rohd_hcl/ReplacementCommitInterface-class.html">ReplacementCommitInterface</a></span> 
+
+</dt>
+<dd>
+  A previously reserved entry whose allocation now commits.
+</dd>
+
+          <dt id="ReplacementPolicy">
+  <span class="name "><a href="../rohd_hcl/ReplacementPolicy-class.html">ReplacementPolicy</a></span> 
+
+</dt>
+<dd>
+  Common interface for independently selectable replacement policies.
+</dd>
+
+          <dt id="ReplacementPolicyConfigurator">
+  <span class="name "><a href="../rohd_hcl/ReplacementPolicyConfigurator-class.html">ReplacementPolicyConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a standalone RTL replacement policy.
+</dd>
+
+          <dt id="ReplacementReservations">
+  <span class="name "><a href="../rohd_hcl/ReplacementReservations-class.html">ReplacementReservations</a></span> 
+
+</dt>
+<dd>
+  Caller-owned persistent reservations for one set of replacement entries.
+</dd>
+
           <dt id="Ripple">
-  <span class="name "><a href="../rohd_hcl/Ripple-class.html">Ripple</a></span> 
+  <span class="name "><a href="../rohd_hcl/Ripple-class.html">Ripple</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -4022,7 +5088,7 @@ adder sequentially adds corresponding bits of two binary numbers.
 
 </dt>
 <dd>
-  Rotates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> to the left.
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> to the left.
 </dd>
 
           <dt id="RotateLeftFixed">
@@ -4038,7 +5104,7 @@ adder sequentially adds corresponding bits of two binary numbers.
 
 </dt>
 <dd>
-  Rotates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> to the right.
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> to the right.
 </dd>
 
           <dt id="RotateRightFixed">
@@ -4081,6 +5147,14 @@ adder sequentially adds corresponding bits of two binary numbers.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a>.
 </dd>
 
+          <dt id="RoundRobinReplacement">
+  <span class="name "><a href="../rohd_hcl/RoundRobinReplacement-class.html">RoundRobinReplacement</a></span> 
+
+</dt>
+<dd>
+  Chooses eligible entries cyclically, advancing after each allocation.
+</dd>
+
           <dt id="RuntimeConfig">
   <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/RuntimeConfig-class.html">RuntimeConfig</a></span> 
 
@@ -4097,21 +5171,54 @@ adder sequentially adds corresponding bits of two binary numbers.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Serializer-class.html">Serializer</a> and <a href="../rohd_hcl/Deserializer-class.html">Deserializer</a>.
 </dd>
 
+          <dt id="SerializedCache">
+  <span class="name "><a href="../rohd_hcl/SerializedCache-class.html">SerializedCache</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A serialized transactional cache using a fixed-latency data array.
+</dd>
+
+          <dt id="SerializedCacheConfigurator">
+  <span class="name "><a href="../rohd_hcl/SerializedCacheConfigurator-class.html">SerializedCacheConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the serialized transactional RTL cache with inferred SRAM data.
+</dd>
+
           <dt id="Serializer">
-  <span class="name "><a href="../rohd_hcl/Serializer-class.html">Serializer</a></span> 
+  <span class="name "><a href="../rohd_hcl/Serializer-class.html">Serializer</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">V</span>&gt;</span></span> 
 
 </dt>
 <dd>
   Serializes wide aggregated data onto a narrower serialization stream.
 </dd>
 
+          <dt id="SetBits">
+  <span class="name "><a href="../rohd_hcl/SetBits-class.html">SetBits</a></span> 
+
+</dt>
+<dd>
+  Sets the <code>count</code> least significant bits (<code>lsbs</code> true) or most significant
+bits (<code>lsbs</code> false) of <code>inp</code> to <code>fill</code>.
+</dd>
+
+          <dt id="SetBitsConfigurator">
+  <span class="name "><a href="../rohd_hcl/SetBitsConfigurator-class.html">SetBitsConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures runtime bit filling.
+</dd>
+
           <dt id="ShiftRegister">
-  <span class="name "><a href="../rohd_hcl/ShiftRegister-class.html">ShiftRegister</a></span> 
+  <span class="name "><a href="../rohd_hcl/ShiftRegister-class.html">ShiftRegister</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
   A shift register with configurable width and depth and optional enable and
-reset.
+reset, preserving the payload type <code>T</code> at every stage.
 </dd>
 
           <dt id="ShiftRegisterConfigurator">
@@ -4127,7 +5234,7 @@ reset.
 
 </dt>
 <dd>
-  Store a Signbit as <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>
+  Store a Signbit as <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>
 </dd>
 
           <dt id="SignedShifter">
@@ -4203,15 +5310,31 @@ forms of <a href="../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue<
 </dd>
 
           <dt id="Sklansky">
-  <span class="name "><a href="../rohd_hcl/Sklansky-class.html">Sklansky</a></span> 
+  <span class="name "><a href="../rohd_hcl/Sklansky-class.html">Sklansky</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
   <a href="../rohd_hcl/Sklansky-class.html">Sklansky</a> implements the Sklansky-shaped <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree pattern.
 </dd>
 
+          <dt id="SnapshotableBehavioralCacheReplacement">
+  <span class="name "><a href="../rohd_hcl/SnapshotableBehavioralCacheReplacement-class.html">SnapshotableBehavioralCacheReplacement</a></span> 
+
+</dt>
+<dd>
+  Optional snapshot support for a behavioral replacement policy.
+</dd>
+
+          <dt id="SoftwareStateTransactionAdapter">
+  <span class="name "><a href="../rohd_hcl/SoftwareStateTransactionAdapter-class.html">SoftwareStateTransactionAdapter</a><span class="signature">&lt;<wbr><span class="type-parameter">ImageType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Adapts snapshot and restore callbacks to the software transaction contract.
+</dd>
+
           <dt id="Sort">
-  <span class="name "><a href="../rohd_hcl/Sort-class.html">Sort</a></span> 
+  <span class="name "><a href="../rohd_hcl/Sort-class.html">Sort</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -4330,6 +5453,102 @@ forms of <a href="../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue<
   An <a href="../rohd_hcl/Arbiter-class.html">Arbiter</a> which holds state in order to arbitrate.
 </dd>
 
+          <dt id="StateTransactionCapabilities">
+  <span class="name "><a href="../rohd_hcl/StateTransactionCapabilities-class.html">StateTransactionCapabilities</a></span> 
+
+</dt>
+<dd>
+  Static snapshot and restore capabilities of a stateful component.
+</dd>
+
+          <dt id="StateTransactionCapabilityProvider">
+  <span class="name "><a href="../rohd_hcl/StateTransactionCapabilityProvider-class.html">StateTransactionCapabilityProvider</a></span> 
+
+</dt>
+<dd>
+  Provides static snapshot and restore capabilities for a component.
+</dd>
+
+          <dt id="StateTransactionChunkCompletion">
+  <span class="name "><a href="../rohd_hcl/StateTransactionChunkCompletion-class.html">StateTransactionChunkCompletion</a><span class="signature">&lt;<wbr><span class="type-parameter">ChunkType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Completion acknowledgement for one chunk transfer request.
+</dd>
+
+          <dt id="StateTransactionChunkEndpoint">
+  <span class="name "><a href="../rohd_hcl/StateTransactionChunkEndpoint-class.html">StateTransactionChunkEndpoint</a><span class="signature">&lt;<wbr><span class="type-parameter">ChunkType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A hardware endpoint that acknowledges bounded state-image chunks.
+</dd>
+
+          <dt id="StateTransactionChunkRequest">
+  <span class="name "><a href="../rohd_hcl/StateTransactionChunkRequest-class.html">StateTransactionChunkRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">ChunkType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  One correlated request in an acknowledged chunk transfer.
+</dd>
+
+          <dt id="StateTransactionCompletion">
+  <span class="name "><a href="../rohd_hcl/StateTransactionCompletion-class.html">StateTransactionCompletion</a><span class="signature">&lt;<wbr><span class="type-parameter">ImageType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Completion of one accepted state transaction.
+</dd>
+
+          <dt id="StateTransactionEndpoint">
+  <span class="name "><a href="../rohd_hcl/StateTransactionEndpoint-class.html">StateTransactionEndpoint</a><span class="signature">&lt;<wbr><span class="type-parameter">ImageType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Common transaction endpoint for a logical state image.
+</dd>
+
+          <dt id="StateTransactionHardwareCompletion">
+  <span class="name "><a href="../rohd_hcl/StateTransactionHardwareCompletion-class.html">StateTransactionHardwareCompletion</a></span> 
+
+</dt>
+<dd>
+  Acknowledged response from a hardware state endpoint.
+</dd>
+
+          <dt id="StateTransactionHardwareEndpointContract">
+  <span class="name "><a href="../rohd_hcl/StateTransactionHardwareEndpointContract-class.html">StateTransactionHardwareEndpointContract</a></span> 
+
+</dt>
+<dd>
+  Fixed-width identity and payload contract for a hardware endpoint.
+</dd>
+
+          <dt id="StateTransactionHardwareRequest">
+  <span class="name "><a href="../rohd_hcl/StateTransactionHardwareRequest-class.html">StateTransactionHardwareRequest</a></span> 
+
+</dt>
+<dd>
+  One ready/valid request presented to a hardware state endpoint.
+</dd>
+
+          <dt id="StateTransactionProvider">
+  <span class="name "><a href="../rohd_hcl/StateTransactionProvider-class.html">StateTransactionProvider</a><span class="signature">&lt;<wbr><span class="type-parameter">ImageType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A component exposing standardized snapshot and restore transactions.
+</dd>
+
+          <dt id="StateTransactionRequest">
+  <span class="name "><a href="../rohd_hcl/StateTransactionRequest-class.html">StateTransactionRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">ImageType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  One correlated snapshot or restore request.
+</dd>
+
           <dt id="StaticOrRuntimeBoolKnob">
   <span class="name "><a href="../rohd_hcl/StaticOrRuntimeBoolKnob-class.html">StaticOrRuntimeBoolKnob</a></span> 
 
@@ -4343,8 +5562,16 @@ forms of <a href="../rohd_hcl/SignMagnitudeValue-class.html">SignMagnitudeValue<
 
 </dt>
 <dd>
-  A component control that is configured statically or supplied by <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> at
+  A component control that is configured statically or supplied by <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> at
 runtime.
+</dd>
+
+          <dt id="StaticOrRuntimeIntKnob">
+  <span class="name "><a href="../rohd_hcl/StaticOrRuntimeIntKnob-class.html">StaticOrRuntimeIntKnob</a></span> 
+
+</dt>
+<dd>
+  A <a href="../rohd_hcl/GroupOfKnobs-class.html">GroupOfKnobs</a> for an integer control that can be static or runtime.
 </dd>
 
           <dt id="StaticOrRuntimeParameter">
@@ -4401,7 +5628,7 @@ widths and saturation behavior.
 
 </dt>
 <dd>
-  A <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/PairInterface-class.html">PairInterface</a> representing an amount and behavior for inclusion in a
+  A <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a> representing an amount and behavior for inclusion in a
 sum or count.
 </dd>
 
@@ -4418,7 +5645,15 @@ sum or count.
 
 </dt>
 <dd>
-  A configurator for a module like <code>SummationBase</code>.
+  A configurator for summation components.
+</dd>
+
+          <dt id="SymbolicMemoryStorage">
+  <span class="name "><a href="../rohd_hcl/SymbolicMemoryStorage-class.html">SymbolicMemoryStorage</a></span> 
+
+</dt>
+<dd>
+  Storage capable of preserving uncertain-address writes in state images.
 </dd>
 
           <dt id="Synchronizer">
@@ -4429,8 +5664,48 @@ sum or count.
   A multi-flop synchronizer for safely crossing clock domains.
 </dd>
 
+          <dt id="SynchronizerConfigurator">
+  <span class="name "><a href="../rohd_hcl/SynchronizerConfigurator-class.html">SynchronizerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a control-signal clock-domain synchronizer.
+</dd>
+
+          <dt id="SynchronousActionAttachmentPolicy">
+  <span class="name "><a href="../rohd_hcl/SynchronousActionAttachmentPolicy-class.html">SynchronousActionAttachmentPolicy</a></span> 
+
+</dt>
+<dd>
+  Validates direct caller-owned synchronous action controls.
+</dd>
+
+          <dt id="SynchronousAssociativeLookupPortInterface">
+  <span class="name "><a href="../rohd_hcl/SynchronousAssociativeLookupPortInterface-class.html">SynchronousAssociativeLookupPortInterface</a></span> 
+
+</dt>
+<dd>
+  A fixed-latency associative-memory lookup port.
+</dd>
+
+          <dt id="SynchronousAssociativeMemory">
+  <span class="name "><a href="../rohd_hcl/SynchronousAssociativeMemory-class.html">SynchronousAssociativeMemory</a></span> 
+
+</dt>
+<dd>
+  A raw associative memory with positive fixed lookup latency.
+</dd>
+
+          <dt id="SystemCModelOptions">
+  <span class="name "><a href="../rohd_hcl/SystemCModelOptions-class.html">SystemCModelOptions</a></span> 
+
+</dt>
+<dd>
+  Execution-boundary choices, independent of storage and memory family.
+</dd>
+
           <dt id="TagInterface">
-  <span class="name "><a href="../rohd_hcl/TagInterface-class.html">TagInterface</a></span> 
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/TagInterface-class.html">TagInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -4456,7 +5731,7 @@ text.
 </dd>
 
           <dt id="ToggleGate">
-  <span class="name "><a href="../rohd_hcl/ToggleGate-class.html">ToggleGate</a></span> 
+  <span class="name "><a href="../rohd_hcl/ToggleGate-class.html">ToggleGate</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -4479,12 +5754,102 @@ text.
   Module for binary-tree recursion for decoding one-hot.
 </dd>
 
+          <dt id="TreePseudoLruReplacement">
+  <span class="name "><a href="../rohd_hcl/TreePseudoLruReplacement-class.html">TreePseudoLruReplacement</a></span> 
+
+</dt>
+<dd>
+  A binary-tree pseudo-LRU policy for a power-of-two number of entries.
+</dd>
+
           <dt id="TrivialCompoundAdder">
   <span class="name "><a href="../rohd_hcl/TrivialCompoundAdder-class.html">TrivialCompoundAdder</a></span> 
 
 </dt>
 <dd>
   A trivial compound adder.
+</dd>
+
+          <dt id="TypedAssociativeLookupPortInterface">
+  <span class="name "><a href="../rohd_hcl/TypedAssociativeLookupPortInterface-class.html">TypedAssociativeLookupPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An associative lookup port preserving a typed key schema.
+</dd>
+
+          <dt id="TypedAssociativeUpdatePortInterface">
+  <span class="name "><a href="../rohd_hcl/TypedAssociativeUpdatePortInterface-class.html">TypedAssociativeUpdatePortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  An associative update port preserving a typed key schema.
+</dd>
+
+          <dt id="UncertainMemoryWrite">
+  <span class="name "><a href="../rohd_hcl/UncertainMemoryWrite-class.html">UncertainMemoryWrite</a></span> 
+
+</dt>
+<dd>
+  A symbolic write to all words compatible with an uncertain address.
+</dd>
+
+          <dt id="UnsignedAddWithOverflow">
+  <span class="name "><a href="../rohd_hcl/UnsignedAddWithOverflow-class.html">UnsignedAddWithOverflow</a></span> 
+
+</dt>
+<dd>
+  Adds two unsigned values into a <a href="../rohd_hcl/UnsignedAddWithOverflow/sum.html">sum</a> of <a href="../rohd_hcl/UnsignedAddWithOverflow/sumWidth.html">sumWidth</a> bits and reports
+whether the true sum did not fit in <a href="../rohd_hcl/UnsignedAddWithOverflow/sumWidth.html">sumWidth</a> bits.
+</dd>
+
+          <dt id="UnsignedMulWithOverflow">
+  <span class="name "><a href="../rohd_hcl/UnsignedMulWithOverflow-class.html">UnsignedMulWithOverflow</a></span> 
+
+</dt>
+<dd>
+  Multiplies two unsigned values into a <a href="../rohd_hcl/UnsignedMulWithOverflow/product.html">product</a> of <a href="../rohd_hcl/UnsignedMulWithOverflow/productWidth.html">productWidth</a> bits and
+reports whether the true product did not fit in <a href="../rohd_hcl/UnsignedMulWithOverflow/productWidth.html">productWidth</a> bits.
+</dd>
+
+          <dt id="ValidThenReadyInterface">
+  <span class="name "><a href="../rohd_hcl/ValidThenReadyInterface-class.html">ValidThenReadyInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A ready/valid interface where ready may be computed after valid.
+</dd>
+
+          <dt id="WithSet">
+  <span class="name "><a href="../rohd_hcl/WithSet-class.html">WithSet</a></span> 
+
+</dt>
+<dd>
+  Overwrites the bits of <code>subject</code> starting at <code>start</code> with <code>value</code>.
+</dd>
+
+          <dt id="WithSetConfigurator">
+  <span class="name "><a href="../rohd_hcl/WithSetConfigurator-class.html">WithSetConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures replacement of a runtime-selected bit range.
+</dd>
+
+          <dt id="XnorPopcount">
+  <span class="name "><a href="../rohd_hcl/XnorPopcount-class.html">XnorPopcount</a></span> 
+
+</dt>
+<dd>
+  Counts equal corresponding bits, producing a binary similarity score.
+</dd>
+
+          <dt id="XorPopcount">
+  <span class="name "><a href="../rohd_hcl/XorPopcount-class.html">XorPopcount</a></span> 
+
+</dt>
+<dd>
+  Counts unequal corresponding bits, producing the Hamming distance.
 </dd>
 
       </dl>
@@ -4507,6 +5872,86 @@ text.
 </dt>
 <dd>
   A grouping of signals on the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a> interface based on direction.
+</dd>
+
+          <dt id="AssociativeBulkOperationCompletion">
+  <span class="name "><a href="../rohd_hcl/AssociativeBulkOperationCompletion.html">AssociativeBulkOperationCompletion</a></span> 
+
+</dt>
+<dd>
+  When a bulk associative operation acknowledges completion.
+</dd>
+
+          <dt id="AssociativeDuplicateKeyPolicy">
+  <span class="name "><a href="../rohd_hcl/AssociativeDuplicateKeyPolicy.html">AssociativeDuplicateKeyPolicy</a></span> 
+
+</dt>
+<dd>
+  Whether an associative memory permits more than one entry per key.
+</dd>
+
+          <dt id="AssociativeLookupUpdatePolicy">
+  <span class="name "><a href="../rohd_hcl/AssociativeLookupUpdatePolicy.html">AssociativeLookupUpdatePolicy</a></span> 
+
+</dt>
+<dd>
+  Visibility of an update concurrent with a lookup of the same key.
+</dd>
+
+          <dt id="AssociativeMatchMode">
+  <span class="name "><a href="../rohd_hcl/AssociativeMatchMode.html">AssociativeMatchMode</a></span> 
+
+</dt>
+<dd>
+  Key comparison semantics for an associative lookup.
+</dd>
+
+          <dt id="AssociativeMatchSelection">
+  <span class="name "><a href="../rohd_hcl/AssociativeMatchSelection.html">AssociativeMatchSelection</a></span> 
+
+</dt>
+<dd>
+  Selection policy when several valid entries match one lookup.
+</dd>
+
+          <dt id="AssociativeMemoryImplementationKind">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryImplementationKind.html">AssociativeMemoryImplementationKind</a></span> 
+
+</dt>
+<dd>
+  How an associative-memory implementation participates in generated RTL.
+</dd>
+
+          <dt id="AssociativeMemoryResetBehavior">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryResetBehavior.html">AssociativeMemoryResetBehavior</a></span> 
+
+</dt>
+<dd>
+  Reset behavior provided or required by associative storage.
+</dd>
+
+          <dt id="AssociativeMemoryResetTiming">
+  <span class="name "><a href="../rohd_hcl/AssociativeMemoryResetTiming.html">AssociativeMemoryResetTiming</a></span> 
+
+</dt>
+<dd>
+  Whether reset is sampled by a clock edge or takes effect immediately.
+</dd>
+
+          <dt id="AssociativeResultShape">
+  <span class="name "><a href="../rohd_hcl/AssociativeResultShape.html">AssociativeResultShape</a></span> 
+
+</dt>
+<dd>
+  Result information required from an associative lookup.
+</dd>
+
+          <dt id="AssociativeUpdateCollisionPolicy">
+  <span class="name "><a href="../rohd_hcl/AssociativeUpdateCollisionPolicy.html">AssociativeUpdateCollisionPolicy</a></span> 
+
+</dt>
+<dd>
+  Resolution of simultaneous updates targeting the same entry index.
 </dd>
 
           <dt id="Axi4BurstField">
@@ -4606,6 +6051,118 @@ See A13.6.1-A13.6.4 for flow descriptions.
   Helper to enumerate the encodings of the xSIZE signal.
 </dd>
 
+          <dt id="BehavioralCacheOperation">
+  <span class="name "><a href="../rohd_hcl/BehavioralCacheOperation.html">BehavioralCacheOperation</a></span> 
+
+</dt>
+<dd>
+  Additional operations implemented by <a href="../rohd_hcl/BehavioralCache-class.html">BehavioralCache</a>.
+</dd>
+
+          <dt id="BehavioralReplacementKind">
+  <span class="name "><a href="../rohd_hcl/BehavioralReplacementKind.html">BehavioralReplacementKind</a></span> 
+
+</dt>
+<dd>
+  Built-in replacement algorithms available in the software policy.
+</dd>
+
+          <dt id="BitwisePopcountOperation">
+  <span class="name "><a href="../rohd_hcl/BitwisePopcountOperation.html">BitwisePopcountOperation</a></span> 
+
+</dt>
+<dd>
+  Comparison used by the bitwise population counter.
+</dd>
+
+          <dt id="CacheConfiguratorReplacement">
+  <span class="name "><a href="../rohd_hcl/CacheConfiguratorReplacement.html">CacheConfiguratorReplacement</a></span> 
+
+</dt>
+<dd>
+  Replacement policy used by cache configurators.
+</dd>
+
+          <dt id="CacheDataStorage">
+  <span class="name "><a href="../rohd_hcl/CacheDataStorage.html">CacheDataStorage</a></span> 
+
+</dt>
+<dd>
+  Data storage used by a cache set.
+</dd>
+
+          <dt id="CacheEvictionConcurrency">
+  <span class="name "><a href="../rohd_hcl/CacheEvictionConcurrency.html">CacheEvictionConcurrency</a></span> 
+
+</dt>
+<dd>
+  Arbitration for independently buffered eviction responses.
+</dd>
+
+          <dt id="CacheReadDuringFill">
+  <span class="name "><a href="../rohd_hcl/CacheReadDuringFill.html">CacheReadDuringFill</a></span> 
+
+</dt>
+<dd>
+  Lookup behavior when a fill for the same block is accepted.
+</dd>
+
+          <dt id="CacheSameBlockOrdering">
+  <span class="name "><a href="../rohd_hcl/CacheSameBlockOrdering.html">CacheSameBlockOrdering</a></span> 
+
+</dt>
+<dd>
+  Ordering of operations to the same block accepted on different edges.
+</dd>
+
+          <dt id="CacheSameCycleOrdering">
+  <span class="name "><a href="../rohd_hcl/CacheSameCycleOrdering.html">CacheSameCycleOrdering</a></span> 
+
+</dt>
+<dd>
+  Tie-breaking for same-block requests accepted on the same edge.
+</dd>
+
+          <dt id="CacheTransactionEvictionCause">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionEvictionCause.html">CacheTransactionEvictionCause</a></span> 
+
+</dt>
+<dd>
+  Why an existing block is reported on the eviction channel.
+</dd>
+
+          <dt id="CacheTransactionOperation">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionOperation.html">CacheTransactionOperation</a></span> 
+
+</dt>
+<dd>
+  Operation encoded in a <a href="../rohd_hcl/CacheTransactionRequest-class.html">CacheTransactionRequest</a>.
+</dd>
+
+          <dt id="CacheTransactionOrdering">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionOrdering.html">CacheTransactionOrdering</a></span> 
+
+</dt>
+<dd>
+  Ordering of responses on one transaction port.
+</dd>
+
+          <dt id="CacheTransactionStatus">
+  <span class="name "><a href="../rohd_hcl/CacheTransactionStatus.html">CacheTransactionStatus</a></span> 
+
+</dt>
+<dd>
+  Completion encoded in a <a href="../rohd_hcl/CacheTransactionResponse-class.html">CacheTransactionResponse</a>.
+</dd>
+
+          <dt id="ComponentCategory">
+  <span class="name "><a href="../rohd_hcl/ComponentCategory.html">ComponentCategory</a></span> 
+
+</dt>
+<dd>
+  Stable top-level categories used by the component catalog.
+</dd>
+
           <dt id="CompressTermType">
   <span class="name "><a href="../rohd_hcl/CompressTermType.html">CompressTermType</a></span> 
 
@@ -4630,12 +6187,28 @@ See A13.6.1-A13.6.4 for flow descriptions.
   A grouping for interface signals of <a href="../rohd_hcl/CsrBackdoorInterface-class.html">CsrBackdoorInterface</a>s.
 </dd>
 
+          <dt id="CsrExampleBoundary">
+  <span class="name "><a href="../rohd_hcl/CsrExampleBoundary.html">CsrExampleBoundary</a></span> 
+
+</dt>
+<dd>
+  Boundary of the example CSR module.
+</dd>
+
           <dt id="CsrFieldAccess">
   <span class="name "><a href="../rohd_hcl/CsrFieldAccess.html">CsrFieldAccess</a></span> 
 
 </dt>
 <dd>
   Definitions for various register field access patterns.
+</dd>
+
+          <dt id="CsrImplementation">
+  <span class="name "><a href="../rohd_hcl/CsrImplementation.html">CsrImplementation</a></span> 
+
+</dt>
+<dd>
+  Implementation of a CSR top, independent of its architectural register map.
 </dd>
 
           <dt id="DataPortGroup">
@@ -4696,6 +6269,38 @@ error detection, and number of check bits required.
   Helper to enumerate the encodings of the LRRESP signal.
 </dd>
 
+          <dt id="MemoryArrayImplementation">
+  <span class="name "><a href="../rohd_hcl/MemoryArrayImplementation.html">MemoryArrayImplementation</a></span> 
+
+</dt>
+<dd>
+  How a memory array participates in generated hardware.
+</dd>
+
+          <dt id="MemoryArrayReadCollision">
+  <span class="name "><a href="../rohd_hcl/MemoryArrayReadCollision.html">MemoryArrayReadCollision</a></span> 
+
+</dt>
+<dd>
+  Read behavior when a read and a write target the same entry.
+</dd>
+
+          <dt id="MemoryArrayWriteCollision">
+  <span class="name "><a href="../rohd_hcl/MemoryArrayWriteCollision.html">MemoryArrayWriteCollision</a></span> 
+
+</dt>
+<dd>
+  Resolution of writes to the same entry and overlapping bits.
+</dd>
+
+          <dt id="MuxImplementation">
+  <span class="name "><a href="../rohd_hcl/MuxImplementation.html">MuxImplementation</a></span> 
+
+</dt>
+<dd>
+  Selection behavior for a configurable multiplexer.
+</dd>
+
           <dt id="ParallelPrefixOperation">
   <span class="name "><a href="../rohd_hcl/ParallelPrefixOperation.html">ParallelPrefixOperation</a></span> 
 
@@ -4712,12 +6317,36 @@ error detection, and number of check bits required.
   Available parity module directions.
 </dd>
 
+          <dt id="ReadyValidQueuePolicy">
+  <span class="name "><a href="../rohd_hcl/ReadyValidQueuePolicy.html">ReadyValidQueuePolicy</a></span> 
+
+</dt>
+<dd>
+  Empty-queue visibility policy for <a href="../rohd_hcl/ReadyValidQueue-class.html">ReadyValidQueue</a>.
+</dd>
+
+          <dt id="ReadyValidQueueStorage">
+  <span class="name "><a href="../rohd_hcl/ReadyValidQueueStorage.html">ReadyValidQueueStorage</a></span> 
+
+</dt>
+<dd>
+  Storage architecture used by <a href="../rohd_hcl/ReadyValidQueue-class.html">ReadyValidQueue</a>.
+</dd>
+
           <dt id="ReductionTreeOperation">
   <span class="name "><a href="../rohd_hcl/ReductionTreeOperation.html">ReductionTreeOperation</a></span> 
 
 </dt>
 <dd>
   Common operations that can be represented in the configuration app.
+</dd>
+
+          <dt id="ReplacementConfiguratorPolicy">
+  <span class="name "><a href="../rohd_hcl/ReplacementConfiguratorPolicy.html">ReplacementConfiguratorPolicy</a></span> 
+
+</dt>
+<dd>
+  Replacement policy implementations available in the configurator.
 </dd>
 
           <dt id="RotateDirection">
@@ -4744,6 +6373,14 @@ error detection, and number of check bits required.
   Available sign-magnitude adder implementations.
 </dd>
 
+          <dt id="SingleEntryBufferMode">
+  <span class="name "><a href="../rohd_hcl/SingleEntryBufferMode.html">SingleEntryBufferMode</a></span> 
+
+</dt>
+<dd>
+  Selects the one-entry buffer's ready and capture timing.
+</dd>
+
           <dt id="SpiDirection">
   <span class="name "><a href="../rohd_hcl/SpiDirection.html">SpiDirection</a></span> 
 
@@ -4760,12 +6397,76 @@ error detection, and number of check bits required.
   Available SPI gasket roles.
 </dd>
 
+          <dt id="StateTransactionChunkOperation">
+  <span class="name "><a href="../rohd_hcl/StateTransactionChunkOperation.html">StateTransactionChunkOperation</a></span> 
+
+</dt>
+<dd>
+  Operation for one acknowledged logical-image chunk.
+</dd>
+
+          <dt id="StateTransactionCompletionMode">
+  <span class="name "><a href="../rohd_hcl/StateTransactionCompletionMode.html">StateTransactionCompletionMode</a></span> 
+
+</dt>
+<dd>
+  How completion of an accepted state transaction is reported.
+</dd>
+
+          <dt id="StateTransactionOperation">
+  <span class="name "><a href="../rohd_hcl/StateTransactionOperation.html">StateTransactionOperation</a></span> 
+
+</dt>
+<dd>
+  Operation requested from a state transaction endpoint.
+</dd>
+
+          <dt id="StateTransactionQuiescence">
+  <span class="name "><a href="../rohd_hcl/StateTransactionQuiescence.html">StateTransactionQuiescence</a></span> 
+
+</dt>
+<dd>
+  Quiescence required before a state transaction may be accepted.
+</dd>
+
+          <dt id="StateTransactionTransport">
+  <span class="name "><a href="../rohd_hcl/StateTransactionTransport.html">StateTransactionTransport</a></span> 
+
+</dt>
+<dd>
+  Transport used to execute a state snapshot or restore transaction.
+</dd>
+
           <dt id="StaticOrRuntimeBoolMode">
   <span class="name "><a href="../rohd_hcl/StaticOrRuntimeBoolMode.html">StaticOrRuntimeBoolMode</a></span> 
 
 </dt>
 <dd>
   How a boolean module control is configured.
+</dd>
+
+          <dt id="StaticOrRuntimeIntMode">
+  <span class="name "><a href="../rohd_hcl/StaticOrRuntimeIntMode.html">StaticOrRuntimeIntMode</a></span> 
+
+</dt>
+<dd>
+  How an integer module control is configured.
+</dd>
+
+          <dt id="SystemCModelPortType">
+  <span class="name "><a href="../rohd_hcl/SystemCModelPortType.html">SystemCModelPortType</a></span> 
+
+</dt>
+<dd>
+  Representation of signals at a behavioral SystemC boundary.
+</dd>
+
+          <dt id="SystemCUnknownOutputPolicy">
+  <span class="name "><a href="../rohd_hcl/SystemCUnknownOutputPolicy.html">SystemCUnknownOutputPolicy</a></span> 
+
+</dt>
+<dd>
+  Explicit treatment of unknown outputs at a two-state boundary.
 </dd>
 
       </dl>
@@ -4919,6 +6620,14 @@ error detection, and number of check bits required.
 reset capabilities.
 </dd>
 
+          <dt id="SoftwareStateTransactionEndpoint">
+  <span class="name "><a href="../rohd_hcl/SoftwareStateTransactionEndpoint-mixin.html">SoftwareStateTransactionEndpoint</a><span class="signature">&lt;<wbr><span class="type-parameter">ImageType extends <a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Immediate software endpoint for models exposing <a href="../rohd_hcl/SoftwareStateTransactionEndpoint/image.html">image</a> and <a href="../rohd_hcl/SoftwareStateTransactionEndpoint/load.html">load</a>.
+</dd>
+
       </dl>
     </section>
 
@@ -4926,9 +6635,41 @@ reset capabilities.
     <section class="summary offset-anchor" id="extensions">
       <h2>Extensions</h2>
       <dl>
+          <dt id="CsrModelSystemC">
+  <span class="name "><a href="../rohd_hcl/CsrModelSystemC.html">CsrModelSystemC</a></span>
+  on <a href="../rohd_hcl/CsrModelDescription-class.html">CsrModelDescription</a>
+  
+
+</dt>
+<dd>
+  Behavioral SystemC export for whole-top software CSRs.
+</dd>
+
+          <dt id="EvaluateLiveColumnCompressor">
+  <span class="name "><a href="../rohd_hcl/EvaluateLiveColumnCompressor.html">EvaluateLiveColumnCompressor</a></span>
+  on <a href="../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a>
+  
+
+</dt>
+<dd>
+  Debug routines for printing out <a href="../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a> during
+simulation with live logic values.
+</dd>
+
+          <dt id="EvaluateLivePartialProduct">
+  <span class="name "><a href="../rohd_hcl/EvaluateLivePartialProduct.html">EvaluateLivePartialProduct</a></span>
+  on <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a>
+  
+
+</dt>
+<dd>
+  Debug routines for printing out partial product matrix during
+simulation with live logic values.
+</dd>
+
           <dt id="LogicList">
   <span class="name "><a href="../rohd_hcl/LogicList.html">LogicList</a></span>
-  on <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span>
+  on <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span>
   
 
 </dt>
@@ -4938,7 +6679,7 @@ reset capabilities.
 
           <dt id="LogicValueBitString">
   <span class="name "><a href="../rohd_hcl/LogicValueBitString.html">LogicValueBitString</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>
+  on <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a>
   
 
 </dt>
@@ -4948,7 +6689,7 @@ reset capabilities.
 
           <dt id="LogicValueMajority">
   <span class="name "><a href="../rohd_hcl/LogicValueMajority.html">LogicValueMajority</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>
+  on <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a>
   
 
 </dt>
@@ -4958,22 +6699,22 @@ reset capabilities.
 
           <dt id="RotateLogic">
   <span class="name "><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>
+  on <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>
   
 
 </dt>
 <dd>
-  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>.
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>.
 </dd>
 
           <dt id="RotateLogicValue">
   <span class="name "><a href="../rohd_hcl/RotateLogicValue.html">RotateLogicValue</a></span>
-  on <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>
+  on <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a>
   
 
 </dt>
 <dd>
-  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>.
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a>.
 </dd>
 
           <dt id="SignedBigInt">
@@ -4986,23 +6727,88 @@ reset capabilities.
   This extension will provide conversion to Signed or Unsigned BigInt
 </dd>
 
+          <dt id="TestPartialProductSignage">
+  <span class="name "><a href="../rohd_hcl/TestPartialProductSignage.html">TestPartialProductSignage</a></span>
+  on <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a>
+  
+
+</dt>
+<dd>
+  The following routines are useful only during testing.
+</dd>
+
       </dl>
     </section>
 
+    <section class="summary offset-anchor" id="constants">
+      <h2>Constants</h2>
+      <dl class="properties">
+          <dt id="behavioralParallelAssociativeMemoryFunctor" class="constant">
+    <span class="name "><a href="../rohd_hcl/behavioralParallelAssociativeMemoryFunctor-constant.html">behavioralParallelAssociativeMemoryFunctor</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/AssociativeMemoryFunctor-class.html">AssociativeMemoryFunctor</a></span>
+  
+
+</dt>
+<dd>
+  Simulation-only parallel associative storage for cache tag factories.
+  
+
+</dd>
+
+          <dt id="parallelAssociativeMemoryFunctor" class="constant">
+    <span class="name "><a href="../rohd_hcl/parallelAssociativeMemoryFunctor-constant.html">parallelAssociativeMemoryFunctor</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/AssociativeMemoryFunctor-class.html">AssociativeMemoryFunctor</a></span>
+  
+
+</dt>
+<dd>
+  Synthesizable parallel-flop associative-memory functor.
+  
+
+</dd>
+
+      </dl>
+    </section>
 
 
     <section class="summary offset-anchor" id="functions">
       <h2>Functions</h2>
       <dl class="callables">
+          <dt id="behavioralRegisterFileArray" class="callable">
+  <span class="name"><a href="../rohd_hcl/behavioralRegisterFileArray.html">behavioralRegisterFileArray</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates the behavioral equivalent of <a href="../rohd_hcl/registerFileArray.html">registerFileArray</a>.
+  
+
+</dd>
+
           <dt id="condFlop" class="callable">
-  <span class="name"><a href="../rohd_hcl/condFlop.html">condFlop</a></span><span class="signature">(<wbr><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="condFlop-param-d"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">d</span>, {</span><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span></span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/condFlop.html">condFlop</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="condFlop-param-d"><span class="type-annotation">LogicType</span> <span class="parameter-name">d</span>, {</span><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span>, </span><span class="parameter" id="condFlop-param-outputGenerator"><span class="type-annotation">LogicType</span> <span class="parameter-name">outputGenerator</span>({<span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})?</span>})
+    <span class="returntype parameter">&#8594; LogicType</span>
   </span>
   
 
 </dt>
 <dd>
   Conditionally constructs a positive edge triggered flip condFlop on <code>clk</code>.
+  
+
+</dd>
+
+          <dt id="configureSingleEntryBuffer" class="callable">
+  <span class="name"><a href="../rohd_hcl/configureSingleEntryBuffer.html">configureSingleEntryBuffer</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="configureSingleEntryBuffer-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-occupied"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">occupied</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-upstream"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span> <span class="parameter-name">upstream</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-downstream"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/IrrevocableReadyValidInterface-class.html">IrrevocableReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span> <span class="parameter-name">downstream</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-storedData"><span>required</span> <span class="type-annotation">LogicType</span> <span class="parameter-name">storedData</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-mode"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/SingleEntryBufferMode.html">SingleEntryBufferMode</a></span> <span class="parameter-name">mode</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="configureSingleEntryBuffer-param-admission"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">admission</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Configures the shared state machine used by both one-entry buffer wrappers.
   
 
 </dd>
@@ -5020,15 +6826,67 @@ reset capabilities.
 
 </dd>
 
-          <dt id="isPowerOfTwo" class="callable">
-  <span class="name"><a href="../rohd_hcl/isPowerOfTwo.html">isPowerOfTwo</a></span><span class="signature">(<wbr><span class="parameter" id="isPowerOfTwo-param-n"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">n</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+          <dt id="exactAssociativeKeyComparator" class="callable">
+  <span class="name"><a href="../rohd_hcl/exactAssociativeKeyComparator.html">exactAssociativeKeyComparator</a></span><span class="signature">(<wbr>{<span class="parameter" id="exactAssociativeKeyComparator-param-query"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">query</span>, </span><span class="parameter" id="exactAssociativeKeyComparator-param-stored"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">stored</span>, </span><span class="parameter" id="exactAssociativeKeyComparator-param-index"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span><span class="parameter" id="exactAssociativeKeyComparator-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Returns whether <code>n</code> is a power of two.
+  Creates an exact-key comparison.
+  
+
+</dd>
+
+          <dt id="generateBehavioralSystemC" class="callable">
+  <span class="name"><a href="../rohd_hcl/generateBehavioralSystemC.html">generateBehavioralSystemC</a></span><span class="signature">(<wbr><span class="parameter" id="generateBehavioralSystemC-param-candidate"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">candidate</span>, </span><span class="parameter" id="generateBehavioralSystemC-param-className"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">className</span>, {</span><span class="parameter" id="generateBehavioralSystemC-param-options"><span class="type-annotation"><a href="../rohd_hcl/SystemCModelOptions-class.html">SystemCModelOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const SystemCModelOptions()</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generic discovery callback for external exporters, without family checks.
+  
+
+</dd>
+
+          <dt id="generateBehavioralSystemCHierarchy" class="callable">
+  <span class="name"><a href="../rohd_hcl/generateBehavioralSystemCHierarchy.html">generateBehavioralSystemCHierarchy</a></span><span class="signature">(<wbr><span class="parameter" id="generateBehavioralSystemCHierarchy-param-top"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">top</span>, {</span><span class="parameter" id="generateBehavioralSystemCHierarchy-param-select"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/BehavioralSystemCSelector.html">BehavioralSystemCSelector</a></span> <span class="parameter-name">select</span>, </span><span class="parameter" id="generateBehavioralSystemCHierarchy-param-unknownOutputs"><span class="type-annotation"><a href="../rohd_hcl/SystemCUnknownOutputPolicy.html">SystemCUnknownOutputPolicy</a></span> <span class="parameter-name">unknownOutputs</span> = <span class="default-value">SystemCUnknownOutputPolicy.error</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/BehavioralSystemCHierarchy-class.html">BehavioralSystemCHierarchy</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates a two-state SystemC hierarchy with explicit behavioral leaves.
+  
+
+</dd>
+
+          <dt id="higherAssociativeSelectionValue" class="callable">
+  <span class="name"><a href="../rohd_hcl/higherAssociativeSelectionValue.html">higherAssociativeSelectionValue</a></span><span class="signature">(<wbr>{<span class="parameter" id="higherAssociativeSelectionValue-param-candidateValue"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">candidateValue</span>, </span><span class="parameter" id="higherAssociativeSelectionValue-param-selectedValue"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">selectedValue</span>, </span><span class="parameter" id="higherAssociativeSelectionValue-param-candidateIndex"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">candidateIndex</span>, </span><span class="parameter" id="higherAssociativeSelectionValue-param-selectedIndex"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">selectedIndex</span>, </span><span class="parameter" id="higherAssociativeSelectionValue-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Prefers a candidate with a higher selection value.
+  
+
+</dd>
+
+          <dt id="inferredSramArray" class="callable">
+  <span class="name"><a href="../rohd_hcl/inferredSramArray.html">inferredSramArray</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a single-port, one-cycle inferred SRAM factory.
   
 
 </dd>
@@ -5046,15 +6904,54 @@ reset capabilities.
 
 </dd>
 
-          <dt id="log2Ceil" class="callable">
-  <span class="name"><a href="../rohd_hcl/log2Ceil.html">log2Ceil</a></span><span class="signature">(<wbr><span class="parameter" id="log2Ceil-param-w"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">w</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+          <dt id="lowerAssociativeSelectionValue" class="callable">
+  <span class="name"><a href="../rohd_hcl/lowerAssociativeSelectionValue.html">lowerAssociativeSelectionValue</a></span><span class="signature">(<wbr>{<span class="parameter" id="lowerAssociativeSelectionValue-param-candidateValue"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">candidateValue</span>, </span><span class="parameter" id="lowerAssociativeSelectionValue-param-selectedValue"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">selectedValue</span>, </span><span class="parameter" id="lowerAssociativeSelectionValue-param-candidateIndex"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">candidateIndex</span>, </span><span class="parameter" id="lowerAssociativeSelectionValue-param-selectedIndex"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">selectedIndex</span>, </span><span class="parameter" id="lowerAssociativeSelectionValue-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Computes the bit width needed to store <code>w</code> addresses.
+  Prefers a candidate with a lower selection value.
+  
+
+</dd>
+
+          <dt id="parallelAssociativeMemoryBuilder" class="callable">
+  <span class="name"><a href="../rohd_hcl/parallelAssociativeMemoryBuilder.html">parallelAssociativeMemoryBuilder</a></span><span class="signature">(<wbr>{<span class="parameter" id="parallelAssociativeMemoryBuilder-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="parallelAssociativeMemoryBuilder-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="parallelAssociativeMemoryBuilder-param-updatePorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span>&gt;</span></span> <span class="parameter-name">updatePorts</span>, </span><span class="parameter" id="parallelAssociativeMemoryBuilder-param-lookupPorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span>&gt;</span></span> <span class="parameter-name">lookupPorts</span>, </span><span class="parameter" id="parallelAssociativeMemoryBuilder-param-request"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryRequest-class.html">AssociativeMemoryRequest</a></span> <span class="parameter-name">request</span>, </span><span class="parameter" id="parallelAssociativeMemoryBuilder-param-contract"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span> <span class="parameter-name">contract</span>, </span><span class="parameter" id="parallelAssociativeMemoryBuilder-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/AssociativeMemory-class.html">AssociativeMemory</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Builds a <a href="../rohd_hcl/ParallelAssociativeMemory-class.html">ParallelAssociativeMemory</a> for a resolved contract.
+  
+
+</dd>
+
+          <dt id="parallelMultiSideReadBuilder" class="callable">
+  <span class="name"><a href="../rohd_hcl/parallelMultiSideReadBuilder.html">parallelMultiSideReadBuilder</a></span><span class="signature">(<wbr>{<span class="parameter" id="parallelMultiSideReadBuilder-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="parallelMultiSideReadBuilder-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="parallelMultiSideReadBuilder-param-updatePorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span>&gt;</span></span> <span class="parameter-name">updatePorts</span>, </span><span class="parameter" id="parallelMultiSideReadBuilder-param-lookupPorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span>&gt;</span></span> <span class="parameter-name">lookupPorts</span>, </span><span class="parameter" id="parallelMultiSideReadBuilder-param-sideReadRequests"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeIndexedSideReadRequest-class.html">AssociativeIndexedSideReadRequest</a></span>&gt;</span></span> <span class="parameter-name">sideReadRequests</span>, </span><span class="parameter" id="parallelMultiSideReadBuilder-param-request"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryRequest-class.html">AssociativeMemoryRequest</a></span> <span class="parameter-name">request</span>, </span><span class="parameter" id="parallelMultiSideReadBuilder-param-contract"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span> <span class="parameter-name">contract</span>, </span><span class="parameter" id="parallelMultiSideReadBuilder-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/AssociativeMemory-class.html">AssociativeMemory</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Builds parallel-flop associative memory with multiple indexed reads.
+  
+
+</dd>
+
+          <dt id="registerFileArray" class="callable">
+  <span class="name"><a href="../rohd_hcl/registerFileArray.html">registerFileArray</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates the zero-latency, flop-backed register-file array factory.
   
 
 </dd>
@@ -5073,14 +6970,14 @@ reset capabilities.
 </dd>
 
           <dt id="swap" class="callable">
-  <span class="name"><a href="../rohd_hcl/swap.html">swap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="swap-param-doSwap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">doSwap</span>, </span><span class="parameter" id="swap-param-toSwap"><span class="type-annotation">(<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span> <span class="parameter-name">toSwap</span></span>)
+  <span class="name"><a href="../rohd_hcl/swap.html">swap</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="swap-param-doSwap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">doSwap</span>, </span><span class="parameter" id="swap-param-toSwap"><span class="type-annotation">(<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span> <span class="parameter-name">toSwap</span></span>)
     <span class="returntype parameter">&#8594; (<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span>
   </span>
   
 
 </dt>
 <dd>
-  Swap two <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> structures based on a conditional <code>doSwap</code>.
+  Swap two <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> structures based on a conditional <code>doSwap</code>.
   
 
 </dd>
@@ -5107,6 +7004,219 @@ hardware).
       <h2>Typedefs</h2>
       <dl>
           
+  <dt id="AssociativeKeyComparator" class="callable">
+    <span class="name"><a href="../rohd_hcl/AssociativeKeyComparator.html">AssociativeKeyComparator</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> Function<span class="signature">({<span class="parameter" id="param-index"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-query"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">query</span>, </span><span class="parameter" id="param-stored"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">stored</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Compares an associative query with one stored key.
+    
+
+  </dd>
+
+          
+  <dt id="AssociativeMatchPreference" class="callable">
+    <span class="name"><a href="../rohd_hcl/AssociativeMatchPreference.html">AssociativeMatchPreference</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> Function<span class="signature">({<span class="parameter" id="param-candidateIndex"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">candidateIndex</span>, </span><span class="parameter" id="param-candidateValue"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">candidateValue</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-selectedIndex"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">selectedIndex</span>, </span><span class="parameter" id="param-selectedValue"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">selectedValue</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Determines whether a candidate should replace the selected match.
+    
+
+  </dd>
+
+          
+  <dt id="AssociativeMemoryBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/AssociativeMemoryBuilder.html">AssociativeMemoryBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/AssociativeMemory-class.html">AssociativeMemory</a> Function<span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-contract"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span> <span class="parameter-name">contract</span>, </span><span class="parameter" id="param-lookupPorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span>&gt;</span></span> <span class="parameter-name">lookupPorts</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-request"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryRequest-class.html">AssociativeMemoryRequest</a></span> <span class="parameter-name">request</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-updatePorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span>&gt;</span></span> <span class="parameter-name">updatePorts</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds an associative memory for a resolved shared port contract.
+    
+
+  </dd>
+
+          
+  <dt id="AssociativeMemoryContractResolver" class="callable">
+    <span class="name"><a href="../rohd_hcl/AssociativeMemoryContractResolver.html">AssociativeMemoryContractResolver</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a> Function<span class="signature">(<span class="parameter" id="param-request"><span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryRequest-class.html">AssociativeMemoryRequest</a></span> <span class="parameter-name">request</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Selects an implementation-specific contract for a supported request.
+    
+
+  </dd>
+
+          
+  <dt id="AssociativeMultiSideReadBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/AssociativeMultiSideReadBuilder.html">AssociativeMultiSideReadBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/AssociativeMemory-class.html">AssociativeMemory</a> Function<span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-contract"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span> <span class="parameter-name">contract</span>, </span><span class="parameter" id="param-lookupPorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span>&gt;</span></span> <span class="parameter-name">lookupPorts</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-request"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryRequest-class.html">AssociativeMemoryRequest</a></span> <span class="parameter-name">request</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-sideReadRequests"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeIndexedSideReadRequest-class.html">AssociativeIndexedSideReadRequest</a></span>&gt;</span></span> <span class="parameter-name">sideReadRequests</span>, </span><span class="parameter" id="param-updatePorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span>&gt;</span></span> <span class="parameter-name">updatePorts</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds an associative memory with one or more indexed side reads.
+    
+
+  </dd>
+
+          
+  <dt id="AssociativeSoftwareEntry" class="">
+  <span class="name"><a href="../rohd_hcl/AssociativeSoftwareEntry.html">AssociativeSoftwareEntry</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">key</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">valid</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  One indexed associative entry. Validity may be 0, 1, or unknown.
+  
+
+</dd>
+
+
+          
+  <dt id="AssociativeSoftwareMatcher" class="callable">
+    <span class="name"><a href="../rohd_hcl/AssociativeSoftwareMatcher.html">AssociativeSoftwareMatcher</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a> Function<span class="signature">({<span class="parameter" id="param-index"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span>, </span><span class="parameter" id="param-lookup"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeSoftwareLookup-class.html">AssociativeSoftwareLookup</a></span> <span class="parameter-name">lookup</span>, </span><span class="parameter" id="param-storedKey"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">storedKey</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    A pure, stateless implementation-defined comparison.
+    
+
+  </dd>
+
+          
+  <dt id="AssociativeSoftwareResult" class="">
+  <span class="name"><a href="../rohd_hcl/AssociativeSoftwareResult.html">AssociativeSoftwareResult</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">hit</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">index</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">matchVector</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  Result of a sampled lookup, including its entire match vector.
+  
+
+</dd>
+
+
+          
+  <dt id="BehavioralCacheBlock" class="">
+  <span class="name"><a href="../rohd_hcl/BehavioralCacheBlock.html">BehavioralCacheBlock</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">data</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="field-name">metadata</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  A block and its opaque metadata in a behavioral backing store.
+  
+
+</dd>
+
+
+          
+  <dt id="BehavioralSystemCSelector" class="callable">
+    <span class="name"><a href="../rohd_hcl/BehavioralSystemCSelector.html">BehavioralSystemCSelector</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Selects a module whose portable implementation should replace its RTL.
+    
+
+  </dd>
+
+          
+  <dt id="CacheProtocolAdapterBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/CacheProtocolAdapterBuilder.html">CacheProtocolAdapterBuilder</a></span>&lt;<wbr><span class="type-parameter">O</span>, <span class="type-parameter">Q extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">S extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= (<span class="field">{<span class="type-annotation"><a href="../rohd_hcl/CacheProtocolAdapter-class.html">CacheProtocolAdapter</a><span class="signature">&lt;<wbr><span class="type-parameter">Q</span>, <span class="type-parameter">S</span>, <span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span> <span class="field-name">adapter</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="field-name">module</span>}</span>) Function<span class="signature">({<span class="parameter" id="param-cache"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/CacheTransactionPort-class.html">CacheTransactionPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span> <span class="parameter-name">cache</span>, </span><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-options"><span>required</span> <span class="type-annotation">O</span> <span class="parameter-name">options</span>, </span><span class="parameter" id="param-requests"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">Q</span>&gt;</span></span> <span class="parameter-name">requests</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-responses"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">S</span>&gt;</span></span> <span class="parameter-name">responses</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds a protocol adapter on caller-owned external and cache channels.
+    
+
+  </dd>
+
+          
+  <dt id="CacheReplacementBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/CacheReplacementBuilder.html">CacheReplacementBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/ReplacementPolicy-class.html">ReplacementPolicy</a> Function<span class="signature">({<span class="parameter" id="param-accesses"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/ReplacementAccessInterface-class.html">ReplacementAccessInterface</a></span>&gt;</span></span> <span class="parameter-name">accesses</span>, </span><span class="parameter" id="param-allocations"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/ReplacementAllocationInterface-class.html">ReplacementAllocationInterface</a></span>&gt;</span></span> <span class="parameter-name">allocations</span>, </span><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-eligibleMask"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">eligibleMask</span>, </span><span class="parameter" id="param-entryCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryCount</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-validMask"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">validMask</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds the replacement policy for one cache set.
+    
+
+  </dd>
+
+          
+  <dt id="CacheReplacementDeferredBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/CacheReplacementDeferredBuilder.html">CacheReplacementDeferredBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/ReplacementPolicy-class.html">ReplacementPolicy</a> Function<span class="signature">({<span class="parameter" id="param-accesses"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/ReplacementAccessInterface-class.html">ReplacementAccessInterface</a></span>&gt;</span></span> <span class="parameter-name">accesses</span>, </span><span class="parameter" id="param-allocations"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/ReplacementAllocationInterface-class.html">ReplacementAllocationInterface</a></span>&gt;</span></span> <span class="parameter-name">allocations</span>, </span><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-commits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/ReplacementCommitInterface-class.html">ReplacementCommitInterface</a></span>&gt;</span></span> <span class="parameter-name">commits</span>, </span><span class="parameter" id="param-eligibleMask"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">eligibleMask</span>, </span><span class="parameter" id="param-entryCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryCount</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-validMask"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">validMask</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds a policy with ports for previously reserved allocation commits.
+    
+
+  </dd>
+
+          
+  <dt id="CacheSchedulerBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/CacheSchedulerBuilder.html">CacheSchedulerBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> Function<span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-ports"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/CacheSchedulerPorts-class.html">CacheSchedulerPorts</a></span> <span class="parameter-name">ports</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds a scheduler which drives grants on caller-owned <code>ports</code>.
+    
+
+  </dd>
+
+          
+  <dt id="CacheTransactionCoreBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/CacheTransactionCoreBuilder.html">CacheTransactionCoreBuilder</a></span>&lt;<wbr><span class="type-parameter">O</span>, <span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">M extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">C extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">R extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= (<span class="field">{<span class="type-annotation"><a href="../rohd_hcl/CacheTransactionCore-class.html">CacheTransactionCore</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span> <span class="field-name">core</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="field-name">module</span>}</span>) Function<span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-options"><span>required</span> <span class="type-annotation">O</span> <span class="parameter-name">options</span>, </span><span class="parameter" id="param-ports"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CacheTransactionPort-class.html">CacheTransactionPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">ports</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds a transactional core on caller-owned ports.
+    
+
+  </dd>
+
+          
   <dt id="ColumnQueue" class="">
   <span class="name"><a href="../rohd_hcl/ColumnQueue.html">ColumnQueue</a></span>
     = <a href="https://pub.dev/documentation/collection/1.19.1/collection/PriorityQueue-class.html">PriorityQueue</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CompressTerm-class.html">CompressTerm</a></span>&gt;</span>
@@ -5122,9 +7232,37 @@ hardware).
 
 
           
+  <dt id="MemoryArrayBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/MemoryArrayBuilder.html">MemoryArrayBuilder</a></span>&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/Memory-class.html">Memory</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> Function<span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-entryCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryCount</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-readPorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-writePorts"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">writePorts</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds a fixed-timing memory on the supplied typed raw ports.
+    
+
+  </dd>
+
+          
+  <dt id="ParallelPrefixGenerator" class="callable">
+    <span class="name"><a href="../rohd_hcl/ParallelPrefixGenerator.html">ParallelPrefixGenerator</a></span>&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;<span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-inputs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">inputs</span>, </span><span class="parameter" id="param-operation"><span class="type-annotation">T</span> <span class="parameter-name">operation</span>(<span class="parameter" id="param-left"><span class="type-annotation">T</span> <span class="parameter-name">left</span>, </span><span class="parameter" id="param-right"><span class="type-annotation">T</span> <span class="parameter-name">right</span></span>)</span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Constructs a prefix network retaining payload type <code>T</code>.
+    
+
+  </dd>
+
+          
   <dt id="PPGFunction" class="callable">
     <span class="name"><a href="../rohd_hcl/PPGFunction.html">PPGFunction</a></span><span class="signature">
-      <span class="returntype parameter">= <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a> Function<span class="signature">(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span><span class="parameter" id="param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="param-selectSignedMultiplicand"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplicand</span>, </span><span class="parameter" id="param-selectSignedMultiplier"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">selectSignedMultiplier</span>, </span><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signedMultiplier</span></span>})</span></span>
+      <span class="returntype parameter">= <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a> Function<span class="signature">(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span><span class="parameter" id="param-radixEncoder"><span class="type-annotation"><a href="../rohd_hcl/RadixEncoder-class.html">RadixEncoder</a></span> <span class="parameter-name">radixEncoder</span>, {</span><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span></span>})</span></span>
     </span>
     
 
@@ -5136,6 +7274,21 @@ hardware).
   </dd>
 
           
+  <dt id="ReplacementSelection" class="">
+  <span class="name"><a href="../rohd_hcl/ReplacementSelection.html">ReplacementSelection</a></span>
+    = (<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="field-name">index</span>, </span><span class="field"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="field-name">valid</span>}</span>)
+  </span>
+  
+
+</dt>
+<dd>
+  Result of selecting a candidate from a mask.
+  
+
+</dd>
+
+
+          
   <dt id="SignExtensionFunction" class="callable">
     <span class="name"><a href="../rohd_hcl/SignExtensionFunction.html">SignExtensionFunction</a></span><span class="signature">
       <span class="returntype parameter">= <a href="../rohd_hcl/PartialProductSignExtension-class.html">PartialProductSignExtension</a> Function<span class="signature">(<span class="parameter" id="param-ppg"><span class="type-annotation"><a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a></span> <span class="parameter-name">ppg</span>, {</span><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>})</span></span>
@@ -5145,6 +7298,21 @@ hardware).
   </dt>
   <dd>
     Used to test different sign extension methods
+    
+
+  </dd>
+
+          
+  <dt id="UnknownAddressMatcher" class="callable">
+    <span class="name"><a href="../rohd_hcl/UnknownAddressMatcher.html">UnknownAddressMatcher</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a> Function<span class="signature">(<span class="parameter" id="param-uncertainAddress"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">uncertainAddress</span>, </span><span class="parameter" id="param-physicalAddress"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a></span> <span class="parameter-name">physicalAddress</span></span>)</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Determines whether a physical word could be reached by an uncertain
+logical address after applying a custom alignment function.
     
 
   </dd>

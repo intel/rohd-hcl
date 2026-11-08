@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/ToggleGate-class.html">ToggleGate</a></li>
+    <li><a href="../../rohd_hcl/ToggleGate-class.html">ToggleGate<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">ToggleGate.new constructor</li>
   </ol>
   <div class="self-name">ToggleGate.new</div>
@@ -49,15 +49,15 @@
       data-above-sidebar="rohd_hcl&#47;ToggleGate-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">ToggleGate</span> constructor 
+<h1><span class="kind-constructor">ToggleGate&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">ToggleGate</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-enable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="param-data"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">data</span>, </span></li>
-<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+      <span class="name ">ToggleGate&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-enable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-data"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">data</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 <li><span class="parameter" id="param-clockGateControlIntf"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a>?</span> <span class="parameter-name">clockGateControlIntf</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;toggle_gate&#39;</span>, </span></li>
@@ -86,7 +86,7 @@ elements.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ToggleGate(
     {required Logic enable,
-    required Logic data,
+    required T data,
     required Logic clk,
     required Logic reset,
     dynamic resetValue,
@@ -97,22 +97,22 @@ elements.</p>
     String? definitionName})
     : super(definitionName: definitionName ?? &#39;ToggleGate_W${data.width}&#39;) {
   enable = addInput(&#39;enable&#39;, enable);
-  data = addInput(&#39;data&#39;, data, width: data.width);
+  data = addTypedInput(&#39;data&#39;, data);
   clk = addInput(&#39;clk&#39;, clk);
   reset = addInput(&#39;reset&#39;, reset);
 
   if (resetValue != null &amp;&amp; resetValue is Logic) {
-    resetValue = addInput(&#39;resetValue&#39;, resetValue, width: resetValue.width);
+    resetValue = addTypedInput&lt;Logic&gt;(&#39;resetValue&#39;, resetValue);
   }
 
   if (clockGateControlIntf != null) {
-    clockGateControlIntf = clockGateControlIntf.clone()
-      ..pairConnectIO(this, clockGateControlIntf, PairRole.consumer);
+    clockGateControlIntf =
+        addPairInterfacePorts(clockGateControlIntf, PairRole.consumer);
   }
 
-  addOutput(&#39;gatedData&#39;, width: data.width);
+  gatedData = addTypedOutput(&#39;gatedData&#39;, data.cloneTyped);
 
-  final lastData = Logic(name: &#39;lastData&#39;, width: data.width);
+  final lastData = data.cloneTyped(name: &#39;lastData&#39;);
 
   final gateEnable = enable &amp; (lastData.neq(data));
 
@@ -124,18 +124,20 @@ elements.</p>
   );
 
   lastData &lt;=
-      flop(
+      flop&lt;T&gt;(
           clkGate.gatedClk,
           en: clkGate.isPresent ? null : gateEnable,
           reset: reset,
           resetValue: resetValue,
+          outputGenerator: data.cloneTyped,
           data);
 
   gatedData &lt;=
-      mux(
+      mux&lt;T&gt;(
         enable,
         data,
         lastData,
+        outputGenerator: data.cloneTyped,
       );
 }</code></pre>
 </section>
@@ -152,7 +154,7 @@ elements.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/ToggleGate-class.html">ToggleGate</a></li>
+    <li><a href="../../rohd_hcl/ToggleGate-class.html">ToggleGate<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">ToggleGate.new constructor</li>
 </ol>
 

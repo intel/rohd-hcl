@@ -227,9 +227,12 @@ will be printed at the end of the vector.</p>
 
   str.write(markDown ? dataSepStart : &#39; &#39; * emptyRight * (colWidth + 1));
   if (intValue) {
+    &#47;&#47; Copy to a list literal so the extension method is chosen over the
+    &#47;&#47; deprecated top-level rswizzle() in ROHD 0.6.11.
+    final bits = [...this];
     final vec = (shift &gt;= 0)
-        ? this.rswizzle().zeroExtend(maxHigh) &lt;&lt; shift
-        : this.rswizzle().zeroExtend(maxHigh) &gt;&gt;&gt; -shift;
+        ? bits.rconcat().zeroExtend(maxHigh) &lt;&lt; shift
+        : bits.rconcat().zeroExtend(maxHigh) &gt;&gt;&gt; -shift;
 
     final vecC = vec.slice(highLimit, 0);
     final v = vecC.value.toBigInt().toUnsigned(maxHigh);
@@ -262,7 +265,7 @@ will be printed at the end of the vector.</p>
     <li class="self-crumb">listString method</li>
 </ol>
 
-    <h5>LogicList extension on <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></h5>
+    <h5>LogicList extension on <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
   <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">

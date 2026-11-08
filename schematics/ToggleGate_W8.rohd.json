@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "ClockGate": {
       "attributes": {
@@ -202,7 +202,7 @@
           },
           "attributes": {}
         },
-        "_in1__q": {
+        "_q": {
           "bits": [
             6
           ],
@@ -211,7 +211,7 @@
           },
           "attributes": {}
         },
-        "_clk": {
+        "_freeClk_b": {
           "bits": [
             7
           ],
@@ -220,7 +220,7 @@
           },
           "attributes": {}
         },
-        "_d": {
+        "_uor__enable_or_reset": {
           "bits": [
             8
           ],
@@ -572,7 +572,7 @@
             "preserved_name": 1
           }
         },
-        "_in1__lastData_notEquals_data": {
+        "_lastData_notEquals_data": {
           "bits": [
             29
           ],

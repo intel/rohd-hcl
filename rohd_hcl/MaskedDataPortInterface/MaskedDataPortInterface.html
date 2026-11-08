@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></li>
+    <li><a href="../../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">MaskedDataPortInterface.new constructor</li>
   </ol>
   <div class="self-name">MaskedDataPortInterface.new</div>
@@ -49,12 +49,12 @@
       data-above-sidebar="rohd_hcl&#47;MaskedDataPortInterface-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">MaskedDataPortInterface</span> constructor 
+<h1><span class="kind-constructor">MaskedDataPortInterface&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">MaskedDataPortInterface</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="param-dataWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span>, </span></li>
+      <span class="name ">MaskedDataPortInterface&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="param-dataWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span>, </span></li>
 <li><span class="parameter" id="param-addrWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span></span></li>
 </ol>)
     </section>
@@ -68,14 +68,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">MaskedDataPortInterface(super.dataWidth, super.addrWidth) {
-  if (dataWidth % 8 != 0) {
-    throw RohdHclException(&#39;The data width must be byte-granularity&#39;);
-  }
-  setPorts([
-    Logic.port(&#39;mask&#39;, dataWidth ~&#47; 8),
-  ], [
-    DataPortGroup.control
-  ]);
+  _addMask();
 }</code></pre>
 </section>
 
@@ -91,7 +84,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface</a></li>
+    <li><a href="../../rohd_hcl/MaskedDataPortInterface-class.html">MaskedDataPortInterface<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">MaskedDataPortInterface.new constructor</li>
 </ol>
 

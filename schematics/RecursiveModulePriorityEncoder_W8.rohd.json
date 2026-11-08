@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "PriorityEncodeNode_W2": {
       "attributes": {
@@ -35,23 +35,23 @@
           "parameters": {},
           "attributes": {},
           "port_directions": {
-            "_in3__swizzled": "input",
-            "_in5__swizzled": "input",
+            "_in5__concatd": "input",
             "seq": "input",
+            "_concatd": "input",
             "ret": "output"
           },
           "connections": {
-            "_in3__swizzled": [
-              10,
-              11
-            ],
-            "_in5__swizzled": [
+            "_in5__concatd": [
               13,
               14
             ],
             "seq": [
               2,
               3
+            ],
+            "_concatd": [
+              10,
+              11
             ],
             "ret": [
               4,
@@ -104,6 +104,114 @@
               7
             ]
           }
+        },
+        "concat": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              15
+            ],
+            "B": [
+              16
+            ],
+            "Y": [
+              10,
+              11
+            ]
+          }
+        },
+        "concat_0": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              17
+            ],
+            "B": [
+              18
+            ],
+            "Y": [
+              13,
+              14
+            ]
+          }
+        },
+        "const_0_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              15
+            ]
+          }
+        },
+        "const_1_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              16
+            ]
+          }
+        },
+        "const_2_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              17
+            ]
+          }
+        },
+        "const_3_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              18
+            ]
+          }
         }
       },
       "netnames": {
@@ -148,6 +256,58 @@
           "attributes": {
             "preserved_name": 1
           }
+        },
+        "_concatd": {
+          "bits": [
+            10,
+            11
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in5__concatd": {
+          "bits": [
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "const_0_1_h1": {
+          "bits": [
+            15
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_1_h0": {
+          "bits": [
+            16
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_1_h0": {
+          "bits": [
+            17
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h1": {
+          "bits": [
+            18
+          ],
+          "attributes": {
+            "computed": 1
+          }
         }
       }
     },
@@ -187,24 +347,24 @@
           "parameters": {},
           "attributes": {},
           "port_directions": {
-            "_in0__leftLead_and_rightLead": "input",
-            "_in2__leftLead_b": "input",
+            "_leftLead_and_rightLead": "input",
             "lr": "input",
+            "_leftLead_b": "input",
             "zl": "input",
             "rhs": "input",
             "ret": "output"
           },
           "connections": {
-            "_in0__leftLead_and_rightLead": [
+            "_leftLead_and_rightLead": [
               23
-            ],
-            "_in2__leftLead_b": [
-              24
             ],
             "lr": [
               20,
               21,
               22
+            ],
+            "_leftLead_b": [
+              24
             ],
             "zl": [
               10,
@@ -339,7 +499,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -459,7 +619,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -488,6 +648,34 @@
               14,
               15,
               16
+            ]
+          }
+        },
+        "concat_1": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              38,
+              39
+            ],
+            "B": [
+              40
+            ],
+            "Y": [
+              20,
+              21,
+              22
             ]
           }
         },
@@ -530,6 +718,35 @@
           "connections": {
             "1'h0": [
               37
+            ]
+          }
+        },
+        "const_3_2_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h0": "output"
+          },
+          "connections": {
+            "2'h0": [
+              38,
+              39
+            ]
+          }
+        },
+        "const_4_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              40
             ]
           }
         }
@@ -619,7 +836,20 @@
             "preserved_name": 1
           }
         },
-        "_in0__leftLead_and_rightLead": {
+        "lr": {
+          "bits": [
+            20,
+            21,
+            22
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_leftLead_and_rightLead": {
           "bits": [
             23
           ],
@@ -628,7 +858,7 @@
           },
           "attributes": {}
         },
-        "_in2__leftLead_b": {
+        "_leftLead_b": {
           "bits": [
             24
           ],
@@ -677,7 +907,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_subset_0_0_ret": {
           "bits": [
             35
           ],
@@ -705,6 +935,23 @@
         "const_2_1_h0": {
           "bits": [
             37
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_2_h0": {
+          "bits": [
+            38,
+            39
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_1_h1": {
+          "bits": [
+            40
           ],
           "attributes": {
             "computed": 1
@@ -753,25 +1000,25 @@
           "parameters": {},
           "attributes": {},
           "port_directions": {
-            "_in0__leftLead_and_rightLead": "input",
-            "_in2__leftLead_b": "input",
+            "_leftLead_and_rightLead": "input",
             "lr": "input",
+            "_leftLead_b": "input",
             "zl": "input",
             "rhs": "input",
             "ret": "output"
           },
           "connections": {
-            "_in0__leftLead_and_rightLead": [
+            "_leftLead_and_rightLead": [
               32
-            ],
-            "_in2__leftLead_b": [
-              33
             ],
             "lr": [
               28,
               29,
               30,
               31
+            ],
+            "_leftLead_b": [
+              33
             ],
             "zl": [
               15,
@@ -919,7 +1166,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1053,7 +1300,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1084,6 +1331,36 @@
               21,
               22,
               23
+            ]
+          }
+        },
+        "concat_1": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 3,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              54,
+              55,
+              56
+            ],
+            "B": [
+              57
+            ],
+            "Y": [
+              28,
+              29,
+              30,
+              31
             ]
           }
         },
@@ -1126,6 +1403,36 @@
           "connections": {
             "1'h0": [
               53
+            ]
+          }
+        },
+        "const_3_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              54,
+              55,
+              56
+            ]
+          }
+        },
+        "const_4_1_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              57
             ]
           }
         }
@@ -1223,7 +1530,21 @@
             "preserved_name": 1
           }
         },
-        "_in0__leftLead_and_rightLead": {
+        "lr": {
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_leftLead_and_rightLead": {
           "bits": [
             32
           ],
@@ -1232,7 +1553,7 @@
           },
           "attributes": {}
         },
-        "_in2__leftLead_b": {
+        "_leftLead_b": {
           "bits": [
             33
           ],
@@ -1287,7 +1608,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_subset_1_0_ret": {
           "bits": [
             50,
             51
@@ -1316,6 +1637,24 @@
         "const_2_1_h0": {
           "bits": [
             53
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_3_h0": {
+          "bits": [
+            54,
+            55,
+            56
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_1_h1": {
+          "bits": [
+            57
           ],
           "attributes": {
             "computed": 1

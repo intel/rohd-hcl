@@ -54,17 +54,17 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">MultiplyOnly</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
-<li><span class="parameter" id="param-c"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">c</span>, </span></li>
-<li><span class="parameter" id="param-mulGen"><span class="type-annotation"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">mulGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+      <span class="name ">MultiplyOnly</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, </span></li>
+<li><span class="parameter" id="param-c"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">c</span>, </span></li>
+<li><span class="parameter" id="param-mulGen"><span class="type-annotation"><a href="../../rohd_hcl/Multiplier-class.html">Multiplier</a></span> <span class="parameter-name">mulGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 </ol>}), {</span></li>
-<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
-<li><span class="parameter" id="param-signedAddend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedAddend</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+<li><span class="parameter" id="param-signedAddend"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedAddend</span>, </span></li>
 <li><span class="parameter" id="param-outputWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">outputWidth</span>, </span></li>
 </ol>})
     </section>
@@ -85,7 +85,8 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
   super.b,
   super.c,
   Multiplier Function(Logic a, Logic b,
-          {dynamic signedMultiplicand, dynamic signedMultiplier})
+          {StaticOrRuntimeParameter? signedMultiplicand,
+          StaticOrRuntimeParameter? signedMultiplier})
       mulGen, {
   super.signedMultiplicand,
   super.signedMultiplier,
@@ -103,18 +104,10 @@ using the same tester with zero accumulate addend <code>c</code>.</p>
       ) {
   &#47;&#47; Copy the configuration using this module&#39;s internal runtime input.
   final multiply = mulGen(a, b,
-      signedMultiplicand: StaticOrRuntimeParameter(
-          name: &#39;selectSignedMultiplicand&#39;,
-          runtimeConfig: signedMultiplicandParameter.tryRuntimeInput(this),
-          staticConfig: signedMultiplicandParameter.runtimeConfig == null
-              ? signedMultiplicandParameter.staticConfig
-              : null),
-      signedMultiplier: StaticOrRuntimeParameter(
-          name: &#39;selectSignedMultiplier&#39;,
-          runtimeConfig: signedMultiplierParameter.tryRuntimeInput(this),
-          staticConfig: signedMultiplierParameter.runtimeConfig == null
-              ? signedMultiplierParameter.staticConfig
-              : null));
+      signedMultiplicand: signedMultiplicandParameter.forChild(this,
+          name: &#39;selectSignedMultiplicand&#39;),
+      signedMultiplier: signedMultiplierParameter.forChild(this,
+          name: &#39;selectSignedMultiplier&#39;));
 
   accumulate &lt;=
       &#47;&#47; The wrapper needs the generated multiplier&#39;s signedness metadata.

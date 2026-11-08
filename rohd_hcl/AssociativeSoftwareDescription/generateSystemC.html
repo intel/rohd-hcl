@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the generateSystemC method from the AssociativeSoftwareDescription class, for the Dart programming language.">
+  <title>generateSystemC method - AssociativeSoftwareDescription class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/AssociativeSoftwareDescription-class.html">AssociativeSoftwareDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+  </ol>
+  <div class="self-name">generateSystemC</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;AssociativeSoftwareDescription-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">generateSystemC</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+<span class="name ">generateSystemC</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="generateSystemC-param-className"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">className</span>, </span></li>
+<li><span class="parameter" id="generateSystemC-param-options"><span class="type-annotation"><a href="../../rohd_hcl/SystemCModelOptions-class.html">SystemCModelOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const SystemCModelOptions()</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates the supported four-state, synchronous SystemC implementation.</p>
+<p>Requests are sampled at rising clock edges, including zero-latency
+lookups. Unknown enables and indices are reported as errors. Custom
+matching, asynchronous reset, duplicate-key enforcement, and two-state
+boundaries are not implemented by this exporter and are rejected.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">String generateSystemC({
+  required String className,
+  SystemCModelOptions options = const SystemCModelOptions(),
+}) {
+  if (!RegExp(r&#39;^[A-Za-z_][A-Za-z0-9_]*$&#39;).hasMatch(className)) {
+    throw ArgumentError.value(
+        className, &#39;className&#39;, &#39;Invalid C++ identifier.&#39;);
+  }
+  final c = configuration;
+  if (options.portType != SystemCModelPortType.fourState ||
+      c.matchMode == AssociativeMatchMode.contextQualified ||
+      c.duplicateKeyPolicy == AssociativeDuplicateKeyPolicy.disallow ||
+      c.requiredResetTiming == AssociativeMemoryResetTiming.asynchronous ||
+      c.lookupUpdatePolicy == AssociativeLookupUpdatePolicy.undefined) {
+    throw UnsupportedError(&#39;This associative SystemC configuration is not &#39;
+        &#39;implemented by the clock-stepped exporter.&#39;);
+  }
+  final output = StringBuffer()
+    ..writeln(&#39;#pragma once&#39;)
+    ..writeln(&#39;#include &lt;systemc&gt;&#39;)
+    ..writeln(&#39;#include &lt;array&gt;&#39;)
+    ..writeln(&#39;#include &lt;cstdint&gt;&#39;)
+    ..writeln(&#39;#include &lt;vector&gt;&#39;)
+    ..writeln(systemCSparseStorageDefinition)
+    ..writeln(&#39;SC_MODULE($className) {&#39;)
+    ..writeln(&#39;  using bit = sc_dt::sc_logic;&#39;)
+    ..writeln(&#39;  using key = sc_dt::sc_lv&lt;${c.keyWidth}&gt;;&#39;)
+    ..writeln(&#39;  using index = sc_dt::sc_lv&lt;${c.indexWidth}&gt;;&#39;)
+    ..writeln(&#39;  using matches = sc_dt::sc_lv&lt;${c.entryCount}&gt;;&#39;);
+  for (final (ports, direction) in [
+    (inputPorts, &#39;in&#39;),
+    (outputPorts, &#39;out&#39;)
+  ]) {
+    for (final port in ports.entries) {
+      final scalar = port.key == &#39;clk&#39; ||
+          port.key == &#39;reset&#39; ||
+          port.key.endsWith(&#39;_en&#39;) ||
+          port.key.endsWith(&#39;_hit&#39;) ||
+          port.key.endsWith(&#39;_valid&#39;);
+      final type = scalar ? &#39;bit&#39; : &#39;sc_dt::sc_lv&lt;${port.value}&gt;&#39;;
+      output.writeln(&#39;  sc_core::sc_$direction&lt;$type&gt; &#39;
+          &#39;${port.key}{&quot;${port.key}&quot;};&#39;);
+    }
+  }
+  output.writeln(&#39;&#39;&#39;
+struct entry { key value; bit valid; };
+struct update { std::uint64_t due; int port; unsigned index_value;
+                key value; bit valid; };
+struct result { bit hit; index selected; matches vector; };
+struct lookup { std::uint64_t due; int port; result value; };
+using entry_storage = RohdHclSystemCSparseStorage&lt;${c.keyWidth + 1}&gt;;
+struct state {
+  std::uint64_t cycle=0;
+  entry_storage entries;
+  std::vector&lt;update&gt; updates;
+  std::vector&lt;lookup&gt; lookups;
+  std::array&lt;result, ${c.lookupPortCount}&gt; visible;
+  std::array&lt;bool, ${c.lookupPortCount}&gt; valid{};
+  bit old_clk=sc_dt::SC_LOGIC_0;
+};
+class image {
+  friend struct $className;
+  state value;
+  explicit image(const state&amp; s) : value(s) {}
+};
+state data;
+sc_core::sc_event changed;
+image snapshot() const { return image(data); }
+void restore(const image&amp; saved) {
+  data=saved.value;
+  changed.notify(sc_core::SC_ZERO_TIME);
+}
+static bool known(bit x) {
+  return x==sc_dt::SC_LOGIC_0 || x==sc_dt::SC_LOGIC_1;
+}
+static bit normalize(bit x) {
+  return x==sc_dt::SC_LOGIC_Z ? bit(sc_dt::SC_LOGIC_X) : x;
+}
+static key normalize_key(key value) {
+  for(int i=0;i&lt;${c.keyWidth};++i) value[i]=normalize(value[i]);
+  return value;
+}
+static bit equal_key(const key&amp; left, const key&amp; right) {
+  bit result=sc_dt::SC_LOGIC_1;
+  for(int i=0;i&lt;${c.keyWidth};++i) {
+    bit a=left[i], b=right[i];
+    bit same=known(a) &amp;&amp; known(b) ? bit(a==b) : bit(sc_dt::SC_LOGIC_X);
+    result=result &amp; same;
+  }
+  return result;
+}
+static entry read_entry(const entry_storage&amp; entries, int i) {
+  auto value=entries.read(std::to_string(i),typename entry_storage::word(0));
+  entry result{key(0),bit(value[${c.keyWidth}])};
+  for(int bit=0;bit&lt;${c.keyWidth};++bit) result.value[bit]=value[bit];
+  return result;
+}
+static void write_entry(entry_storage&amp; entries, int i, const entry&amp; value) {
+  typename entry_storage::word packed(0);
+  for(int bit=0;bit&lt;${c.keyWidth};++bit) packed[bit]=value.value[bit];
+  packed[${c.keyWidth}]=value.valid;
+  entries.write(std::to_string(i),packed);
+}
+static index select_index(bit control, const index&amp; yes, const index&amp; no) {
+  if(control==sc_dt::SC_LOGIC_1) return yes;
+  if(control==sc_dt::SC_LOGIC_0) return no;
+  index result;
+  for(int i=0;i&lt;${c.indexWidth};++i)
+    result[i]=(yes[i]==no[i]) ? yes[i] : bit(sc_dt::SC_LOGIC_X);
+  return result;
+}
+result find(const key&amp; query, const key&amp; mask,
+            const entry_storage&amp; entries) const {
+  result out{sc_dt::SC_LOGIC_0, index(0), matches(0)};
+  bit found=sc_dt::SC_LOGIC_0;
+  index selected(0);
+  for(int i=0;i&lt;${c.entryCount};++i) {
+    auto stored=read_entry(entries,i);
+    bit equal=${c.matchMode == AssociativeMatchMode.masked ? &#39;equal_key(query &amp; mask, stored.value &amp; mask)&#39; : &#39;equal_key(query, stored.value)&#39;};
+    bit match=stored.valid &amp; equal;
+    out.vector[i]=match;
+    bit preferred=selected.is_01()
+        ? bit(i ${c.matchSelection == AssociativeMatchSelection.lowestIndex ? &#39;&lt;&#39; : &#39;&gt;&#39;} selected.to_uint64())
+        : bit(sc_dt::SC_LOGIC_X);
+    bit choose=match &amp; (~found | preferred);
+    selected=select_index(choose,index(i),selected);
+    found=found | match;
+  }
+  out.hit=found;
+  out.selected=select_index(found,selected,index(0));
+  return out;
+}
+void clear_entries() {
+  data.entries.clear();
+  data.updates.clear(); data.lookups.clear(); data.valid.fill(false);
+}
+void drive() {
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; c.lookupPortCount; i++) {
+    output
+      ..writeln(&#39;    lookup_${i}_valid.write(bit(data.valid[$i]));&#39;)
+      ..writeln(&#39;    lookup_${i}_hit.write(data.visible[$i].hit);&#39;)
+      ..writeln(&#39;    lookup_${i}_index.write(data.visible[$i].selected);&#39;)
+      ..writeln(&#39;    lookup_${i}_matches.write(data.visible[$i].vector);&#39;);
+  }
+  output.writeln(&#39;&#39;&#39;
+}
+void tick() {
+  bit clock=clk.read();
+  if(!known(clock) || !known(data.old_clk)) {
+    SC_REPORT_ERROR(&quot;ASSOCIATIVE_CLOCK&quot;, &quot;Unknown clock transition&quot;);
+    data.old_clk=clock; return;
+  }
+  bool edge=data.old_clk==sc_dt::SC_LOGIC_0 &amp;&amp; clock==sc_dt::SC_LOGIC_1;
+  data.old_clk=clock;
+  if(!edge) return;
+  bit rst=reset.read();
+  if(!known(rst)) {
+    SC_REPORT_ERROR(&quot;ASSOCIATIVE_RESET&quot;, &quot;Unknown reset&quot;); return;
+  }
+  if(rst==sc_dt::SC_LOGIC_1) {
+&#39;&#39;&#39;);
+  if (c.requiredResetBehavior == AssociativeMemoryResetBehavior.none) {
+    output.writeln(&#39;      SC_REPORT_ERROR(&quot;ASSOCIATIVE_RESET&quot;, &#39;
+        &#39;&quot;Reset behavior is not configured&quot;); return;&#39;);
+  } else {
+    output.writeln(
+        &#39;      clear_entries(); changed.notify(sc_core::SC_ZERO_TIME);&#39;
+        &#39; return;&#39;);
+  }
+  output.writeln(&#39;&#39;&#39;
+  }
+  std::vector&lt;update&gt; incoming;
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; c.updatePortCount; i++) {
+    output.writeln(&#39;&#39;&#39;
+  if(!known(update_${i}_en.read())) {
+    SC_REPORT_ERROR(&quot;ASSOCIATIVE_UPDATE&quot;, &quot;Unknown update enable&quot;); return;
+  }
+  if(update_${i}_en.read()==sc_dt::SC_LOGIC_1) {
+    if(!update_${i}_index.read().is_01() ||
+        sc_dt::sc_biguint&lt;${c.indexWidth}&gt;(update_${i}_index.read())&gt;=${c.entryCount}) {
+      SC_REPORT_ERROR(&quot;ASSOCIATIVE_UPDATE&quot;, &quot;Invalid update index&quot;); return;
+    }
+    incoming.push_back({data.cycle+${c.updateLatency}, $i,
+        static_cast&lt;unsigned&gt;(update_${i}_index.read().to_uint64()),
+        normalize_key(update_${i}_key.read()), normalize(update_${i}_valid.read())});
+  }
+&#39;&#39;&#39;);
+  }
+  for (var i = 0; i &lt; c.lookupPortCount; i++) {
+    output.writeln(&#39;&#39;&#39;
+  if(!known(lookup_${i}_en.read())) {
+    SC_REPORT_ERROR(&quot;ASSOCIATIVE_LOOKUP&quot;, &quot;Unknown lookup enable&quot;); return;
+  }
+&#39;&#39;&#39;);
+  }
+  if (c.updateCollisionPolicy == AssociativeUpdateCollisionPolicy.disallow) {
+    output.writeln(&#39;&#39;&#39;
+  for(std::size_t i=0;i&lt;incoming.size();++i)
+    for(std::size_t j=i+1;j&lt;incoming.size();++j)
+      if(incoming[i].index_value==incoming[j].index_value) {
+        SC_REPORT_ERROR(&quot;ASSOCIATIVE_UPDATE&quot;, &quot;Update collision&quot;); return;
+      }
+&#39;&#39;&#39;);
+  }
+  output.writeln(&#39;&#39;&#39;
+  auto next=data.entries;
+  std::vector&lt;update&gt; all=data.updates;
+  all.insert(all.end(),incoming.begin(),incoming.end());
+  for(int target=0;target&lt;${c.entryCount};++target) {
+    const update* chosen=nullptr;
+    for(const auto&amp; item:all) {
+      if(item.due!=data.cycle || item.index_value!=static_cast&lt;unsigned&gt;(target))
+        continue;
+      if(chosen==nullptr || item.port ${c.updateCollisionPolicy == AssociativeUpdateCollisionPolicy.lowestPortWins ? &#39;&lt;&#39; : &#39;&gt;&#39;} chosen-&gt;port)
+        chosen=&amp;item;
+    }
+    if(chosen!=nullptr) {
+      write_entry(next,target,{chosen-&gt;value,chosen-&gt;valid});
+    }
+  }
+  auto visible_entries=${c.lookupUpdatePolicy == AssociativeLookupUpdatePolicy.lookupBeforeUpdate ? &#39;data.entries&#39; : &#39;next&#39;};
+  std::vector&lt;lookup&gt; accepted;
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; c.lookupPortCount; i++) {
+    final mask = c.matchMode == AssociativeMatchMode.masked
+        ? &#39;lookup_${i}_mask.read()&#39;
+        : &#39;key(0)&#39;;
+    output.writeln(&#39;&#39;&#39;
+  if(lookup_${i}_en.read()==sc_dt::SC_LOGIC_1)
+    accepted.push_back({data.cycle+${c.lookupLatency}, $i,
+        find(lookup_${i}_key.read(), $mask, visible_entries)});
+&#39;&#39;&#39;);
+  }
+  output.writeln(&#39;&#39;&#39;
+  data.entries=next;
+  data.updates.clear();
+  for(const auto&amp; item:all)
+    if(item.due!=data.cycle) data.updates.push_back(item);
+  data.lookups.insert(data.lookups.end(),accepted.begin(),accepted.end());
+  data.valid.fill(false);
+  std::vector&lt;lookup&gt; pending;
+  for(const auto&amp; item:data.lookups) {
+    if(item.due==data.cycle) {
+      data.visible[item.port]=item.value; data.valid[item.port]=true;
+    } else pending.push_back(item);
+  }
+  data.lookups=std::move(pending);
+  ++data.cycle;
+  changed.notify(sc_core::SC_ZERO_TIME);
+}
+SC_CTOR($className) {
+  clear_entries();
+  for(auto&amp; r:data.visible)
+    r={sc_dt::SC_LOGIC_0, index(0), matches(0)};
+  SC_METHOD(tick); sensitive &lt;&lt; clk; dont_initialize();
+  SC_METHOD(drive); sensitive &lt;&lt; changed;
+}
+};
+&#39;&#39;&#39;);
+  return output.toString();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/AssociativeSoftwareDescription-class.html">AssociativeSoftwareDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+</ol>
+
+    <h5>AssociativeSoftwareDescription class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

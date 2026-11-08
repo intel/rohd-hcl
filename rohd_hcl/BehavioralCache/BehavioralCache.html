@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the BehavioralCache.new constructor from Class BehavioralCache from the rohd_hcl library, for the Dart programming language.">
+  <title>BehavioralCache.new constructor - BehavioralCache - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/BehavioralCache-class.html">BehavioralCache<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">BehavioralCache.new constructor</li>
+  </ol>
+  <div class="self-name">BehavioralCache.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;BehavioralCache-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">BehavioralCache&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">BehavioralCache&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-ports"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CacheTransactionPort-class.html">CacheTransactionPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">ports</span>, </span></li>
+<li><span class="parameter" id="param-setCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">setCount</span>, </span></li>
+<li><span class="parameter" id="param-waysPerSet"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">waysPerSet</span>, </span></li>
+<li><span class="parameter" id="param-maxOutstanding"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maxOutstanding</span>, </span></li>
+<li><span class="parameter" id="param-backingStore"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/BehavioralCacheBackingStore-class.html">BehavioralCacheBackingStore</a></span> <span class="parameter-name">backingStore</span>, </span></li>
+<li><span class="parameter" id="param-operationsPerCycle"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">operationsPerCycle</span> = <span class="default-value">1</span>, </span></li>
+<li><span class="parameter" id="param-operationLatency"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">operationLatency</span> = <span class="default-value">1</span>, </span></li>
+<li><span class="parameter" id="param-replacement"><span class="type-annotation"><a href="../../rohd_hcl/BehavioralCacheReplacement-class.html">BehavioralCacheReplacement</a>?</span> <span class="parameter-name">replacement</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;behavioral_cache&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates the model. The port operation width must encode the extensions.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">BehavioralCache({
+  required Logic clk,
+  required Logic reset,
+  required List&lt;CacheTransactionPort&lt;T, M, C, R&gt;&gt; ports,
+  required this.setCount,
+  required this.waysPerSet,
+  required int maxOutstanding,
+  required this.backingStore,
+  this.operationsPerCycle = 1,
+  this.operationLatency = 1,
+  BehavioralCacheReplacement? replacement,
+  super.name = &#39;behavioral_cache&#39;,
+})  : ports = List.unmodifiable(ports),
+      replacement = replacement ??
+          BehavioralCacheRoundRobin(
+              setCount: setCount, waysPerSet: waysPerSet),
+      capabilities = CacheTransactionCapabilities(
+        operations: CacheTransactionOperation.values.toSet(),
+        extensionOperations:
+            BehavioralCacheOperation.values.map((op) =&gt; op.code).toSet(),
+        maxOutstanding: maxOutstanding,
+        responseOrdering: CacheTransactionOrdering.inOrder,
+        sameBlockOrdering: CacheSameBlockOrdering.acceptanceOrder,
+        sameCycleOrdering: CacheSameCycleOrdering.lowerPortFirst,
+        supportsMaskedUpdates: true,
+        reportsInvalidations: true,
+      ),
+      super(
+          definitionName: &#39;BehavioralCache_S${setCount}_W${waysPerSet}_&#39;
+              &#39;P${ports.length}_N${maxOutstanding}_&#39;
+              &#39;I${operationsPerCycle}_L${operationLatency}_&#39;
+              &#39;${_portShape(ports)}&#39;) {
+  if (ports.isEmpty ||
+      clk.width != 1 ||
+      reset.width != 1 ||
+      setCount &lt; 1 ||
+      (setCount &amp; (setCount - 1)) != 0 ||
+      waysPerSet &lt; 1 ||
+      operationsPerCycle &lt; 1 ||
+      operationLatency &lt; 1) {
+    throw ArgumentError(&#39;Invalid behavioral-cache geometry or timing.&#39;);
+  }
+  final request = ports.first.requests.data;
+  final response = ports.first.responses.data;
+  final eviction = ports.first.evictions.data;
+  if (BigInt.from(setCount) &gt; (BigInt.one &lt;&lt; request.address.width) ||
+      backingStore.addressWidth != request.address.width ||
+      backingStore.dataWidth != request.data.width ||
+      backingStore.metadataWidth != request.lineMetadata.width ||
+      ports.any((port) =&gt;
+          !sameDeclaredPayloadShape(request, port.requests.data) ||
+          !sameDeclaredPayloadShape(response, port.responses.data) ||
+          !sameDeclaredPayloadShape(eviction, port.evictions.data))) {
+    throw ArgumentError(&#39;Cache ports and backing store must have matching &#39;
+        &#39;geometry and payload shapes.&#39;);
+  }
+  ports.forEach(capabilities.validatePort);
+  _configuration = &#39;$setCount:$waysPerSet:$maxOutstanding:&#39;
+      &#39;$operationsPerCycle:$operationLatency:${ports.length}:&#39;
+      &#39;${_portShape(ports)}&#39;;
+
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final localPorts = [
+    for (final (index, port) in ports.indexed)
+      addInterfacePorts(port,
+          inputTags: [PairDirection.fromProvider],
+          outputTags: [PairDirection.fromConsumer],
+          uniquify: (signal) =&gt; &#39;port_${index}_$signal&#39;),
+  ];
+  final entryAddressWidth = (setCount * waysPerSet - 1).bitLength;
+  final lineStorage = SparseMemoryStorage(
+      addrWidth: entryAddressWidth == 0 ? 1 : entryAddressWidth,
+      dataWidth: request.address.width +
+          request.data.width +
+          request.lineMetadata.width +
+          1);
+  final lines = _lines = [
+    for (var set = 0; set &lt; setCount; set++)
+      _CacheWays(
+          lineStorage,
+          set * waysPerSet,
+          waysPerSet,
+          request.address.width,
+          request.data.width,
+          request.lineMetadata.width),
+  ];
+  final transactions = _transactions = &lt;_Transaction&gt;[];
+  final evictionOffers = _evictionOffers = [
+    for (var index = 0; index &lt; ports.length; index++) &lt;_Transaction&gt;[],
+  ];
+  int setOf(BigInt address) =&gt; (address % BigInt.from(setCount)).toInt();
+  LogicValue zero(int width) =&gt; LogicValue.filled(width, LogicValue.zero);
+  LogicValue bits(Logic signal, {bool previous = false}) {
+    LogicValue read(Logic leaf) =&gt;
+        previous ? leaf.previousValue! : leaf.value;
+    return signal is LogicStructure
+        ? signal.leafElements.map(read).toList().rconcat()
+        : read(signal);
+  }
+
+  void drive(Logic signal, LogicValue value) {
+    if (signal is LogicStructure) {
+      var offset = 0;
+      for (final leaf in signal.leafElements) {
+        leaf.put(value.getRange(offset, offset + leaf.width));
+        offset += leaf.width;
+      }
+    } else {
+      signal.put(value);
+    }
+  }
+
+  LogicValue merged(LogicValue oldData, LogicValue newData, LogicValue mask) {
+    final unitWidth = oldData.width ~&#47; mask.width;
+    return [
+      for (var bit = 0; bit &lt; oldData.width; bit++)
+        if (mask[bit ~&#47; unitWidth] == LogicValue.zero)
+          oldData[bit]
+        else if (mask[bit ~&#47; unitWidth] == LogicValue.one)
+          newData[bit]
+        else if (oldData[bit] == newData[bit] &amp;&amp; oldData[bit].isValid)
+          oldData[bit]
+        else
+          LogicValue.x,
+    ].rconcat();
+  }
+
+  void refresh() {
+    final resetValue = localReset.value;
+    var available = maxOutstanding - transactions.length;
+    var uncertainGrant = false;
+    for (final (index, port) in localPorts.indexed) {
+      final valid = port.requests.valid.value;
+      final token = bits(port.requests.data.token);
+      final conflict = valid == LogicValue.one &amp;&amp;
+          token.isValid &amp;&amp;
+          transactions.any((txn) =&gt; txn.port == index &amp;&amp; txn.token == token);
+      final tokenUnknown = valid == LogicValue.one &amp;&amp; !token.isValid;
+      final unknown = !resetValue.isValid ||
+          (resetValue == LogicValue.zero &amp;&amp;
+              (uncertainGrant || !valid.isValid || tokenUnknown));
+      port.tokenConflict.put(resetValue == LogicValue.one
+          ? LogicValue.zero
+          : tokenUnknown || !valid.isValid || !resetValue.isValid
+              ? LogicValue.x
+              : conflict
+                  ? LogicValue.one
+                  : LogicValue.zero);
+      final ready = resetValue == LogicValue.one
+          ? LogicValue.zero
+          : unknown
+              ? LogicValue.x
+              : available &gt; 0 &amp;&amp; !conflict
+                  ? LogicValue.one
+                  : LogicValue.zero;
+      port.requests.ready.put(ready);
+      if (ready == LogicValue.one &amp;&amp; valid == LogicValue.one) {
+        available--;
+      } else if (ready == LogicValue.x &amp;&amp; available &gt; 0) {
+        uncertainGrant = true;
+      }
+
+      final own = transactions.where((txn) =&gt; txn.port == index).toList();
+      final responseTxn =
+          own.isNotEmpty &amp;&amp; own.first.complete ? own.first : null;
+      final evictionTxn = evictionOffers[index].firstOrNull;
+      port.responses.valid.put(resetValue == LogicValue.one
+          ? LogicValue.zero
+          : !resetValue.isValid
+              ? LogicValue.x
+              : responseTxn == null
+                  ? LogicValue.zero
+                  : LogicValue.one);
+      port.evictions.valid.put(resetValue == LogicValue.one
+          ? LogicValue.zero
+          : !resetValue.isValid
+              ? LogicValue.x
+              : evictionTxn == null
+                  ? LogicValue.zero
+                  : LogicValue.one);
+      if (responseTxn != null) {
+        final out = port.responses.data;
+        drive(out.token, responseTxn.token);
+        drive(out.status, LogicValue.ofInt(responseTxn.status!, 2));
+        drive(out.data, responseTxn.responseData!);
+        drive(out.lineMetadata, responseTxn.responseMetadata!);
+        drive(out.context, responseTxn.context);
+        drive(out.result, zero(out.result.width));
+      }
+      if (evictionTxn != null) {
+        final out = port.evictions.data;
+        final victim = evictionTxn.eviction!;
+        drive(out.token, evictionTxn.token);
+        drive(out.cause,
+            LogicValue.ofInt(evictionTxn.evictionCause!, out.cause.width));
+        drive(out.address,
+            LogicValue.ofBigInt(victim.address, out.address.width));
+        drive(out.data, victim.data);
+        drive(out.lineMetadata, victim.metadata);
+        drive(out.context, evictionTxn.context);
+      }
+    }
+  }
+
+  void finish(_Transaction txn, int status,
+      [LogicValue? data, LogicValue? metadata]) {
+    txn
+      ..status = status
+      ..responseData = data ?? zero(request.data.width)
+      ..responseMetadata = metadata ?? zero(request.lineMetadata.width);
+  }
+
+  void commit(_Transaction txn) {
+    final pending = txn.pending!;
+    final set = setOf(txn.address);
+    final ways = lines[set];
+    final isInvalidate =
+        txn.operation == CacheTransactionOperation.invalidate.code;
+    final isFill = txn.operation == CacheTransactionOperation.fill.code;
+    final isUpdate = txn.operation == CacheTransactionOperation.update.code;
+    final readThrough =
+        txn.operation == BehavioralCacheOperation.readThrough.code;
+    final writeAllocate =
+        txn.operation == BehavioralCacheOperation.writeAllocate.code;
+    if (pending.hit) {
+      this.replacement.access(set, pending.way);
+    }
+    if (isInvalidate) {
+      ways[pending.way] = null;
+    } else {
+      final updated = isUpdate || writeAllocate;
+      final data = updated
+          ? merged(pending.beforeData!, txn.data, txn.mask)
+          : readThrough
+              ? pending.beforeData!
+              : txn.data;
+      final metadata = readThrough ? pending.beforeMetadata! : txn.metadata;
+      ways[pending.way] = _Line(txn.address, normalizeStoredValue(data),
+          normalizeStoredValue(metadata));
+      if (!pending.hit) {
+        this.replacement.allocate(set, pending.way);
+      }
+    }
+    if (isFill) {
+      finish(txn, CacheTransactionStatus.completed.code);
+    } else {
+      finish(
+          txn,
+          pending.hit
+              ? CacheTransactionStatus.hit.code
+              : CacheTransactionStatus.miss.code,
+          pending.beforeData,
+          pending.beforeMetadata);
+    }
+    txn.pending = null;
+  }
+
+  void begin(_Transaction txn) {
+    final set = setOf(txn.address);
+    final ways = lines[set];
+    final hitWay = ways.indexWhere((line) =&gt; line?.address == txn.address);
+    final hit = hitWay &gt;= 0;
+    final old = hit ? ways[hitWay] : null;
+    final readThrough =
+        txn.operation == BehavioralCacheOperation.readThrough.code;
+    final writeAllocate =
+        txn.operation == BehavioralCacheOperation.writeAllocate.code;
+    final isFill = txn.operation == CacheTransactionOperation.fill.code;
+    final isUpdate = txn.operation == CacheTransactionOperation.update.code;
+    final isLookup = txn.operation == CacheTransactionOperation.lookup.code;
+    final isInvalidate =
+        txn.operation == CacheTransactionOperation.invalidate.code;
+    if (!isFill &amp;&amp;
+        !isUpdate &amp;&amp;
+        !isLookup &amp;&amp;
+        !isInvalidate &amp;&amp;
+        !readThrough &amp;&amp;
+        !writeAllocate) {
+      finish(txn, CacheTransactionStatus.error.code);
+      return;
+    }
+    if (!hit &amp;&amp; !isFill &amp;&amp; !readThrough &amp;&amp; !writeAllocate) {
+      finish(txn, CacheTransactionStatus.miss.code);
+      return;
+    }
+    if (hit &amp;&amp; (isLookup || readThrough)) {
+      this.replacement.access(set, hitWay);
+      finish(txn, CacheTransactionStatus.hit.code, old!.data, old.metadata);
+      return;
+    }
+    final fetched = !hit &amp;&amp; (readThrough || writeAllocate)
+        ? backingStore.read(txn.address)
+        : null;
+    final beforeData = old?.data ?? fetched?.data;
+    final beforeMetadata = old?.metadata ?? fetched?.metadata;
+    var way = hitWay;
+    if (!hit) {
+      way = this
+          .replacement
+          .select(set, List.unmodifiable(ways.map((line) =&gt; line != null)));
+      if (way &lt; 0 || way &gt;= waysPerSet) {
+        throw StateError(&#39;Replacement policy selected an invalid way.&#39;);
+      }
+    }
+    final victim = isInvalidate
+        ? old
+        : !hit
+            ? ways[way]
+            : null;
+    txn.pending = _PendingCommit(
+        way: way,
+        hit: hit,
+        beforeData: beforeData,
+        beforeMetadata: beforeMetadata);
+    if (victim == null) {
+      commit(txn);
+    } else {
+      txn
+        ..eviction = victim
+        ..evictionCause = isInvalidate
+            ? CacheTransactionEvictionCause.invalidation.code
+            : CacheTransactionEvictionCause.replacement.code;
+      evictionOffers[txn.port].add(txn);
+    }
+  }
+
+  localClk.posedge.listen((_) {
+    final resetValue = localReset.previousValue!;
+    if (!resetValue.isValid) {
+      throw StateError(&#39;Behavioral cache sampled an unknown reset.&#39;);
+    }
+    if (resetValue == LogicValue.one) {
+      transactions.clear();
+      for (final offers in evictionOffers) {
+        offers.clear();
+      }
+      for (final ways in lines) {
+        ways.fillRange(0, ways.length, null);
+      }
+      this.replacement.reset();
+      _cycle = 0;
+      refresh();
+      return;
+    }
+    _cycle++;
+    for (final (index, port) in localPorts.indexed) {
+      final responseValid = port.responses.valid.previousValue!;
+      final responseReady = port.responses.ready.previousValue!;
+      if (responseValid == LogicValue.one &amp;&amp; !responseReady.isValid) {
+        throw StateError(&#39;Behavioral cache sampled unknown response ready.&#39;);
+      }
+      if (responseValid == LogicValue.one &amp;&amp;
+          responseReady == LogicValue.one) {
+        final txn = transactions.firstWhere((txn) =&gt; txn.port == index);
+        transactions.remove(txn);
+      }
+      final evictionValid = port.evictions.valid.previousValue!;
+      final evictionReady = port.evictions.ready.previousValue!;
+      if (evictionValid == LogicValue.one &amp;&amp; !evictionReady.isValid) {
+        throw StateError(&#39;Behavioral cache sampled unknown eviction ready.&#39;);
+      }
+      if (evictionValid == LogicValue.one &amp;&amp;
+          evictionReady == LogicValue.one) {
+        final txn = evictionOffers[index].removeAt(0);
+        final victim = txn.eviction!;
+        backingStore.write(victim.address,
+            data: victim.data, metadata: victim.metadata);
+        txn.eviction = null;
+        commit(txn);
+      }
+    }
+    for (final (index, port) in localPorts.indexed) {
+      final valid = port.requests.valid.previousValue!;
+      final ready = port.requests.ready.previousValue!;
+      if (!valid.isValid || (valid == LogicValue.one &amp;&amp; !ready.isValid)) {
+        throw StateError(&#39;Behavioral cache sampled unknown request control.&#39;);
+      }
+      if (valid != LogicValue.one || ready != LogicValue.one) {
+        continue;
+      }
+      final input = port.requests.data;
+      final operation = bits(input.operation, previous: true);
+      final address = bits(input.address, previous: true);
+      final token = bits(input.token, previous: true);
+      if (!operation.isValid || !address.isValid || !token.isValid) {
+        throw StateError(&#39;Behavioral cache requires known operation, address &#39;
+            &#39;and token at request acceptance.&#39;);
+      }
+      transactions.add(_Transaction(
+        port: index,
+        operation:
+            operation.toBigInt() &lt;= BigInt.from(5) ? operation.toInt() : -1,
+        address: address.toBigInt(),
+        token: token,
+        data: bits(input.data, previous: true),
+        mask: bits(input.writeMask, previous: true),
+        metadata: bits(input.lineMetadata, previous: true),
+        context: bits(input.context, previous: true),
+        eligibleCycle: _cycle + operationLatency,
+      ));
+    }
+    var begun = 0;
+    final blockedSets = &lt;int&gt;{};
+    for (final txn in transactions) {
+      if (txn.complete) {
+        continue;
+      }
+      final set = setOf(txn.address);
+      if (blockedSets.contains(set)) {
+        continue;
+      }
+      if (txn.eviction != null ||
+          txn.eligibleCycle &gt; _cycle ||
+          begun == operationsPerCycle) {
+        blockedSets.add(set);
+        continue;
+      }
+      begin(txn);
+      begun++;
+      if (!txn.complete) {
+        blockedSets.add(set);
+      }
+    }
+    refresh();
+  });
+  for (final port in localPorts) {
+    port.requests.valid.glitch.listen((_) =&gt; refresh());
+    port.requests.data.token.glitch.listen((_) =&gt; refresh());
+  }
+  localReset.glitch.listen((_) =&gt; refresh());
+  _refresh = refresh;
+  Simulator.injectAction(refresh);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/BehavioralCache-class.html">BehavioralCache<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">BehavioralCache.new constructor</li>
+</ol>
+
+    <h5>BehavioralCache class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

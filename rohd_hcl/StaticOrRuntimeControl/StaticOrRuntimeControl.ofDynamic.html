@@ -63,9 +63,10 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a control from either a runtime <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> or a static value.</p>
-<p>A null <code>config</code> selects <code>defaultValue</code>. Other static inputs are converted
-to <code>T</code> with <code>convertStatic</code>.</p>
+  <p>Creates a control from either a runtime <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> or a static value.</p>
+<p>A null <code>config</code> selects <code>defaultValue</code>. An existing
+<a href="../../rohd_hcl/StaticOrRuntimeControl-class.html">StaticOrRuntimeControl</a> retains its configuration under <code>name</code>. Other
+static inputs are converted to <code>T</code> with <code>convertStatic</code>.</p>
 </section>
 
 
@@ -76,7 +77,12 @@ to <code>T</code> with <code>convertStatic</code>.</p>
     {required String name,
     required T defaultValue,
     required T Function(dynamic value) convertStatic}) {
-  if (config is Logic) {
+  if (config is StaticOrRuntimeControl&lt;T&gt;) {
+    return StaticOrRuntimeControl(
+        name: name,
+        staticConfig: config.staticConfig,
+        runtimeConfig: config.runtimeConfig);
+  } else if (config is Logic) {
     return StaticOrRuntimeControl(
         name: name, staticConfig: defaultValue, runtimeConfig: config);
   }

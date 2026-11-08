@@ -71,11 +71,12 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CsrBlockConfig({
   required super.name,
-  required this.baseAddr,
+  required int baseAddr,
   required List&lt;CsrInstanceConfig&gt; registers,
-  this.blockSize,
-}) : registers = List.unmodifiable(registers) {
-  &#47;&#47; validate the block
+  int? blockSize,
+})  : baseAddr = BigInt.from(baseAddr),
+      blockSize = blockSize == null ? null : BigInt.from(blockSize),
+      registers = List.unmodifiable(registers) {
   _validate();
 }</code></pre>
 </section>

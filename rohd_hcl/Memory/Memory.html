@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/Memory-class.html">Memory</a></li>
+    <li><a href="../../rohd_hcl/Memory-class.html">Memory<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">Memory.new constructor</li>
   </ol>
   <div class="self-name">Memory.new</div>
@@ -49,15 +49,15 @@
       data-above-sidebar="rohd_hcl&#47;Memory-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">Memory</span> constructor 
+<h1><span class="kind-constructor">Memory&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">Memory</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-writePorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
-<li><span class="parameter" id="param-readPorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, {</span></li>
+      <span class="name ">Memory&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-writePorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
+<li><span class="parameter" id="param-readPorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">readPorts</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;memory&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -74,8 +74,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Memory(Logic clk, Logic reset, List&lt;DataPortInterface&gt; writePorts,
-    List&lt;DataPortInterface&gt; readPorts,
+  <pre class="language-dart"><code class="language-dart">Memory(Logic clk, Logic reset, List&lt;DataPortInterface&lt;LogicType&gt;&gt; writePorts,
+    List&lt;DataPortInterface&lt;LogicType&gt;&gt; readPorts,
     {super.name = &#39;memory&#39;,
     super.reserveName,
     super.reserveDefinitionName,
@@ -105,6 +105,8 @@
     throw RohdHclException(&#39;Read latency must be non-negative.&#39;);
   }
 
+  final prototype =
+      (writePorts.isNotEmpty ? writePorts.first : readPorts.first).data;
   &#47;&#47; make sure widths of everything match expectations
   for (final port in [...writePorts, ...readPorts]) {
     if (port.addrWidth != addrWidth) {
@@ -113,24 +115,27 @@
     if (port.dataWidth != dataWidth) {
       throw RohdHclException(&#39;All ports must have the same data width.&#39;);
     }
+    if (((prototype is LogicStructure &amp;&amp; port.data is LogicStructure) ||
+            (prototype is LogicEnum &amp;&amp; port.data is LogicEnum)) &amp;&amp;
+        !sameDeclaredPayloadShape(prototype, port.data)) {
+      throw RohdHclException(&#39;All memory ports must have matching payload &#39;
+          &#39;layouts and value codecs.&#39;);
+    }
   }
 
   addInput(&#39;clk&#39;, clk);
   addInput(&#39;reset&#39;, reset);
 
   for (var i = 0; i &lt; numReads; i++) {
-    rdPorts.add(readPorts[i].clone()
-      ..connectIO(this, readPorts[i],
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
-          uniquify: (original) =&gt; &#39;rd_${original}_$i&#39;));
+    rdPorts.add(addInterfacePorts(readPorts[i],
+        inputTags: {DataPortGroup.control},
+        outputTags: {DataPortGroup.data},
+        uniquify: (original) =&gt; &#39;rd_${original}_$i&#39;));
   }
   for (var i = 0; i &lt; numWrites; i++) {
-    wrPorts.add(writePorts[i].clone()
-      ..connectIO(this, writePorts[i],
-          inputTags: {DataPortGroup.control, DataPortGroup.data},
-          outputTags: {},
-          uniquify: (original) =&gt; &#39;wr_${original}_$i&#39;));
+    wrPorts.add(addInterfacePorts(writePorts[i],
+        inputTags: {DataPortGroup.control, DataPortGroup.data},
+        uniquify: (original) =&gt; &#39;wr_${original}_$i&#39;));
   }
 }</code></pre>
 </section>
@@ -147,7 +152,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Memory-class.html">Memory</a></li>
+    <li><a href="../../rohd_hcl/Memory-class.html">Memory<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">Memory.new constructor</li>
 </ol>
 

@@ -70,6 +70,11 @@
   <pre class="language-dart"><code class="language-dart">factory StaticOrRuntimeParameter.ofDynamic(dynamic config, {String? name}) {
   if (config is StaticOrRuntimeParameter) {
     return config;
+  } else if (config is StaticOrRuntimeControl&lt;bool&gt;) {
+    return StaticOrRuntimeParameter(
+        name: config.name,
+        staticConfig: config.staticConfig,
+        runtimeConfig: config.runtimeConfig);
   } else if (config is bool) {
     return StaticOrRuntimeParameter(
         name: &#39;boolean_config&#39;, staticConfig: config);

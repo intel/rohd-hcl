@@ -55,9 +55,9 @@
     <section class="multi-line-signature">
       
       <span class="name ">FloatingPointSqrtSimple&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation">FpType</span> <span class="parameter-name">a</span>, {</span></li>
-<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
 <li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floatingpoint_square_root_simple&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
@@ -94,8 +94,7 @@
         &#39;FloatingPointSqrtSimple does not support explicit-J-bit inputs.&#39;);
   }
 
-  final outputSqrt = a.clone(name: &#39;sqrt&#39;) as FpType;
-  output(&#39;sqrt&#39;) &lt;= outputSqrt;
+  final outputSqrt = sqrt;
   late final error = output(&#39;error&#39;);
 
   &#47;&#47; check to see if we do sqrt at all or just return a
@@ -103,7 +102,7 @@
   final isNaN = a.isNaN.named(&#39;isNan&#39;);
   final isZero = a.isAZero.named(&#39;isZero&#39;);
   final rawSignificand =
-      [a.isNormal, a.mantissa].swizzle().named(&#39;rawSignificand&#39;);
+      [a.isNormal, a.mantissa].concat().named(&#39;rawSignificand&#39;);
   final leadingOne = RecursiveModulePriorityEncoder(rawSignificand.reversed,
           generateValid: true, name: &#39;leading_one&#39;)
       .out
@@ -127,7 +126,7 @@
           normalizationShift.zeroExtend(exponentCalcWidth))
       .named(&#39;deBiasExp&#39;);
   final shiftedExp = [deBiasExp[-1], deBiasExp.slice(deBiasExp.width - 1, 1)]
-      .swizzle()
+      .concat()
       .named(&#39;shiftedExp&#39;);
   final isExpOdd = deBiasExp[0];
 
@@ -141,11 +140,12 @@
         Const(0, width: 2),
         normalizedSignificand,
         Const(0, width: extraPrecision)
-      ].swizzle().named(&#39;aFixed&#39;);
+      ].concat().named(&#39;aFixed&#39;);
 
-  final aFixedAdj = aFixed.clone(name: &#39;aFixedAdj&#39;)
-    ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
-        .named(&#39;oddMantissaMux&#39;));
+  final shiftedFixed = aFixed.clone(name: &#39;shiftedFixed&#39;)
+    ..gets([aFixed.slice(-2, 0), Const(0)].concat());
+  final aFixedAdj =
+      mux&lt;FixedPoint&gt;(isExpOdd, shiftedFixed, aFixed).namedTyped(&#39;aFixedAdj&#39;);
 
   final fixedSqrt = FixedPointSqrt(aFixedAdj).sqrt;
   final retainedSignificand = fixedSqrt
@@ -221,7 +221,7 @@
       &lt;({Logic mantissa, Logic carry, Logic inexact})&gt;[];
   for (var shift = 1; shift &lt;= a.mantissa.width + 1; shift++) {
     final subnormalInput = [Const(0, width: shift), retainedSignificand]
-        .swizzle()
+        .concat()
         .named(&#39;subnormalInput$shift&#39;);
     final subnormalRounder = FloatingPointRounder(subnormalInput, shift,
         roundingMode: roundingMode, sign: a.sign, extraSticky: inexact);
@@ -284,9 +284,7 @@
         outputSqrt &lt; outputSqrt.quietNaNFrom(a),
       ]),
       ElseIf(isZero, [
-        outputSqrt.sign &lt; a.sign,
-        outputSqrt.exponent &lt; a.exponent,
-        outputSqrt.mantissa &lt; a.mantissa,
+        outputSqrt &lt; a,
       ]),
       ElseIf(a.sign, [
         outputSqrt &lt; outputSqrt.nan,

@@ -80,7 +80,7 @@ constants and interfaces never have a zero width.</p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 int minAddrBits() {
-  final width = (minBlockSize() - 1).bitLength;
+  final width = (minBlockSize() - BigInt.one).bitLength;
   return width == 0 ? 1 : width;
 }</code></pre>
 </section>

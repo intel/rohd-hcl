@@ -75,14 +75,15 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">CsrInstanceConfig({
   required this.arch,
-  required this.addr,
+  required int addr,
   required this.width,
   int? resetValue,
   bool? isFrontdoorReadable,
   bool? isFrontdoorWritable,
   bool? isBackdoorReadable,
   bool? isBackdoorWritable,
-})  : resetValue = resetValue ?? arch.resetValue,
+})  : addr = BigInt.from(addr),
+      resetValue = resetValue ?? arch.resetValue,
       isFrontdoorReadable = isFrontdoorReadable ?? arch.isFrontdoorReadable,
       isFrontdoorWritable = isFrontdoorWritable ?? arch.isFrontdoorWritable,
       isBackdoorReadable = isBackdoorReadable ?? arch.isBackdoorReadable,

@@ -78,8 +78,13 @@ late final Sum summer = Sum(
   interfaces,
   initialValue:
       restart != null ? mux(restart!, initialValueLogic, count) : count,
-  maxValue: maxValueLogic,
-  minValue: minValueLogic,
+  &#47;&#47; Preserve constant bounds so Sum can prune unreachable overflow paths.
+  maxValue: constantMaxValue != null &amp;&amp; !constantMaxValue!.isNegative
+      ? constantMaxValue
+      : maxValueLogic,
+  minValue: constantMinValue != null &amp;&amp; !constantMinValue!.isNegative
+      ? constantMinValue
+      : minValueLogic,
   width: width,
   saturates: saturates,
 );</code></pre>

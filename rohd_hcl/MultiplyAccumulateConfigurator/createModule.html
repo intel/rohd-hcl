@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>
 <span class="name ">createModule</span>(<wbr>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -67,7 +67,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> instance as configured.</p>
+  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> instance as configured.</p>
 </section>
 
 
@@ -84,9 +84,10 @@ Module createModule() =&gt; CompressionTreeMultiplyAccumulate(
       reset: pipelinedKnob.value ? Logic() : null,
       enable: pipelinedKnob.value ? Logic() : null,
       signedMultiplicand:
-          signedMultiplicandKnob.resolve(&#39;signedMultiplicand&#39;),
-      signedMultiplier: signedMultiplierKnob.resolve(&#39;signedMultiplier&#39;),
-      signedAddend: signedAddendKnob.resolve(&#39;signedAddend&#39;),
+          signedMultiplicandKnob.resolveControl(&#39;signedMultiplicand&#39;),
+      signedMultiplier:
+          signedMultiplierKnob.resolveControl(&#39;signedMultiplier&#39;),
+      signedAddend: signedAddendKnob.resolveControl(&#39;signedAddend&#39;),
       outputWidth: outputWidthKnob.value,
       adderGen: (a, b, {carryIn}) =&gt; adderSelectKnob.selectedAdder()(a, b,
           carryIn: carryIn, name: &#39;mac_add&#39;),

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the generateSystemC method from the BehavioralReplacementDescription class, for the Dart programming language.">
+  <title>generateSystemC method - BehavioralReplacementDescription class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/BehavioralReplacementDescription-class.html">BehavioralReplacementDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+  </ol>
+  <div class="self-name">generateSystemC</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;BehavioralReplacementDescription-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">generateSystemC</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+<span class="name ">generateSystemC</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="generateSystemC-param-className"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">className</span>, </span></li>
+<li><span class="parameter" id="generateSystemC-param-options"><span class="type-annotation"><a href="../../rohd_hcl/SystemCModelOptions-class.html">SystemCModelOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const SystemCModelOptions()</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates an independently executable behavioral SystemC policy.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">String generateSystemC({
+  required String className,
+  SystemCModelOptions options = const SystemCModelOptions(),
+}) {
+  if (!RegExp(r&#39;^[A-Za-z_][A-Za-z0-9_]*$&#39;).hasMatch(className)) {
+    throw ArgumentError.value(
+        className, &#39;className&#39;, &#39;Invalid C++ identifier.&#39;);
+  }
+  final twoState = options.portType == SystemCModelPortType.twoState;
+  final tree = replacementKind == BehavioralReplacementKind.treePseudoLru;
+  String portType(int width) =&gt; twoState
+      ? width == 1
+          ? &#39;bool&#39;
+          : width &lt;= 64
+              ? &#39;sc_dt::sc_uint&lt;$width&gt;&#39;
+              : &#39;sc_dt::sc_biguint&lt;$width&gt;&#39;
+      : width == 1
+          ? &#39;sc_dt::sc_logic&#39;
+          : &#39;sc_dt::sc_lv&lt;$width&gt;&#39;;
+  String vector(String port, int width) {
+    if (width == 1) {
+      return twoState ? &#39;scalar(bit($port.read()))&#39; : &#39;scalar($port.read())&#39;;
+    }
+    return twoState ? &#39;sc_dt::sc_lv&lt;$width&gt;($port.read())&#39; : &#39;$port.read()&#39;;
+  }
+
+  final source = StringBuffer()
+    ..writeln(&#39;#pragma once&#39;)
+    ..writeln(&#39;#include &lt;systemc&gt;&#39;)
+    ..writeln(&#39;#include &lt;cstdint&gt;&#39;)
+    ..writeln(&#39;SC_MODULE($className) {&#39;)
+    ..writeln(&#39;  using bit=sc_dt::sc_logic;&#39;)
+    ..writeln(&#39;  static constexpr int E=$entryCount, I=$indexWidth, &#39;
+        &#39;S=$stateWidth, R=${entryCount.bitLength};&#39;);
+  for (final (ports, direction) in [
+    (inputPorts, &#39;in&#39;),
+    (outputPorts, &#39;out&#39;)
+  ]) {
+    for (final port in ports.entries) {
+      source.writeln(&#39;  sc_core::sc_$direction&lt;${portType(port.value)}&gt; &#39;
+          &#39;${port.key}{&quot;${port.key}&quot;};&#39;);
+    }
+  }
+  source.writeln(&#39;&#39;&#39;
+sc_core::sc_signal&lt;sc_dt::sc_lv&lt;S&gt;, sc_core::SC_MANY_WRITERS&gt; state{&quot;state&quot;};
+sc_core::sc_signal&lt;bool, sc_core::SC_MANY_WRITERS&gt; resetSeen{&quot;resetSeen&quot;};
+using word=sc_dt::sc_lv&lt;I&gt;;
+using policy_state=sc_dt::sc_lv&lt;S&gt;;
+using mask=sc_dt::sc_lv&lt;E&gt;;
+struct image { policy_state state; bool resetSeen; };
+struct selection { bit valid; word index; };
+struct allocation { bit valid; word index; bit evict; };
+struct result {
+  policy_state next;
+  bit invalidAccess, invalidCommit;
+  allocation outputs[$allocationCount];
+};
+static sc_dt::sc_lv&lt;1&gt; scalar(bit v) {
+  sc_dt::sc_lv&lt;1&gt; r; r[0]=v; return r;
+}
+template&lt;int W&gt; static sc_dt::sc_lv&lt;W&gt; number(std::uint64_t v) {
+  sc_dt::sc_lv&lt;W&gt; r; r=v; return r;
+}
+template&lt;int W&gt; static sc_dt::sc_lv&lt;W&gt; unknown() {
+  return sc_dt::sc_lv&lt;W&gt;(sc_dt::SC_LOGIC_X);
+}
+template&lt;int W&gt; static sc_dt::sc_lv&lt;W&gt; choose(
+    bit s, const sc_dt::sc_lv&lt;W&gt;&amp; a, const sc_dt::sc_lv&lt;W&gt;&amp; b) {
+  if(s==sc_dt::SC_LOGIC_1) return a;
+  if(s==sc_dt::SC_LOGIC_0) return b;
+  sc_dt::sc_lv&lt;W&gt; r;
+  for(int i=0;i&lt;W;++i)
+    r[i]=(a[i]==b[i]) ? bit(a[i]) : bit(sc_dt::SC_LOGIC_X);
+  return r;
+}
+static bit chooseBit(bit s, bit a, bit b) {
+  return bit(choose(s, scalar(a), scalar(b))[0]);
+}
+template&lt;int W&gt; static bit less(const sc_dt::sc_lv&lt;W&gt;&amp; a,
+    const sc_dt::sc_lv&lt;W&gt;&amp; b) {
+  return a.is_01() &amp;&amp; b.is_01()
+    ? bit(a.to_uint64()&lt;b.to_uint64()) : bit(sc_dt::SC_LOGIC_X);
+}
+template&lt;int W&gt; static bit greaterEqual(const sc_dt::sc_lv&lt;W&gt;&amp; a,
+    const sc_dt::sc_lv&lt;W&gt;&amp; b) {
+  return a.is_01() &amp;&amp; b.is_01()
+    ? bit(a.to_uint64()&gt;=b.to_uint64()) : bit(sc_dt::SC_LOGIC_X);
+}
+template&lt;int W&gt; static bit equalIndex(const sc_dt::sc_lv&lt;W&gt;&amp; a,
+    std::uint64_t index) {
+  bit r=sc_dt::SC_LOGIC_1;
+  for(int i=0;i&lt;W;++i)
+    r=r &amp; ~(bit(a[i]) ^ bit(bool((index&gt;&gt;i)&amp;1)));
+  return r;
+}
+template&lt;int W&gt; static sc_dt::sc_lv&lt;W&gt; add(const sc_dt::sc_lv&lt;W&gt;&amp; a,
+    const sc_dt::sc_lv&lt;W&gt;&amp; b) {
+  return a.is_01() &amp;&amp; b.is_01()
+    ? number&lt;W&gt;(a.to_uint64()+b.to_uint64()) : unknown&lt;W&gt;();
+}
+template&lt;int W&gt; static sc_dt::sc_lv&lt;W&gt; sub(const sc_dt::sc_lv&lt;W&gt;&amp; a,
+    const sc_dt::sc_lv&lt;W&gt;&amp; b) {
+  return a.is_01() &amp;&amp; b.is_01()
+    ? number&lt;W&gt;(a.to_uint64()-b.to_uint64()) : unknown&lt;W&gt;();
+}
+template&lt;int W&gt; static sc_dt::sc_lv&lt;W+1&gt; extend(
+    const sc_dt::sc_lv&lt;W&gt;&amp; v) {
+  sc_dt::sc_lv&lt;W+1&gt; r;
+  for(int i=0;i&lt;W;++i) r[i]=v[i];
+  r[W]=sc_dt::SC_LOGIC_0; return r;
+}
+static bit any(const mask&amp; v) {
+  bit r=sc_dt::SC_LOGIC_0;
+  for(int i=0;i&lt;E;++i) r=r | bit(v[i]);
+  return r;
+}
+static void updateNode(policy_state&amp; out, const policy_state&amp; old,
+    const sc_dt::sc_lv&lt;I+1&gt;&amp; index, int node, int start, int end) {
+  if(end-start==1) return;
+  int middle=(start+end)&#47;2;
+  bit range=greaterEqual(index,number&lt;I+1&gt;(start)) &amp;
+    less(index,number&lt;I+1&gt;(end));
+  out[node]=chooseBit(range,
+    less(index,number&lt;I+1&gt;(middle)),bit(old[node]));
+  updateNode(out,old,index,node*2+1,start,middle);
+  updateNode(out,old,index,node*2+2,middle,end);
+}
+static policy_state updateTree(const policy_state&amp; old, const word&amp; index) {
+  if(E==1) return old;
+  policy_state out=old;
+  updateNode(out,old,extend(index),0,0,E);
+  return out;
+}
+static selection selectTree(const policy_state&amp; state, const mask&amp; candidates,
+    int node, int start, int end) {
+  if(end-start==1) return {bit(candidates[start]),number&lt;I&gt;(start)};
+  int middle=(start+end)&#47;2;
+  selection left=selectTree(state,candidates,node*2+1,start,middle);
+  selection right=selectTree(state,candidates,node*2+2,middle,end);
+  bit chooseRight=chooseBit(bit(state[node]),right.valid,
+    ~left.valid &amp; right.valid);
+  return {left.valid | right.valid,choose(chooseRight,right.index,left.index)};
+}
+static selection selectRoundRobin(const policy_state&amp; state,
+    const mask&amp; candidates) {
+  sc_dt::sc_lv&lt;R&gt; pointer;
+  for(int i=0;i&lt;R;++i) pointer[i]=i&lt;S ? bit(state[i]) : bit(sc_dt::SC_LOGIC_0);
+  bit found=sc_dt::SC_LOGIC_0;
+  word selected=number&lt;I&gt;(0);
+  sc_dt::sc_lv&lt;R&gt; selectedValue=number&lt;R&gt;(0);
+  for(int i=0;i&lt;E;++i) {
+    auto current=number&lt;R&gt;(i);
+    auto rank=choose(greaterEqual(current,pointer),sub(current,pointer),
+      add(sub(number&lt;R&gt;(E),pointer),current));
+    bit take=bit(candidates[i]) &amp; (~found | less(rank,selectedValue));
+    selected=choose(take,number&lt;I&gt;(i),selected);
+    selectedValue=choose(take,rank,selectedValue);
+    found=found | bit(candidates[i]);
+  }
+  return {found,selected};
+}
+static policy_state access(const policy_state&amp; s, const word&amp; index) {
+  return ${tree ? &#39;updateTree(s,index)&#39; : &#39;s&#39;};
+}
+static policy_state allocate(const policy_state&amp; s, const word&amp; index) {
+  return ${tree ? &#39;updateTree(s,index)&#39; : &#39;choose(equalIndex(index,E-1),number&lt;I&gt;(0),add(index,number&lt;I&gt;(1)))&#39;};
+}
+static selection select(const policy_state&amp; s, const mask&amp; candidates) {
+  return ${tree ? &#39;selectTree(s,candidates,0,0,E)&#39; : &#39;selectRoundRobin(s,candidates)&#39;};
+}
+result compute() const {
+  result r;
+  r.next=state.read();
+  r.invalidAccess=sc_dt::SC_LOGIC_0;
+  r.invalidCommit=sc_dt::SC_LOGIC_0;
+  mask valid=${vector(&#39;validMask&#39;, entryCount)};
+  mask eligible=${vector(&#39;eligibleMask&#39;, entryCount)};
+&#39;&#39;&#39;);
+  for (var i = 0; i &lt; accessCount; i++) {
+    source.writeln(&#39;&#39;&#39;
+  {
+    word index=${vector(&#39;access_${i}_index&#39;, indexWidth)};
+    bit en=${twoState ? &#39;bit(access_${i}_en.read())&#39; : &#39;access_${i}_en.read()&#39;};
+    bit inRange=less(extend(index),number&lt;I+1&gt;(E));
+    r.invalidAccess=r.invalidAccess | (en &amp; ~inRange);
+    r.next=choose(en &amp; inRange,access(r.next,index),r.next);
+  }
+&#39;&#39;&#39;);
+  }
+  for (var i = 0; i &lt; commitCount; i++) {
+    source.writeln(&#39;&#39;&#39;
+  {
+    word index=${vector(&#39;commit_${i}_index&#39;, indexWidth)};
+    bit en=${twoState ? &#39;bit(commit_${i}_en.read())&#39; : &#39;commit_${i}_en.read()&#39;};
+    bit inRange=less(extend(index),number&lt;I+1&gt;(E));
+    r.invalidCommit=r.invalidCommit | (en &amp; ~inRange);
+    r.next=choose(en &amp; inRange,allocate(r.next,index),r.next);
+  }
+&#39;&#39;&#39;);
+  }
+  source.writeln(&#39;    mask reserved=number&lt;E&gt;(0);&#39;);
+  for (var i = 0; i &lt; allocationCount; i++) {
+    source.writeln(&#39;&#39;&#39;
+  {
+    bit en=${twoState ? &#39;bit(allocation_${i}_en.read())&#39; : &#39;allocation_${i}_en.read()&#39;};
+    bit commit=${twoState ? &#39;bit(allocation_${i}_commit.read())&#39; : &#39;allocation_${i}_commit.read()&#39;};
+    mask available=eligible &amp; ~reserved;
+    mask unused=available &amp; ~valid;
+    mask candidates=choose(any(unused),unused,available);
+    selection choice=select(r.next,candidates);
+    bit granted=en &amp; choice.valid;
+    bit committed=granted &amp; commit;
+    r.invalidCommit=r.invalidCommit | (commit &amp; ~granted);
+    bit selectedValid=sc_dt::SC_LOGIC_0;
+    mask reservation;
+    for(int j=0;j&lt;E;++j) {
+      bit matches=equalIndex(choice.index,j);
+      selectedValid=selectedValid | (bit(valid[j]) &amp; matches);
+      reservation[j]=granted &amp; matches;
+    }
+    r.outputs[$i]={granted,choose(granted,choice.index,number&lt;I&gt;(0)),
+      granted &amp; selectedValid};
+    reserved=reserved | reservation;
+    r.next=choose(committed,allocate(r.next,choice.index),r.next);
+  }
+&#39;&#39;&#39;);
+  }
+  source
+    ..writeln(&#39;    return r;\n  }&#39;)
+    ..writeln(&#39;  void evaluate() {\n    result r=compute();&#39;);
+  void write(String port, String expr, {required bool scalar}) {
+    if (!twoState) {
+      final value = scalar || indexWidth != 1 ? expr : &#39;bit($expr[0])&#39;;
+      source.writeln(&#39;    $port.write($value);&#39;);
+    } else {
+      final valid = &#39;$expr.is_01()&#39;;
+      final convert = scalar
+          ? &#39;$expr==sc_dt::SC_LOGIC_1&#39;
+          : indexWidth == 1
+              ? &#39;bit($expr[0])==sc_dt::SC_LOGIC_1&#39;
+              : &#39;$expr.to_uint64()&#39;;
+      final allow =
+          options.unknownOutputs == SystemCUnknownOutputPolicy.zeroUntilReset
+              ? &#39;!resetSeen.read()&#39;
+              : &#39;false&#39;;
+      source.writeln(&#39;&#39;&#39;
+  if(!$valid &amp;&amp; !($allow))
+    SC_REPORT_ERROR(&quot;$className&quot;, &quot;Unknown output $port at two-state boundary&quot;);
+  $port.write($valid ? ($convert) : 0);
+&#39;&#39;&#39;);
+    }
+  }
+
+  write(&#39;invalidAccess&#39;, &#39;r.invalidAccess&#39;, scalar: true);
+  write(&#39;invalidCommit&#39;, &#39;r.invalidCommit&#39;, scalar: true);
+  for (var i = 0; i &lt; allocationCount; i++) {
+    write(&#39;allocation_${i}_valid&#39;, &#39;r.outputs[$i].valid&#39;, scalar: true);
+    write(&#39;allocation_${i}_index&#39;, &#39;r.outputs[$i].index&#39;, scalar: false);
+    write(&#39;allocation_${i}_evict&#39;, &#39;r.outputs[$i].evict&#39;, scalar: true);
+  }
+  source.writeln(&#39;&#39;&#39;
+}
+void tick() {
+  bit rst=${twoState ? &#39;bit(reset.read())&#39; : &#39;reset.read()&#39;};
+  if(rst==sc_dt::SC_LOGIC_1) resetSeen.write(true);
+  state.write(choose(rst,number&lt;S&gt;(0),compute().next));
+}
+image snapshot() const { return {state.read(),resetSeen.read()}; }
+void restore(const image&amp; saved) {
+  state.write(saved.state); resetSeen.write(saved.resetSeen);
+}
+SC_CTOR($className) {
+  state.write(unknown&lt;S&gt;());
+  resetSeen.write(false);
+  SC_METHOD(tick); sensitive &lt;&lt; clk.pos(); dont_initialize();
+  SC_METHOD(evaluate); sensitive &lt;&lt; state &lt;&lt; resetSeen
+&#39;&#39;&#39;);
+  for (final name
+      in inputPorts.keys.where((key) =&gt; key != &#39;clk&#39; &amp;&amp; key != &#39;reset&#39;)) {
+    source.writeln(&#39;      &lt;&lt; $name&#39;);
+  }
+  source.writeln(&#39;      ;\n  }\n};&#39;);
+  return source.toString();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/BehavioralReplacementDescription-class.html">BehavioralReplacementDescription</a></li>
+    <li class="self-crumb">generateSystemC method</li>
+</ol>
+
+    <h5>BehavioralReplacementDescription class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

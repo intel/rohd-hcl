@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CacheTransactionCapabilities.new constructor from Class CacheTransactionCapabilities from the rohd_hcl library, for the Dart programming language.">
+  <title>CacheTransactionCapabilities.new constructor - CacheTransactionCapabilities - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/CacheTransactionCapabilities-class.html">CacheTransactionCapabilities</a></li>
+    <li class="self-crumb">CacheTransactionCapabilities.new factory constructor</li>
+  </ol>
+  <div class="self-name">CacheTransactionCapabilities.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;CacheTransactionCapabilities-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">CacheTransactionCapabilities</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">CacheTransactionCapabilities</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-operations"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CacheTransactionOperation.html">CacheTransactionOperation</a></span>&gt;</span></span> <span class="parameter-name">operations</span>, </span></li>
+<li><span class="parameter" id="param-maxOutstanding"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maxOutstanding</span>, </span></li>
+<li><span class="parameter" id="param-responseOrdering"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CacheTransactionOrdering.html">CacheTransactionOrdering</a></span> <span class="parameter-name">responseOrdering</span>, </span></li>
+<li><span class="parameter" id="param-sameBlockOrdering"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CacheSameBlockOrdering.html">CacheSameBlockOrdering</a></span> <span class="parameter-name">sameBlockOrdering</span>, </span></li>
+<li><span class="parameter" id="param-sameCycleOrdering"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CacheSameCycleOrdering.html">CacheSameCycleOrdering</a></span> <span class="parameter-name">sameCycleOrdering</span>, </span></li>
+<li><span class="parameter" id="param-extensionOperations"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">extensionOperations</span> = <span class="default-value">const {}</span>, </span></li>
+<li><span class="parameter" id="param-supportsMaskedUpdates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">supportsMaskedUpdates</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-reportsInvalidations"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reportsInvalidations</span> = <span class="default-value">false</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a capability declaration.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">factory CacheTransactionCapabilities({
+  required Set&lt;CacheTransactionOperation&gt; operations,
+  required int maxOutstanding,
+  required CacheTransactionOrdering responseOrdering,
+  required CacheSameBlockOrdering sameBlockOrdering,
+  required CacheSameCycleOrdering sameCycleOrdering,
+  Set&lt;int&gt; extensionOperations = const {},
+  bool supportsMaskedUpdates = false,
+  bool reportsInvalidations = false,
+}) {
+  if ((operations.isEmpty &amp;&amp; extensionOperations.isEmpty) ||
+      extensionOperations.any((code) =&gt; code &lt; 4) ||
+      maxOutstanding &lt; 1 ||
+      (supportsMaskedUpdates &amp;&amp;
+          !operations.contains(CacheTransactionOperation.update)) ||
+      (reportsInvalidations &amp;&amp;
+          !operations.contains(CacheTransactionOperation.invalidate))) {
+    throw ArgumentError(&#39;Invalid transactional cache capabilities.&#39;);
+  }
+  return CacheTransactionCapabilities._(
+    Set.unmodifiable(operations),
+    Set.unmodifiable(extensionOperations),
+    maxOutstanding,
+    responseOrdering,
+    sameBlockOrdering,
+    sameCycleOrdering,
+    supportsMaskedUpdates,
+    reportsInvalidations,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/CacheTransactionCapabilities-class.html">CacheTransactionCapabilities</a></li>
+    <li class="self-crumb">CacheTransactionCapabilities.new factory constructor</li>
+</ol>
+
+    <h5>CacheTransactionCapabilities class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

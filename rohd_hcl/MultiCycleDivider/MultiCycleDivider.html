@@ -76,17 +76,15 @@
     super.reserveDefinitionName,
     String? definitionName})
     : dataWidth = interface.dataWidth,
-      logDataWidth = log2Ceil(interface.dataWidth),
+      logDataWidth = interface.dataWidth.log2Ceil,
       super(
           definitionName:
               definitionName ?? &#39;MultiCycleDivider_W${interface.dataWidth}&#39;) {
-  intf = interface.clone()
-    ..pairConnectIO(
-      this,
-      interface,
-      PairRole.consumer,
-      uniquify: (original) =&gt; &#39;${super.name}_$original&#39;,
-    );
+  intf = addPairInterfacePorts(
+    interface,
+    PairRole.consumer,
+    uniquify: (original) =&gt; &#39;${super.name}_$original&#39;,
+  );
 
   _build();
 }</code></pre>

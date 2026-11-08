@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "Multiplier": {
       "attributes": {
@@ -106,7 +106,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -144,7 +144,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -315,7 +315,7 @@
           },
           "attributes": {}
         },
-        "_in0__swizzled": {
+        "_concatd": {
           "bits": [
             35,
             36,

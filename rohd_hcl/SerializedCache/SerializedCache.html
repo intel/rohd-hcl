@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the SerializedCache.new constructor from Class SerializedCache from the rohd_hcl library, for the Dart programming language.">
+  <title>SerializedCache.new constructor - SerializedCache - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/SerializedCache-class.html">SerializedCache<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">SerializedCache.new constructor</li>
+  </ol>
+  <div class="self-name">SerializedCache.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;SerializedCache-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">SerializedCache&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">SerializedCache&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-ports"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CacheTransactionPort-class.html">CacheTransactionPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">ports</span>, </span></li>
+<li><span class="parameter" id="param-setCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">setCount</span>, </span></li>
+<li><span class="parameter" id="param-waysPerSet"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">waysPerSet</span>, </span></li>
+<li><span class="parameter" id="param-dataMemory"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">dataMemory</span>, </span></li>
+<li><span class="parameter" id="param-metadataMemory"><span class="type-annotation"><a href="../../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">M</span>&gt;</span>?</span> <span class="parameter-name">metadataMemory</span>, </span></li>
+<li><span class="parameter" id="param-replacement"><span class="type-annotation"><a href="../../rohd_hcl/CacheReplacement-class.html">CacheReplacement</a></span> <span class="parameter-name">replacement</span> = <span class="default-value">CacheReplacement.roundRobin</span>, </span></li>
+<li><span class="parameter" id="param-tagMemory"><span class="type-annotation"><a href="../../rohd_hcl/AssociativeMemoryFunctor-class.html">AssociativeMemoryFunctor</a></span> <span class="parameter-name">tagMemory</span> = <span class="default-value">parallelAssociativeMemoryFunctor</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;serialized_cache&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a cache with one outstanding operation and synchronous data reads.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">SerializedCache({
+  required Logic clk,
+  required Logic reset,
+  required List&lt;CacheTransactionPort&lt;T, M, C, R&gt;&gt; ports,
+  required this.setCount,
+  required this.waysPerSet,
+  required MemoryArrayFunctor&lt;T&gt; dataMemory,
+  MemoryArrayFunctor&lt;M&gt;? metadataMemory,
+  CacheReplacement replacement = CacheReplacement.roundRobin,
+  AssociativeMemoryFunctor tagMemory = parallelAssociativeMemoryFunctor,
+  super.name = &#39;serialized_cache&#39;,
+})  : ports = List.unmodifiable(ports),
+      capabilities = CacheTransactionCapabilities(
+        operations: CacheTransactionOperation.values.toSet(),
+        maxOutstanding: 1,
+        responseOrdering: CacheTransactionOrdering.inOrder,
+        sameBlockOrdering: CacheSameBlockOrdering.acceptanceOrder,
+        sameCycleOrdering: CacheSameCycleOrdering.lowerPortFirst,
+        supportsMaskedUpdates: true,
+        reportsInvalidations: true,
+      ),
+      super(
+        definitionName: &#39;SerializedCache_S${setCount}_W${waysPerSet}_&#39;
+            &#39;P${ports.length}_${dataMemory.identity}_${replacement.identity}_&#39;
+            &#39;${tagMemory.identity}_L${dataMemory.capabilities.readLatency}_&#39;
+            &#39;${_portShape(ports)}&#39;
+            &#39;${metadataMemory == null ? &#39;&#39; : &#39;_M${metadataMemory.identity}&#39;}&#39;,
+      ) {
+  if (ports.isEmpty ||
+      clk.width != 1 ||
+      reset.width != 1 ||
+      setCount &lt; 1 ||
+      (setCount &amp; (setCount - 1)) != 0 ||
+      waysPerSet &lt; 1 ||
+      dataMemory.capabilities.readLatency &lt; 1 ||
+      (metadataMemory != null &amp;&amp;
+          metadataMemory.capabilities.readLatency != 0) ||
+      replacement.buildWithCommits == null) {
+    throw ArgumentError(&#39;Invalid serialized cache geometry, data latency, &#39;
+        &#39;or replacement factory.&#39;);
+  }
+  final requestSchema = ports.first.requests.data;
+  final responseSchema = ports.first.responses.data;
+  final evictionSchema = ports.first.evictions.data;
+  final addressWidth = requestSchema.address.width;
+  final setBits = (setCount - 1).bitLength;
+  if (addressWidth &lt; max(1, setBits) ||
+      ports.any((port) =&gt;
+          !sameDeclaredPayloadShape(requestSchema, port.requests.data) ||
+          !sameDeclaredPayloadShape(responseSchema, port.responses.data) ||
+          !sameDeclaredPayloadShape(evictionSchema, port.evictions.data))) {
+    throw ArgumentError(&#39;Cache transaction ports must have matching shapes &#39;
+        &#39;and addresses must represent every set.&#39;);
+  }
+  ports.forEach(capabilities.validatePort);
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final localPorts = [
+    for (final (i, port) in ports.indexed)
+      addInterfacePorts(port,
+          inputTags: [PairDirection.fromProvider],
+          outputTags: [PairDirection.fromConsumer],
+          uniquify: (signal) =&gt; &#39;port_${i}_$signal&#39;)
+  ];
+  final requests = [for (final port in localPorts) port.requests];
+  final responses = [for (final port in localPorts) port.responses];
+  final evictions = [for (final port in localPorts) port.evictions];
+
+  Logic combine(List&lt;Logic&gt; values) =&gt;
+      values.reduce((left, right) =&gt; left | right);
+  final stateWidth = max(1, (_CacheState.values.length - 1).bitLength);
+  Logic stateValue(_CacheState value) =&gt;
+      Const(value.index, width: stateWidth);
+  final state = Logic(name: &#39;state&#39;, width: stateWidth);
+  Logic inState(_CacheState value) =&gt; state.eq(stateValue(value));
+  final idle = inState(_CacheState.idle);
+  final probe = inState(_CacheState.probe);
+  final waitData = inState(_CacheState.waitData);
+  final evict = inState(_CacheState.evict);
+  final write = inState(_CacheState.write);
+  final respond = inState(_CacheState.respond);
+  final ownerWidth = max(1, (ports.length - 1).bitLength);
+  final owner = Logic(name: &#39;owner&#39;, width: ownerWidth);
+  final requestBits = Logic(name: &#39;request_bits&#39;, width: requestSchema.width);
+  final savedRequest = requestSchema.clone()..gets(requestBits);
+  final accepted = &lt;Logic&gt;[];
+  Logic earlierValid = Const(0);
+  for (var i = 0; i &lt; ports.length; i++) {
+    requests[i].ready &lt;= ~localReset &amp; idle &amp; ~earlierValid;
+    accepted.add(requests[i].valid &amp; requests[i].ready);
+    earlierValid = earlierValid | requests[i].valid;
+    final conflict = ~localReset &amp;
+        ~idle &amp;
+        owner.eq(i) &amp;
+        requests[i].valid &amp;
+        requests[i].data.token.eq(savedRequest.token);
+    localPorts[i].tokenConflict &lt;= conflict;
+  }
+  final accept = combine(accepted);
+  Logic incoming = Const(0, width: requestSchema.width);
+  Logic incomingOwner = Const(0, width: ownerWidth);
+  for (var i = ports.length - 1; i &gt;= 0; i--) {
+    incoming = mux(accepted[i], requests[i].data, incoming);
+    incomingOwner =
+        mux(accepted[i], Const(i, width: ownerWidth), incomingOwner);
+  }
+  requestBits &lt;=
+      flop(localClk, mux(accept, incoming, requestBits), reset: localReset);
+  owner &lt;=
+      flop(localClk, mux(accept, incomingOwner, owner), reset: localReset);
+
+  final isLookup =
+      savedRequest.operation.eq(CacheTransactionOperation.lookup.code);
+  final isFill =
+      savedRequest.operation.eq(CacheTransactionOperation.fill.code);
+  final isUpdate =
+      savedRequest.operation.eq(CacheTransactionOperation.update.code);
+  final isInvalidate =
+      savedRequest.operation.eq(CacheTransactionOperation.invalidate.code);
+  final supported = isLookup | isFill | isUpdate | isInvalidate;
+  final wayWidth = max(1, (waysPerSet - 1).bitLength);
+  final savedWay = Logic(name: &#39;saved_way&#39;, width: wayWidth);
+  final savedVictimAddress = Logic(name: &#39;saved_victim&#39;, width: addressWidth);
+  final oldData = Logic(name: &#39;old_data&#39;, width: requestSchema.data.width);
+  final oldMetadata =
+      Logic(name: &#39;old_metadata&#39;, width: requestSchema.lineMetadata.width);
+  final status = Logic(name: &#39;status&#39;, width: 2);
+  final fillMiss = Logic(name: &#39;fill_miss&#39;);
+
+  Logic selects(int set) =&gt; setBits == 0
+      ? Const(1)
+      : storedIndexMatches(savedRequest.address.getRange(0, setBits), set);
+  final hits = &lt;Logic&gt;[];
+  final allocationValid = &lt;Logic&gt;[];
+  final allocationEvict = &lt;Logic&gt;[];
+  final chosenWays = &lt;Logic&gt;[];
+  final victimAddresses = &lt;Logic&gt;[];
+  final readData = &lt;Logic&gt;[];
+  final readMetadata = &lt;Logic&gt;[];
+  final writeUnitWidth =
+      requestSchema.data.width ~&#47; requestSchema.writeMask.width;
+  final updatedData = [
+    for (var unit = 0; unit &lt; requestSchema.writeMask.width; unit++)
+      mux(
+        savedRequest.writeMask[unit],
+        savedRequest.data
+            .getRange(unit * writeUnitWidth, (unit + 1) * writeUnitWidth),
+        oldData.getRange(unit * writeUnitWidth, (unit + 1) * writeUnitWidth),
+      )
+  ].rconcat();
+  final writeData =
+      normalizeStoredLogic(mux(isUpdate, updatedData, savedRequest.data));
+
+  for (var set = 0; set &lt; setCount; set++) {
+    final selected = selects(set);
+    final tagUpdate = AssociativeUpdatePortInterface(
+        keyWidth: addressWidth, indexWidth: wayWidth);
+    final tagLookup = AssociativeLookupPortInterface(
+        keyWidth: addressWidth, indexWidth: wayWidth);
+    final side = AssociativeIndexedSideReadRequest(indexWidth: wayWidth);
+    final access = ReplacementAccessInterface(waysPerSet);
+    final allocation = ReplacementAllocationInterface(waysPerSet);
+    final commit = ReplacementCommitInterface(waysPerSet);
+    tagLookup.en &lt;= ~localReset &amp; probe &amp; selected &amp; supported;
+    tagLookup.key &lt;= savedRequest.address;
+    allocation.en &lt;= tagLookup.en &amp; isFill &amp; ~tagLookup.hit;
+    allocation.commit &lt;= Const(0);
+    side.index &lt;= allocation.index;
+    access.en &lt;= tagLookup.hit;
+    access.index &lt;= tagLookup.index;
+    commit.en &lt;= ~localReset &amp; write &amp; selected &amp; isFill &amp; fillMiss;
+    commit.index &lt;= savedWay;
+    tagUpdate.en &lt;= ~localReset &amp; write &amp; selected &amp; (isFill | isInvalidate);
+    tagUpdate.index &lt;= savedWay;
+    tagUpdate.key &lt;= savedRequest.address;
+    tagUpdate.entryValid &lt;= ~isInvalidate;
+    final binding = tagMemory(
+      clk: localClk,
+      reset: localReset,
+      updatePorts: [tagUpdate],
+      lookupPorts: [tagLookup],
+      entryCount: waysPerSet,
+      sideReadRequest: side,
+      requiresValidityMask: true,
+      lookupLatency: 0,
+      duplicateKeyPolicy: AssociativeDuplicateKeyPolicy.allow,
+      matchSelection: AssociativeMatchSelection.lowestIndex,
+      resultShape: AssociativeResultShape.selectedIndex,
+      lookupUpdatePolicy: AssociativeLookupUpdatePolicy.lookupAfterUpdate,
+      updateCollisionPolicy: AssociativeUpdateCollisionPolicy.highestPortWins,
+      requiredResetBehavior: AssociativeMemoryResetBehavior.clearValidity,
+      name: &#39;tags_$set&#39;,
+    );
+    final tags = binding.memory!;
+    final mask = (tags as AssociativeValidityMaskProvider).validMask!;
+    final sideResponse =
+        (tags as AssociativeIndexedSideReadProvider).sideReadResponse!;
+    final policy = replacement.buildWithCommits!(
+      clk: localClk,
+      reset: localReset,
+      validMask: mask,
+      eligibleMask:
+          Const((BigInt.one &lt;&lt; waysPerSet) - BigInt.one, width: waysPerSet),
+      accesses: [access],
+      allocations: [allocation],
+      commits: [commit],
+      entryCount: waysPerSet,
+      name: &#39;replacement_$set&#39;,
+    );
+    if (policy.entryCount != waysPerSet) {
+      throw StateError(&#39;Replacement factory returned incompatible geometry.&#39;);
+    }
+
+    final way = mux(tagLookup.hit, tagLookup.index, allocation.index);
+    final needsRead = ((isLookup | isUpdate | isInvalidate) &amp; tagLookup.hit) |
+        (isFill &amp; ~tagLookup.hit &amp; allocation.valid &amp; allocation.evict);
+    final dataRead = DataPortInterface&lt;T&gt;.typed(requestSchema.data, wayWidth);
+    final dataWrite =
+        DataPortInterface&lt;T&gt;.typed(requestSchema.data, wayWidth);
+    dataRead.en &lt;= ~localReset &amp; probe &amp; selected &amp; needsRead;
+    dataRead.addr &lt;= way;
+    dataWrite.en &lt;= ~localReset &amp; write &amp; selected &amp; (isFill | isUpdate);
+    dataWrite.addr &lt;= savedWay;
+    dataWrite.data &lt;= writeData;
+    dataMemory(
+      clk: localClk,
+      reset: localReset,
+      writePorts: [dataWrite],
+      readPorts: [dataRead],
+      entryCount: waysPerSet,
+      readLatency: dataMemory.capabilities.readLatency,
+      maxConcurrentReads: 1,
+      maxConcurrentWrites: 1,
+      maxConcurrentAccesses: 1,
+      name: &#39;data_$set&#39;,
+    );
+    final metaRead =
+        DataPortInterface&lt;M&gt;.typed(requestSchema.lineMetadata, wayWidth);
+    final metaWrite =
+        DataPortInterface&lt;M&gt;.typed(requestSchema.lineMetadata, wayWidth);
+    metaRead.en &lt;= ~localReset &amp; probe &amp; selected &amp; needsRead;
+    metaRead.addr &lt;= way;
+    metaWrite.en &lt;= dataWrite.en;
+    metaWrite.addr &lt;= savedWay;
+    metaWrite.data &lt;= normalizeStoredLogic(savedRequest.lineMetadata);
+    (metadataMemory ?? registerFileArray&lt;M&gt;())(
+      clk: localClk,
+      reset: localReset,
+      writePorts: [metaWrite],
+      readPorts: [metaRead],
+      entryCount: waysPerSet,
+      readLatency: 0,
+      maxConcurrentReads: 1,
+      maxConcurrentWrites: 1,
+      maxConcurrentAccesses: 1,
+      requiredReadCollision: MemoryArrayReadCollision.combinational,
+      name: &#39;metadata_$set&#39;,
+    );
+    hits.add(selected &amp; tagLookup.hit);
+    allocationValid.add(selected &amp; allocation.valid);
+    allocationEvict.add(selected &amp; allocation.evict);
+    chosenWays.add(mux(selected, way, Const(0, width: wayWidth)));
+    victimAddresses
+        .add(mux(selected, sideResponse.key, Const(0, width: addressWidth)));
+    readData.add(mux(
+        selected, dataRead.data, Const(0, width: requestSchema.data.width)));
+    readMetadata.add(mux(selected, metaRead.data,
+        Const(0, width: requestSchema.lineMetadata.width)));
+  }
+  final hit = combine(hits);
+  final allocationOk = combine(allocationValid);
+  final victim = combine(allocationEvict);
+  final needsRead = ((isLookup | isUpdate | isInvalidate) &amp; hit) |
+      (isFill &amp; ~hit &amp; allocationOk &amp; victim);
+  final canFill = isFill &amp; (hit | allocationOk);
+  savedWay &lt;=
+      flop(localClk, mux(probe, combine(chosenWays), savedWay),
+          reset: localReset);
+  savedVictimAddress &lt;=
+      flop(localClk, mux(probe, combine(victimAddresses), savedVictimAddress),
+          reset: localReset);
+  oldMetadata &lt;=
+      flop(localClk,
+          mux(probe &amp; needsRead, combine(readMetadata), oldMetadata),
+          reset: localReset);
+  fillMiss &lt;=
+      flop(localClk, mux(probe, isFill &amp; ~hit, fillMiss), reset: localReset);
+
+  final latency = dataMemory.capabilities.readLatency;
+  final countWidth = max(1, (latency - 1).bitLength);
+  final count = Logic(name: &#39;read_count&#39;, width: countWidth);
+  final readComplete = waitData &amp; count.eq(0);
+  count &lt;=
+      flop(
+          localClk,
+          mux(
+              probe &amp; needsRead,
+              Const(latency - 1, width: countWidth),
+              mux(waitData &amp; ~count.eq(0),
+                  count - Const(1, width: countWidth), count)),
+          reset: localReset);
+  oldData &lt;=
+      flop(localClk, mux(readComplete, combine(readData), oldData),
+          reset: localReset);
+
+  Logic statusValue(CacheTransactionStatus value) =&gt;
+      Const(value.code, width: 2);
+  final noReadStatus = mux(
+      canFill,
+      statusValue(CacheTransactionStatus.completed),
+      mux(supported &amp; ~isFill, statusValue(CacheTransactionStatus.miss),
+          statusValue(CacheTransactionStatus.error)));
+  status &lt;=
+      flop(
+          localClk,
+          mux(
+            probe &amp; ~needsRead,
+            noReadStatus,
+            mux(
+                readComplete,
+                mux(isFill, statusValue(CacheTransactionStatus.completed),
+                    statusValue(CacheTransactionStatus.hit)),
+                status),
+          ),
+          reset: localReset);
+
+  final responseDone = &lt;Logic&gt;[];
+  final evictionDone = &lt;Logic&gt;[];
+  for (var i = 0; i &lt; ports.length; i++) {
+    final owned = owner.eq(i);
+    responses[i].valid &lt;= ~localReset &amp; respond &amp; owned;
+    responses[i].data.token &lt;= savedRequest.token;
+    responses[i].data.status &lt;= status;
+    responses[i].data.data &lt;=
+        mux(status.eq(CacheTransactionStatus.hit.code), oldData,
+            Const(0, width: oldData.width));
+    responses[i].data.lineMetadata &lt;=
+        mux(status.eq(CacheTransactionStatus.hit.code), oldMetadata,
+            Const(0, width: oldMetadata.width));
+    responses[i].data.context &lt;= savedRequest.context;
+    responses[i].data.result &lt;=
+        Const(0, width: responses[i].data.result.width);
+    evictions[i].valid &lt;= ~localReset &amp; evict &amp; owned;
+    evictions[i].data.token &lt;= savedRequest.token;
+    evictions[i].data.cause &lt;=
+        mux(
+            isInvalidate,
+            Const(CacheTransactionEvictionCause.invalidation.code,
+                width: evictions[i].data.cause.width),
+            Const(CacheTransactionEvictionCause.replacement.code,
+                width: evictions[i].data.cause.width));
+    evictions[i].data.address &lt;=
+        mux(isInvalidate, savedRequest.address, savedVictimAddress);
+    evictions[i].data.data &lt;= oldData;
+    evictions[i].data.lineMetadata &lt;= oldMetadata;
+    evictions[i].data.context &lt;= savedRequest.context;
+    responseDone.add(responses[i].valid &amp; responses[i].ready);
+    evictionDone.add(evictions[i].valid &amp; evictions[i].ready);
+  }
+  var nextState = state;
+  nextState = mux(accept, stateValue(_CacheState.probe), nextState);
+  nextState =
+      mux(probe &amp; needsRead, stateValue(_CacheState.waitData), nextState);
+  nextState = mux(
+      probe &amp; ~needsRead,
+      mux(canFill, stateValue(_CacheState.write),
+          stateValue(_CacheState.respond)),
+      nextState);
+  nextState = mux(
+      readComplete,
+      mux(
+          isLookup,
+          stateValue(_CacheState.respond),
+          mux(isUpdate, stateValue(_CacheState.write),
+              stateValue(_CacheState.evict))),
+      nextState);
+  nextState =
+      mux(combine(evictionDone), stateValue(_CacheState.write), nextState);
+  nextState = mux(write, stateValue(_CacheState.respond), nextState);
+  nextState =
+      mux(combine(responseDone), stateValue(_CacheState.idle), nextState);
+  state &lt;= flop(localClk, nextState, reset: localReset);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/SerializedCache-class.html">SerializedCache<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">SerializedCache.new constructor</li>
+</ol>
+
+    <h5>SerializedCache class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

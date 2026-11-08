@@ -54,10 +54,10 @@
 
     
 <section class="desc markdown">
-  <p>A component control that is configured statically or supplied by <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> at
+  <p>A component control that is configured statically or supplied by <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> at
 runtime.</p>
 <p><code>T</code> is the type of the static value. Use <a href="../rohd_hcl/StaticOrRuntimeControl/resolve.html">resolve</a> to obtain this module's
-internal runtime input or to convert the static value into <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>.</p>
+internal runtime input or to convert the static value into <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>.</p>
 </section>
 
 
@@ -85,7 +85,7 @@ internal runtime input or to convert the static value into <a href="https://pub.
     <h2>Constructors</h2>
     <dl class="constructor-summary-list">
         <dt id="StaticOrRuntimeControl.new" class="callable">
-          <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/StaticOrRuntimeControl.html">StaticOrRuntimeControl</a></span><span class="signature">({<span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-staticConfig"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">staticConfig</span>, </span><span class="parameter" id="param-runtimeConfig"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">runtimeConfig</span></span>})</span>
+          <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/StaticOrRuntimeControl.html">StaticOrRuntimeControl</a></span><span class="signature">({<span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-staticConfig"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">staticConfig</span>, </span><span class="parameter" id="param-runtimeConfig"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">runtimeConfig</span></span>})</span>
         </dt>
         <dd>
           Creates a statically or runtime-configured control.
@@ -95,7 +95,7 @@ internal runtime input or to convert the static value into <a href="https://pub.
           <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/StaticOrRuntimeControl.ofDynamic.html">StaticOrRuntimeControl.ofDynamic</a></span><span class="signature">(<span class="parameter" id="ofDynamic-param-config"><span class="type-annotation">dynamic</span> <span class="parameter-name">config</span>, {</span><span class="parameter" id="ofDynamic-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="ofDynamic-param-defaultValue"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">defaultValue</span>, </span><span class="parameter" id="ofDynamic-param-convertStatic"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">convertStatic</span>(<span class="parameter" id="param-value"><span class="type-annotation">dynamic</span> <span class="parameter-name">value</span></span>)</span>})</span>
         </dt>
         <dd>
-          Creates a control from either a runtime <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> or a static value.
+          Creates a control from either a runtime <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> or a static value.
             <div class="constructor-modifier features">factory</div>
         </dd>
     </dl>
@@ -144,7 +144,7 @@ internal runtime input or to convert the static value into <a href="https://pub.
 
         <dt id="runtimeConfig" class="property">
   <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/runtimeConfig.html">runtimeConfig</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
   
 
 </dt>
@@ -187,9 +187,22 @@ internal runtime input or to convert the static value into <a href="https://pub.
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
+        <dt id="forChild" class="callable">
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/forChild.html">forChild</a></span><span class="signature">(<wbr><span class="parameter" id="forChild-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, {</span><span class="parameter" id="forChild-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/StaticOrRuntimeControl-class.html">StaticOrRuntimeControl</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a control for a child of <code>module</code>, using its internal input.
+  
+
+</dd>
+
         <dt id="getRuntimeInput" class="callable">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/getRuntimeInput.html">getRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="getRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/getRuntimeInput.html">getRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="getRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
   </span>
   
 
@@ -214,14 +227,14 @@ internal runtime input or to convert the static value into <a href="https://pub.
 </dd>
 
         <dt id="resolve" class="callable">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/resolve.html">resolve</a></span><span class="signature">(<wbr><span class="parameter" id="resolve-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, {</span><span class="parameter" id="resolve-param-staticToLogic"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">staticToLogic</span>(<span class="parameter" id="param-value"><span class="type-annotation">T</span> <span class="parameter-name">value</span></span>)</span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/resolve.html">resolve</a></span><span class="signature">(<wbr><span class="parameter" id="resolve-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, {</span><span class="parameter" id="resolve-param-staticToLogic"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">staticToLogic</span>(<span class="parameter" id="param-value"><span class="type-annotation">T</span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Resolves this value to <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> within <code>module</code>.
+  Resolves this value to <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> within <code>module</code>.
   
 
 </dd>
@@ -240,8 +253,8 @@ internal runtime input or to convert the static value into <a href="https://pub.
 </dd>
 
         <dt id="tryRuntimeInput" class="callable">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/tryRuntimeInput.html">tryRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="tryRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/tryRuntimeInput.html">tryRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="tryRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
   </span>
   
 

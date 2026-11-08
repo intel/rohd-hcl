@@ -55,20 +55,21 @@
     
       <section class="multi-line-signature">
         
-        <a href="../../rohd_hcl/IntConfigKnob-class.html">IntConfigKnob</a>
+        <a href="../../rohd_hcl/StaticOrRuntimeIntKnob-class.html">StaticOrRuntimeIntKnob</a>
         <span class="name ">resetValueKnob</span>
         <div class="features"><span class="feature">final</span></div>
 
       </section>
       
 <section class="desc markdown">
-  <p>The reset value.</p>
+  <p>The reset value, statically or from a generated runtime input.</p>
 </section>
 
       
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">final IntConfigKnob resetValueKnob = IntConfigKnob(value: 0);</code></pre>
+  <pre class="language-dart"><code class="language-dart">final StaticOrRuntimeIntKnob resetValueKnob =
+    StaticOrRuntimeIntKnob(name: &#39;Reset Value&#39;);</code></pre>
 </section>
 
 

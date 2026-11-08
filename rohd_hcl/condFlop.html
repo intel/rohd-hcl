@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li class="self-crumb">condFlop function</li>
+    <li class="self-crumb">condFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt; function</li>
   </ol>
   <div class="self-name">condFlop</div>
   <form class="search navbar-right" role="search">
@@ -48,19 +48,21 @@
       data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-function">condFlop</span> function 
+<h1><span class="kind-function">condFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> function 
  
 </h1></div>
 
     <section class="multi-line-signature">
         
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">condFlop</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="condFlop-param-d"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">d</span>, {</span></li>
-<li><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span></li>
-<li><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<span class="returntype">LogicType</span>
+<span class="name ">condFlop</span>&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-d"><span class="type-annotation">LogicType</span> <span class="parameter-name">d</span>, {</span></li>
+<li><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 <li><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-outputGenerator"><span class="type-annotation">LogicType</span> <span class="parameter-name">outputGenerator</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
+</ol>})?, </span></li>
 </ol>})
 
         
@@ -69,7 +71,7 @@
     
 <section class="desc markdown">
   <p>Conditionally constructs a positive edge triggered flip condFlop on <code>clk</code>.</p>
-<p>It returns either <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/FlipFlop/q.html">FlipFlop.q</a> if <code>clk</code> is non-null or <code>d</code> if not.</p>
+<p>It returns either <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/FlipFlop/q.html">FlipFlop.q</a> if <code>clk</code> is non-null or <code>d</code> if not.</p>
 <p>When the optional <code>en</code> is provided, an additional input will be created for
 condFlop. If optional <code>en</code> is high or not provided, output will vary as per
 input<code>d</code>. For low <code>en</code>, output remains frozen irrespective of input <code>d</code>.</p>
@@ -82,28 +84,38 @@ it will reset to the provided <code>resetValue</code>.</li>
 treated as an async reset. If <code>asyncReset</code> is <code>false</code>, the reset signal
 will be treated as synchronous.</li>
 </ul>
+<p>Preserves <code>LogicType</code> and runtime structured layouts. <code>outputGenerator</code> can
+supply an explicit registered output schema. A null <code>clk</code> returns <code>d</code>
+unchanged. Use <code>condFlop&lt;Logic&gt;</code> for scalar constants or nets that need a
+driveable registered result.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic condFlop(
+  <pre class="language-dart"><code class="language-dart">LogicType condFlop&lt;LogicType extends Logic&gt;(
   Logic? clk,
-  Logic d, {
+  LogicType d, {
   Logic? en,
   Logic? reset,
   dynamic resetValue,
   bool asyncReset = false,
-}) =&gt;
-    (clk == null)
-        ? d
-        : flop(clk, d,
-                en: en,
-                reset: reset,
-                resetValue: resetValue,
-                asyncReset: asyncReset)
-            .named(&#39;${d.name}_flopped&#39;);</code></pre>
+  LogicType Function({String? name})? outputGenerator,
+}) {
+  if (clk == null) {
+    return d;
+  }
+  final clone = d.cloneTyped;
+  final registered = flop&lt;LogicType&gt;(clk, d,
+      en: en,
+      reset: reset,
+      resetValue: resetValue,
+      asyncReset: asyncReset,
+      outputGenerator: outputGenerator ??
+          (d is LogicStructure || d is LogicEnum ? clone : null));
+  return registered.cloneTyped(name: &#39;${d.name}_flopped&#39;)..gets(registered);
+}</code></pre>
 </section>
 
 
@@ -118,7 +130,7 @@ will be treated as synchronous.</li>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../index.html">rohd_hcl</a></li>
     <li><a href="../rohd_hcl/">rohd_hcl</a></li>
-    <li class="self-crumb">condFlop function</li>
+    <li class="self-crumb">condFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt; function</li>
 </ol>
 
     <h5>rohd_hcl library</h5>

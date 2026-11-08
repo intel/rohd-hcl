@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "EdgeDetector_Tpos": {
       "attributes": {
@@ -203,7 +203,7 @@
           },
           "attributes": {}
         },
-        "_in0__previousValue_b": {
+        "_previousValue_b": {
           "bits": [
             8
           ],

@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>
 <span class="name ">createModule</span>(<wbr>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -67,7 +67,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> instance as configured.</p>
+  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> instance as configured.</p>
 </section>
 
 
@@ -77,6 +77,12 @@
   <pre class="language-dart"><code class="language-dart">@override
 Module createModule() {
   final val = directionKnob.value;
+  if (fixedKnob.value) {
+    final original = Logic(width: originalWidthKnob.value);
+    return val == RotateDirection.left
+        ? RotateLeftFixed(original, fixedAmountKnob.value)
+        : RotateRightFixed(original, fixedAmountKnob.value);
+  }
   final rotateConstructor =
       val == RotateDirection.left ? RotateLeft.new : RotateRight.new;
   return rotateConstructor(Logic(width: originalWidthKnob.value),

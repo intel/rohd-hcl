@@ -67,7 +67,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">RadixEncoder(this.radix) {
-  if (pow(2.0, log2Ceil(radix)) != radix) {
+  if (!radix.isPowerOfTwo) {
     throw RohdHclException(&#39;radix must be a power of 2&#39;);
   }
 }</code></pre>

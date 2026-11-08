@@ -98,11 +98,12 @@ B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
     throw RohdHclException(&#39;dataWidth must be a multiple of bitsPerAddress.&#39;);
   }
 
-  final bitsPerChar = log2Ceil(radix);
+  final bitsPerChar = radix.log2Ceil;
   final charsPerLine = dataWidth ~&#47; bitsPerChar;
   final addrIncrPerLine = dataWidth ~&#47; bitsPerAddress;
+  final addressIncrement = BigInt.from(addrIncrPerLine);
 
-  var address = 0;
+  var address = BigInt.zero;
   final chunks = &lt;String&gt;[];
   var chunksLength = 0;
 
@@ -131,11 +132,11 @@ B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
 
       final lvData = LogicValue.ofBigInt(
           BigInt.parse(thisData, radix: radix), dataWidth);
-      final addr =
-          LogicValue.ofInt(address - (address % addrIncrPerLine), addrWidth);
+      final addr = LogicValue.ofBigInt(
+          address - (address % addressIncrement), addrWidth);
       setData(addr, lvData);
 
-      address += addrIncrPerLine;
+      address += addressIncrement;
     }
   }
 
@@ -169,22 +170,22 @@ B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
       }
 
       &#47;&#47; check to see if this block already exists in memory
-      final lineAddr = int.parse(line.substring(1), radix: 16);
-      final lineAddrLv =
-          LogicValue.ofInt(lineAddr - lineAddr % addrIncrPerLine, addrWidth);
+      final lineAddr = BigInt.parse(line.substring(1), radix: 16);
+      final lineAddrLv = LogicValue.ofBigInt(
+          lineAddr - lineAddr % addressIncrement, addrWidth);
 
       &#47;&#47; if the address is not word-aligned, pre-fill the lower byte
       &#47;&#47; positions so that new data lands at the correct byte offset within
       &#47;&#47; the word.  When the word already has data (e.g. written by the
       &#47;&#47; previous section), preserve those lower bytes; otherwise use zeros.
-      final endOff = lineAddr % addrIncrPerLine;
+      final endOff = (lineAddr % addressIncrement).toInt();
       if (endOff != 0) {
         final lowerBytesCharsCount = endOff * bitsPerAddress ~&#47; bitsPerChar;
         final origData = getData(lineAddrLv);
         final lowerStr = origData != null
             ? origData
                 .getRange(0, endOff * bitsPerAddress)
-                .toInt()
+                .toBigInt()
                 .toRadixString(radix)
                 .padLeft(lowerBytesCharsCount, &#39;0&#39;)
             : &#39;0&#39; * lowerBytesCharsCount;
@@ -192,7 +193,7 @@ B3 02 00 00 33 05 00 00 B3 05 00 00 13 05 F5 1F
         chunksLength += lowerStr.length;
       }
 
-      address = lineAddrLv.toInt();
+      address = lineAddrLv.toBigInt();
     } else {
       line.split(RegExp(r&#39;\s&#39;)).forEach(addChunk);
     }

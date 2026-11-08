@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort</a></li>
+    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">latency property</li>
   </ol>
   <div class="self-name">latency</div>
@@ -73,7 +73,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int get latency =&gt; List.generate(log2Ceil(_inputs.length) + 1, (i) =&gt; i)
+  <pre class="language-dart"><code class="language-dart">int get latency =&gt; List.generate(_inputs.length.log2Ceil + 1, (i) =&gt; i)
     .reduce((a, b) =&gt; a + b);</code></pre>
 </section>
 
@@ -91,7 +91,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort</a></li>
+    <li><a href="../../rohd_hcl/BitonicSort-class.html">BitonicSort<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">latency property</li>
 </ol>
 

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CacheTransactionAdapter.new constructor from Class CacheTransactionAdapter from the rohd_hcl library, for the Dart programming language.">
+  <title>CacheTransactionAdapter.new constructor - CacheTransactionAdapter - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/CacheTransactionAdapter-class.html">CacheTransactionAdapter<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">CacheTransactionAdapter.new constructor</li>
+  </ol>
+  <div class="self-name">CacheTransactionAdapter.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;CacheTransactionAdapter-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">CacheTransactionAdapter&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">CacheTransactionAdapter&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-requests"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CacheTransactionRequest-class.html">CacheTransactionRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span></li>
+<li><span class="parameter" id="param-responses"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CacheTransactionResponse-class.html">CacheTransactionResponse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">responses</span>, </span></li>
+<li><span class="parameter" id="param-evictions"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CacheTransactionEviction-class.html">CacheTransactionEviction</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">evictions</span>, </span></li>
+<li><span class="parameter" id="param-cache"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/CacheTransactionPort-class.html">CacheTransactionPort</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">M</span>, <span class="type-parameter">C</span>, <span class="type-parameter">R</span>&gt;</span></span> <span class="parameter-name">cache</span>, </span></li>
+<li><span class="parameter" id="param-maxOutstanding"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maxOutstanding</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;cache_transaction_adapter&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a bounded adapter. The supplied channels must be irrevocable.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">CacheTransactionAdapter({
+  required Logic clk,
+  required Logic reset,
+  required this.requests,
+  required this.responses,
+  required this.evictions,
+  required this.cache,
+  required this.maxOutstanding,
+  super.name = &#39;cache_transaction_adapter&#39;,
+}) : super(
+        definitionName: &#39;CacheTransactionAdapter_N${maxOutstanding}_&#39;
+            &#39;${payloadShapeIdentity(requests.data)}_&#39;
+            &#39;${payloadShapeIdentity(responses.data)}_&#39;
+            &#39;${payloadShapeIdentity(evictions.data)}&#39;,
+      ) {
+  if (clk.width != 1 || reset.width != 1 || maxOutstanding &lt; 1) {
+    throw ArgumentError(&#39;Invalid adapter clock, reset, or capacity.&#39;);
+  }
+  if (!requests.contract.satisfies(ReadyValidContract.irrevocable) ||
+      !responses.contract.satisfies(ReadyValidContract.irrevocable) ||
+      !evictions.contract.satisfies(ReadyValidContract.irrevocable) ||
+      !sameDeclaredPayloadShape(requests.data, cache.requests.data) ||
+      !sameDeclaredPayloadShape(responses.data, cache.responses.data) ||
+      !sameDeclaredPayloadShape(evictions.data, cache.evictions.data)) {
+    throw ArgumentError(&#39;Adapter channels must have matching payloads and &#39;
+        &#39;irrevocable contracts.&#39;);
+  }
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final inputRequests = addInterfacePorts(requests,
+      inputTags: [PairDirection.fromProvider],
+      outputTags: [PairDirection.fromConsumer],
+      uniquify: (signal) =&gt; &#39;input_request_$signal&#39;);
+  final outputResponses = addInterfacePorts(responses,
+      inputTags: [PairDirection.fromConsumer],
+      outputTags: [PairDirection.fromProvider],
+      uniquify: (signal) =&gt; &#39;output_response_$signal&#39;);
+  final outputEvictions = addInterfacePorts(evictions,
+      inputTags: [PairDirection.fromConsumer],
+      outputTags: [PairDirection.fromProvider],
+      uniquify: (signal) =&gt; &#39;output_eviction_$signal&#39;);
+  final localCache = addInterfacePorts(cache,
+      inputTags: [PairDirection.fromConsumer],
+      outputTags: [PairDirection.fromProvider],
+      uniquify: (signal) =&gt; &#39;cache_$signal&#39;);
+  final cacheRequests = localCache.requests;
+  final cacheResponses = localCache.responses;
+  final cacheEvictions = localCache.evictions;
+
+  final occupied = [for (var i = 0; i &lt; maxOutstanding; i++) Logic()];
+  final tokens = [
+    for (var i = 0; i &lt; maxOutstanding; i++)
+      Logic(width: requests.data.token.width)
+  ];
+  Logic combine(List&lt;Logic&gt; values) =&gt;
+      values.reduce((left, right) =&gt; left | right);
+  Logic matches(Logic token) =&gt; combine([
+        for (var i = 0; i &lt; maxOutstanding; i++)
+          occupied[i] &amp; tokens[i].eq(token)
+      ]);
+  final duplicate = matches(inputRequests.data.token);
+  final free = combine([for (final entry in occupied) ~entry]);
+  final staged = Logic(name: &#39;staged&#39;);
+  final stagedData =
+      Logic(name: &#39;staged_data&#39;, width: inputRequests.data.width);
+  inputRequests.ready &lt;= ~localReset &amp; ~staged &amp; free &amp; ~duplicate;
+  final accept = inputRequests.valid &amp; inputRequests.ready;
+  cacheRequests.valid &lt;= ~localReset &amp; staged;
+  cacheRequests.data &lt;= stagedData;
+  final issue = cacheRequests.valid &amp; cacheRequests.ready;
+  staged &lt;=
+      flop(localClk, mux(accept, Const(1), mux(issue, Const(0), staged)),
+          reset: localReset);
+  stagedData &lt;=
+      flop(localClk, mux(accept, inputRequests.data, stagedData),
+          reset: localReset);
+
+  final responseMatch = matches(cacheResponses.data.token);
+  outputResponses.valid &lt;= ~localReset &amp; cacheResponses.valid &amp; responseMatch;
+  outputResponses.data &lt;= cacheResponses.data;
+  cacheResponses.ready &lt;= ~localReset &amp; outputResponses.ready &amp; responseMatch;
+  final finish = cacheResponses.valid &amp; cacheResponses.ready;
+
+  final evictionMatch = matches(cacheEvictions.data.token);
+  outputEvictions.valid &lt;= ~localReset &amp; cacheEvictions.valid &amp; evictionMatch;
+  outputEvictions.data &lt;= cacheEvictions.data;
+  cacheEvictions.ready &lt;= ~localReset &amp; outputEvictions.ready &amp; evictionMatch;
+
+  addOutput(&#39;duplicateRequest&#39;) &lt;=
+      ~localReset &amp; inputRequests.valid &amp; duplicate;
+  addOutput(&#39;invalidResponse&#39;) &lt;=
+      ~localReset &amp; cacheResponses.valid &amp; ~responseMatch;
+  addOutput(&#39;invalidEviction&#39;) &lt;=
+      ~localReset &amp; cacheEvictions.valid &amp; ~evictionMatch;
+
+  Logic earlierFree = Const(0);
+  for (var i = 0; i &lt; maxOutstanding; i++) {
+    final allocate = accept &amp; ~occupied[i] &amp; ~earlierFree;
+    earlierFree = earlierFree | ~occupied[i];
+    final release =
+        finish &amp; occupied[i] &amp; tokens[i].eq(cacheResponses.data.token);
+    occupied[i] &lt;=
+        flop(localClk,
+            mux(allocate, Const(1), mux(release, Const(0), occupied[i])),
+            reset: localReset);
+    tokens[i] &lt;=
+        flop(localClk, mux(allocate, inputRequests.data.token, tokens[i]),
+            reset: localReset);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/CacheTransactionAdapter-class.html">CacheTransactionAdapter<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">M extends Logic</span>, <span class="type-parameter">C extends Logic</span>, <span class="type-parameter">R extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">CacheTransactionAdapter.new constructor</li>
+</ol>
+
+    <h5>CacheTransactionAdapter class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

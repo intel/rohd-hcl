@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/ClockGate-class.html">ClockGate</a></li>
-    <li class="self-crumb">controlled method</li>
+    <li class="self-crumb">controlled&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt; method</li>
   </ol>
   <div class="self-name">controlled</div>
   <form class="search navbar-right" role="search">
@@ -49,13 +49,13 @@
     data-above-sidebar="rohd_hcl&#47;ClockGate-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">controlled</span> method 
+<h1><span class="kind-method">controlled&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">controlled</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="controlled-param-original"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">original</span>, {</span></li>
+<span class="returntype">T</span>
+<span class="name ">controlled</span>&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="controlled-param-original"><span class="type-annotation">T</span> <span class="parameter-name">original</span>, {</span></li>
 <li><span class="parameter" id="controlled-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 </ol>})
 
@@ -70,39 +70,35 @@ is the signal that should be used as inputs to logic depending on the
 <a href="../../rohd_hcl/ClockGate/gatedClk.html">gatedClk</a>.</p>
 <p>If a <code>resetValue</code> is provided, then the signal will be reset to that value
 when the clock gating is reset.</p>
+<p>Preserves payload type <code>T</code> and its width. Use <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> for scalar constants
+when a driveable delayed output is required.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic controlled(Logic original, {dynamic resetValue}) {
+  <pre class="language-dart"><code class="language-dart">T controlled&lt;T extends Logic&gt;(T original, {dynamic resetValue}) {
   if (!isPresent || !delayControlledSignals) {
     return original;
   }
 
-  if (_controlledCache.containsKey(original)) {
-    return _controlledCache[original]!;
-  } else {
-    final o = super.addOutput(
-        _uniquifier.getUniqueName(initialName: &#39;${original.name}_delayed&#39;));
-
-    _controlledCache[original] = o;
-
-    o &lt;=
-        flop(
-          _freeClk,
-          reset: _reset,
-          resetValue: resetValue,
-          super.addInput(
-            _uniquifier.getUniqueName(initialName: original.name),
-            original,
-            width: original.width,
-          ),
-        );
-
-    return o;
+  final cached = _controlledCache[original];
+  if (cached != null) {
+    if (cached is! T) {
+      throw ArgumentError(&#39;The cached controlled signal is not a $T. &#39;
+          &#39;Use Logic for scalar constant payloads.&#39;);
+    }
+    return cached;
   }
+  final input = super.addTypedInput&lt;T&gt;(
+      _uniquifier.getUniqueName(initialName: original.name), original);
+  final result = super.addTypedOutput&lt;T&gt;(
+      _uniquifier.getUniqueName(initialName: &#39;${original.name}_delayed&#39;),
+      input.cloneTyped);
+  result &lt;= flop(_freeClk, input, reset: _reset, resetValue: resetValue);
+  _controlledCache[original] = result;
+  return result;
 }</code></pre>
 </section>
 
@@ -119,7 +115,7 @@ when the clock gating is reset.</p>
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/ClockGate-class.html">ClockGate</a></li>
-    <li class="self-crumb">controlled method</li>
+    <li class="self-crumb">controlled&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt; method</li>
 </ol>
 
     <h5>ClockGate class</h5>

@@ -72,21 +72,9 @@ using its address <code>regAddr</code> within the block with address <code>block
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr) {
-  final idx = config.blocks.indexOf(config.getBlockByAddr(blockAddr));
-  if (idx &gt;= 0 &amp;&amp; idx &lt; backdoorInterfaces.length) {
-    final idx1 = config.blocks[idx].registers
-        .indexOf(config.blocks[idx].getRegisterByAddr(regAddr));
-    if (_backdoorIndexMaps[idx].containsKey(idx1)) {
-      return backdoorInterfaces[idx][_backdoorIndexMaps[idx][idx1]!];
-    } else {
-      throw Exception(&#39;Register with address $regAddr in block with &#39;
-          &#39;address $blockAddr could not be found.&#39;);
-    }
-  } else {
-    throw Exception(&#39;Block with address $blockAddr could not be found.&#39;);
-  }
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr) =&gt;
+    getBackdoorPortsByBigIntAddr(
+        BigInt.from(blockAddr), BigInt.from(regAddr));</code></pre>
 </section>
 
 

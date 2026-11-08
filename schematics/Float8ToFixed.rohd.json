@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "Float8ToFixed": {
       "attributes": {
@@ -533,7 +533,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -658,7 +658,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -722,7 +722,7 @@
             ]
           }
         },
-        "swizzle_1": {
+        "concat_1": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -959,7 +959,7 @@
             ]
           }
         },
-        "swizzle_2": {
+        "concat_2": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1341,7 +1341,7 @@
             "preserved_name": 1
           }
         },
-        "_control__subset_7_7_float": {
+        "_subset_7_7_float": {
           "bits": [
             92
           ],
@@ -1350,7 +1350,7 @@
           },
           "attributes": {}
         },
-        "_d1__number_b_add_const_1": {
+        "_number_b_add_const_1": {
           "bits": [
             93,
             94,
@@ -1391,7 +1391,7 @@
           },
           "attributes": {}
         },
-        "_in0__number_b": {
+        "_number_b": {
           "bits": [
             126,
             127,
@@ -1441,7 +1441,7 @@
           },
           "attributes": {}
         },
-        "_in__swizzled": {
+        "_concatd": {
           "bits": [
             193,
             194,
@@ -1482,7 +1482,7 @@
           },
           "attributes": {}
         },
-        "_d0__swizzled": {
+        "_d0__concatd": {
           "bits": [
             255,
             256,
@@ -1494,7 +1494,7 @@
           },
           "attributes": {}
         },
-        "_d1__swizzled": {
+        "_d1__concatd": {
           "bits": [
             259,
             260,
@@ -1506,7 +1506,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_subset_1_0_float": {
           "bits": [
             263,
             264
@@ -1527,7 +1527,7 @@
           },
           "attributes": {}
         },
-        "_d1__exponent_subtract_const_1": {
+        "_exponent_subtract_const_1": {
           "bits": [
             274,
             275,
@@ -1540,7 +1540,7 @@
           },
           "attributes": {}
         },
-        "_d0__subset_6_2_float": {
+        "_subset_6_2_float": {
           "bits": [
             284,
             285,
@@ -1553,7 +1553,7 @@
           },
           "attributes": {}
         },
-        "_swizzled": {
+        "_concatd_0": {
           "bits": [
             289,
             290,

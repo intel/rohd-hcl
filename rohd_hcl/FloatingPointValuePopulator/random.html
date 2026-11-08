@@ -56,6 +56,8 @@
       
 <span class="returntype">FpvType</span>
 <span class="name ">random</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="random-param-rv"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-math/Random-class.html">Random</a></span> <span class="parameter-name">rv</span>, {</span></li>
+<li><span class="parameter" id="random-param-normal"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;use genNormal&#47;genSubNormal instead&#39;)</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">normal</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="random-param-subNormal"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;use genNormal&#47;genSubNormal instead&#39;)</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">subNormal</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="random-param-genNormal"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genNormal</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="random-param-genSubNormal"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">genSubNormal</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="random-param-excludeInfinity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">excludeInfinity</span> = <span class="default-value">false</span>, </span></li>
@@ -105,7 +107,9 @@ generated. NaN values are never generated.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FpvType random(Random rv,
-    {bool genNormal = true,
+    {@Deprecated(&#39;use genNormal&#47;genSubNormal instead&#39;) bool normal = false,
+    @Deprecated(&#39;use genNormal&#47;genSubNormal instead&#39;) bool subNormal = false,
+    bool genNormal = true,
     bool genSubNormal = true,
     bool excludeInfinity = false,
     FpvType? gt,
@@ -114,6 +118,27 @@ generated. NaN values are never generated.</p>
     FpvType? lte}) {
   FpvType cloneConstant(FloatingPointConstants c) =&gt;
       _unpopulated.clonePopulator().ofConstant(c) as FpvType;
+  if (normal &amp; subNormal) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both normal and &#39;
+        &#39;subNormal be true&#39;);
+  }
+  if (normal &amp; !genNormal) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both normal and &#39;
+        &#39;genNormal be false -- normal will be deprecated, use genNormal&#39;);
+  }
+  if (subNormal &amp; !genSubNormal) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both subNormal and &#39;
+        &#39;genSubNormal be false -- subNormal will be deprecated, use &#39;
+        &#39;genSubNormal&#39;);
+  }
+  if (subNormal &amp; subNormalAsZero) {
+    throw RohdHclException(
+        &#39;FloatingPointValuePopulator.random: cannot have both subNormal and &#39;
+        &#39;subNormalAsZero be true&#39;);
+  }
   _checkMatching(&#39;gt&#39;, gt);
   _checkMatching(&#39;lt&#39;, lt);
   _checkMatching(&#39;gte&#39;, gte);
@@ -149,8 +174,18 @@ generated. NaN values are never generated.</p>
     }
   }
 
-  final doGenNormal = genNormal;
-  final doGenSubNormal = genSubNormal;
+  final bool doGenNormal;
+  final bool doGenSubNormal;
+  if (normal) {
+    doGenNormal = true;
+    doGenSubNormal = false;
+  } else if (subNormal) {
+    doGenNormal = false;
+    doGenSubNormal = true;
+  } else {
+    doGenNormal = genNormal;
+    doGenSubNormal = genSubNormal;
+  }
   if (!doGenNormal &amp; !doGenSubNormal) {
     throw RohdHclException(
         &#39;FloatingPointValuePopulator.random: cannot have both genNormal and &#39;
@@ -167,8 +202,8 @@ generated. NaN values are never generated.</p>
     FloatingPointValuePopulator populator() =&gt; FloatingPointValue.populator(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth - 1);
     return ofFloatingPointValue(populator().random(rv,
-        genNormal: genNormal,
-        genSubNormal: genSubNormal,
+        genNormal: doGenNormal,
+        genSubNormal: doGenSubNormal,
         gt: (gt != null)
             ? populator().ofFloatingPointValue(gt, canonicalizeExplicit: true)
             : null,
@@ -315,16 +350,16 @@ generated. NaN values are never generated.</p>
   &#47;&#47; Note that we never have both gt&#47;gte or lt&#47;lte null because of Infinity.
   var gtSign = (trimGt ?? trimGte)?.sign;
   var gtMagnitude =
-      (trimGt != null) ? [trimGt.exponent, trimGt.mantissa].swizzle() : null;
+      (trimGt != null) ? [trimGt.exponent, trimGt.mantissa].concat() : null;
   var gteMagnitude = (trimGte != null)
-      ? [trimGte.exponent, trimGte.mantissa].swizzle()
+      ? [trimGte.exponent, trimGte.mantissa].concat()
       : null;
 
   var ltSign = (trimLt ?? trimLte)?.sign;
   var ltMagnitude =
-      (trimLt != null) ? [trimLt.exponent, trimLt.mantissa].swizzle() : null;
+      (trimLt != null) ? [trimLt.exponent, trimLt.mantissa].concat() : null;
   var lteMagnitude = (trimLte != null)
-      ? [trimLte.exponent, trimLte.mantissa].swizzle()
+      ? [trimLte.exponent, trimLte.mantissa].concat()
       : null;
   if ((!doGenSubNormal) &amp; negNormals &amp; posNormals) {
     &#47;&#47; We need to pick a side to generate from.
@@ -335,7 +370,7 @@ generated. NaN values are never generated.</p>
       gtMagnitude = null;
       final rhGte =
           cloneConstant(FloatingPointConstants.smallestPositiveNormal);
-      gteMagnitude = [rhGte.exponent, rhGte.mantissa].swizzle();
+      gteMagnitude = [rhGte.exponent, rhGte.mantissa].concat();
     } else {
       &#47;&#47; Generate negative normals.
       ltSign = LogicValue.one;
@@ -343,7 +378,7 @@ generated. NaN values are never generated.</p>
       final lhLte =
           cloneConstant(FloatingPointConstants.smallestPositiveNormal)
               .negate() as FpvType;
-      lteMagnitude = [lhLte.exponent, lhLte.mantissa].swizzle();
+      lteMagnitude = [lhLte.exponent, lhLte.mantissa].concat();
     }
     if ((!doGenNormal) &amp; !negSubNormals &amp; !posSubNormals) {
       throw RohdHclException(
@@ -358,13 +393,13 @@ generated. NaN values are never generated.</p>
       gtSign = LogicValue.zero;
       gtMagnitude = null;
       final rhGte = cloneConstant(FloatingPointConstants.positiveZero);
-      gteMagnitude = [rhGte.exponent, rhGte.mantissa].swizzle();
+      gteMagnitude = [rhGte.exponent, rhGte.mantissa].concat();
     } else {
       &#47;&#47; Generate negative subnormals.
       ltSign = LogicValue.one;
       ltMagnitude = null;
       final lhLte = cloneConstant(FloatingPointConstants.negativeZero);
-      lteMagnitude = [lhLte.exponent, lhLte.mantissa].swizzle();
+      lteMagnitude = [lhLte.exponent, lhLte.mantissa].concat();
     }
   }
   final tgt = (gtMagnitude != null)

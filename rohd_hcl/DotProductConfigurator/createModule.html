@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>
 <span class="name ">createModule</span>(<wbr>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -67,7 +67,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> instance as configured.</p>
+  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> instance as configured.</p>
 </section>
 
 
@@ -85,8 +85,9 @@ Module createModule() {
       (index) =&gt;
           Logic(name: &#39;multiplier_$index&#39;, width: multiplierWidthKnob.value));
   final signedMultiplicand =
-      signedMultiplicandKnob.resolve(&#39;signedMultiplicand&#39;);
-  final signedMultiplier = signedMultiplierKnob.resolve(&#39;signedMultiplier&#39;);
+      signedMultiplicandKnob.resolveControl(&#39;signedMultiplicand&#39;);
+  final signedMultiplier =
+      signedMultiplierKnob.resolveControl(&#39;signedMultiplier&#39;);
   Adder adderGen(Logic a, Logic b, {Logic? carryIn}) =&gt; adderSelectKnob
       .selectedAdder()(a, b, carryIn: carryIn, name: &#39;dot_product_add&#39;);
 
@@ -96,8 +97,8 @@ Module createModule() {
     Logic? clk,
     Logic? reset,
     Logic? enable,
-    dynamic signedMultiplicand,
-    dynamic signedMultiplier,
+    StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier,
   }) =&gt;
       multiplierSelectKnob.selectedMultiplier(
           signedMultiplicand: signedMultiplicand,

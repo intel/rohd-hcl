@@ -68,15 +68,14 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ApbCompleter({required ApbInterface apb, super.name = &#39;apb_completer&#39;}) {
-  this.apb = apb.clone()
-    ..connectIO(this, apb,
-        inputTags: {
-          ApbDirection.fromRequester,
-          ApbDirection.fromRequesterExceptSelect,
-          ApbDirection.misc
-        },
-        outputTags: {ApbDirection.fromCompleter},
-        uniquify: (orig) =&gt; &#39;${name}_$orig&#39;);
+  this.apb = addInterfacePorts(apb,
+      inputTags: {
+        ApbDirection.fromRequester,
+        ApbDirection.fromRequesterExceptSelect,
+        ApbDirection.misc
+      },
+      outputTags: {ApbDirection.fromCompleter},
+      uniquify: (orig) =&gt; &#39;${name}_$orig&#39;);
 
   downstreamValid = Logic(name: &#39;downstreamValid&#39;);
   upstreamValid = Logic(name: &#39;upstreamValid&#39;);

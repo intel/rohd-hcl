@@ -54,8 +54,9 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Count</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-bus"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bus</span>, {</span></li>
+      <span class="name ">Count</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-bus"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">bus</span>, {</span></li>
 <li><span class="parameter" id="param-countOne"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">countOne</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="param-radix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">2</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;count&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -65,8 +66,9 @@
     
 <section class="desc markdown">
   <p><a href="../../rohd_hcl/Count-class.html">Count</a> <code>1</code> or <code>0</code>.</p>
-<p>Takes in <code>bus</code> of type <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>. by default performs <code>countOne</code> (<code>1</code>)
-if <code>countOne</code> is <code>false</code> will count <code>0</code></p>
+<p>Takes in <code>bus</code> of type <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>. by default performs <code>countOne</code> (<code>1</code>)
+if <code>countOne</code> is <code>false</code> will count <code>0</code>. <code>radix</code> controls the maximum
+number of operands combined by each balanced reduction node.</p>
 </section>
 
 
@@ -75,21 +77,30 @@ if <code>countOne</code> is <code>false</code> will count <code>0</code></p>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Count(Logic bus,
     {bool countOne = true,
+    int radix = 2,
     super.name = &#39;count&#39;,
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName})
-    : super(definitionName: definitionName ?? &#39;Count_W${bus.width}&#39;) {
+    : super(
+          definitionName: definitionName ??
+              &#39;Count_W${bus.width}_&#39;
+                  &#39;${countOne ? &quot;One&quot; : &quot;Zero&quot;}_R$radix&#39;) {
   bus = addInput(&#39;bus&#39;, bus, width: bus.width);
-  Logic count = Const(0, width: widthFor(bus.width + 1));
-  for (var i = 0; i &lt; bus.width; i++) {
-    count = (count + (countOne ? bus[i] : ~bus[i]).zeroExtend(count.width))
-        .named(&#39;count_$i&#39;);
-  }
-  _output =
-      addOutput(&#39;count${countOne ? &quot;One&quot; : &quot;Zero&quot;}&#39;, width: count.width);
+  final countWidth = widthFor(bus.width + 1);
+  final tree = ReductionTreeGenerator(
+    [
+      for (var i = 0; i &lt; bus.width; i++)
+        (countOne ? bus[i] : ~bus[i]).zeroExtend(countWidth),
+    ],
+    (inputs, {depth = 0, control, name = &#39;add&#39;}) =&gt;
+        inputs.reduce((left, right) =&gt; left + right),
+    radix: radix,
+  );
+  treeDepth = tree.depth;
+  _output = addOutput(&#39;count${countOne ? &quot;One&quot; : &quot;Zero&quot;}&#39;, width: countWidth);
 
-  _output &lt;= count;
+  _output &lt;= tree.out;
 }</code></pre>
 </section>
 

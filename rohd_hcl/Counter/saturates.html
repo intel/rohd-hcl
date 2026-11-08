@@ -62,8 +62,11 @@
       </section>
       
 <section class="desc markdown">
-  <p>If <code>true</code>, will saturate at the <code>maxValue</code> and <code>minValue</code>. If <code>false</code>,
-will wrap around (overflow/underflow) at the <code>maxValue</code> and <code>minValue</code>.</p>
+  <p>Chooses how an out-of-range raw result is corrected.</p>
+<p>If <code>true</code>, the result saturates at <code>maxValue</code> or <code>minValue</code>. If <code>false</code>,
+it wraps within those bounds. This does not prevent the raw result from
+violating a bound; <code>overflowed</code> and <code>underflowed</code> report that violation
+independently of the selected correction.</p>
 </section>
 
       

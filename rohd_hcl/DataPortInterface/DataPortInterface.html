@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></li>
+    <li><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">DataPortInterface.new constructor</li>
   </ol>
   <div class="self-name">DataPortInterface.new</div>
@@ -49,12 +49,12 @@
       data-above-sidebar="rohd_hcl&#47;DataPortInterface-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">DataPortInterface</span> constructor 
+<h1><span class="kind-constructor">DataPortInterface&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">DataPortInterface</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="param-dataWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span>, </span></li>
+      <span class="name ">DataPortInterface&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="param-dataWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">dataWidth</span>, </span></li>
 <li><span class="parameter" id="param-addrWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">addrWidth</span></span></li>
 </ol>)
     </section>
@@ -69,6 +69,10 @@ interacting with a memory in either the read or write direction.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">DataPortInterface(this.dataWidth, this.addrWidth) {
+  if (LogicType != Logic) {
+    throw ArgumentError(
+        &#39;Use DataPortInterface.typed for a specialized payload type.&#39;);
+  }
   setPorts([
     Logic.port(&#39;en&#39;),
     Logic.port(&#39;addr&#39;, addrWidth),
@@ -96,7 +100,7 @@ interacting with a memory in either the read or write direction.</p>
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface</a></li>
+    <li><a href="../../rohd_hcl/DataPortInterface-class.html">DataPortInterface<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">DataPortInterface.new constructor</li>
 </ol>
 

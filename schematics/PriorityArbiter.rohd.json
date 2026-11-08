@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "PriorityArbiter": {
       "attributes": {
@@ -160,7 +160,7 @@
           "parameters": {},
           "attributes": {},
           "port_directions": {
-            "_in0__swizzled": "input",
+            "_concatd": "input",
             "grant_0": "output",
             "grant_1": "output",
             "grant_2": "output",
@@ -171,7 +171,7 @@
             "grant_7": "output"
           },
           "connections": {
-            "_in0__swizzled": [
+            "_concatd": [
               18,
               19,
               20,
@@ -207,7 +207,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -415,7 +415,7 @@
           },
           "attributes": {}
         },
-        "_in0__swizzled": {
+        "_concatd": {
           "bits": [
             18,
             19,

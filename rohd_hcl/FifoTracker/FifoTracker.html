@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">FifoTracker</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-fifo"><span class="type-annotation"><a href="../../rohd_hcl/Fifo-class.html">Fifo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">fifo</span>, {</span></li>
+      <span class="name ">FifoTracker</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-fifo"><span class="type-annotation"><a href="../../rohd_hcl/Fifo-class.html">Fifo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">fifo</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
 <li><span class="parameter" id="param-dumpJson"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">dumpJson</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="param-dumpTable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">dumpTable</span> = <span class="default-value">true</span>, </span></li>
@@ -87,7 +87,7 @@
         const TrackerField(&#39;Time&#39;, columnWidth: 8),
         const TrackerField(&#39;Command&#39;, columnWidth: 2),
         TrackerField(&#39;Data&#39;,
-            columnWidth: fifo.dataWidth ~&#47; 4 + log2Ceil(fifo.dataWidth) + 1),
+            columnWidth: fifo.dataWidth ~&#47; 4 + fifo.dataWidth.log2Ceil + 1),
         TrackerField(&#39;Occupancy&#39;, columnWidth: fifo.depth ~&#47; 10 + 1),
       ]) {
   fifo._clk.posedge.listen((event) {

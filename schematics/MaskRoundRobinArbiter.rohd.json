@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "MaskRoundRobinArbiter": {
       "attributes": {
@@ -106,50 +106,57 @@
           "parameters": {},
           "attributes": {},
           "port_directions": {
-            "_in0__requestMask0_and_request_0": "input",
-            "_in2__requestMask1_and_request_1": "input",
-            "_in4__requestMask2_and_request_2": "input",
-            "_in6__requestMask3_and_request_3": "input",
-            "_in8__swizzled": "output",
-            "_in30__uor__subset_0_0_requestsComplement_b_and_request_1": "input",
-            "_in31__uor__subset_1_0_requestsComplement_b_and_request_2": "input",
-            "_in32__uor__subset_2_0_requestsComplement_b_and_request_3": "input",
+            "_concatd": "output",
+            "_requestMask0_and_request_0": "input",
+            "_requestMask1_and_request_1": "input",
+            "_requestMask2_and_request_2": "input",
+            "_requestMask3_and_request_3": "input",
+            "_concatd__in8__concatd": "input",
             "request_0": "input",
+            "_uor__subset_0_0_requestsComplement_b_and_request_1": "input",
+            "_uor__subset_1_0_requestsComplement_b_and_request_2": "input",
+            "_uor__subset_2_0_requestsComplement_b_and_request_3": "input",
             "grant_0": "output",
             "grant_1": "output",
             "grant_2": "output",
             "grant_3": "output"
           },
           "connections": {
-            "_in0__requestMask0_and_request_0": [
-              32
-            ],
-            "_in2__requestMask1_and_request_1": [
-              33
-            ],
-            "_in4__requestMask2_and_request_2": [
-              34
-            ],
-            "_in6__requestMask3_and_request_3": [
-              35
-            ],
-            "_in8__swizzled": [
+            "_concatd": [
               36,
               37,
               38,
               39
             ],
-            "_in30__uor__subset_0_0_requestsComplement_b_and_request_1": [
-              72
+            "_requestMask0_and_request_0": [
+              32
             ],
-            "_in31__uor__subset_1_0_requestsComplement_b_and_request_2": [
-              73
+            "_requestMask1_and_request_1": [
+              33
             ],
-            "_in32__uor__subset_2_0_requestsComplement_b_and_request_3": [
-              74
+            "_requestMask2_and_request_2": [
+              34
+            ],
+            "_requestMask3_and_request_3": [
+              35
+            ],
+            "_concatd__in8__concatd": [
+              36,
+              37,
+              38,
+              39
             ],
             "request_0": [
               2
+            ],
+            "_uor__subset_0_0_requestsComplement_b_and_request_1": [
+              72
+            ],
+            "_uor__subset_1_0_requestsComplement_b_and_request_2": [
+              73
+            ],
+            "_uor__subset_2_0_requestsComplement_b_and_request_3": [
+              74
             ],
             "grant_0": [
               8
@@ -197,7 +204,7 @@
           "parameters": {},
           "attributes": {},
           "port_directions": {
-            "_in6__swizzled": "input",
+            "_in6__concatd": "input",
             "reset": "input",
             "clk": "input",
             "requestMask0": "output",
@@ -206,7 +213,7 @@
             "requestMask3": "output"
           },
           "connections": {
-            "_in6__swizzled": [
+            "_in6__concatd": [
               80,
               81,
               82,
@@ -232,7 +239,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -441,7 +448,7 @@
             ]
           }
         },
-        "swizzle_1": {
+        "concat_1": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -574,7 +581,7 @@
             ]
           }
         },
-        "swizzle_2": {
+        "concat_2": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -709,7 +716,7 @@
             ]
           }
         },
-        "swizzle_3": {
+        "concat_3": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -925,7 +932,7 @@
             "preserved_name": 1
           }
         },
-        "_in0__requestMask0_and_request_0": {
+        "_requestMask0_and_request_0": {
           "bits": [
             32
           ],
@@ -934,7 +941,7 @@
           },
           "attributes": {}
         },
-        "_in2__requestMask1_and_request_1": {
+        "_requestMask1_and_request_1": {
           "bits": [
             33
           ],
@@ -943,7 +950,7 @@
           },
           "attributes": {}
         },
-        "_in4__requestMask2_and_request_2": {
+        "_requestMask2_and_request_2": {
           "bits": [
             34
           ],
@@ -952,7 +959,7 @@
           },
           "attributes": {}
         },
-        "_in6__requestMask3_and_request_3": {
+        "_requestMask3_and_request_3": {
           "bits": [
             35
           ],
@@ -961,7 +968,7 @@
           },
           "attributes": {}
         },
-        "_in8__swizzled": {
+        "_concatd": {
           "bits": [
             36,
             37,
@@ -973,7 +980,7 @@
           },
           "attributes": {}
         },
-        "_in30__uor__subset_0_0_requestsComplement_b_and_request_1": {
+        "_uor__subset_0_0_requestsComplement_b_and_request_1": {
           "bits": [
             72
           ],
@@ -982,7 +989,7 @@
           },
           "attributes": {}
         },
-        "_in31__uor__subset_1_0_requestsComplement_b_and_request_2": {
+        "_uor__subset_1_0_requestsComplement_b_and_request_2": {
           "bits": [
             73
           ],
@@ -991,7 +998,7 @@
           },
           "attributes": {}
         },
-        "_in32__uor__subset_2_0_requestsComplement_b_and_request_3": {
+        "_uor__subset_2_0_requestsComplement_b_and_request_3": {
           "bits": [
             74
           ],
@@ -1000,7 +1007,7 @@
           },
           "attributes": {}
         },
-        "_in6__swizzled": {
+        "_in6__concatd": {
           "bits": [
             80,
             81,
@@ -1012,7 +1019,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__subset_0_0_requestsComplement_b": {
+        "_uor__subset_0_0_requestsComplement_b": {
           "bits": [
             116
           ],
@@ -1039,7 +1046,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__subset_1_0_requestsComplement_b": {
+        "_uor__subset_1_0_requestsComplement_b": {
           "bits": [
             119
           ],
@@ -1067,7 +1074,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__subset_2_0_requestsComplement_b": {
+        "_uor__subset_2_0_requestsComplement_b": {
           "bits": [
             123
           ],

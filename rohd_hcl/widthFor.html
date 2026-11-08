@@ -66,14 +66,14 @@
   <p>Returns the minimum number of bits needed to represent <code>val</code> distinct
 values, with a minimum of 1 (since 0-width signals are not valid in
 hardware).</p>
-<p>Equivalent to <code>max(1, log2Ceil(val))</code>.</p>
+<p>Equivalent to <code>max(1, val.log2Ceil)</code>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int widthFor(int val) =&gt; max(1, log2Ceil(val));</code></pre>
+  <pre class="language-dart"><code class="language-dart">int widthFor(int val) =&gt; max(1, val.log2Ceil);</code></pre>
 </section>
 
 

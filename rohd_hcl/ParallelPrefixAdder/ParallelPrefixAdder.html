@@ -54,14 +54,10 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ParallelPrefixAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-<li><span class="parameter" id="param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a></span> <span class="parameter-name">ppGen</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-inps"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">inps</span>, </span></li>
-<li><span class="parameter" id="param-op"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">op</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span></span></li>
-</ol>)</span></li>
-</ol>) = <span class="default-value">KoggeStone.new</span>, </span></li>
+      <span class="name ">ParallelPrefixAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="param-ppGen"><span class="type-annotation"><a href="../../rohd_hcl/ParallelPrefixGenerator.html">ParallelPrefixGenerator</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/GeneratePropagate-class.html">GeneratePropagate</a></span>&gt;</span></span> <span class="parameter-name">ppGen</span> = <span class="default-value">KoggeStone.new</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;parallel_prefix_adder&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -70,7 +66,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Adder constructor</p>
+  <p>Creates a prefix adder whose <code>ppGen</code> carries <a href="../../rohd_hcl/GeneratePropagate-class.html">GeneratePropagate</a> records.</p>
 </section>
 
 
@@ -79,9 +75,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">ParallelPrefixAdder(super.a, super.b,
     {super.carryIn,
-    ParallelPrefix Function(
-            List&lt;Logic&gt; inps, Logic Function(Logic term1, Logic term2) op)
-        ppGen = KoggeStone.new,
+    ParallelPrefixGenerator&lt;GeneratePropagate&gt; ppGen = KoggeStone.new,
     super.name = &#39;parallel_prefix_adder&#39;,
     super.reserveName,
     super.reserveDefinitionName,
@@ -89,28 +83,33 @@
     : super(
           definitionName:
               definitionName ?? &#39;ParallelPrefixAdder_W${a.width}&#39;) {
-  final l = List&lt;Logic&gt;.generate(a.width - 1,
-      (i) =&gt; [a[i + 1] &amp; b[i + 1], a[i + 1] | b[i + 1]].swizzle());
-  final cin = carryIn ?? Const(0);
-  l.insert(
-      0,
-      [(a[0] &amp; b[0]) | (a[0] &amp; cin) | (b[0] &amp; cin), a[0] | b[0] | cin]
-          .swizzle()
-          .named(&#39;pg_base&#39;, naming: Naming.mergeable));
+  final aPin = super.a;
+  final bPin = super.b;
+  final cin = super.carryIn ?? Const(0);
+  final pairs = [
+    for (var i = 0; i &lt; aPin.width; i++)
+      GeneratePropagate(name: &#39;pg_$i&#39;)
+        ..generate.gets(i == 0
+            ? (aPin[0] &amp; bPin[0]) | (aPin[0] &amp; cin) | (bPin[0] &amp; cin)
+            : aPin[i] &amp; bPin[i])
+        ..propagate
+            .gets(i == 0 ? aPin[0] | bPin[0] | cin : aPin[i] | bPin[i]),
+  ];
   final u = ppGen(
-      l,
-      (lhs, rhs) =&gt; [rhs[1] | rhs[0] &amp; lhs[1], rhs[0] &amp; lhs[0]]
-          .swizzle()
-          .named(&#39;pg&#39;, naming: Naming.mergeable));
+      pairs,
+      (lhs, rhs) =&gt; GeneratePropagate(name: &#39;pg&#39;)
+        ..generate.gets(rhs.generate | (rhs.propagate &amp; lhs.generate))
+        ..propagate.gets(rhs.propagate &amp; lhs.propagate));
   sum &lt;=
       [
-        u.val[a.width - 1][1],
+        u.val[aPin.width - 1].generate,
         List&lt;Logic&gt;.generate(
-            a.width,
-            (i) =&gt;
-                ((i == 0) ? a[i] ^ b[i] ^ cin : a[i] ^ b[i] ^ u.val[i - 1][1])
-                    .named(&#39;t_$i&#39;)).rswizzle()
-      ].swizzle();
+            aPin.width,
+            (i) =&gt; ((i == 0)
+                    ? aPin[i] ^ bPin[i] ^ cin
+                    : aPin[i] ^ bPin[i] ^ u.val[i - 1].generate)
+                .named(&#39;t_$i&#39;)).rconcat()
+      ].concat();
 }</code></pre>
 </section>
 

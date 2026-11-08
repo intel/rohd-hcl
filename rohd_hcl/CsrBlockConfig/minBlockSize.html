@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span>
 <span class="name ">minBlockSize</span>(<wbr>)
 
       
@@ -70,14 +70,14 @@ cover all registers in this block.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int minBlockSize() {
-  var maxAddr = 0;
+  <pre class="language-dart"><code class="language-dart">BigInt minBlockSize() {
+  var maxAddr = BigInt.zero;
   for (final reg in registers) {
     if (reg.addr &gt; maxAddr) {
       maxAddr = reg.addr;
     }
   }
-  return maxAddr + 1;
+  return maxAddr + BigInt.one;
 }</code></pre>
 </section>
 

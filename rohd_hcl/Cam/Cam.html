@@ -26,8 +26,8 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/Cam-class.html">Cam</a></li>
-    <li class="self-crumb">Cam.new constructor</li>
+    <li><a href="../../rohd_hcl/Cam-class.html">Cam<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb"><span class="deprecated">Cam.new</span> constructor</li>
   </ol>
   <div class="self-name">Cam.new</div>
   <form class="search navbar-right" role="search">
@@ -49,15 +49,20 @@
       data-above-sidebar="rohd_hcl&#47;Cam-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">Cam</span> constructor 
+<h1><span class="kind-constructor">Cam&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">Cam</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-writePorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TagInterface-class.html">TagInterface</a></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
-<li><span class="parameter" id="param-lookupPorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TagInterface-class.html">TagInterface</a></span>&gt;</span></span> <span class="parameter-name">lookupPorts</span>, {</span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use ParallelAssociativeMemory or parallelAssociativeMemoryFunctor.&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">Cam&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-writePorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a class="deprecated" href="../../rohd_hcl/TagInterface-class.html">TagInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
+<li><span class="parameter" id="param-lookupPorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a class="deprecated" href="../../rohd_hcl/TagInterface-class.html">TagInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">lookupPorts</span>, {</span></li>
 <li><span class="parameter" id="param-numEntries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">numEntries</span> = <span class="default-value">8</span>, </span></li>
 <li><span class="parameter" id="param-enableValidTracking"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableValidTracking</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;cam&#39;</span>, </span></li>
@@ -68,11 +73,11 @@
     </section>
     
 <section class="desc markdown">
-  <p>Constructs a new <a href="../../rohd_hcl/Cam-class.html">Cam</a> with write ports and lookup ports using
-<a href="../../rohd_hcl/TagInterface-class.html">TagInterface</a>.</p>
+  <p>Constructs a new <a class="deprecated" href="../../rohd_hcl/Cam-class.html">Cam</a> with write ports and lookup ports using
+<a class="deprecated" href="../../rohd_hcl/TagInterface-class.html">TagInterface</a>.</p>
 <p>For write ports, <code>en</code> enables the write, <code>idx</code> specifies the address,
-and <code>tag</code> provides the data to write. The <code>hit</code> signal is ignored for
-writes.</p>
+and <code>tag</code> provides the data to write. The <code>hit</code> signal sets or clears
+the entry's valid bit.</p>
 <p>For lookup ports, <code>tag</code> is the query, <code>idx</code> returns the matching index,
 and <code>hit</code> indicates whether a match was found.</p>
 <p>If <code>enableValidTracking</code> is true, the CAM will maintain a count of
@@ -92,8 +97,10 @@ valid entries and provide <a href="../../rohd_hcl/Cam/full.html">full</a>, <a hr
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Cam(Logic clk, Logic reset, List&lt;TagInterface&gt; writePorts,
-    List&lt;TagInterface&gt; lookupPorts,
+  <pre class="language-dart"><code class="language-dart">@Deprecated(
+    &#39;Use ParallelAssociativeMemory or parallelAssociativeMemoryFunctor.&#39;)
+Cam(Logic clk, Logic reset, List&lt;TagInterface&lt;T&gt;&gt; writePorts,
+    List&lt;TagInterface&lt;T&gt;&gt; lookupPorts,
     {this.numEntries = 8,
     this.enableValidTracking = false,
     super.name = &#39;cam&#39;,
@@ -112,27 +119,37 @@ valid entries and provide <a href="../../rohd_hcl/Cam/full.html">full</a>, <a hr
   if (lookupPorts.isEmpty) {
     throw ArgumentError(&#39;Must provide at least one lookup port.&#39;);
   }
+  if (numEntries &lt; 1) {
+    throw ArgumentError.value(numEntries, &#39;numEntries&#39;, &#39;Must be positive.&#39;);
+  }
+  final schema = lookupPorts.first.tag;
+  for (final port in [...writePorts, ...lookupPorts]) {
+    if (!sameDeclaredPayloadShape(schema, port.tag)) {
+      throw RohdHclException(&#39;CAM ports must have matching tag layouts.&#39;);
+    }
+    if (port.idWidth &lt; widthFor(numEntries)) {
+      throw RohdHclException(&#39;CAM index width ${port.idWidth} cannot address &#39;
+          &#39;$numEntries entries.&#39;);
+    }
+  }
 
   addInput(&#39;clk&#39;, clk);
   addInput(&#39;reset&#39;, reset);
 
   &#47;&#47; Connect write ports - all signals are inputs for writes
   for (var i = 0; i &lt; numWrites; i++) {
-    wrPorts.add(writePorts[i].clone()
-      ..connectIO(this, writePorts[i],
-          inputTags: {DataPortGroup.control, DataPortGroup.data},
-          outputTags: {},
-          uniquify: (original) =&gt; &#39;wr_${original}_$i&#39;));
+    wrPorts.add(addInterfacePorts(writePorts[i],
+        inputTags: {DataPortGroup.control, DataPortGroup.data},
+        uniquify: (original) =&gt; &#39;wr_${original}_$i&#39;));
   }
 
   &#47;&#47; Connect lookup ports - control signals are inputs, data signals are
   &#47;&#47; outputs
   for (var i = 0; i &lt; numLookups; i++) {
-    this.lookupPorts.add(lookupPorts[i].clone()
-      ..connectIO(this, lookupPorts[i],
-          inputTags: {DataPortGroup.control},
-          outputTags: {DataPortGroup.data},
-          uniquify: (original) =&gt; &#39;lookup_${original}_$i&#39;));
+    this.lookupPorts.add(addInterfacePorts(lookupPorts[i],
+        inputTags: {DataPortGroup.control},
+        outputTags: {DataPortGroup.data},
+        uniquify: (original) =&gt; &#39;lookup_${original}_$i&#39;));
   }
   _buildLogic();
 }</code></pre>
@@ -150,8 +167,8 @@ valid entries and provide <a href="../../rohd_hcl/Cam/full.html">full</a>, <a hr
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Cam-class.html">Cam</a></li>
-    <li class="self-crumb">Cam.new constructor</li>
+    <li><a href="../../rohd_hcl/Cam-class.html">Cam<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb"><span class="deprecated">Cam.new</span> constructor</li>
 </ol>
 
     <h5>Cam class</h5>

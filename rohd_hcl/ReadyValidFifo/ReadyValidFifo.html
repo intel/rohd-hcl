@@ -26,8 +26,8 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends LogicStructure</span>&gt;</span></a></li>
-    <li class="self-crumb">ReadyValidFifo.new constructor</li>
+    <li><a href="../../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb"><span class="deprecated">ReadyValidFifo.new</span> constructor</li>
   </ol>
   <div class="self-name">ReadyValidFifo.new</div>
   <form class="search navbar-right" role="search">
@@ -49,29 +49,38 @@
       data-above-sidebar="rohd_hcl&#47;ReadyValidFifo-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">ReadyValidFifo&lt;<wbr><span class="type-parameter">LogicType extends LogicStructure</span>&gt;</span> constructor 
+<h1><span class="kind-constructor">ReadyValidFifo&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">ReadyValidFifo&lt;<wbr><span class="type-parameter">LogicType extends LogicStructure</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use ReadyValidQueue with an explicit queue policy and storage.&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">ReadyValidFifo&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="param-upstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span> <span class="parameter-name">upstream</span>, </span></li>
 <li><span class="parameter" id="param-downstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span> <span class="parameter-name">downstream</span>, </span></li>
 <li><span class="parameter" id="param-depth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span> = <span class="default-value">8</span>, </span></li>
+<li><span class="parameter" id="param-allowSameCycleReplacement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">allowSameCycleReplacement</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ready_valid_fifo&#39;</span>, </span></li>
 </ol>})
     </section>
     
 <section class="desc markdown">
-  <p>Constructs a new <a href="../../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo</a>.</p>
+  <p>Constructs a new <a class="deprecated" href="../../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo</a>.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">ReadyValidFifo({
+  <pre class="language-dart"><code class="language-dart">@Deprecated(
+  &#39;Use ReadyValidQueue with an explicit queue policy and storage.&#39;,
+)
+ReadyValidFifo({
   required Logic clk,
   required Logic reset,
 
@@ -79,10 +88,14 @@
   required ReadyValidInterface&lt;LogicType&gt; upstream,
   required ReadyValidInterface&lt;LogicType&gt; downstream,
   this.depth = 8,
+  this.allowSameCycleReplacement = false,
   String name = &#39;ready_valid_fifo&#39;,
 }) : super(
-          definitionName: &#39;ReadyValidFifo_${upstream.data.name}&#39;,
-          name: name) {
+        definitionName: allowSameCycleReplacement
+            ? &#39;ReadyValidFifo_R1_${upstream.data.name}&#39;
+            : &#39;ReadyValidFifo_${upstream.data.name}&#39;,
+        name: name,
+      ) {
   &#47;&#47; Build the internal logic
   final writeEnable = Logic(name: &#39;${name}_write_en&#39;);
   final readEnable = Logic(name: &#39;${name}_read_en&#39;);
@@ -91,43 +104,52 @@
   this.clk = addInput(&#39;clk&#39;, clk);
   this.reset = addInput(&#39;reset&#39;, reset);
 
-  &#47;&#47; Clone and connect the provided interfaces to module-local interfaces
-  &#47;&#47; (consumer role for upstream, provider role for downstream).
-  this.upstream = upstream.clone()
-    ..pairConnectIO(this, upstream, PairRole.consumer,
-        uniquify: (original) =&gt; &#39;upstream_$original&#39;);
-
-  this.downstream = downstream.clone()
-    ..pairConnectIO(this, downstream, PairRole.provider,
-        uniquify: (original) =&gt; &#39;downstream_$original&#39;);
+  this.upstream = addPairInterfacePorts(
+    upstream,
+    PairRole.consumer,
+    uniquify: (original) =&gt; &#39;upstream_$original&#39;,
+  );
+  this.downstream = addPairInterfacePorts(
+    downstream,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;downstream_$original&#39;,
+  );
 
   &#47;&#47; Use the upstream data shape as a template for FIFO element.
-  final writeData = this.upstream.data.clone() as LogicType;
+  final writeData = this.upstream.data.cloneTyped();
+  final binding = FifoCoreFunctor&lt;LogicType&gt;(
+    depth: depth,
+    generateOccupancy: true,
+  ).construct(
+    FifoCoreRequest&lt;LogicType&gt;(
+      clk: this.clk,
+      reset: this.reset,
+      enqueue: writeEnable,
+      dequeue: readEnable,
+      payload: writeData,
+      requirements: FifoCoreRequirements(
+        fullReplacement: allowSameCycleReplacement,
+      ),
+    ),
+    name: &#39;${name}_fifo&#39;,
+  );
+  fifo = binding.module;
 
-  fifo = Fifo&lt;LogicType&gt;(this.clk, this.reset,
-      writeEnable: writeEnable,
-      readEnable: readEnable,
-      writeData: writeData,
-      depth: depth,
-      generateOccupancy: true,
-      name: &#39;${name}_fifo&#39;);
-
-  &#47;&#47; Connect upstream valid&#47;data to FIFO write when not full.
-  writeEnable &lt;= this.upstream.valid &amp; ~fifo.full;
-  writeData &lt;= this.upstream.data;
-
-  &#47;&#47; Drive upstream ready when FIFO can accept
-  this.upstream.ready &lt;= ~fifo.full;
-
-  &#47;&#47; Downstream side: read when downstream ready and fifo not empty.
-  final shouldRead = this.downstream.ready &amp; ~fifo.empty;
-  readEnable &lt;= shouldRead;
-
-  &#47;&#47; Drive downstream valid and data from FIFO readData.
-  this.downstream.valid &lt;= ~fifo.empty;
-  final readData = this.upstream.data.clone() as LogicType;
-  readData &lt;= fifo.readData;
-  this.downstream.data &lt;= readData;
+  ReadyValidIngressAttachmentPolicy&lt;LogicType&gt;(
+    supportsSameCycleReplacement: allowSameCycleReplacement,
+    storageDepth: depth,
+  ).attach(
+    upstream: this.upstream,
+    canAccept: allowSameCycleReplacement ? binding.canEnqueue : ~binding.full,
+    accept: writeEnable,
+    payload: writeData,
+  );
+  ReadyValidEgressAttachmentPolicy&lt;LogicType&gt;().attach(
+    downstream: this.downstream,
+    offerValid: binding.outputValid,
+    payload: binding.output,
+    transfer: readEnable,
+  );
 }</code></pre>
 </section>
 
@@ -143,8 +165,8 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends LogicStructure</span>&gt;</span></a></li>
-    <li class="self-crumb">ReadyValidFifo.new constructor</li>
+    <li><a href="../../rohd_hcl/ReadyValidFifo-class.html">ReadyValidFifo<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb"><span class="deprecated">ReadyValidFifo.new</span> constructor</li>
 </ol>
 
     <h5>ReadyValidFifo class</h5>

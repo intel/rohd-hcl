@@ -68,15 +68,7 @@ and sign-extends the entries.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">PartialProductSignExtension(this.ppg, {this.name = &#39;no_sign_extension&#39;}) {
-  if (signedMultiplier &amp;&amp; (selectSignedMultiplier != null)) {
-    throw RohdHclException(&#39;sign reconfiguration requires signed=false&#39;);
-  }
-  if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
-    throw RohdHclException(&#39;multiplicand sign reconfiguration requires &#39;
-        &#39;signedMultiplicand=false&#39;);
-  }
-}</code></pre>
+  <pre class="language-dart"><code class="language-dart">PartialProductSignExtension(this.ppg, {this.name = &#39;no_sign_extension&#39;});</code></pre>
 </section>
 
 

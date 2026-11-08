@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Float8ToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-float"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">float</span>, </span></li>
-<li><span class="parameter" id="param-mode"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">mode</span>, {</span></li>
+      <span class="name ">Float8ToFixed</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-float"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">float</span>, </span></li>
+<li><span class="parameter" id="param-mode"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">mode</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;Float8ToFixed&#39;</span>, </span></li>
 </ol>})
     </section>
@@ -69,7 +69,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Float8ToFixed(Logic float, Logic mode, {super.name = &#39;Float8ToFixed&#39;}) {
-  float = addInput(&#39;float&#39;, float, width: float.width);
+  float = addTypedInput(&#39;float&#39;, float);
   mode = addInput(&#39;mode&#39;, mode);
   addOutput(&#39;fixed&#39;, width: 33);
 
@@ -78,20 +78,20 @@
   }
 
   final exponent = Logic(name: &#39;exponent&#39;, width: 5)
-    ..gets(mux(
-        mode, [Const(0), float.slice(6, 3)].swizzle(), float.slice(6, 2)));
+    ..gets(
+        mux(mode, [Const(0), float.slice(6, 3)].concat(), float.slice(6, 2)));
 
   final jBit = Logic(name: &#39;jBit&#39;)..gets(exponent.or());
 
   final mantissa = Logic(name: &#39;mantissa&#39;, width: 4)
-    ..gets(mux(mode, [jBit, float.slice(2, 0)].swizzle(),
-        [Const(0), jBit, float.slice(1, 0)].swizzle()));
+    ..gets(mux(mode, [jBit, float.slice(2, 0)].concat(),
+        [Const(0), jBit, float.slice(1, 0)].concat()));
 
   final shift = Logic(name: &#39;shift&#39;, width: exponent.width)
     ..gets(mux(jBit, exponent - 1, Const(0, width: exponent.width)));
 
   final number = Logic(name: &#39;number&#39;, width: 33)
-    ..gets([Const(0, width: 29), mantissa].swizzle() &lt;&lt; shift);
+    ..gets([Const(0, width: 29), mantissa].concat() &lt;&lt; shift);
 
   fixed &lt;= mux(float[float.width - 1], ~number + 1, number);
 }</code></pre>

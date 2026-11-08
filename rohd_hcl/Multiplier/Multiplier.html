@@ -54,13 +54,13 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Multiplier</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+      <span class="name ">Multiplier</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;multiplier&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -71,14 +71,8 @@
 <section class="desc markdown">
   <p>Take input <code>a</code> and input <code>b</code> and return the <a href="../../rohd_hcl/Multiplier/product.html">product</a> of the
 multiplication result.</p>
-<p>The optional <code>signedMultiplicand</code> parameter configures the multiplicand
-<code>a</code> statically using a <code>bool</code> to indicate a signed multiplicand (default
-is <code>false</code>, or unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> input.
-Passing something other null, <code>bool</code>, or <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> will result in a throw.</p>
-<p>The optional <code>signedMultiplier</code> parameter configures the multiplier <code>b</code>
-statically using a <code>bool</code> to indicate a signed multiplier (default is
-<code>false</code>, or unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> input.  Passing
-something other null, <code>bool</code>, or <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> will result in a throw.</p>
+<p><code>signedMultiplicand</code> and <code>signedMultiplier</code> configure operand signedness
+with <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>. Omitted controls default to unsigned.</p>
 <p>If <code>clk</code> is not null then a set of flops are used to make the multiply a
 2-cycle latency operation. <code>reset</code> and <code>enable</code> are optional inputs to
 control these flops when <code>clk</code> is provided.</p>
@@ -92,8 +86,8 @@ control these flops when <code>clk</code> is provided.</p>
     {Logic? clk,
     Logic? reset,
     Logic? enable,
-    dynamic signedMultiplicand,
-    dynamic signedMultiplier,
+    StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier,
     super.name = &#39;multiplier&#39;,
     super.reserveName,
     super.reserveDefinitionName,
@@ -108,13 +102,11 @@ control these flops when <code>clk</code> is provided.</p>
   a = addInput(&#39;a&#39;, a, width: a.width);
   b = addInput(&#39;b&#39;, b, width: b.width);
 
-  signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
-      signedMultiplicand,
-      name: &#39;signedMultiplicand&#39;);
+  signedMultiplicandParameter = signedMultiplicand ??
+      StaticOrRuntimeParameter.staticValue(value: false);
   this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-  signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
-      signedMultiplier,
-      name: &#39;signedMultiplier&#39;);
+  signedMultiplierParameter =
+      signedMultiplier ?? StaticOrRuntimeParameter.staticValue(value: false);
   this.signedMultiplier = signedMultiplierParameter.staticConfig;
 
   addOutput(&#39;product&#39;, width: a.width + b.width);

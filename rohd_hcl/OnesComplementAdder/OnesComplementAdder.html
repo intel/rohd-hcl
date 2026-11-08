@@ -54,16 +54,16 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">OnesComplementAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
-<li><span class="parameter" id="param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>, </span></li>
-<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>, {</span></li>
-<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+      <span class="name ">OnesComplementAdder</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-adderGen"><span class="type-annotation"><a href="../../rohd_hcl/Adder-class.html">Adder</a></span> <span class="parameter-name">adderGen</span>(<ol class="parameter-list"> <li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, </span></li>
+<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>, {</span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
 </ol>}) = <span class="default-value">NativeAdder.new</span>, </span></li>
-<li><span class="parameter" id="param-subtractIn"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use subtract with a 1-bit Logic instead.&#39;)</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
+<li><span class="parameter" id="param-subtractIn"><span>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use subtract with a 1-bit Logic instead.&#39;)</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">subtractIn</span>, </span></li>
 <li><span class="parameter" id="param-generateEndAroundCarry"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">generateEndAroundCarry</span> = <span class="default-value">false</span>, </span></li>
-<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
-<li><span class="parameter" id="param-subtract"><span class="type-annotation">dynamic</span> <span class="parameter-name">subtract</span>, </span></li>
+<li><span class="parameter" id="param-carryIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">carryIn</span>, </span></li>
+<li><span class="parameter" id="param-subtract"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">subtract</span>, </span></li>
 <li><span class="parameter" id="param-chainable"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">chainable</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -75,10 +75,10 @@
 <section class="desc markdown">
   <p><a href="../../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a> constructor with an adder functor <code>adderGen</code>.</p>
 <ul>
-<li><code>subtract</code> configures subtraction statically with a <code>bool</code> or at runtime
-with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>. It defaults to addition.</li>
+<li><code>subtract</code> configures subtraction with a <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>.
+It defaults to addition.</li>
 <li><code>subtractIn</code> is a deprecated runtime subtraction control. It may be
-provided with an explicit <code>subtract: false</code> for compatibility.</li>
+provided with a statically false <code>subtract</code> for compatibility.</li>
 <li>If <code>generateEndAroundCarry</code> is <code>true</code>, then the end-around
 carry is not performed and is provided as output <a href="../../rohd_hcl/OnesComplementAdder/endAroundCarry.html">endAroundCarry</a>. If
 <code>generateEndAroundCarry</code> is <code>false</code>, extra hardware takes care of adding
@@ -101,39 +101,30 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
     @Deprecated(&#39;Use subtract with a 1-bit Logic instead.&#39;) Logic? subtractIn,
     this.generateEndAroundCarry = false,
     super.carryIn,
-    dynamic subtract,
+    StaticOrRuntimeParameter? subtract,
     bool chainable = false,
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName,
     super.name = &#39;ones_complement_adder&#39;})
     : super(
-          definitionName:
-              definitionName ?? &#39;OnesComplementAdder_W${a.width}&#39;) {
+          definitionName: definitionName ??
+              &#39;OnesComplementAdder_W${a.width}_&#39;
+                  &#39;${subtractControlSuffix(subtract, subtractIn)}&#39;) {
   if (generateEndAroundCarry) {
     addOutput(&#39;endAroundCarry&#39;);
   }
-  final subtractIsActive =
-      subtract != null &amp;&amp; (subtract is! bool || subtract);
-  if (subtractIn != null &amp;&amp; subtractIsActive) {
-    throw RohdHclException(
-        &quot;Provide either deprecated &#39;subtractIn&#39; or &#39;subtract&#39;, &quot;
-        &#39;but not both.&#39;);
-  }
-  subtractParameter = subtractIn != null
-      ? StaticOrRuntimeParameter(
-          name: &#39;subtractIn&#39;, runtimeConfig: subtractIn)
-      : StaticOrRuntimeParameter.ofDynamic(subtract);
+  subtractParameter = resolveSubtractControl(subtract, subtractIn);
   _sign = addOutput(&#39;sign&#39;);
 
   final doSubtract = subtractParameter
       .getLogic(this)
       .named(&#39;dosubtract&#39;, naming: Naming.mergeable);
 
-  final adderSum =
-      adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0))
-          .sum
-          .named(&#39;adderSum&#39;, naming: Naming.mergeable);
+  final adderSum = adderGen(a, subtractParameter.select(~b, b, module: this),
+          carryIn: carryIn ?? Const(0))
+      .sum
+      .named(&#39;adderSum&#39;, naming: Naming.mergeable);
 
   if (generateEndAroundCarry) {
     endAroundCarry! &lt;= adderSum[-1];
@@ -157,7 +148,7 @@ for use in the <a href="../../rohd_hcl/CarrySelectCompoundAdder-class.html">Carr
                 [if (generateEndAroundCarry) magnitude else magnitudep1]
                     .first,
                 ~magnitude)
-          ].swizzle(),
+          ].concat(),
           adderSum);
   _sign &lt;= mux(doSubtract, ~endAround, Const(0));
 }</code></pre>

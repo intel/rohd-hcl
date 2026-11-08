@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
         
 <span class="returntype">(<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span>
-<span class="name ">swap</span>&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="swap-param-doSwap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">doSwap</span>, </span></li>
+<span class="name ">swap</span>&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="swap-param-doSwap"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">doSwap</span>, </span></li>
 <li><span class="parameter" id="swap-param-toSwap"><span class="type-annotation">(<span class="field"><span class="type-annotation">LogicType</span>, </span><span class="field"><span class="type-annotation">LogicType</span></span>)</span> <span class="parameter-name">toSwap</span></span></li>
 </ol>)
 
@@ -64,7 +64,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Swap two <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> structures based on a conditional <code>doSwap</code>.</p>
+  <p>Swap two <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> structures based on a conditional <code>doSwap</code>.</p>
 </section>
 
 
@@ -73,17 +73,19 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">(LogicType, LogicType) swap&lt;LogicType extends Logic&gt;(
     Logic doSwap, (LogicType, LogicType) toSwap) {
-  final in1 = toSwap.$1.named(&#39;swapIn1_${toSwap.$1.name}&#39;);
-  final in2 = toSwap.$2.named(&#39;swapIn2_${toSwap.$2.name}&#39;);
-
-  LogicType clone({String? name}) =&gt; toSwap.$1.clone(name: name) as LogicType;
-
-  final out1 = mux(doSwap, in2, in1).named(&#39;swapOut1&#39;);
-  final out2 = mux(doSwap, in1, in2).named(&#39;swapOut2&#39;);
-  final first = clone(name: &#39;swapOut1&#39;)..gets(out1);
-  final second = clone(name: &#39;swapOut2&#39;)..gets(out2);
-
-  return (first, second);
+  final (in1, in2) = toSwap;
+  final firstClone = in1.cloneTyped;
+  final secondClone = in2.cloneTyped;
+  final out1 = mux&lt;LogicType&gt;(doSwap, in2, in1,
+      outputGenerator:
+          in1 is LogicStructure || in1 is LogicEnum ? firstClone : null);
+  final out2 = mux&lt;LogicType&gt;(doSwap, in1, in2,
+      outputGenerator:
+          in2 is LogicStructure || in2 is LogicEnum ? secondClone : null);
+  return (
+    out1.cloneTyped(name: &#39;swapOut1&#39;)..gets(out1),
+    out2.cloneTyped(name: &#39;swapOut2&#39;)..gets(out2),
+  );
 }</code></pre>
 </section>
 

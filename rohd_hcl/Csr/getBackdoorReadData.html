@@ -54,9 +54,9 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-<span class="name ">getBackdoorReadData</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getBackdoorReadData-param-frontdoorWriteValidFull"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">frontdoorWriteValidFull</span>, </span></li>
-<li><span class="parameter" id="getBackdoorReadData-param-frontdoorWriteDataFull"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">frontdoorWriteDataFull</span></span></li>
+<span class="returntype"><a href="../../rohd_hcl/Csr-class.html">Csr</a></span>
+<span class="name ">getBackdoorReadData</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getBackdoorReadData-param-frontdoorWriteValidFull"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">frontdoorWriteValidFull</span>, </span></li>
+<li><span class="parameter" id="getBackdoorReadData-param-frontdoorWriteDataFull"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">frontdoorWriteDataFull</span></span></li>
 </ol>)
 
       
@@ -76,13 +76,13 @@ through the register's current stored value unchanged.</p>
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic getBackdoorReadData(
+  <pre class="language-dart"><code class="language-dart">Csr getBackdoorReadData(
     Logic frontdoorWriteValidFull, Logic frontdoorWriteDataFull) {
   if (fields.isEmpty) {
     return this;
   }
 
-  Logic finalRd = this;
+  var finalRd = this;
   var currIdx = 0;
   var currField = 0;
   for (var i = 0; i &lt; elements.length; i++) {

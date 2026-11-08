@@ -146,7 +146,7 @@ instead.</p>
 
         <dt id="runtimeConfig" class="property inherited">
   <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/runtimeConfig.html">runtimeConfig</a></span>
-  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
   
 
 </dt>
@@ -201,23 +201,36 @@ instead.</p>
       id="instance-methods">
     <h2>Methods</h2>
     <dl class="callables">
-        <dt id="getLogic" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/getLogic.html">getLogic</a></span><span class="signature">(<wbr><span class="parameter" id="getLogic-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+        <dt id="forChild" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/forChild.html">forChild</a></span><span class="signature">(<wbr><span class="parameter" id="forChild-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, {</span><span class="parameter" id="forChild-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Return the internal <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> signal that represents the configuration,
+  Returns a control for a child of <code>module</code>, using its internal input.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="getLogic" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/getLogic.html">getLogic</a></span><span class="signature">(<wbr><span class="parameter" id="getLogic-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Return the internal <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> signal that represents the configuration,
 either static or runtime.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
 
         <dt id="getRuntimeInput" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/getRuntimeInput.html">getRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="getRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/getRuntimeInput.html">getRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="getRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
   </span>
   
 
@@ -242,14 +255,27 @@ either static or runtime.
 </dd>
 
         <dt id="resolve" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/resolve.html">resolve</a></span><span class="signature">(<wbr><span class="parameter" id="resolve-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, {</span><span class="parameter" id="resolve-param-staticToLogic"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">staticToLogic</span>(<span class="parameter" id="param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">value</span></span>)</span>})
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/resolve.html">resolve</a></span><span class="signature">(<wbr><span class="parameter" id="resolve-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, {</span><span class="parameter" id="resolve-param-staticToLogic"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">staticToLogic</span>(<span class="parameter" id="param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">value</span></span>)</span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
   </span>
   
 
 </dt>
 <dd class="inherited">
-  Resolves this value to <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> within <code>module</code>.
+  Resolves this value to <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> within <code>module</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="select" class="callable inherited">
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeParameter/select.html">select</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="select-param-whenTrue"><span class="type-annotation">LogicType</span> <span class="parameter-name">whenTrue</span>, </span><span class="parameter" id="select-param-whenFalse"><span class="type-annotation">LogicType</span> <span class="parameter-name">whenFalse</span>, {</span><span class="parameter" id="select-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>?</span> <span class="parameter-name">module</span></span>})
+    <span class="returntype parameter">&#8594; LogicType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Selects between <code>whenTrue</code> and <code>whenFalse</code>.
   <div class="features"><span class="feature">inherited</span></div>
 
 </dd>
@@ -268,8 +294,8 @@ either static or runtime.
 </dd>
 
         <dt id="tryRuntimeInput" class="callable inherited">
-  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/tryRuntimeInput.html">tryRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="tryRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a>?</span>
+  <span class="name"><a href="../rohd_hcl/StaticOrRuntimeControl/tryRuntimeInput.html">tryRuntimeInput</a></span><span class="signature">(<wbr><span class="parameter" id="tryRuntimeInput-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
   </span>
   
 

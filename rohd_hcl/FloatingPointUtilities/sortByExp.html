@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-<span class="returntype">(<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="field-name">didSwap</span>, </span><span class="field"><span class="type-annotation">(<span class="field"><span class="type-annotation">FpType</span>, </span><span class="field"><span class="type-annotation">FpType</span></span>)</span> <span class="field-name">sorted</span>}</span>)</span>
+<span class="returntype">(<span class="field">{<span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="field-name">didSwap</span>, </span><span class="field"><span class="type-annotation">(<span class="field"><span class="type-annotation">FpType</span>, </span><span class="field"><span class="type-annotation">FpType</span></span>)</span> <span class="field-name">sorted</span>}</span>)</span>
 <span class="name ">sortByExp</span>&lt;<wbr><span class="type-parameter">FpType extends FloatingPoint</span>&gt;(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="sortByExp-param-toSort"><span class="type-annotation">(<span class="field"><span class="type-annotation">FpType</span>, </span><span class="field"><span class="type-annotation">FpType</span></span>)</span> <span class="parameter-name">toSort</span></span></li>
 </ol>)
 
@@ -79,10 +79,8 @@ the larger exponent is the first element in the returned tuple.</p>
 
   final swapped = swap(doSwap, toSort);
 
-  final larger =
-      (swapped.$1.clone(name: &#39;larger&#39;)..gets(swapped.$1)) as FpType;
-  final smaller =
-      (swapped.$2.clone(name: &#39;smaller&#39;)..gets(swapped.$2)) as FpType;
+  final larger = swapped.$1.namedTyped(&#39;larger&#39;);
+  final smaller = swapped.$2.namedTyped(&#39;smaller&#39;);
   return (sorted: (larger, smaller), didSwap: doSwap);
 }</code></pre>
 </section>

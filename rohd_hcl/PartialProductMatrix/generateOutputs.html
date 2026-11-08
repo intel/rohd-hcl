@@ -55,24 +55,31 @@
     <section class="multi-line-signature">
       
 <span class="returntype">void</span>
-<span class="name ">generateOutputs</span>(<wbr>)
+<span class="name ">generateOutputs</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="generateOutputs-param-beforeGenerateOutputs"><span class="type-annotation">void</span> <span class="parameter-name">beforeGenerateOutputs</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-array"><span class="type-annotation"><a href="../../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a></span> <span class="parameter-name">array</span></span></li>
+</ol>)?, </span></li>
+</ol>})
 
       
 
     </section>
     
 <section class="desc markdown">
-  <p>Generate the output vectors from the array</p>
+  <p>Generates output vectors from the array.</p>
+<p><code>beforeGenerateOutputs</code> can transform the internal array before its rows
+are exposed as output ports.</p>
 </section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">void generateOutputs() {
+  <pre class="language-dart"><code class="language-dart">void generateOutputs(
+    {void Function(PartialProductGeneratorBase array)?
+        beforeGenerateOutputs}) {
+  beforeGenerateOutputs?.call(_array);
   for (var row = 0; row &lt; _array.rows; row++) {
     addOutput(&#39;row_$row&#39;, width: _array.partialProducts[row].length) &lt;=
-        _array.partialProducts[row].rswizzle();
+        _array.partialProducts[row].rconcat();
   }
   _outputsGenerated = true;
 }</code></pre>

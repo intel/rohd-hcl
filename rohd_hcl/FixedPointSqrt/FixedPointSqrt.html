@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/FixedPointSqrt-class.html">FixedPointSqrt</a></li>
+    <li><a href="../../rohd_hcl/FixedPointSqrt-class.html">FixedPointSqrt<span class="signature">&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FixedPointSqrt.new constructor</li>
   </ol>
   <div class="self-name">FixedPointSqrt.new</div>
@@ -49,12 +49,12 @@
       data-above-sidebar="rohd_hcl&#47;FixedPointSqrt-class-sidebar.html"
       data-below-sidebar="">
       <div>
-<h1><span class="kind-constructor">FixedPointSqrt</span> constructor 
+<h1><span class="kind-constructor">FixedPointSqrt&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span> constructor 
 </h1></div>
 
     <section class="multi-line-signature">
       
-      <span class="name ">FixedPointSqrt</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="../../rohd_hcl/FixedPoint-class.html">FixedPoint</a></span> <span class="parameter-name">a</span></span></li>
+      <span class="name ">FixedPointSqrt&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="param-a"><span class="type-annotation">T</span> <span class="parameter-name">a</span></span></li>
 </ol>)
     </section>
     
@@ -95,10 +95,9 @@
   solution = Const(0, width: aLoc.width).named(&#39;solution&#39;);
   remainder = Const(0, width: aLoc.width).named(&#39;remainder&#39;);
   subtractionValue = Const(0, width: aLoc.width).named(&#39;subtraction&#39;);
-  aLoc = [Const(0), a, Const(0)].swizzle().named(&#39;a_loc&#39;);
+  aLoc = [Const(0), a, Const(0)].concat().named(&#39;a_loc&#39;);
 
-  final outputSqrt = a.clone(name: &#39;sqrt&#39;);
-  output(&#39;sqrt&#39;) &lt;= outputSqrt;
+  final outputSqrt = sqrt;
 
   &#47;&#47; loop once through input value
   for (var i = 0; i &lt; ((width + 2) &gt;&gt; 1); i++) {
@@ -106,14 +105,14 @@
     remainder = [
       remainder.slice(width + 2 - 3, 0),
       aLoc.slice(aLoc.width - 1 - (i * 2), aLoc.width - 2 - (i * 2))
-    ].swizzle().named(&#39;remainder_iter$i&#39;);
+    ].concat().named(&#39;remainder_iter$i&#39;);
     subtractionValue = [solution.slice(width + 2 - 3, 0), Const(1, width: 2)]
-        .swizzle()
+        .concat()
         .named(&#39;subtraction_value_iter$i&#39;);
     solution = [
       solution.slice(width + 2 - 2, 0),
       subtractionValue.lte(remainder)
-    ].swizzle().named(&#39;solution_iter$i&#39;);
+    ].concat().named(&#39;solution_iter$i&#39;);
     remainder = mux(subtractionValue.lte(remainder),
             remainder - subtractionValue, remainder)
         .named(&#39;remainder_mux_iter$i&#39;);
@@ -123,15 +122,15 @@
   for (var i = 0; i &lt; ((width + 2) &gt;&gt; 1) - 1; i++) {
     &#47;&#47; don&#39;t try to append bits from a, they are done
     remainder = [remainder.slice(width + 2 - 3, 0), Const(0, width: 2)]
-        .swizzle()
+        .concat()
         .named(&#39;remainder_final_iter$i&#39;);
     subtractionValue = [solution.slice(width + 2 - 3, 0), Const(1, width: 2)]
-        .swizzle()
+        .concat()
         .named(&#39;subtraction_value_final_iter$i&#39;);
     solution = [
       solution.slice(width + 2 - 2, 0),
       subtractionValue.lte(remainder)
-    ].swizzle().named(&#39;solution_final_iter$i&#39;);
+    ].concat().named(&#39;solution_final_iter$i&#39;);
     remainder = mux(subtractionValue.lte(remainder),
             remainder - subtractionValue, remainder)
         .named(&#39;remainder_finalmux_iter$i&#39;);
@@ -154,7 +153,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/FixedPointSqrt-class.html">FixedPointSqrt</a></li>
+    <li><a href="../../rohd_hcl/FixedPointSqrt-class.html">FixedPointSqrt<span class="signature">&lt;<wbr><span class="type-parameter">T extends FixedPoint</span>&gt;</span></a></li>
     <li class="self-crumb">FixedPointSqrt.new constructor</li>
 </ol>
 

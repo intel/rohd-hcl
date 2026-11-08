@@ -80,10 +80,6 @@ void signExtend() {
   &#47;&#47; Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier
   &#47;&#47; and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
   &#47;&#47; 1129–1149 (2017). https:&#47;&#47;doi.org&#47;10.1007&#47;s00034-016-0349-9
-  if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
-    throw RohdHclException(&#39;multiplicand sign reconfiguration requires &#39;
-        &#39;signedMultiplicand=false&#39;);
-  }
   if (isSignExtended) {
     throw RohdHclException(&#39;Partial Product array already sign-extended&#39;);
   }
@@ -155,13 +151,8 @@ void signExtend() {
 
   &#47;&#47; Compute Sign extension for row==0
   final firstSign = Logic(name: &#39;firstsign&#39;, naming: Naming.mergeable);
-  if (selectSignedMultiplicand == null) {
-    firstSign &lt;=
-        (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
-  } else {
-    firstSign &lt;=
-        SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0]));
-  }
+  firstSign &lt;=
+      SignBit(signedMultiplicandControl.select(firstAddend.last, signs[0]));
   final q = [
     (firstSign ^ remainders[lastRow])
         .named(&#39;qfirst&#39;, naming: Naming.mergeable),

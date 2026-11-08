@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "FullAdder_W1": {
       "attributes": {
@@ -46,7 +46,7 @@
         }
       },
       "cells": {
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -267,7 +267,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_a_xor_b_xor_carryIn": {
           "bits": [
             7
           ],
@@ -276,7 +276,7 @@
           },
           "attributes": {}
         },
-        "_in1": {
+        "_carryIn_and__a_xor_b_or__a_and_b": {
           "bits": [
             8
           ],
@@ -285,7 +285,7 @@
           },
           "attributes": {}
         },
-        "_in0__a_xor_b": {
+        "_a_xor_b": {
           "bits": [
             9
           ],
@@ -294,7 +294,7 @@
           },
           "attributes": {}
         },
-        "_in0__carryIn_and__a_xor_b": {
+        "_carryIn_and__a_xor_b": {
           "bits": [
             10
           ],
@@ -303,7 +303,7 @@
           },
           "attributes": {}
         },
-        "_in1__a_and_b": {
+        "_a_and_b": {
           "bits": [
             11
           ],
@@ -389,7 +389,7 @@
         }
       },
       "cells": {
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1565,7 +1565,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_subset_0_0_sum": {
           "bits": [
             28
           ],
@@ -1637,7 +1637,7 @@
           },
           "attributes": {}
         },
-        "_in8": {
+        "_subset_1_1_sum": {
           "bits": [
             36
           ],

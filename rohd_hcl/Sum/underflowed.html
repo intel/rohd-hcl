@@ -59,23 +59,27 @@
   <section id="getter">
     <section class="multi-line-signature">
       
-      <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
       get
       <span class="name ">underflowed</span>
-      <div class="features"><span class="feature">inherited</span></div>
+      
 
     </section>
     
 <section class="desc markdown">
-  <p>Indicates whether the sum is less than the minimum value. The actual
-resulting value depends on the provided <code>saturates</code> behavior (saturation
-or underflow).</p>
+  <p>Indicates whether this combinational sum is below its minimum value.</p>
 </section>
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic get underflowed =&gt; output(&#39;underflowed&#39;);</code></pre>
+  <pre class="language-dart"><code class="language-dart">@override
+Logic get underflowed =&gt; super.underflowed!;</code></pre>
 </section>
 
   </section>

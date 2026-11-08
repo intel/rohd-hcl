@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">LeadingDigitAnticipate</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
-<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
+      <span class="name ">LeadingDigitAnticipate</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;leading_digit_anticipate&#39;</span>, </span></li>
 <li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
 </ol>})
@@ -98,14 +98,14 @@ negative sum).</li>
       .named(&#39;lowBitsWide&#39;)
       .slice(t.width - 2, 1);
 
-  findFromMSB &lt;= [lowBits, ~t[0] &amp; t[1]].swizzle();
+  findFromMSB &lt;= [lowBits, ~t[0] &amp; t[1]].concat();
 
   final leadingEncoder = RecursiveModulePriorityEncoder(findFromMSB,
       generateValid: true, name: &#39;leading-pos&#39;);
   final leadingPos = leadingEncoder.out;
   final validLead = leadingEncoder.valid!;
 
-  addOutput(&#39;leadingDigit&#39;, width: log2Ceil(findFromMSB.width + 1)) &lt;=
+  addOutput(&#39;leadingDigit&#39;, width: (findFromMSB.width + 1).log2Ceil) &lt;=
       leadingPos;
   addOutput(&#39;validLeadDigit&#39;) &lt;= validLead;
 }</code></pre>

@@ -62,9 +62,9 @@
       </section>
       
 <section class="desc markdown">
-  <p>A function called if an invalid write is made when not <a href="../../rohd_hcl/MemoryStorage/isEmpty.html">isEmpty</a>.</p>
-<p>An invalid write will reset the entire memory after calling this function.</p>
-<p>By default, this will print a warning message.</p>
+  <p>A function called when a write has uncertain control or address bits.</p>
+<p>By default, this logs a warning to the active ROHD-VF test, or prints a
+warning when no test is active.</p>
 </section>
 
       

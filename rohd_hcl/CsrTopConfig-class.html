@@ -91,6 +91,12 @@ any conditional blocks should take place.</p>
         <dd>
           Construct a new top level configuration.
         </dd>
+        <dt id="CsrTopConfig.wide" class="callable">
+          <span class="name"><a href="../rohd_hcl/CsrTopConfig/CsrTopConfig.wide.html">CsrTopConfig.wide</a></span><span class="signature">({<span class="parameter" id="wide-param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="wide-param-blockSize"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">blockSize</span>, </span><span class="parameter" id="wide-param-blocks"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span></span> <span class="parameter-name">blocks</span>, </span><span class="parameter" id="wide-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span></span>})</span>
+        </dt>
+        <dd>
+          Constructs a top with an arbitrary-width default block extent.
+        </dd>
     </dl>
   </section>
     
@@ -126,7 +132,7 @@ module should be treated as an asynchronous reset.
 
         <dt id="blockSize" class="property">
   <span class="name"><a href="../rohd_hcl/CsrTopConfig/blockSize.html">blockSize</a></span>
-  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span>
   
 
 </dt>
@@ -197,7 +203,7 @@ module should be treated as an asynchronous reset.
 
         <dt id="blockSizeForBlock" class="callable">
   <span class="name"><a href="../rohd_hcl/CsrTopConfig/blockSizeForBlock.html">blockSizeForBlock</a></span><span class="signature">(<wbr><span class="parameter" id="blockSizeForBlock-param-block"><span class="type-annotation"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span> <span class="parameter-name">block</span></span>)
-    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span>
   </span>
   
 
@@ -209,7 +215,7 @@ module should be treated as an asynchronous reset.
 </dd>
 
         <dt id="clone" class="callable">
-  <span class="name"><a href="../rohd_hcl/CsrTopConfig/clone.html">clone</a></span><span class="signature">(<wbr>{<span class="parameter" id="clone-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="clone-param-blockSize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">blockSize</span>, </span><span class="parameter" id="clone-param-blocks"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span>?</span> <span class="parameter-name">blocks</span>, </span><span class="parameter" id="clone-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">asyncReset</span></span>})
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/clone.html">clone</a></span><span class="signature">(<wbr>{<span class="parameter" id="clone-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="clone-param-blockSize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">blockSize</span>, </span><span class="parameter" id="clone-param-wideBlockSize"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a>?</span> <span class="parameter-name">wideBlockSize</span>, </span><span class="parameter" id="clone-param-blocks"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>&gt;</span>?</span> <span class="parameter-name">blocks</span>, </span><span class="parameter" id="clone-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">asyncReset</span></span>})
     <span class="returntype parameter">&#8594; <a href="../rohd_hcl/CsrTopConfig-class.html">CsrTopConfig</a></span>
   </span>
   
@@ -231,6 +237,19 @@ module should be treated as an asynchronous reset.
 <dd>
   Accessor to the config of a particular register block
 within the module by relative address <code>addr</code>.
+  
+
+</dd>
+
+        <dt id="getBlockByBigIntAddr" class="callable">
+  <span class="name"><a href="../rohd_hcl/CsrTopConfig/getBlockByBigIntAddr.html">getBlockByBigIntAddr</a></span><span class="signature">(<wbr><span class="parameter" id="getBlockByBigIntAddr-param-addr"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">addr</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/CsrBlockConfig-class.html">CsrBlockConfig</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Looks up a block by its arbitrary-width base address.
   
 
 </dd>

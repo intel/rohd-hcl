@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a></li>
+    <li><a href="../../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">calculateCode method</li>
   </ol>
   <div class="self-name">calculateCode</div>
@@ -60,7 +60,7 @@
         <li>@<a href="https://pub.dev/documentation/meta/1.19.0/meta/protected-constant.html">protected</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
 <span class="name ">calculateCode</span>(<wbr>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -80,8 +80,12 @@ implementations.</p>
 @protected
 Logic calculateCode() {
   final parityBits = List&lt;Logic?&gt;.generate(code.width, (index) =&gt; null);
-  final dataBits = List&lt;Logic&gt;.generate(
-      data.width, (index) =&gt; Logic(name: &#39;d${index + 1}&#39;)..gets(data[index]));
+  &#47;&#47; Materialize the bit-oriented encoding boundary so structured leaves do
+  &#47;&#47; not produce chained part-selects when individual bits are indexed.
+  final payloadBits =
+      data.packed.named(&#39;payloadBits&#39;, naming: Naming.reserved);
+  final dataBits = List&lt;Logic&gt;.generate(data.width,
+      (index) =&gt; Logic(name: &#39;d${index + 1}&#39;)..gets(payloadBits[index]));
 
   final hammingCodeWidth = code.width - hammingType._extraParityBits;
 
@@ -89,7 +93,7 @@ Logic calculateCode() {
   for (var i = 1;
       i &lt;= transmission.width - hammingType._extraParityBits;
       i++) {
-    if (!isPowerOfTwo(i)) {
+    if (!i.isPowerOfTwo) {
       final ilv = LogicValue.ofInt(i, hammingCodeWidth);
 
       for (var p = 0; p &lt; hammingCodeWidth; p++) {
@@ -108,14 +112,14 @@ Logic calculateCode() {
   var calculatedCode = [
     for (var i = 0; i &lt; hammingCodeWidth; i++)
       Logic(name: &#39;p${1 &lt;&lt; i}&#39;)..gets(parityBits[i]!),
-  ].rswizzle();
+  ].rconcat();
 
   if (hammingType.hasExtraParityBit) {
     &#47;&#47; extra parity bit is calculated by calculating parity across entire rest
     &#47;&#47; of the transmission
     final pExtra = Logic(name: &#39;pExtra&#39;)
-      ..gets(ParityTransmitter([calculatedCode, data].swizzle()).code);
-    calculatedCode = [pExtra, calculatedCode].swizzle();
+      ..gets(ParityTransmitter([calculatedCode, data].concat()).code);
+    calculatedCode = [pExtra, calculatedCode].concat();
   }
 
   return calculatedCode;
@@ -134,7 +138,7 @@ Logic calculateCode() {
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter</a></li>
+    <li><a href="../../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
     <li class="self-crumb">calculateCode method</li>
 </ol>
 

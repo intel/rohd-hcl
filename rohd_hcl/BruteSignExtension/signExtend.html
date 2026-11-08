@@ -76,10 +76,6 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 void signExtend() {
-  if (signedMultiplicand &amp;&amp; (selectSignedMultiplicand != null)) {
-    throw RohdHclException(&#39;multiplicand sign reconfiguration requires &#39;
-        &#39;signedMultiplicand=false&#39;);
-  }
   if (isSignExtended) {
     throw RohdHclException(&#39;Partial Product array already sign-extended&#39;);
   }
@@ -93,12 +89,7 @@ void signExtend() {
   ];
   for (var row = 0; row &lt; rows; row++) {
     final addend = partialProducts[row];
-    final Logic sign;
-    if (selectSignedMultiplicand != null) {
-      sign = mux(selectSignedMultiplicand!, addend.last, signs[row]);
-    } else {
-      sign = signedMultiplicand ? addend.last : signs[row];
-    }
+    final sign = signedMultiplicandControl.select(addend.last, signs[row]);
     addend.addAll(List.filled((rows - row) * shift, SignBit(sign)));
     if (row &gt; 0) {
       addend

@@ -80,7 +80,7 @@
   ]);
 
   setPorts([
-    if (vcCount &gt; 1) Logic.port(&#39;${prefix}VC&#39;, log2Ceil(vcCount)),
+    if (vcCount &gt; 1) Logic.port(&#39;${prefix}VC&#39;, vcCount.log2Ceil),
   ], [
     if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
   ]);

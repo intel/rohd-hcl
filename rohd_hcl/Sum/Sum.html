@@ -71,7 +71,7 @@
   <p>Computes a <a href="../../rohd_hcl/Sum/sum.html">sum</a> across the provided <code>interfaces</code>.</p>
 <p>The <code>width</code> can be either explicitly provided or inferred from other
 values such as a <code>maxValue</code>, <code>minValue</code>, or <code>initialValue</code> that contain
-width information (e.g. a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/LogicValue-class.html">LogicValue</a>), or by making it large enough to
+width information (e.g. a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicValue-class.html">LogicValue</a>), or by making it large enough to
 fit <code>maxValue</code>, or by inspecting widths of <code>interfaces</code>. There must be
 enough information provided to determine the <code>width</code>.</p>
 <p>If no <code>maxValue</code> is provided, one will be inferred by the maximum that can
@@ -80,10 +80,12 @@ fit inside of the <code>width</code>.</p>
 be unpredictable.</p>
 <p>If <code>saturates</code> is <code>true</code>, then it will saturate at the <code>maxValue</code> and
 <code>minValue</code>. If <code>false</code>, will wrap around (overflow/underflow) at the
-<code>maxValue</code> and <code>minValue</code>.  The <code>equalsMax</code>, <code>equalsMin</code>, <code>overflowed</code>,
-and <code>underflowed</code> outputs can be used to determine if the sum is at the
+<code>maxValue</code> and <code>minValue</code>.  The <code>equalsMax</code>, <code>equalsMin</code>, <a href="../../rohd_hcl/Sum/overflowed.html">overflowed</a>,
+and <a href="../../rohd_hcl/Sum/underflowed.html">underflowed</a> outputs can be used to determine if the sum is at the
 maximum, minimum, (would have) overflowed, or  (would have) underflowed,
-respectively.</p>
+respectively. <code>initialValue</code>, <code>maxValue</code>, and <code>minValue</code> can be provided
+as <a href="../../rohd_hcl/StaticOrRuntimeControl-class.html">StaticOrRuntimeControl</a>s when a named runtime input or explicit
+static/runtime configuration is useful.</p>
 </section>
 
 
@@ -105,6 +107,7 @@ respectively.</p>
               definitionName ?? &#39;Sum_${interfaces.length}_W$width&#39;,
           initialValue: initialValue) {
   addOutput(&#39;sum&#39;, width: width);
+  final configuredInitialValue = SummationBase.configuredValue(initialValue);
 
   var maxPosMagnitude = SummationBase.biggestVal(width);
   var maxNegMagnitude = BigInt.zero;
@@ -121,9 +124,12 @@ respectively.</p>
   }
 
   &#47;&#47; also consider that initialValue may be less than min or more than max
-  final maxInitialValueMagnitude = initialValue is Logic
-      ? SummationBase.biggestVal(initialValue.width)
-      : LogicValue.ofInferWidth(initialValue).toBigInt();
+  final initialValueMagnitude = configuredInitialValue == null
+      ? BigInt.zero
+      : configuredInitialValue is Logic
+          ? SummationBase.biggestVal(configuredInitialValue.width)
+          : LogicValue.ofInferWidth(configuredInitialValue).toBigInt().abs();
+  final maxInitialValueMagnitude = initialValueMagnitude;
   maxPosMagnitude += maxInitialValueMagnitude;
   maxNegMagnitude += maxInitialValueMagnitude;
 
@@ -136,6 +142,15 @@ respectively.</p>
       minValueLogic.zeroExtend(internalWidth).named(&#39;minValueExt&#39;);
   final maxValueLogicExt =
       maxValueLogic.zeroExtend(internalWidth).named(&#39;maxValueExt&#39;);
+
+  final possibleRange =
+      _possibleSumRange(configuredInitialValue, interfaces, width);
+  canOverflow = constantMaxValue == null ||
+      constantMaxValue!.isNegative ||
+      possibleRange.maximum &gt; constantMaxValue!;
+  canUnderflow = constantMinValue == null ||
+      constantMinValue!.isNegative ||
+      possibleRange.minimum &lt; constantMinValue!;
 
   &#47;&#47; lazy range so that it&#39;s not generated if not necessary
   late final range = Logic(name: &#39;range&#39;, width: internalWidth)
@@ -158,48 +173,53 @@ respectively.</p>
   final preAdjustmentValue =
       Logic(name: &#39;preAdjustmentValue&#39;, width: internalWidth);
 
-  &#47;&#47; here we use an `ssa` block to iteratively update the value of
-  &#47;&#47; `internalValue` based on the adjustments from the interfaces and
-  &#47;&#47; saturation&#47;roll-over behavior
-  &#47;&#47;
-  &#47;&#47; For more details, see:
-  &#47;&#47; https:&#47;&#47;intel.github.io&#47;rohd-website&#47;blog&#47;combinational-ssa&#47;
-  Combinational.ssa((s) =&gt; [
-        &#47;&#47; initialize
-        s(internalValue) &lt; initialValueLogicExt + zeroPoint,
-
-        &#47;&#47; perform increments and decrements per-interface
-        ...interfaces
-            .map((e) =&gt; e._combAdjustments(s, internalValue))
-            .flattened,
-
-        &#47;&#47; identify if we&#39;re at a max&#47;min case
-        overflowed &lt; s(internalValue).gt(upperSaturation),
-        underflowed &lt; s(internalValue).lt(lowerSaturation),
-
-        &#47;&#47; useful as an internal node for debug&#47;visibility
-        preAdjustmentValue &lt; s(internalValue),
-
-        &#47;&#47; handle saturation or over&#47;underflow
-        If.block([
-          Iff.s(
-            overflowed,
-            s(internalValue) &lt;
-                (saturates
-                    ? upperSaturation
-                    : ((s(internalValue) - upperSaturation - 1) % range +
-                        lowerSaturation)),
-          ),
-          ElseIf.s(
-            underflowed,
-            s(internalValue) &lt;
-                (saturates
-                    ? lowerSaturation
-                    : (upperSaturation -
-                        ((lowerSaturation - s(internalValue) - 1) % range))),
-          )
-        ]),
+  var rawValue = initialValueLogicExt + zeroPoint;
+  for (final (index, intf) in interfaces.indexed) {
+    final amount = intf.amount.zeroExtend(internalWidth);
+    final adjusted = intf.increments ? rawValue + amount : rawValue - amount;
+    if (intf.hasEnable) {
+      final next = Logic(name: &#39;adjusted_$index&#39;, width: internalWidth);
+      Combinational([
+        next &lt; rawValue,
+        If(intf.enable!, then: [next &lt; adjusted]),
       ]);
+      rawValue = next;
+    } else {
+      rawValue = adjusted;
+    }
+  }
+  preAdjustmentValue &lt;= rawValue;
+
+  overflowed &lt;=
+      (canOverflow ? preAdjustmentValue.gt(upperSaturation) : Const(0));
+  underflowed &lt;=
+      (canUnderflow ? preAdjustmentValue.lt(lowerSaturation) : Const(0));
+
+  final overflowUnderflowAdjustments = &lt;Iff&gt;[];
+  if (canOverflow) {
+    overflowUnderflowAdjustments.add(Iff.s(
+        overflowed,
+        internalValue &lt;
+            (saturates
+                ? upperSaturation
+                : ((preAdjustmentValue - upperSaturation - 1) % range +
+                    lowerSaturation))));
+  }
+  if (canUnderflow) {
+    final underflowAdjustment = internalValue &lt;
+        (saturates
+            ? lowerSaturation
+            : (upperSaturation -
+                ((lowerSaturation - preAdjustmentValue - 1) % range)));
+    overflowUnderflowAdjustments.add(canOverflow
+        ? ElseIf.s(underflowed, underflowAdjustment)
+        : Iff.s(underflowed, underflowAdjustment));
+  }
+  Combinational([
+    internalValue &lt; preAdjustmentValue,
+    if (overflowUnderflowAdjustments.isNotEmpty)
+      If.block(overflowUnderflowAdjustments),
+  ]);
 
   equalsMax &lt;= internalValue.eq(upperSaturation);
   equalsMin &lt;= internalValue.eq(lowerSaturation);

@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "ClockGate": {
       "attributes": {
@@ -159,7 +159,7 @@
           },
           "attributes": {}
         },
-        "_in1__q": {
+        "_q": {
           "bits": [
             5
           ],
@@ -168,7 +168,7 @@
           },
           "attributes": {}
         },
-        "_clk": {
+        "_freeClk_b": {
           "bits": [
             6
           ],
@@ -177,7 +177,7 @@
           },
           "attributes": {}
         },
-        "_d": {
+        "_uor_enable": {
           "bits": [
             7
           ],

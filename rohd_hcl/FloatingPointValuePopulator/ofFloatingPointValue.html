@@ -96,7 +96,7 @@ an explicit J bit.</p>
     else
       LogicValue.zero,
     components.mantissa
-  ].swizzle();
+  ].concat();
   return FloatingPointValue(
       sign: components.sign,
       exponent: components.exponent,

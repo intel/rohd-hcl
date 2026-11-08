@@ -54,7 +54,7 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">BinaryToGrayConverter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-binary"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">binary</span>, {</span></li>
+      <span class="name ">BinaryToGrayConverter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-binary"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">binary</span>, {</span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
@@ -82,19 +82,7 @@ of the Gray code output.</p>
   binary = addInput(&#39;binary&#39;, binary, width: inputWidth);
   final grayVal = addOutput(&#39;gray&#39;, width: inputWidth);
 
-  Combinational([
-    Case(
-        binary,
-        [
-          for (var i = 0; i &lt; (1 &lt;&lt; inputWidth); i++)
-            CaseItem(Const(i, width: inputWidth), [
-              grayVal &lt;
-                  Const(binaryToGray(LogicValue.ofInt(i, inputWidth)),
-                      width: inputWidth)
-            ])
-        ],
-        conditionalType: ConditionalType.unique)
-  ]);
+  grayVal &lt;= binary ^ (binary &gt;&gt;&gt; 1);
 }</code></pre>
 </section>
 

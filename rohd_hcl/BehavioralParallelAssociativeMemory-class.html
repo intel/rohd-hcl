@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the BehavioralParallelAssociativeMemory class from the rohd_hcl library, for the Dart programming language.">
+  <title>BehavioralParallelAssociativeMemory class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">BehavioralParallelAssociativeMemory class</li>
+  </ol>
+  <div class="self-name">BehavioralParallelAssociativeMemory</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+    data-below-sidebar="rohd_hcl&#47;BehavioralParallelAssociativeMemory-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">BehavioralParallelAssociativeMemory</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Software equivalent of the combinational-lookup parallel-flop memory.</p>
+<p>Lookup, validity and indexed side-read outputs react combinationally.
+Updates and synchronous reset are sampled on the rising edge.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></li>
+        <li><a href="../rohd_hcl/AssociativeMemory-class.html">AssociativeMemory</a></li>
+      <li>BehavioralParallelAssociativeMemory</li>
+    </ul>
+  </dd>
+
+        
+  <dt>Implemented types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="../rohd_hcl/AssociativeIndexedSideReadProvider-class.html">AssociativeIndexedSideReadProvider</a></li>
+        <li><a href="../rohd_hcl/AssociativeMultiIndexedSideReadProvider-class.html">AssociativeMultiIndexedSideReadProvider</a></li>
+        <li><a href="../rohd_hcl/AssociativeValidityMaskProvider-class.html">AssociativeValidityMaskProvider</a></li>
+        <li><a href="../rohd_hcl/BehavioralModel-class.html">BehavioralModel</a></li>
+        <li><a href="../rohd_hcl/BehavioralModelProvider-class.html">BehavioralModelProvider</a></li>
+        <li><a href="../rohd_hcl/StateTransactionProvider-class.html">StateTransactionProvider</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeSoftwareExecutionImage-class.html">AssociativeSoftwareExecutionImage</a></span>&gt;</span></li>
+        <li><a href="../rohd_hcl/StateTransactionCapabilityProvider-class.html">StateTransactionCapabilityProvider</a></li>
+    </ul>
+  </dd>
+        
+  <dt>Mixed-in types</dt>
+  <dd>
+    <ul class="comma-separated clazz-relationships">
+        <li><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilog-mixin.html">SystemVerilog</a></li>
+    </ul>
+  </dd>
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="BehavioralParallelAssociativeMemory.new" class="callable">
+          <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/BehavioralParallelAssociativeMemory.html">BehavioralParallelAssociativeMemory</a></span><span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-updates"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span>&gt;</span></span> <span class="parameter-name">updates</span>, </span><span class="parameter" id="param-lookups"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span>&gt;</span></span> <span class="parameter-name">lookups</span>, </span><span class="parameter" id="param-entryCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">entryCount</span>, </span><span class="parameter" id="param-contract"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span> <span class="parameter-name">contract</span>, </span><span class="parameter" id="param-enableValidTracking"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enableValidTracking</span> = <span class="default-value">false</span>, </span><span class="parameter" id="param-sideReadRequests"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeIndexedSideReadRequest-class.html">AssociativeIndexedSideReadRequest</a></span>&gt;</span></span> <span class="parameter-name">sideReadRequests</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;behavioral_parallel_associative_memory&#39;</span></span>})</span>
+        </dt>
+        <dd>
+          Creates a simulation-only implementation of the parallel RTL contract.
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="acceptsEmptyPortConnections" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilog/acceptsEmptyPortConnections.html">acceptsEmptyPortConnections</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this module accepts empty port connections when being
+instantiated in SystemVerilog.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="behavioralModel" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/behavioralModel.html">behavioralModel</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/BehavioralModel-class.html">BehavioralModel</a></span>
+  
+
+</dt>
+<dd>
+  The selected portable model, or null when this is an RTL implementation.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="clk" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/clk.html">clk</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Internal clock.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="contract" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/contract.html">contract</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/AssociativeMemoryContract-class.html">AssociativeMemoryContract</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Resolved timing and semantic contract.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="definitionName" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/definitionName.html">definitionName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The definition name of this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> used when instantiating instances in
+generated code.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="definitionParameters" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilog/definitionParameters.html">definitionParameters</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilogParameterDefinition-class.html">SystemVerilogParameterDefinition</a></span>&gt;</span>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  A collection of SystemVerilog <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilogParameterDefinition-class.html">SystemVerilogParameterDefinition</a>s to be
+declared on the definition when generating SystemVerilog for this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>
+if <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilog/generatedDefinitionType.html">generatedDefinitionType</a> is <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/DefinitionGenerationType.html">DefinitionGenerationType.standard</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="description" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/description.html">description</a></span>
+  <span class="signature">&#8596; <a href="../rohd_hcl/BehavioralParallelAssociativeDescription-class.html">BehavioralParallelAssociativeDescription</a></span>
+  
+
+</dt>
+<dd>
+  Immutable configuration shared by execution backends.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">override-getter</span></div>
+
+</dd>
+
+        <dt id="empty" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/empty.html">empty</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  Whether all entries are invalid, if validity tracking is enabled.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="enableValidTracking" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/enableValidTracking.html">enableValidTracking</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether validity tracking outputs are present.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="entryCount" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/entryCount.html">entryCount</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Number of searchable entries.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="expressionlessInputs" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilog/expressionlessInputs.html">expressionlessInputs</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A list of names of <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a>s which should not have any SystemVerilog
+expressions (including constants) in-lined into them. Only signal names
+will be fed into these.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="full" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/full.html">full</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  Whether all entries are valid, if validity tracking is enabled.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="generatedDefinitionType" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/generatedDefinitionType.html">generatedDefinitionType</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/DefinitionGenerationType.html">DefinitionGenerationType</a></span>
+  
+
+</dt>
+<dd>
+  What kind of SystemVerilog definition this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> generates, or whether
+it does at all.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="hasBuilt" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/hasBuilt.html">hasBuilt</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Indicates whether this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> has had the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/build.html">build</a> method called on it.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hierarchicalName" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/hierarchicalName.html">hierarchicalName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns the hierarchical name of this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with the parent <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/hierarchy.html">hierarchy</a>
+included, separated by <code>.</code>s, e.g. <code>top.mid.leaf</code>.  Because it depends on
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/hierarchy.html">hierarchy</a>, this is only valid after <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/build.html">build</a> has been called.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="indexWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/indexWidth.html">indexWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of an entry index.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inOuts" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOuts.html">inOuts</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A map from <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> port names to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> to corresponding <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>
+signals.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inputs" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inputs.html">inputs</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A map from <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> port names to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> to corresponding <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>
+signals.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="internalSignals" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/internalSignals.html">internalSignals</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  An <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of all <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>s contained within this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> which are
+<em>not</em> an input or output port of this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="keyWidth" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/keyWidth.html">keyWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Width of each associative key.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="localLookups" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/localLookups.html">localLookups</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Internal lookup ports connected to the caller-owned lookup ports.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="localUpdates" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/localUpdates.html">localUpdates</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeUpdatePortInterface-class.html">AssociativeUpdatePortInterface</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Internal update ports connected to the caller-owned update ports.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="lookupLatency" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/lookupLatency.html">lookupLatency</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Enabled lookup to result latency.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="name" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/name.html">name</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The name of this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="numLookups" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/numLookups.html">numLookups</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Number of independent lookup ports.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="numUpdates" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/numUpdates.html">numUpdates</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Number of independent update ports.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="outputs" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/outputs.html">outputs</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A map from <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> port names to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> to corresponding <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>
+signals.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="parent" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/parent.html">parent</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>?</span>
+  
+
+</dt>
+<dd class="inherited">
+  The parent <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> of this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reserveDefinitionName" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/reserveDefinitionName.html">reserveDefinitionName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  If true, guarantees <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/definitionName.html">definitionName</a> is maintained by a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Synthesizer-class.html">Synthesizer</a>,
+or else it will fail.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reserveName" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/reserveName.html">reserveName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  If true, guarantees <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/uniqueInstanceName.html">uniqueInstanceName</a> matches <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/name.html">name</a> or else the
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/build.html">build</a> will fail.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reset" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/reset.html">reset</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Internal reset.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sideReadResponse" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/sideReadResponse.html">sideReadResponse</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/AssociativeIndexedSideReadResponse-class.html">AssociativeIndexedSideReadResponse</a>?</span>
+  
+
+</dt>
+<dd>
+  Response to the supplied side-read request, or null when not enabled.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="sideReadResponses" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/sideReadResponses.html">sideReadResponses</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeIndexedSideReadResponse-class.html">AssociativeIndexedSideReadResponse</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Responses corresponding to the indexed side-read requests, in order.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="signals" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/signals.html">signals</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  An <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of all <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>s contained within this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>, including
+inputs, outputs, and internal signals of this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="stateTransactionCapabilities" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/stateTransactionCapabilities.html">stateTransactionCapabilities</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/StateTransactionCapabilities-class.html">StateTransactionCapabilities</a></span>
+  
+
+</dt>
+<dd>
+  Snapshot and restore behavior exposed by this component.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="stateTransactions" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/stateTransactions.html">stateTransactions</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/StateTransactionEndpoint-class.html">StateTransactionEndpoint</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/AssociativeSoftwareExecutionImage-class.html">AssociativeSoftwareExecutionImage</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Snapshot and restore endpoint.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="structuredInterfacePortBindings" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/structuredInterfacePortBindings.html">structuredInterfacePortBindings</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/StructuredInterfacePortBinding-class.html">StructuredInterfacePortBinding</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  The experimental structured-interface bindings registered on this module.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="subModules" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/subModules.html">subModules</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  An <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of all <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>s contained within this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="uniqueInstanceName" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/uniqueInstanceName.html">uniqueInstanceName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  If this module has a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/parent.html">parent</a>, after <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/build.html">build</a> this will be a guaranteed
+unique name within its scope.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="updateLatency" class="property inherited">
+  <span class="name"><a href="../rohd_hcl/AssociativeMemory/updateLatency.html">updateLatency</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Update sampling-edge to commit latency.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="validCount" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/validCount.html">validCount</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  The number of valid entries, if validity tracking is enabled.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="validMask" class="property">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/validMask.html">validMask</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+  
+
+</dt>
+<dd>
+  One validity bit per entry, or null when tracking was not requested.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="addInOut" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInOut.html">addInOut</a></span><span class="signature">(<wbr><span class="parameter" id="addInOut-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addInOut-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInOut-param-width"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">width</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicNet-class.html">LogicNet</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a signal as an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a>
+port that can be consumed inside this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addInOutArray" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInOutArray.html">addInOutArray</a></span><span class="signature">(<wbr><span class="parameter" id="addInOutArray-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addInOutArray-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInOutArray-param-dimensions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">dimensions</span> = <span class="default-value">const [1]</span>, </span><span class="parameter" id="addInOutArray-param-elementWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">elementWidth</span> = <span class="default-value">1</span>, </span><span class="parameter" id="addInOutArray-param-numUnpackedDimensions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">numUnpackedDimensions</span> = <span class="default-value">0</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicArray-class.html">LogicArray</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicArray-class.html">LogicArray</a> port to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with
+the specified <code>dimensions</code>, <code>elementWidth</code>, and <code>numUnpackedDimensions</code>
+named <code>name</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addInput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInput.html">addInput</a></span><span class="signature">(<wbr><span class="parameter" id="addInput-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addInput-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInput-param-width"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">width</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a signal as an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a>
+port that can be consumed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addInputArray" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInputArray.html">addInputArray</a></span><span class="signature">(<wbr><span class="parameter" id="addInputArray-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addInputArray-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInputArray-param-dimensions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">dimensions</span> = <span class="default-value">const [1]</span>, </span><span class="parameter" id="addInputArray-param-elementWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">elementWidth</span> = <span class="default-value">1</span>, </span><span class="parameter" id="addInputArray-param-numUnpackedDimensions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">numUnpackedDimensions</span> = <span class="default-value">0</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicArray-class.html">LogicArray</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicArray-class.html">LogicArray</a> port to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with
+the specified <code>dimensions</code>, <code>elementWidth</code>, and <code>numUnpackedDimensions</code>
+named <code>name</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addInterfaceFrom" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInterfaceFrom.html">addInterfaceFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span></span>, <span class="type-parameter">TagType extends <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addInterfaceFrom-param-target"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">target</span>, </span><span class="parameter" id="addInterfaceFrom-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInterfaceFrom-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="addInterfaceFrom-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="addInterfaceFrom-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span><span class="parameter" id="addInterfaceFrom-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a deliberately constructed local <code>target</code> against <code>source</code>
+and returns <code>target</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addInterfacePorts" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInterfacePorts.html">addInterfacePorts</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span></span>, <span class="type-parameter">TagType extends <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addInterfacePorts-param-source"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInterfacePorts-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="addInterfacePorts-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="addInterfacePorts-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span><span class="parameter" id="addInterfacePorts-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers <code>source</code> on this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns its internal clone.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addOutput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addOutput.html">addOutput</a></span><span class="signature">(<wbr><span class="parameter" id="addOutput-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, {</span><span class="parameter" id="addOutput-param-width"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">width</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> port that
+can be driven by this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> or consumed outside of it.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addOutputArray" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addOutputArray.html">addOutputArray</a></span><span class="signature">(<wbr><span class="parameter" id="addOutputArray-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, {</span><span class="parameter" id="addOutputArray-param-dimensions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">dimensions</span> = <span class="default-value">const [1]</span>, </span><span class="parameter" id="addOutputArray-param-elementWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">elementWidth</span> = <span class="default-value">1</span>, </span><span class="parameter" id="addOutputArray-param-numUnpackedDimensions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">numUnpackedDimensions</span> = <span class="default-value">0</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicArray-class.html">LogicArray</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/LogicArray-class.html">LogicArray</a> port to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with
+the specified <code>dimensions</code>, <code>elementWidth</code>, and <code>numUnpackedDimensions</code>
+named <code>name</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addPairConsumerFrom" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addPairConsumerFrom.html">addPairConsumerFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">TargetInterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>, <span class="type-parameter">SourceInterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairConsumerFrom-param-target"><span class="type-annotation">TargetInterfaceType</span> <span class="parameter-name">target</span>, </span><span class="parameter" id="addPairConsumerFrom-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairConsumer-class.html">PairConsumer</a><span class="signature">&lt;<wbr><span class="type-parameter">SourceInterfaceType</span>&gt;</span></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addPairConsumerFrom-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; TargetInterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers <code>target</code> against a consumer <code>source</code> endpoint and returns it.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addPairConsumerPorts" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addPairConsumerPorts.html">addPairConsumerPorts</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairConsumerPorts-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairConsumer-class.html">PairConsumer</a><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType</span>&gt;</span></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addPairConsumerPorts-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a consumer <code>source</code> endpoint and returns its internal clone.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addPairInterfaceFrom" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addPairInterfaceFrom.html">addPairInterfaceFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairInterfaceFrom-param-target"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">target</span>, </span><span class="parameter" id="addPairInterfaceFrom-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="addPairInterfaceFrom-param-role"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairRole.html">PairRole</a></span> <span class="parameter-name">role</span>, {</span><span class="parameter" id="addPairInterfaceFrom-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a deliberately retyped pair <code>target</code> against <code>source</code> for
+<code>role</code> and returns <code>target</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addPairInterfacePorts" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addPairInterfacePorts.html">addPairInterfacePorts</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairInterfacePorts-param-source"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="addPairInterfacePorts-param-role"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairRole.html">PairRole</a></span> <span class="parameter-name">role</span>, {</span><span class="parameter" id="addPairInterfacePorts-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers <code>source</code> for <code>role</code> and returns its internal clone.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addPairProviderFrom" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addPairProviderFrom.html">addPairProviderFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">TargetInterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>, <span class="type-parameter">SourceInterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairProviderFrom-param-target"><span class="type-annotation">TargetInterfaceType</span> <span class="parameter-name">target</span>, </span><span class="parameter" id="addPairProviderFrom-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairProvider-class.html">PairProvider</a><span class="signature">&lt;<wbr><span class="type-parameter">SourceInterfaceType</span>&gt;</span></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addPairProviderFrom-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; TargetInterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers <code>target</code> against a provider <code>source</code> endpoint and returns it.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addPairProviderPorts" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addPairProviderPorts.html">addPairProviderPorts</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairProviderPorts-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairProvider-class.html">PairProvider</a><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType</span>&gt;</span></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addPairProviderPorts-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a provider <code>source</code> endpoint and returns its internal clone.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addStructuredInterface" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addStructuredInterface.html">addStructuredInterface</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span></span>, <span class="type-parameter">TagType extends <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addStructuredInterface-param-source"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addStructuredInterface-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="addStructuredInterface-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="addStructuredInterface-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span><span class="parameter" id="addStructuredInterface-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?, </span><span class="parameter" id="addStructuredInterface-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers <code>source</code> on this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns its internal clone.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addStructuredPairInterface" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addStructuredPairInterface.html">addStructuredPairInterface</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addStructuredPairInterface-param-source"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="addStructuredPairInterface-param-role"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/PairRole.html">PairRole</a></span> <span class="parameter-name">role</span>, {</span><span class="parameter" id="addStructuredPairInterface-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?, </span><span class="parameter" id="addStructuredPairInterface-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span></span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers <code>source</code> for <code>role</code> and returns its internal clone.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addTypedInOut" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addTypedInOut.html">addTypedInOut</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addTypedInOut-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addTypedInOut-param-source"><span class="type-annotation">LogicType</span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; LogicType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a signal as an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a>
+port that can be consumed inside this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>. The type of the port will
+be <code>LogicType</code> and constructed via <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic/clone.html">Logic.clone</a>, so it is required that
+the <code>source</code> implements clone functionality that matches the type and
+properly updates the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic/name.html">Logic.name</a> as well.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addTypedInput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addTypedInput.html">addTypedInput</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addTypedInput-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addTypedInput-param-source"><span class="type-annotation">LogicType</span> <span class="parameter-name">source</span></span>)
+    <span class="returntype parameter">&#8594; LogicType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers a signal as an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a>
+port that can be consumed. The type of the port will be <code>LogicType</code> and
+constructed via <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic/clone.html">Logic.clone</a>, so it is required that the <code>source</code>
+implements clone functionality that matches the type and properly updates
+the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic/name.html">Logic.name</a> as well.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addTypedOutput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addTypedOutput.html">addTypedOutput</a></span><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addTypedOutput-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="addTypedOutput-param-logicGenerator"><span class="type-annotation">LogicType</span> <span class="parameter-name">logicGenerator</span>({<span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>})</span>)
+    <span class="returntype parameter">&#8594; LogicType</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Registers an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> to this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and returns an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> port that
+can be driven by this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> or consumed outside of it. The type of the
+port will be <code>LogicType</code> and constructed via <code>logicGenerator</code>, which must
+properly update the <code>name</code> of the generated <code>LogicType</code> as well.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="build" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/build.html">build</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Builds the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> and all <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/subModules.html">subModules</a> within it.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="definitionVerilog" class="callable">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/definitionVerilog.html">definitionVerilog</a></span><span class="signature">(<wbr><span class="parameter" id="definitionVerilog-param-definitionType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">definitionType</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  </span>
+  
+
+</dt>
+<dd>
+  A custom SystemVerilog definition to be produced for this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="dumpSystemVerilog" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/dumpSystemVerilog.html">dumpSystemVerilog</a></span><span class="signature">(<wbr>{<span class="parameter" id="dumpSystemVerilog-param-configuration"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilogSynthesizerConfiguration-class.html">SystemVerilogSynthesizerConfiguration</a></span> <span class="parameter-name">configuration</span> = <span class="default-value">const SystemVerilogSynthesizerConfiguration()</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Generates synthesized SystemVerilog for this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="dumpWaves" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/dumpWaves.html">dumpWaves</a></span><span class="signature">(<wbr>{<span class="parameter" id="dumpWaves-param-outputPath"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">outputPath</span> = <span class="default-value">&#39;waves.vcd&#39;</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/WaveformService-class.html">WaveformService</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Attaches waveform dumping for this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> to a VCD at <code>outputPath</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="generateSystemC" class="callable">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/generateSystemC.html">generateSystemC</a></span><span class="signature">(<wbr>{<span class="parameter" id="generateSystemC-param-className"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">className</span>, </span><span class="parameter" id="generateSystemC-param-options"><span class="type-annotation"><a href="../rohd_hcl/SystemCModelOptions-class.html">SystemCModelOptions</a></span> <span class="parameter-name">options</span> = <span class="default-value">const SystemCModelOptions()</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Emits a standalone SystemC definition using <code>className</code>.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="hierarchy" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/hierarchy.html">hierarchy</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns an <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a> of <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>s representing the hierarchical path to
+this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hierarchyString" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/hierarchyString.html">hierarchyString</a></span><span class="signature">(<wbr>[<span class="parameter" id="hierarchyString-param-indent"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">indent</span> = <span class="default-value">0</span></span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns a pretty-print <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> of the heirarchy of all <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>s within
+this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inOut" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a></span><span class="signature">(<wbr><span class="parameter" id="inOut-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accesses the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> associated with this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>s inOut port
+named <code>name</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inOutSource" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOutSource.html">inOutSource</a></span><span class="signature">(<wbr><span class="parameter" id="inOutSource-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The original <code>source</code> provided to the creation of the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> port <code>name</code>
+via <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInOut.html">addInOut</a> or <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInOutArray.html">addInOutArray</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="input" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a></span><span class="signature">(<wbr><span class="parameter" id="input-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accesses the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> associated with this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>s <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> port
+named <code>name</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="inputSource" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inputSource.html">inputSource</a></span><span class="signature">(<wbr><span class="parameter" id="inputSource-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The original <code>source</code> provided to the creation of the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> port <code>name</code>
+via <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInput.html">addInput</a> or <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/addInputArray.html">addInputArray</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="instantiationVerilog" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/SystemVerilog/instantiationVerilog.html">instantiationVerilog</a></span><span class="signature">(<wbr><span class="parameter" id="instantiationVerilog-param-instanceType"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">instanceType</span>, </span><span class="parameter" id="instantiationVerilog-param-instanceName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">instanceName</span>, </span><span class="parameter" id="instantiationVerilog-param-ports"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span> <span class="parameter-name">ports</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Generates custom SystemVerilog to be injected in place of a <code>module</code>
+instantiation.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInOut" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/isInOut.html">isInOut</a></span><span class="signature">(<wbr><span class="parameter" id="isInOut-param-signal"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">signal</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns true iff <code>signal</code> is the same <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> as the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> port of this
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with the same name.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isInput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/isInput.html">isInput</a></span><span class="signature">(<wbr><span class="parameter" id="isInput-param-signal"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">signal</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns true iff <code>signal</code> is the same <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> as the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> port of this
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with the same name.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isOutput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/isOutput.html">isOutput</a></span><span class="signature">(<wbr><span class="parameter" id="isOutput-param-signal"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">signal</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns true iff <code>signal</code> is the same <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> as the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> port of this
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with the same name.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isPort" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/isPort.html">isPort</a></span><span class="signature">(<wbr><span class="parameter" id="isPort-param-signal"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">signal</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Returns true iff <code>signal</code> is the same <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> as an <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a>, <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a>, or
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> port of this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> with the same name.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="output" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a></span><span class="signature">(<wbr><span class="parameter" id="output-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Accesses the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a> associated with this <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a>s output port
+named <code>name</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="restore" class="callable">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/restore.html">restore</a></span><span class="signature">(<wbr><span class="parameter" id="restore-param-image"><span class="type-annotation"><a href="../rohd_hcl/AssociativeSoftwareExecutionImage-class.html">AssociativeSoftwareExecutionImage</a></span> <span class="parameter-name">image</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Restores a compatible image and refreshes combinational outputs.
+  
+
+</dd>
+
+        <dt id="snapshot" class="callable">
+  <span class="name"><a href="../rohd_hcl/BehavioralParallelAssociativeMemory/snapshot.html">snapshot</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/AssociativeSoftwareExecutionImage-class.html">AssociativeSoftwareExecutionImage</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Captures the resident entries for replay.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tryInOut" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/tryInOut.html">tryInOut</a></span><span class="signature">(<wbr><span class="parameter" id="tryInOut-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/inOut.html">inOut</a> named <code>name</code> if it exists, otherwise <code>null</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tryInput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/tryInput.html">tryInput</a></span><span class="signature">(<wbr><span class="parameter" id="tryInput-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/input.html">input</a> named <code>name</code> if it exists, otherwise <code>null</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tryOutput" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/tryOutput.html">tryOutput</a></span><span class="signature">(<wbr><span class="parameter" id="tryOutput-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a>?</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Provides the <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module/output.html">output</a> named <code>name</code> if it exists, otherwise <code>null</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">BehavioralParallelAssociativeMemory class</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

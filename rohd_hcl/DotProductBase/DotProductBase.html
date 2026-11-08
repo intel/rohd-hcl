@@ -54,10 +54,10 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">DotProductBase</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-multiplicands"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multiplicands</span>, </span></li>
-<li><span class="parameter" id="param-multipliers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multipliers</span>, {</span></li>
-<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
-<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+      <span class="name ">DotProductBase</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-multiplicands"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multiplicands</span>, </span></li>
+<li><span class="parameter" id="param-multipliers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multipliers</span>, {</span></li>
+<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;dotproduct&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -70,15 +70,9 @@
 <code>multiplicands</code> and a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a> of <code>multipliers</code>.</p>
 <p>Every multiplicand must have one common width and every multiplier must
 have one common width. The multiplicand and multiplier widths may differ.</p>
-<p>The optional <code>signedMultiplicand</code> parameter configures the <code>multiplicands</code>
-statically using a <code>bool</code> to indicate a signed multiplicand (default is
-<code>false</code>, or unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> input. Passing
-something other null, <code>bool</code>, or <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> will result in a throw.</p>
-<p>The optional <code>signedMultiplier</code> parameter configures the <code>multipliers</code>
-statically using a <code>bool</code> to indicate a signed multiplier (default is
-<code>false</code>, or unsigned) or dynamically with a 1-bit <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> input.  Passing
-something other null, <code>bool</code>, or <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a> will result in a throw.</p>
-<p>The output <a href="../../rohd_hcl/DotProductBase/product.html">product</a> will be <a href="../../rohd_hcl/log2Ceil.html">log2Ceil(multiplicands.length)</a> wider than
+<p><code>signedMultiplicand</code> and <code>signedMultiplier</code> configure operand signedness
+with <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>. Omitted controls default to unsigned.</p>
+<p>The output <a href="../../rohd_hcl/DotProductBase/product.html">product</a> will be <code>multiplicands.length.log2Ceil</code> wider than
 the sum of one multiplicand width and one multiplier width to accommodate
 the increasing accumulation value.</p>
 </section>
@@ -88,8 +82,8 @@ the increasing accumulation value.</p>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">DotProductBase(List&lt;Logic&gt; multiplicands, List&lt;Logic&gt; multipliers,
-    {dynamic signedMultiplicand,
-    dynamic signedMultiplier,
+    {StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier,
     super.name = &#39;dotproduct&#39;,
     super.reserveName = false,
     super.reserveDefinitionName = false,
@@ -124,12 +118,10 @@ the increasing accumulation value.</p>
         &quot;don&#39;t match preceding width.&quot;);
   }
 
-  signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
-      signedMultiplicand,
-      name: &#39;signedMultiplicand&#39;);
-  signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
-      signedMultiplier,
-      name: &#39;signedMultiplier&#39;);
+  signedMultiplicandParameter = signedMultiplicand ??
+      StaticOrRuntimeParameter.staticValue(value: false);
+  signedMultiplierParameter =
+      signedMultiplier ?? StaticOrRuntimeParameter.staticValue(value: false);
 
   this.multiplicands = multiplicands
       .mapIndexed((i, multiplicand) =&gt; addInput(

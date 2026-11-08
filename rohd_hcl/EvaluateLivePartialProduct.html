@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the EvaluateLivePartialProduct extension from the rohd_hcl library, for the Dart programming language.">
+  <title>EvaluateLivePartialProduct extension - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">EvaluateLivePartialProduct extension</li>
+  </ol>
+  <div class="self-name">EvaluateLivePartialProduct</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content extension-page"
+    data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+    data-below-sidebar="rohd_hcl&#47;EvaluateLivePartialProduct-extension-sidebar.html">
+    <div>
+<h1><span class="kind-class">EvaluateLivePartialProduct</span> extension 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Debug routines for printing out partial product matrix during
+simulation with live logic values.</p>
+</section>
+
+    <section>
+      <dl class="dl-horizontal">
+        <dt>on</dt>
+        <dd>
+          <ul class="comma-separated clazz-relationships">
+            <li><a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a></li>
+          </ul>
+        </dd>
+      </dl>
+      
+
+
+    </section>
+    
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="evaluate" class="callable">
+  <span class="name"><a href="../rohd_hcl/EvaluateLivePartialProduct/evaluate.html">evaluate</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a>,
+        provided by the <a href="../rohd_hcl/EvaluateLivePartialProduct.html">EvaluateLivePartialProduct</a> extension</span>
+      </p>
+  Accumulate the partial products and return as BigInt
+  
+
+</dd>
+
+        <dt id="markdown" class="callable">
+  <span class="name"><a href="../rohd_hcl/EvaluateLivePartialProduct/markdown.html">markdown</a></span><span class="signature">(<wbr>{<span class="parameter" id="markdown-param-bitvector"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">bitvector</span> = <span class="default-value">false</span>, </span><span class="parameter" id="markdown-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">value</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a>,
+        provided by the <a href="../rohd_hcl/EvaluateLivePartialProduct.html">EvaluateLivePartialProduct</a> extension</span>
+      </p>
+  Print out the partial product matrix. <code>bitvector</code> = <code>true</code> will print out
+a compact bitvector to the right. <code>value</code> = <code>true</code> will print out the
+value of each row as 'unsigned (signed)'.
+  
+
+</dd>
+
+        <dt id="representation" class="callable">
+  <span class="name"><a href="../rohd_hcl/EvaluateLivePartialProduct/representation.html">representation</a></span><span class="signature">(<wbr>{<span class="parameter" id="representation-param-markDown"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">markDown</span> = <span class="default-value">false</span>, </span><span class="parameter" id="representation-param-bitvector"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">bitvector</span> = <span class="default-value">false</span>, </span><span class="parameter" id="representation-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">value</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="../rohd_hcl/PartialProductGeneratorBase-class.html">PartialProductGeneratorBase</a>,
+        provided by the <a href="../rohd_hcl/EvaluateLivePartialProduct.html">EvaluateLivePartialProduct</a> extension</span>
+      </p>
+  Return a string representation of the partial product array.
+S = Sign bit positive polarity = 1 final value).
+s = Sign bit positive polarity = 0 final value).
+I = Sign bit negative polarity = 1 final value).
+i = Sign bit negative polarity = 0 (final value).
+<code>bitvector</code> == <code>true</code> will print out a compact final bitvector array.
+  <code>value</code> == <code>true</code> will print out the numerical value of the bitvector as
+ 'unsigned (signed).
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+    
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">EvaluateLivePartialProduct extension</li>
+</ol>
+
+  <h5>rohd_hcl library</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div>
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.0
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
+
+

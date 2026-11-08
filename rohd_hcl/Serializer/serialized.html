@@ -26,7 +26,7 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
-    <li><a href="../../rohd_hcl/Serializer-class.html">Serializer</a></li>
+    <li><a href="../../rohd_hcl/Serializer-class.html">Serializer<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">serialized property</li>
   </ol>
   <div class="self-name">serialized</div>
@@ -53,32 +53,29 @@
 </h1></div>
 
     
-
-    
+      <section class="multi-line-signature">
         
-  <section id="getter">
-    <section class="multi-line-signature">
-      
-      <span class="returntype"><a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Logic-class.html">Logic</a></span>
-      get
-      <span class="name ">serialized</span>
-      
+        <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/TypedLogicArray-class.html">TypedLogicArray</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">V</span>&gt;</span>
+        <span class="name ">serialized</span>
+        <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
 
-    </section>
-    
+      </section>
+      
 <section class="desc markdown">
-  <p>Serialized output, one data item per clock.</p>
+  <p>Serialized output, one outermost array element per clock.</p>
+<p>Has one fewer dimension than the input. For a one-dimensional input,
+the output is rank zero and its typed leaf is available via
+<a href="https://pub.dev/documentation/rohd/0.7.0/rohd/TypedLogicArray/scalar.html">TypedLogicArray.scalar</a>.</p>
 </section>
 
-    
+      
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Logic get serialized =&gt; output(&#39;serialized&#39;);</code></pre>
+  <pre class="language-dart"><code class="language-dart">late final TypedLogicArray&lt;T, V&gt; serialized;</code></pre>
 </section>
 
-  </section>
 
-
+    
 </div> <!-- /.main-content -->
 <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
   <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
@@ -90,7 +87,7 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
-    <li><a href="../../rohd_hcl/Serializer-class.html">Serializer</a></li>
+    <li><a href="../../rohd_hcl/Serializer-class.html">Serializer<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
     <li class="self-crumb">serialized property</li>
 </ol>
 

@@ -1,6 +1,6 @@
 {
   "creator": "NetlistSynthesizer (rohd)",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "modules": {
     "Compressor2": {
       "attributes": {
@@ -349,7 +349,7 @@
           },
           "attributes": {}
         },
-        "_control__subset_0_0_compressBits": {
+        "_subset_0_0_compressBits": {
           "bits": [
             7
           ],
@@ -358,7 +358,7 @@
           },
           "attributes": {}
         },
-        "_d0__uand__subset_2_1_compressBits": {
+        "_uand__subset_2_1_compressBits": {
           "bits": [
             8
           ],
@@ -367,7 +367,7 @@
           },
           "attributes": {}
         },
-        "_d1__uor__subset_2_1_compressBits": {
+        "_uor__subset_2_1_compressBits": {
           "bits": [
             9
           ],
@@ -592,221 +592,6 @@
         }
       },
       "cells": {
-        "swizzle": {
-          "hide_name": 0,
-          "type": "$concat",
-          "parameters": {
-            "IN0_WIDTH": 1,
-            "IN1_WIDTH": 1,
-            "IN2_WIDTH": 1,
-            "IN3_WIDTH": 1,
-            "IN4_WIDTH": 1,
-            "IN5_WIDTH": 1,
-            "IN6_WIDTH": 1,
-            "IN7_WIDTH": 1,
-            "IN8_WIDTH": 1,
-            "IN9_WIDTH": 1,
-            "IN10_WIDTH": 1,
-            "IN11_WIDTH": 1,
-            "IN12_WIDTH": 1,
-            "IN13_WIDTH": 1,
-            "IN14_WIDTH": 1,
-            "IN15_WIDTH": 1,
-            "IN16_WIDTH": 1,
-            "IN17_WIDTH": 1,
-            "IN18_WIDTH": 1,
-            "IN19_WIDTH": 1,
-            "IN20_WIDTH": 1
-          },
-          "attributes": {},
-          "port_directions": {
-            "[0]": "input",
-            "[1]": "input",
-            "[2]": "input",
-            "[3]": "input",
-            "[4]": "input",
-            "[5]": "input",
-            "[6]": "input",
-            "[7]": "input",
-            "[8]": "input",
-            "[9]": "input",
-            "[10]": "input",
-            "[11]": "input",
-            "[12]": "input",
-            "[13]": "input",
-            "[14]": "input",
-            "[15]": "input",
-            "[16]": "input",
-            "[17]": "input",
-            "[18]": "input",
-            "[19]": "input",
-            "[20]": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "[0]": [
-              125
-            ],
-            "[1]": [
-              126
-            ],
-            "[2]": [
-              127
-            ],
-            "[3]": [
-              294
-            ],
-            "[4]": [
-              138
-            ],
-            "[5]": [
-              146
-            ],
-            "[6]": [
-              157
-            ],
-            "[7]": [
-              149
-            ],
-            "[8]": [
-              163
-            ],
-            "[9]": [
-              172
-            ],
-            "[10]": [
-              181
-            ],
-            "[11]": [
-              190
-            ],
-            "[12]": [
-              209
-            ],
-            "[13]": [
-              211
-            ],
-            "[14]": [
-              220
-            ],
-            "[15]": [
-              224
-            ],
-            "[16]": [
-              231
-            ],
-            "[17]": [
-              238
-            ],
-            "[18]": [
-              299
-            ],
-            "[19]": [
-              300
-            ],
-            "[20]": [
-              301
-            ],
-            "Y": [
-              83,
-              84,
-              85,
-              86,
-              87,
-              88,
-              89,
-              90,
-              91,
-              92,
-              93,
-              94,
-              95,
-              96,
-              97,
-              98,
-              99,
-              100,
-              101,
-              102,
-              103
-            ]
-          }
-        },
-        "bussubset": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 0,
-            "A_WIDTH": 12,
-            "Y_WIDTH": 1
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30,
-              31,
-              32,
-              33,
-              34
-            ],
-            "Y": [
-              125
-            ]
-          }
-        },
-        "bussubset_0": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 1,
-            "A_WIDTH": 21,
-            "Y_WIDTH": 1
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22
-            ],
-            "Y": [
-              126
-            ]
-          }
-        },
         "cmp2_iter2_col1": {
           "hide_name": 0,
           "type": "Compressor2",
@@ -826,11 +611,11 @@
               130
             ],
             "carry": [
-              127
+              85
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -922,7 +707,7 @@
             ]
           }
         },
-        "swizzle_1": {
+        "concat_1": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1056,7 +841,7 @@
             ]
           }
         },
-        "swizzle_2": {
+        "concat_2": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1186,7 +971,7 @@
             ]
           }
         },
-        "swizzle_3": {
+        "concat_3": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1326,7 +1111,7 @@
             ]
           }
         },
-        "swizzle_4": {
+        "concat_4": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1371,7 +1156,7 @@
               137
             ],
             "carry": [
-              138
+              87
             ]
           }
         },
@@ -1432,7 +1217,7 @@
             ]
           }
         },
-        "swizzle_5": {
+        "concat_5": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1488,7 +1273,7 @@
             ]
           }
         },
-        "swizzle_6": {
+        "concat_6": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1628,7 +1413,7 @@
             ]
           }
         },
-        "swizzle_7": {
+        "concat_7": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1677,14 +1462,14 @@
               338
             ],
             "sum": [
-              146
+              88
             ],
             "carry": [
               147
             ]
           }
         },
-        "swizzle_8": {
+        "concat_8": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1736,7 +1521,7 @@
               148
             ],
             "carry": [
-              149
+              90
             ]
           }
         },
@@ -1764,7 +1549,7 @@
             ]
           }
         },
-        "swizzle_9": {
+        "concat_9": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1820,7 +1605,7 @@
             ]
           }
         },
-        "swizzle_10": {
+        "concat_10": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -1960,7 +1745,7 @@
             ]
           }
         },
-        "swizzle_11": {
+        "concat_11": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2005,7 +1790,7 @@
               156
             ],
             "carry": [
-              157
+              89
             ]
           }
         },
@@ -2084,7 +1869,7 @@
             ]
           }
         },
-        "swizzle_12": {
+        "concat_12": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2129,7 +1914,7 @@
               162
             ],
             "carry": [
-              163
+              91
             ]
           }
         },
@@ -2157,7 +1942,7 @@
             ]
           }
         },
-        "swizzle_13": {
+        "concat_13": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2213,7 +1998,7 @@
             ]
           }
         },
-        "swizzle_14": {
+        "concat_14": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2344,7 +2129,7 @@
             ]
           }
         },
-        "swizzle_15": {
+        "concat_15": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2400,7 +2185,7 @@
             ]
           }
         },
-        "swizzle_16": {
+        "concat_16": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2452,7 +2237,7 @@
               171
             ],
             "carry": [
-              172
+              92
             ]
           }
         },
@@ -2480,7 +2265,7 @@
             ]
           }
         },
-        "swizzle_17": {
+        "concat_17": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2620,7 +2405,7 @@
             ]
           }
         },
-        "swizzle_18": {
+        "concat_18": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2676,7 +2461,7 @@
             ]
           }
         },
-        "swizzle_19": {
+        "concat_19": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2728,7 +2513,7 @@
               180
             ],
             "carry": [
-              181
+              93
             ]
           }
         },
@@ -2756,7 +2541,7 @@
             ]
           }
         },
-        "swizzle_20": {
+        "concat_20": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2896,7 +2681,7 @@
             ]
           }
         },
-        "swizzle_21": {
+        "concat_21": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -2952,7 +2737,7 @@
             ]
           }
         },
-        "swizzle_22": {
+        "concat_22": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3004,7 +2789,7 @@
               189
             ],
             "carry": [
-              190
+              94
             ]
           }
         },
@@ -3032,7 +2817,7 @@
             ]
           }
         },
-        "swizzle_23": {
+        "concat_23": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3172,7 +2957,7 @@
             ]
           }
         },
-        "swizzle_24": {
+        "concat_24": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3228,7 +3013,7 @@
             ]
           }
         },
-        "swizzle_25": {
+        "concat_25": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3284,7 +3069,7 @@
             ]
           }
         },
-        "swizzle_26": {
+        "concat_26": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3357,7 +3142,7 @@
             ]
           }
         },
-        "swizzle_27": {
+        "concat_27": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3497,7 +3282,7 @@
             ]
           }
         },
-        "swizzle_28": {
+        "concat_28": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3546,14 +3331,14 @@
               398
             ],
             "sum": [
-              209
+              95
             ],
             "carry": [
               210
             ]
           }
         },
-        "swizzle_29": {
+        "concat_29": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3602,7 +3387,7 @@
               401
             ],
             "sum": [
-              211
+              96
             ],
             "carry": [
               212
@@ -3633,7 +3418,7 @@
             ]
           }
         },
-        "swizzle_30": {
+        "concat_30": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3689,7 +3474,7 @@
             ]
           }
         },
-        "swizzle_31": {
+        "concat_31": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3820,7 +3605,7 @@
             ]
           }
         },
-        "swizzle_32": {
+        "concat_32": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3876,7 +3661,7 @@
             ]
           }
         },
-        "swizzle_33": {
+        "concat_33": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3918,14 +3703,14 @@
               412
             ],
             "sum": [
-              220
+              97
             ],
             "carry": [
               221
             ]
           }
         },
-        "swizzle_34": {
+        "concat_34": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -3974,7 +3759,7 @@
               415
             ],
             "sum": [
-              224
+              98
             ],
             "carry": [
               225
@@ -4005,7 +3790,7 @@
             ]
           }
         },
-        "swizzle_35": {
+        "concat_35": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -4145,7 +3930,7 @@
             ]
           }
         },
-        "swizzle_36": {
+        "concat_36": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -4187,7 +3972,7 @@
               420
             ],
             "sum": [
-              231
+              99
             ],
             "carry": [
               232
@@ -4218,7 +4003,7 @@
             ]
           }
         },
-        "swizzle_37": {
+        "concat_37": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -4358,7 +4143,7 @@
             ]
           }
         },
-        "swizzle_38": {
+        "concat_38": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -4407,7 +4192,7 @@
               426
             ],
             "sum": [
-              238
+              100
             ],
             "carry": [
               239
@@ -4513,7 +4298,7 @@
             ]
           }
         },
-        "swizzle_39": {
+        "concat_39": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -4710,7 +4495,7 @@
             ]
           }
         },
-        "swizzle_40": {
+        "concat_40": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -4907,7 +4692,7 @@
             ]
           }
         },
-        "swizzle_41": {
+        "concat_41": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -4963,7 +4748,7 @@
             ]
           }
         },
-        "swizzle_42": {
+        "concat_42": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -5193,7 +4978,7 @@
             ]
           }
         },
-        "swizzle_43": {
+        "concat_43": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -5348,7 +5133,7 @@
             ]
           }
         },
-        "swizzle_44": {
+        "concat_44": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -5503,7 +5288,7 @@
             ]
           }
         },
-        "swizzle_45": {
+        "concat_45": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -5658,7 +5443,7 @@
             ]
           }
         },
-        "swizzle_46": {
+        "concat_46": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -5822,7 +5607,7 @@
             ]
           }
         },
-        "swizzle_47": {
+        "concat_47": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -6036,14 +5821,14 @@
               456
             ],
             "sum": [
-              294
+              86
             ],
             "carry": [
               290
             ]
           }
         },
-        "swizzle_48": {
+        "concat_48": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -6232,14 +6017,14 @@
               458
             ],
             "sum": [
-              299
+              101
             ],
             "carry": [
               296
             ]
           }
         },
-        "swizzle_49": {
+        "concat_49": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -6340,87 +6125,70 @@
             ]
           }
         },
-        "bussubset_78": {
+        "struct_concat_6_add0": {
           "hide_name": 0,
-          "type": "$slice",
+          "type": "$struct_pack",
           "parameters": {
-            "OFFSET": 19,
-            "A_WIDTH": 21,
-            "Y_WIDTH": 1
+            "STRUCT_NAME": "add0",
+            "FIELD_COUNT": 4,
+            "FIELD_0_NAME": "row_1",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 1,
+            "FIELD_1_NAME": "row_0",
+            "FIELD_1_OFFSET": 1,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "row_0",
+            "FIELD_2_OFFSET": 19,
+            "FIELD_2_WIDTH": 1,
+            "FIELD_3_NAME": "row_0",
+            "FIELD_3_OFFSET": 20,
+            "FIELD_3_WIDTH": 1
           },
           "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
           "port_directions": {
-            "A": "input",
+            "row_1": "input",
+            "row_0": "input",
+            "row_0_2": "input",
+            "row_0_3": "input",
             "Y": "output"
           },
           "connections": {
-            "A": [
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
+            "row_1": [
+              23
+            ],
+            "row_0": [
+              3
+            ],
+            "row_0_2": [
+              21
+            ],
+            "row_0_3": [
               22
             ],
             "Y": [
-              300
-            ]
-          }
-        },
-        "bussubset_79": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 20,
-            "A_WIDTH": 21,
-            "Y_WIDTH": 1
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22
-            ],
-            "Y": [
-              301
+              83,
+              84,
+              85,
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103
             ]
           }
         },
@@ -6627,33 +6395,6 @@
           },
           "attributes": {}
         },
-        "pp_1_0": {
-          "bits": [
-            125
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "pp_0_1": {
-          "bits": [
-            126
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "cmp_carry_iter2_c1": {
-          "bits": [
-            127
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "pp_1_1": {
           "bits": [
             128
@@ -6672,7 +6413,7 @@
           },
           "attributes": {}
         },
-        "cmp_sum_iter2_c1": {
+        "sum": {
           "bits": [
             130
           ],
@@ -6744,15 +6485,6 @@
           },
           "attributes": {}
         },
-        "cmp_carry_iter2_c3": {
-          "bits": [
-            138
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "pp_2_2": {
           "bits": [
             139
@@ -6816,15 +6548,6 @@
           },
           "attributes": {}
         },
-        "cmp_sum_iter3_c5": {
-          "bits": [
-            146
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "cmp_carry_iter3_c5": {
           "bits": [
             147
@@ -6837,15 +6560,6 @@
         "cmp_sum_iter2_c6": {
           "bits": [
             148
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "cmp_carry_iter2_c6": {
-          "bits": [
-            149
           ],
           "logic_type": {
             "width": 1
@@ -6915,15 +6629,6 @@
           },
           "attributes": {}
         },
-        "cmp_carry_iter2_c5": {
-          "bits": [
-            157
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "cmp_carry_iter2_c4": {
           "bits": [
             158
@@ -6963,15 +6668,6 @@
         "cmp_sum_iter2_c7": {
           "bits": [
             162
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "cmp_carry_iter2_c7": {
-          "bits": [
-            163
           ],
           "logic_type": {
             "width": 1
@@ -7050,15 +6746,6 @@
           },
           "attributes": {}
         },
-        "cmp_carry_iter2_c8": {
-          "bits": [
-            172
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "cmp_carry_iter3_c7": {
           "bits": [
             173
@@ -7131,15 +6818,6 @@
           },
           "attributes": {}
         },
-        "cmp_carry_iter2_c9": {
-          "bits": [
-            181
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "cmp_carry_iter3_c8": {
           "bits": [
             182
@@ -7206,15 +6884,6 @@
         "cmp_sum_iter2_c10": {
           "bits": [
             189
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "cmp_carry_iter2_c10": {
-          "bits": [
-            190
           ],
           "logic_type": {
             "width": 1
@@ -7311,7 +6980,7 @@
           },
           "attributes": {}
         },
-        "cmp_carry_iter2_c12": {
+        "carry": {
           "bits": [
             201
           ],
@@ -7383,27 +7052,9 @@
           },
           "attributes": {}
         },
-        "cmp_sum_iter3_c12": {
-          "bits": [
-            209
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "cmp_carry_iter3_c12": {
           "bits": [
             210
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "cmp_sum_iter2_c13": {
-          "bits": [
-            211
           ],
           "logic_type": {
             "width": 1
@@ -7482,15 +7133,6 @@
           },
           "attributes": {}
         },
-        "cmp_sum_iter2_c14": {
-          "bits": [
-            220
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "cmp_carry_iter2_c14": {
           "bits": [
             221
@@ -7512,15 +7154,6 @@
         "cmp_carry_iter3_c14": {
           "bits": [
             223
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "cmp_sum_iter2_c15": {
-          "bits": [
-            224
           ],
           "logic_type": {
             "width": 1
@@ -7581,15 +7214,6 @@
           },
           "attributes": {}
         },
-        "cmp_sum_iter2_c16": {
-          "bits": [
-            231
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "cmp_carry_iter2_c16": {
           "bits": [
             232
@@ -7638,15 +7262,6 @@
         "cmp_carry_iter3_c16": {
           "bits": [
             237
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "cmp_sum_iter2_c17": {
-          "bits": [
-            238
           ],
           "logic_type": {
             "width": 1
@@ -8148,15 +7763,6 @@
           },
           "attributes": {}
         },
-        "cmp_sum_iter3_c3": {
-          "bits": [
-            294
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "pp_2_3": {
           "bits": [
             295
@@ -8193,33 +7799,6 @@
           },
           "attributes": {}
         },
-        "cmp_sum_iter2_c18": {
-          "bits": [
-            299
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "pp_0_19": {
-          "bits": [
-            300
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
-        "pp_0_20": {
-          "bits": [
-            301
-          ],
-          "logic_type": {
-            "width": 1
-          },
-          "attributes": {}
-        },
         "compressBits": {
           "bits": [
             302,
@@ -8230,7 +7809,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_concatd": {
           "bits": [
             304,
             305,
@@ -8963,7 +8542,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -9029,7 +8608,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -9698,7 +9277,7 @@
             ]
           }
         },
-        "swizzle": {
+        "concat": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -10484,7 +10063,7 @@
             ]
           }
         },
-        "swizzle_0": {
+        "concat_0": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -10880,7 +10459,7 @@
             ]
           }
         },
-        "swizzle_1": {
+        "concat_1": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -10928,7 +10507,7 @@
             ]
           }
         },
-        "swizzle_2": {
+        "concat_2": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11023,7 +10602,7 @@
             ]
           }
         },
-        "swizzle_3": {
+        "concat_3": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11225,7 +10804,7 @@
             ]
           }
         },
-        "swizzle_4": {
+        "concat_4": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11349,7 +10928,7 @@
             ]
           }
         },
-        "swizzle_5": {
+        "concat_5": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11745,7 +11324,7 @@
             ]
           }
         },
-        "swizzle_6": {
+        "concat_6": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -11793,7 +11372,7 @@
             ]
           }
         },
-        "swizzle_7": {
+        "concat_7": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -12204,7 +11783,7 @@
             ]
           }
         },
-        "swizzle_8": {
+        "concat_8": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -12598,7 +12177,7 @@
             ]
           }
         },
-        "swizzle_9": {
+        "concat_9": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -12994,7 +12573,7 @@
             ]
           }
         },
-        "swizzle_10": {
+        "concat_10": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -13042,7 +12621,7 @@
             ]
           }
         },
-        "swizzle_11": {
+        "concat_11": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -13632,7 +13211,7 @@
             ]
           }
         },
-        "swizzle_12": {
+        "concat_12": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -14028,7 +13607,7 @@
             ]
           }
         },
-        "swizzle_13": {
+        "concat_13": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -14076,7 +13655,7 @@
             ]
           }
         },
-        "swizzle_14": {
+        "concat_14": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -14767,7 +14346,7 @@
             ]
           }
         },
-        "swizzle_15": {
+        "concat_15": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -14855,7 +14434,7 @@
             ]
           }
         },
-        "swizzle_16": {
+        "concat_16": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -14967,7 +14546,7 @@
             ]
           }
         },
-        "swizzle_17": {
+        "concat_17": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -15130,7 +14709,7 @@
             ]
           }
         },
-        "swizzle_18": {
+        "concat_18": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -15242,7 +14821,7 @@
             ]
           }
         },
-        "swizzle_19": {
+        "concat_19": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -15385,7 +14964,7 @@
             ]
           }
         },
-        "swizzle_20": {
+        "concat_20": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -15882,7 +15461,7 @@
             ]
           }
         },
-        "swizzle_21": {
+        "concat_21": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -16379,7 +15958,7 @@
             ]
           }
         },
-        "swizzle_22": {
+        "concat_22": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -16876,7 +16455,7 @@
             ]
           }
         },
-        "swizzle_23": {
+        "concat_23": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -17342,7 +16921,7 @@
             ]
           }
         },
-        "swizzle_25": {
+        "concat_25": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -17686,7 +17265,7 @@
             ]
           }
         },
-        "swizzle_26": {
+        "concat_26": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -17781,7 +17360,7 @@
             ]
           }
         },
-        "swizzle_27": {
+        "concat_27": {
           "hide_name": 0,
           "type": "$concat",
           "parameters": {
@@ -18898,7 +18477,7 @@
           },
           "attributes": {}
         },
-        "multiples_1": {
+        "multiples_1_": {
           "bits": [
             168,
             169,
@@ -18918,7 +18497,7 @@
             "preserved_name": 1
           }
         },
-        "multiples_0": {
+        "multiples_0_": {
           "bits": [
             198,
             199,
@@ -19537,7 +19116,7 @@
           },
           "attributes": {}
         },
-        "_in0": {
+        "_subset_0_0_c": {
           "bits": [
             409
           ],
@@ -19546,7 +19125,7 @@
           },
           "attributes": {}
         },
-        "_in1": {
+        "_subset_1_1_c": {
           "bits": [
             410
           ],
@@ -19555,7 +19134,7 @@
           },
           "attributes": {}
         },
-        "_in2": {
+        "_subset_2_2_c": {
           "bits": [
             411
           ],
@@ -19564,7 +19143,7 @@
           },
           "attributes": {}
         },
-        "_in3": {
+        "_subset_3_3_c": {
           "bits": [
             412
           ],
@@ -19573,7 +19152,7 @@
           },
           "attributes": {}
         },
-        "_in4": {
+        "_subset_4_4_c": {
           "bits": [
             413
           ],
@@ -19582,7 +19161,7 @@
           },
           "attributes": {}
         },
-        "_in5": {
+        "_subset_5_5_c": {
           "bits": [
             414
           ],
@@ -19591,7 +19170,7 @@
           },
           "attributes": {}
         },
-        "_in6": {
+        "_subset_6_6_c": {
           "bits": [
             415
           ],
@@ -19600,7 +19179,7 @@
           },
           "attributes": {}
         },
-        "_in7": {
+        "_subset_7_7_c": {
           "bits": [
             416
           ],
@@ -19609,7 +19188,7 @@
           },
           "attributes": {}
         },
-        "_in8": {
+        "_subset_8_8_c": {
           "bits": [
             417
           ],
@@ -19618,7 +19197,7 @@
           },
           "attributes": {}
         },
-        "_in9": {
+        "_subset_9_9_c": {
           "bits": [
             418
           ],
@@ -19627,7 +19206,7 @@
           },
           "attributes": {}
         },
-        "_in10": {
+        "_subset_10_10_c": {
           "bits": [
             419
           ],
@@ -19636,7 +19215,7 @@
           },
           "attributes": {}
         },
-        "_in11": {
+        "_subset_11_11_c": {
           "bits": [
             420
           ],
@@ -19645,7 +19224,7 @@
           },
           "attributes": {}
         },
-        "_in12": {
+        "_subset_12_12_c": {
           "bits": [
             421
           ],
@@ -19654,7 +19233,7 @@
           },
           "attributes": {}
         },
-        "_in13": {
+        "_subset_13_13_c": {
           "bits": [
             422
           ],
@@ -19663,7 +19242,7 @@
           },
           "attributes": {}
         },
-        "_in14": {
+        "_subset_14_14_c": {
           "bits": [
             423
           ],
@@ -19672,7 +19251,7 @@
           },
           "attributes": {}
         },
-        "_in15": {
+        "_subset_15_15_c": {
           "bits": [
             424
           ],
@@ -19681,7 +19260,7 @@
           },
           "attributes": {}
         },
-        "_in16": {
+        "_subset_16_16_c": {
           "bits": [
             425
           ],
@@ -19690,7 +19269,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c1": {
+        "_uor__encoded_multiple_r0_and_select_r0_c1": {
           "bits": [
             429
           ],
@@ -19709,7 +19288,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor_multiples_reversed_r0": {
+        "_uor_multiples_reversed_r0": {
           "bits": [
             432
           ],
@@ -19718,7 +19297,7 @@
           },
           "attributes": {}
         },
-        "_in1__subset_2_2_mult_slice_r0": {
+        "_subset_2_2_mult_slice_r0": {
           "bits": [
             433
           ],
@@ -19727,7 +19306,7 @@
           },
           "attributes": {}
         },
-        "_in1__mult_slice_r0_rshift_const_1": {
+        "_mult_slice_r0_rshift_const_1": {
           "bits": [
             435,
             436,
@@ -19747,7 +19326,7 @@
           },
           "attributes": {}
         },
-        "_swizzled": {
+        "_concatd": {
           "bits": [
             439,
             440
@@ -19794,7 +19373,7 @@
           },
           "attributes": {}
         },
-        "_in1__mult_slice_r1_rshift_const_1": {
+        "_mult_slice_r1_rshift_const_1": {
           "bits": [
             448,
             449,
@@ -19814,7 +19393,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor_multiples_reversed_r1": {
+        "_uor_multiples_reversed_r1": {
           "bits": [
             452
           ],
@@ -19823,7 +19402,7 @@
           },
           "attributes": {}
         },
-        "_in1__subset_2_2_mult_slice_r1": {
+        "_subset_2_2_mult_slice_r1": {
           "bits": [
             453
           ],
@@ -19832,7 +19411,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c1": {
+        "_uor__encoded_multiple_r1_and_select_r1_c1": {
           "bits": [
             454
           ],
@@ -19841,7 +19420,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c1": {
+        "_uor__encoded_multiple_r2_and_select_r2_c1": {
           "bits": [
             456
           ],
@@ -19860,7 +19439,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor_multiples_reversed_r2": {
+        "_uor_multiples_reversed_r2": {
           "bits": [
             459
           ],
@@ -19869,7 +19448,7 @@
           },
           "attributes": {}
         },
-        "_in1__subset_2_2_mult_slice_r2": {
+        "_subset_2_2_mult_slice_r2": {
           "bits": [
             460
           ],
@@ -19878,7 +19457,7 @@
           },
           "attributes": {}
         },
-        "_in1__mult_slice_r2_rshift_const_1": {
+        "_mult_slice_r2_rshift_const_1": {
           "bits": [
             462,
             463,
@@ -19898,7 +19477,7 @@
           },
           "attributes": {}
         },
-        "_swizzled_0": {
+        "_concatd_0": {
           "bits": [
             466,
             467
@@ -19908,7 +19487,7 @@
           },
           "attributes": {}
         },
-        "_in0_0": {
+        "_in0": {
           "bits": [
             468
           ],
@@ -19917,7 +19496,7 @@
           },
           "attributes": {}
         },
-        "_in1_0": {
+        "_in1": {
           "bits": [
             469
           ],
@@ -19935,7 +19514,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c0": {
+        "_uor__encoded_multiple_r2_and_select_r2_c0": {
           "bits": [
             471
           ],
@@ -19964,7 +19543,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c0": {
+        "_uor__encoded_multiple_r0_and_select_r0_c0": {
           "bits": [
             476
           ],
@@ -19983,7 +19562,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c0": {
+        "_uor__encoded_multiple_r1_and_select_r1_c0": {
           "bits": [
             479
           ],
@@ -19992,7 +19571,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c2": {
+        "_uor__encoded_multiple_r1_and_select_r1_c2": {
           "bits": [
             481
           ],
@@ -20021,7 +19600,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c2": {
+        "_uor__encoded_multiple_r0_and_select_r0_c2": {
           "bits": [
             486
           ],
@@ -20040,7 +19619,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c2": {
+        "_uor__encoded_multiple_r2_and_select_r2_c2": {
           "bits": [
             489
           ],
@@ -20059,7 +19638,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c2": {
+        "_uor__encoded_multiple_r3_and_select_r3_c2": {
           "bits": [
             492
           ],
@@ -20068,7 +19647,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c1": {
+        "_uor__encoded_multiple_r3_and_select_r3_c1": {
           "bits": [
             494
           ],
@@ -20087,7 +19666,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor_multiples_reversed_r3": {
+        "_uor_multiples_reversed_r3": {
           "bits": [
             497
           ],
@@ -20096,7 +19675,7 @@
           },
           "attributes": {}
         },
-        "_in1__subset_2_2_mult_slice_r3": {
+        "_subset_2_2_mult_slice_r3": {
           "bits": [
             498
           ],
@@ -20105,7 +19684,7 @@
           },
           "attributes": {}
         },
-        "_in1__mult_slice_r3_rshift_const_1": {
+        "_mult_slice_r3_rshift_const_1": {
           "bits": [
             500,
             501,
@@ -20125,7 +19704,7 @@
           },
           "attributes": {}
         },
-        "_swizzled_1": {
+        "_concatd_1": {
           "bits": [
             504,
             505
@@ -20135,7 +19714,7 @@
           },
           "attributes": {}
         },
-        "_in0_1": {
+        "_subset_1_1__s_0": {
           "bits": [
             506
           ],
@@ -20144,7 +19723,7 @@
           },
           "attributes": {}
         },
-        "_in1_1": {
+        "_subset_0_0__s_b_0": {
           "bits": [
             507
           ],
@@ -20162,7 +19741,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c0": {
+        "_uor__encoded_multiple_r3_and_select_r3_c0": {
           "bits": [
             509
           ],
@@ -20181,7 +19760,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c3": {
+        "_uor__encoded_multiple_r3_and_select_r3_c3": {
           "bits": [
             512
           ],
@@ -20210,7 +19789,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c3": {
+        "_uor__encoded_multiple_r0_and_select_r0_c3": {
           "bits": [
             517
           ],
@@ -20229,7 +19808,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c3": {
+        "_uor__encoded_multiple_r1_and_select_r1_c3": {
           "bits": [
             520
           ],
@@ -20248,7 +19827,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c3": {
+        "_uor__encoded_multiple_r2_and_select_r2_c3": {
           "bits": [
             523
           ],
@@ -20267,7 +19846,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c3": {
+        "_uor__encoded_multiple_r4_and_select_r4_c3": {
           "bits": [
             526
           ],
@@ -20276,7 +19855,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c1": {
+        "_uor__encoded_multiple_r4_and_select_r4_c1": {
           "bits": [
             529
           ],
@@ -20295,7 +19874,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor_multiples_reversed_r4": {
+        "_uor_multiples_reversed_r4": {
           "bits": [
             532
           ],
@@ -20304,7 +19883,7 @@
           },
           "attributes": {}
         },
-        "_in1__subset_2_2_mult_slice_r4": {
+        "_subset_2_2_mult_slice_r4": {
           "bits": [
             533
           ],
@@ -20313,7 +19892,7 @@
           },
           "attributes": {}
         },
-        "_in1__mult_slice_r4_rshift_const_1": {
+        "_mult_slice_r4_rshift_const_1": {
           "bits": [
             535,
             536,
@@ -20333,7 +19912,7 @@
           },
           "attributes": {}
         },
-        "_swizzled_2": {
+        "_concatd_2": {
           "bits": [
             539,
             540
@@ -20343,7 +19922,7 @@
           },
           "attributes": {}
         },
-        "_in0_2": {
+        "_subset_1_1__s_1": {
           "bits": [
             541
           ],
@@ -20352,7 +19931,7 @@
           },
           "attributes": {}
         },
-        "_in1_2": {
+        "_subset_0_0__s_b_1": {
           "bits": [
             542
           ],
@@ -20370,7 +19949,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c0": {
+        "_uor__encoded_multiple_r4_and_select_r4_c0": {
           "bits": [
             544
           ],
@@ -20389,7 +19968,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c2": {
+        "_uor__encoded_multiple_r4_and_select_r4_c2": {
           "bits": [
             547
           ],
@@ -20408,7 +19987,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c4": {
+        "_uor__encoded_multiple_r4_and_select_r4_c4": {
           "bits": [
             550
           ],
@@ -20437,7 +20016,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c4": {
+        "_uor__encoded_multiple_r0_and_select_r0_c4": {
           "bits": [
             555
           ],
@@ -20456,7 +20035,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c4": {
+        "_uor__encoded_multiple_r1_and_select_r1_c4": {
           "bits": [
             558
           ],
@@ -20475,7 +20054,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c4": {
+        "_uor__encoded_multiple_r2_and_select_r2_c4": {
           "bits": [
             561
           ],
@@ -20494,7 +20073,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c4": {
+        "_uor__encoded_multiple_r3_and_select_r3_c4": {
           "bits": [
             564
           ],
@@ -20631,7 +20210,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c5": {
+        "_uor__encoded_multiple_r0_and_select_r0_c5": {
           "bits": [
             581
           ],
@@ -20650,7 +20229,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c5": {
+        "_uor__encoded_multiple_r1_and_select_r1_c5": {
           "bits": [
             584
           ],
@@ -20669,7 +20248,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c5": {
+        "_uor__encoded_multiple_r2_and_select_r2_c5": {
           "bits": [
             587
           ],
@@ -20688,7 +20267,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c5": {
+        "_uor__encoded_multiple_r3_and_select_r3_c5": {
           "bits": [
             590
           ],
@@ -20707,7 +20286,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c5": {
+        "_uor__encoded_multiple_r4_and_select_r4_c5": {
           "bits": [
             593
           ],
@@ -20744,7 +20323,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c6": {
+        "_uor__encoded_multiple_r0_and_select_r0_c6": {
           "bits": [
             598
           ],
@@ -20763,7 +20342,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c6": {
+        "_uor__encoded_multiple_r1_and_select_r1_c6": {
           "bits": [
             601
           ],
@@ -20782,7 +20361,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c6": {
+        "_uor__encoded_multiple_r2_and_select_r2_c6": {
           "bits": [
             604
           ],
@@ -20801,7 +20380,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c6": {
+        "_uor__encoded_multiple_r3_and_select_r3_c6": {
           "bits": [
             607
           ],
@@ -20820,7 +20399,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c6": {
+        "_uor__encoded_multiple_r4_and_select_r4_c6": {
           "bits": [
             610
           ],
@@ -20857,7 +20436,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c7": {
+        "_uor__encoded_multiple_r0_and_select_r0_c7": {
           "bits": [
             615
           ],
@@ -20876,7 +20455,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c7": {
+        "_uor__encoded_multiple_r1_and_select_r1_c7": {
           "bits": [
             618
           ],
@@ -20895,7 +20474,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c7": {
+        "_uor__encoded_multiple_r2_and_select_r2_c7": {
           "bits": [
             621
           ],
@@ -20914,7 +20493,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c7": {
+        "_uor__encoded_multiple_r3_and_select_r3_c7": {
           "bits": [
             624
           ],
@@ -20933,7 +20512,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c7": {
+        "_uor__encoded_multiple_r4_and_select_r4_c7": {
           "bits": [
             627
           ],
@@ -20970,7 +20549,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r0_and_select_r0_c8": {
+        "_uor__encoded_multiple_r0_and_select_r0_c8": {
           "bits": [
             632
           ],
@@ -20989,7 +20568,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r1_and_select_r1_c8": {
+        "_uor__encoded_multiple_r1_and_select_r1_c8": {
           "bits": [
             635
           ],
@@ -21008,7 +20587,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r2_and_select_r2_c8": {
+        "_uor__encoded_multiple_r2_and_select_r2_c8": {
           "bits": [
             638
           ],
@@ -21027,7 +20606,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r3_and_select_r3_c8": {
+        "_uor__encoded_multiple_r3_and_select_r3_c8": {
           "bits": [
             641
           ],
@@ -21046,7 +20625,7 @@
           },
           "attributes": {}
         },
-        "_in0__uor__encoded_multiple_r4_and_select_r4_c8": {
+        "_uor__encoded_multiple_r4_and_select_r4_c8": {
           "bits": [
             644
           ],
@@ -21055,7 +20634,7 @@
           },
           "attributes": {}
         },
-        "_in1__remainder_lastrow_b": {
+        "_remainder_lastrow_b": {
           "bits": [
             657
           ],
@@ -21064,7 +20643,7 @@
           },
           "attributes": {}
         },
-        "_remainder_lastrow_b": {
+        "_in1__remainder_lastrow_b": {
           "bits": [
             658
           ],
@@ -21082,7 +20661,7 @@
           },
           "attributes": {}
         },
-        "_swizzled_3": {
+        "_concatd_3": {
           "bits": [
             660,
             661
@@ -21092,7 +20671,7 @@
           },
           "attributes": {}
         },
-        "_in0_3": {
+        "_subset_1_1__s_2": {
           "bits": [
             662
           ],
@@ -21101,7 +20680,7 @@
           },
           "attributes": {}
         },
-        "_in1_3": {
+        "_subset_0_0__s_b_2": {
           "bits": [
             663
           ],

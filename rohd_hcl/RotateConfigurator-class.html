@@ -99,6 +99,18 @@
       id="instance-properties">
     <h2>Properties</h2>
     <dl class="properties">
+        <dt id="category" class="property">
+  <span class="name"><a href="../rohd_hcl/RotateConfigurator/category.html">category</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/ComponentCategory.html">ComponentCategory</a></span>
+  
+
+</dt>
+<dd>
+  The taxonomy category for this configurable component.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
         <dt id="directionKnob" class="property">
   <span class="name"><a href="../rohd_hcl/RotateConfigurator/directionKnob.html">directionKnob</a></span>
   <span class="signature">&#8594; <a href="../rohd_hcl/ChoiceConfigKnob-class.html">ChoiceConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/RotateDirection.html">RotateDirection</a></span>&gt;</span></span>
@@ -107,6 +119,30 @@
 </dt>
 <dd>
   A knob controlling the direction of rotation.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="fixedAmountKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/RotateConfigurator/fixedAmountKnob.html">fixedAmountKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/IntConfigKnob-class.html">IntConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Fixed rotation amount.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="fixedKnob" class="property">
+  <span class="name"><a href="../rohd_hcl/RotateConfigurator/fixedKnob.html">fixedKnob</a></span>
+  <span class="signature">&#8594; <a href="../rohd_hcl/ToggleConfigKnob-class.html">ToggleConfigKnob</a></span>
+  
+
+</dt>
+<dd>
+  Whether the rotation amount is fixed at elaboration time.
   <div class="features"><span class="feature">final</span></div>
 
 </dd>
@@ -132,7 +168,7 @@
 <dd>
   A mapping from configuration names to <code>ConfigKnob</code>s that can be used
 to configure this component.
-  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
 
 </dd>
 
@@ -209,6 +245,18 @@ variable naming requirements.
 
 </dd>
 
+        <dt id="subcategory" class="property">
+  <span class="name"><a href="../rohd_hcl/RotateConfigurator/subcategory.html">subcategory</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The taxonomy subcategory for this configurable component.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
     </dl>
   </section>
 
@@ -220,13 +268,13 @@ variable naming requirements.
     <dl class="callables">
         <dt id="createModule" class="callable">
   <span class="name"><a href="../rohd_hcl/RotateConfigurator/createModule.html">createModule</a></span><span class="signature">(<wbr>)
-    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a></span>
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a></span>
   </span>
   
 
 </dt>
 <dd>
-  Creates a <a href="https://pub.dev/documentation/rohd/0.6.11/rohd/Module-class.html">Module</a> instance as configured.
+  Creates a <a href="https://pub.dev/documentation/rohd/0.7.0/rohd/Module-class.html">Module</a> instance as configured.
   <div class="features"><span class="feature">override</span></div>
 
 </dd>
