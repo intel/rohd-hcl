@@ -17,7 +17,7 @@ correcting codes. The `HammingEccTransmitter` and `HammingEccReceiver` can
 support any data width, and support the following configurations:
 
 | Type | Errors detectable | Errors correctable | Extra parity bit |
-|------|-------------------|--------------------|------------------|
+| ------ | ------------------- | -------------------- | ------------------ |
 | Single Error Correction (SEC) | 1 | 1 | No |
 | Double Error Detection (SEDDED) | 2 | 0 | No |
 | Single Error Correction, Double Error Detection (SECDED) | 2 | 1 | Yes |

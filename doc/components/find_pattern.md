@@ -1,6 +1,8 @@
 # Find Pattern
 
-ROHD-HCL comes with a FindPattern.  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html).
+ROHD-HCL comes with a FindPattern. See the
+[ROHD-HCL API reference](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html)
+for details.
 
 A FindPattern will search for first/nth occurrence of a fixed-width `pattern` within a given Logic `bus`.
 

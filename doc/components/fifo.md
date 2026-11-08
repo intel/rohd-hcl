@@ -1,7 +1,8 @@
 # FIFO
 
-ROHD-HCL comes with a simple FIFO (First In, First Out).  The detailed API docs
-are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/Fifo-class.html).
+ROHD-HCL comes with a simple FIFO (First In, First Out). See the
+[Fifo API reference](https://intel.github.io/rohd-hcl/rohd_hcl/Fifo-class.html)
+for details.
 
 The underlying implementation uses a flop-based memory (see
 [`RegisterFile`](https://intel.github.io/rohd-hcl/rohd_hcl/RegisterFile-class.html))
