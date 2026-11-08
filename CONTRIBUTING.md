@@ -13,7 +13,7 @@ implemented and where there's more work to do.
 
 ROHD-HCL adopts the [Contributor
 Covenant](https://www.contributor-covenant.org/) v2.1 for the code of conduct.
-It can be accessed [here](CODE_OF_CONDUCT.md).
+Read the [ROHD-HCL Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Getting Help
 
