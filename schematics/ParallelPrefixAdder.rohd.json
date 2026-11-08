@@ -791,7 +791,41 @@
             ]
           }
         },
-        "struct_unpack_0_i1": {
+        "struct_unpack_0_i2": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "i2",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "generate_",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 1,
+            "FIELD_1_NAME": "propagate",
+            "FIELD_1_OFFSET": 1,
+            "FIELD_1_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "generate_": "output",
+            "propagate": "output"
+          },
+          "connections": {
+            "A": [
+              6,
+              7
+            ],
+            "generate_": [
+              50
+            ],
+            "propagate": [
+              51
+            ]
+          }
+        },
+        "struct_unpack_1_i1": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -822,40 +856,6 @@
             ],
             "propagate": [
               49
-            ]
-          }
-        },
-        "struct_unpack_1_i0": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "i0",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "generate_",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 1,
-            "FIELD_1_NAME": "propagate",
-            "FIELD_1_OFFSET": 1,
-            "FIELD_1_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "generate_": "output",
-            "propagate": "output"
-          },
-          "connections": {
-            "A": [
-              2,
-              3
-            ],
-            "generate_": [
-              46
-            ],
-            "propagate": [
-              47
             ]
           }
         },
@@ -893,11 +893,11 @@
             ]
           }
         },
-        "struct_unpack_3_i2": {
+        "struct_unpack_3_i0": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
-            "STRUCT_NAME": "i2",
+            "STRUCT_NAME": "i0",
             "FIELD_COUNT": 2,
             "FIELD_0_NAME": "generate_",
             "FIELD_0_OFFSET": 0,
@@ -916,14 +916,14 @@
           },
           "connections": {
             "A": [
-              6,
-              7
+              2,
+              3
             ],
             "generate_": [
-              50
+              46
             ],
             "propagate": [
-              51
+              47
             ]
           }
         },
@@ -3266,11 +3266,11 @@
             ]
           }
         },
-        "struct_unpack_0_o2": {
+        "struct_unpack_0_o1": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
-            "STRUCT_NAME": "o2",
+            "STRUCT_NAME": "o1",
             "FIELD_COUNT": 2,
             "FIELD_0_NAME": "generate_",
             "FIELD_0_OFFSET": 0,
@@ -3289,52 +3289,18 @@
           },
           "connections": {
             "A": [
-              52,
-              53
+              50,
+              51
             ],
             "generate_": [
-              57
+              56
             ],
             "propagate": [
               87
             ]
           }
         },
-        "struct_unpack_1_o0": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "o0",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "generate_",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 1,
-            "FIELD_1_NAME": "propagate",
-            "FIELD_1_OFFSET": 1,
-            "FIELD_1_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "generate_": "output",
-            "propagate": "output"
-          },
-          "connections": {
-            "A": [
-              48,
-              49
-            ],
-            "generate_": [
-              37
-            ],
-            "propagate": [
-              88
-            ]
-          }
-        },
-        "struct_unpack_2_o3": {
+        "struct_unpack_1_o3": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -3364,15 +3330,15 @@
               32
             ],
             "propagate": [
-              89
+              88
             ]
           }
         },
-        "struct_unpack_3_o1": {
+        "struct_unpack_2_o2": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
-            "STRUCT_NAME": "o1",
+            "STRUCT_NAME": "o2",
             "FIELD_COUNT": 2,
             "FIELD_0_NAME": "generate_",
             "FIELD_0_OFFSET": 0,
@@ -3391,11 +3357,45 @@
           },
           "connections": {
             "A": [
-              50,
-              51
+              52,
+              53
             ],
             "generate_": [
-              56
+              57
+            ],
+            "propagate": [
+              89
+            ]
+          }
+        },
+        "struct_unpack_3_o0": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "o0",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "generate_",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 1,
+            "FIELD_1_NAME": "propagate",
+            "FIELD_1_OFFSET": 1,
+            "FIELD_1_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "generate_": "output",
+            "propagate": "output"
+          },
+          "connections": {
+            "A": [
+              48,
+              49
+            ],
+            "generate_": [
+              37
             ],
             "propagate": [
               90
@@ -4289,28 +4289,28 @@
           },
           "attributes": {}
         },
-        "struct_unpack_0_o2_propagate": {
+        "struct_unpack_0_o1_propagate": {
           "bits": [
             87
           ],
           "hide_name": 1,
           "attributes": {}
         },
-        "struct_unpack_1_o0_propagate": {
+        "struct_unpack_1_o3_propagate": {
           "bits": [
             88
           ],
           "hide_name": 1,
           "attributes": {}
         },
-        "struct_unpack_2_o3_propagate": {
+        "struct_unpack_2_o2_propagate": {
           "bits": [
             89
           ],
           "hide_name": 1,
           "attributes": {}
         },
-        "struct_unpack_3_o1_propagate": {
+        "struct_unpack_3_o0_propagate": {
           "bits": [
             90
           ],

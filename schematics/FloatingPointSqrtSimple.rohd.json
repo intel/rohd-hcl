@@ -30748,69 +30748,7 @@
             ]
           }
         },
-        "struct_unpack_0_out": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "out",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "fraction",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 13,
-            "FIELD_1_NAME": "integer_",
-            "FIELD_1_OFFSET": 13,
-            "FIELD_1_WIDTH": 3
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "fraction": "output",
-            "integer_": "output"
-          },
-          "connections": {
-            "A": [
-              909,
-              910,
-              911,
-              912,
-              913,
-              914,
-              915,
-              916,
-              917,
-              918,
-              919,
-              920,
-              921,
-              922,
-              923,
-              924
-            ],
-            "fraction": [
-              94,
-              95,
-              96,
-              97,
-              98,
-              99,
-              100,
-              101,
-              102,
-              103,
-              104,
-              105,
-              106
-            ],
-            "integer_": [
-              107,
-              108,
-              109
-            ]
-          }
-        },
-        "struct_unpack_1_a": {
+        "struct_unpack_0_a": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -30872,7 +30810,7 @@
             ]
           }
         },
-        "struct_unpack_2_sqrt": {
+        "struct_unpack_1_sqrt": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -30931,6 +30869,68 @@
               970,
               971,
               972
+            ]
+          }
+        },
+        "struct_unpack_2_out": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "out",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "fraction",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 13,
+            "FIELD_1_NAME": "integer_",
+            "FIELD_1_OFFSET": 13,
+            "FIELD_1_WIDTH": 3
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "fraction": "output",
+            "integer_": "output"
+          },
+          "connections": {
+            "A": [
+              909,
+              910,
+              911,
+              912,
+              913,
+              914,
+              915,
+              916,
+              917,
+              918,
+              919,
+              920,
+              921,
+              922,
+              923,
+              924
+            ],
+            "fraction": [
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106
+            ],
+            "integer_": [
+              107,
+              108,
+              109
             ]
           }
         },
