@@ -38,23 +38,24 @@ Use generic `LogicType extends Logic` ports and `addTypedInput` or
 `addTypedOutput` with the appropriate clone factory when the component should
 preserve the caller's payload type. `TypedLogicArray<T, V>` additionally
 preserves array dimensions, leaf types, and its value codec. See the typed
-examples in [FIFO](./components/fifo.md), [serialization](./components/serialization.md),
-and [memory](./components/memory.md).
+examples in [FIFO](./components/fifo.md),
+[serialization](./components/serialization.md), and
+[memory](./components/memory.md).
 
 Do not assume equal bit width means compatible typed payloads. Validate the
 declared structure, array shape and codec, enum mapping, and any domain-specific
-format metadata as appropriate for the component. Use the existing payload
-shape helpers where they apply, and document additional constraints. For scalar
+format metadata as appropriate for the component. Use the existing payload shape
+helpers where they apply, and document additional constraints. For scalar
 constants passed into generic constructors, explicitly select `Logic` when a
 mutable port is required, for example `Fifo<Logic>`.
 
 An `Interface` describes related signals and their directions; a `PairInterface`
 describes producer and consumer roles. Register cloned interfaces with ROHD's
 `addInterfacePorts` or `addPairInterfacePorts`, and use the registered internal
-interface in the module. Pass `uniquify` at connection or registration time
-when names need to be adjusted; the deprecated `PairInterface.modify` callback
-is not preserved. See [standard interfaces](./components/standard_interfaces.md)
-and [ready/valid interfaces](./components/ready_valid.md).
+interface in the module. Pass `uniquify` at connection or registration time when
+names need to be adjusted; the deprecated `PairInterface.modify` callback is not
+preserved. See [standard interfaces](./components/standard_interfaces.md) and
+[ready/valid interfaces](./components/ready_valid.md).
 
 ## Static and Runtime Parameters
 
@@ -63,9 +64,9 @@ implementation strategy. When an option supports either a fixed value or a
 runtime signal, use `StaticOrRuntimeParameter` for a boolean or
 `StaticOrRuntimeControl<T>` for another static value type. Resolve the control
 inside the module so a runtime signal becomes an internal port, while a static
-value becomes a constant. Validate widths and unsupported values explicitly.
-See [static or runtime controls](./static_or_runtime_parameters.md) for
-construction and child-module patterns.
+value becomes a constant. Validate widths and unsupported values explicitly. See
+[static or runtime controls](./static_or_runtime_parameters.md) for construction
+and child-module patterns.
 
 ## Typed Operations
 
@@ -73,10 +74,10 @@ Transporting a typed payload does not imply that every arithmetic or comparison
 operation should treat it as packed bits. Preserve the domain's operations when
 that is the component contract, and explicitly use `.packed` when bit-vector
 semantics are required. Document signedness, rounding, overflow, unknown-value
-behavior, and output format where relevant. Examples include
-[typed extrema](./components/extrema.md#typed-comparisons),
-[typed sorting](./components/sort.md#typed-payloads), and
-[typed prefix networks](./components/parallel_prefix_operations.md#typed-prefix-networks).
+behavior, and output format where relevant. Examples include [typed
+extrema](./components/extrema.md#typed-comparisons), [typed
+sorting](./components/sort.md#typed-payloads), and [typed prefix
+networks](./components/parallel_prefix_operations.md#typed-prefix-networks).
 
 ## Logic Internals
 
@@ -103,7 +104,8 @@ more detail.
 
  If you want to expose internal signals onto the interface of a `Module` for
  debug, a simple method is to declare them as a field in the class (Use
-`@protected` in case this is exposed, so it doesn't become part of the API). This
+`@protected` in case this is exposed, so it doesn't become part of the API).
+This
  signal will be available in tests as module.field.
 
 ## Unit Testing
@@ -134,10 +136,10 @@ void main() {
 }
 ```
 
-Sequential tests additionally need a clock, a running simulator, and an
-explicit end to the simulation. Prefer `waitCycles` and `inject` when driving
-clocked stimulus. Test both functional behavior and generated RTL when timing
-or four-state behavior matters.
+Sequential tests additionally need a clock, a running simulator, and an explicit
+end to the simulation. Prefer `waitCycles` and `inject` when driving clocked
+stimulus. Test both functional behavior and generated RTL when timing or
+four-state behavior matters.
 
 For a parameterized test matrix, construct one DUT for each unique elaboration
 configuration, then drive all of that configuration's value vectors through the
@@ -171,25 +173,23 @@ split tests into subdirectories matching the source subcategories under
 For a component that must accept and emit different transport protocols, keep
 the hardware core protocol-neutral. Define typed action/payload requests and
 bindings with `HardwareCoreFunctor`, then add one typed directional attachment
-per boundary. Each attachment owns its protocol handshake or accounting and
-maps it to the core actions; it also publishes
-`DirectionalAttachmentCapabilities` so composition behavior is explicit.
-Do not introduce a universal protocol interface or duplicate a core for each
-protocol pair. P00 establishes synchronous and ready/valid attachments over
-the FIFO core; later branches add credit or other protocol attachments using
-the same core-and-attachment seam.
+per boundary. Each attachment owns its protocol handshake or accounting and maps
+it to the core actions; it also publishes `DirectionalAttachmentCapabilities` so
+composition behavior is explicit. Do not introduce a universal protocol
+interface or duplicate a core for each protocol pair. P00 establishes
+synchronous and ready/valid attachments over the FIFO core; later branches add
+credit or other protocol attachments using the same core-and-attachment seam.
 
 Every documented, synthesizable public `Module` should have a `Configurator`
 under `lib/src/component_config/components/` and an entry in
 `lib/src/component_config/components/component_registry.dart`. Update an
-existing configurator whenever its component gains a user-selectable
-elaboration parameter. Expose compile-time choices as `ConfigKnob`s and
-runtime-selectable controls as generated named `Logic` inputs. Pure
-`LogicStructure`/`Interface` APIs, callback-only implementation primitives,
-and simulation-only models do not require configurators. The registry drives
-both the configuration app and documentation netlist generation.
-Override each configurator's `category` and `subcategory` to match the source
-directory.
+existing configurator whenever its component gains a user-selectable elaboration
+parameter. Expose compile-time choices as `ConfigKnob`s and runtime-selectable
+controls as generated named `Logic` inputs. Pure `LogicStructure`/`Interface`
+APIs, callback-only implementation primitives, and simulation-only models do not
+require configurators. The registry drives both the configuration app and
+documentation netlist generation. Override each configurator's `category` and
+`subcategory` to match the source directory.
 
 Complete the Confapp source-asset, generated-view, and regression-test work
 described in [the Confapp README](../confapp/README.md). Application setup and

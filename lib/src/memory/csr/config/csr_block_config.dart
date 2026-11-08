@@ -21,7 +21,7 @@ import 'package:rohd_hcl/src/memory/csr/config/csr_container_config.dart';
 @immutable
 class CsrBlockConfig extends CsrContainerConfig {
   /// Address off of which all register addresses are offset.
-  final int baseAddr;
+  final BigInt baseAddr;
 
   /// Registers in this block.
   final List<CsrInstanceConfig> registers;
@@ -33,10 +33,22 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// [CsrTopConfig.blockSize] for this specific block, enabling
   /// heterogeneous block sizes within the same top-level module. When `null`
   /// (the default), the top-level [CsrTopConfig.blockSize] is used.
-  final int? blockSize;
+  final BigInt? blockSize;
 
   /// Construct a new block configuration.
   CsrBlockConfig({
+    required super.name,
+    required int baseAddr,
+    required List<CsrInstanceConfig> registers,
+    int? blockSize,
+  })  : baseAddr = BigInt.from(baseAddr),
+        blockSize = blockSize == null ? null : BigInt.from(blockSize),
+        registers = List.unmodifiable(registers) {
+    _validate();
+  }
+
+  /// Constructs a block with arbitrary-width base and optional extent.
+  CsrBlockConfig.wide({
     required super.name,
     required this.baseAddr,
     required List<CsrInstanceConfig> registers,
@@ -54,6 +66,10 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// Accessor to the config of a particular register
   /// within the block by relative address [addr].
   CsrInstanceConfig getRegisterByAddr(int addr) =>
+      getRegisterByBigIntAddr(BigInt.from(addr));
+
+  /// Looks up a register by an arbitrary-width offset.
+  CsrInstanceConfig getRegisterByBigIntAddr(BigInt addr) =>
       registers.firstWhere((element) => element.addr == addr);
 
   /// Method to validate the configuration of a single register block.
@@ -63,6 +79,11 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// the individual registers in the block. It is assumed that
   /// register validation is called separately (i.e., in Csr HW construction).
   void _validate() {
+    if (baseAddr.isNegative ||
+        (blockSize != null && blockSize! <= BigInt.zero)) {
+      throw CsrValidationException('Block base must be nonnegative and size '
+          'must be positive.');
+    }
     // at least 1 register
     if (registers.isEmpty) {
       throw CsrValidationException('Block $name has no registers.');
@@ -96,14 +117,14 @@ class CsrBlockConfig extends CsrContainerConfig {
 
   /// Returns the minimum block size (number of addresses) needed to
   /// cover all registers in this block.
-  int minBlockSize() {
-    var maxAddr = 0;
+  BigInt minBlockSize() {
+    var maxAddr = BigInt.zero;
     for (final reg in registers) {
       if (reg.addr > maxAddr) {
         maxAddr = reg.addr;
       }
     }
-    return maxAddr + 1;
+    return maxAddr + BigInt.one;
   }
 
   /// Method to determine the minimum number of address bits
@@ -114,7 +135,7 @@ class CsrBlockConfig extends CsrContainerConfig {
   /// constants and interfaces never have a zero width.
   @override
   int minAddrBits() {
-    final width = (minBlockSize() - 1).bitLength;
+    final width = (minBlockSize() - BigInt.one).bitLength;
     return width == 0 ? 1 : width;
   }
 
@@ -133,7 +154,7 @@ class CsrBlockConfig extends CsrContainerConfig {
 
   /// Deep clone method.
   @override
-  CsrBlockConfig clone() => CsrBlockConfig(
+  CsrBlockConfig clone() => CsrBlockConfig.wide(
         name: name,
         baseAddr: baseAddr,
         registers: registers,

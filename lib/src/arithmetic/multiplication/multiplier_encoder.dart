@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplication/sign_control.dart';
 
 /// A bundle for the leaf radix compute nodes. This holds the multiples
 /// of the multiplicand that are needed for encoding.
@@ -114,18 +115,18 @@ class MultiplierEncoder {
   /// Generate the Booth encoding of an input [multiplier] using
   /// [radixEncoder].
   ///
-  /// [signedMultiplier] generates a fixed signed encoder versus using
-  /// [selectSignedMultiplier] which is a runtime sign selection [Logic]
-  /// in which case [signedMultiplier] must be `false`.
+  /// [signedMultiplier] is a static or runtime
+  /// [StaticOrRuntimeParameter]. [selectSignedMultiplier] is the legacy
+  /// runtime selector and cannot be combined with an active control.
   MultiplierEncoder(this.multiplier, RadixEncoder radixEncoder,
-      {Logic? selectSignedMultiplier, bool signedMultiplier = false})
+      {Logic? selectSignedMultiplier,
+      StaticOrRuntimeParameter? signedMultiplier})
       : _encoder = radixEncoder {
-    if (signedMultiplier && (selectSignedMultiplier != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
+    final control = resolveSignControl(signedMultiplier, selectSignedMultiplier,
+        name: 'signedMultiplier');
     // Unsigned encoding wants to overlap past the multipler
-    if (signedMultiplier) {
-      rows = ((multiplier.width + (signedMultiplier ? 0 : 1)) /
+    if (control.staticConfig) {
+      rows = ((multiplier.width + (control.staticConfig ? 0 : 1)) /
               radixEncoder.radix.log2Ceil)
           .ceil();
     } else {
@@ -135,8 +136,8 @@ class MultiplierEncoder {
           ((multiplier.width + 1) ~/ radixEncoder.radix.log2Ceil);
     }
     // slices overlap by 1 and start at -1a
-    if (selectSignedMultiplier == null) {
-      _extendedMultiplier = (signedMultiplier
+    if (!control.isRuntime) {
+      _extendedMultiplier = (control.staticConfig
               ? multiplier.signExtend(rows * (radixEncoder.radix.log2Ceil))
               : multiplier.zeroExtend(rows * (radixEncoder.radix.log2Ceil)))
           .named('extended_multiplier', naming: Naming.mergeable);
@@ -145,7 +146,7 @@ class MultiplierEncoder {
       final sign = multiplier[len - 1];
       final extension = [
         for (var i = len; i < (rows * (radixEncoder.radix.log2Ceil)); i++)
-          mux(selectSignedMultiplier, sign, Const(0))
+          control.select(sign, Const(0))
       ];
       _extendedMultiplier = (multiplier.elements + extension)
           .rconcat()

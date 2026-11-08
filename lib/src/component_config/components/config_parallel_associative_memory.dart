@@ -5,7 +5,7 @@
 // Configurator for parallel associative memory.
 //
 // 2026 November 5
-// Author: GitHub Copilot
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 

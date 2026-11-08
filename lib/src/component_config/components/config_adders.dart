@@ -45,7 +45,7 @@ class OnesComplementAdderConfigurator extends Configurator {
   Module createModule() => OnesComplementAdder(
         Logic(width: widthKnob.value),
         Logic(width: widthKnob.value),
-        subtract: subtractKnob.resolve('subtract'),
+        subtract: subtractKnob.resolveControl('subtract'),
         generateEndAroundCarry: generateEndAroundCarryKnob.value,
         adderGen: (a, b, {carryIn}) => adderSelectKnob.selectedAdder()(a, b,
             carryIn: carryIn, name: 'ones_add'),
@@ -175,7 +175,7 @@ class CarrySelectOnesComplementCompoundAdderConfigurator extends Configurator {
   Module createModule() => CarrySelectOnesComplementCompoundAdder(
         Logic(width: widthKnob.value),
         Logic(width: widthKnob.value),
-        subtract: subtractKnob.resolve('subtract'),
+        subtract: subtractKnob.resolveControl('subtract'),
         generateCarryOut: generateCarryOutKnob.value,
         generateCarryOutP1: generateCarryOutP1Knob.value,
         widthGen: blockWidthKnob.value > 0

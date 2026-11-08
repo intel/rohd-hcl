@@ -36,7 +36,7 @@ class RegisterFileConfigurator extends Configurator {
   final IntConfigKnob numWritePortsKnobs = NonNegativeIntConfigKnob(value: 1);
 
   /// Controls the number of read ports.
-  final IntConfigKnob numReadPortsKnobs = PositiveIntConfigKnob(value: 1);
+  final IntConfigKnob numReadPortsKnobs = NonNegativeIntConfigKnob(value: 1);
 
   @override
   late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({

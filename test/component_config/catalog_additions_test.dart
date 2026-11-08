@@ -197,6 +197,7 @@ void main() {
     expect(csr.config.asyncReset, isTrue);
     expect(
         csr.config.blocks.single.registers.map((reg) => reg.width), [12, 12]);
-    expect(csr.config.blocks.single.registers.map((reg) => reg.addr), [0, 1]);
+    expect(csr.config.blocks.single.registers.map((reg) => reg.addr),
+        [BigInt.zero, BigInt.one]);
   });
 }

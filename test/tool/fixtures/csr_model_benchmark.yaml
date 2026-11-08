@@ -1,0 +1,14 @@
+module:
+  name: benchmark_test
+  blocks:
+    - name: control
+      base_addr: 16
+      registers:
+        - name: first
+          addr: 0
+          width: 8
+          access: read_write
+        - name: second
+          addr: 5
+          width: 8
+          access: read_write

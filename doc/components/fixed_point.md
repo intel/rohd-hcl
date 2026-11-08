@@ -10,11 +10,28 @@ Signal comparisons `lt`, `lte`, `gt`, and `gte` respect signed two's-complement
 ordering, including comparisons between negative values and across signs.
 They can be used directly by typed sort comparators.
 
-Fixed-point binary representation of numbers is useful several applications including digital signal processing and embedded systems. As a first step towards enabling fixed-point components, we created a new value system [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) similar to [LogicValue](https://intel.github.io/rohd/rohd/LogicValue-class.html).
+Fixed-point binary representation of numbers is useful several applications
+including digital signal processing and embedded systems. As a first step
+towards enabling fixed-point components, we created a new value system
+[FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)
+similar to
+[LogicValue](https://intel.github.io/rohd/rohd/LogicValue-class.html).
 
 ## FixedPointValue
 
-A [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) represents a signed or unsigned fixed-point value following the Q notation (Qm.n format) as introduced by [Texas Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an optional sign, integer part and/or a fractional part. [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s can be constructed from individual fields or from a Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), converted to Dart [double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be compared and can be operated on (+, -, *, /). A `FixedPointValuePopulator` can be used to construct `FixedPointValue` using different kinds of converters.
+A
+[FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)
+represents a signed or unsigned fixed-point value following the Q notation (Qm.n
+format) as introduced by [Texas
+Instruments](https://www.ti.com/lit/ug/spru565b/spru565b.pdf). It comprises an
+optional sign, integer part and/or a fractional part.
+[FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)s
+can be constructed from individual fields or from a Dart
+[double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html),
+converted to Dart
+[double](https://api.dart.dev/stable/3.6.0/dart-core/double-class.html), can be
+compared and can be operated on (+, -, *, /). A `FixedPointValuePopulator` can
+be used to construct `FixedPointValue` using different kinds of converters.
 
 For exact finite-value conversion that does not pass through a host `double`,
 use `FixedPointValue.toFloatingPointValue()` and
@@ -23,9 +40,16 @@ representation needed to preserve the value.
 
 ## FixedPointValue Populator
 
-A `FixedPointValuePopulator` is similar to a builder design pattern that helps populate the components of a `FixedPointValue` predictably across different special subtypes. The general pattern is to call `FixedPointValue.populatorWithSignedness`, then subsequently call one of the population methods on the provided populator to receive a completed object. The deprecated `FixedPointValue.populator` remains available with its historical unsigned default.
+A `FixedPointValuePopulator` is similar to a builder design pattern that helps
+populate the components of a `FixedPointValue` predictably across different
+special subtypes. The general pattern is to call
+`FixedPointValue.populatorWithSignedness`, then subsequently call one of the
+population methods on the provided populator to receive a completed object. The
+deprecated `FixedPointValue.populator` remains available with its historical
+unsigned default.
 
-Included in the `FixedPointValuePopulator` is a `random()` floating-point value generator that can generate `FixedPointValue`s in a constrained range such as
+Included in the `FixedPointValuePopulator` is a `random()` fixed-point value
+generator that can generate `FixedPointValue`s in a constrained range such as
 
 $$lowerBoundFXV < generatedFXV <= upperBoundFXV$$
 
@@ -53,7 +77,13 @@ This example produces random `FixedPointValue` `fxv`s in the range $0.0 < fxv.to
 
 ## FixedPoint
 
-The [FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html) type is an extension of [LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html) with additional attributes (signed or unsigned, integer width and fraction width). This type is provided to simplify the design of fixed-point arithmetic blocks.  
+The
+[FixedPoint](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPoint-class.html)
+type is an extension of
+[LogicStructure](https://intel.github.io/rohd/rohd/LogicStructure-class.html)
+with additional attributes (signed or unsigned, integer width and fraction
+width). This type is provided to simplify the design of fixed-point arithmetic
+blocks.
 
 `FixedPoint` supports direct `+`, `-`, and unary `-` operators as well as
 `add`, `subtract`, and `multiply` methods. Addition, subtraction, and
@@ -103,13 +133,30 @@ hardware-indexed packed or unpacked storage.
 
 ## FixedToFloat
 
-The [FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html) component converts a fixed-point signal to a floating-point signal specified by exponent and mantissa width. Its `roundingMode` option selects how discarded precision is rounded and defaults to `FloatingPointRoundingMode.roundNearestEven`. Results that exceed the representable range are set to infinity.
+The
+[FixedToFloat](https://intel.github.io/rohd-hcl/rohd_hcl/FixedToFloat-class.html)
+component converts a fixed-point signal to a floating-point signal specified by
+exponent and mantissa width. Its `roundingMode` option selects how discarded
+precision is rounded and defaults to
+`FloatingPointRoundingMode.roundNearestEven`. Results that exceed the
+representable range are set to infinity.
 
 ## FloatToFixed
 
-This component converts a floating-point signal to a signed fixed-point signal. Infinities and NaN's are not supported. The integer and fraction widths are auto-calculated to achieve lossless conversion.
+This component converts a floating-point signal to a signed fixed-point signal.
+Infinities and NaN's are not supported. The integer and fraction widths are
+auto-calculated to achieve lossless conversion.
 
-If the `integerWidth` and `fractionWidth` integer and fraction widths are supplied, then lossy conversion is performed to fit the floating-point value into the fixed-point value. For testing, [FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html) has a `canStore` method to predetermine if a given double can fit.  For execution, [FloatToFixed](https://intel.github.io/rohd-hcl/rohd_hcl/FloatToFixed-class.html) can perform overflow detection by setting a `checkOverflow` option, which is a property of the class and set in the constructor (default is false as it must add significant logic to do the check).
+If the `integerWidth` and `fractionWidth` integer and fraction widths are
+supplied, then lossy conversion is performed to fit the floating-point value
+into the fixed-point value. For testing,
+[FixedPointValue](https://intel.github.io/rohd-hcl/rohd_hcl/FixedPointValue-class.html)
+has a `canStore` method to predetermine if a given double can fit.  For
+execution,
+[FloatToFixed](https://intel.github.io/rohd-hcl/rohd_hcl/FloatToFixed-class.html)
+can perform overflow detection by setting a `checkOverflow` option, which is a
+property of the class and set in the constructor (default is false as it must
+add significant logic to do the check).
 
 When the target widths are constrained, the `roundingMode` option selects how
 discarded fractional bits are handled. It defaults to
@@ -136,7 +183,18 @@ Bit shifts and magnitude arithmetic remain bit-oriented.
 
 ## Float8ToFixed
 
-This component converts an 8-bit floating-point (FP8) representation ([FloatingPoint8E4M3Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E4M3Value-class.html) or [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html)) to a signed fixed-point representation. This component offers using the same hardware for both FP8 formats. Therefore, both input and output are of type [Logic](https://intel.github.io/rohd/rohd/Logic-class.html) and can be cast from/to floating point/fixed point by the producer/consumer based on the selected `mode`. Infinities and NaN's are not supported. The output width is 33bits to accommodate [FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html) without loss.
+This component converts an 8-bit floating-point (FP8) representation
+([FloatingPoint8E4M3Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E4M3Value-class.html)
+or
+[FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html))
+to a signed fixed-point representation. This component offers using the same
+hardware for both FP8 formats. Therefore, both input and output are of type
+[Logic](https://intel.github.io/rohd/rohd/Logic-class.html) and can be cast
+from/to floating point/fixed point by the producer/consumer based on the
+selected `mode`. Infinities and NaN's are not supported. The output width is
+33bits to accommodate
+[FloatingPoint8E5M2Value](https://intel.github.io/rohd-hcl/rohd_hcl/FloatingPoint8E5M2Value-class.html)
+without loss.
 
 Structured FP8 inputs now retain their runtime schema on the input port.
 The output intentionally remains `Logic`: its binary-point position changes
@@ -145,4 +203,8 @@ Use `q23p9` or `q16p16` for the corresponding typed views.
 
 ## FixedPointSqrt
 
-This component computes the square root of a 3.x fixed-point value, returning a result in the same format. The square root value is rounded to the ordered number of bits. The integral part must be 3 bits, and the fractional part may be any odd value <= 51. Even numbers of bits are currently not supported, integral bits in numbers other than 3 are currently not supported.
+This component computes the square root of a 3.x fixed-point value, returning a
+result in the same format. The square root value is rounded to the ordered
+number of bits. The integral part must be 3 bits, and the fractional part may be
+any odd value <= 51. Even numbers of bits are currently not supported, integral
+bits in numbers other than 3 are currently not supported.

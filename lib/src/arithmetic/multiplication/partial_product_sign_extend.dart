@@ -1,8 +1,8 @@
 // Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// partial_product_test_sign_extend.dart
-// Partial Product Genereator sign extension methods.
+// partial_product_sign_extend.dart
+// Partial product generator sign extension methods.
 //
 // 2024 May 15
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
@@ -33,10 +33,8 @@ enum SignExtension {
 /// Used to test different sign extension methods.
 typedef PPGFunction = PartialProductGeneratorBase Function(
     Logic a, Logic b, RadixEncoder radixEncoder,
-    {bool signedMultiplicand,
-    Logic? selectSignedMultiplicand,
-    bool signedMultiplier,
-    Logic? selectSignedMultiplier});
+    {StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier});
 
 /// API for sign extension classes.
 abstract class PartialProductSignExtension {
@@ -51,6 +49,10 @@ abstract class PartialProductSignExtension {
 
   /// multiplier operand is always signed.
   bool get signedMultiplier => ppg.signedMultiplier;
+
+  /// Static or runtime signedness of the multiplicand.
+  StaticOrRuntimeParameter get signedMultiplicandControl =>
+      ppg.signedMultiplicandControl;
 
   /// If not null, use this signal to select between signed and unsigned
   /// multiplicand.
@@ -91,15 +93,7 @@ abstract class PartialProductSignExtension {
 
   /// Sign Extension class that operates on a [PartialProductGeneratorBase]
   /// and sign-extends the entries.
-  PartialProductSignExtension(this.ppg, {this.name = 'no_sign_extension'}) {
-    if (signedMultiplier && (selectSignedMultiplier != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
-  }
+  PartialProductSignExtension(this.ppg, {this.name = 'no_sign_extension'});
 
   /// Execute the sign extension, overridden to specialize.
   void signExtend();
@@ -118,11 +112,11 @@ abstract class PartialProductSignExtension {
   /// For signed operands, flip the MSB, otherwise add this [sign] bit.
   void addStopSignFlip(List<Logic> addend, SignBit sign) {
     if (!signedMultiplicand) {
-      if (selectSignedMultiplicand == null) {
+      if (!signedMultiplicandControl.isRuntime) {
         addend.add(sign);
       } else {
-        addend.add(SignBit(mux(selectSignedMultiplicand!, ~addend.last, sign),
-            inverted: selectSignedMultiplicand != null));
+        addend.add(SignBit(signedMultiplicandControl.select(~addend.last, sign),
+            inverted: true));
       }
     } else {
       addend.last = SignBit(~addend.last, inverted: true);
@@ -184,10 +178,6 @@ class BruteSignExtension extends PartialProductSignExtension {
   /// Fully sign extend the PP array: useful for reference only
   @override
   void signExtend() {
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -201,12 +191,7 @@ class BruteSignExtension extends PartialProductSignExtension {
     ];
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
-      final Logic sign;
-      if (selectSignedMultiplicand != null) {
-        sign = mux(selectSignedMultiplicand!, addend.last, signs[row]);
-      } else {
-        sign = signedMultiplicand ? addend.last : signs[row];
-      }
+      final sign = signedMultiplicandControl.select(addend.last, signs[row]);
       addend.addAll(List.filled((rows - row) * shift, SignBit(sign)));
       if (row > 0) {
         addend
@@ -233,10 +218,6 @@ class CompactSignExtension extends PartialProductSignExtension {
     // Mohanty, B.K., Choubey, A. Efficient Design for Radix-8 Booth Multiplier
     // and Its Application in Lifting 2-D DWT. Circuits Syst Signal Process 36,
     // 1129–1149 (2017). https://doi.org/10.1007/s00034-016-0349-9
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -308,13 +289,8 @@ class CompactSignExtension extends PartialProductSignExtension {
 
     // Compute Sign extension for row==0
     final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
-    if (selectSignedMultiplicand == null) {
-      firstSign <=
-          (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
-    } else {
-      firstSign <=
-          SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0]));
-    }
+    firstSign <=
+        SignBit(signedMultiplicandControl.select(firstAddend.last, signs[0]));
     final q = [
       (firstSign ^ remainders[lastRow])
           .named('qfirst', naming: Naming.mergeable),
@@ -366,10 +342,6 @@ class StopBitsSignExtension extends PartialProductSignExtension {
   ///
   @override
   void signExtend() {
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
     if (isSignExtended) {
       throw RohdHclException('Partial Product array already sign-extended');
     }
@@ -393,12 +365,7 @@ class StopBitsSignExtension extends PartialProductSignExtension {
 
     for (var row = 0; row < rows; row++) {
       final addend = partialProducts[row];
-      final Logic sign;
-      if (selectSignedMultiplicand != null) {
-        sign = mux(selectSignedMultiplicand!, addend.last, signs[row]);
-      } else {
-        sign = signedMultiplicand ? addend.last : signs[row];
-      }
+      final sign = signedMultiplicandControl.select(addend.last, signs[row]);
       if (row == 0) {
         if (!signedMultiplicand) {
           addend.addAll(List.filled(shift, SignBit(sign)));
@@ -424,7 +391,7 @@ class StopBitsSignExtension extends PartialProductSignExtension {
             finalCarryPos - (extensionRow.length + rowShift[finalCarryRow]),
             Const(0)))
         ..add(SignBit(signs[rows - 1]));
-    } else if (signedMultiplier | (selectSignedMultiplier != null)) {
+    } else if (signedMultiplier || ppg.signedMultiplierControl.isRuntime) {
       // Create an extra row to hold the final carry bit
       partialProducts
           .add(List.filled(selector.width, Const(0), growable: true));
@@ -550,13 +517,8 @@ class CompactRectSignExtension extends PartialProductSignExtension {
     // Insert the lastRow sign:  Either in firstRow's Q if there is a
     // collision or in another row if it lands beyond the Q sign extension
     final firstSign = Logic(name: 'firstsign', naming: Naming.mergeable);
-    if (selectSignedMultiplicand == null) {
-      firstSign <=
-          (signedMultiplicand ? SignBit(firstAddend.last) : SignBit(signs[0]));
-    } else {
-      firstSign <=
-          (SignBit(mux(selectSignedMultiplicand!, firstAddend.last, signs[0])));
-    }
+    firstSign <=
+        SignBit(signedMultiplicandControl.select(firstAddend.last, signs[0]));
     final lastSign = SignBit(remainders[lastRow]);
     // Compute Sign extension MSBs for firstRow
     final qLen = shift + 1;

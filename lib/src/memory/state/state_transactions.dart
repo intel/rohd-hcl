@@ -566,3 +566,35 @@ mixin SoftwareStateTransactionEndpoint<ImageType extends Object>
     }
   }
 }
+
+/// Adapts snapshot and restore callbacks to the software transaction contract.
+///
+/// The optional capability callback is evaluated for each request so models
+/// with optional snapshot support can report their current capabilities.
+class SoftwareStateTransactionAdapter<ImageType extends Object>
+    with SoftwareStateTransactionEndpoint<ImageType> {
+  final ImageType Function() _snapshot;
+  // The mixin's covariant load checks the image before invoking this callback.
+  // ignore: unsafe_variance
+  final void Function(ImageType) _restore;
+  final StateTransactionCapabilities Function()? _capabilities;
+
+  /// Creates an endpoint backed by [snapshot] and [restore].
+  SoftwareStateTransactionAdapter({
+    required ImageType Function() snapshot,
+    required void Function(ImageType) restore,
+    StateTransactionCapabilities Function()? capabilities,
+  })  : _snapshot = snapshot,
+        _restore = restore,
+        _capabilities = capabilities;
+
+  @override
+  StateTransactionCapabilities get capabilities =>
+      _capabilities?.call() ?? StateTransactionCapabilities.software;
+
+  @override
+  ImageType get image => _snapshot();
+
+  @override
+  void load(ImageType image) => _restore(image);
+}

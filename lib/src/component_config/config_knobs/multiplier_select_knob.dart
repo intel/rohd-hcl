@@ -54,11 +54,11 @@ class MultiplierSelectKnob extends GroupOfKnobs {
   late final bool allowPipelining;
 
   /// Resolves the multiplicand signedness configuration.
-  dynamic get signedMultiplicandConfig =>
+  StaticOrRuntimeParameter get signedMultiplicandConfig =>
       _signedConfig(signMultiplicandValueKnob.value, 'signedMultiplicand');
 
   /// Resolves the multiplier signedness configuration.
-  dynamic get signedMultiplierConfig =>
+  StaticOrRuntimeParameter get signedMultiplierConfig =>
       _signedConfig(signMultiplierValueKnob.value, 'signedMultiplier');
 
   @override
@@ -85,10 +85,12 @@ class MultiplierSelectKnob extends GroupOfKnobs {
     super.name = 'Multiplier Select',
   }) : super({});
 
-  dynamic _signedConfig(String value, String inputName) => switch (value) {
-        'unsigned' => false,
-        'signed' => true,
-        'selected' => Logic(name: inputName),
+  StaticOrRuntimeParameter _signedConfig(String value, String inputName) =>
+      switch (value) {
+        'unsigned' => StaticOrRuntimeParameter.staticValue(value: false),
+        'signed' => StaticOrRuntimeParameter.staticValue(value: true),
+        'selected' => StaticOrRuntimeParameter.runtime(Logic(name: inputName),
+            name: inputName),
         _ => throw RohdHclException('Unknown signedness selection: $value'),
       };
 
@@ -102,7 +104,8 @@ class MultiplierSelectKnob extends GroupOfKnobs {
     String name,
     String? definitionName,
   }) selectedMultiplier(
-      {dynamic signedMultiplicand, dynamic signedMultiplier}) {
+      {StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier}) {
     final multiplicandSign = signedMultiplicand ?? signedMultiplicandConfig;
     final multiplierSign = signedMultiplier ?? signedMultiplierConfig;
 

@@ -331,7 +331,10 @@ class FixedPoint extends LogicStructure {
       signed: resultSigned,
     );
     final product = NativeMultiplier(left, right,
-            signedMultiplicand: resultSigned, signedMultiplier: resultSigned)
+            signedMultiplicand:
+                StaticOrRuntimeParameter.staticValue(value: resultSigned),
+            signedMultiplier:
+                StaticOrRuntimeParameter.staticValue(value: resultSigned))
         .product;
     return FixedPoint.of(product,
         signed: resultSigned,

@@ -1,9 +1,15 @@
 
 # ROHD-HCL Component List
 
-Below is a list of components grouped by category. Ones with links are documented and completed, while others are still in planning or development stages.
+Below is a list of components grouped by category. Ones with links are
+documented and completed, while others are still in planning or development
+stages.
 
-Some in-development items will have opened issues, as well. Feel free to create a pull request or file issues to add more ideas to this list. If you plan to develop and contribute a component, please be sure to open an issue so that there are not multiple people working on the same thing. Make sure to check if someone else has an open issue for a certain component before starting.
+Some in-development items will have opened issues, as well. Feel free to create
+a pull request or file issues to add more ideas to this list. If you plan to
+develop and contribute a component, please be sure to open an issue so that
+there are not multiple people working on the same thing. Make sure to check if
+someone else has an open issue for a certain component before starting.
 
 Applications should import the package barrel rather than `lib/src` paths:
 
@@ -16,9 +22,9 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 ## Source Layout
 
-Sources under `lib/src` are organized by the component's primary function.
-Each category has a barrel file that exports its components directly or
-through subcategory barrels. The package barrel exports every category barrel.
+Sources under `lib/src` are organized by the component's primary function. Each
+category has a barrel file that exports its components directly or through
+subcategory barrels. The package barrel exports every category barrel.
 
 | Category | Barrel | Subcategories |
 | --- | --- | --- |
@@ -30,7 +36,7 @@ through subcategory barrels. The package barrel exports every category barrel.
 | Error control | [`error_control.dart`](../lib/src/error_control/error_control.dart) | `protection` |
 | Flow control | [`flow_control.dart`](../lib/src/flow_control/flow_control.dart) | `arbitration`, `attachments`, `control`, `ready_valid`, `storage` |
 | Interfaces | [`interfaces.dart`](../lib/src/interfaces/interfaces.dart) | `amba` (`amba4`, `amba5`, `endpoints`), `spi` (`endpoints`) |
-| Memory | [`memories.dart`](../lib/src/memory/memories.dart) | `associative`, `behavioral`, `contracts`, `csr`, `sequential`, `state`, `storage` |
+| Memory | [`memories.dart`](../lib/src/memory/memories.dart) | `associative`, `behavioral`, `cache`, `contracts`, `csr`, `replacement`, `sequential`, `state`, `storage` |
 | Models | [`models.dart`](../lib/src/models/models.dart) | `amba`, `memory`, `ready_valid_bfm`, `spi_bfm` |
 
 The configurator tags each configurable component with the same category and
@@ -39,7 +45,9 @@ subcategory, and the confapp sidebar groups components accordingly.
 ## Components
 
 - Arithmetic
-  - [Prefix Trees](./components/parallel_prefix_operations.md) Several efficient components that leverage a variety of parallel prefix trees such as Ripple, Kogge-Stone, Sklansky, and Brent-Kung tree types.
+  - [Prefix Trees](./components/parallel_prefix_operations.md) Several efficient
+    components that leverage a variety of parallel prefix trees such as Ripple,
+    Kogge-Stone, Sklansky, and Brent-Kung tree types.
     - [Priority Encoder](./components/parallel_prefix_operations.md)
     - [Or-scan](./components/parallel_prefix_operations.md)
     - [Incrementer](./components/parallel_prefix_operations.md)
@@ -50,7 +58,8 @@ subcategory, and the confapp sidebar groups components accordingly.
     - [Compound Adder](./components/adder.md#compound-adder)
     - [Native Adder](./components/adder.md#native-adder)
   - Subtractors
-    - [Ones' Complement Adder Subtractor](./components/adder.md#ones-complement-adder-subtractor)
+    - [Ones' Complement Adder
+      Subtractor](./components/adder.md#ones-complement-adder-subtractor)
     - [Sign Magnitude Adder](./components/adder.md#sign-magnitude-adder)
   - Accumulation
     - [Summation](./components/summation.md#sum)
@@ -59,34 +68,47 @@ subcategory, and the confapp sidebar groups components accordingly.
     - Gray counter
     - [Circular pointer](./components/arithmetic_primitives.md#circular-pointer)
   - Multipliers
-    - [Pipelined Integer Multiplier](./components/multiplier.md#carry-save-multiplier)
-    - [Compression Tree Multiplier](./components/multiplier.md#compression-tree-multiplier)
-    - [Compression Tree Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
-    - [Generic Multiply-Accumulate](./components/multiplier.md#generic-multiply-accumulate)
+    - [Pipelined Integer
+      Multiplier](./components/multiplier.md#carry-save-multiplier)
+    - [Compression Tree
+      Multiplier](./components/multiplier.md#compression-tree-multiplier)
+    - [Compression Tree
+      Multiply-Accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
+    - [Generic
+      Multiply-Accumulate](./components/multiplier.md#generic-multiply-accumulate)
     - [Dot Product](./components/multiplier.md#dot-product)
-    - [Booth Encoding and Compression Components](./components/multiplier_components.md)
+    - [Booth Encoding and Compression
+      Components](./components/multiplier_components.md)
   - Division and roots
     - [Multi Cycle Integer Divider](./components/divider.md)
-    - [Ceil division and logarithm](./components/arithmetic_primitives.md#division-and-logarithms)
+    - [Ceil division and
+      logarithm](./components/arithmetic_primitives.md#division-and-logarithms)
     - [Fixed-Point Square Root](./components/fixed_point.md#fixedpointsqrt)
-    - [Floating-Point Square Root](./components/floating_point.md#floatingpointsqrt)
+    - [Floating-Point Square
+      Root](./components/floating_point.md#floatingpointsqrt)
     - Inverse square root
     - Log
   - Normalization
     - [Leading Digit Anticipate](./components/leading_digit_anticipate.md)
     - [Absolute value](./components/arithmetic_primitives.md#absolute-value)
-  - [Unsigned arithmetic with overflow](./components/arithmetic_primitives.md#arithmetic-with-overflow)
+  - [Unsigned arithmetic with
+    overflow](./components/arithmetic_primitives.md#arithmetic-with-overflow)
   - Floating point
-    - [Floating-Point Value Types](./components/floating_point.md#floatingpointvalue)
+    - [Floating-Point Value
+      Types](./components/floating_point.md#floatingpointvalue)
       - Double (64-bit)
       - Float (32-bit)
       - BFloat16 (16-bit)
       - TensorFloat32 (19-bit)
       - 8-bit E4/M3 and E5/M2
-    - [Single Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
-    - [Dual Path Floating-Point Adder](./components/floating_point.md#floatingpointadder)
-    - [Simple Floating-Point Multiplier](./components/floating_point.md#floatingpointmultiplier)
-    - [Floating-Point Converter](./components/floating_point.md#floatingpointconverter)
+    - [Single Path Floating-Point
+      Adder](./components/floating_point.md#floatingpointadder)
+    - [Dual Path Floating-Point
+      Adder](./components/floating_point.md#floatingpointadder)
+    - [Simple Floating-Point
+      Multiplier](./components/floating_point.md#floatingpointmultiplier)
+    - [Floating-Point
+      Converter](./components/floating_point.md#floatingpointconverter)
   - [Fixed point](./components/fixed_point.md)
     - [FloatToFixed](./components/fixed_point.md#floattofixed)
     - [FixedToFloat](./components/fixed_point.md#fixedtofloat)
@@ -94,21 +116,27 @@ subcategory, and the confapp sidebar groups components accordingly.
 - Bit operations
   - Search
     - [Find](./components/find.md)
-      - [Find N'th bit (0 or 1) from the start/end](./components/find.md#find-nth)
+      - [Find N'th bit (0 or 1) from the
+        start/end](./components/find.md#find-nth)
     - [Find Pattern](./components/find_pattern.md)
-      - [Find Pattern from Start/End](./components/find_pattern.md#find-pattern-from-startend)
-      - [Find N'th Pattern from Start/End](./components/find_pattern.md#find-nth-pattern-from-startend)
+      - [Find Pattern from
+        Start/End](./components/find_pattern.md#find-pattern-from-startend)
+      - [Find N'th Pattern from
+        Start/End](./components/find_pattern.md#find-nth-pattern-from-startend)
   - Population count
     - [Count bit occurrence](./components/count.md)
-    - [Bitwise population count](./components/bit_operations.md#bitwise-population-count)
+    - [Bitwise population
+      count](./components/bit_operations.md#bitwise-population-count)
     - Count pattern occurrence
   - Selection
     - [Multiplexers](./components/bit_operations.md#multiplexers)
   - Shifting
     - [Rotate](./components/rotate.md)
     - [SignedShifter](./components/shifter.md)
-    - [Padding and bit replacement](./components/bit_operations.md#padding-and-bit-replacement)
-  - [Leading and trailing zeros](./components/bit_operations.md#leading-and-trailing-zeros)
+    - [Padding and bit
+      replacement](./components/bit_operations.md#padding-and-bit-replacement)
+  - [Leading and trailing
+    zeros](./components/bit_operations.md#leading-and-trailing-zeros)
 - Clocking
   - Gating
     - [Clock gating](./components/clock_gating.md)
@@ -133,8 +161,10 @@ subcategory, and the confapp sidebar groups components accordingly.
   - [Binary to Gray](./components/binary_gray.md#binary-to-gray)
   - [Gray to Binary](./components/binary_gray.md#gray-to-binary)
   - Priority Encoders
-    - [Prefix-tree based Priority Encoder](./components/priority_encoder.md#parallel-prefix-priority-encoder)
-    - [Recursive Priority Encoder](./components/priority_encoder.md#recursive-priority-encoder)
+    - [Prefix-tree based Priority
+      Encoder](./components/priority_encoder.md#parallel-prefix-priority-encoder)
+    - [Recursive Priority
+      Encoder](./components/priority_encoder.md#recursive-priority-encoder)
   - PLAs
 - Error control
   - [ECC](./components/ecc.md)
@@ -152,7 +182,8 @@ subcategory, and the confapp sidebar groups components accordingly.
     - [Asynchronous / clock-crossing FIFO](./components/async_fifo.md)
   - Ready/Valid
     - [Ready/valid interfaces and queue](./components/ready_valid.md)
-    - [Protocol composition and directional attachments](./components/protocol_composition.md)
+    - [Protocol composition and directional
+      attachments](./components/protocol_composition.md)
   - Connect/Disconnect
   - Crediting
 - Interconnect
@@ -162,7 +193,8 @@ subcategory, and the confapp sidebar groups components accordingly.
 - Memory
   - [Register File](./components/memory.md#register-files)
   - [Masking](./components/memory.md#masks)
-  - [Associative memory and legacy CAM migration](./components/associative_memory.md)
+  - [Associative memory and legacy CAM
+    migration](./components/associative_memory.md)
   - [Shift register](./components/shift_register.md)
   - [Control/Status Registers (CSRs)](./components/csr.md)
   - [Behavioral models](./components/behavioral_models.md)
@@ -189,14 +221,15 @@ subcategory, and the confapp sidebar groups components accordingly.
   - [Ready/Valid](./components/ready_valid_bfm.md)
   - [SPI](./components/spi_bfm.md)
   - [Memory Model](./components/memory.md#memory-models)
-  - [Behavioral models (RTL vs. software vs. SystemC)](./components/behavioral_models.md)
+  - [Behavioral models (RTL vs. software vs.
+    SystemC)](./components/behavioral_models.md)
   - CXL
 
 ## Adding a New Component
 
-Please refer to [Component](./Component.md) for the best practices for creating new components.
+Please refer to [Component](./Component.md) for the best practices for creating
+new components.
 
 ----------------
 
-Copyright (C) 2023-2026 Intel Corporation
-SPDX-License-Identifier: BSD-3-Clause
+Copyright (C) 2023-2026 Intel Corporation SPDX-License-Identifier: BSD-3-Clause

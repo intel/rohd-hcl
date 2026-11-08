@@ -15,13 +15,13 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Frozen configuration of one register, with no runtime signals or callbacks.
 final class CsrModelRegisterDescription {
   /// Absolute logical register address.
-  final int address;
+  final BigInt address;
 
   /// Start and extent of the owning block's address range.
-  final int blockBase;
+  final BigInt blockBase;
 
   /// Number of logical addresses in the owning block.
-  final int blockSize;
+  final BigInt blockSize;
 
   /// Deep-copied base configuration, including immutable field lists.
   final CsrInstanceConfig config;
@@ -37,8 +37,8 @@ final class CsrModelRegisterDescription {
       Map<CsrFieldConfig, LogicValue> illegalValues)
       : illegalValues = Map.unmodifiable(illegalValues);
 
-  factory CsrModelRegisterDescription._(
-      int address, int blockBase, int blockSize, CsrInstanceConfig original) {
+  factory CsrModelRegisterDescription._(BigInt address, BigInt blockBase,
+      BigInt blockSize, CsrInstanceConfig original) {
     final fields = [
       for (final field in original.fields)
         CsrFieldConfig(
@@ -50,7 +50,7 @@ final class CsrModelRegisterDescription {
           legalValues: field.legalValues,
         ),
     ];
-    final config = CsrInstanceConfig(
+    final config = CsrInstanceConfig.wide(
       arch: CsrConfig(
         name: original.name,
         access: original.access,
@@ -113,7 +113,7 @@ final class CsrModelDescription implements BehavioralModelDescription {
   final bool asyncReset;
 
   /// Address step between chunks of a wide register.
-  final int logicalRegisterIncrement;
+  final BigInt logicalRegisterIncrement;
 
   /// Frontdoor geometry, or null for an omitted frontdoor.
   final MemoryPortGeometry? frontRead;
@@ -122,19 +122,19 @@ final class CsrModelDescription implements BehavioralModelDescription {
   final MemoryPortGeometry? frontWrite;
 
   /// Register descriptions keyed by absolute logical address.
-  final Map<int, CsrModelRegisterDescription> registers;
+  final Map<BigInt, CsrModelRegisterDescription> registers;
 
   /// Name lookup without allocating register signals.
-  final Map<String, int> names;
+  final Map<String, BigInt> names;
 
   /// Indexed frontdoor chunks: register and bit offset.
-  final Map<int, (CsrModelRegisterDescription, int)> reads;
+  final Map<BigInt, (CsrModelRegisterDescription, int)> reads;
 
   /// Indexed write chunks, honoring architectural accessibility.
-  final Map<int, (CsrModelRegisterDescription, int)> writes;
+  final Map<BigInt, (CsrModelRegisterDescription, int)> writes;
 
   /// Only requested and architecturally accessible hardware ports.
-  final Map<int, CsrModelHardwarePorts> hardware;
+  final Map<BigInt, CsrModelHardwarePorts> hardware;
 
   CsrModelDescription._({
     required this.asyncReset,
@@ -143,11 +143,11 @@ final class CsrModelDescription implements BehavioralModelDescription {
     required this.frontWrite,
     required Map<String, int> inputPorts,
     required Map<String, int> outputPorts,
-    required Map<int, CsrModelRegisterDescription> registers,
-    required Map<String, int> names,
-    required Map<int, (CsrModelRegisterDescription, int)> reads,
-    required Map<int, (CsrModelRegisterDescription, int)> writes,
-    required Map<int, CsrModelHardwarePorts> hardware,
+    required Map<BigInt, CsrModelRegisterDescription> registers,
+    required Map<String, BigInt> names,
+    required Map<BigInt, (CsrModelRegisterDescription, int)> reads,
+    required Map<BigInt, (CsrModelRegisterDescription, int)> writes,
+    required Map<BigInt, CsrModelHardwarePorts> hardware,
   })  : inputPorts = Map.unmodifiable(inputPorts),
         outputPorts = Map.unmodifiable(outputPorts),
         registers = Map.unmodifiable(registers),
@@ -164,11 +164,17 @@ final class CsrModelDescription implements BehavioralModelDescription {
     MemoryPortGeometry? frontWrite,
     Set<String>? hardwareRegisters = const {},
     int logicalRegisterIncrement = 1,
+    BigInt? wideLogicalRegisterIncrement,
     bool allowLargerRegisters = false,
   }) {
-    if (logicalRegisterIncrement < 1) {
-      throw ArgumentError.value(logicalRegisterIncrement,
-          'logicalRegisterIncrement', 'Must be positive.');
+    if (wideLogicalRegisterIncrement != null && logicalRegisterIncrement != 1) {
+      throw ArgumentError('Specify only one logical register increment.');
+    }
+    final increment =
+        wideLogicalRegisterIncrement ?? BigInt.from(logicalRegisterIncrement);
+    if (increment <= BigInt.zero) {
+      throw ArgumentError.value(
+          increment, 'logicalRegisterIncrement', 'Must be positive.');
     }
     for (final port in [frontRead, frontWrite]) {
       if (port != null &&
@@ -184,15 +190,15 @@ final class CsrModelDescription implements BehavioralModelDescription {
         frontRead.addressWidth != frontWrite.addressWidth) {
       throw CsrValidationException('CSR frontdoor address widths must match.');
     }
-    final registers = <int, CsrModelRegisterDescription>{};
-    final names = <String, int>{};
-    final reads = <int, (CsrModelRegisterDescription, int)>{};
-    final writes = <int, (CsrModelRegisterDescription, int)>{};
-    final hardware = <int, CsrModelHardwarePorts>{};
+    final registers = <BigInt, CsrModelRegisterDescription>{};
+    final names = <String, BigInt>{};
+    final reads = <BigInt, (CsrModelRegisterDescription, int)>{};
+    final writes = <BigInt, (CsrModelRegisterDescription, int)>{};
+    final hardware = <BigInt, CsrModelHardwarePorts>{};
     final inputs = <String, int>{'clk': 1, 'reset': 1};
     final outputs = <String, int>{};
     final remaining = Set<String>.of(hardwareRegisters ?? const {});
-    void index(Map<int, (CsrModelRegisterDescription, int)> target,
+    void index(Map<BigInt, (CsrModelRegisterDescription, int)> target,
         CsrModelRegisterDescription entry, MemoryPortGeometry port) {
       if (!allowLargerRegisters && entry.config.width > port.dataWidth) {
         throw CsrValidationException('CSR width exceeds frontdoor data width.');
@@ -201,10 +207,10 @@ final class CsrModelDescription implements BehavioralModelDescription {
           offset < entry.config.width;
           offset += port.dataWidth) {
         final relative = entry.config.addr +
-            offset ~/ port.dataWidth * logicalRegisterIncrement;
+            BigInt.from(offset ~/ port.dataWidth) * increment;
         final address = entry.blockBase + relative;
         if (relative >= entry.blockSize ||
-            BigInt.from(address) >= BigInt.one << port.addressWidth) {
+            address >= BigInt.one << port.addressWidth) {
           throw CsrValidationException(
               'Wide CSR exceeds its address geometry.');
         }
@@ -282,7 +288,7 @@ final class CsrModelDescription implements BehavioralModelDescription {
     }
     return CsrModelDescription._(
       asyncReset: config.asyncReset,
-      logicalRegisterIncrement: logicalRegisterIncrement,
+      logicalRegisterIncrement: increment,
       frontRead: frontRead,
       frontWrite: frontWrite,
       inputPorts: inputs,

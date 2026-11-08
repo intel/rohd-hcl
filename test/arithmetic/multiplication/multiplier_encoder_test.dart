@@ -151,6 +151,82 @@ void checkPartialProduct(PartialProductGeneratorBase pp, BigInt iX, BigInt iY) {
 }
 
 void main() {
+  group('unified signedness controls', () {
+    for (final radix in [2, 4]) {
+      for (final extension
+          in SignExtension.values.where((e) => e != SignExtension.none)) {
+        testPartialProductExhaustive('unified_R${radix}_${extension.name}', () {
+          final pp = PartialProductGenerator(
+            Logic(width: radix.log2Ceil + 1),
+            Logic(width: radix.log2Ceil + 1),
+            RadixEncoder(radix),
+            signedMultiplicand: StaticOrRuntimeParameter.fromLogic(Logic(),
+                fallbackName: 'signedMultiplicand'),
+            signedMultiplier: StaticOrRuntimeParameter(
+                name: 'signedMultiplier', runtimeConfig: Logic()),
+          );
+          currySignExtensionFunction(extension)(pp).signExtend();
+          return pp;
+        });
+      }
+    }
+
+    test('rejects invalid and conflicting controls', () {
+      expect(() => StaticOrRuntimeParameter.ofDynamic(1),
+          throwsA(isA<RohdHclException>()));
+      expect(
+          () => MultiplierEncoder(Logic(width: 3), RadixEncoder(4),
+              signedMultiplier: StaticOrRuntimeParameter.fromLogic(
+                  Logic(width: 2),
+                  fallbackName: 'signedMultiplier')),
+          throwsA(isA<RohdHclException>()));
+      expect(
+          () => PartialProductGenerator(
+              Logic(width: 3), Logic(width: 3), RadixEncoder(4),
+              signedMultiplicand: StaticOrRuntimeParameter.fromLogic(Logic(),
+                  fallbackName: 'signedMultiplicand'),
+              selectSignedMultiplicand: Logic()),
+          throwsA(isA<RohdHclException>()));
+    });
+
+    test('partial product definition names distinguish runtime and radix', () {
+      final a = Logic(width: 3);
+      final b = Logic(width: 3);
+      final fixed = PartialProduct(a, b, RadixEncoder(4));
+      final runtime = PartialProduct(a, b, RadixEncoder(4),
+          signedMultiplicand: StaticOrRuntimeParameter.fromLogic(Logic(),
+              fallbackName: 'signedMultiplicand'));
+      final otherRadix = PartialProduct(a, b, RadixEncoder(2));
+      expect(runtime.definitionName, isNot(fixed.definitionName));
+      expect(otherRadix.definitionName, isNot(fixed.definitionName));
+    });
+
+    test('partial product forwards rebound controls to a custom generator',
+        () async {
+      final signedA = Logic();
+      final signedB = Logic();
+      final pp = PartialProduct(
+        Logic(width: 3),
+        Logic(width: 3),
+        RadixEncoder(4),
+        signedMultiplicand: StaticOrRuntimeParameter.fromLogic(signedA,
+            fallbackName: 'signedMultiplicand'),
+        signedMultiplier: StaticOrRuntimeParameter.fromLogic(signedB,
+            fallbackName: 'signedMultiplier'),
+        genPPG: (a, b, radix, {signedMultiplicand, signedMultiplier}) {
+          expect(signedMultiplicand, isA<StaticOrRuntimeParameter>());
+          expect(signedMultiplier, isA<StaticOrRuntimeParameter>());
+          return PartialProductGenerator(a, b, radix,
+              signedMultiplicand: signedMultiplicand,
+              signedMultiplier: signedMultiplier);
+        },
+      );
+      await (pp..generateOutputs()).build();
+      expect(pp.inputSource('signedMultiplicand'), same(signedA));
+      expect(pp.inputSource('signedMultiplier'), same(signedB));
+    });
+  });
+
   group('PartialProduct: fixed sign variants', () {
     for (final signedMultiplicand in [false, true]) {
       for (final signedMultiplier in [false, true]) {
@@ -167,8 +243,10 @@ void main() {
                   Logic(name: 'X', width: width),
                   Logic(name: 'Y', width: width),
                   RadixEncoder(radix),
-                  signedMultiplicand: signedMultiplicand,
-                  signedMultiplier: signedMultiplier,
+                  signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                      value: signedMultiplicand),
+                  signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                      value: signedMultiplier),
                 );
                 currySignExtensionFunction(signExtension)(pp).signExtend();
                 return pp;
@@ -195,8 +273,10 @@ void main() {
               Logic(name: 'X', width: width),
               Logic(name: 'Y', width: width),
               encoder,
-              signedMultiplicand: signedMultiplicand,
-              signedMultiplier: signedMultiplier,
+              signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                  value: signedMultiplicand),
+              signedMultiplier:
+                  StaticOrRuntimeParameter.staticValue(value: signedMultiplier),
             );
             StopBitsSignExtension(pp).signExtend();
             return pp;
@@ -232,8 +312,10 @@ void main() {
                       Logic(name: 'X', width: width),
                       Logic(name: 'Y', width: width),
                       RadixEncoder(radix),
-                      signedMultiplicand: signMultiplicand,
-                      signedMultiplier: signMultiplier,
+                      signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                          value: signMultiplicand),
+                      signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                          value: signMultiplier),
                       selectSignedMultiplicand:
                           selectMultiplicand ? selectSignMultiplicand : null,
                       selectSignedMultiplier:
@@ -268,8 +350,10 @@ void main() {
               Logic(name: 'X', width: width),
               Logic(name: 'Y', width: width),
               RadixEncoder(radix),
-              signedMultiplicand: !selectMultiplicand,
-              signedMultiplier: !selectMultiplier,
+              signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                  value: !selectMultiplicand),
+              signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                  value: !selectMultiplier),
               selectSignedMultiplicand:
                   selectMultiplicand ? selectSignMultiplicand : null,
               selectSignedMultiplier:
@@ -329,8 +413,10 @@ void main() {
                     Logic(name: 'X', width: widthX),
                     Logic(name: 'Y', width: widthY),
                     RadixEncoder(radix),
-                    signedMultiplicand: signedMultiplicand,
-                    signedMultiplier: signedMultiplier,
+                    signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                        value: signedMultiplicand),
+                    signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                        value: signedMultiplier),
                   );
                   currySignExtensionFunction(signExtension)(pp).signExtend();
                   return pp;
@@ -402,8 +488,10 @@ void main() {
                 Logic(name: 'X', width: widthX),
                 Logic(name: 'Y', width: widthY),
                 RadixEncoder(radix),
-                signedMultiplicand: signedMultiplicand,
-                signedMultiplier: signedMultiplier,
+                signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                    value: signedMultiplicand),
+                signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                    value: signedMultiplier),
               );
               currySignExtensionFunction(signExtension)(pp).signExtend();
               return pp;
@@ -462,7 +550,10 @@ void main() {
     for (final signed in [false, true]) {
       final ppg = PartialProductGenerator(
           multiplicand, multiplier, radixEncoder,
-          signedMultiplicand: signed, signedMultiplier: signed);
+          signedMultiplicand:
+              StaticOrRuntimeParameter.staticValue(value: signed),
+          signedMultiplier:
+              StaticOrRuntimeParameter.staticValue(value: signed));
       CompactSignExtension(ppg).signExtend();
       for (var i = BigInt.zero; i < BigInt.from(limitX); i += BigInt.one) {
         for (var j = BigInt.zero; j < BigInt.from(limitY); j += BigInt.one) {
@@ -523,7 +614,8 @@ void main() {
     logicY.put(Y);
     logicZ.put(Z);
     final pp = PartialProductGenerator(logicX, logicY, encoder,
-        signedMultiplicand: true, signedMultiplier: true);
+        signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: true),
+        signedMultiplier: StaticOrRuntimeParameter.staticValue(value: true));
     CompactRectSignExtension(pp).signExtend();
 
     final lastLength =
@@ -570,7 +662,8 @@ void main() {
     logicY.put(Y);
     logicZ.put(Z);
     final pp = PartialProductGenerator(logicX, logicY, encoder,
-        signedMultiplicand: true, signedMultiplier: true);
+        signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: true),
+        signedMultiplier: StaticOrRuntimeParameter.staticValue(value: true));
     CompactRectSignExtension(pp).signExtend();
 
     final lastLength =

@@ -27,7 +27,7 @@ class Csr extends LogicStructure {
   final List<int> rsvdIndices;
 
   /// Getter for the address of the CSR.
-  int get addr => config.addr;
+  BigInt get addr => config.addr;
 
   /// Getter for the reset value of the CSR.
   int get resetValue => config.resetValue;
@@ -149,7 +149,7 @@ class Csr extends LogicStructure {
   /// set it (so a backdoor writer can raise a flag that a frontdoor
   /// writer later clears).
   Csr getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
-    // if the whole register is ready only, return the current value
+    // Frontdoor writes cannot update a read-only register.
     if (!isBackdoorWrite && access == CsrAccess.readOnly) {
       return this;
     }

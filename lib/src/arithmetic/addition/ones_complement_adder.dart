@@ -13,6 +13,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/addition/subtract_control.dart';
 
 /// An adder (and subtractor) [OnesComplementAdder] that operates on
 /// ones-complement values, producing a magnitude and sign.
@@ -45,10 +46,10 @@ class OnesComplementAdder extends Adder {
   final bool generateEndAroundCarry;
 
   /// [OnesComplementAdder] constructor with an adder functor [adderGen].
-  /// - [subtract] configures subtraction statically with a `bool` or at runtime
-  /// with a 1-bit [Logic]. It defaults to addition.
+  /// - [subtract] configures subtraction with a [StaticOrRuntimeParameter].
+  ///   It defaults to addition.
   /// - [subtractIn] is a deprecated runtime subtraction control. It may be
-  ///   provided with an explicit `subtract: false` for compatibility.
+  ///   provided with a statically false [subtract] for compatibility.
   /// - If [generateEndAroundCarry] is `true`, then the end-around
   /// carry is not performed and is provided as output [endAroundCarry]. If
   ///   [generateEndAroundCarry] is `false`, extra hardware takes care of adding
@@ -64,39 +65,30 @@ class OnesComplementAdder extends Adder {
       @Deprecated('Use subtract with a 1-bit Logic instead.') Logic? subtractIn,
       this.generateEndAroundCarry = false,
       super.carryIn,
-      dynamic subtract,
+      StaticOrRuntimeParameter? subtract,
       bool chainable = false,
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName,
       super.name = 'ones_complement_adder'})
       : super(
-            definitionName:
-                definitionName ?? 'OnesComplementAdder_W${a.width}') {
+            definitionName: definitionName ??
+                'OnesComplementAdder_W${a.width}_'
+                    '${subtractControlSuffix(subtract, subtractIn)}') {
     if (generateEndAroundCarry) {
       addOutput('endAroundCarry');
     }
-    final subtractIsActive =
-        subtract != null && (subtract is! bool || subtract);
-    if (subtractIn != null && subtractIsActive) {
-      throw RohdHclException(
-          "Provide either deprecated 'subtractIn' or 'subtract', "
-          'but not both.');
-    }
-    subtractParameter = subtractIn != null
-        ? StaticOrRuntimeParameter(
-            name: 'subtractIn', runtimeConfig: subtractIn)
-        : StaticOrRuntimeParameter.ofDynamic(subtract);
+    subtractParameter = resolveSubtractControl(subtract, subtractIn);
     _sign = addOutput('sign');
 
     final doSubtract = subtractParameter
         .getLogic(this)
         .named('dosubtract', naming: Naming.mergeable);
 
-    final adderSum =
-        adderGen(a, mux(doSubtract, ~b, b), carryIn: carryIn ?? Const(0))
-            .sum
-            .named('adderSum', naming: Naming.mergeable);
+    final adderSum = adderGen(a, subtractParameter.select(~b, b, module: this),
+            carryIn: carryIn ?? Const(0))
+        .sum
+        .named('adderSum', naming: Naming.mergeable);
 
     if (generateEndAroundCarry) {
       endAroundCarry! <= adderSum[-1];

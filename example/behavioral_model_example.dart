@@ -46,14 +46,14 @@ Future<void> csrSoftwareModelExample() async {
   final command = state.addressOf('control', 'command');
 
   // Raw access does not allocate signals or apply write side effects.
-  state.poke(command, LogicValue.ofInt(0xbeef, 16));
-  print('command after poke: ${state.peek(command)}');
+  state.pokeBigInt(command, LogicValue.ofInt(0xbeef, 16));
+  print('command after poke: ${state.peekBigInt(command)}');
 
   final saved = state.snapshot();
   state.load({}, replace: true);
-  print('command after replace-load of nothing: ${state.peek(command)}');
+  print('command after replace-load of nothing: ${state.peekBigInt(command)}');
   state.load(saved, replace: true);
-  print('command after restoring snapshot: ${state.peek(command)}');
+  print('command after restoring snapshot: ${state.peekBigInt(command)}');
 
   // Two-state ports with an explicit unknown-output policy for SystemC.
   final header = top.generateModelSystemC(
@@ -76,7 +76,7 @@ void memoryStorageStateExample() {
 
   state.poke(3, LogicValue.ofInt(0x1234, 32));
   final saved = state.snapshot();
-  state.load({}, replace: true);
+  state.load(MemoryStorageImage({}), replace: true);
   print('after replace-load of nothing: ${state.peek(3)}');
   state.load(saved, replace: true);
   print('after restoring snapshot: ${state.peek(3)}');

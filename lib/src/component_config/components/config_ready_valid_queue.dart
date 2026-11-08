@@ -5,7 +5,7 @@
 // Configurator for a ready/valid queue.
 //
 // 2026 November 5
-// Author: GitHub Copilot
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';

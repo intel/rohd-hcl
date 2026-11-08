@@ -73,16 +73,8 @@ abstract class Multiplier extends Module {
   /// Take input [a] and input [b] and return the [product] of the
   /// multiplication result.
   ///
-  /// The optional [signedMultiplicand] parameter configures the multiplicand
-  /// [a] statically using a `bool` to indicate a signed multiplicand (default
-  /// is `false`, or unsigned) or dynamically with a 1-bit [Logic] input.
-  /// Passing something other null, `bool`, or [Logic] will result in a throw.
-  ///
-  ///
-  /// The optional [signedMultiplier] parameter configures the multiplier [b]
-  /// statically using a `bool` to indicate a signed multiplier (default is
-  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
-  /// something other null, `bool`, or [Logic] will result in a throw.
+  /// [signedMultiplicand] and [signedMultiplier] configure operand signedness
+  /// with [StaticOrRuntimeParameter]. Omitted controls default to unsigned.
   ///
   /// If [clk] is not null then a set of flops are used to make the multiply a
   /// 2-cycle latency operation. [reset] and [enable] are optional inputs to
@@ -91,8 +83,8 @@ abstract class Multiplier extends Module {
       {Logic? clk,
       Logic? reset,
       Logic? enable,
-      dynamic signedMultiplicand,
-      dynamic signedMultiplier,
+      StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier,
       super.name = 'multiplier',
       super.reserveName,
       super.reserveDefinitionName,
@@ -107,13 +99,11 @@ abstract class Multiplier extends Module {
     a = addInput('a', a, width: a.width);
     b = addInput('b', b, width: b.width);
 
-    signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
-        signedMultiplicand,
-        name: 'signedMultiplicand');
+    signedMultiplicandParameter = signedMultiplicand ??
+        StaticOrRuntimeParameter.staticValue(value: false);
     this.signedMultiplicand = signedMultiplicandParameter.staticConfig;
-    signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
-        signedMultiplier,
-        name: 'signedMultiplier');
+    signedMultiplierParameter =
+        signedMultiplier ?? StaticOrRuntimeParameter.staticValue(value: false);
     this.signedMultiplier = signedMultiplierParameter.staticConfig;
 
     addOutput('product', width: a.width + b.width);
@@ -127,7 +117,7 @@ abstract class Multiplier extends Module {
   /// - UD: unsigned multiplicand.
   /// - SD: signed multiplicand.
   /// - SSD: dynamic selection of signed multiplicand.
-  static String signedMD(dynamic mdConfig) =>
+  static String signedMD(StaticOrRuntimeParameter? mdConfig) =>
       _signedConfigName(mdConfig, unsigned: 'UD', signed: 'SD', runtime: 'SSD');
 
   /// This is a helper function that prints out the kind of multiplier (selected
@@ -135,16 +125,17 @@ abstract class Multiplier extends Module {
   /// - UM: unsigned multiplier.
   /// - SM: signed multiplier.
   /// - SSM: dynamic selection of signed multiplier.
-  static String signedML(dynamic mlConfig) =>
+  static String signedML(StaticOrRuntimeParameter? mlConfig) =>
       _signedConfigName(mlConfig, unsigned: 'UM', signed: 'SM', runtime: 'SSM');
 
   static String _signedConfigName(
-    dynamic config, {
+    StaticOrRuntimeParameter? config, {
     required String unsigned,
     required String signed,
     required String runtime,
   }) {
-    final parameter = StaticOrRuntimeParameter.ofDynamic(config);
+    final parameter =
+        config ?? StaticOrRuntimeParameter.staticValue(value: false);
     return parameter.isRuntime
         ? runtime
         : parameter.staticConfig
@@ -247,10 +238,8 @@ class CompressionTreeMultiplier extends Multiplier {
                     '${Multiplier.signedML(signedMultiplier)}_'
                     'with${adderGen(a, a).definitionName}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
-        selectSignedMultiplicand: selectSignedMultiplicand,
-        signedMultiplicand: signedMultiplicand,
-        selectSignedMultiplier: selectSignedMultiplier,
-        signedMultiplier: signedMultiplier,
+        signedMultiplicand: signedMultiplicandParameter.forChild(this),
+        signedMultiplier: signedMultiplierParameter.forChild(this),
         name: 'comp_partial_product');
 
     final ppWithOutputs = pp

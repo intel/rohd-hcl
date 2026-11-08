@@ -151,7 +151,8 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         largeNarrowMantissa, smallNarrowMantissa,
         generateCarryOut: true,
         generateCarryOutP1: true,
-        subtract: effectiveSubtraction,
+        subtract: StaticOrRuntimeParameter.runtime(effectiveSubtraction,
+            name: 'subtract'),
         widthGen: widthGen,
         adderGen: adderGen);
 

@@ -34,22 +34,15 @@ class DotProductBase extends Module {
   /// Every multiplicand must have one common width and every multiplier must
   /// have one common width. The multiplicand and multiplier widths may differ.
   ///
-  /// The optional [signedMultiplicand] parameter configures the [multiplicands]
-  /// statically using a `bool` to indicate a signed multiplicand (default is
-  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input. Passing
-  /// something other null, `bool`, or [Logic] will result in a throw.
-  ///
-  /// The optional [signedMultiplier] parameter configures the [multipliers]
-  /// statically using a `bool` to indicate a signed multiplier (default is
-  /// `false`, or unsigned) or dynamically with a 1-bit [Logic] input.  Passing
-  /// something other null, `bool`, or [Logic] will result in a throw.
+  /// [signedMultiplicand] and [signedMultiplier] configure operand signedness
+  /// with [StaticOrRuntimeParameter]. Omitted controls default to unsigned.
   ///
   /// The output [product] will be `multiplicands.length.log2Ceil` wider than
   /// the sum of one multiplicand width and one multiplier width to accommodate
   /// the increasing accumulation value.
   DotProductBase(List<Logic> multiplicands, List<Logic> multipliers,
-      {dynamic signedMultiplicand,
-      dynamic signedMultiplier,
+      {StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier,
       super.name = 'dotproduct',
       super.reserveName = false,
       super.reserveDefinitionName = false,
@@ -84,12 +77,10 @@ class DotProductBase extends Module {
           "don't match preceding width.");
     }
 
-    signedMultiplicandParameter = StaticOrRuntimeParameter.ofDynamic(
-        signedMultiplicand,
-        name: 'signedMultiplicand');
-    signedMultiplierParameter = StaticOrRuntimeParameter.ofDynamic(
-        signedMultiplier,
-        name: 'signedMultiplier');
+    signedMultiplicandParameter = signedMultiplicand ??
+        StaticOrRuntimeParameter.staticValue(value: false);
+    signedMultiplierParameter =
+        signedMultiplier ?? StaticOrRuntimeParameter.staticValue(value: false);
 
     this.multiplicands = multiplicands
         .mapIndexed((i, multiplicand) => addInput(
@@ -142,12 +133,8 @@ class CompressionTreeDotProduct extends DotProductBase {
       for (var i = 0; i < multipliers.length; i++)
         PartialProductGenerator(
             multiplicands[i], multipliers[i], RadixEncoder(productRadix),
-            signedMultiplicand: signedMultiplicandParameter.staticConfig,
-            signedMultiplier: signedMultiplierParameter.staticConfig,
-            selectSignedMultiplicand:
-                signedMultiplicandParameter.getRuntimeInput(this),
-            selectSignedMultiplier:
-                signedMultiplierParameter.getRuntimeInput(this))
+            signedMultiplicand: signedMultiplicandParameter.forChild(this),
+            signedMultiplier: signedMultiplierParameter.forChild(this))
     ];
     for (final ppG in ppGenerators) {
       StopBitsSignExtension(ppG).signExtend();
@@ -199,8 +186,8 @@ class GeneralDotProduct extends DotProductBase {
               {Logic? clk,
               Logic? reset,
               Logic? enable,
-              dynamic signedMultiplicand,
-              dynamic signedMultiplier})
+              StaticOrRuntimeParameter? signedMultiplicand,
+              StaticOrRuntimeParameter? signedMultiplier})
           multiplierGen = NativeMultiplier.new,
       super.name = 'dotproduct',
       super.reserveName = false,
@@ -227,12 +214,8 @@ class GeneralDotProduct extends DotProductBase {
     final dotResults = [
       for (var i = 0; i < multipliers.length; i++)
         multiplierGen(multiplicands[i], multipliers[i],
-                signedMultiplicand: signedMultiplicandParameter.isRuntime
-                    ? signedMultiplicandParameter.getRuntimeInput(this)
-                    : signedMultiplicandParameter.staticConfig,
-                signedMultiplier: signedMultiplierParameter.isRuntime
-                    ? signedMultiplierParameter.getRuntimeInput(this)
-                    : signedMultiplierParameter.staticConfig)
+                signedMultiplicand: signedMultiplicandParameter.forChild(this),
+                signedMultiplier: signedMultiplierParameter.forChild(this))
             .product
     ];
 

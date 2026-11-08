@@ -81,7 +81,8 @@ void main() {
     final c = Logic(width: 6);
 
     Multiplier compressionTreeMultiplier(Logic a, Logic b,
-            {dynamic signedMultiplicand, dynamic signedMultiplier}) =>
+            {StaticOrRuntimeParameter? signedMultiplicand,
+            StaticOrRuntimeParameter? signedMultiplier}) =>
         CompressionTreeMultiplier(a, b,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier);
@@ -93,13 +94,16 @@ void main() {
       GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
           adderGen: RippleCarryAdder.new, adderIdentity: 'rippleCarry'),
       GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
-          signedMultiplicand: true),
+          signedMultiplicand:
+              StaticOrRuntimeParameter.staticValue(value: true)),
       GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
-          signedMultiplier: true),
+          signedMultiplier: StaticOrRuntimeParameter.staticValue(value: true)),
       GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
-          signedAddend: true),
+          signedAddend: StaticOrRuntimeParameter.staticValue(value: true)),
       GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
-          signedAddend: Logic(name: 'signedAddend')),
+          signedAddend: StaticOrRuntimeParameter.fromLogic(
+              Logic(name: 'signedAddend'),
+              fallbackName: 'signedAddend')),
     ];
 
     expect(variants.map((variant) => variant.definitionName).toSet(),
@@ -153,9 +157,9 @@ void main() {
     final b = Logic(name: 'b', width: operandWidth);
     final c = Logic(name: 'c', width: addendWidth);
     final mac = GenericMultiplyAccumulate(a, b, c, NativeMultiplier.new,
-        signedMultiplicand: true,
-        signedMultiplier: true,
-        signedAddend: true,
+        signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: true),
+        signedMultiplier: StaticOrRuntimeParameter.staticValue(value: true),
+        signedAddend: StaticOrRuntimeParameter.staticValue(value: true),
         outputWidth: outputWidth);
 
     for (final vector in [
@@ -179,7 +183,8 @@ void main() {
     final c = Logic(name: 'c', width: width * 2)..put(1);
 
     Multiplier multiplierGen(Logic a, Logic b,
-            {dynamic signedMultiplicand, dynamic signedMultiplier}) =>
+            {StaticOrRuntimeParameter? signedMultiplicand,
+            StaticOrRuntimeParameter? signedMultiplier}) =>
         CompressionTreeMultiplier(a, b,
             signedMultiplicand: signedMultiplicand,
             signedMultiplier: signedMultiplier);

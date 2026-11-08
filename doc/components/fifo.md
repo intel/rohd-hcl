@@ -1,10 +1,15 @@
 # FIFO
 
-ROHD-HCL comes with a simple FIFO (First In, First Out).  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/Fifo-class.html).
+ROHD-HCL comes with a simple FIFO (First In, First Out).  The detailed API docs
+are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/Fifo-class.html).
 
-The underlying implementation uses a flop-based memory (see [`RegisterFile`](https://intel.github.io/rohd-hcl/rohd_hcl/RegisterFile-class.html)) to store data until it is ready to be popped, with independent read and write pointers.
+The underlying implementation uses a flop-based memory (see
+[`RegisterFile`](https://intel.github.io/rohd-hcl/rohd_hcl/RegisterFile-class.html))
+to store data until it is ready to be popped, with independent read and write
+pointers.
 
-When `writeEnable` is high, `writeData` is added to the FIFO.  When `readEnable` is high, `readData` is popped off the FIFO.
+When `writeEnable` is high, `writeData` is added to the FIFO.  When `readEnable`
+is high, `readData` is popped off the FIFO.
 
 The FIFO has a configurable `depth`.
 
@@ -12,25 +17,28 @@ The FIFO has a configurable `depth`.
 
 `Fifo<T>` preserves the payload type through its input, internal memory ports,
 `RegisterFile<T>` storage, output, and optional bypass. `T` may be plain
-`Logic`, a structure, an enum, or a `TypedLogicArray` (including multidimensional
-and rank-zero arrays). For array payloads, each FIFO entry is the entire array;
-no payload dimension is consumed. Array leaf codecs survive cloning.
+`Logic`, a structure, an enum, or a `TypedLogicArray` (including
+multidimensional and rank-zero arrays). For array payloads, each FIFO entry is
+the entire array; no payload dimension is consumed. Array leaf codecs survive
+cloning.
 
 `FifoCoreFunctor<T>` and the existing ready/valid adapters preserve these
 schemas as well. `ReadyValidFifo<T>` accepts structure-derived payloads,
-including typed arrays. Its shape validation includes dimensions, unpacked
-axes, leaf layouts, and codec identity.
+including typed arrays. Its shape validation includes dimensions, unpacked axes,
+leaf layouts, and codec identity.
 
 The [asynchronous FIFO](async_fifo.md#typed-payloads) also preserves typed
 payloads through its storage and read output.
 
 ## Peeking
 
-When `readEnable` is low, the `readData` continually provides access to "peek" the next data.
+When `readEnable` is low, the `readData` continually provides access to "peek"
+the next data.
 
 ## Empty and Full
 
-The `empty` signal indicates when nothing is in the FIFO.  The `full` signal indicates when the FIFO can store no additional data.
+The `empty` signal indicates when nothing is in the FIFO.  The `full` signal
+indicates when the FIFO can store no additional data.
 
 ## Action and Status Outputs
 
@@ -49,36 +57,44 @@ definitions.
 
 ## Bypass
 
-The FIFO optionally supports a bypass if `generateBypass` is set.  When generated, if the FIFO is empty and both `readEnable` and `writeEnable` are high at the same time, then the FIFO will do a bypass of the internal storage, allowing for a combinational passthrough.
+The FIFO optionally supports a bypass if `generateBypass` is set.  When
+generated, if the FIFO is empty and both `readEnable` and `writeEnable` are high
+at the same time, then the FIFO will do a bypass of the internal storage,
+allowing for a combinational passthrough.
 
 ## Errors
 
-Error information can optionally be generated and provided if `generateError` is set.  If data is popped when the FIFO is empty, or pushed when the FIFO is full, then the `error` signal will assert.
+Error information can optionally be generated and provided if `generateError` is
+set.  If data is popped when the FIFO is empty, or pushed when the FIFO is full,
+then the `error` signal will assert.
 
-There is no guarantee that the `error` signal will hold high once asserted.  Behavior after an error condition is undefined.
+There is no guarantee that the `error` signal will hold high once asserted.
+Behavior after an error condition is undefined.
 
 ## Occupancy
 
-Occupancy information can optionally be generated and provided if `generateOccupancy` is set.  The `occupancy` signal will indicate the number of items currently stored in the FIFO.
+Occupancy information can optionally be generated and provided if
+`generateOccupancy` is set.  The `occupancy` signal will indicate the number of
+items currently stored in the FIFO.
 
 ## Initial Values
 
 If desired, the `initialValues` argument can be used to pre-load the FIFO with
 data upon reset. The length of `initialValues` must be less than or equal to the
 `depth` of the FIFO. A fully initialized FIFO starts with its write pointer
-wrapped to the first slot, so a simultaneous full dequeue and replacement
-writes the newly released slot at every supported depth.
+wrapped to the first slot, so a simultaneous full dequeue and replacement writes
+the newly released slot at every supported depth.
 
 ## Protocol-Neutral Construction
 
-`HardwareCoreFunctor<Request, Binding>` is the generic non-`Module`
-construction seam for protocol-neutral cores. `FifoCoreFunctor<T>` implements
-that seam over `Fifo<T>`:
+`HardwareCoreFunctor<Request, Binding>` is the generic non-`Module` construction
+seam for protocol-neutral cores. `FifoCoreFunctor<T>` implements that seam over
+`Fifo<T>`:
 
 - `FifoCoreRequest<T>` carries caller-owned clock, reset, enqueue, dequeue, and
   typed payload signals.
-- `FifoCoreRequirements` explicitly requests full replacement, empty bypass,
-  and stored-entry-only slot release semantics.
+- `FifoCoreRequirements` explicitly requests full replacement, empty bypass, and
+  stored-entry-only slot release semantics.
 - `FifoCoreCapabilities` describes the configured depth, action semantics, and
   optional occupancy/error outputs.
 - `FifoCoreBinding<T>` returns the constructed FIFO and output-only status and
@@ -93,55 +109,63 @@ equal-width shapes do not collide.
 
 ## Directional Protocol Attachments
 
-Protocol wrappers compose a core through independently typed ingress and
-egress attachments. The core owns only clocked storage, payload retention, and
-the explicit `enqueue`/`dequeue` actions. An attachment owns one protocol
-boundary and maps it onto those actions and a wrapper-owned payload signal.
+Protocol wrappers compose a core through independently typed ingress and egress
+attachments. The core owns only clocked storage, payload retention, and the
+explicit `enqueue`/`dequeue` actions. An attachment owns one protocol boundary
+and maps it onto those actions and a wrapper-owned payload signal.
 
-`DirectionalAttachmentCapabilities` describes the storage, latency,
-retention, same-cycle replacement, credit-reuse, contract, and combinational
-dependency properties of one attachment. P00 provides:
+`DirectionalAttachmentCapabilities` describes the storage, latency, retention,
+same-cycle replacement, credit-reuse, contract, and combinational dependency
+properties of one attachment. P00 provides:
 
 - `SynchronousActionAttachmentPolicy` for a caller-owned one-bit action; and
-- `ReadyValidIngressAttachmentPolicy` and
-  `ReadyValidEgressAttachmentPolicy` for typed ready/valid boundaries.
+- `ReadyValidIngressAttachmentPolicy` and `ReadyValidEgressAttachmentPolicy` for
+  typed ready/valid boundaries.
 
-The deprecated `ReadyValidFifo` uses `FifoCoreFunctor` with
-one Ready/Valid ingress attachment and one Ready/Valid egress attachment.
-It intentionally retains its existing no-full-replacement behavior by giving
-the ingress attachment `~full` rather than the core's more permissive
-`canEnqueue` action. Set `allowSameCycleReplacement: true` when a scalar
-Ready/Valid boundary must accept a new item on the same edge that a retained
-full-FIFO head transfers. The option maps ingress eligibility to
-`canEnqueue`, explicitly requires that core capability, and gives the wrapper
-a distinct generated definition. It does not enable empty-FIFO bypass.
-New designs can use `ReadyValidQueue` with registered policy and ring storage;
-the queue allows full replacement and also offers fall-through and register
-storage options. See [Ready/Valid Hardware](ready_valid.md).
+The deprecated `ReadyValidFifo` uses `FifoCoreFunctor` with one Ready/Valid
+ingress attachment and one Ready/Valid egress attachment. It intentionally
+retains its existing no-full-replacement behavior by giving the ingress
+attachment `~full` rather than the core's more permissive `canEnqueue` action.
+Set `allowSameCycleReplacement: true` when a scalar Ready/Valid boundary must
+accept a new item on the same edge that a retained full-FIFO head transfers. The
+option maps ingress eligibility to `canEnqueue`, explicitly requires that core
+capability, and gives the wrapper a distinct generated definition. It does not
+enable empty-FIFO bypass. New designs can use `ReadyValidQueue` with registered
+policy and ring storage; the queue allows full replacement and also offers
+fall-through and register storage options. See [Ready/Valid
+Hardware](ready_valid.md).
 
-Later protocol families add their own typed attachments to the same core
-action boundary. For example, a credited ingress may own admission accounting
-and map legal credit traffic to `enqueue`, while a ready/valid egress maps
-`dequeue` to its transfer handshake. Do not add a universal protocol
-interface, and do not have protocol wrappers instantiate `Fifo` directly:
-extend the typed attachment layer while preserving the core request/binding
-API.
+Later protocol families add their own typed attachments to the same core action
+boundary. For example, a credited ingress may own admission accounting and map
+legal credit traffic to `enqueue`, while a ready/valid egress maps `dequeue` to
+its transfer handshake. Do not add a universal protocol interface, and do not
+have protocol wrappers instantiate `Fifo` directly: extend the typed attachment
+layer while preserving the core request/binding API.
 
 ## Example Schematic
 
-An example schematic for one configuration is viewable here: [FIFO Schematic](https://intel.github.io/rohd-hcl/Fifo.html)
+An example schematic for one configuration is viewable here: [FIFO
+Schematic](https://intel.github.io/rohd-hcl/Fifo.html)
 
 ## Testbench Utilities
 
-The FIFO comes with both a checker and a tracker that you can leverage in your testbench.
+The FIFO comes with both a checker and a tracker that you can leverage in your
+testbench.
 
 ### Checker
 
-The `FifoChecker` is a ROHD-VF component which will watch for proper usage of a FIFO in your simulation. It is intended to check usage, not the internal workings of the FIFO, which are already pre-validated in the unit tests.  This means it covers things like underflow, overflow, and that the FIFO is empty at the end of the test.
+The `FifoChecker` is a ROHD-VF component which will watch for proper usage of a
+FIFO in your simulation. It is intended to check usage, not the internal
+workings of the FIFO, which are already pre-validated in the unit tests.  This
+means it covers things like underflow, overflow, and that the FIFO is empty at
+the end of the test.
 
 ### Tracker
 
-The `FifoTracker` will generate log files using the `Tracker` from ROHD-VF in either table or JSON format.  It tracks reads and writes per timestamp, including data pushed/popped and the current occupancy.  An example table is shown below (from one of the unit tests):
+The `FifoTracker` will generate log files using the `Tracker` from ROHD-VF in
+either table or JSON format.  It tracks reads and writes per timestamp,
+including data pushed/popped and the current occupancy.  An example table is
+shown below (from one of the unit tests):
 
 ```text
 ----------------------------------------

@@ -503,6 +503,33 @@ void main() {
 
       expect(sv, contains('wr_mask_0'));
     });
+
+    test('supports zero read ports when write ports are present', () async {
+      final cfg = RegisterFileConfigurator()..numReadPortsKnobs.value = 0;
+      final loaded = RegisterFileConfigurator()..loadJson(cfg.toJson());
+
+      expect(loaded.numReadPortsKnobs.value, 0);
+      expect(loaded.numWritePortsKnobs.value, 1);
+      final rf = loaded.createModule() as RegisterFile<Logic>;
+      expect(rf.reads, isEmpty);
+      expect(rf.writes, hasLength(1));
+      expect(await loaded.generateSV(), contains('module RegisterFile'));
+    });
+
+    test('rejects negative read ports and configurations without ports', () {
+      final cfg = RegisterFileConfigurator();
+      expect(() => cfg.numReadPortsKnobs.value = -1, throwsArgumentError);
+      expect(() => cfg.numReadPortsKnobs.setValueFromString('-1'),
+          throwsArgumentError);
+      expect(() => cfg.numReadPortsKnobs.loadJson({'value': -1}),
+          throwsArgumentError);
+      expect(() => cfg.numReadPortsKnobs.loadJson({'value': '-1'}),
+          throwsArgumentError);
+
+      cfg.numReadPortsKnobs.value = 0;
+      cfg.numWritePortsKnobs.value = 0;
+      expect(cfg.createModule, throwsA(isA<RohdHclException>()));
+    });
   });
 
   group('sort generator.dart', () {

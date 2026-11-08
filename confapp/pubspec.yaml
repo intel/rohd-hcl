@@ -96,9 +96,11 @@ flutter:
     - assets/rohd_src/memory/
     - assets/rohd_src/memory/associative/
     - assets/rohd_src/memory/behavioral/
+    - assets/rohd_src/memory/cache/
     - assets/rohd_src/memory/contracts/
     - assets/rohd_src/memory/csr/
     - assets/rohd_src/memory/csr/config/
+    - assets/rohd_src/memory/replacement/
     - assets/rohd_src/memory/sequential/
     - assets/rohd_src/memory/state/
     - assets/rohd_src/memory/storage/

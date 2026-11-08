@@ -163,6 +163,14 @@ class AssociativeMemoryRequest {
   /// Whether the consumer requires an indexed key/validity side-read port.
   final bool requiresIndexedSideRead;
 
+  /// Number of independently indexed key/validity side reads.
+  final int indexedSideReadCount;
+
+  final bool _legacySideReadRequirement;
+
+  /// Whether the consumer requires a combinational per-entry validity mask.
+  final bool requiresValidityMask;
+
   /// Creates an associative-memory request.
   AssociativeMemoryRequest({
     required this.keyWidth,
@@ -180,8 +188,18 @@ class AssociativeMemoryRequest {
     this.updateLatency = 0,
     this.requiredResetBehavior = AssociativeMemoryResetBehavior.none,
     this.requiredResetTiming = AssociativeMemoryResetTiming.synchronous,
-    this.requiresIndexedSideRead = false,
-  }) {
+    bool requiresIndexedSideRead = false,
+    int? indexedSideReadCount,
+    this.requiresValidityMask = false,
+  })  : indexedSideReadCount =
+            indexedSideReadCount ?? (requiresIndexedSideRead ? 1 : 0),
+        _legacySideReadRequirement =
+            requiresIndexedSideRead && indexedSideReadCount == null,
+        requiresIndexedSideRead =
+            requiresIndexedSideRead || (indexedSideReadCount ?? 0) > 0 {
+    if (requiresIndexedSideRead && this.indexedSideReadCount == 0) {
+      throw ArgumentError('An indexed side-read request must have a port.');
+    }
     validate();
   }
 
@@ -202,6 +220,8 @@ class AssociativeMemoryRequest {
     AssociativeMemoryResetTiming requiredResetTiming =
         AssociativeMemoryResetTiming.synchronous,
     bool requiresIndexedSideRead = false,
+    int? indexedSideReadCount,
+    bool requiresValidityMask = false,
   }) {
     final allPorts = <AssociativePortInterface>[...updatePorts, ...lookupPorts];
     if (lookupPorts.isEmpty) {
@@ -234,6 +254,8 @@ class AssociativeMemoryRequest {
       requiredResetBehavior: requiredResetBehavior,
       requiredResetTiming: requiredResetTiming,
       requiresIndexedSideRead: requiresIndexedSideRead,
+      indexedSideReadCount: indexedSideReadCount,
+      requiresValidityMask: requiresValidityMask,
     );
     return request;
   }
@@ -246,6 +268,7 @@ class AssociativeMemoryRequest {
         updatePortCount < 0 ||
         lookupPortCount < 1 ||
         lookupLatency < 0 ||
+        indexedSideReadCount < 0 ||
         updateLatency < 0) {
       throw ArgumentError('Associative-memory widths, entry count, lookup '
           'ports, and latencies must be valid.');
@@ -262,7 +285,9 @@ class AssociativeMemoryRequest {
       entryCount == other.entryCount &&
       updatePortCount == other.updatePortCount &&
       lookupPortCount == other.lookupPortCount &&
-      requiresIndexedSideRead == other.requiresIndexedSideRead;
+      requiresIndexedSideRead == other.requiresIndexedSideRead &&
+      indexedSideReadCount == other.indexedSideReadCount &&
+      requiresValidityMask == other.requiresValidityMask;
 }
 
 /// Indexed side-read request for associative key and validity state.
@@ -313,6 +338,24 @@ class AssociativeIndexedSideReadResponse extends LogicStructure {
   @override
   AssociativeIndexedSideReadResponse clone({String? name}) =>
       AssociativeIndexedSideReadResponse._clone(this, name: name);
+}
+
+/// Optional combinational indexed access to stored key and validity.
+abstract interface class AssociativeIndexedSideReadProvider {
+  /// Response to the supplied side-read request, or null when not enabled.
+  AssociativeIndexedSideReadResponse? get sideReadResponse;
+}
+
+/// Optional combinational access through multiple indexed side-read ports.
+abstract interface class AssociativeMultiIndexedSideReadProvider {
+  /// Responses corresponding to the indexed side-read requests, in order.
+  List<AssociativeIndexedSideReadResponse> get sideReadResponses;
+}
+
+/// Optional combinational access to all stored validity bits.
+abstract interface class AssociativeValidityMaskProvider {
+  /// One validity bit per entry, or null when tracking was not requested.
+  Logic? get validMask;
 }
 
 /// Static capabilities advertised by an associative-memory implementation.
@@ -383,6 +426,12 @@ class AssociativeMemoryCapabilities {
   /// Whether indexed key and validity side reads are exposed.
   final bool supportsIndexedSideRead;
 
+  /// Maximum indexed side-read ports, or null if unbounded.
+  final int? maximumIndexedSideReads;
+
+  /// Whether a combinational per-entry validity mask is exposed.
+  final bool supportsValidityMask;
+
   /// Whether selected entries can be invalidated through a state operation.
   final bool supportsIndexedInvalidation;
 
@@ -425,6 +474,8 @@ class AssociativeMemoryCapabilities {
     StateTransactionCapabilities stateTransactions =
         StateTransactionCapabilities.unsupported,
     bool supportsIndexedSideRead = false,
+    int? maximumIndexedSideReads = 1,
+    bool supportsValidityMask = false,
     bool supportsIndexedInvalidation = false,
     bool supportsInvalidateAll = false,
     AssociativeBulkOperationCompletion bulkOperationCompletion =
@@ -457,6 +508,8 @@ class AssociativeMemoryCapabilities {
         sustainsOneLookupPerPortPerCycle: sustainsOneLookupPerPortPerCycle,
         stateTransactions: stateTransactions,
         supportsIndexedSideRead: supportsIndexedSideRead,
+        maximumIndexedSideReads: maximumIndexedSideReads,
+        supportsValidityMask: supportsValidityMask,
         supportsIndexedInvalidation: supportsIndexedInvalidation,
         supportsInvalidateAll: supportsInvalidateAll,
         bulkOperationCompletion: bulkOperationCompletion,
@@ -476,6 +529,8 @@ class AssociativeMemoryCapabilities {
     this.supportedMatchModes = const {AssociativeMatchMode.exact},
     this.stateTransactions = StateTransactionCapabilities.unsupported,
     this.supportsIndexedSideRead = false,
+    this.maximumIndexedSideReads = 1,
+    this.supportsValidityMask = false,
     this.supportsIndexedInvalidation = false,
     this.supportsInvalidateAll = false,
     this.bulkOperationCompletion =
@@ -573,6 +628,14 @@ class AssociativeMemoryCapabilities {
     if (request.requiresIndexedSideRead && !supportsIndexedSideRead) {
       return 'does not expose an indexed side-read port';
     }
+    if (maximumIndexedSideReads != null &&
+        request.indexedSideReadCount > maximumIndexedSideReads!) {
+      return 'requires ${request.indexedSideReadCount} indexed side reads; '
+          'implementation supports at most $maximumIndexedSideReads';
+    }
+    if (request.requiresValidityMask && !supportsValidityMask) {
+      return 'does not provide a validity mask';
+    }
     return null;
   }
 
@@ -591,6 +654,7 @@ class AssociativeMemoryCapabilities {
         maximumLookupLatency != null &&
             maximumLookupLatency! < minimumLookupLatency ||
         updateLatency < 0 ||
+        (maximumIndexedSideReads != null && maximumIndexedSideReads! < 1) ||
         supportedDuplicateKeyPolicies.isEmpty ||
         supportedMatchSelections.isEmpty ||
         supportedMatchModes.isEmpty ||
@@ -660,6 +724,18 @@ typedef AssociativeMemoryBuilder = AssociativeMemory Function({
   required String name,
 });
 
+/// Builds an associative memory with one or more indexed side reads.
+typedef AssociativeMultiSideReadBuilder = AssociativeMemory Function({
+  required Logic clk,
+  required Logic reset,
+  required List<AssociativeUpdatePortInterface> updatePorts,
+  required List<AssociativeLookupPortInterface> lookupPorts,
+  required List<AssociativeIndexedSideReadRequest> sideReadRequests,
+  required AssociativeMemoryRequest request,
+  required AssociativeMemoryContract contract,
+  required String name,
+});
+
 /// Selects an implementation-specific contract for a supported request.
 typedef AssociativeMemoryContractResolver = AssociativeMemoryContract Function(
     AssociativeMemoryRequest request);
@@ -687,10 +763,27 @@ class AssociativeMemoryBinding {
     required List<AssociativeUpdatePortInterface> updatePorts,
     required List<AssociativeLookupPortInterface> lookupPorts,
     required String name,
+    AssociativeIndexedSideReadRequest? sideReadRequest,
+    List<AssociativeIndexedSideReadRequest>? sideReadRequests,
   }) {
     if (memory != null) {
       throw StateError(
           'An associative-memory binding may be instantiated once.');
+    }
+    if (sideReadRequest != null && sideReadRequests != null) {
+      throw ArgumentError('Use either sideReadRequest or sideReadRequests.');
+    }
+    final sides = sideReadRequests ??
+        (sideReadRequest == null
+            ? <AssociativeIndexedSideReadRequest>[]
+            : [sideReadRequest]);
+    final legacyUnboundSideRead =
+        request._legacySideReadRequirement && sides.isEmpty;
+    if ((!legacyUnboundSideRead &&
+            request.indexedSideReadCount != sides.length) ||
+        sides.any((side) => side.index.width != request.indexWidth)) {
+      throw ArgumentError(
+          'Indexed side-read port does not match the resolved request.');
     }
     final actualRequest = AssociativeMemoryRequest.fromPorts(
       updatePorts: updatePorts,
@@ -706,20 +799,37 @@ class AssociativeMemoryBinding {
       requiredResetBehavior: request.requiredResetBehavior,
       requiredResetTiming: request.requiredResetTiming,
       requiresIndexedSideRead: request.requiresIndexedSideRead,
+      indexedSideReadCount: request.indexedSideReadCount,
+      requiresValidityMask: request.requiresValidityMask,
     );
     if (!request._hasSameShape(actualRequest)) {
       throw ArgumentError(
           'Bound associative ports do not match the resolved request shape.');
     }
-    final built = implementation._build(
-      clk: clk,
-      reset: reset,
-      updatePorts: updatePorts,
-      lookupPorts: lookupPorts,
-      request: request,
-      contract: contract,
-      name: name,
-    );
+    if (sides.isNotEmpty && implementation._buildMultiple == null) {
+      throw ArgumentError('Associative-memory implementation '
+          '${implementation.identity} has no indexed-side-read builder.');
+    }
+    final built = sides.isNotEmpty
+        ? implementation._buildMultiple!(
+            clk: clk,
+            reset: reset,
+            updatePorts: updatePorts,
+            lookupPorts: lookupPorts,
+            sideReadRequests: sides,
+            request: request,
+            contract: contract,
+            name: name,
+          )
+        : implementation._build(
+            clk: clk,
+            reset: reset,
+            updatePorts: updatePorts,
+            lookupPorts: lookupPorts,
+            request: request,
+            contract: contract,
+            name: name,
+          );
     if (built.entryCount != request.entryCount ||
         built.keyWidth != request.keyWidth ||
         built.indexWidth != request.indexWidth ||
@@ -730,6 +840,44 @@ class AssociativeMemoryBinding {
       throw StateError('Associative-memory implementation '
           '${implementation.identity} built a module that does not match its '
           'resolved binding.');
+    }
+    if (request.requiresValidityMask) {
+      if (built is! AssociativeValidityMaskProvider) {
+        throw StateError('Associative-memory implementation '
+            '${implementation.identity} did not provide a validity mask.');
+      }
+      final mask = (built as AssociativeValidityMaskProvider).validMask;
+      if (mask == null || mask.width != request.entryCount) {
+        throw StateError('Associative-memory implementation '
+            '${implementation.identity} provided an invalid validity mask.');
+      }
+    }
+    if (sides.length == 1) {
+      if (built is! AssociativeIndexedSideReadProvider) {
+        throw StateError('Associative-memory implementation '
+            '${implementation.identity} did not provide its indexed '
+            'side read.');
+      }
+      final response =
+          (built as AssociativeIndexedSideReadProvider).sideReadResponse;
+      if (response == null || response.key.width != request.keyWidth) {
+        throw StateError('Associative-memory implementation '
+            '${implementation.identity} provided an invalid side-read '
+            'response.');
+      }
+    }
+    if (sides.length > 1) {
+      if (built is! AssociativeMultiIndexedSideReadProvider) {
+        throw StateError('Associative-memory implementation '
+            '${implementation.identity} did not provide indexed side reads.');
+      }
+      final responses =
+          (built as AssociativeMultiIndexedSideReadProvider).sideReadResponses;
+      if (responses.length != sides.length ||
+          responses.any((response) => response.key.width != request.keyWidth)) {
+        throw StateError('Associative-memory implementation '
+            '${implementation.identity} provided invalid side-read responses.');
+      }
     }
     memory = built;
     return built;
@@ -745,6 +893,7 @@ class AssociativeMemoryBinding {
 /// {@category Memory}
 class AssociativeMemoryFunctor {
   final AssociativeMemoryBuilder _build;
+  final AssociativeMultiSideReadBuilder? _buildMultiple;
   final AssociativeMemoryContractResolver? _resolve;
 
   /// Stable SystemVerilog-safe implementation identity.
@@ -754,12 +903,18 @@ class AssociativeMemoryFunctor {
   final AssociativeMemoryCapabilities capabilities;
 
   /// Creates an associative-memory implementation functor.
+  ///
+  /// [buildMultipleSideReads] is required when binding indexed side-read
+  /// ports. The original [build] callback remains unchanged, including for
+  /// legacy capability-only indexed-side-read requests.
   const AssociativeMemoryFunctor({
     required this.identity,
     required this.capabilities,
     required AssociativeMemoryBuilder build,
+    AssociativeMultiSideReadBuilder? buildMultipleSideReads,
     AssociativeMemoryContractResolver? resolve,
   })  : _build = build,
+        _buildMultiple = buildMultipleSideReads,
         _resolve = resolve;
 
   /// Resolves [request] without instantiating hardware.
@@ -772,6 +927,10 @@ class AssociativeMemoryFunctor {
     if (incompatibility != null) {
       throw ArgumentError(
           'Associative-memory implementation $identity $incompatibility.');
+    }
+    if (request.indexedSideReadCount > 1 && _buildMultiple == null) {
+      throw ArgumentError('Associative-memory implementation $identity has no '
+          'indexed-side-read builder.');
     }
     final contract = _resolve?.call(request) ??
         AssociativeMemoryContract(
@@ -822,10 +981,16 @@ class AssociativeMemoryFunctor {
     required AssociativeLookupUpdatePolicy lookupUpdatePolicy,
     required AssociativeUpdateCollisionPolicy updateCollisionPolicy,
     required String name,
+    AssociativeIndexedSideReadRequest? sideReadRequest,
+    List<AssociativeIndexedSideReadRequest>? sideReadRequests,
+    bool requiresValidityMask = false,
     int updateLatency = 0,
     AssociativeMemoryResetBehavior requiredResetBehavior =
         AssociativeMemoryResetBehavior.none,
   }) {
+    if (sideReadRequest != null && sideReadRequests != null) {
+      throw ArgumentError('Use either sideReadRequest or sideReadRequests.');
+    }
     final request = AssociativeMemoryRequest.fromPorts(
       updatePorts: updatePorts,
       lookupPorts: lookupPorts,
@@ -838,6 +1003,9 @@ class AssociativeMemoryFunctor {
       lookupUpdatePolicy: lookupUpdatePolicy,
       updateCollisionPolicy: updateCollisionPolicy,
       requiredResetBehavior: requiredResetBehavior,
+      requiresIndexedSideRead: sideReadRequest != null,
+      indexedSideReadCount: sideReadRequests?.length,
+      requiresValidityMask: requiresValidityMask,
     );
     final binding = resolve(request);
     if (binding.contract.lookupLatency != request.lookupLatency ||
@@ -857,6 +1025,8 @@ class AssociativeMemoryFunctor {
       reset: reset,
       updatePorts: updatePorts,
       lookupPorts: lookupPorts,
+      sideReadRequest: sideReadRequest,
+      sideReadRequests: sideReadRequests,
       name: name,
     );
     return binding;

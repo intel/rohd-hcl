@@ -1,11 +1,5 @@
 // Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
-//
-// components.dart
-// Exports for component configurators.
-//
-// 2023 December 6
-// Author: Max Korbel <max.korbel@intel.com>
 
 export 'config_adders.dart';
 export 'config_apb_csr_completer.dart';
@@ -14,6 +8,7 @@ export 'config_async_fifo.dart';
 export 'config_binary_gray.dart';
 export 'config_bit_manipulation.dart';
 export 'config_bitwise_popcount.dart';
+export 'config_cache.dart';
 export 'config_cam.dart';
 export 'config_carry_save_multiplier.dart';
 export 'config_clock_gating.dart';
@@ -36,6 +31,7 @@ export 'config_floating_point_converter.dart';
 export 'config_floating_point_multiplier.dart';
 export 'config_floating_point_sqrt.dart';
 export 'config_leading_digit_anticipate.dart';
+export 'config_memory_building_blocks.dart';
 export 'config_multi_cycle_divider.dart';
 export 'config_multiplier.dart';
 export 'config_multiply_accumulate.dart';

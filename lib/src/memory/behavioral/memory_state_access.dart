@@ -18,8 +18,14 @@ abstract interface class MemoryStateAccess<Image extends Object> {
   /// Reads raw state; null means a valid but unpopulated sparse address.
   LogicValue? peek(int address);
 
+  /// Reads raw state at an arbitrary-width logical address.
+  LogicValue? peekBigInt(BigInt address);
+
   /// Replaces raw state without architectural writes, W1C effects, or pulses.
   void poke(int address, LogicValue value);
+
+  /// Replaces raw state at an arbitrary-width logical address.
+  void pokeBigInt(BigInt address, LogicValue value);
 
   /// Captures detached state without allocating hardware signals.
   Image snapshot();

@@ -1,7 +1,7 @@
 # Bit Operations
 
-The following components complement the [count](count.md),
-[find](find.md), and [rotate](rotate.md) modules. They are exported by
+The following components complement the [count](count.md), [find](find.md), and
+[rotate](rotate.md) modules. They are exported by
 `package:rohd_hcl/rohd_hcl.dart`.
 
 ## Bitwise Population Count
@@ -13,8 +13,8 @@ the underlying count tree's `treeDepth`.
 ## Leading and Trailing Zeros
 
 `CountLeadingZeros(inp)` and `CountTrailingZeros(inp)` expose the number of
-zeros from the most- or least-significant end on `count`. For an all-zero
-input, the result is the input width.
+zeros from the most- or least-significant end on `count`. For an all-zero input,
+the result is the input width.
 
 ## Multiplexers
 
@@ -36,6 +36,6 @@ selects the inserted bit value. Inputs already at least `n` bits are unchanged.
 
 `SetBits(inp, count)` sets a runtime-selected number of bits at one end to
 `fill`; `lsbs` chooses the end and counts at or above the input width affect
-every bit. `WithSet(subject, start, value)` overwrites a runtime-selected
-range. Bits above the subject width are discarded, and a start at or beyond
-that width leaves the subject unchanged.
+every bit. `WithSet(subject, start, value)` overwrites a runtime-selected range.
+Bits above the subject width are discarded, and a start at or beyond that width
+leaves the subject unchanged.

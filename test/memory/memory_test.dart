@@ -43,7 +43,6 @@ void main() {
               storage: SparseMemoryStorage(
                 addrWidth: addrWidth,
                 dataWidth: dataWidth,
-                alignAddress: (addr) => addr,
                 onInvalidRead: (addr, dataWidth) =>
                     LogicValue.filled(dataWidth, LogicValue.zero),
               ),

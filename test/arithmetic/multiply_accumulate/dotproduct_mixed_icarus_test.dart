@@ -26,8 +26,12 @@ void main() {
     final dotProduct = GeneralDotProduct(
       [Logic(width: 4), Logic(width: 4)],
       [Logic(width: 3), Logic(width: 3)],
-      signedMultiplicand: Logic(name: 'signedMultiplicand'),
-      signedMultiplier: Logic(name: 'signedMultiplier'),
+      signedMultiplicand: StaticOrRuntimeParameter.fromLogic(
+          Logic(name: 'signedMultiplicand'),
+          fallbackName: 'signedMultiplicand'),
+      signedMultiplier: StaticOrRuntimeParameter.fromLogic(
+          Logic(name: 'signedMultiplier'),
+          fallbackName: 'signedMultiplier'),
       multiplierGen: _compressionTreeMultiplier,
       multiplierIdentity: 'compressionTreeR4',
     );
@@ -51,8 +55,8 @@ Multiplier _compressionTreeMultiplier(
   Logic? clk,
   Logic? reset,
   Logic? enable,
-  dynamic signedMultiplicand,
-  dynamic signedMultiplier,
+  StaticOrRuntimeParameter? signedMultiplicand,
+  StaticOrRuntimeParameter? signedMultiplier,
 }) =>
     CompressionTreeMultiplier(
       a,

@@ -11,6 +11,9 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 
+String _incrementName(int increment, BigInt? wideIncrement) =>
+    '${wideIncrement ?? increment}';
+
 /// Top level module encapsulating groups of CSRs.
 ///
 /// This top module can include arbitrarily many CSR blocks.
@@ -72,7 +75,7 @@ class CsrTop extends CsrContainer
   final List<Map<int, int>> _backdoorIndexMaps = [];
 
   /// Getter for the block size.
-  int get blockSize => config.blockSize;
+  BigInt get blockSize => config.blockSize;
 
   /// Getter for the block configurations of the CSR.
   List<CsrBlockConfig> get blocks => config.blocks;
@@ -96,11 +99,17 @@ class CsrTop extends CsrContainer
 
   /// Accessor to the backdoor ports of a particular register
   /// using its address [regAddr] within the block with address [blockAddr].
-  CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr) {
-    final idx = config.blocks.indexOf(config.getBlockByAddr(blockAddr));
+  CsrBackdoorInterface getBackdoorPortsByAddr(int blockAddr, int regAddr) =>
+      getBackdoorPortsByBigIntAddr(
+          BigInt.from(blockAddr), BigInt.from(regAddr));
+
+  /// Looks up a backdoor by arbitrary-width block base and register offset.
+  CsrBackdoorInterface getBackdoorPortsByBigIntAddr(
+      BigInt blockAddr, BigInt regAddr) {
+    final idx = config.blocks.indexOf(config.getBlockByBigIntAddr(blockAddr));
     if (idx >= 0 && idx < backdoorInterfaces.length) {
       final idx1 = config.blocks[idx].registers
-          .indexOf(config.blocks[idx].getRegisterByAddr(regAddr));
+          .indexOf(config.blocks[idx].getRegisterByBigIntAddr(regAddr));
       if (_backdoorIndexMaps[idx].containsKey(idx1)) {
         return backdoorInterfaces[idx][_backdoorIndexMaps[idx][idx1]!];
       } else {
@@ -121,6 +130,7 @@ class CsrTop extends CsrContainer
       required super.frontRead,
       super.allowLargerRegisters,
       super.logicalRegisterIncrement,
+      super.wideLogicalRegisterIncrement,
       super.reserveName,
       super.reserveDefinitionName,
       CsrImplementationConfiguration? implementationConfiguration,
@@ -131,7 +141,10 @@ class CsrTop extends CsrContainer
                     'W${config.maxRegWidth()}_'
                     'BS${config.blockSize}_'
                     'LR${allowLargerRegisters}_'
-                    'RI$logicalRegisterIncrement') {
+                    'RI${_incrementName(
+                  logicalRegisterIncrement,
+                  wideLogicalRegisterIncrement,
+                )}') {
     _validate();
     this.implementationConfiguration =
         implementationConfiguration ?? CsrImplementationScope.current;
@@ -168,7 +181,8 @@ class CsrTop extends CsrContainer
           frontWrite: blockFdWrite,
           frontRead: blockFdRead,
           allowLargerRegisters: allowLargerRegisters,
-          logicalRegisterIncrement: logicalRegisterIncrement,
+          wideLogicalRegisterIncrement: logicalRegisterIncrement,
+          addressExtent: config.blockSizeForBlock(block),
           asyncReset: config.asyncReset));
     }
 
@@ -198,7 +212,7 @@ class CsrTop extends CsrContainer
   void _buildSoftwareModel() {
     final selected = implementationConfiguration.hardwareRegisters;
     final remaining = selected == null ? <String>{} : Set<String>.of(selected);
-    final hardware = <int, CsrBackdoorInterface>{};
+    final hardware = <BigInt, CsrBackdoorInterface>{};
     for (var i = 0; i < blocks.length; i++) {
       backdoorInterfaces.add([]);
       _backdoorInterfaces.add([]);
@@ -248,7 +262,7 @@ class CsrTop extends CsrContainer
                 addressWidth: frontWrite!.addrWidth,
                 dataWidth: frontWrite!.dataWidth),
         hardwareRegisters: selected,
-        logicalRegisterIncrement: logicalRegisterIncrement,
+        wideLogicalRegisterIncrement: logicalRegisterIncrement,
         allowLargerRegisters: allowLargerRegisters,
       ),
       clk: clk,
@@ -286,8 +300,16 @@ class CsrTop extends CsrContainer
   /// within the module by relative address [addr].
   CsrBlockConfig getBlockByAddr(int addr) => config.getBlockByAddr(addr);
 
+  /// Looks up a block by its arbitrary-width base address.
+  CsrBlockConfig getBlockByBigIntAddr(BigInt addr) =>
+      config.getBlockByBigIntAddr(addr);
+
   // validate the frontdoor interface widths to ensure that they are wide enough
   void _validate() {
+    if (logicalRegisterIncrement <= BigInt.zero) {
+      throw CsrValidationException(
+          'Logical register increment must be positive.');
+    }
     // data width must be at least as wide as
     // the biggest register across all blocks
     // address width must be at least wide enough
@@ -366,12 +388,23 @@ class CsrTop extends CsrContainer
       // capture frontdoor read output via Iff/ElseIf/Else on per-block matches
       final rdData = Logic(name: 'internalRdData', width: frontRead!.dataWidth);
       Combinational([
-        If.block([
-          Iff(blockReadMatches[0], [rdData < _fdReads[0].data]),
-          for (var i = 1; i < _blocks.length; i++)
-            ElseIf(blockReadMatches[i], [rdData < _fdReads[i].data]),
-          Else([rdData < Const(0, width: frontRead!.dataWidth)]),
-        ]),
+        Case(
+            frontRead!.addr ^ frontRead!.addr,
+            [
+              CaseItem(Const(0, width: addrWidth), [
+                If.block([
+                  Iff(blockReadMatches[0], [rdData < _fdReads[0].data]),
+                  for (var i = 1; i < _blocks.length; i++)
+                    ElseIf(blockReadMatches[i], [rdData < _fdReads[i].data]),
+                  Else([rdData < Const(0, width: frontRead!.dataWidth)]),
+                ])
+              ])
+            ],
+            exactMatch: true,
+            defaultItem: [
+              rdData <
+                  Const(LogicValue.filled(frontRead!.dataWidth, LogicValue.x))
+            ]),
       ]);
       frontRead!.data <= rdData;
     }

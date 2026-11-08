@@ -54,6 +54,49 @@ void main() {
   });
 
   group('unreachable overflow and underflow', () {
+    test('generated Sum and Counter HDL omits unreachable checks', () async {
+      for (final increments in [true, false]) {
+        final impossible = increments ? 'underflowed' : 'overflowed';
+        final possible = increments ? 'overflowed' : 'underflowed';
+        final impossibleHistory =
+            increments ? 'underflowHistory' : 'overflowHistory';
+        final possibleHistory =
+            increments ? 'overflowHistory' : 'underflowHistory';
+        final sum = Sum(
+          [SumInterface(width: 2, increments: increments)],
+          initialValue: Logic(width: 3),
+          width: 3,
+          saturates: true,
+        );
+        await sum.build();
+        final sumSv = sum.dumpSystemVerilog();
+        expect(sumSv, contains("assign $impossible = 1'h0;"));
+        expect(sumSv, isNot(contains('if($impossible)')));
+        expect(sumSv, contains('if($possible)'));
+
+        final counter = Counter(
+          [SumInterface(width: 2, increments: increments)],
+          clk: Logic(),
+          reset: Logic(),
+          width: 3,
+          saturates: true,
+        );
+        await counter.build();
+        final counterSv = counter.dumpSystemVerilog();
+        expect(counterSv, contains("assign $impossibleHistory = 1'h0;"));
+        expect(counterSv, isNot(contains('$impossibleHistory <=')));
+        expect(counterSv, contains('$possibleHistory <='));
+      }
+
+      final bounded = Sum([SumInterface(fixedAmount: 1)], maxValue: 5);
+      await bounded.build();
+      final boundedSv = bounded.dumpSystemVerilog();
+      expect(boundedSv, contains("assign overflowed = 1'h0;"));
+      expect(boundedSv, contains("assign underflowed = 1'h0;"));
+      expect(boundedSv, isNot(contains('if(overflowed)')));
+      expect(boundedSv, isNot(contains('if(underflowed)')));
+    });
+
     test('elides impossible checks and preserves the reachable check',
         () async {
       final incrementAmount = Logic(width: 2);

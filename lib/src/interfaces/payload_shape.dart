@@ -9,6 +9,20 @@
 
 import 'package:rohd/rohd.dart';
 
+/// Drives packed bits through a payload's leaves without semantic conversion.
+void putPackedLogicValue(Logic data, LogicValue value) {
+  if (data is LogicStructure) {
+    final bits = LogicValue.of(value, width: data.width);
+    var offset = 0;
+    for (final leaf in data.leafElements) {
+      leaf.put(bits.getRange(offset, offset + leaf.width));
+      offset += leaf.width;
+    }
+  } else {
+    data.put(value);
+  }
+}
+
 /// Whether two payloads declare matching recursive hardware layouts.
 bool sameDeclaredPayloadShape(Logic template, Logic source) {
   if (template.width != source.width) {

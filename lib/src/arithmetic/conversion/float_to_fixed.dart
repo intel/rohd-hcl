@@ -344,8 +344,8 @@ class Float8ToFixed extends Module {
     }
 
     final exponent = Logic(name: 'exponent', width: 5)
-      ..gets(mux(
-          mode, [Const(0), float.slice(6, 3)].concat(), float.slice(6, 2)));
+      ..gets(
+          mux(mode, [Const(0), float.slice(6, 3)].concat(), float.slice(6, 2)));
 
     final jBit = Logic(name: 'jBit')..gets(exponent.or());
 

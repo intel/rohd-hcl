@@ -305,12 +305,10 @@ class ColumnCompressor extends Module {
           BitCompressor compressor;
           if (depth > 3) {
             inputs.add(queue.removeFirst());
-            compressor = Compressor3(
-                [for (final i in inputs) i.logic].concat(),
+            compressor = Compressor3([for (final i in inputs) i.logic].concat(),
                 name: 'cmp3_iter${iteration}_col$col');
           } else {
-            compressor = Compressor2(
-                [for (final i in inputs) i.logic].concat(),
+            compressor = Compressor2([for (final i in inputs) i.logic].concat(),
                 name: 'cmp2_iter${iteration}_col$col');
           }
           final t = CompressTerm(

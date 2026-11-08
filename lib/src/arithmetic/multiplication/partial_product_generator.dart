@@ -11,6 +11,7 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplication/sign_control.dart';
 
 /// Store a Signbit as [Logic]
 class SignBit extends Logic {
@@ -204,60 +205,62 @@ abstract class PartialProductGeneratorBase extends PartialProductArray {
   /// multiples of the multiplicand and generate partial products.
   late final MultiplicandSelector selector;
 
-  /// [multiplicand] operand is always signed.
-  final bool signedMultiplicand;
+  /// Static or runtime signedness of [multiplicand].
+  late final StaticOrRuntimeParameter signedMultiplicandControl;
 
-  /// [multiplier] operand is always signed.
-  final bool signedMultiplier;
+  /// Static or runtime signedness of [multiplier].
+  late final StaticOrRuntimeParameter signedMultiplierControl;
+
+  /// Whether [multiplicand] is statically signed.
+  bool get signedMultiplicand => signedMultiplicandControl.staticConfig;
+
+  /// Whether [multiplier] is statically signed.
+  bool get signedMultiplier => signedMultiplierControl.staticConfig;
 
   /// Used to avoid sign extending more than once.
   bool isSignExtended = false;
 
   /// If not null, use this signal to select between signed and unsigned
   /// [multiplicand].
-  final Logic? selectSignedMultiplicand;
+  Logic? get selectSignedMultiplicand =>
+      signedMultiplicandControl.runtimeConfig;
 
   /// If not null, use this signal to select between signed and unsigned
   /// [multiplier].
-  final Logic? selectSignedMultiplier;
+  Logic? get selectSignedMultiplier => signedMultiplierControl.runtimeConfig;
 
   /// Construct a [PartialProductGeneratorBase] -- the partial product matrix.
   ///
-  /// [signedMultiplicand] generates a fixed signed encoder versus using
-  /// [selectSignedMultiplicand] which is a runtime sign selection [Logic]
-  /// in which case [signedMultiplicand] must be `false`.
-  ///
-  /// [signedMultiplier] generates a fixed signed encoder versus using
-  /// [selectSignedMultiplier] which is a runtime sign selection [Logic]
-  /// in which case [signedMultiplier] must be `false`.
+  /// [signedMultiplicand] and [signedMultiplier] are
+  /// [StaticOrRuntimeParameter] controls. The separate
+  /// `selectSigned...` arguments remain available as legacy runtime selectors.
   PartialProductGeneratorBase(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-      {this.signedMultiplicand = false,
-      this.signedMultiplier = false,
-      this.selectSignedMultiplicand,
-      this.selectSignedMultiplier,
+      {StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier,
+      Logic? selectSignedMultiplicand,
+      Logic? selectSignedMultiplier,
       super.name = 'ppg'}) {
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('multiplicand sign reconfiguration requires '
-          'signedMultiplicand=false');
-    }
-    if (signedMultiplier && (selectSignedMultiplier != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
+    signedMultiplicandControl = resolveSignControl(
+        signedMultiplicand, selectSignedMultiplicand,
+        name: 'signedMultiplicand');
+    signedMultiplierControl = resolveSignControl(
+        signedMultiplier, selectSignedMultiplier,
+        name: 'signedMultiplier');
     selector = MultiplicandSelector(radixEncoder.radix, multiplicand,
-        signedMultiplicand: signedMultiplicand,
-        selectSignedMultiplicand: selectSignedMultiplicand);
+        signedMultiplicand: signedMultiplicandControl);
     encoder = MultiplierEncoder(multiplier, radixEncoder,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplier: selectSignedMultiplier);
+        signedMultiplier: signedMultiplierControl);
 
     if (multiplicand.width < selector.shift) {
       throw RohdHclException('multiplicand width must be greater than '
           'or equal to ${selector.shift}');
     }
-    if (multiplier.width < (selector.shift + (signedMultiplier ? 1 : 0))) {
+    if (multiplier.width <
+        (selector.shift + (signedMultiplierControl.staticConfig ? 1 : 0))) {
       throw RohdHclException('multiplier width must be greater than '
-          'or equal to ${selector.shift + (signedMultiplier ? 1 : 0)}');
+          'or equal to '
+          '${selector.shift + (signedMultiplierControl.staticConfig ? 1 : 0)}');
     }
     _build();
   }
@@ -326,20 +329,36 @@ abstract class PartialProductMatrix extends Module {
 /// and generation of outputs in an actual module as opposed to an inline
 /// generator class.
 class PartialProduct extends PartialProductMatrix {
+  static String _defaultDefinitionName(
+      Logic multiplicand,
+      Logic multiplier,
+      RadixEncoder radixEncoder,
+      StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier,
+      Logic? selectSignedMultiplicand,
+      Logic? selectSignedMultiplier) {
+    final multiplicandName = Multiplier.signedMD(resolveSignControl(
+        signedMultiplicand, selectSignedMultiplicand,
+        name: 'signedMultiplicand'));
+    final multiplierName = Multiplier.signedML(resolveSignControl(
+        signedMultiplier, selectSignedMultiplier,
+        name: 'signedMultiplier'));
+    return 'PartialProduct_W${multiplicand.width}x${multiplier.width}'
+        '_R${radixEncoder.radix}_${multiplicandName}_$multiplierName';
+  }
+
   /// Create a [PartialProduct] [Module] which manages a
   /// [PartialProductArray].
   PartialProduct(
       Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-      {bool signedMultiplicand = false,
-      bool signedMultiplier = false,
+      {StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier,
       Logic? selectSignedMultiplicand,
       Logic? selectSignedMultiplier,
       PartialProductGeneratorBase Function(
               Logic multiplicand, Logic multiplier, RadixEncoder radixEncoder,
-              {bool signedMultiplicand,
-              bool signedMultiplier,
-              Logic? selectSignedMultiplicand,
-              Logic? selectSignedMultiplier})
+              {StaticOrRuntimeParameter? signedMultiplicand,
+              StaticOrRuntimeParameter? signedMultiplier})
           genPPG = PartialProductGenerator.new,
       super.name = 'partial_product',
       super.reserveName,
@@ -347,24 +366,29 @@ class PartialProduct extends PartialProductMatrix {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'PartialProduct_W${multiplicand.width}x${multiplier.width}'
-                    '_${Multiplier.signedMD(signedMultiplicand)}_'
-                    '${Multiplier.signedML(signedMultiplier)}') {
-    final selectSignedMultiplicandInternal = selectSignedMultiplicand != null
-        ? addInput(selectSignedMultiplicand.name, selectSignedMultiplicand)
-        : null;
-    final selectSignedMultiplierInternal = selectSignedMultiplier != null
-        ? addInput(selectSignedMultiplier.name, selectSignedMultiplier)
-        : null;
+                _defaultDefinitionName(
+                    multiplicand,
+                    multiplier,
+                    radixEncoder,
+                    signedMultiplicand,
+                    signedMultiplier,
+                    selectSignedMultiplicand,
+                    selectSignedMultiplier)) {
+    final multiplicandControl = resolveSignControl(
+            signedMultiplicand, selectSignedMultiplicand,
+            name: 'signedMultiplicand')
+        .forChild(this);
+    final multiplierControl = resolveSignControl(
+            signedMultiplier, selectSignedMultiplier,
+            name: 'signedMultiplier')
+        .forChild(this);
 
     final localMultiplicand =
         addInput('multiplicand', multiplicand, width: multiplicand.width);
     final localMultiplier =
         addInput('multiplier', multiplier, width: multiplier.width);
     _array = genPPG(localMultiplicand, localMultiplier, radixEncoder,
-        signedMultiplicand: signedMultiplicand,
-        signedMultiplier: signedMultiplier,
-        selectSignedMultiplicand: selectSignedMultiplicandInternal,
-        selectSignedMultiplier: selectSignedMultiplierInternal);
+        signedMultiplicand: multiplicandControl,
+        signedMultiplier: multiplierControl);
   }
 }

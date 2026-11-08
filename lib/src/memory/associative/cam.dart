@@ -14,6 +14,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
+import 'package:rohd_hcl/src/memory/state/stored_value.dart';
 
 /// An interface to a Content-Addressable Memory (CAM) that allows querying
 /// for tags and returns the index of the matching tag if found.
@@ -341,13 +342,24 @@ class Cam<T extends Logic> extends Module {
         ..._validBits.map((v) => v < Const(0)),
       ], orElse: [
         for (var entry = 0; entry < numEntries; entry++)
-          ...wrPorts.map((wrPort) =>
-              // set storage bank if write enable and pointer matches
-              // use wrPort.hit to set/clear the valid bit
-              If(wrPort.en & wrPort.idx.eq(entry), then: [
-                _storageBank.at([entry]) < wrPort.tag,
-                _validBits[entry] < wrPort.hit,
-              ])),
+          ...wrPorts.map((wrPort) {
+            final unknownTag = Logic(width: tagWidth)
+              ..gets(Const(LogicValue.filled(tagWidth, LogicValue.x)));
+            return Case(
+                wrPort.en & storedIndexMatches(wrPort.idx, entry),
+                [
+                  CaseItem(Const(0), []),
+                  CaseItem(Const(1), [
+                    _storageBank.at([entry]) < normalizeStoredLogic(wrPort.tag),
+                    _validBits[entry] < normalizeStoredLogic(wrPort.hit),
+                  ]),
+                ],
+                exactMatch: true,
+                defaultItem: [
+                  _storageBank.at([entry]) < unknownTag,
+                  _validBits[entry] < Const(LogicValue.x),
+                ]);
+          }),
       ]),
     ]);
   }

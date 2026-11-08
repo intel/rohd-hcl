@@ -12,6 +12,7 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
+import 'package:rohd_hcl/src/memory/state/stored_value.dart';
 
 /// A shift register with configurable width and depth and optional enable and
 /// reset, preserving the payload type [T] at every stage.
@@ -92,9 +93,9 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
     for (var i = 0; i < depth; i++) {
       final stageI = addTypedOutput<T>(_stageName(i), outputClone);
       stageSignals.add(stageI);
-      conds.add(stageI < dataStage);
+      conds.add(stageI < normalizeStoredLogic(dataStage));
 
-      resetValues?[stageI] = resetValueList![i];
+      resetValues?[stageI] = normalizeStoredLogic(resetValueList![i]);
       dataStage = stageI;
     }
     stages = UnmodifiableListView(stageSignals);

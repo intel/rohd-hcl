@@ -1,6 +1,8 @@
 # Parity
 
-ROHD-HCL implements a `Parity` component for error checking. For satisfying the functionality of Parity error checking in `Logic` data, ROHD-HCL provides 2 `Module`, namely `ParityTransmitter` and `ParityReceiver`.
+ROHD-HCL implements a `Parity` component for error checking. For satisfying the
+functionality of Parity error checking in `Logic` data, ROHD-HCL provides 2
+`Module`, namely `ParityTransmitter` and `ParityReceiver`.
 
 ## Parity Transmitter
 
@@ -14,7 +16,9 @@ The `ParityReceiver` accepts that `transmission` bus and exposes the payload as
 `error` and `uncorrectableError`; `correctableError` is low because parity
 detects errors but does not correct them.
 
-Please visit [API docs](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html) for more details about parity.
+Please visit [API
+docs](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html) for more
+details about parity.
 
 ## Typed payloads
 
@@ -28,9 +32,9 @@ final rx = ParityReceiver<Packet>(tx.transmission, dataSchema: packet);
 final Packet received = rx.originalData;
 ```
 
-The schema is cloned, never driven, and must match the payload width. Without
-a schema, receivers retain ordinary `Logic` outputs. Specialized receiver type
-arguments require a schema. `correctedData` remains null for parity.
-The code and transmission stay packed bits, with unchanged bit ordering.
-Detection uses raw received bits even when an enum schema normalizes an
-invalid received encoding to X.
+The schema is cloned, never driven, and must match the payload width. Without a
+schema, receivers retain ordinary `Logic` outputs. Specialized receiver type
+arguments require a schema. `correctedData` remains null for parity. The code
+and transmission stay packed bits, with unchanged bit ordering. Detection uses
+raw received bits even when an enum schema normalizes an invalid received
+encoding to X.

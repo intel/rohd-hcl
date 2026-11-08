@@ -23,6 +23,9 @@ const moduleSourceAssets = <String, String>{
   'BinaryToGrayConverter': 'rohd_src/encodings/gray/binary_gray.dart',
   'BitonicSort': 'rohd_src/dataflow/ordering/sort.dart',
   'BitwiseMux': 'rohd_src/bit_operations/selection/bitwise_mux.dart',
+  'Cache': 'rohd_src/memory/cache/cache.dart',
+  'CacheTransactionAdapter':
+      'rohd_src/memory/cache/cache_transaction_adapter.dart',
   'Cam': 'rohd_src/memory/associative/cam.dart',
   'CarrySaveMultiplier':
       'rohd_src/arithmetic/multiplication/carry_save_multiplier.dart',
@@ -53,6 +56,8 @@ const moduleSourceAssets = <String, String>{
   'FindPattern': 'rohd_src/bit_operations/search/find_pattern.dart',
   'Float8ToFixed': 'rohd_src/arithmetic/conversion/float_to_fixed.dart',
   'FixedPointSqrt': 'rohd_src/arithmetic/division_and_roots/fixed_sqrt.dart',
+  'FixedPriorityCacheScheduler':
+      'rohd_src/memory/cache/fixed_priority_cache_scheduler.dart',
   'FixedToFloat': 'rohd_src/arithmetic/conversion/fixed_to_float.dart',
   'FloatToFixed': 'rohd_src/arithmetic/conversion/float_to_fixed.dart',
   'FloatingPointAdderDualPath':
@@ -70,6 +75,7 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
   'GrayToBinaryConverter': 'rohd_src/encodings/gray/binary_gray.dart',
   'HammingEccReceiver': 'rohd_src/error_control/protection/ecc.dart',
+  'InferredSram': 'rohd_src/memory/storage/inferred_sram.dart',
   'LeadingDigitAnticipate':
       'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
   'LeadingZeroAnticipate':
@@ -79,6 +85,7 @@ const moduleSourceAssets = <String, String>{
   'MaskRoundRobinArbiter':
       'rohd_src/flow_control/arbitration/mask_round_robin_arbiter.dart',
   'MultiCycleDivider': 'rohd_src/arithmetic/division_and_roots/divider.dart',
+  'MultiPortCache': 'rohd_src/memory/cache/cache.dart',
   'NativeMultiplier': 'rohd_src/arithmetic/multiplication/multiplier.dart',
   'OneHotMux': 'rohd_src/bit_operations/selection/one_hot_mux.dart',
   'OnesComplementAdder':
@@ -119,6 +126,9 @@ const moduleSourceAssets = <String, String>{
   'RotateRightFixed': 'rohd_src/bit_operations/shifting/rotate.dart',
   'RotateRoundRobinArbiter':
       'rohd_src/flow_control/arbitration/rotate_round_robin_arbiter.dart',
+  'RoundRobinReplacement':
+      'rohd_src/memory/replacement/round_robin_replacement.dart',
+  'SerializedCache': 'rohd_src/memory/cache/serialized_cache.dart',
   'Serializer': 'rohd_src/dataflow/serialization/serialization.dart',
   'SetBits': 'rohd_src/bit_operations/shifting/set_bits.dart',
   'ShiftRegister': 'rohd_src/memory/sequential/shift_register.dart',
@@ -134,6 +144,8 @@ const moduleSourceAssets = <String, String>{
   'ToggleGate': 'rohd_src/clocking/gating/toggle_gate.dart',
   'TreeOneHotToBinary':
       'rohd_src/encodings/one_hot/tree_one_hot_to_binary.dart',
+  'TreePseudoLruReplacement':
+      'rohd_src/memory/replacement/tree_pseudo_lru_replacement.dart',
   'WithSet': 'rohd_src/bit_operations/shifting/with_set.dart',
   'XnorPopcount': 'rohd_src/bit_operations/population_count/xnor_popcount.dart',
   'XorPopcount': 'rohd_src/bit_operations/population_count/xor_popcount.dart',
@@ -148,6 +160,13 @@ String? moduleSourceAsset(Module module) => switch (module) {
       BinaryToGrayConverter() => moduleSourceAssets['BinaryToGrayConverter'],
       BitonicSort() => moduleSourceAssets['BitonicSort'],
       BitwiseMux() => moduleSourceAssets['BitwiseMux'],
+      // Experimental cache components are intentionally exposed in Confapp.
+      // ignore: experimental_member_use
+      Cache() => moduleSourceAssets['Cache'],
+      // The catalog intentionally exposes this experimental adapter.
+      // ignore: experimental_member_use
+      CacheTransactionAdapter() =>
+        moduleSourceAssets['CacheTransactionAdapter'],
       Cam() => moduleSourceAssets['Cam'],
       CarrySaveMultiplier() => moduleSourceAssets['CarrySaveMultiplier'],
       CarrySelectCompoundAdder() =>
@@ -177,6 +196,10 @@ String? moduleSourceAsset(Module module) => switch (module) {
       FindPattern() => moduleSourceAssets['FindPattern'],
       Float8ToFixed() => moduleSourceAssets['Float8ToFixed'],
       FixedPointSqrt() => moduleSourceAssets['FixedPointSqrt'],
+      // The catalog intentionally exposes this experimental scheduler.
+      // ignore: experimental_member_use
+      FixedPriorityCacheScheduler() =>
+        moduleSourceAssets['FixedPriorityCacheScheduler'],
       FixedToFloat() => moduleSourceAssets['FixedToFloat'],
       FloatToFixed() => moduleSourceAssets['FloatToFixed'],
       FloatingPointAdderDualPath() =>
@@ -191,12 +214,16 @@ String? moduleSourceAsset(Module module) => switch (module) {
       GeneralDotProduct() => moduleSourceAssets['GeneralDotProduct'],
       GrayToBinaryConverter() => moduleSourceAssets['GrayToBinaryConverter'],
       HammingEccReceiver() => moduleSourceAssets['HammingEccReceiver'],
+      InferredSram() => moduleSourceAssets['InferredSram'],
       LeadingDigitAnticipate() => moduleSourceAssets['LeadingDigitAnticipate'],
       LeadingZeroAnticipate() => moduleSourceAssets['LeadingZeroAnticipate'],
       LeadingZeroAnticipateCarry() =>
         moduleSourceAssets['LeadingZeroAnticipateCarry'],
       MaskRoundRobinArbiter() => moduleSourceAssets['MaskRoundRobinArbiter'],
       MultiCycleDivider() => moduleSourceAssets['MultiCycleDivider'],
+      // The catalog intentionally exposes this experimental controller.
+      // ignore: experimental_member_use
+      MultiPortCache() => moduleSourceAssets['MultiPortCache'],
       NativeMultiplier() => moduleSourceAssets['NativeMultiplier'],
       OneHotMux() => moduleSourceAssets['OneHotMux'],
       OnesComplementAdder() => moduleSourceAssets['OnesComplementAdder'],
@@ -230,6 +257,10 @@ String? moduleSourceAsset(Module module) => switch (module) {
       RotateRightFixed() => moduleSourceAssets['RotateRightFixed'],
       RotateRoundRobinArbiter() =>
         moduleSourceAssets['RotateRoundRobinArbiter'],
+      RoundRobinReplacement() => moduleSourceAssets['RoundRobinReplacement'],
+      // The catalog intentionally exposes this experimental controller.
+      // ignore: experimental_member_use
+      SerializedCache() => moduleSourceAssets['SerializedCache'],
       Serializer() => moduleSourceAssets['Serializer'],
       SetBits() => moduleSourceAssets['SetBits'],
       Synchronizer() => moduleSourceAssets['Synchronizer'],
@@ -242,9 +273,13 @@ String? moduleSourceAsset(Module module) => switch (module) {
       Sum() => moduleSourceAssets['Sum'],
       ToggleGate() => moduleSourceAssets['ToggleGate'],
       TreeOneHotToBinary() => moduleSourceAssets['TreeOneHotToBinary'],
+      TreePseudoLruReplacement() =>
+        moduleSourceAssets['TreePseudoLruReplacement'],
       WithSet() => moduleSourceAssets['WithSet'],
       XnorPopcount() => moduleSourceAssets['XnorPopcount'],
       XorPopcount() => moduleSourceAssets['XorPopcount'],
+      _ when InferredSramConfigurator.isConfiguredModule(module) =>
+        moduleSourceAssets['InferredSram'],
       _ => null,
     };
 

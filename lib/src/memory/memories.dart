@@ -3,8 +3,10 @@
 
 export 'associative/associative.dart';
 export 'behavioral/behavioral.dart';
+export 'cache/caches.dart';
 export 'contracts/contracts.dart';
 export 'csr/csrs.dart';
+export 'replacement/replacement.dart';
 export 'sequential/sequential.dart';
 export 'state/state.dart';
 export 'storage/storage.dart';

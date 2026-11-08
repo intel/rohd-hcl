@@ -5,7 +5,7 @@
 // Verifies the deprecated gasket barrel remains available.
 //
 // 2026 November 5
-// Author: GitHub Copilot
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 // This test exercises the legacy import path.
 // ignore_for_file: deprecated_member_use_from_same_package

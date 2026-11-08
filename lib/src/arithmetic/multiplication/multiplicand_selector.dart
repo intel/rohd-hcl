@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/multiplication/sign_control.dart';
 
 /// A class accessing the multiples of the multiplicand at a position.
 class MultiplicandSelector {
@@ -41,15 +42,16 @@ class MultiplicandSelector {
   /// [multiplicand] is base multiplicand multiplied by Booth encodings of
   /// the [RadixEncoder] during [select].
   ///
-  /// [signedMultiplicand] generates a fixed signed selector versus using
-  /// [selectSignedMultiplicand] which is a runtime sign selection [Logic]
-  /// in which case [signedMultiplicand] must be `false`.
+  /// [signedMultiplicand] is a static or runtime
+  /// [StaticOrRuntimeParameter]. [selectSignedMultiplicand] is the legacy
+  /// runtime selector and cannot be combined with an active control.
   MultiplicandSelector(this.radix, this.multiplicand,
-      {Logic? selectSignedMultiplicand, bool signedMultiplicand = false})
+      {Logic? selectSignedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplicand})
       : shift = radix.log2Ceil {
-    if (signedMultiplicand && (selectSignedMultiplicand != null)) {
-      throw RohdHclException('sign reconfiguration requires signed=false');
-    }
+    final control = resolveSignControl(
+        signedMultiplicand, selectSignedMultiplicand,
+        name: 'signedMultiplicand');
     if (!allowedRadices.contains(radix)) {
       throw RohdHclException('Radices outside of $allowedRadices '
           'are not yet supported');
@@ -58,16 +60,15 @@ class MultiplicandSelector {
     final numMultiples = radix ~/ 2;
     multiples = LogicArray([numMultiples], width, name: 'multiples');
     final Logic extendedMultiplicand;
-    if (selectSignedMultiplicand == null) {
-      extendedMultiplicand = signedMultiplicand
+    if (!control.isRuntime) {
+      extendedMultiplicand = control.staticConfig
           ? multiplicand.signExtend(width)
           : multiplicand.zeroExtend(width);
     } else {
       final len = multiplicand.width;
       final sign = multiplicand[len - 1];
       final extension = [
-        for (var i = len; i < width; i++)
-          mux(selectSignedMultiplicand, sign, Const(0))
+        for (var i = len; i < width; i++) control.select(sign, Const(0))
       ];
       extendedMultiplicand = (multiplicand.elements + extension).rconcat();
     }

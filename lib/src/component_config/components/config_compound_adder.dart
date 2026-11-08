@@ -4,7 +4,8 @@
 // config_compound_adder.dart
 // Configurator for a CompoundAdder.
 //
-// 2024 Cotober 1
+// 2024 October 1
+// Author: Anton Sorokin <anton.a.sorokin@intel.com>
 
 import 'dart:collection';
 
@@ -42,7 +43,7 @@ class CompoundAdderConfigurator extends Configurator {
           ? CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(
               blockWidthKnob.value)
           : CarrySelectCompoundAdder.splitSelectAdderAlgorithmSingleBlock,
-      adderGen: (a, b, {carryIn, subtractIn, name = 'default_adder'}) =>
+      adderGen: (a, b, {carryIn, subtract, name = 'default_adder'}) =>
           adderSelectionKnob.selectedAdder()(a, b,
               carryIn: carryIn, name: name));
 

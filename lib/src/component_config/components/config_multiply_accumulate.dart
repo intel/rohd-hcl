@@ -80,9 +80,10 @@ class MultiplyAccumulateConfigurator extends Configurator {
         reset: pipelinedKnob.value ? Logic() : null,
         enable: pipelinedKnob.value ? Logic() : null,
         signedMultiplicand:
-            signedMultiplicandKnob.resolve('signedMultiplicand'),
-        signedMultiplier: signedMultiplierKnob.resolve('signedMultiplier'),
-        signedAddend: signedAddendKnob.resolve('signedAddend'),
+            signedMultiplicandKnob.resolveControl('signedMultiplicand'),
+        signedMultiplier:
+            signedMultiplierKnob.resolveControl('signedMultiplier'),
+        signedAddend: signedAddendKnob.resolveControl('signedAddend'),
         outputWidth: outputWidthKnob.value,
         adderGen: (a, b, {carryIn}) => adderSelectKnob.selectedAdder()(a, b,
             carryIn: carryIn, name: 'mac_add'),

@@ -64,7 +64,8 @@ void main() {
       b.put(t.bv);
 
       final adder = OnesComplementAdder(a, b,
-          generateEndAroundCarry: t.carry, subtract: t.subtract);
+          generateEndAroundCarry: t.carry,
+          subtract: StaticOrRuntimeParameter.staticValue(value: t.subtract));
       expect(adder.sign.value, equals(t.sign));
       expect(adder.sum.value, equals(t.sum));
       expect(adder.endAroundCarry == null, equals(t.endAroundCarry == null));
@@ -87,7 +88,8 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              generateEndAroundCarry: true, subtract: subtract);
+              generateEndAroundCarry: true,
+              subtract: StaticOrRuntimeParameter.staticValue(value: subtract));
           final carry = adder.endAroundCarry!;
           final mag = adder.sum.value.toInt() +
               (subtract ? (carry.value.isZero ? 0 : 1) : 0);
@@ -116,7 +118,8 @@ void main() {
         a.put(av);
         b.put(bv);
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-            subtract: subtract, generateCarryOut: true);
+            subtract: StaticOrRuntimeParameter.staticValue(value: subtract),
+            generateCarryOut: true);
         final carry = adder.carryOut!;
         final mag = adder.sum.value.toInt() +
             (subtract ? (carry.value.isZero ? 0 : 1) : 0);
@@ -148,7 +151,8 @@ void main() {
 
     a.put(av);
     b.put(bv);
-    final adder = OnesComplementAdder(a, b, subtract: subtract);
+    final adder = OnesComplementAdder(a, b,
+        subtract: StaticOrRuntimeParameter.staticValue(value: subtract));
     expect(adder.sum.value.toInt(), equals(bv - av));
     expect(adder.sign.value, LogicValue.one);
   });
@@ -164,7 +168,8 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              subtract: subtractIn,
+              subtract: StaticOrRuntimeParameter.fromLogic(subtractIn,
+                  fallbackName: 'subtract'),
               generateEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
           final carry = adder.endAroundCarry!;

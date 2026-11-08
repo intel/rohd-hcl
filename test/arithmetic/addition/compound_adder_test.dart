@@ -90,15 +90,55 @@ void main() {
             // This test intentionally exercises the compatibility input.
             // ignore: deprecated_member_use_from_same_package
             subtractIn: subtractIn,
-            subtract: false),
+            subtract: StaticOrRuntimeParameter.staticValue(value: false)),
         returnsNormally);
     expect(
         () => CarrySelectOnesComplementCompoundAdder(a, b,
             // This test verifies conflicting legacy and current inputs.
             // ignore: deprecated_member_use_from_same_package
             subtractIn: subtractIn,
-            subtract: true),
+            subtract: StaticOrRuntimeParameter.staticValue(value: true)),
         throwsA(isA<RohdHclException>()));
+  });
+
+  test('compound adder passes static and runtime controls to child adders',
+      () async {
+    final a = Logic(width: 4)..put(7);
+    final b = Logic(width: 4)..put(3);
+    final subtract = Logic(name: 'subtract');
+    final runtime = CarrySelectOnesComplementCompoundAdder(a, b,
+        subtract: StaticOrRuntimeParameter.fromLogic(subtract,
+            fallbackName: 'subtract'),
+        widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(2));
+    final fixed = CarrySelectOnesComplementCompoundAdder(a, b,
+        subtract:
+            StaticOrRuntimeParameter(name: 'subtract', staticConfig: true),
+        widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(2));
+    await runtime.build();
+    await fixed.build();
+
+    subtract.put(0);
+    expect(runtime.sum.value.toInt(), 10);
+    subtract.put(1);
+    expect(runtime.sum.value, fixed.sum.value);
+    expect(runtime.sign.value, fixed.sign.value);
+    expect(fixed.inputs, isNot(contains('subtract')));
+  });
+
+  test('compound adder definition names distinguish subtract configurations',
+      () {
+    final a = Logic(width: 4);
+    final b = Logic(width: 4);
+    final add = CarrySelectOnesComplementCompoundAdder(a, b,
+        subtract: StaticOrRuntimeParameter.staticValue(value: false));
+    final subtract = CarrySelectOnesComplementCompoundAdder(a, b,
+        subtract: StaticOrRuntimeParameter.staticValue(value: true));
+    final runtime = CarrySelectOnesComplementCompoundAdder(a, b,
+        subtract: StaticOrRuntimeParameter.fromLogic(Logic(),
+            fallbackName: 'subtract'));
+    expect(add.definitionName, isNot(subtract.definitionName));
+    expect(runtime.definitionName, isNot(subtract.definitionName));
+    expect(runtime.definitionName, isNot(add.definitionName));
   });
 
   test('trivial compound adder test', () {
@@ -119,7 +159,9 @@ void main() {
   });
 
   Adder defaultAdder(Logic a, Logic b,
-          {Logic? carryIn, Logic? subtractIn, String name = ''}) =>
+          {Logic? carryIn,
+          StaticOrRuntimeParameter? subtract,
+          String name = ''}) =>
       ParallelPrefixAdder(a, b, carryIn: carryIn, name: name);
   test('CarrySelectAdder: random inputs', () async {
     final a = Logic(name: 'a', width: 10);
@@ -163,13 +205,14 @@ void main() {
       a.put(av);
       b.put(bv);
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-          subtract: doSubtract,
+          subtract: StaticOrRuntimeParameter.staticValue(value: doSubtract),
           generateCarryOut: true,
           generateCarryOutP1: true,
           widthGen: CarrySelectCompoundAdder.splitSelectAdderAlgorithmNBit(4));
 
       final refAdder = OnesComplementAdder(a, b,
-          generateEndAroundCarry: true, subtract: doSubtract);
+          generateEndAroundCarry: true,
+          subtract: StaticOrRuntimeParameter.staticValue(value: doSubtract));
 
       final expectedVal = doSubtract ? ai - bi : ai + bi;
       final expectedValP1 = expectedVal + 1;
@@ -205,7 +248,7 @@ void main() {
         final doSubtract =
             (useLogic == null) ? subtract : useLogic.value.toBool();
         final subtractConfig = useLogic == null
-            ? subtract
+            ? StaticOrRuntimeParameter.staticValue(value: subtract)
             : StaticOrRuntimeParameter(
                 name: 'subtract', runtimeConfig: useLogic);
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
@@ -326,7 +369,10 @@ void main() {
       b.put(t.bMag);
 
       final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-          subtract: t.subtractIn,
+          subtract: t.subtractIn == null
+              ? null
+              : StaticOrRuntimeParameter.runtime(t.subtractIn!,
+                  name: 'subtract'),
           generateCarryOut: t.carry,
           generateCarryOutP1: t.carryP1);
 

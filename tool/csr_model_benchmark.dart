@@ -192,11 +192,11 @@ CsrTopConfig _fromYaml(String path) {
         width: register['width'] as int,
       ));
     }
-    blocks.add(CsrBlockConfig(
+    blocks.add(CsrBlockConfig.wide(
       name: block['name'] as String,
-      baseAddr: block['base_addr'] as int,
+      baseAddr: BigInt.from(block['base_addr'] as int),
       blockSize: registers
-          .map((register) => register.addr + 1)
+          .map((register) => register.addr + BigInt.one)
           .reduce((a, b) => a > b ? a : b),
       registers: registers,
     ));

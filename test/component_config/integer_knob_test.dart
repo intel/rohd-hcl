@@ -60,6 +60,7 @@ void main() {
     expect(RippleCarryAdderConfigurator().logicWidthKnob.minValue, 1);
     expect(FifoConfigurator().depthKnob.minValue, 1);
     expect(RegisterFileConfigurator().numWritePortsKnobs.minValue, 0);
+    expect(RegisterFileConfigurator().numReadPortsKnobs.minValue, 0);
     expect(ApbCsrCompleterConfigurator().responseLatencyKnob.minValue, 0);
     expect(ApbCsrCompleterConfigurator().userRequestWidthKnob.minValue, 0);
     expect(FixedToFloatConfigurator().fractionWidthKnob.minValue, 0);

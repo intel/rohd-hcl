@@ -207,6 +207,28 @@ void main() {
     expect(find.text('Accumulation'), findsOneWidget);
   });
 
+  testWidgets('selects and generates experimental cache RTL', (tester) async {
+    await pumpHclPage(tester);
+    await showOnlyGeneratedSv(tester);
+    await tapSidebarComponent(tester, 'Serialized Cache (Experimental)');
+    await tester.pump();
+
+    expect(find.text('Transaction Port Count'), findsOneWidget);
+    expect(find.textContaining('Behavioral'), findsNothing);
+    await tester.tap(find.byKey(const Key('generateRTL')));
+    await pumpUntilOutputContains(tester, 'module SerializedCache_');
+    expect(observeOutput(tester), contains('module InferredSram_'));
+    await tester.tap(find.byTooltip('ROHD Source'));
+    for (var i = 0; i < 100; i++) {
+      if (tester.any(find.text('serialized_cache.dart'))) {
+        break;
+      }
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('serialized_cache.dart'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('uses a bundled monospace font for generated source',
       (tester) async {
     await pumpHclPage(tester);

@@ -118,7 +118,7 @@ mixin Axi5DataSignals on Axi5BaseInterface {
 
   /// Indicator of data corruption on a given chunk.
   ///
-  /// Width is equal to [ceil(dataWidth/64)].
+  /// Width is equal to `ceil(dataWidth / 64)`.
   Logic? get poison => tryPort('${prefix}POISON');
 
   /// Helper to instantiate ACE specific request ports.

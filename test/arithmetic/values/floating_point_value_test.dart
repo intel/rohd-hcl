@@ -510,6 +510,7 @@ void main() {
 
   group('populators', () {
     final populators = [
+      () => FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 3),
       FloatingPoint32Value.populator,
       FloatingPoint64Value.populator,
       FloatingPoint8E4M3Value.populator,

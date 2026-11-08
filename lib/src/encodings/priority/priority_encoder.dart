@@ -193,8 +193,7 @@ class RecursiveModulePriorityEncoderNode extends Module {
       Combinational([
         If.block([
           Iff(l & r, [
-            ret <
-                [Const(1), Const(0, width: right.width)].concat().named('lr'),
+            ret < [Const(1), Const(0, width: right.width)].concat().named('lr'),
           ]),
           ElseIf(~l, [
             ret < [Const(0), left.slice(-1, 0)].concat().named('zl'),

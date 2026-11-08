@@ -7,8 +7,11 @@
 // 2026 October 16
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/memory/behavioral/systemc_storage.dart';
 
 /// Behavioral SystemC export for whole-top software CSRs.
 extension CsrModelSystemC on CsrModelDescription {
@@ -29,12 +32,16 @@ extension CsrModelSystemC on CsrModelDescription {
         throw ArgumentError.value(name, 'name', 'Invalid SystemC identifier.');
       }
     }
-    if ((frontRead?.addressWidth ?? 0) > 63 ||
-        (frontWrite?.addressWidth ?? 0) > 63 ||
-        registers.keys.any((address) => address < 0)) {
+    if (registers.keys.any((address) => address.isNegative)) {
       throw UnsupportedError(
-          'Behavioral SystemC CSR addresses require 0..63 bits.');
+          'Behavioral SystemC CSR addresses must be nonnegative.');
     }
+    final addressWidth = max(
+        max(frontRead?.addressWidth ?? 1, frontWrite?.addressWidth ?? 1) + 1,
+        registers.values.fold<int>(
+            1,
+            (width, entry) =>
+                max(width, (entry.blockBase + entry.blockSize).bitLength)));
     final width = maximumValueWidth;
     String bits(LogicValue value) =>
         MemoryValueCodec.binary(value, width: width);
@@ -54,9 +61,9 @@ extension CsrModelSystemC on CsrModelDescription {
             : '$name.read().is_01()';
     String address(String name, int width) => width == 1
         ? twoStatePorts
-            ? '$name.read()'
-            : '$name.read().to_bool()'
-        : '$name.read().to_uint64()';
+            ? 'address_type($name.read())'
+            : 'address_type($name.read().to_bool())'
+        : 'address_type($name.read())';
     String portType(int width) => twoStatePorts
         ? width == 1
             ? 'bool'
@@ -81,8 +88,10 @@ extension CsrModelSystemC on CsrModelDescription {
       ..writeln('#include <vector>')
       ..writeln('#include <sstream>')
       ..writeln('#include <stdexcept>')
+      ..writeln(systemCSparseStorageDefinition)
       ..writeln('SC_MODULE($className) {')
-      ..writeln('  using word = sc_dt::sc_lv<$width>;');
+      ..writeln('  using word = sc_dt::sc_lv<$width>;')
+      ..writeln('  using address_type = sc_dt::sc_biguint<$addressWidth>;');
     for (final (ports, direction) in [
       (inputPorts, 'in'),
       (outputPorts, 'out'),
@@ -134,13 +143,15 @@ extension CsrModelSystemC on CsrModelDescription {
     source
       ..writeln('  struct field { int start, width, access; word fallback;'
           ' std::vector<word> legal; };')
-      ..writeln('  struct reg { int width; bool readonly; word reset, value;'
-          ' unsigned long long block_base, block_size; bool front_writable;'
+      ..writeln('  struct reg { int width; bool readonly; word reset;'
+          ' address_type block_base, block_size; bool front_writable;'
           ' std::vector<field> fields; };')
       ..writeln('  struct target { size_t index; int offset; };')
       ..writeln('  std::vector<reg> registers;')
-      ..writeln('  std::map<unsigned long long, target> reads, writes;')
-      ..writeln('  std::map<unsigned long long, size_t> addresses;')
+      ..writeln('  using storage = RohdHclSystemCSparseStorage<$width>;')
+      ..writeln('  storage values;')
+      ..writeln('  std::map<address_type, target> reads, writes;')
+      ..writeln('  std::map<address_type, size_t> addresses;')
       ..writeln('  sc_core::sc_event changed;');
     final hardwareWidths = hardware.keys
         .map((address) => registers[address]!.config.width)
@@ -159,26 +170,48 @@ extension CsrModelSystemC on CsrModelDescription {
           ' sc_dt::SC_LOGIC_${twoStatePorts ? '0' : 'X'};')
       ..writeln('  sc_dt::sc_logic old_reset ='
           ' sc_dt::SC_LOGIC_${twoStatePorts ? '0' : 'X'};')
+      ..writeln('  class image {')
+      ..writeln('    friend struct $className;')
+      ..writeln('    storage::image values; sc_dt::sc_logic clk, reset;'
+          ' bool reset_seen;')
+      ..writeln('    image(storage::image v, sc_dt::sc_logic c,'
+          ' sc_dt::sc_logic r, bool seen)'
+          ' : values(std::move(v)),clk(c),reset(r),reset_seen(seen) {}')
+      ..writeln('  };')
+      ..writeln('  image snapshot() const { return image(values.snapshot(),'
+          ' old_clk,old_reset,${twoStatePorts ? 'has_reset' : 'false'}); }')
+      ..writeln('  void restore(const image& saved) {')
+      ..writeln('    values.restore(saved.values); old_clk=saved.clk;'
+          ' old_reset=saved.reset;')
+      ..writeln(twoStatePorts ? '    has_reset=saved.reset_seen;' : '')
+      ..writeln('    changed.notify(sc_core::SC_ZERO_TIME);')
+      ..writeln('  }')
       ..writeln('  static bool known(sc_dt::sc_logic v) {'
           ' return v == sc_dt::SC_LOGIC_0 || v == sc_dt::SC_LOGIC_1; }')
       ..writeln('  static word slice(const word& value, int start, int count) {'
           ' word result(0); for(int i=0;i<count;++i) result[i]=value[start+i];'
           ' return result; }')
-      ..writeln('  word peek(unsigned long long address) const {'
-          ' return registers.at(addresses.at(address)).value; }')
-      ..writeln('  void poke(unsigned long long address, const word& value) {'
-          ' registers.at(addresses.at(address)).value=value;'
+      ..writeln('  word get_value(size_t index) const {'
+          ' return values.read(std::to_string(index),'
+          ' word(sc_dt::SC_LOGIC_X)); }')
+      ..writeln('  void set_value(size_t index, const word& value) {'
+          ' values.write(std::to_string(index),value); }')
+      ..writeln('  word peek(const address_type& address) const {'
+          ' return get_value(addresses.at(address)); }')
+      ..writeln('  void poke(const address_type& address, const word& value) {'
+          ' set_value(addresses.at(address),value);'
           ' changed.notify(sc_core::SC_ZERO_TIME); }')
       ..writeln('  word transform(size_t index, const word& data, int offset,'
           ' int count, bool backdoor) {')
       ..writeln('    const auto& r=registers[index];')
-      ..writeln('    if(r.readonly) return r.value & r.value;')
-      ..writeln('    word proposed=r.value, result=r.value;')
+      ..writeln('    word current=get_value(index);')
+      ..writeln('    if(r.readonly && !backdoor) return current & current;')
+      ..writeln('    word proposed=current, result=current;')
       ..writeln('    for(int i=0;i<count;++i) proposed[offset+i]=data[i];')
       ..writeln('    if(r.fields.empty()) return proposed & proposed;')
       ..writeln('    for(const auto& f:r.fields) {')
       ..writeln('      word incoming=slice(proposed,f.start,f.width);')
-      ..writeln('      word original=slice(r.value,f.start,f.width),'
+      ..writeln('      word original=slice(current,f.start,f.width),'
           ' updated=original;')
       ..writeln('      switch(f.access) {')
       ..writeln('        case ${CsrFieldAccess.readWrite.index}:'
@@ -214,11 +247,12 @@ extension CsrModelSystemC on CsrModelDescription {
     source
       ..writeln('    old_clk=c; old_reset=r;')
       ..writeln('    if(invalid || (edge && !known(r))) {')
-      ..writeln(
-          '      for(auto& reg:registers) reg.value=word(sc_dt::SC_LOGIC_X);')
+      ..writeln('      for(size_t i=0;i<registers.size();++i)'
+          ' set_value(i,word(sc_dt::SC_LOGIC_X));')
       ..writeln('    } else if(edge && r==sc_dt::SC_LOGIC_1) {')
       ..writeln(twoStatePorts ? '      has_reset=true;' : '')
-      ..writeln('      for(auto& reg:registers) reg.value=reg.reset;')
+      ..writeln('      for(size_t i=0;i<registers.size();++i)'
+          ' set_value(i,registers[i].reset);')
       ..writeln('    } else if(edge) {')
       ..writeln('      std::vector<size_t> touched;');
     final writePort = frontWrite;
@@ -234,15 +268,15 @@ extension CsrModelSystemC on CsrModelDescription {
         ..writeln('          if(it!=writes.end()) { auto t=it->second;')
         ..writeln('            auto& reg=registers[t.index];'
             ' touched.push_back(t.index);')
-        ..writeln('            reg.value=known($enable) ?'
+        ..writeln('            set_value(t.index,known($enable) ?'
             ' transform(t.index,$writeData,t.offset,'
             ' std::min(${writePort.dataWidth},reg.width-t.offset),false)'
-            ' : word(sc_dt::SC_LOGIC_X);')
+            ' : word(sc_dt::SC_LOGIC_X));')
         ..writeln('          }')
         ..writeln('        } else {')
         ..writeln('          for(const auto& it:writes) {')
-        ..writeln('            registers[it.second.index].value='
-            ' word(sc_dt::SC_LOGIC_X);')
+        ..writeln('            set_value(it.second.index,'
+            ' word(sc_dt::SC_LOGIC_X));')
         ..writeln('            touched.push_back(it.second.index); }')
         ..writeln('        }')
         ..writeln('      }');
@@ -257,9 +291,9 @@ extension CsrModelSystemC on CsrModelDescription {
         ..writeln('        if(enable!=sc_dt::SC_LOGIC_0 &&'
             ' std::find(touched.begin(),touched.end(),port.index) '
             '==touched.end())')
-        ..writeln('          registers[port.index].value=known(enable) ?'
+        ..writeln('          set_value(port.index,known(enable) ?'
             ' transform(port.index,$wordData,0,$hardwareWidth,true)'
-            ' : word(sc_dt::SC_LOGIC_X);')
+            ' : word(sc_dt::SC_LOGIC_X));')
         ..writeln('      }');
     }
     source
@@ -268,7 +302,7 @@ extension CsrModelSystemC on CsrModelDescription {
       ..writeln('  }')
       ..writeln('  word hardware_value(size_t index) {')
       ..writeln('    const auto& reg=registers[index];')
-      ..writeln('    word value=reg.value;');
+      ..writeln('    word value=get_value(index);');
     if (writePort != null) {
       final writeValid = valid('frontWrite_addr', writePort.addressWidth);
       final writeAddress = address('frontWrite_addr', writePort.addressWidth);
@@ -326,7 +360,7 @@ extension CsrModelSystemC on CsrModelDescription {
         ..writeln('    if(!($readValid)) value=word(sc_dt::SC_LOGIC_X);')
         ..writeln('    else { auto it=reads.find($readAddress);'
             ' if(it!=reads.end()) { auto t=it->second;')
-        ..writeln('      value=slice(registers[t.index].value,t.offset,'
+        ..writeln('      value=slice(get_value(t.index),t.offset,'
             ' std::min(${readPort.dataWidth},'
             ' registers[t.index].width-t.offset)); } }');
       writeOutput('frontRead_data', readPort.dataWidth, 'value & value');
@@ -373,13 +407,14 @@ extension CsrModelSystemC on CsrModelDescription {
       ..writeln('    std::istringstream metadata(register_metadata);')
       ..writeln('    char kind;')
       ..writeln('    while(metadata >> kind) {')
-      ..writeln('      unsigned long long address; metadata >> address;')
+      ..writeln('      std::string address_text; metadata >> address_text;')
+      ..writeln('      address_type address(address_text.c_str());')
       ..writeln("      if(kind=='R') {")
-      ..writeln('        reg r; size_t count; std::string value;')
+      ..writeln('        reg r; size_t count; std::string value,base,size;')
       ..writeln('        metadata >> r.width >> r.readonly >> value >> count'
-          ' >> r.block_base >> r.block_size >> r.front_writable;')
+          ' >> base >> size >> r.front_writable;')
+      ..writeln('        r.block_base=base.c_str(); r.block_size=size.c_str();')
       ..writeln('        r.reset=word(value.c_str());')
-      ..writeln('        r.value=word(sc_dt::SC_LOGIC_X);')
       ..writeln('        for(size_t i=0;i<count;++i) {')
       ..writeln('          field f; size_t legal;')
       ..writeln('          metadata >> f.start >> f.width >> f.access'

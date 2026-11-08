@@ -12,6 +12,38 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/memory/state/stored_value.dart';
+
+/// Detached CSR execution state, including sampled inputs and pending edges.
+///
+/// The image is tied to the originating model and does not capture external
+/// signals or events. A caller must coordinate those separately.
+class CsrSoftwareExecutionImage {
+  final CsrSoftwareModel _owner;
+  final Map<BigInt, LogicValue> _registers;
+  final Map<Logic, LogicValue> _sampled;
+  final Set<Logic> _deferred;
+  final Set<Logic> _racing;
+  final Set<BigInt> _activeHardwareWrites;
+  final Set<BigInt> _deferredHardware;
+  final bool _clockChanged;
+  final bool _resetChanged;
+  final LogicValue? _oldClock;
+  final LogicValue? _oldReset;
+
+  CsrSoftwareExecutionImage._(CsrSoftwareModel owner)
+      : _owner = owner,
+        _registers = owner.snapshot(),
+        _sampled = Map.unmodifiable(owner._sampled),
+        _deferred = Set.unmodifiable(owner._deferred),
+        _racing = Set.unmodifiable(owner._racing),
+        _activeHardwareWrites = Set.unmodifiable(owner._activeHardwareWrites),
+        _deferredHardware = Set.unmodifiable(owner._deferredHardware),
+        _clockChanged = owner._clockChanged,
+        _resetChanged = owner._resetChanged,
+        _oldClock = owner._oldClock,
+        _oldReset = owner._oldReset;
+}
 
 /// Software-held state for an entire CSR top.
 ///
@@ -19,28 +51,32 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Inspection and loading bypass architectural write effects. Hardware
 /// frontdoor and backdoor writes retain their architectural semantics.
 class CsrSoftwareModel
-    implements BehavioralModel, MemoryStateAccess<Map<int, LogicValue>> {
+    implements
+        BehavioralModel,
+        MemoryStateAccess<Map<BigInt, LogicValue>>,
+        StateTransactionProvider<CsrSoftwareExecutionImage>,
+        StateTransactionCapabilityProvider {
   /// Frozen metadata shared with the portable SystemC generator.
   @override
   final CsrModelDescription description;
 
   /// Address increment between chunks of a register wider than a frontdoor.
-  int get logicalRegisterIncrement => description.logicalRegisterIncrement;
+  BigInt get logicalRegisterIncrement => description.logicalRegisterIncrement;
 
-  final Map<int, _CsrModelRegister> _registers = {};
-  final Map<String, int> _names = {};
-  final Map<int, (_CsrModelRegister, int)> _reads = {};
-  final Map<int, (_CsrModelRegister, int)> _writes = {};
-  final Map<int, CsrBackdoorInterface> _hardware = {};
-  final Map<int, ({Csr output, List<CsrFieldConfig> commands})> _hardwareReads =
-      {};
-  final Set<int> _commandHardware = {};
+  final Map<BigInt, _CsrModelRegister> _registers = {};
+  final Map<String, BigInt> _names = {};
+  final Map<BigInt, (_CsrModelRegister, int)> _reads = {};
+  final Map<BigInt, (_CsrModelRegister, int)> _writes = {};
+  final Map<BigInt, CsrBackdoorInterface> _hardware = {};
+  final Map<BigInt, ({Csr output, List<CsrFieldConfig> commands})>
+      _hardwareReads = {};
+  final Set<BigInt> _commandHardware = {};
   final Map<Logic, LogicValue> _sampled = {};
   final Set<Logic> _deferred = {};
   final Set<Logic> _racing = {};
-  final Set<int> _activeHardwareWrites = {};
-  final Set<int> _deferredHardware = {};
-  final Map<Logic, int> _hardwareEnables = {};
+  final Set<BigInt> _activeHardwareWrites = {};
+  final Set<BigInt> _deferredHardware = {};
+  final Map<Logic, BigInt> _hardwareEnables = {};
   final List<StreamSubscription<void>> _subscriptions = [];
   final List<void Function()> _cancelGlitches = [];
   final Logic _clk;
@@ -52,6 +88,15 @@ class CsrSoftwareModel
   LogicValue? _oldClock;
   LogicValue? _oldReset;
 
+  @override
+  StateTransactionCapabilities get stateTransactionCapabilities =>
+      StateTransactionCapabilities.software;
+
+  @override
+  late final StateTransactionEndpoint<CsrSoftwareExecutionImage>
+      stateTransactions = SoftwareStateTransactionAdapter(
+          snapshot: snapshotExecution, restore: restoreExecution);
+
   /// Constructs the software state and attaches one shared clock handler.
   ///
   /// [hardware] contains only selected, already connected hardware interfaces.
@@ -61,7 +106,7 @@ class CsrSoftwareModel
     required Logic reset,
     required DataPortInterface? frontRead,
     required DataPortInterface? frontWrite,
-    required Map<int, CsrBackdoorInterface> hardware,
+    required Map<BigInt, CsrBackdoorInterface> hardware,
   })  : _clk = clk,
         _reset = reset,
         _frontRead = frontRead,
@@ -87,8 +132,16 @@ class CsrSoftwareModel
             'Hardware view does not match the model description.');
       }
     }
+    final largestAddress =
+        description.registers.keys.reduce((a, b) => a > b ? a : b);
+    final stores = <int, SparseMemoryStorage>{};
     for (final entry in description.registers.entries) {
-      _registers[entry.key] = _CsrModelRegister(entry.value);
+      final width = entry.value.config.width;
+      final storage = stores.putIfAbsent(
+          width,
+          () => SparseMemoryStorage(
+              addrWidth: max(1, largestAddress.bitLength), dataWidth: width));
+      _registers[entry.key] = _CsrModelRegister(entry.value, storage);
     }
     _names.addAll(description.names);
     _reads.addAll(description.reads.map((address, target) =>
@@ -186,7 +239,7 @@ class CsrSoftwareModel
     _driveHardware();
   }
 
-  void _setHardwareActive(int address, Logic enable) {
+  void _setHardwareActive(BigInt address, Logic enable) {
     if (enable.value == LogicValue.zero) {
       _activeHardwareWrites.remove(address);
     } else {
@@ -208,34 +261,91 @@ class CsrSoftwareModel
   int get hardwareRegisterCount => _hardware.length;
 
   /// Resolves a configured block/register name to its absolute logical address.
-  int addressOf(String block, String register) =>
+  BigInt addressOf(String block, String register) =>
       _names['$block/$register'] ??
       (throw ArgumentError('Unknown CSR $block/$register.'));
 
-  _CsrModelRegister _at(int address) =>
+  _CsrModelRegister _at(BigInt address) =>
       _registers[address] ??
       (throw ArgumentError.value(address, 'address', 'Unknown CSR.'));
 
   /// Inspects raw state without allocating any hardware signals.
   @override
-  LogicValue peek(int address) => _at(address).value;
+  LogicValue peek(int address) => peekBigInt(BigInt.from(address));
+
+  @override
+  LogicValue peekBigInt(BigInt address) => _at(address).value;
 
   /// Replaces raw state, bypassing frontdoor permissions and field effects.
   @override
-  void poke(int address, LogicValue value) {
+  void poke(int address, LogicValue value) =>
+      pokeBigInt(BigInt.from(address), value);
+
+  @override
+  void pokeBigInt(BigInt address, LogicValue value) {
     final register = _at(address);
     if (value.width != register.config.width) {
       throw ArgumentError('CSR value width does not match its register.');
     }
-    register.value = value;
+    register.value = normalizeStoredValue(value);
     _driveRead();
     _driveHardware([address]);
   }
 
   /// Captures all register state, keyed by absolute logical register address.
   @override
-  Map<int, LogicValue> snapshot() => Map.unmodifiable(
+  Map<BigInt, LogicValue> snapshot() => Map.unmodifiable(
       _registers.map((address, entry) => MapEntry(address, entry.value)));
+
+  /// Captures register state, sampled inputs, and pending simulator events.
+  ///
+  /// Calls must occur between simulator ticks. External signals are not part
+  /// of this image and must be coordinated by the caller.
+  CsrSoftwareExecutionImage snapshotExecution() {
+    if (Simulator.phase != SimulatorPhase.outOfTick) {
+      throw StateError('CSR execution snapshots require a tick boundary.');
+    }
+    return CsrSoftwareExecutionImage._(this);
+  }
+
+  /// Restores an execution image created by this model at a tick boundary.
+  void restoreExecution(CsrSoftwareExecutionImage image) {
+    if (Simulator.phase != SimulatorPhase.outOfTick) {
+      throw StateError('CSR execution restore requires a tick boundary.');
+    }
+    if (!identical(image._owner, this)) {
+      throw ArgumentError('CSR execution image belongs to another model.');
+    }
+    for (final entry in image._registers.entries) {
+      if (_at(entry.key).config.width != entry.value.width) {
+        throw ArgumentError('CSR execution image has invalid register widths.');
+      }
+    }
+    for (final entry in image._registers.entries) {
+      _registers[entry.key]!.value = entry.value;
+    }
+    _sampled
+      ..clear()
+      ..addAll(image._sampled);
+    _deferred
+      ..clear()
+      ..addAll(image._deferred);
+    _racing
+      ..clear()
+      ..addAll(image._racing);
+    _activeHardwareWrites
+      ..clear()
+      ..addAll(image._activeHardwareWrites);
+    _deferredHardware
+      ..clear()
+      ..addAll(image._deferredHardware);
+    _clockChanged = image._clockChanged;
+    _resetChanged = image._resetChanged;
+    _oldClock = image._oldClock;
+    _oldReset = image._oldReset;
+    _driveRead();
+    _driveHardware();
+  }
 
   /// Loads validated raw state atomically.
   ///
@@ -243,7 +353,7 @@ class CsrSoftwareModel
   /// values. Otherwise they retain their state. Loading does not pulse command
   /// fields or perform W1C operations.
   @override
-  void load(Map<int, LogicValue> values, {bool replace = false}) {
+  void load(Map<BigInt, LogicValue> values, {bool replace = false}) {
     for (final entry in values.entries) {
       if (_at(entry.key).config.width != entry.value.width) {
         throw ArgumentError('CSR value width does not match its register.');
@@ -253,7 +363,7 @@ class CsrSoftwareModel
       _resetState();
     }
     for (final entry in values.entries) {
-      _registers[entry.key]!.value = entry.value;
+      _registers[entry.key]!.value = normalizeStoredValue(entry.value);
     }
     _driveRead();
     _driveHardware(replace ? null : values.keys);
@@ -283,7 +393,7 @@ class CsrSoftwareModel
             _reset.value == LogicValue.one);
     _clockChanged = _resetChanged = false;
     _oldClock = _oldReset = null;
-    Iterable<int>? dirty = const [];
+    Iterable<BigInt>? dirty = const [];
     if (invalid) {
       _resetState(unknown: true);
       dirty = null;
@@ -314,16 +424,16 @@ class CsrSoftwareModel
     _driveHardware(dirty);
   }
 
-  Set<int> _write() {
+  Set<BigInt> _write() {
     final front = _frontWrite;
     final touched = <_CsrModelRegister>{};
-    final dirty = <int>{};
+    final dirty = <BigInt>{};
     if (front != null) {
       final enable = _sampled[front.en]!;
       final address = _sampled[front.addr]!;
       if (enable != LogicValue.zero) {
         if (address.isValid) {
-          final target = _writes[address.toInt()];
+          final target = _writes[address.toBigInt()];
           if (target != null) {
             final (entry, offset) = target;
             touched.add(entry);
@@ -368,7 +478,7 @@ class CsrSoftwareModel
       front.data.put(LogicValue.filled(front.dataWidth, LogicValue.x));
       return;
     }
-    final target = _reads[address.toInt()];
+    final target = _reads[address.toBigInt()];
     final value = target == null
         ? LogicValue.ofInt(0, front.dataWidth)
         : target.$1.value
@@ -378,10 +488,10 @@ class CsrSoftwareModel
     front.data.put(value & value);
   }
 
-  void _driveHardware([Iterable<int>? addresses]) {
+  void _driveHardware([Iterable<BigInt>? addresses]) {
     final front = _frontWrite;
     final target = front != null && front.addr.value.isValid
-        ? _writes[front.addr.value.toInt()]
+        ? _writes[front.addr.value.toBigInt()]
         : null;
     for (final address in addresses ?? _hardwareReads.keys) {
       final exposed = _hardwareReads[address];
@@ -396,8 +506,8 @@ class CsrSoftwareModel
         final register = entry.description;
         final address = front.addr.value;
         final inBlock = address.isValid
-            ? LogicValue.ofBool(address.toInt() >= register.blockBase &&
-                address.toInt() < register.blockBase + register.blockSize)
+            ? LogicValue.ofBool(address.toBigInt() >= register.blockBase &&
+                address.toBigInt() < register.blockBase + register.blockSize)
             : LogicValue.x;
         final enable = front.en.value & inBlock;
         final offset = target?.$2 ?? 0;
@@ -456,18 +566,31 @@ class CsrSoftwareModel
 
 class _CsrModelRegister {
   final CsrModelRegisterDescription description;
+  final SparseMemoryStorage _storage;
   CsrInstanceConfig get config => description.config;
-  LogicValue value;
   Map<CsrFieldConfig, LogicValue> get illegalValues =>
       description.illegalValues;
 
-  _CsrModelRegister(this.description)
-      : value = LogicValue.filled(description.config.width, LogicValue.x);
+  _CsrModelRegister(this.description, this._storage);
+
+  LogicValue get _address =>
+      LogicValue.ofBigInt(description.address, _storage.addrWidth);
+
+  LogicValue get value =>
+      _storage.getData(_address) ??
+      LogicValue.filled(config.width, LogicValue.x);
+
+  set value(LogicValue value) {
+    if (value.width != config.width) {
+      throw ArgumentError('CSR value width does not match its register.');
+    }
+    _storage.setData(_address, value);
+  }
 
   LogicValue write(LogicValue data, {int offset = 0, bool backdoor = false}) {
     final count = min(data.width, config.width - offset);
     final proposed = value.withSet(offset, data.getRange(0, count));
-    if (config.access == CsrAccess.readOnly) {
+    if (!backdoor && config.access == CsrAccess.readOnly) {
       return value & value;
     }
     var result = config.fields.isEmpty ? proposed : value;
@@ -485,10 +608,11 @@ class _CsrModelRegister {
         case CsrFieldAccess.writeOnesClear:
           updated = backdoor ? original | incoming : original & ~incoming;
         case CsrFieldAccess.readWriteLegal:
-          updated =
-              incoming.isValid && field.legalValues.contains(incoming.toInt())
-                  ? incoming
-                  : illegalValues[field]!;
+          updated = incoming.isValid &&
+                  field.legalValues
+                      .any((legal) => incoming.toBigInt() == BigInt.from(legal))
+              ? incoming
+              : illegalValues[field]!;
       }
       result = result.withSet(field.start, updated);
     }

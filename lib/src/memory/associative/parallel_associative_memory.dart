@@ -13,6 +13,11 @@ import 'package:rohd_hcl/src/memory/associative/associative_match_selector.dart'
 import 'package:rohd_hcl/src/memory/associative/associative_matcher.dart';
 import 'package:rohd_hcl/src/memory/associative/associative_memory.dart';
 import 'package:rohd_hcl/src/memory/associative/associative_memory_contract.dart';
+import 'package:rohd_hcl/src/memory/state/stored_value.dart';
+
+int _sideReadCount(AssociativeIndexedSideReadRequest? single,
+        List<AssociativeIndexedSideReadRequest>? multiple) =>
+    multiple?.length ?? (single == null ? 0 : 1);
 
 /// Signals for one shared parallel associative-memory update path.
 @internal
@@ -69,17 +74,40 @@ typedef ParallelAssociativeLookupSignals = ({
       throw StateError('Disallow policy was rejected during construction.'),
   };
   Sequential(clk, [
-    If(reset, then: [
-      for (final key in storedKeys) key < Const(0, width: keyWidth),
-      for (final valid in entryValid) valid < Const(0),
-    ], orElse: [
-      for (var index = 0; index < entryCount; index++)
-        for (final update in orderedUpdates)
-          If(update.en & update.index.eq(index), then: [
-            storedKeys[index] < update.key,
-            entryValid[index] < update.entryValid,
+    Case(
+        reset,
+        [
+          CaseItem(Const(1), [
+            for (final key in storedKeys) key < Const(0, width: keyWidth),
+            for (final valid in entryValid) valid < Const(0),
           ]),
-    ]),
+          CaseItem(Const(0), [
+            for (var index = 0; index < entryCount; index++)
+              for (final update in orderedUpdates)
+                Case(
+                    update.en & storedIndexMatches(update.index, index),
+                    [
+                      CaseItem(Const(0), []),
+                      CaseItem(Const(1), [
+                        storedKeys[index] < normalizeStoredLogic(update.key),
+                        entryValid[index] <
+                            normalizeStoredLogic(update.entryValid),
+                      ]),
+                    ],
+                    exactMatch: true,
+                    defaultItem: [
+                      storedKeys[index] <
+                          Const(LogicValue.filled(keyWidth, LogicValue.x)),
+                      entryValid[index] < Const(LogicValue.x),
+                    ]),
+          ]),
+        ],
+        exactMatch: true,
+        defaultItem: [
+          for (final key in storedKeys)
+            key < Const(LogicValue.filled(keyWidth, LogicValue.x)),
+          for (final valid in entryValid) valid < Const(LogicValue.x),
+        ]),
   ]);
   final matchingValidity = unknownValidityIsInvalid
       ? [
@@ -99,8 +127,7 @@ typedef ParallelAssociativeLookupSignals = ({
     }
   }
   final validMask = matchingValidity.rconcat().named('${name}_validMask');
-  final storedValidMask =
-      entryValid.rconcat().named('${name}_storedValidMask');
+  final storedValidMask = entryValid.rconcat().named('${name}_storedValidMask');
   for (var lookupIndex = 0; lookupIndex < lookups.length; lookupIndex++) {
     final lookup = lookups[lookupIndex];
     final matcher = AssociativeMatcher(
@@ -150,7 +177,11 @@ typedef ParallelAssociativeLookupSignals = ({
 /// sampling edge and combinational lookups immediately observe the new state.
 /// This architecture is intended for small, highly ported structures.
 /// {@category Memory}
-class ParallelAssociativeMemory extends AssociativeMemory {
+class ParallelAssociativeMemory extends AssociativeMemory
+    implements
+        AssociativeIndexedSideReadProvider,
+        AssociativeMultiIndexedSideReadProvider,
+        AssociativeValidityMaskProvider {
   /// Whether validity count, full, and empty outputs are generated.
   final bool enableValidTracking;
 
@@ -163,6 +194,18 @@ class ParallelAssociativeMemory extends AssociativeMemory {
   /// Whether no entries are valid, when [enableValidTracking] is true.
   Logic? get empty => enableValidTracking ? output('empty') : null;
 
+  /// Stored entry validity, one bit per entry, when tracking is enabled.
+  @override
+  Logic? get validMask => enableValidTracking ? output('valid_mask') : null;
+
+  @override
+  AssociativeIndexedSideReadResponse? get sideReadResponse =>
+      sideReadResponses.isEmpty ? null : sideReadResponses.first;
+
+  @override
+  final List<AssociativeIndexedSideReadResponse> sideReadResponses;
+  final List<AssociativeIndexedSideReadRequest> _sideReadRequests;
+
   /// Creates a parallel-flop associative memory.
   ParallelAssociativeMemory({
     required super.clk,
@@ -172,16 +215,30 @@ class ParallelAssociativeMemory extends AssociativeMemory {
     required super.entryCount,
     required super.contract,
     this.enableValidTracking = false,
+    AssociativeIndexedSideReadRequest? sideReadRequest,
+    List<AssociativeIndexedSideReadRequest>? sideReadRequests,
     super.name = 'parallel_associative_memory',
-  }) : super(
+  })  : _sideReadRequests = sideReadRequests ??
+            (sideReadRequest == null ? [] : [sideReadRequest]),
+        sideReadResponses = [
+          for (var i = 0;
+              i < _sideReadCount(sideReadRequest, sideReadRequests);
+              i++)
+            AssociativeIndexedSideReadResponse(keyWidth: lookups.first.keyWidth)
+        ],
+        super(
           definitionName: 'ParallelAssociativeMemory_'
               'U${updates.length}_Q${lookups.length}_E${entryCount}_'
               'K${lookups.isEmpty ? 0 : lookups.first.keyWidth}_'
               '${contract.matchSelection.name}_'
               '${contract.updateCollisionPolicy.name}_'
               '${contract.resultShape.name}_'
-              'T${enableValidTracking ? 1 : 0}',
+              'T${enableValidTracking ? 1 : 0}_'
+              'S${_sideReadCount(sideReadRequest, sideReadRequests)}',
         ) {
+    if (sideReadRequest != null && sideReadRequests != null) {
+      throw ArgumentError('Use either sideReadRequest or sideReadRequests.');
+    }
     if (contract.implementationKind !=
         AssociativeMemoryImplementationKind.synthesizable) {
       throw ArgumentError(
@@ -213,6 +270,9 @@ class ParallelAssociativeMemory extends AssociativeMemory {
     if (contract.resetTiming != AssociativeMemoryResetTiming.synchronous) {
       throw ArgumentError(
           'ParallelAssociativeMemory requires synchronous reset timing.');
+    }
+    if (_sideReadRequests.any((request) => request.index.width != indexWidth)) {
+      throw ArgumentError('Indexed side-read index width must be $indexWidth.');
     }
 
     _buildLogic();
@@ -252,9 +312,77 @@ class ParallelAssociativeMemory extends AssociativeMemory {
           state.validCount;
       addOutput('full') <= state.full;
       addOutput('empty') <= state.empty;
+      addOutput('valid_mask', width: entryCount) <= state.entryValid.rconcat();
+    }
+    for (final (port, request) in _sideReadRequests.indexed) {
+      final suffix = port == 0 ? '' : '_$port';
+      final index =
+          addInput('side_read_index$suffix', request.index, width: indexWidth);
+      final key = Logic(name: 'side_read_key_value$suffix', width: keyWidth);
+      final valid = Logic(name: 'side_read_valid_value$suffix');
+      Combinational([
+        Case(
+            index
+                .zeroExtend(indexWidth + 1)
+                .lt(Const(entryCount, width: indexWidth + 1)),
+            [
+              CaseItem(Const(0), [
+                key < Const(0, width: keyWidth),
+                valid < Const(0),
+              ]),
+              CaseItem(Const(1), [
+                Case(
+                    index,
+                    [
+                      for (var i = 0; i < entryCount; i++)
+                        CaseItem(Const(i, width: indexWidth), [
+                          key < state.storedKeys[i],
+                          valid < state.entryValid[i],
+                        ]),
+                    ],
+                    exactMatch: true,
+                    defaultItem: [
+                      key < Const(LogicValue.filled(keyWidth, LogicValue.x)),
+                      valid < Const(LogicValue.x),
+                    ]),
+              ]),
+            ],
+            exactMatch: true,
+            defaultItem: [
+              key < Const(LogicValue.filled(keyWidth, LogicValue.x)),
+              valid < Const(LogicValue.x),
+            ]),
+      ]);
+      addOutput('side_read_key$suffix', width: keyWidth) <= key;
+      addOutput('side_read_valid$suffix') <= valid;
+      sideReadResponses[port].key <= output('side_read_key$suffix');
+      sideReadResponses[port].entryValid <= output('side_read_valid$suffix');
     }
   }
 }
+
+/// Builds parallel-flop associative memory with multiple indexed reads.
+AssociativeMemory parallelMultiSideReadBuilder({
+  required Logic clk,
+  required Logic reset,
+  required List<AssociativeUpdatePortInterface> updatePorts,
+  required List<AssociativeLookupPortInterface> lookupPorts,
+  required List<AssociativeIndexedSideReadRequest> sideReadRequests,
+  required AssociativeMemoryRequest request,
+  required AssociativeMemoryContract contract,
+  required String name,
+}) =>
+    ParallelAssociativeMemory(
+      clk: clk,
+      reset: reset,
+      updates: updatePorts,
+      lookups: lookupPorts,
+      entryCount: request.entryCount,
+      contract: contract,
+      sideReadRequests: sideReadRequests,
+      enableValidTracking: request.requiresValidityMask,
+      name: name,
+    );
 
 /// Builds a [ParallelAssociativeMemory] for a resolved contract.
 AssociativeMemory parallelAssociativeMemoryBuilder({
@@ -273,6 +401,7 @@ AssociativeMemory parallelAssociativeMemoryBuilder({
       lookups: lookupPorts,
       entryCount: request.entryCount,
       contract: contract,
+      enableValidTracking: request.requiresValidityMask,
       name: name,
     );
 
@@ -300,6 +429,10 @@ const parallelAssociativeMemoryFunctor = AssociativeMemoryFunctor(
     resetBehavior: AssociativeMemoryResetBehavior.clearValidity,
     implementationKind: AssociativeMemoryImplementationKind.synthesizable,
     sustainsOneLookupPerPortPerCycle: true,
+    supportsIndexedSideRead: true,
+    maximumIndexedSideReads: null,
+    supportsValidityMask: true,
   ),
   build: parallelAssociativeMemoryBuilder,
+  buildMultipleSideReads: parallelMultiSideReadBuilder,
 );

@@ -1,7 +1,7 @@
 # Ready/Valid Hardware
 
-ROHD-HCL provides typed ready/valid interfaces and queues that buffer
-any `Logic` payload, including scalars, enums, structures, and typed arrays.
+ROHD-HCL provides typed ready/valid interfaces and queues that buffer any
+`Logic` payload, including scalars, enums, structures, and typed arrays.
 
 ## Interfaces and handshaking
 
@@ -29,14 +29,14 @@ checks with `satisfies`, and can reject a direct provider/consumer dependency
 cycle with `requireComposable` or the corresponding interface convenience
 methods.
 
-A `ReadyThenValidInterface` can be adapted with
-`toDownstreamReadyAndValid(clk, reset)`, which inserts a two-entry FIFO and
-returns an independently asserted ready/valid interface.
+A `ReadyThenValidInterface` can be adapted with `toDownstreamReadyAndValid(clk,
+reset)`, which inserts a two-entry FIFO and returns an independently asserted
+ready/valid interface.
 
-Ready/valid registration with `addPairInterfacePorts` preserves the concrete payload type,
-including `LogicStructure` payloads, by using ROHD typed module ports for data
-and scalar ports for ready and valid. Subclass provider sidebands and nested
-pair subinterfaces continue through normal ROHD traversal. When an
+Ready/valid registration with `addPairInterfacePorts` preserves the concrete
+payload type, including `LogicStructure` payloads, by using ROHD typed module
+ports for data and scalar ports for ready and valid. Subclass provider sidebands
+and nested pair subinterfaces continue through normal ROHD traversal. When an
 intentionally retyped connection uses a plain packed `Logic` on one side,
 registration creates a typed bridge from the target payload template after
 validating width; two declared structures must also have matching recursive
@@ -60,22 +60,22 @@ These components expose `capacity`, `occupancy`, `empty`, and `full`; their
 occupancy counts retained entries, not an offer passing through an empty
 fall-through stage. Their downstream interfaces provide an irrevocable offer.
 
-For authors building a custom protocol shell around an action-driven core,
-see [protocol composition](protocol_composition.md).
+For authors building a custom protocol shell around an action-driven core, see
+[protocol composition](protocol_composition.md).
 
 ## ReadyValidQueue
 
 `ReadyValidQueue<T>` buffers a typed payload with an explicit visibility policy
-and storage architecture. `ReadyValidQueuePolicy.registered` waits until an
-item is stored before presenting it; `fallThrough` can pass an offer through
-an empty queue. `ReadyValidQueueStorage.registers` uses a pipeline of elastic
-registers, while `ring` uses a pointer-based FIFO. Both permit a full queue to
-accept a replacement when its current head transfers.
+and storage architecture. `ReadyValidQueuePolicy.registered` waits until an item
+is stored before presenting it; `fallThrough` can pass an offer through an empty
+queue. `ReadyValidQueueStorage.registers` uses a pipeline of elastic registers,
+while `ring` uses a pointer-based FIFO. Both permit a full queue to accept a
+replacement when its current head transfers.
 
 The queue exposes `occupancy`, `empty`, `full`, `almostFull`, and `almostEmpty`.
 An optional synchronous `flush` discards retained items on its active edge;
-coordinate transfers on that edge with the flush, since newly accepted items
-are also discarded.
+coordinate transfers on that edge with the flush, since newly accepted items are
+also discarded.
 
 ```dart
 final queue = ReadyValidQueue<Logic>(
@@ -91,15 +91,15 @@ final queue = ReadyValidQueue<Logic>(
 
 ## Legacy ReadyValidFifo
 
-`ReadyValidFifo` is deprecated but remains available for compatibility.
-For new designs use the queue above. Unlike the default legacy FIFO, a queue
-can accept a replacement on the same cycle a full queue drains, so check any
-upstream timing assumptions when migrating.
+`ReadyValidFifo` is deprecated but remains available for compatibility. For new
+designs use the queue above. Unlike the default legacy FIFO, a queue can accept
+a replacement on the same cycle a full queue drains, so check any upstream
+timing assumptions when migrating.
 
-`ReadyValidFifo<T extends Logic>` buffers a typed payload between upstream
-and downstream ready/valid interfaces. Its default depth is 8. The upstream
-side deasserts `ready` when full, and the downstream side deasserts `valid`
-when empty. It is the P00 reference protocol shell: its storage is constructed
+`ReadyValidFifo<T extends Logic>` buffers a typed payload between upstream and
+downstream ready/valid interfaces. Its default depth is 8. The upstream side
+deasserts `ready` when full, and the downstream side deasserts `valid` when
+empty. It is the P00 reference protocol shell: its storage is constructed
 through `FifoCoreFunctor`, while `ReadyValidIngressAttachmentPolicy` and
 `ReadyValidEgressAttachmentPolicy` map the two ready/valid boundaries to the
 core's enqueue and dequeue actions. Future protocol combinations reuse that
@@ -109,15 +109,15 @@ wrapper architecture.
 Payload cloning preserves array rank, leaf types, and value codecs. By default,
 a full FIFO does not accept a replacement on the same cycle it dequeues:
 upstream `ready` becomes high after that edge releases a slot. Set
-`allowSameCycleReplacement: true` to opt into full-FIFO replacement; while
-full, upstream `ready` then reflects whether the downstream transfer will
-release the retained head on the edge. This changes only full-buffer
-admission, not empty-FIFO bypass behavior.
+`allowSameCycleReplacement: true` to opt into full-FIFO replacement; while full,
+upstream `ready` then reflects whether the downstream transfer will release the
+retained head on the edge. This changes only full-buffer admission, not
+empty-FIFO bypass behavior.
 
-Create and retain the interface instances at the composition boundary, then
-pass them into the FIFO. Continue to use those caller-owned interfaces to
-connect neighboring modules; the FIFO's connected internal interface clones
-are implementation details.
+Create and retain the interface instances at the composition boundary, then pass
+them into the FIFO. Continue to use those caller-owned interfaces to connect
+neighboring modules; the FIFO's connected internal interface clones are
+implementation details.
 
 ```dart
 class Packet extends LogicStructure {

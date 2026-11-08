@@ -5,17 +5,17 @@ Import them from `package:rohd_hcl/rohd_hcl.dart`.
 
 ## Absolute Value
 
-`AbsoluteValue(value)` interprets `value` as signed two's complement and
-returns its non-negative magnitude on `result`. The output is one bit wider
-than the input, so even the most-negative input is representable.
+`AbsoluteValue(value)` interprets `value` as signed two's complement and returns
+its non-negative magnitude on `result`. The output is one bit wider than the
+input, so even the most-negative input is representable.
 
 ## Arithmetic With Overflow
 
-`UnsignedAddWithOverflow(a, b, sumWidth: ...)` returns the truncated `sum`
-and an `overflow` bit. `sumWidth` defaults to the wider operand width.
+`UnsignedAddWithOverflow(a, b, sumWidth: ...)` returns the truncated `sum` and
+an `overflow` bit. `sumWidth` defaults to the wider operand width.
 `UnsignedMulWithOverflow(a, b, productWidth: ...)` similarly returns `product`
-and `overflow`; its default width is the sum of the operand widths, so it
-holds the full product.
+and `overflow`; its default width is the sum of the operand widths, so it holds
+the full product.
 
 ```dart
 final a = Logic(width: 8);
@@ -28,13 +28,13 @@ final product = multiplication.product;
 
 ## Division and Logarithms
 
-`CeilDivide(dividend, divisor)` computes the unsigned quotient rounded up
-when the remainder is nonzero. Its `quotient` is truncated to the dividend
-width. Division by zero follows the underlying division and modulo behavior
-and is not specified by this component.
+`CeilDivide(dividend, divisor)` computes the unsigned quotient rounded up when
+the remainder is nonzero. Its `quotient` is truncated to the dividend width.
+Division by zero follows the underlying division and modulo behavior and is not
+specified by this component.
 
-`Log2Ceil(inp)` computes the ceiling of the base-2 logarithm on `log`; zero
-and one both produce zero.
+`Log2Ceil(inp)` computes the ceiling of the base-2 logarithm on `log`; zero and
+one both produce zero.
 
 ## Circular Pointer
 

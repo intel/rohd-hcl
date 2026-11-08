@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/memory/state/stored_value.dart';
 
 /// Compares an associative query with one stored key.
 typedef AssociativeKeyComparator = Logic Function(
@@ -22,7 +23,7 @@ Logic exactAssociativeKeyComparator(
         required Logic stored,
         required int index,
         required String name}) =>
-    query.eq(stored).named('${name}_exact_match_$index');
+    storedLogicValuesEqual(query, stored).named('${name}_exact_match_$index');
 
 /// Produces a match vector without owning storage or choosing one match.
 ///

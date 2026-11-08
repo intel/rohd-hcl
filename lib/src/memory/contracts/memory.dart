@@ -57,7 +57,56 @@ class MaskedDataPortInterface<LogicType extends Logic>
 /// An interface to a simple memory that only needs enable, address, and data.
 ///
 /// Can be used for either read or write direction by grouping signals using
-/// [DataPortGroup].
+/// [DataPortGroup]. For a write port, drive [en], [addr], and [data]. For a
+/// read port, drive [en] and [addr] and consume [data] from the memory.
+///
+/// In a structural design, connect the ports to existing signals with `<=`:
+///
+/// ```dart
+/// final write = DataPortInterface<Logic>(32, 5);
+/// final read = DataPortInterface<Logic>(32, 5);
+/// RegisterFile<Logic>(clk, reset, [write], [read], numEntries: 20);
+///
+/// write.en <= writeEnable;
+/// write.addr <= writeAddress;
+/// write.data <= writeData;
+/// read.en <= readEnable;
+/// read.addr <= readAddress;
+/// final readData = read.data;
+/// ```
+///
+/// Here `clk`, `reset`, and the request signals are supplied by the
+/// surrounding design. The address signals are 5 bits wide and the data
+/// signals are 32 bits wide. `RegisterFile` writes on the clock edge and
+/// reads combinationally when the read port is enabled.
+///
+/// In a testbench, drive values instead of connecting hardware signals:
+///
+/// ```dart
+/// final clk = Logic()..put(0);
+/// final reset = Logic()..put(0);
+/// final write = DataPortInterface<Logic>(32, 5);
+/// final read = DataPortInterface<Logic>(32, 5);
+/// final memory =
+///     RegisterFile<Logic>(clk, reset, [write], [read], numEntries: 20);
+/// await memory.build();
+///
+/// write.en.put(1);
+/// write.addr.put(3);
+/// write.data.put(0xdeadbeef);
+/// read.en.put(1);
+/// read.addr.put(3);
+/// await Simulator.tick();
+/// clk.inject(1);
+/// await Simulator.tick();
+/// clk.inject(0);
+/// await Simulator.tick();
+/// assert(read.data.value == LogicValue.ofInt(0xdeadbeef, 32));
+/// ```
+///
+/// Other memory implementations can have different read latency and reset
+/// behavior. Use [DataPortInterface.typed] for a structured or otherwise
+/// specialized payload, and [MaskedDataPortInterface] for byte-enabled writes.
 class DataPortInterface<LogicType extends Logic>
     extends Interface<DataPortGroup> {
   /// The width of data in the memory.

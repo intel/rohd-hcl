@@ -27,7 +27,8 @@ class OneHotMux extends Module {
       String? definitionName})
       : super(
             definitionName: definitionName ??
-                'OneHotMux_N${cases.length}_W${cases.first.width}') {
+                'OneHotMux_N${cases.length}'
+                    '_W${cases.isEmpty ? 0 : cases.first.width}') {
     if (cases.isEmpty) {
       throw Exception('At least one case is required.');
     }

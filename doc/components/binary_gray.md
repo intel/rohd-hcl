@@ -1,10 +1,20 @@
 # Binary Gray
 
-ROHD-HCL provides a module to perform conversion on binary to gray and gray to binary.
+ROHD-HCL provides a module to perform conversion on binary to gray and gray to
+binary.
 
 ## Binary-to-Gray
 
-A fundamental digital logic operation known as binary to gray code conversion is employed in many different applications, notably in digital communication and signal processing systems. Gray code is a binary numbering system that is useful for minimizing communication channel faults because adjacent values only differ in one bit. This conversion algorithm converts a binary value into its equivalent Gray code representation from the input binary value. Each bit in the binary input is XORed with the bit before it to produce the Gray code. In order to reduce errors during signal transmission or processing, the transition between consecutive values must be as smooth as feasible in applications like rotary encoders, error correction, and circuit design.
+A fundamental digital logic operation known as binary to gray code conversion is
+employed in many different applications, notably in digital communication and
+signal processing systems. Gray code is a binary numbering system that is useful
+for minimizing communication channel faults because adjacent values only differ
+in one bit. This conversion algorithm converts a binary value into its
+equivalent Gray code representation from the input binary value. Each bit in the
+binary input is XORed with the bit before it to produce the Gray code. In order
+to reduce errors during signal transmission or processing, the transition
+between consecutive values must be as smooth as feasible in applications like
+rotary encoders, error correction, and circuit design.
 
 The `BinaryToGrayConverter` module accepts a `Logic` input and exposes the
 result through `gray`.
@@ -21,9 +31,9 @@ print(binToGray.gray.value.toString(includeWidth: false)); // output: 100
 
 ## Gray-to-Binary
 
-Gray-to-binary conversion recovers the binary representation by XORing each
-Gray bit with the more-significant decoded bits, starting at the most
-significant end.
+Gray-to-binary conversion recovers the binary representation by XORing each Gray
+bit with the more-significant decoded bits, starting at the most significant
+end.
 
 The `GrayToBinaryConverter` module accepts a `Logic` input and exposes the
 result through `binary`.

@@ -199,7 +199,8 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              generateEndAroundCarry: true, subtract: subtract);
+              generateEndAroundCarry: true,
+              subtract: StaticOrRuntimeParameter.staticValue(value: subtract));
 
           final carry = adder.endAroundCarry!;
           final mag = adder.sum.value.toInt() +
@@ -227,7 +228,8 @@ void main() {
         a.put(av);
         b.put(bv);
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,
-            subtract: subtract, generateCarryOut: true);
+            subtract: StaticOrRuntimeParameter.staticValue(value: subtract),
+            generateCarryOut: true);
         final carry = adder.carryOut!;
         final mag = adder.sum.value.toInt() +
             (subtract ? (carry.value.isZero ? 0 : 1) : 0);
@@ -259,7 +261,8 @@ void main() {
 
     a.put(av);
     b.put(bv);
-    final adder = OnesComplementAdder(a, b, subtract: subtract);
+    final adder = OnesComplementAdder(a, b,
+        subtract: StaticOrRuntimeParameter.staticValue(value: subtract));
     expect(adder.sum.value.toInt(), equals(bv - av));
     expect(adder.sign.value, LogicValue.one);
   });
@@ -275,7 +278,8 @@ void main() {
           a.put(av);
           b.put(bv);
           final adder = OnesComplementAdder(a, b,
-              subtract: subtractIn,
+              subtract: StaticOrRuntimeParameter.fromLogic(subtractIn,
+                  fallbackName: 'subtract'),
               // endAroundCarry: carry,
               generateEndAroundCarry: true,
               adderGen: RippleCarryAdder.new);
@@ -305,14 +309,14 @@ void main() {
             // This test intentionally exercises the compatibility input.
             // ignore: deprecated_member_use_from_same_package
             subtractIn: subtractIn,
-            subtract: false),
+            subtract: StaticOrRuntimeParameter.staticValue(value: false)),
         returnsNormally);
     expect(
         () => OnesComplementAdder(a, b,
             // This test verifies conflicting legacy and current inputs.
             // ignore: deprecated_member_use_from_same_package
             subtractIn: subtractIn,
-            subtract: true),
+            subtract: StaticOrRuntimeParameter.staticValue(value: true)),
         throwsA(isA<RohdHclException>()));
   });
 
@@ -329,7 +333,8 @@ void main() {
     bSign.put(0);
 
     final adder = OnesComplementAdder(a, b,
-        adderGen: RippleCarryAdder.new, subtract: true);
+        adderGen: RippleCarryAdder.new,
+        subtract: StaticOrRuntimeParameter.staticValue(value: true));
 
     final sum = adder.sum;
     expect(-sum.value.toBigInt(), equals(BigInt.from(6 - 24)));

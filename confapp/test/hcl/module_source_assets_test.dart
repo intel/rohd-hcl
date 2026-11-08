@@ -59,6 +59,68 @@ void main() {
     expect(source, contains('class ParallelAssociativeMemory'));
   });
 
+  test('cache and memory building block sources are bundled', () async {
+    final cases = <({Configurator config, String asset, String declaration})>[
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: CacheConfigurator(),
+        asset: 'rohd_src/memory/cache/cache.dart',
+        declaration: 'class Cache<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: MultiPortCacheConfigurator(),
+        asset: 'rohd_src/memory/cache/cache.dart',
+        declaration: 'class MultiPortCache<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: SerializedCacheConfigurator(),
+        asset: 'rohd_src/memory/cache/serialized_cache.dart',
+        declaration: 'class SerializedCache<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: CacheTransactionAdapterConfigurator(),
+        asset: 'rohd_src/memory/cache/cache_transaction_adapter.dart',
+        declaration: 'class CacheTransactionAdapter<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: CacheSchedulerConfigurator(),
+        asset: 'rohd_src/memory/cache/fixed_priority_cache_scheduler.dart',
+        declaration: 'class FixedPriorityCacheScheduler'
+      ),
+      (
+        config: ReplacementPolicyConfigurator(),
+        asset: 'rohd_src/memory/replacement/round_robin_replacement.dart',
+        declaration: 'class RoundRobinReplacement'
+      ),
+      (
+        config: ReplacementPolicyConfigurator()
+          ..policyKnob.value = ReplacementConfiguratorPolicy.treePseudoLru,
+        asset: 'rohd_src/memory/replacement/tree_pseudo_lru_replacement.dart',
+        declaration: 'class TreePseudoLruReplacement'
+      ),
+      (
+        config: InferredSramConfigurator(),
+        asset: 'rohd_src/memory/storage/inferred_sram.dart',
+        declaration: 'class InferredSram<'
+      ),
+    ];
+    for (final item in cases) {
+      final asset = moduleSourceAsset(item.config.createModule());
+      expect(asset, item.asset, reason: item.config.name);
+      final source = await rootBundle.loadString('assets/$asset');
+      expect(source, contains(item.declaration), reason: item.config.name);
+    }
+  });
+
   test('nondefault module implementations have indexed source assets', () {
     final variants = <({String name, Module module, String asset})>[
       (

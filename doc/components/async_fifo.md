@@ -1,27 +1,39 @@
 # Asynchronous FIFO
 
-ROHD-HCL provides an asynchronous FIFO for safely passing data between two independent clock domains.
+ROHD-HCL provides an asynchronous FIFO for safely passing data between two
+independent clock domains.
 
 ## Overview
 
-The `AsyncFifo` module enables data transfer between two completely independent clock domains (different frequencies, phases, or sources). This is essential for designs that need to communicate across clock domain boundaries while maintaining data integrity and preventing metastability issues.
+The `AsyncFifo` module enables data transfer between two completely independent
+clock domains (different frequencies, phases, or sources). This is essential for
+designs that need to communicate across clock domain boundaries while
+maintaining data integrity and preventing metastability issues.
 
 ## Key Features
 
-- **Independent Clock Domains**: Separate write and read clocks operating at any frequency
-- **Gray Code Pointers**: Uses Gray code encoding for pointer synchronization (only 1 bit changes at a time)
-- **Metastability Protection**: Multi-stage synchronizers prevent metastability propagation
-- **Safe Full/Empty Flags**: Properly synchronized flags in respective clock domains
-- **Configurable Depth**: FIFO depth must be a power of 2 (2, 4, 8, 16, 32, etc.)
-- **Configurable Synchronizer Stages**: Default 2-stage synchronizers (configurable for different requirements)
+- **Independent Clock Domains**: Separate write and read clocks operating at any
+  frequency
+- **Gray Code Pointers**: Uses Gray code encoding for pointer synchronization
+  (only 1 bit changes at a time)
+- **Metastability Protection**: Multi-stage synchronizers prevent metastability
+  propagation
+- **Safe Full/Empty Flags**: Properly synchronized flags in respective clock
+  domains
+- **Configurable Depth**: FIFO depth must be a power of 2 (2, 4, 8, 16, 32,
+  etc.)
+- **Configurable Synchronizer Stages**: Default 2-stage synchronizers
+  (configurable for different requirements)
 
 ## Architecture
 
 The async FIFO uses the following techniques for safe clock domain crossing:
 
 1. **Dual-Port Memory**: Independent read and write addresses
-2. **Gray-Coded Pointers**: Write and read pointers use Gray code to minimize multi-bit transition errors
-3. **Pointer Synchronization**: Gray pointers are synchronized across clock domains using multi-flop synchronizers
+2. **Gray-Coded Pointers**: Write and read pointers use Gray code to minimize
+   multi-bit transition errors
+3. **Pointer Synchronization**: Gray pointers are synchronized across clock
+   domains using multi-flop synchronizers
 4. **Domain-Specific Flags**:
    - `full` flag generated in write clock domain
    - `empty` flag generated in read clock domain
@@ -88,7 +100,8 @@ In the read clock domain:
 
 ### Depth Requirements
 
-The FIFO depth **must be a power of 2** (2, 4, 8, 16, 32, 64, etc.). This requirement ensures proper Gray code pointer wrapping.
+The FIFO depth **must be a power of 2** (2, 4, 8, 16, 32, 64, etc.). This
+requirement ensures proper Gray code pointer wrapping.
 
 ```dart
 // Valid depths
@@ -104,19 +117,22 @@ depth: 20  (not a power of 2)
 ### Synchronization Latency
 
 - Full/empty flags have synchronization latency (typically 2-3 clock cycles)
-- After reset, the FIFO may appear empty for several cycles while synchronizers settle
+- After reset, the FIFO may appear empty for several cycles while synchronizers
+  settle
 - Design your system to account for this latency
 
 ### Clock Domain Crossing
 
-**The async FIFO is specifically designed for clock domain crossing.** For single-clock designs, use the standard `Fifo` module instead, which is more efficient.
+**The async FIFO is specifically designed for clock domain crossing.** For
+single-clock designs, use the standard `Fifo` module instead, which is more
+efficient.
 
 ## Synchronizer Module
 
 The `Synchronizer` module is a reusable component for crossing single-bit or
-appropriately encoded multi-bit control signals between clock domains. Each
-bit is synchronized independently; it does not make an arbitrary changing
-multi-bit value atomic or coherent.
+appropriately encoded multi-bit control signals between clock domains. Each bit
+is synchronized independently; it does not make an arbitrary changing multi-bit
+value atomic or coherent.
 
 ```dart
 final sync = Synchronizer(
@@ -132,7 +148,9 @@ not arbitrary data buses. Use an async FIFO for data transfer.
 
 ## Example: Producer-Consumer System
 
-See the complete example in [async_fifo_example.dart](../../example/async_fifo_example.dart) which demonstrates:
+See the complete example in
+[async_fifo_example.dart](../../example/async_fifo_example.dart) which
+demonstrates:
 
 - Two independent clock domains (fast write, slow read)
 - Continuous data streaming
@@ -165,16 +183,20 @@ See the complete example in [async_fifo_example.dart](../../example/async_fifo_e
 
 ## Common Use Cases
 
-1. **Different Clock Frequencies**: Transferring data between fast and slow domains
-2. **Asynchronous Interfaces**: Connecting to external devices with independent clocks
+1. **Different Clock Frequencies**: Transferring data between fast and slow
+   domains
+2. **Asynchronous Interfaces**: Connecting to external devices with independent
+   clocks
 3. **Clock Domain Isolation**: Isolating timing paths in multi-clock SoC designs
-4. **Rate Adaptation**: Buffering data when production and consumption rates vary
+4. **Rate Adaptation**: Buffering data when production and consumption rates
+   vary
 
 ## Additional Resources
 
 - For single-clock FIFOs, see [FIFO documentation](./fifo.md)
 - For Gray code converters, see [Binary-Gray documentation](./binary_gray.md)
-- For general CDC principles, refer to industry standards on clock domain crossing
+- For general CDC principles, refer to industry standards on clock domain
+  crossing
 
 ---
 

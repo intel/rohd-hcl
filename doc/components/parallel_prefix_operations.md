@@ -1,19 +1,17 @@
 # Parallel Prefix Operations
 
-Parallel prefix or 'scan' trees are useful for efficient
-implementation of computations which involve associative
-operators. They are used in computations like encoding, or-reduction,
-and addition. By leveraging advanced programming idioms, like
-functors, allowing for passing of a function that generates prefix trees
-into a scan-based generator for that computation, we can have a wide
-variety of that computation supported by our component library. For
-example, we have tree patterns defined by ripple, Sklansky,
-Kogge-Stone, and Brent-Kung which gives us those four varieties of
-prefix reduction trees we can use across addition, or-reduction, and
-priority encoding.
+Parallel prefix or 'scan' trees are useful for efficient implementation of
+computations which involve associative operators. They are used in computations
+like encoding, or-reduction, and addition. By leveraging advanced programming
+idioms, like functors, allowing for passing of a function that generates prefix
+trees into a scan-based generator for that computation, we can have a wide
+variety of that computation supported by our component library. For example, we
+have tree patterns defined by ripple, Sklansky, Kogge-Stone, and Brent-Kung
+which gives us those four varieties of prefix reduction trees we can use across
+addition, or-reduction, and priority encoding.
 
-ROHD-HCL implements a set of parallel prefix compute operations using
-different parallel prefix computation trees based on the
+ROHD-HCL implements a set of parallel prefix compute operations using different
+parallel prefix computation trees based on the
 ['ParallelPrefix'](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefix-class.html)
 node class.
 
@@ -21,8 +19,8 @@ For example, we have unary operations like a word-level 'or'
 [`ParallelPrefixOrScan`](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefixOrScan-class.html)
 class, and a priority encoder
 [`ParallelPrefixPriorityEncoder`](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefixPriorityEncoder-class.html)
-class which computes the position of the first bit set to '1'. We have
-simple unary arithmetic operations like an increment
+class which computes the position of the first bit set to '1'. We have simple
+unary arithmetic operations like an increment
 [`ParallelPrefixIncr`](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefixIncr-class.html)
 class, and a decrement
 [`ParallelPrefixDecr`](https://intel.github.io/rohd-hcl/rohd_hcl/ParallelPrefixDecr-class.html)
@@ -34,10 +32,10 @@ case, the prefix trees carry named `GeneratePropagate` records at each node.
 
 ## Priority Finding
 
-`ParallelPrefixPriorityFinder` produces a one-hot mask for the
-least-significant set bit, or zero when no bits are set. In contrast,
-`ParallelPrefixPriorityEncoder` returns the bit's binary position. Both
-accept a `ppGen` topology such as `BrentKung.new`.
+`ParallelPrefixPriorityFinder` produces a one-hot mask for the least-significant
+set bit, or zero when no bits are set. In contrast,
+`ParallelPrefixPriorityEncoder` returns the bit's binary position. Both accept a
+`ppGen` topology such as `BrentKung.new`.
 
 ```dart
 final bits = Logic(width: 8);
@@ -68,8 +66,8 @@ without calling the operation. There are no added pipeline stages.
 
 Structured inputs and callback results must have matching schemas. These scans
 do not perform automatic field alignment or format widening. Ordinary scalar
-`Logic` retains its existing per-output widths and bit-vector behavior.
-For scalar constant inputs, explicitly request `KoggeStone<Logic>(...)` (or the
+`Logic` retains its existing per-output widths and bit-vector behavior. For
+scalar constant inputs, explicitly request `KoggeStone<Logic>(...)` (or the
 corresponding topology) to construct mutable ports rather than infer `Const`.
 
 `ParallelPrefixGenerator<T>` names the callback that constructs a network:
@@ -101,5 +99,5 @@ types:
 - ['Kogge-Stone'](https://intel.github.io/rohd-hcl/rohd_hcl/KoggeStone-class.html)
 - ['Brent-Kung](https://intel.github.io/rohd-hcl/rohd_hcl/BrentKung-class.html)
 
-Here is an example adder schematic:
-[ParallelPrefixAdder Schematic](https://intel.github.io/rohd-hcl/ParallelPrefixAdder.html)
+Here is an example adder schematic: [ParallelPrefixAdder
+Schematic](https://intel.github.io/rohd-hcl/ParallelPrefixAdder.html)

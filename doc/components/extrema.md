@@ -7,17 +7,21 @@ position, retaining the selected payload type in `val`.
 
 ## Description
 
-`Extrema` will take in an input containing a `List<Logic>` along with a parameter `max`.
+`Extrema` will take in an input containing a `List<Logic>` along with a
+parameter `max`.
 
-* `max` is a boolean indicating whether to find the maximum value (`true`), or the minimum value (`false`). Default is `true`.
+* `max` is a boolean indicating whether to find the maximum value (`true`), or
+  the minimum value (`false`). Default is `true`.
 
 `Extrema` outputs a scalar `index` and a typed `val`:
 
 * `index` The index or position of the first extrema in the list.
 
-  * `index` will be a `Logic` with the smallest width needed to represent the largest possible index in the list.
+  * `index` will be a `Logic` with the smallest width needed to represent the
+    largest possible index in the list.
 
-  * If multiple instances of the same extrema exists in the list, the index of the first instance will be returned.
+  * If multiple instances of the same extrema exists in the list, the index of
+    the first instance will be returned.
 
 * `val` The value of the extrema.
 
@@ -48,8 +52,8 @@ The reduction carries the index alongside the whole typed payload, without
 concatenating and slicing it. Equal keys retain the earliest original index.
 `radix` controls the balanced reduction's branching factor (default 2).
 
-Pass `.packed` representations when unsigned packed-bit ordering is desired
-for domain-specific signals. For scalar constants, explicitly request
+Pass `.packed` representations when unsigned packed-bit ordering is desired for
+domain-specific signals. For scalar constants, explicitly request
 `Extrema<Logic>(...)` so mutable ports are not inferred as `Const`.
 
 ## Example Usage

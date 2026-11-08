@@ -34,7 +34,8 @@ class CompressorTestMod extends Module {
     }
 
     final pp = PartialProduct(a, b, encoder,
-        signedMultiplicand: signed, signedMultiplier: signed);
+        signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: signed),
+        signedMultiplier: StaticOrRuntimeParameter.staticValue(value: signed));
     final ppWithOutputs = pp
       ..generateOutputs(
         beforeGenerateOutputs: (array) =>
@@ -117,8 +118,10 @@ void main() {
           selectSignedMultiplier!.put(signed ? 1 : 0);
         }
         final pp = PartialProduct(a, b, encoder,
-            signedMultiplicand: !useSelect & signed,
-            signedMultiplier: !useSelect & signed,
+            signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                value: !useSelect & signed),
+            signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                value: !useSelect & signed),
             selectSignedMultiplicand: selectSignedMultiplicand,
             selectSignedMultiplier: selectSignedMultiplier);
         final ppWithOutputs = pp

@@ -100,8 +100,9 @@ class DotProductConfigurator extends Configurator {
         (index) =>
             Logic(name: 'multiplier_$index', width: multiplierWidthKnob.value));
     final signedMultiplicand =
-        signedMultiplicandKnob.resolve('signedMultiplicand');
-    final signedMultiplier = signedMultiplierKnob.resolve('signedMultiplier');
+        signedMultiplicandKnob.resolveControl('signedMultiplicand');
+    final signedMultiplier =
+        signedMultiplierKnob.resolveControl('signedMultiplier');
     Adder adderGen(Logic a, Logic b, {Logic? carryIn}) => adderSelectKnob
         .selectedAdder()(a, b, carryIn: carryIn, name: 'dot_product_add');
 
@@ -111,8 +112,8 @@ class DotProductConfigurator extends Configurator {
       Logic? clk,
       Logic? reset,
       Logic? enable,
-      dynamic signedMultiplicand,
-      dynamic signedMultiplier,
+      StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier,
     }) =>
         multiplierSelectKnob.selectedMultiplier(
             signedMultiplicand: signedMultiplicand,

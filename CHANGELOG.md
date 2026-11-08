@@ -1,7 +1,31 @@
 ## Unreleased (0.3.0)
 
+### Behavioral models
+
+- Uncertain memory writes now report through the active ROHD-VF test logger, falling back to a printed warning when no verification test is active.
+- Added RTL configurator entries for cache compositions, cache scheduling and transaction transport, reusable replacement policies, and inferred SRAM. Experimental cache entries are labeled; the SRAM appears as a schematic cell inside a structural wrapper.
+- Marked cache-specific controllers, ports, contracts, adapters, schedulers, replacement factories, and behavioral cache/backing-store APIs `@experimental`; they may change without a version bump. General associative, replacement-policy, and memory-storage APIs are not marked experimental by this change.
+- CSR block bases, offsets, extents, logical chunk increments, and software state now support arbitrary-width addresses in RTL, Dart, and SystemC. RTL and software consistently reject overlapping or out-of-range chunks, and Verilog now matches four-state unknown-address read/write behavior.
+- Preserved arbitrary-width sparse addresses in memory-file import/export and snapshots; added BigInt raw access and removed width limits from CSR frontdoor and clock-stepped associative SystemC decoding.
+- Added a port-compatible parallel associative behavioral model with shared storage, state snapshots, and combinational four-state Dart and SystemC behavior. It can supply cache tags through the common associative factory. Unknown synchronous reset now consistently poisons parallel associative RTL state in both ROHD simulation and Verilog.
+- Added directed wide-tag and wide-index associative regressions for concurrent updates, duplicate selection, masked matching, invalid aliases and snapshots, including RTL, Verilog, Dart and SystemC where applicable.
+- Parallel associative Dart and four-state SystemC models now poison state on invalid clock transitions as ROHD RTL does. Invalid-clock Verilog edge semantics remain different and are documented.
+- Corrected four-state associative key comparisons to retain definite mismatches despite unknown bits, consistently across RTL simulation, Verilog, and Dart and SystemC behavioral models.
+- Added a standalone behavioral fixed-priority cache scheduler for Dart and SystemC, with three-way comparisons against generated Verilog including four-state inputs.
+- Behavioral round-robin and tree pseudo-LRU replacement policies now preserve RTL four-state behavior and export standalone SystemC models with snapshots. Their synchronous reset and partial-index comparisons also agree between ROHD simulation and generated Verilog when inputs contain unknown bits.
+- Added common register-file and one-cycle, single-port inferred SRAM array factories. The SRAM provides execution snapshots and standalone SystemC and can back serialized-cache data independently of flop-based tags. Serialized cache metadata can use a separate combinational-read array factory.
+- Added an explicit two-state SystemC hierarchy exporter that substitutes selected portable behavioral models while retaining structural RTL elsewhere. An SRAM-backed serialized cache is compared across Dart, Verilog, and SystemC.
+
 ### Breaking changes
 
+- CSR address, block-size, and logical-register-increment getters, description maps, `addressOf`, and software snapshot keys now use `BigInt`. Existing integer configuration constructors remain available; use the `.wide` constructors and BigInt lookup and state methods for arbitrary-width values.
+- `MemoryStorageImage.entries` now uses `BigInt` address keys, and implementations of `MemoryStateAccess` must provide BigInt raw access.
+- `Cache` and its named constructors now take `CacheLookupPort<T>` and `CacheFillPort<T>` instead of individual signals. Drive inputs and consume outputs on those ports, as with `MultiPortCache`. Cache lookup, fill, scheduler and transaction ports are cloneable ROHD pair interfaces.
+
+- Multipliers, multiply-accumulates, dot products, partial-product building blocks and ones-complement adders now accept `StaticOrRuntimeParameter` controls instead of raw `bool` or `Logic` values. Construct static controls with `staticValue` and runtime controls with `runtime` or `fromLogic`. Multiplier-generator and adder callbacks use the same typed controls.
+- `CarrySelectCompoundAdder` block-adder callbacks now accept `subtract` instead of `subtractIn`. `PartialProduct` custom `genPPG` callbacks and `PPGFunction` now use unified `signedMultiplicand` and `signedMultiplier` controls instead of separate static and runtime arguments.
+- Automatic `PartialProduct` definition names now include radix and distinguish static from runtime signedness. Consumers that reference these generated HDL names must update them; explicit `definitionName` values are unchanged.
+- Automatic `OnesComplementAdder`, `CarrySelectCompoundAdder`, and `CarrySelectOnesComplementCompoundAdder` definition names now distinguish static addition, static subtraction, and runtime subtraction. Explicit `definitionName` values are unchanged.
 - SPI main and sub gaskets now asynchronously clear receive state and capture transmit data on the first enabled SPI rising edge instead of asynchronously loading `busIn` on reset. Hold `busIn` stable through the first falling SPI edge; `busOut` is zero immediately after reset. This avoids dynamic asynchronous reset values. See [SPI Gaskets](doc/components/spi_gaskets.md).
 - Ready/valid interfaces no longer preserve the deprecated `PairInterface.modify` callback. Pass `uniquify` when connecting or registering an interface instead; naming is now configured at the connection rather than stored on the clone.
 
@@ -55,16 +79,12 @@
 - Automatic `FixedToFloat`, `FloatingPointAdderSinglePath`, `FloatingPointConverter`, `FloatingPointSqrt`, and `FloatingPointSqrtSimple` definition names now include `roundingMode` so modules with different rounding logic cannot share an HDL definition. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
 - Automatic `DotProduct`, `CompressionTreeDotProduct`, and `GeneralDotProduct` definition names now include lane count, operand widths, radix, implementation identity, and signedness. Consumers that reference generated HDL definition names must update those names; explicitly supplied `definitionName` values are unchanged.
 - Automatic `Count` definition names now include the tree radix.
-- Automatic `Extrema` definition names now include the tree radix and input widths.
-  Consumers referencing the generated `Count` or `Extrema` HDL definition names must update them; explicitly supplied `definitionName` values are unchanged.
+- Automatic `Extrema` definition names now include the tree radix and input widths. Consumers referencing the generated `Count` or `Extrema` HDL definition names must update them; explicitly supplied `definitionName` values are unchanged.
 - Removed `PartialProductMatrix.array`, which exposed the internal partial-product generator. Apply custom transformations through the `beforeGenerateOutputs` callback to `generateOutputs`.
 - Made implementation-only hardware signals and connected interface clones non-public. Consumers must use documented module outputs and caller-owned interfaces instead of accessing child internals directly.
 - Reorganized `lib/src` into a category/subcategory directory taxonomy. The public `package:rohd_hcl/rohd_hcl.dart` API is unchanged, but code that imports private `package:rohd_hcl/src/...` paths directly must update those paths or import the package barrel instead.
 - Generated `Fifo` definitions retain their existing automatic definition names and latency, but now include the protocol-neutral `canEnqueue`, `outputValid`, and `slotReleased` output ports. External positional SystemVerilog instantiations of generated FIFO definitions must account for the additional outputs; named-port instantiations may leave them unconnected.
-- `Counter.overflowed` and `Counter.underflowed` (including `GatedCounter`)
-  are now nullable. The corresponding generated status port exists only when
-  `trackOverflow` or `trackUnderflow`, respectively, is `true`; callers that
-  disable tracking must handle a `null` getter instead of a tied-low signal.
+- `Counter.overflowed` and `Counter.underflowed` (including `GatedCounter`) are now nullable. The corresponding generated status port exists only when `trackOverflow` or `trackUnderflow`, respectively, is `true`; callers that disable tracking must handle a `null` getter instead of a tied-low signal.
 
 ### Deprecated APIs
 
@@ -81,6 +101,21 @@
 
 ### New features and enhanced components
 
+- Added simulation-only round-robin and tree pseudo-LRU replacement policies using the RTL replacement ports, including deferred commits and snapshots. Serialized-cache tests compare their timing with RTL replacement and data arrays at fixed read latencies of one through three cycles.
+- Added `MemoryModel.registerFile` for finite `RegisterFile`-matching behavior, with synchronous reset, combinational reads, matching masked-write priority, static per-entry reset values, and behavioral SystemC export.
+- Added four-state SystemC export and execution snapshots for plain-logic `MemoryModel` instances using built-in sparse storage. Generated RAM, CSR, and associative models share a sparse SystemC storage implementation; unsupported RAM storage, typed payloads, and two-state boundaries are rejected.
+
+- Added direct-mapped, set-associative, and fully associative cache composition with blocking eviction, round-robin or tree pseudo-LRU replacement, typed payloads, pluggable replacement factories, and selectable register-file or behavioral data storage. Non-evicting fills can run alongside lookups with old-data or forwarding behavior. See [Associative Memory](doc/components/associative_memory.md).
+- Added `MultiPortCache` with concurrent lookups, one accepted fill per set by default, optional distinct-way same-set fills, buffered evictions with parallel or serialized handshakes, and selectable old-data or forwarding behavior. Latency-bearing SRAM is not yet supported.
+- Added a capability-checked typed `MemoryArrayFunctor` for custom cache data arrays with independent and combined concurrency limits, plus persistent replacement reservations and deferred policy commits by reserved entry. The current cache presets remain zero latency.
+- `MemoryModel` supports full snapshots and restore of storage, read outputs, and in-flight delayed reads through direct methods and `stateTransactions`.
+- `CsrSoftwareModel` supports execution snapshots of register state and sampled event bookkeeping at simulator tick boundaries; external signals and events remain the caller's responsibility.
+- Added a clock-stepped associative software model with four-state exact and masked matching, in-flight snapshots, and a capability-limited four-state SystemC export.
+- Behavioral CSR, associative memory, and cache state now reuse the sparse storage engine used by the default `MemoryModel`, while preserving each family's timing and state APIs.
+- Associative-memory functors can optionally bind multiple indexed side reads without changing existing `AssociativeMemoryBuilder` callbacks.
+- Added protocol-neutral transactional cache and resource-scheduler contracts, including typed request, response and eviction channels, along with a fixed-priority resource scheduler, globally serialized fixed-latency `SerializedCache`, and bounded ready/valid `CacheTransactionAdapter`. Protocol-specific miss handling and nonblocking SRAM cores remain separate work.
+- Added simulation-only `BehavioralCache` with configurable concurrency, ordered same-set transactions, pluggable replacement, and persistent behavioral backing storage. Explicit extension operations provide read-through and write-allocate behavior without changing built-in cache operation semantics. Backing storage supports raw state images, and the cache supports full-state snapshot and restore including in-flight transactions with snapshot-capable replacement policies.
+
 #### Flow control and clocking
 
 - Added `ReadyValidInterface` and `ReadyValidFifo` in preparation for cache componentry (<https://github.com/intel/rohd-hcl/pull/281>).
@@ -89,7 +124,7 @@
 - Added the protocol-neutral `HardwareCoreFunctor` construction seam and a typed `FifoCoreFunctor` implementation over `Fifo`, including explicit full-replacement and empty-bypass capability requirements. FIFO core definition identities include a deterministic recursive payload-shape signature so equal-width but structurally different payloads cannot collide. Concrete ready/valid, credit, routing, and scheduling attachments remain later component work.
 - Added `AsyncFifo` for safely transferring data between clock domains (<https://github.com/intel/rohd-hcl/issues/168>, <https://github.com/intel/rohd-hcl/pull/279>). Its ports and storage preserve structured, enum, and typed-array payloads without changing delay or CDC behavior (<https://github.com/intel/rohd-hcl/issues/257>).
 - Synchronous FIFO storage preserves typed payloads; ready/valid adapters share recursive typed-array shape validation and FIFO definition identities.
-- Exposed the module `name` argument on round-robin and related arbiters (<https://github.com/intel/rohd-hcl/pull/255>).
+- Exposed the module `name` argument on round-robin and related arbiters (<https://github.com/intel/rohd-hcl/pull/255>). `RotateRoundRobinArbiter` also handles zero or one request (<https://github.com/intel/rohd-hcl/pull/305>).
 - `ToggleGate` preserves typed data and control through its storage and selection.
 
 #### Memory
@@ -101,6 +136,7 @@
 - Added the `RegisterFile.setData` testbench hook for directly initializing register contents (<https://github.com/intel/rohd-hcl/pull/273>).
 - Shift-register stages preserve structured, enum, and typed-array payloads without changing their delay (<https://github.com/intel/rohd-hcl/issues/257>). Added an optional `name` parameter to `ShiftRegister`.
 - Expanded CSR support with heterogeneous block sizes (<https://github.com/intel/rohd-hcl/pull/285>), configurable asynchronous reset through `CsrTopConfig` (<https://github.com/intel/rohd-hcl/issues/295>, <https://github.com/intel/rohd-hcl/pull/310>), and write-only fields for command, trigger, and pulse semantics (<https://github.com/intel/rohd-hcl/issues/308>, <https://github.com/intel/rohd-hcl/pull/313>).
+- Allowed configured hardware-backdoor writes to register-level read-only CSRs in RTL and the Dart and SystemC models, while retaining field access rules and frontdoor priority (<https://github.com/intel/rohd-hcl/pull/306>).
 
 #### Interfaces
 
@@ -120,7 +156,7 @@
 #### Bit operations
 
 - Added `Pad`, which widens to a minimum width with zeros or ones at the LSB or MSB end, `SetBits`, which sets a count of LSBs or MSBs to zeros or ones, and `WithSet`.
-- Added `OneHotMux`, `PriorityMux`, and `BitwiseMux`, which supports N inputs and per-bit one-hot selects. The one-hot mux addresses <https://github.com/intel/rohd-hcl/issues/95>.
+- Added `OneHotMux`, `PriorityMux`, and `BitwiseMux`, which supports N inputs and per-bit one-hot selects. The one-hot mux validates its cases and selector width and addresses <https://github.com/intel/rohd-hcl/issues/95>.
 - Added `BitwisePopcount` with `XorPopcount` and `XnorPopcount`.
 - Added a `radix` parameter to `Count` so its population count is combined with a balanced `ReductionTreeGenerator` tree instead of a linear accumulation chain.
 - Rotation now also offers fixed left and right implementations.
@@ -167,6 +203,7 @@
 #### Parameterized Configuration
 
 - Added generic `StaticOrRuntimeControl<T>` support for statically configured values or multi-bit runtime `Logic` inputs while preserving `StaticOrRuntimeParameter` as the boolean specialization.
+- Added child-module rebinding and static-pruned or runtime-mux selection to static-or-runtime controls. Low-level multiplier signedness and compound-adder block callbacks now use the same control model as top-level components.
 
 #### Source Organization
 
@@ -208,10 +245,8 @@
 - Reworked sum accumulation to avoid generated combinational feedback warnings.
 - Added a divider state-case default. The multi-cycle divider retains its existing three-bit state machine using `LogicEnum`; invalid or unknown state/control behavior can differ from the untyped implementation.
 - APB state comparisons now use the FSM's enum encoding.
-- Corrected CAM functional lookup matching when stored tags or query bits
-  contain X or Z, using ROHD's opt-in exact four-state case matching.
-- Corrected CSR software and SystemC backdoor reads of write-only fields to
-  preserve known bits when write data or enable contains unknown values.
+- Corrected CAM functional lookup matching when stored tags or query bits contain X or Z, using ROHD's opt-in exact four-state case matching.
+- Corrected CSR software and SystemC backdoor reads of write-only fields to preserve known bits when write data or enable contains unknown values.
 - Corrected signed `FixedPoint` signal comparisons for negative and mixed-sign operands, enabling numeric ordering in typed sort modules.
 
 - Ensured the `Serializer` counter has a valid width for single-element inputs and added regression coverage (<https://github.com/intel/rohd-hcl/issues/166>, <https://github.com/intel/rohd-hcl/pull/284>).
@@ -262,6 +297,7 @@
 
 #### Integer arithmetic component fixes
 
+- Preserved independent runtime signedness controls for multipliers and multiply-accumulates, including unnamed controls, and allowed one named signal to control both compression-tree multiplier operands. Conflicting scalar runtime-control input names now throw instead of silently aliasing.
 - Fixed `GeneralDotProduct` truncating intermediate sums and sign-extending unsigned products in uneven reduction trees. Static and runtime operand signedness now control partial-sum extension.
 - Fixed `GeneralDotProduct` passing static signedness to child multipliers as constant-valued runtime ports, and strengthened automatic definition names with lane count, operand widths, radix, implementation identity, and signedness.
 - Fixed runtime-signed `GeneralDotProduct` synthesis by keeping its signed-extension control inside the inline reduction generator rather than capturing a parent signal across a reduction-module hierarchy boundary.
@@ -292,7 +328,7 @@
 
 ### Verification and maintenance
 
-- Added common smoke coverage for all `FloatingPointValue` formats (<https://github.com/intel/rohd-hcl/issues/133>).
+- Added common smoke coverage for the generic `FloatingPointValue` and all named formats (<https://github.com/intel/rohd-hcl/issues/133>).
 - Corrected the floating-point truncating exhaustive test's overflow oracle.
 - Extended typed storage regressions to check unpacked payloads with Icarus and to compare plain and typed FIFOs with SystemC using explicit clock edges.
 - Expanded exhaustive coverage for conversions, rounding, floating-point arithmetic, fixed-point multiplication, and multiply-accumulate widths.

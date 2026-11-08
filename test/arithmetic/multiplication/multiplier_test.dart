@@ -97,7 +97,10 @@ class SimpleMultiplier extends Multiplier {
 
   /// Construct a simple multiplier with runtime sign operation
   SimpleMultiplier(
-      Logic a, Logic b, dynamic signedMultiplicand, dynamic signedMultiplier)
+      Logic a,
+      Logic b,
+      StaticOrRuntimeParameter? signedMultiplicand,
+      StaticOrRuntimeParameter? signedMultiplier)
       : super(a, b) {
     final mult = CompressionTreeMultiplier(a, b,
         adderGen: ParallelPrefixAdder.new,
@@ -217,14 +220,15 @@ typedef MultiplyAccumulateCallback = MultiplyAccumulate Function(
     Logic a, Logic b, Logic c);
 
 typedef MultiplierCallback = Multiplier Function(Logic a, Logic b,
-    {dynamic signedMultiplicand, dynamic signedMultiplier});
+    {StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier});
 
 MultiplierCallback curryCompressionTreeMultiplier(int radix,
     {SignExtensionFunction seGen = CompactRectSignExtension.new,
     Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
         NativeAdder.new,
-    dynamic signedMultiplicand,
-    dynamic signedMultiplier}) {
+    StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier}) {
   String adderName(Logic a, Logic b) => '${adderGen(a, b).name}_W${a.width}';
   String genName(Logic a, Logic b) =>
       seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
@@ -246,8 +250,8 @@ MultiplyAccumulateCallback curryMultiplierAsMultiplyAccumulate(int radix,
         {SignExtensionFunction seGen = CompactRectSignExtension.new,
         Adder Function(Logic a, Logic b, {Logic? carryIn, String name})
             adderGen = NativeAdder.new,
-        dynamic signedMultiplicand,
-        dynamic signedMultiplier}) =>
+        StaticOrRuntimeParameter? signedMultiplicand,
+        StaticOrRuntimeParameter? signedMultiplier}) =>
     (a, b, c) => MultiplyOnly(
         a,
         b,
@@ -266,9 +270,9 @@ MultiplyAccumulateCallback curryMultiplyAccumulate(int radix,
     {Adder Function(Logic a, Logic b, {Logic? carryIn, String name}) adderGen =
         NativeAdder.new,
     SignExtensionFunction seGen = CompactRectSignExtension.new,
-    dynamic signedMultiplicand,
-    dynamic signedMultiplier,
-    dynamic signedAddend}) {
+    StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier,
+    StaticOrRuntimeParameter? signedAddend}) {
   String genName(Logic a, Logic b) =>
       seGen(PartialProductGenerator(a, b, RadixEncoder(radix))).name;
   final signage = '${Multiplier.signedMD(signedMultiplicand)}_'
@@ -388,8 +392,10 @@ void main() {
         final multiplier = NativeMultiplier(
           a,
           b,
-          signedMultiplicand: signedA,
-          signedMultiplier: signedB,
+          signedMultiplicand:
+              StaticOrRuntimeParameter.staticValue(value: signedA),
+          signedMultiplier:
+              StaticOrRuntimeParameter.staticValue(value: signedB),
         );
         for (var aValue = 0; aValue < 16; aValue++) {
           for (var bValue = 0; bValue < 8; bValue++) {
@@ -843,8 +849,8 @@ void main() {
     final c = Logic(name: 'c', width: width * 2)..put(0);
     final mod = CompressionTreeMultiplyAccumulate(a, b, c,
         outputWidth: outputWidth,
-        signedMultiplicand: true,
-        signedMultiplier: true);
+        signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: true),
+        signedMultiplier: StaticOrRuntimeParameter.staticValue(value: true));
     expect(mod.accumulate.width, equals(outputWidth));
 
     for (var ai = 0; ai < (1 << width); ai++) {
@@ -917,7 +923,8 @@ void main() {
     b.put(3);
 
     final ppG0 = PartialProductGenerator(a, b, RadixEncoder(4),
-        signedMultiplicand: true, signedMultiplier: true);
+        signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: true),
+        signedMultiplier: StaticOrRuntimeParameter.staticValue(value: true));
     CompactRectSignExtension(ppG0).signExtend();
 
     final bit_0_5 = ppG0.getAbsolute(0, 5);

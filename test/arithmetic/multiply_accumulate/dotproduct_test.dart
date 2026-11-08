@@ -104,8 +104,10 @@ void main() {
         final dotProduct = GeneralDotProduct(
           multiplicands,
           multipliers,
-          signedMultiplicand: signedMultiplicand,
-          signedMultiplier: signedMultiplier,
+          signedMultiplicand:
+              StaticOrRuntimeParameter.staticValue(value: signedMultiplicand),
+          signedMultiplier:
+              StaticOrRuntimeParameter.staticValue(value: signedMultiplier),
           multiplierGen: _compressionTreeMultiplier,
           multiplierIdentity: 'compressionTreeR4',
         );
@@ -178,8 +180,10 @@ void main() {
           // Note that the `dotProduct` function is a constructor for the
           // respective dot product module.
           final dotProduct = dotProductModule(multiplicands, multipliers,
-              signedMultiplicand: signedMultiplicand,
-              signedMultiplier: signedMultiplier);
+              signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                  value: signedMultiplicand),
+              signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                  value: signedMultiplier));
 
           for (final candValues in boundaryVectors) {
             for (final multValues in boundaryVectors) {
@@ -233,8 +237,10 @@ void main() {
       for (final signedMultiplier in [false, true]) {
         for (final dotProductModule in dotProductModules) {
           final dotProduct = dotProductModule(multiplicands, multipliers,
-              signedMultiplicand: signedMultiplicand,
-              signedMultiplier: signedMultiplier);
+              signedMultiplicand: StaticOrRuntimeParameter.staticValue(
+                  value: signedMultiplicand),
+              signedMultiplier: StaticOrRuntimeParameter.staticValue(
+                  value: signedMultiplier));
 
           final rv = Random(57);
           for (var iteration = 0; iteration < iterations; iteration++) {
@@ -296,8 +302,10 @@ void main() {
     final dotProduct = GeneralDotProduct(
       multiplicands,
       multipliers,
-      signedMultiplicand: signedMultiplicand,
-      signedMultiplier: signedMultiplier,
+      signedMultiplicand: StaticOrRuntimeParameter.fromLogic(signedMultiplicand,
+          fallbackName: 'signedMultiplicand'),
+      signedMultiplier: StaticOrRuntimeParameter.fromLogic(signedMultiplier,
+          fallbackName: 'signedMultiplier'),
     );
 
     expect(dotProduct.product.value.toBigInt(), equals(BigInt.from(1125)),
@@ -341,8 +349,10 @@ void main() {
           .toCondSigned(widths[m], signed: signedMultiplier));
     }
     final dotProduct = CompressionTreeDotProduct(multiplicands, multipliers,
-        signedMultiplicand: signedMultiplicand,
-        signedMultiplier: signedMultiplier);
+        signedMultiplicand:
+            StaticOrRuntimeParameter.staticValue(value: signedMultiplicand),
+        signedMultiplier:
+            StaticOrRuntimeParameter.staticValue(value: signedMultiplier));
 
     final expected = List.generate(
             candValues.length, (i) => signedCandValues[i] * signedMultValues[i])
@@ -408,8 +418,8 @@ Multiplier _compressionTreeMultiplier(
   Logic? clk,
   Logic? reset,
   Logic? enable,
-  dynamic signedMultiplicand,
-  dynamic signedMultiplier,
+  StaticOrRuntimeParameter? signedMultiplicand,
+  StaticOrRuntimeParameter? signedMultiplier,
 }) =>
     CompressionTreeMultiplier(
       a,

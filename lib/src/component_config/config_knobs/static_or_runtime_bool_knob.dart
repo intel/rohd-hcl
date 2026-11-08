@@ -43,4 +43,16 @@ class StaticOrRuntimeBoolKnob
         StaticOrRuntimeBoolMode.enabled => true,
         StaticOrRuntimeBoolMode.runtime => Logic(name: runtimeInputName),
       };
+
+  /// Returns a typed static or runtime control for this selection.
+  StaticOrRuntimeParameter resolveControl(String runtimeInputName) =>
+      switch (value) {
+        StaticOrRuntimeBoolMode.disabled =>
+          StaticOrRuntimeParameter.staticValue(value: false),
+        StaticOrRuntimeBoolMode.enabled =>
+          StaticOrRuntimeParameter.staticValue(value: true),
+        StaticOrRuntimeBoolMode.runtime => StaticOrRuntimeParameter.runtime(
+            Logic(name: runtimeInputName),
+            name: runtimeInputName),
+      };
 }

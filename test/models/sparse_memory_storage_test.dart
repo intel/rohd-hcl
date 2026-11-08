@@ -10,10 +10,30 @@
 import 'dart:io';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/models/memory/memory_storage_state.dart';
 import 'package:rohd_hcl/src/models/sparse_memory_storage.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('memory files preserve wide addresses and unaligned data', () {
+    final high = (BigInt.one << 75) + BigInt.from(4);
+    final storage = SparseMemoryStorage(addrWidth: 80, dataWidth: 32)
+      ..loadMemString('@4\n01 02 03 04\n'
+          '@${(high + BigInt.one).toRadixString(16)}\naa bb cc dd ee ff');
+    final state = MemoryStorageState(storage);
+    expect(
+        state.peekBigInt(BigInt.from(4))!.toBigInt(), BigInt.from(0x04030201));
+    expect(state.peekBigInt(high)!.toBigInt(), BigInt.from(0xccbbaa00));
+    expect(state.peekBigInt(high + BigInt.from(4))!.toBigInt(),
+        BigInt.from(0x00ffeedd));
+    final dumped = storage.dumpMemString();
+    expect(dumped, contains('@${high.toRadixString(16)}'));
+    final restored = MemoryStorageState(
+        SparseMemoryStorage(addrWidth: 80, dataWidth: 32)
+          ..loadMemString(dumped));
+    expect(restored.snapshot().entries, state.snapshot().entries);
+  });
+
   group('sparse memory storage', () {
     test('can load a simple file (legacy)', () {
       final hex = File('test/example1.hex').readAsStringSync();

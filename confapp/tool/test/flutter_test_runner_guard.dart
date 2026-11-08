@@ -5,7 +5,7 @@
 // Directs Confapp tests to the Flutter test runner.
 //
 // 2026 November 7
-// Author: GitHub Copilot
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:test/test.dart';
 

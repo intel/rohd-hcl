@@ -66,7 +66,9 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final exponentSubtractor = OnesComplementAdder(
         super.a.exponent, super.b.exponent,
-        subtract: true, adderGen: adderGen, name: 'exponent_sub');
+        subtract: StaticOrRuntimeParameter.staticValue(value: true),
+        adderGen: adderGen,
+        name: 'exponent_sub');
     final signDelta = exponentSubtractor.sign.named('signDelta');
 
     final delta = exponentSubtractor.sum.named('expDelta');
@@ -175,7 +177,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final significandAdderRPath = CarrySelectOnesComplementCompoundAdder(
         largeOperandFlopped, smallerOperandRPathFlopped,
-        subtract: effectiveSubtractionFlopped,
+        subtract: StaticOrRuntimeParameter.runtime(effectiveSubtractionFlopped,
+            name: 'subtract'),
         generateCarryOut: true,
         generateCarryOutP1: true,
         adderGen: adderGen,
@@ -428,7 +431,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     // A dual adder could shorten the critical path at roughly double the area.
     final significandSubtractorNPath = OnesComplementAdder(
         largeOperand, smallOperandNPath,
-        subtract: effectiveSubtraction,
+        subtract: StaticOrRuntimeParameter.runtime(effectiveSubtraction,
+            name: 'subtract'),
         adderGen: adderGen,
         name: 'npath_significand_sub');
 
@@ -460,7 +464,9 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
 
     final expCalcNPath = OnesComplementAdder(
         largerExpFlopped, leadOneNPath.zeroExtend(exponentWidth),
-        subtract: Const(1), adderGen: adderGen, name: 'npath_expcalc');
+        subtract: StaticOrRuntimeParameter.runtime(Const(1), name: 'subtract'),
+        adderGen: adderGen,
+        name: 'npath_expcalc');
 
     final preExpNPath =
         expCalcNPath.sum.slice(exponentWidth - 1, 0).named('preExpNpath');
