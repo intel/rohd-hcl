@@ -4254,7 +4254,107 @@
             ]
           }
         },
-        "struct_unpack_0_input_request_cache_request": {
+        "struct_unpack_0_cache_eviction_cache_eviction": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "cache_eviction_cache_eviction",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "token",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "cause",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "address",
+            "FIELD_2_OFFSET": 3,
+            "FIELD_2_WIDTH": 8,
+            "FIELD_3_NAME": "data",
+            "FIELD_3_OFFSET": 11,
+            "FIELD_3_WIDTH": 8,
+            "FIELD_4_NAME": "lineMetadata",
+            "FIELD_4_OFFSET": 19,
+            "FIELD_4_WIDTH": 2,
+            "FIELD_5_NAME": "requestContext",
+            "FIELD_5_OFFSET": 21,
+            "FIELD_5_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "token": "output",
+            "cause": "output",
+            "address": "output",
+            "data": "output",
+            "lineMetadata": "output",
+            "requestContext": "output"
+          },
+          "connections": {
+            "A": [
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "token": [
+              343,
+              344
+            ],
+            "cause": [
+              345
+            ],
+            "address": [
+              346,
+              347,
+              348,
+              349,
+              350,
+              351,
+              352,
+              353
+            ],
+            "data": [
+              354,
+              355,
+              356,
+              357,
+              358,
+              359,
+              360,
+              361
+            ],
+            "lineMetadata": [
+              362,
+              363
+            ],
+            "requestContext": [
+              364,
+              365
+            ]
+          }
+        },
+        "struct_unpack_1_input_request_cache_request": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -4361,106 +4461,6 @@
             "requestContext": [
               323,
               324
-            ]
-          }
-        },
-        "struct_unpack_1_cache_eviction_cache_eviction": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "cache_eviction_cache_eviction",
-            "FIELD_COUNT": 6,
-            "FIELD_0_NAME": "token",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 2,
-            "FIELD_1_NAME": "cause",
-            "FIELD_1_OFFSET": 2,
-            "FIELD_1_WIDTH": 1,
-            "FIELD_2_NAME": "address",
-            "FIELD_2_OFFSET": 3,
-            "FIELD_2_WIDTH": 8,
-            "FIELD_3_NAME": "data",
-            "FIELD_3_OFFSET": 11,
-            "FIELD_3_WIDTH": 8,
-            "FIELD_4_NAME": "lineMetadata",
-            "FIELD_4_OFFSET": 19,
-            "FIELD_4_WIDTH": 2,
-            "FIELD_5_NAME": "requestContext",
-            "FIELD_5_OFFSET": 21,
-            "FIELD_5_WIDTH": 2
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "token": "output",
-            "cause": "output",
-            "address": "output",
-            "data": "output",
-            "lineMetadata": "output",
-            "requestContext": "output"
-          },
-          "connections": {
-            "A": [
-              53,
-              54,
-              55,
-              56,
-              57,
-              58,
-              59,
-              60,
-              61,
-              62,
-              63,
-              64,
-              65,
-              66,
-              67,
-              68,
-              69,
-              70,
-              71,
-              72,
-              73,
-              74,
-              75
-            ],
-            "token": [
-              343,
-              344
-            ],
-            "cause": [
-              345
-            ],
-            "address": [
-              346,
-              347,
-              348,
-              349,
-              350,
-              351,
-              352,
-              353
-            ],
-            "data": [
-              354,
-              355,
-              356,
-              357,
-              358,
-              359,
-              360,
-              361
-            ],
-            "lineMetadata": [
-              362,
-              363
-            ],
-            "requestContext": [
-              364,
-              365
             ]
           }
         },

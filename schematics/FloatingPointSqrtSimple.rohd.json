@@ -30748,69 +30748,7 @@
             ]
           }
         },
-        "struct_unpack_0_sqrt": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "sqrt",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "fraction",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 13,
-            "FIELD_1_NAME": "integer_",
-            "FIELD_1_OFFSET": 13,
-            "FIELD_1_WIDTH": 3
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "fraction": "output",
-            "integer_": "output"
-          },
-          "connections": {
-            "A": [
-              941,
-              942,
-              943,
-              944,
-              945,
-              946,
-              947,
-              948,
-              949,
-              950,
-              951,
-              952,
-              953,
-              954,
-              955,
-              956
-            ],
-            "fraction": [
-              957,
-              958,
-              959,
-              960,
-              961,
-              962,
-              963,
-              964,
-              965,
-              966,
-              967,
-              968,
-              969
-            ],
-            "integer_": [
-              970,
-              971,
-              972
-            ]
-          }
-        },
-        "struct_unpack_1_out": {
+        "struct_unpack_0_out": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -30872,7 +30810,7 @@
             ]
           }
         },
-        "struct_unpack_2_a": {
+        "struct_unpack_1_a": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -30931,6 +30869,68 @@
             ],
             "sign": [
               557
+            ]
+          }
+        },
+        "struct_unpack_2_sqrt": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "sqrt",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "fraction",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 13,
+            "FIELD_1_NAME": "integer_",
+            "FIELD_1_OFFSET": 13,
+            "FIELD_1_WIDTH": 3
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "fraction": "output",
+            "integer_": "output"
+          },
+          "connections": {
+            "A": [
+              941,
+              942,
+              943,
+              944,
+              945,
+              946,
+              947,
+              948,
+              949,
+              950,
+              951,
+              952,
+              953,
+              954,
+              955,
+              956
+            ],
+            "fraction": [
+              957,
+              958,
+              959,
+              960,
+              961,
+              962,
+              963,
+              964,
+              965,
+              966,
+              967,
+              968,
+              969
+            ],
+            "integer_": [
+              970,
+              971,
+              972
             ]
           }
         },
