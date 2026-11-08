@@ -6,6 +6,12 @@
 
   "updateContentCommand": "tool/gh_codespaces/run_setup.sh",
 
+  "features": {
+    "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+      "packages": "iverilog,verilator,g++,libsystemc-dev"
+    }
+  },
+
   "customizations": {
     "codespaces": {
       "openFiles": [

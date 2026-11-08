@@ -14,14 +14,20 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [CompressionTreeMultiplyAccumulate].
 class MultiplyAccumulateConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'multiply-accumulate';
+
   /// Width of multiplicand A.
-  final IntConfigKnob multiplicandWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob multiplicandWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of multiplier B.
-  final IntConfigKnob multiplierWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob multiplierWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of addend C.
-  final IntConfigKnob addendWidthKnob = IntConfigKnob(value: 17);
+  final IntConfigKnob addendWidthKnob = PositiveIntConfigKnob(value: 17);
 
   /// Optional output width.
   final IntOptionalConfigKnob outputWidthKnob =
@@ -74,9 +80,10 @@ class MultiplyAccumulateConfigurator extends Configurator {
         reset: pipelinedKnob.value ? Logic() : null,
         enable: pipelinedKnob.value ? Logic() : null,
         signedMultiplicand:
-            signedMultiplicandKnob.resolve('signedMultiplicand'),
-        signedMultiplier: signedMultiplierKnob.resolve('signedMultiplier'),
-        signedAddend: signedAddendKnob.resolve('signedAddend'),
+            signedMultiplicandKnob.resolveControl('signedMultiplicand'),
+        signedMultiplier:
+            signedMultiplierKnob.resolveControl('signedMultiplier'),
+        signedAddend: signedAddendKnob.resolveControl('signedAddend'),
         outputWidth: outputWidthKnob.value,
         adderGen: (a, b, {carryIn}) => adderSelectKnob.selectedAdder()(a, b,
             carryIn: carryIn, name: 'mac_add'),

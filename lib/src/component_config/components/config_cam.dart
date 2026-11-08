@@ -7,6 +7,9 @@
 // 2026 October 11
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Preserve the legacy CAM configurator and its existing port behavior.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
@@ -14,17 +17,23 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Cam].
 class CamConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.memory;
+
+  @override
+  String get subcategory => 'associative';
+
   /// Number of CAM entries.
-  final IntConfigKnob entryCountKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob entryCountKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of each lookup tag.
-  final IntConfigKnob tagWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob tagWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Number of independent write ports.
-  final IntConfigKnob writePortCountKnob = IntConfigKnob(value: 1);
+  final IntConfigKnob writePortCountKnob = NonNegativeIntConfigKnob(value: 1);
 
   /// Number of independent lookup ports.
-  final IntConfigKnob lookupPortCountKnob = IntConfigKnob(value: 1);
+  final IntConfigKnob lookupPortCountKnob = PositiveIntConfigKnob(value: 1);
 
   /// Whether to expose valid-entry count, full, and empty outputs.
   final ToggleConfigKnob validTrackingKnob = ToggleConfigKnob(value: false);
@@ -52,7 +61,7 @@ class CamConfigurator extends Configurator {
           'A CAM cannot have a negative number of write ports.');
     }
 
-    final indexWidth = log2Ceil(entryCountKnob.value);
+    final indexWidth = entryCountKnob.value.log2Ceil;
     final writePorts = List<TagInterface>.generate(writePortCountKnob.value,
         (_) => TagInterface(indexWidth, tagWidthKnob.value));
     final lookupPorts = List<TagInterface>.generate(lookupPortCountKnob.value,

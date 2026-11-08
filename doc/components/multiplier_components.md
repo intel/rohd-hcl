@@ -1,12 +1,17 @@
 # Booth Encoding Multiplier Building Blocks
 
-The Compression Tree multipliers `CompressionTreeMultiplier` and `CompressionTreeMultiplyAccumulate` use a set of building blocks that can also be used for building up other multipliers and arithmetic circuits.  These are from the family of Booth-encoding multipliers which are comprised of three major stages:
+The Compression Tree multipliers `CompressionTreeMultiplier` and
+`CompressionTreeMultiplyAccumulate` use a set of building blocks that can also
+be used for building up other multipliers and arithmetic circuits.  These are
+from the family of Booth-encoding multipliers which are comprised of three major
+stages:
 
 1) Booth radix encoding (typically radix-4) generating partial products
 2) Partial product array column compression to two addends
 3) Final adder
 
-Each of these stages can be implemented with different algorithms and in ROHD-HCL, we provide the flexible building blocks for these three stages.
+Each of these stages can be implemented with different algorithms and in
+ROHD-HCL, we provide the flexible building blocks for these three stages.
 
 - [Partial Product Generator](#partial-product-generator)
 - [Compression Tree](#compression-tree)
@@ -14,7 +19,13 @@ Each of these stages can be implemented with different algorithms and in ROHD-HC
 
 ## Introduction to Booth Encoding
 
-Think of the hand-multiplication process where you write down the multiplicand and the multiplier.  Then, starting with the LSB of the multiplier (6), you would take each bit (0 1 1 0), and created a shifted version of the multiplicand (3 = 0 0 1 1) to write down as an addend row, shifting left 1 position per row. Once complete, you would add up all the rows. In the example below, the bits of the multiplier (6) select single multiples of multiplicand (3) shifted into a partial product matrix, which adds up to their product (18).
+Think of the hand-multiplication process where you write down the multiplicand
+and the multiplier.  Then, starting with the LSB of the multiplier (6), you
+would take each bit (0 1 1 0), and created a shifted version of the multiplicand
+(3 = 0 0 1 1) to write down as an addend row, shifting left 1 position per row.
+Once complete, you would add up all the rows. In the example below, the bits of
+the multiplier (6) select single multiples of multiplicand (3) shifted into a
+partial product matrix, which adds up to their product (18).
 
 ```text
                 0  0  1  1   (3)
@@ -28,7 +39,14 @@ Think of the hand-multiplication process where you write down the multiplicand a
        0  0  1  0  0  1  0  (18)             
 ```
 
-With Booth encoding, we take multiple adjacent bits of the multiplier (6) to form these rows. In the case that most closely matches hand-multiplication, radix-2 Booth encoding, we take two adjacent bit slices to create multiples [-1,-0, +0, +1] where a leading bit in the slice would indicate negation. These then select the appropriate multiple to shift into the row. So (6) = [0 1 1 0] gets sliced left-to-right (leading with a 0) to create multiple selectors: [0 0], [1 0], [1 1], [0 1]. These slices are radix encoded into multiple (±0, ±1) selectors as follows according to radix-2:
+With Booth encoding, we take multiple adjacent bits of the multiplier (6) to
+form these rows. In the case that most closely matches hand-multiplication,
+radix-2 Booth encoding, we take two adjacent bit slices to create multiples
+[-1,-0, +0, +1] where a leading bit in the slice would indicate negation. These
+then select the appropriate multiple to shift into the row. So (6) = [0 1 1 0]
+gets sliced left-to-right (leading with a 0) to create multiple selectors: [0
+0], [1 0], [1 1], [0 1]. These slices are radix encoded into multiple (±0, ±1)
+selectors as follows according to radix-2:
 
 | Bit i | Bit i-1 | Multiple|
 |:-----:|:-------:|:-------:|
@@ -39,7 +57,8 @@ With Booth encoding, we take multiple adjacent bits of the multiplier (6) to for
 
 : Radix-2 Table
 
-These slices then select shifted multiples of the multiplicand (3 = 0 0 1 1) as follows.
+These slices then select shifted multiples of the multiplicand (3 = 0 0 1 1) as
+follows.
 
 ```text
 row  slice  mult
@@ -49,7 +68,10 @@ row  slice  mult
 03   [0 1] = +1   0  0  1  1
 ```
 
-A few things to note: first, that we are negating by ones' complement (so we need a -0) and second, these rows do not add up to (18: 10010). For Booth encoded rows to add up properly, they need to be in twos' complement form, and they need to be sign-extended.
+A few things to note: first, that we are negating by ones' complement (so we
+need a -0) and second, these rows do not add up to (18: 10010). For Booth
+encoded rows to add up properly, they need to be in twos' complement form, and
+they need to be sign-extended.
 
  Here is the matrix with a crude sign extension `brute` (the table formatting is available from our [PartialProductGenerator](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductGeneratorBase-class.html) component). With twos' complementation, and sign bits folded in (note the LSB of each row has a sign term from the previous row), these addends are correctly formed and add to (18: 10010).
 
@@ -76,7 +98,10 @@ A few things to note: first, that we are negating by ones' complement (so we nee
             0  0  0  1  0  0  1  0  : 00010010 = 18 (18)
 ```
 
-And of course, with higher radix-encoding, we select more bits at a time from the multiplier and therefore have fewer rows to add. Here is radix-4 Booth encoding for our example, slicing (6: 0110) radix$_{4}$[100]=-2 and radix$_{4}$[011]=2 as multiples:
+And of course, with higher radix-encoding, we select more bits at a time from
+the multiplier and therefore have fewer rows to add. Here is radix-4 Booth
+encoding for our example, slicing (6: 0110) radix$_{4}$[100]=-2 and
+radix$_{4}$[011]=2 as multiples:
 
 ```text
             7  6  5  4  3  2  1  0  
@@ -86,11 +111,20 @@ And of course, with higher radix-encoding, we select more bits at a time from th
             0  0  0  1  0  0  1  0  : 00010010 = 18 (18)
 ```
 
-Note that radix-4 shifts by 2 positions each row, but with only two rows and with sign-extension adding an LSB bit to each row, you only see a shift of 1 in row 1, but in a larger example you would see the two-bit shift in the following rows.
+Note that radix-4 shifts by 2 positions each row, but with only two rows and
+with sign-extension adding an LSB bit to each row, you only see a shift of 1 in
+row 1, but in a larger example you would see the two-bit shift in the following
+rows.
 
 ## Partial Product Generator
 
-The base class of `PartialProductGenerator` is [PartialProductArray](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductArray-class.html) which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]` to represent the shifts in the partial product matrix. If customization is needed beyond sign extension options, routines are provided that allow for fixed customization of bit positions or conditional (mux based on a Logic) form in the `PartialProductArray`.
+The base class of `PartialProductGenerator` is
+[PartialProductArray](https://intel.github.io/rohd-hcl/rohd_hcl/PartialProductArray-class.html)
+which is simply a `List<List<Logic>>` to represent addends and a `rowShift[row]`
+to represent the shifts in the partial product matrix. If customization is
+needed beyond sign extension options, routines are provided that allow for fixed
+customization of bit positions or conditional (mux based on a Logic) form in the
+`PartialProductArray`.
 
 ```dart
 final ppg = PartialProductGenerator(a, b, RadixEncoder(4));
@@ -104,9 +138,26 @@ ppa.muxAbsoluteAll(row, col, condition, List<logic>);
 
  The `PartialProductGenerator` adds to this the [RadixEncoder](https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html) to encode the rows along with a matching `MultiplicandSelector` to create the actual mantissas used in each row.
 
-As a building block which creates a set of rows of partial products from a multiplicand and a multiplier, it maintains the partial products as a list of rows on the `PartialProductArray` base. Its primary inputs are the multiplicand, multiplier, `RadixEncoder`, and whether the operands are signed.
+As a building block which creates a set of rows of partial products from a
+multiplicand and a multiplier, it maintains the partial products as a list of
+rows on the `PartialProductArray` base. Its primary inputs are the multiplicand,
+multiplier, `RadixEncoder`, and whether the operands are signed.
 
-The partial product generator produces a set of addends in shifted position to be added.  The main output of the component is
+`signedMultiplicand` and `signedMultiplier` each accept a
+`StaticOrRuntimeParameter` holding a static `bool` or one-bit runtime `Logic`.
+Inline generators use runtime signals in the enclosing module's scope; when
+constructing a child `PartialProduct` module, pass a control rebound with
+`forChild(parent)`.
+
+```dart
+final ppg = PartialProductGenerator(a, b, RadixEncoder(4),
+    signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: true),
+    signedMultiplier: StaticOrRuntimeParameter.runtime(signedAtRuntime,
+        name: 'signedMultiplier'));
+```
+
+The partial product generator produces a set of addends in shifted position to
+be added.  The main output of the component is
 
 ```dart
  - List<List<Logic>> partialProducts;
@@ -115,9 +166,19 @@ The partial product generator produces a set of addends in shifted position to b
 
 ### Radix Encoding
 
-An argument to the `PartialProductGenerator` is the `RadixEncoder` to be used.  The [RadixEncoder](https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html) takes a single argument which is the radix (power of 2) to be used.
+An argument to the `PartialProductGenerator` is the `RadixEncoder` to be used.
+The
+[RadixEncoder](https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html)
+takes a single argument which is the radix (power of 2) to be used.
 
-Instead of using the 1's in the multiplier to select shifted versions of the multiplicand to add in a partial product matrix, radix-encoding will encode multiples of the multiplicand by examining adjacent bits of the multiplier.  For radix-4, for example, for a multiplier of size M, instead of M rows of partial products, M/2 rows are formed by selecting from multiples [-2, -1, 0, 1, 2] of the multiplicand.  These multiples are computed from an 3 bit slices, overlapped by 1 bit, of the multiplier.  Higher radixes use wider slices of the multiplier to encode fewer multiples and therefore fewer rows.
+Instead of using the 1's in the multiplier to select shifted versions of the
+multiplicand to add in a partial product matrix, radix-encoding will encode
+multiples of the multiplicand by examining adjacent bits of the multiplier.  For
+radix-4, for example, for a multiplier of size M, instead of M rows of partial
+products, M/2 rows are formed by selecting from multiples [-2, -1, 0, 1, 2] of
+the multiplicand.  These multiples are computed from an 3 bit slices, overlapped
+by 1 bit, of the multiplier.  Higher radixes use wider slices of the multiplier
+to encode fewer multiples and therefore fewer rows.
 
 | Bit i | Bit i-1 | Bit i-2 | Multiple|
 |:-----:|:-------:|:-------:|:-------:|
@@ -132,19 +193,29 @@ Instead of using the 1's in the multiplier to select shifted versions of the mul
 
 : Radix-4 Table
 
-Our `RadixEncoder` module is general, creating selection tables for arbitrary Booth radixes of powers of 2.  Currently, we are limited to radix-16 because of challenges in creating the odd multiples efficiently, and there are more advanced techniques for efficiently generating higher radixes than 16 than our current encoding/selection/partial-product generation scheme.
+Our `RadixEncoder` module is general, creating selection tables for arbitrary
+Booth radixes of powers of 2.  Currently, we are limited to radix-16 because of
+challenges in creating the odd multiples efficiently, and there are more
+advanced techniques for efficiently generating higher radixes than 16 than our
+current encoding/selection/partial-product generation scheme.
 
 ### Sign Extension Option
 
-The `PartialProductSignExtension` defines the abstract API for doing different kinds of sign extension on the `PartialProductArray`, from very simplistic for helping design new arithmetics to fairly standard to even compact, rectangular forms. The following derived sub-classes do different kinds of sign extension:
+`PartialProductSignExtension` defines the API for applying different sign
+extension strategies to a `PartialProductGeneratorBase` array. The available
+strategies range from simple reference implementations to compact forms:
 
 - `NoneSignExtension`: no sign extension.
 - `BruteSignExtension`: full width extension which is robust but costly.
-- `StopBitsSignExtension`: A standard form which has the inverse-sign and a '1' stop-bit in each row
-- `CompactSignExtension`: A form that eliminates a final sign in an otherwise empty final row.
-- `CompactRectSignExtension`: An enhanced form of compact that can handle rectangular multiplications.
+- `StopBitsSignExtension`: A standard form which has the inverse-sign and a '1'
+  stop-bit in each row
+- `CompactSignExtension`: A form that eliminates a final sign in an otherwise
+  empty final row.
+- `CompactRectSignExtension`: An enhanced form of compact that can handle
+  rectangular multiplications.
 
-You can perform sign extension by constructing a sign extender with the `PartialProductArray` as an argument and then calling `signExtend()`.
+Apply a strategy by constructing it with the partial-product generator (or the
+`array` of a `PartialProduct` module) and calling `signExtend()`.
 
 ```dart
 CompactSignExtension(ppg).signExtend();
@@ -152,7 +223,16 @@ CompactSignExtension(ppg).signExtend();
 
 ### Partial Product Visualization
 
-Creating new arithmetic building blocks from these components is tricky and visualizing intermediate results really helps.  To that end, our `PartialProductGenerator` class has visualization extension `EvaluateLivePartialProduct` which help evaluate the current `Logic` values in array form during simulation to help with debug.  The evaluation routine with the extension also adds the addends for you to help sanity check the partial product generation.  The routine is `EvaluateLivePartialProduct.representation`.  Here 'S' or 's' represent a sign bit extension (positive polarity) with 'S' representing '1', 's' representing 0.  'I' and 'i' represent an inverted sign bit.
+Creating new arithmetic building blocks from these components is tricky and
+visualizing intermediate results really helps.  To that end, our
+`PartialProductGenerator` class has visualization extension
+`EvaluateLivePartialProduct` which help evaluate the current `Logic` values in
+array form during simulation to help with debug.  The evaluation routine with
+the extension also adds the addends for you to help sanity check the partial
+product generation.  The routine is `EvaluateLivePartialProduct.representation`.
+Here 'S' or 's' represent a sign bit extension (positive polarity) with 'S'
+representing '1', 's' representing 0.  'I' and 'i' represent an inverted sign
+bit.
 
 ```text
             18 17 16 15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0  
@@ -181,9 +261,20 @@ You can also generate a Markdown form of the same matrix:
 
 ## Compression Tree
 
-Once you have a partial product matrix, you would like to add up the addends.  Traditionally this is done using compression trees which instantiate 2:1 and 3:2 column compressors (or carry-save adders) to reduce the matrix to two addends.  The final two addends are often added with an efficient final adder.
+Once you have a partial product matrix, you would like to add up the addends.
+Traditionally this is done using compression trees which instantiate 2:1 and 3:2
+column compressors (or carry-save adders) to reduce the matrix to two addends.
+The final two addends are often added with an efficient final adder.
 
-Our [ColumnCompressor](https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html) class uses a delay-driven approach to efficiently compress the rows of the partial product matrix.  Its only argument is a `PartialProductArray` (base class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s containing the final two addends stored by column after compression. An `extractRow`routine can be used to extract the columns.  `ColumnCompressor` currently has an extension `EvaluateLiveColumnCompressor` which can be used to print out the compression progress. Here is the legend for these printouts.
+Our
+[ColumnCompressor](https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html)
+class uses a delay-driven approach to efficiently compress the rows of the
+partial product matrix.  Its only argument is a `PartialProductArray` (base
+class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s
+containing the final two addends stored by column after compression. An
+`extractRow`routine can be used to extract the columns.  `ColumnCompressor`
+currently has an extension `EvaluateLiveColumnCompressor` which can be used to
+print out the compression progress. Here is the legend for these printouts.
 
 - `ppR,C` = partial product entry at row R, column C
 - `sR,C` = sum term coming last from row R, column C
@@ -223,39 +314,63 @@ p       0       0       0       0       0       0       0       1       0       
 
 ## Final Adder
 
-Any adder can be used as the final adder of the final two addends produced from compression.  Typically, we use some for of parallel prefix adder for performance.
+Any adder can be used as the final adder of the final two addends produced from
+compression.  Typically, we use some for of parallel prefix adder for
+performance.
 
 ## Compress Tree Multiplier Example
 
 Here is a code snippet that shows how these components can be used to create a multiplier.  
 
-First the partial product generator is used (`PartialProductGenerator`), which we pass in the `RadixEncoder`, whether the operands are signed.  We operate on this generator with a compact sign extension class for rectangular products (`CompactRectSignExtension`). Note that sign extension is needed regardless of whether operands are signed or not due to Booth encoding.
+First the partial product generator is used (`PartialProductGenerator`), which
+we pass in the `RadixEncoder`, whether the operands are signed.  We operate on
+this generator with a compact sign extension class for rectangular products
+(`CompactRectSignExtension`). Note that sign extension is needed regardless of
+whether operands are signed or not due to Booth encoding.
 
-Next, we use the `ColumnCompressor` to compress the partial products into two final addends.
+Next, we use the `ColumnCompressor` to compress the partial products into two
+final addends.
 
-We then choose a `ParallelPrefixAdder` using the `BrentKung` tree style to do the addition.  We pass in the two extracted rows of the compressor.
-Finally, we produce the product.
+We then choose a `ParallelPrefixAdder` using the `BrentKung` tree style to do
+the addition.  We pass in the two extracted rows of the compressor. Finally, we
+produce the product.
 
 ```dart
-    final pp =
-        PartialProductGenerator(a, b, RadixEncoder(radix), signedMultiplicand: true, signedMultiplier: true);
-    CompactRectSignExtension(pp).signExtend();
-    final compressor = ColumnCompressor(pp)..compress();
+    final pp = PartialProduct(
+      a,
+      b,
+      RadixEncoder(radix),
+      signedMultiplicand: StaticOrRuntimeParameter.staticValue(value: true),
+      signedMultiplier: StaticOrRuntimeParameter.staticValue(value: true),
+    );
+    pp.generateOutputs(
+      beforeGenerateOutputs: (array) =>
+          CompactRectSignExtension(array).signExtend(),
+    );
+    final compressor = ColumnCompressor(pp.rows, pp.rowShift);
     final adder = ParallelPrefixAdder(
-        compressor.exractRow(0), compressor.extractRow(1), BrentKung.new);
+      compressor.add0,
+      compressor.add1,
+      ppGen: BrentKung.new,
+    );
     product <= adder.sum.slice(a.width + b.width - 1, 0);
 ```
 
 ## Utility: Aligned Vector Formatting
 
-We provide an extension on `LogicValue` which permits formatting of binary vectors in an aligned way to help with debugging arithmetic components.
+We provide an extension on `LogicValue` which permits formatting of binary
+vectors in an aligned way to help with debugging arithmetic components.
 
-The `vecString` extension provides a basic string printer with an optional `header` flag for bit numbering.  A `prefix` value can be used to specify the name lengths to be used to keep vectors aligned.
+The `vecString` extension provides a basic string printer with an optional
+`header` flag for bit numbering.  A `prefix` value can be used to specify the
+name lengths to be used to keep vectors aligned.
 
-`alignHigh` controls the highest (toward MSB) alignment column of the output whereas `alignLow` controls the lower limit (toward the LSB).
+`alignHigh` controls the highest (toward MSB) alignment column of the output
+whereas `alignLow` controls the lower limit (toward the LSB).
 
-`sepPos` is optional and allows you to set a marker for a separator in the number.
-`sepChar` is the separation character you wish to use (do not use '|' with Markdown formatting.)
+`sepPos` is optional and allows you to set a marker for a separator in the
+number. `sepChar` is the separation character you wish to use (do not use '|'
+with Markdown formatting.)
 
 ```dart
   final ref = FloatingPoint64Value.fromDouble(3.14159);

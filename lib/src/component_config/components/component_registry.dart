@@ -9,23 +9,35 @@
 
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A list of [Configurator]s for ROHD-HCL components.
+/// A list of non-deprecated [Configurator]s for the component catalog.
 List<Configurator> get componentRegistry => [
       RotateConfigurator(),
+      AbsoluteValueConfigurator(),
       ApbCsrCompleterConfigurator(),
       AsyncFifoConfigurator(),
       OnesComplementAdderConfigurator(),
       SignMagnitudeAdderConfigurator(),
       CarrySelectOnesComplementCompoundAdderConfigurator(),
       BinaryToGrayConfigurator(),
+      BitwisePopcountConfigurator(),
+      CeilDivideConfigurator(),
+      CircularPointerConfigurator(),
       GrayToBinaryConfigurator(),
-      CamConfigurator(),
+      ParallelAssociativeMemoryConfigurator(),
+      CacheConfigurator(),
+      MultiPortCacheConfigurator(),
+      SerializedCacheConfigurator(),
+      CacheSchedulerConfigurator(),
+      CacheTransactionAdapterConfigurator(),
+      ReplacementPolicyConfigurator(),
+      InferredSramConfigurator(),
       ClockGateConfigurator(),
       FifoConfigurator(),
       EccConfigurator(),
       RoundRobinArbiterConfigurator(),
       CounterConfigurator(),
       CountConfigurator(),
+      CsrExampleConfigurator(),
       SumConfigurator(),
       PriorityArbiterConfigurator(),
       RippleCarryAdderConfigurator(),
@@ -44,6 +56,7 @@ List<Configurator> get componentRegistry => [
       ParallelPrefixOperationConfigurator(),
       MultiplierConfigurator(),
       MultiplyAccumulateConfigurator(),
+      MuxConfigurator(),
       DotProductConfigurator(),
       MultiCycleDividerConfigurator(),
       ExtremaConfigurator(),
@@ -58,7 +71,12 @@ List<Configurator> get componentRegistry => [
       ToggleGateConfigurator(),
       PriorityEncoderConfigurator(),
       ParityConfigurator(),
+      PadConfigurator(),
+      ReadyValidQueueConfigurator(),
       ReductionTreeConfigurator(),
+      SetBitsConfigurator(),
+      SynchronizerConfigurator(),
+      WithSetConfigurator(),
       FixedPointSqrtConfigurator(),
       FloatingPointSqrtConfigurator()
     ];

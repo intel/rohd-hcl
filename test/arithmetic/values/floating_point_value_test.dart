@@ -510,6 +510,7 @@ void main() {
 
   group('populators', () {
     final populators = [
+      () => FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 3),
       FloatingPoint32Value.populator,
       FloatingPoint64Value.populator,
       FloatingPoint8E4M3Value.populator,
@@ -796,6 +797,18 @@ void main() {
         final fpv = populator().random(Random(), genNormal: false);
         expect(fpv.isSubnormal(), isTrue);
       }
+    });
+
+    test('FPV: deprecated random flags remain supported', () {
+      // Preserve coverage for arguments deprecated after v0.2.1.
+      // ignore: deprecated_member_use_from_same_package
+      final normal = populator().random(Random(1), normal: true);
+      // Preserve coverage for arguments deprecated after v0.2.1.
+      // ignore: deprecated_member_use_from_same_package
+      final subnormal = populator().random(Random(2), subNormal: true);
+
+      expect(normal.isNormal(), isTrue);
+      expect(subnormal.isSubnormal(), isTrue);
     });
 
     test('FPV: constrained random testing key intervals', () {

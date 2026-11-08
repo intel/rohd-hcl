@@ -8,6 +8,7 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:confapp/hcl/module_source_assets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -36,8 +37,88 @@ void main() {
     expect(module, isA<CarrySaveMultiplier>());
     expect(
       moduleSourceAsset(module),
-      'rohd_src/arithmetic/carry_save_mutiplier.dart',
+      'rohd_src/arithmetic/multiplication/carry_save_multiplier.dart',
     );
+  });
+
+  test('ready/valid queue source is bundled', () async {
+    final module = ReadyValidQueueConfigurator().createModule();
+    final asset = moduleSourceAsset(module);
+    expect(asset,
+        'rohd_src/flow_control/ready_valid/queues/ready_valid_queue.dart');
+    final source = await rootBundle.loadString('assets/$asset');
+    expect(source, contains('class ReadyValidQueue'));
+  });
+
+  test('parallel associative memory source is bundled', () async {
+    final module = ParallelAssociativeMemoryConfigurator().createModule();
+    final asset = moduleSourceAsset(module);
+    expect(
+        asset, 'rohd_src/memory/associative/parallel_associative_memory.dart');
+    final source = await rootBundle.loadString('assets/$asset');
+    expect(source, contains('class ParallelAssociativeMemory'));
+  });
+
+  test('cache and memory building block sources are bundled', () async {
+    final cases = <({Configurator config, String asset, String declaration})>[
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: CacheConfigurator(),
+        asset: 'rohd_src/memory/cache/cache.dart',
+        declaration: 'class Cache<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: MultiPortCacheConfigurator(),
+        asset: 'rohd_src/memory/cache/cache.dart',
+        declaration: 'class MultiPortCache<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: SerializedCacheConfigurator(),
+        asset: 'rohd_src/memory/cache/serialized_cache.dart',
+        declaration: 'class SerializedCache<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: CacheTransactionAdapterConfigurator(),
+        asset: 'rohd_src/memory/cache/cache_transaction_adapter.dart',
+        declaration: 'class CacheTransactionAdapter<'
+      ),
+      (
+        // Verify the intentionally exposed experimental configurator.
+        // ignore: experimental_member_use
+        config: CacheSchedulerConfigurator(),
+        asset: 'rohd_src/memory/cache/fixed_priority_cache_scheduler.dart',
+        declaration: 'class FixedPriorityCacheScheduler'
+      ),
+      (
+        config: ReplacementPolicyConfigurator(),
+        asset: 'rohd_src/memory/replacement/round_robin_replacement.dart',
+        declaration: 'class RoundRobinReplacement'
+      ),
+      (
+        config: ReplacementPolicyConfigurator()
+          ..policyKnob.value = ReplacementConfiguratorPolicy.treePseudoLru,
+        asset: 'rohd_src/memory/replacement/tree_pseudo_lru_replacement.dart',
+        declaration: 'class TreePseudoLruReplacement'
+      ),
+      (
+        config: InferredSramConfigurator(),
+        asset: 'rohd_src/memory/storage/inferred_sram.dart',
+        declaration: 'class InferredSram<'
+      ),
+    ];
+    for (final item in cases) {
+      final asset = moduleSourceAsset(item.config.createModule());
+      expect(asset, item.asset, reason: item.config.name);
+      final source = await rootBundle.loadString('assets/$asset');
+      expect(source, contains(item.declaration), reason: item.config.name);
+    }
   });
 
   test('nondefault module implementations have indexed source assets', () {
@@ -46,34 +127,72 @@ void main() {
         name: 'binary-to-one-hot direction',
         module: (OneHotConfigurator()..directionKnob.value = BinaryToOneHot)
             .createModule(),
-        asset: 'rohd_src/encodings/binary_to_one_hot.dart',
+        asset: 'rohd_src/encodings/one_hot/binary_to_one_hot.dart',
       ),
       (
         name: 'tree one-hot-to-binary width',
         module:
             (OneHotConfigurator()..inputWidthKnob.value = 16).createModule(),
-        asset: 'rohd_src/encodings/tree_one_hot_to_binary.dart',
+        asset: 'rohd_src/encodings/one_hot/tree_one_hot_to_binary.dart',
       ),
       (
         name: 'rotate round-robin implementation',
         module: (RoundRobinArbiterConfigurator()
               ..implementationKnob.value = RotateRoundRobinArbiter)
             .createModule(),
-        asset: 'rohd_src/arbiters/rotate_round_robin_arbiter.dart',
+        asset:
+            'rohd_src/flow_control/arbitration/rotate_round_robin_arbiter.dart',
       ),
       (
         name: 'deserialize direction',
         module: (SerializationConfigurator()
               ..directionKnob.value = Deserializer)
             .createModule(),
-        asset: 'rohd_src/serialization/serialization.dart',
+        asset: 'rohd_src/dataflow/serialization/serialization.dart',
       ),
       (
         name: 'left rotation',
         module: (RotateConfigurator()
               ..directionKnob.value = RotateDirection.left)
             .createModule(),
-        asset: 'rohd_src/rotate.dart',
+        asset: 'rohd_src/bit_operations/shifting/rotate.dart',
+      ),
+      for (final direction in RotateDirection.values)
+        (
+          name: 'fixed ${direction.name} rotation',
+          module: (RotateConfigurator()
+                ..fixedKnob.value = true
+                ..directionKnob.value = direction)
+              .createModule(),
+          asset: 'rohd_src/bit_operations/shifting/rotate.dart',
+        ),
+      for (final implementation in MuxImplementation.values)
+        (
+          name: '${implementation.name} multiplexer',
+          module: (MuxConfigurator()..implementationKnob.value = implementation)
+              .createModule(),
+          asset: switch (implementation) {
+            MuxImplementation.bitwise =>
+              'rohd_src/bit_operations/selection/bitwise_mux.dart',
+            MuxImplementation.oneHot =>
+              'rohd_src/bit_operations/selection/one_hot_mux.dart',
+            MuxImplementation.priority =>
+              'rohd_src/bit_operations/selection/priority_mux.dart',
+          },
+        ),
+      (
+        name: 'XNOR popcount',
+        module: (BitwisePopcountConfigurator()
+              ..operationKnob.value = BitwisePopcountOperation.xnor)
+            .createModule(),
+        asset: 'rohd_src/bit_operations/population_count/xnor_popcount.dart',
+      ),
+      (
+        name: 'CSR block',
+        module: (CsrExampleConfigurator()
+              ..boundaryKnob.value = CsrExampleBoundary.block)
+            .createModule(),
+        asset: 'rohd_src/memory/csr/csr_block.dart',
       ),
       (
         name: 'dual-path floating-point adder',
@@ -88,27 +207,29 @@ void main() {
         module: (LeadingDigitAnticipateConfigurator()
               ..anticipator.value = LeadingZeroAnticipate)
             .createModule(),
-        asset: 'rohd_src/arithmetic/leading_digit_anticipate.dart',
+        asset:
+            'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
       ),
       (
         name: 'leading-zero carry anticipator',
         module: (LeadingDigitAnticipateConfigurator()
               ..anticipator.value = LeadingZeroAnticipateCarry)
             .createModule(),
-        asset: 'rohd_src/arithmetic/leading_digit_anticipate.dart',
+        asset:
+            'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
       ),
       (
         name: 'compression-tree multiplier',
         module: (MultiplierConfigurator()
               ..multiplierSelectKnob.compressionTreeMultiplierKnob.value = true)
             .createModule(),
-        asset: 'rohd_src/arithmetic/multiplier.dart',
+        asset: 'rohd_src/arithmetic/multiplication/multiplier.dart',
       ),
       (
         name: 'gated counter',
         module: (CounterConfigurator()..clockGatingKnob.value = true)
             .createModule(),
-        asset: 'rohd_src/summation/gated_counter.dart',
+        asset: 'rohd_src/arithmetic/accumulation/gated_counter.dart',
       ),
       (
         name: 'compression-tree dot product',
@@ -116,7 +237,7 @@ void main() {
               ..implementationKnob.value =
                   DotProductImplementation.compressionTree)
             .createModule(),
-        asset: 'rohd_src/arithmetic/dotproduct.dart',
+        asset: 'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
       ),
       (
         name: 'dual sign-magnitude adder',
@@ -124,7 +245,7 @@ void main() {
               ..implementationKnob.value =
                   SignMagnitudeAdderImplementation.dual)
             .createModule(),
-        asset: 'rohd_src/arithmetic/sign_magnitude_adder.dart',
+        asset: 'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
       ),
       (
         name: 'parallel-prefix priority encoder',
@@ -132,27 +253,28 @@ void main() {
               ..implementationKnob.implementationKnob.value =
                   ParallelPrefixPriorityEncoder)
             .createModule(),
-        asset: 'rohd_src/priority_encoder.dart',
+        asset: 'rohd_src/encodings/priority/priority_encoder.dart',
       ),
       (
         name: 'parallel-prefix incrementer',
         module: (ParallelPrefixOperationConfigurator()
               ..operationKnob.value = ParallelPrefixOperation.increment)
             .createModule(),
-        asset: 'rohd_src/arithmetic/parallel_prefix_operations.dart',
+        asset:
+            'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
       ),
       (
         name: 'parity receiver',
         module: (ParityConfigurator()
               ..directionKnob.value = ParityDirection.receiver)
             .createModule(),
-        asset: 'rohd_src/error_checking/parity.dart',
+        asset: 'rohd_src/error_control/protection/parity.dart',
       ),
       (
         name: 'SPI sub gasket',
         module:
             (SpiConfigurator()..roleKnob.value = SpiRole.sub).createModule(),
-        asset: 'rohd_src/gaskets/spi/spi_sub.dart',
+        asset: 'rohd_src/interfaces/spi/endpoints/spi_sub.dart',
       ),
     ];
 

@@ -1,42 +1,65 @@
 # Contributing to the ROHD Hardware Component Library
 
-Thank you for considering contributing to the ROHD Hardware Component Library (ROHD-HCL)! Contributions from the community are vital to making this a successful project.
+Thank you for considering contributing to the ROHD Hardware Component Library
+(ROHD-HCL)! Contributions from the community are vital to making this a
+successful project.
 
 Anyone interested in participating in ROHD-HCL is more than welcome to help!
 
-Check out the [component list](./doc/README.md) to see what's already implemented and where there's more work to do.
+Check out the [component list](./doc/README.md) to see what's already
+implemented and where there's more work to do.
 
 ## Code of Conduct
 
-ROHD-HCL adopts the [Contributor Covenant](https://www.contributor-covenant.org/) v2.1 for the code of conduct. It can be accessed [here](CODE_OF_CONDUCT.md).
+ROHD-HCL adopts the [Contributor
+Covenant](https://www.contributor-covenant.org/) v2.1 for the code of conduct.
+It can be accessed [here](CODE_OF_CONDUCT.md).
 
 ## Getting Help
 
 ### Chat on Discord
 
-[Discord](https://discord.com/) is a free online instant messaging app which you can use directly in your web browser or install to your device. Feel free to join to look around at the conversations and have a real-time discussion with the ROHD community. This a great place to ask questions, get help, engage with the rest of the community, and discuss new ideas.
+[Discord](https://discord.com/) is a free online instant messaging app which you
+can use directly in your web browser or install to your device. Feel free to
+join to look around at the conversations and have a real-time discussion with
+the ROHD community. This a great place to ask questions, get help, engage with
+the rest of the community, and discuss new ideas.
 
 Join the Discord server here: <https://discord.com/invite/jubxF84yGw>
 
 ### GitHub Discussions
 
-GitHub Discussions is a place where you can find announcements, ask questions, share ideas, show new things you're working on, or just discuss in general with the community! If you have a question or need some help, this is a great place to go.
+GitHub Discussions is a place where you can find announcements, ask questions,
+share ideas, show new things you're working on, or just discuss in general with
+the community! If you have a question or need some help, this is a great place
+to go.
 
-You can access the discussions area here: <https://github.com/intel/rohd-hcl/discussions>
+You can access the discussions area here:
+<https://github.com/intel/rohd-hcl/discussions>
 
 ### GitHub Issues
 
-If something doesn't seem right, you're stuck, there's a critical feature/enhancement missing, you find a bug, etc. then filing an issue on the GitHub repository is a great option. Please try to provide as much detail as possible. Complete, stand-alone reproduction instructions are extremely helpful for bugs!
+If something doesn't seem right, you're stuck, there's a critical
+feature/enhancement missing, you find a bug, etc. then filing an issue on the
+GitHub repository is a great option. Please try to provide as much detail as
+possible. Complete, stand-alone reproduction instructions are extremely helpful
+for bugs!
 
-You can file an issue here: <https://github.com/intel/rohd-hcl/issues/new/choose>
+You can file an issue here:
+<https://github.com/intel/rohd-hcl/issues/new/choose>
 
 ### Stack Overflow
 
-[Stack Overflow](https://stackoverflow.com/) is a great tool to ask questions and get answers from the community. Use the `rohd` and/or `rohd-hcl` tag when asking your question so that others in the community who subscribe to that tag can find and answer your question more quickly!
+[Stack Overflow](https://stackoverflow.com/) is a great tool to ask questions
+and get answers from the community. Use the `rohd` and/or `rohd-hcl` tag when
+asking your question so that others in the community who subscribe to that tag
+can find and answer your question more quickly!
 
 ### Meetings in the ROHD Forum
 
-The [ROHD Forum](https://intel.github.io/rohd-website/forum/rohd-forum/) is a periodic virtual meeting for developers and users of ROHD that anyone can join. Feel free to join the call!
+The [ROHD Forum](https://intel.github.io/rohd-website/forum/rohd-forum/) is a
+periodic virtual meeting for developers and users of ROHD that anyone can join.
+Feel free to join the call!
 
 ## Getting Started
 
@@ -47,27 +70,58 @@ to develop ROHD-HCL. Flutter provides the Dart SDK and is required because the
 pub workspace contains both the Dart `rohd_hcl` package and the Flutter
 `confapp` package.
 
+The root test suite also requires Icarus Verilog, Verilator, a C++17-capable
+`g++`, and SystemC headers and libraries. On Ubuntu, install these with:
+
+```shell
+sudo apt-get update
+sudo apt-get install -y iverilog verilator g++ libsystemc-dev
+```
+
+CI and the development-container setup install these dependencies. The CSR
+SystemC tests compile and execute generated models; missing native dependencies
+are test failures, not skipped coverage.
+
+ROHD caches a precompiled SystemC header in `tmp_test/pch`. If SystemC is
+upgraded or replaced, linker errors mentioning a different `sc_api_version` can
+indicate a stale cache. When no tests are running, remove
+`tmp_test/pch/systemc.h.gch` and rerun the tests; ROHD rebuilds the header using
+the installed SystemC version.
+
 ### Setup Recommendations
 
 #### On your own system
 
-[Visual Studio Code (VSCode)](https://code.visualstudio.com/) is a great IDE for development. You can find installation instructions for VSCode here: <https://visualstudio.microsoft.com/#vscode-section>
+[Visual Studio Code (VSCode)](https://code.visualstudio.com/) is a great IDE for
+development. You can find installation instructions for VSCode here:
+<https://visualstudio.microsoft.com/#vscode-section>
 
-The Dart extension extends VSCode with support for the Dart programming language and provides tools for effectively editing, refactoring and running. Check out the detailed information: <https://dartcode.org/>
+The Dart extension extends VSCode with support for the Dart programming language
+and provides tools for effectively editing, refactoring and running. Check out
+the detailed information: <https://dartcode.org/>
 
-If you're developing on a remote host, VSCode has a Remote SSH extension that can help: <https://code.visualstudio.com/docs/remote/ssh>
+If you're developing on a remote host, VSCode has a Remote SSH extension that
+can help: <https://code.visualstudio.com/docs/remote/ssh>
 
-If you're on Microsoft Windows, you may want to consider developing with Ubuntu WSL for a Linux environment: <https://learn.microsoft.com/windows/wsl/install>
+If you're on Microsoft Windows, you may want to consider developing with Ubuntu
+WSL for a Linux environment: <https://learn.microsoft.com/windows/wsl/install>
 
 #### In GitHub Codespaces
 
-[GitHub Codespaces](https://github.com/features/codespaces) are a great feature provided by GitHub allowing you to get into a development environment based on a pre-configured container very quickly! You can use them for a limited number of hours per month for free. ROHD-HCL has set up GitHub Codespaces so that you can immediately start running examples and developing.
+[GitHub Codespaces](https://github.com/features/codespaces) are a great feature
+provided by GitHub allowing you to get into a development environment based on a
+pre-configured container very quickly! You can use them for a limited number of
+hours per month for free. ROHD-HCL has set up GitHub Codespaces so that you can
+immediately start running examples and developing.
 
-The below button will allow you to create a GitHub Codespace with ROHD-HCL already cloned and ready to roll:
+The below button will allow you to create a GitHub Codespace with ROHD-HCL
+already cloned and ready to roll:
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=621521356)
+[![Open in GitHub
+Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=621521356)
 
-To run the component Configurator, especially useful for visualizing the RTL output of your component using different parameters:
+To run the component Configurator, especially useful for visualizing the RTL
+output of your component using different parameters:
 
 ```shell
 bash tool/generate_confapp_assets.sh
@@ -87,10 +141,10 @@ dart test
 ```
 
 The root `pubspec.yaml` defines a pub workspace containing `confapp`, so
-dependency resolution is shared and should be run from the repository root.
-The app includes the root `analysis_options.yaml`, keeping both packages on the
-same analyzer policy while retaining app-specific generated-file exclusions.
-Open `rohd-hcl-multipackage.code-workspace` in VS Code to load both workspace
+dependency resolution is shared and should be run from the repository root. The
+app includes the root `analysis_options.yaml`, keeping both packages on the same
+analyzer policy while retaining app-specific generated-file exclusions. Open
+`rohd-hcl-multipackage.code-workspace` in VS Code to load both workspace
 packages as top-level folders.
 
 See [confapp/DEVELOPER.md](confapp/DEVELOPER.md) for the local checkout
@@ -110,11 +164,14 @@ dart test
 
 ### Reporting Vulnerabilities
 
-Please report any vulnerabilities according to the information provided in the [SECURITY.md](SECURITY.md) file.
+Please report any vulnerabilities according to the information provided in the
+[SECURITY.md](SECURITY.md) file.
 
 ### Reporting Bugs
 
-Please report any bugs you find as a GitHub issue. Please try to provide as much detail as possible. Complete, stand-alone reproduction instructions are extremely helpful for bugs!
+Please report any bugs you find as a GitHub issue. Please try to provide as much
+detail as possible. Complete, stand-alone reproduction instructions are
+extremely helpful for bugs!
 
 Some helpful information you can include:
 
@@ -126,25 +183,43 @@ Some helpful information you can include:
 
 ### Suggesting Enhancements
 
-If you have an idea for a feature or enhancement that would make ROHD better, feel free to submit a GitHub issue! Discussion on the ticket about pros & cons, strategy, etc. is encouraged.
+If you have an idea for a feature or enhancement that would make ROHD better,
+feel free to submit a GitHub issue! Discussion on the ticket about pros & cons,
+strategy, etc. is encouraged.
 
 ### Discussing Issues
 
-If you have an opinion or helpful information on any open issue, feel free to comment! Even if you don't have the time to implement a change, providing valuable input is great too!
+If you have an opinion or helpful information on any open issue, feel free to
+comment! Even if you don't have the time to implement a change, providing
+valuable input is great too!
 
 ### Fix or implement an Issue
 
-Take a look around the issues on the repo and see if there's any you'd like to take ownership of. For your first contributions, look for issues tagged with `good first issue`, which are intended to be easier to get started with. Feel free to ask for help or guidance!
+Take a look around the issues on the repo and see if there's any you'd like to
+take ownership of. For your first contributions, look for issues tagged with
+`good first issue`, which are intended to be easier to get started with. Feel
+free to ask for help or guidance!
 
 ### Pull Requests
 
-If you have a change that you have implemented and would like to contribute, you can open a pull request. Please try to make sure you have implemented tests covering the changes, if applicable. Smaller, simpler pull requests are easier to review.
+If you have a change that you have implemented and would like to contribute, you
+can open a pull request. Please try to make sure you have implemented tests
+covering the changes, if applicable. Smaller, simpler pull requests are easier
+to review.
 
-Be sure to run the test suite (`dart test`) before asking for your code to be merged. You may also locally generate API documentation (`dart doc`) to make sure it looks right and doesn't have any errors. You should use the dart formatter on all code (`dart format .`), and may prefer to have it automatically format on every file save. If you are using VSCode with the Dart extension, then consider using the recommended settings: <https://dartcode.org/docs/recommended-settings/>
+Be sure to run the test suite (`dart test`) before asking for your code to be
+merged. You may also locally generate API documentation (`dart doc`) to make
+sure it looks right and doesn't have any errors. You should use the dart
+formatter on all code (`dart format .`), and may prefer to have it automatically
+format on every file save. If you are using VSCode with the Dart extension, then
+consider using the recommended settings:
+<https://dartcode.org/docs/recommended-settings/>
 
-**Tests must pass, documentation must generate, and the formatter must be run on every pull request or the automated GitHub Actions flow will fail.**
+**Tests must pass, documentation must generate, and the formatter must be run on
+every pull request or the automated GitHub Actions flow will fail.**
 
-Maintainers of the project and other community members will provide feedback and help iterate as necessary until the contribution is ready to be merged.
+Maintainers of the project and other community members will provide feedback and
+help iterate as necessary until the contribution is ready to be merged.
 
 Please include the SPDX tag near the top of any new files you create:
 
@@ -167,13 +242,25 @@ Here is an example of a recommended file header template:
 
 #### Adding a New Component
 
-To add a new component to the library, you can follow the steps below, referencing other components as examples.
+To add a new component to the library, you can follow the steps below,
+referencing other components as examples.
 
-1. Create the dart code for constructing the module in `lib/src`.
-1. Create unit tests in `test/`.
-1. Create a `Configurator` for the component (enabling things like schematic generation, web-app generation, etc.).
-   1. Create a new config in `lib/src/component_config/commponents`.
-   1. Update the component registry in `lib/src/component_config/components/component_registry.dart`.
+1. Create the dart code for constructing the module in the matching
+   `lib/src/<category>/<subcategory>/` directory (see the source layout in
+   [doc/README.md](doc/README.md)) and export it from that subcategory's barrel.
+1. Create unit tests in `test/<category>/`, matching the component's
+   `lib/src/<category>/` family. When a category grows beyond roughly six direct
+   test files, split them into `test/<category>/<subcategory>/` directories
+   matching the source subcategories.
+1. Create a `Configurator` for the component (enabling things like schematic
+   generation, web-app generation, etc.).
+   1. Create a new config in `lib/src/component_config/components`, overriding
+      `category` and `subcategory` to match the source directory.
+   1. Update the component registry in
+      `lib/src/component_config/components/component_registry.dart`.
+   1. Add the module's source path to
+      `confapp/lib/hcl/module_source_assets.dart` and run `bash
+      tool/generate_confapp_assets.sh`.
 1. Add documentation to `doc/components/name.md`.
 
 Run `dart run gen/generate.dart` to generate native ROHD netlists in
@@ -184,15 +271,24 @@ command-line conversion, install OSS CAD Suite with
 `tool/gh_actions/install_opencadsuite.sh` and run
 `tool/converters/verilog_json.sh <module.sv>`.
 
-The `confapp/` directory contains the source code for the Flutter configuration app, if you would like to run that locally.
+The `confapp/` directory contains the source code for the Flutter configuration
+app, if you would like to run that locally.
 
 ### Creating a New Package
 
-Not every new contribution has to go directly into the ROHD or ROHD-HCL frameworks! If you have an idea for a reusable piece of hardware, tooling, verification collateral, or anything else that helps the ROHD ecosystem but is somewhat standalone, you can make your own package that depends on ROHD. Building an ecosystem of reusable components is important to the success of ROHD. Reach out if you want some help or guidance deciding if or how you should create a new package.
+Not every new contribution has to go directly into the ROHD or ROHD-HCL
+frameworks! If you have an idea for a reusable piece of hardware, tooling,
+verification collateral, or anything else that helps the ROHD ecosystem but is
+somewhat standalone, you can make your own package that depends on ROHD.
+Building an ecosystem of reusable components is important to the success of
+ROHD. Reach out if you want some help or guidance deciding if or how you should
+create a new package.
 
 ## Style
 
-Like ROHD, ROHD-HCL follows the official Dart recommended style guides and lints. The analyzer will help ensure that your code is written consistently with the rest of ROHD.
+Like ROHD, ROHD-HCL follows the official Dart recommended style guides and
+lints. The analyzer will help ensure that your code is written consistently with
+the rest of ROHD.
 
 Here are some links to help guide you on style as recommended by Dart:
 
@@ -202,4 +298,5 @@ Here are some links to help guide you on style as recommended by Dart:
 * Usage: <https://dart.dev/guides/language/effective-dart/usage>
 * Design: <https://dart.dev/guides/language/effective-dart/design>
 
-We recommend following these same guidelines for any of your own packages you may create for the ecosystem, as well.
+We recommend following these same guidelines for any of your own packages you
+may create for the ecosystem, as well.

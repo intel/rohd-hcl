@@ -145,7 +145,7 @@ Future<void> main({bool noPrint = false}) async {
 
   // Set up waveform dumper
   if (!noPrint) {
-    WaveDumper(asyncFifo, outputPath: 'async_fifo_example.vcd');
+    asyncFifo.dumpWaves(outputPath: 'async_fifo_example.vcd');
   }
 
   // Initialize

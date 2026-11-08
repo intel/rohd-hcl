@@ -5,11 +5,45 @@
 // Implementation of memory storage.
 //
 // 2023 June 12
+// Author: Max Korbel <max.korbel@intel.com>
 
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
-import 'package:rohd_hcl/src/utils.dart';
+import 'package:rohd_hcl/src/memory/state/stored_value.dart';
+import 'package:rohd_vf/rohd_vf.dart' as vf;
+
+/// Determines whether a physical word could be reached by an uncertain
+/// logical address after applying a custom alignment function.
+typedef UnknownAddressMatcher = bool Function(
+    LogicValue uncertainAddress, LogicValue physicalAddress);
+
+/// A symbolic write to all words compatible with an uncertain address.
+class UncertainMemoryWrite {
+  /// Logical address; X and Z bits can match either binary value.
+  final LogicValue address;
+
+  /// Bits made unknown at each matching word.
+  final LogicValue affectedBits;
+
+  /// Creates a symbolic write.
+  const UncertainMemoryWrite(
+      {required this.address, required this.affectedBits});
+}
+
+/// Storage capable of preserving uncertain-address writes in state images.
+abstract interface class SymbolicMemoryStorage {
+  /// Stable identity of the address mapping used by symbolic writes.
+  String get symbolicAddressMappingId;
+
+  /// Symbolic writes affecting potentially unallocated words.
+  List<UncertainMemoryWrite> get uncertainWrites;
+
+  /// Validates and atomically applies symbolic writes and explicit entries.
+  void loadSymbolicState(
+      Map<LogicValue, LogicValue> entries, List<UncertainMemoryWrite> writes,
+      {bool replace = false});
+}
 
 /// A storage for memory models.
 abstract class MemoryStorage {
@@ -19,18 +53,22 @@ abstract class MemoryStorage {
   /// The width of data.
   final int dataWidth;
 
-  /// A function called if an invalid write is made when not [isEmpty].
+  /// A function called when a write has uncertain control or address bits.
   ///
-  /// An invalid write will reset the entire memory after calling this function.
-  ///
-  /// By default, this will print a warning message.
+  /// By default, this logs a warning to the active ROHD-VF test, or prints a
+  /// warning when no test is active.
   final void Function() onInvalidWrite;
 
   /// Default behavior for [onInvalidWrite].
   static void _defaultOnInvalidWrite() {
-    // The default callback must warn users without requiring a logging setup.
-    // ignore: avoid_print
-    print('WARNING: Memory was cleared by invalid write!');
+    const message = 'Memory received an uncertain write!';
+    if (vf.Test.instance case final test?) {
+      test.logger.warning(message);
+    } else {
+      // Keep the warning visible without a configured logger.
+      // ignore: avoid_print
+      print('WARNING: $message');
+    }
   }
 
   /// A function called if a read is made to an address that has no data.
@@ -59,6 +97,15 @@ abstract class MemoryStorage {
   /// ```
   final LogicValue Function(LogicValue addr) alignAddress;
 
+  /// Matcher required to interpret uncertain addresses with custom alignment.
+  final UnknownAddressMatcher? unknownAddressMatcher;
+
+  /// Stable identity for the custom symbolic address mapping.
+  final String? unknownAddressMappingId;
+
+  /// Whether address alignment was supplied by the caller.
+  final bool hasCustomAddressAlignment;
+
   /// Default behavior for [alignAddress].
   static LogicValue _defaultAlignAddress(LogicValue addr) => addr;
 
@@ -69,8 +116,11 @@ abstract class MemoryStorage {
     void Function()? onInvalidWrite = _defaultOnInvalidWrite,
     LogicValue Function(LogicValue addr, int dataWidth)? onInvalidRead,
     LogicValue Function(LogicValue addr)? alignAddress,
+    this.unknownAddressMatcher,
+    this.unknownAddressMappingId,
   })  : onInvalidWrite = onInvalidWrite ?? _defaultOnInvalidWrite,
         onInvalidRead = onInvalidRead ?? _defaultOnInvalidRead,
+        hasCustomAddressAlignment = alignAddress != null,
         alignAddress = alignAddress ?? _defaultAlignAddress;
 
   /// Reads a verilog-compliant mem file and preloads memory with it.
@@ -104,11 +154,12 @@ abstract class MemoryStorage {
       throw RohdHclException('dataWidth must be a multiple of bitsPerAddress.');
     }
 
-    final bitsPerChar = log2Ceil(radix);
+    final bitsPerChar = radix.log2Ceil;
     final charsPerLine = dataWidth ~/ bitsPerChar;
     final addrIncrPerLine = dataWidth ~/ bitsPerAddress;
+    final addressIncrement = BigInt.from(addrIncrPerLine);
 
-    var address = 0;
+    var address = BigInt.zero;
     final chunks = <String>[];
     var chunksLength = 0;
 
@@ -137,11 +188,11 @@ abstract class MemoryStorage {
 
         final lvData = LogicValue.ofBigInt(
             BigInt.parse(thisData, radix: radix), dataWidth);
-        final addr =
-            LogicValue.ofInt(address - (address % addrIncrPerLine), addrWidth);
+        final addr = LogicValue.ofBigInt(
+            address - (address % addressIncrement), addrWidth);
         setData(addr, lvData);
 
-        address += addrIncrPerLine;
+        address += addressIncrement;
       }
     }
 
@@ -175,22 +226,22 @@ abstract class MemoryStorage {
         }
 
         // check to see if this block already exists in memory
-        final lineAddr = int.parse(line.substring(1), radix: 16);
-        final lineAddrLv =
-            LogicValue.ofInt(lineAddr - lineAddr % addrIncrPerLine, addrWidth);
+        final lineAddr = BigInt.parse(line.substring(1), radix: 16);
+        final lineAddrLv = LogicValue.ofBigInt(
+            lineAddr - lineAddr % addressIncrement, addrWidth);
 
         // if the address is not word-aligned, pre-fill the lower byte
         // positions so that new data lands at the correct byte offset within
         // the word.  When the word already has data (e.g. written by the
         // previous section), preserve those lower bytes; otherwise use zeros.
-        final endOff = lineAddr % addrIncrPerLine;
+        final endOff = (lineAddr % addressIncrement).toInt();
         if (endOff != 0) {
           final lowerBytesCharsCount = endOff * bitsPerAddress ~/ bitsPerChar;
           final origData = getData(lineAddrLv);
           final lowerStr = origData != null
               ? origData
                   .getRange(0, endOff * bitsPerAddress)
-                  .toInt()
+                  .toBigInt()
                   .toRadixString(radix)
                   .padLeft(lowerBytesCharsCount, '0')
               : '0' * lowerBytesCharsCount;
@@ -198,13 +249,23 @@ abstract class MemoryStorage {
           chunksLength += lowerStr.length;
         }
 
-        address = lineAddrLv.toInt();
+        address = lineAddrLv.toBigInt();
       } else {
         line.split(RegExp(r'\s')).forEach(addChunk);
       }
     }
     // pad out remaining bytes as 0
     padToAlignment();
+  }
+
+  /// Loads a Verilog-compliant hexadecimal memory file.
+  ///
+  /// Use [loadMemString] instead.
+  // This was deprecated after v0.2.1 and remains supported in v0.3.0.
+  // ignore: remove_deprecations_in_breaking_versions
+  @Deprecated('Use `loadMemString` instead.')
+  void loadMemHex(String hexMemContents) {
+    loadMemString(hexMemContents);
   }
 
   /// Dumps the contents of memory to a verilog-compliant hex file.
@@ -221,7 +282,7 @@ abstract class MemoryStorage {
       return '';
     }
 
-    final bitsPerChar = log2Ceil(radix);
+    final bitsPerChar = radix.log2Ceil;
 
     final addrs = addresses.sorted();
 
@@ -231,13 +292,13 @@ abstract class MemoryStorage {
 
     for (final addr in addrs) {
       if (currentAddr != addr) {
-        memString.writeln('@${addr.toInt().toRadixString(16)}');
+        memString.writeln('@${addr.toBigInt().toRadixString(16)}');
         currentAddr = addr;
       }
 
       final data = getData(addr)!;
       memString.writeln(data
-          .toInt()
+          .toBigInt()
           .toRadixString(radix)
           .padLeft(data.width ~/ bitsPerChar, '0'));
       currentAddr = currentAddr! +
@@ -261,14 +322,20 @@ abstract class MemoryStorage {
   /// [alignAddress], and then calls [setData].
   void writeData(LogicValue addr, LogicValue data) {
     if (!addr.isValid) {
-      if (!isEmpty) {
-        invalidWrite();
-      }
-
+      writeUncertainAddress(addr, LogicValue.filled(dataWidth, LogicValue.one));
       return;
     }
 
-    setData(alignAddress(addr), data);
+    setData(alignAddress(addr), normalizeStoredValue(data));
+  }
+
+  /// Records a write that may affect any word compatible with [address].
+  ///
+  /// Storage implementations that cannot represent symbolic writes must
+  /// override this method or explicitly report unsupported operations.
+  void writeUncertainAddress(LogicValue address, LogicValue affectedBits) {
+    throw UnsupportedError(
+        'This memory storage does not support uncertain-address writes.');
   }
 
   /// Loads [data] into [addr] directly into storage.
@@ -292,8 +359,15 @@ abstract class MemoryStorage {
 }
 
 /// A sparse storage for memory models.
-class SparseMemoryStorage extends MemoryStorage {
+class SparseMemoryStorage extends MemoryStorage
+    implements SymbolicMemoryStorage {
   final Map<LogicValue, LogicValue> _memory = {};
+  final List<UncertainMemoryWrite> _uncertainWrites = [];
+
+  /// Symbolic writes affecting words not explicitly represented in storage.
+  @override
+  List<UncertainMemoryWrite> get uncertainWrites =>
+      List.unmodifiable(_uncertainWrites);
 
   /// Constructs a new sparse memory storage with specified [addrWidth] for all
   /// addresses.
@@ -303,7 +377,122 @@ class SparseMemoryStorage extends MemoryStorage {
     super.alignAddress,
     super.onInvalidRead,
     super.onInvalidWrite,
+    super.unknownAddressMatcher,
+    super.unknownAddressMappingId,
   });
+
+  @override
+  String get symbolicAddressMappingId {
+    if (!hasCustomAddressAlignment && unknownAddressMatcher == null) {
+      return 'identity';
+    }
+    if (unknownAddressMatcher == null ||
+        unknownAddressMappingId == null ||
+        unknownAddressMappingId!.isEmpty ||
+        unknownAddressMappingId == 'identity') {
+      throw UnsupportedError('Custom symbolic address mapping requires a '
+          'matcher and a nonempty, non-identity mapping ID.');
+    }
+    return unknownAddressMappingId!;
+  }
+
+  void _validateUncertainWrite(UncertainMemoryWrite write) {
+    if (write.address.width != addrWidth ||
+        write.address.isValid ||
+        write.affectedBits.width != dataWidth ||
+        !write.affectedBits.isValid) {
+      throw ArgumentError('Invalid uncertain memory write geometry or bits.');
+    }
+    symbolicAddressMappingId;
+  }
+
+  bool _matches(LogicValue pattern, LogicValue address) {
+    if (unknownAddressMatcher case final matcher?) {
+      return matcher(pattern, address);
+    }
+    for (var bit = 0; bit < addrWidth; bit++) {
+      if (pattern[bit].isValid && pattern[bit] != address[bit]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  LogicValue _applyUncertainty(LogicValue value, LogicValue affectedBits) {
+    var result = value;
+    for (var bit = 0; bit < dataWidth; bit++) {
+      if (affectedBits[bit] == LogicValue.one) {
+        result = result.withSet(bit, LogicValue.x);
+      }
+    }
+    return result;
+  }
+
+  /// Validates and atomically applies symbolic writes and explicit entries.
+  ///
+  /// Explicit entries in [entries] take precedence over [writes].
+  @override
+  void loadSymbolicState(
+      Map<LogicValue, LogicValue> entries, List<UncertainMemoryWrite> writes,
+      {bool replace = false}) {
+    for (final entry in entries.entries) {
+      if (!entry.key.isValid ||
+          entry.key.width != addrWidth ||
+          entry.value.width != dataWidth) {
+        throw ArgumentError('Invalid memory state entry.');
+      }
+    }
+    writes.forEach(_validateUncertainWrite);
+
+    final nextMemory = replace
+        ? <LogicValue, LogicValue>{}
+        : Map<LogicValue, LogicValue>.of(_memory);
+    final nextWrites = replace
+        ? <UncertainMemoryWrite>[]
+        : List<UncertainMemoryWrite>.of(_uncertainWrites);
+    for (final write in writes) {
+      for (final address in nextMemory.keys.toList()) {
+        if (_matches(write.address, address)) {
+          nextMemory[address] =
+              _applyUncertainty(nextMemory[address]!, write.affectedBits);
+        }
+      }
+      nextWrites.add(write);
+    }
+    for (final entry in entries.entries) {
+      nextMemory[entry.key] = normalizeStoredValue(entry.value);
+    }
+    _memory
+      ..clear()
+      ..addAll(nextMemory);
+    _uncertainWrites
+      ..clear()
+      ..addAll(nextWrites);
+  }
+
+  @override
+  void writeUncertainAddress(LogicValue address, LogicValue affectedBits) {
+    final write =
+        UncertainMemoryWrite(address: address, affectedBits: affectedBits);
+    loadSymbolicState({}, [write]);
+    onInvalidWrite();
+  }
+
+  @override
+  LogicValue readData(LogicValue addr) {
+    final aligned = alignAddress(addr);
+    final stored = getData(aligned);
+    if (stored != null) {
+      return stored;
+    }
+    var result = onInvalidRead(aligned, dataWidth);
+    for (final write in _uncertainWrites) {
+      if (_matches(write.address, aligned)) {
+        result = _applyUncertainty(result, write.affectedBits);
+      }
+    }
+    return result;
+  }
 
   @override
   void setData(LogicValue addr, LogicValue data) {
@@ -319,7 +508,7 @@ class SparseMemoryStorage extends MemoryStorage {
       throw RohdHclException('Data width must be $dataWidth.');
     }
 
-    _memory[addr] = data;
+    _memory[addr] = normalizeStoredValue(data);
   }
 
   @override
@@ -332,10 +521,13 @@ class SparseMemoryStorage extends MemoryStorage {
   }
 
   @override
-  void reset() => _memory.clear();
+  void reset() {
+    _memory.clear();
+    _uncertainWrites.clear();
+  }
 
   @override
-  bool get isEmpty => _memory.isEmpty;
+  bool get isEmpty => _memory.isEmpty && _uncertainWrites.isEmpty;
 
   @override
   List<LogicValue> get addresses => _memory.keys.toList();

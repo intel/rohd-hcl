@@ -27,7 +27,7 @@ LogicValue toOneHot(int vc, int width) {
   return ohLit
       .map((e) => e == 1 ? LogicValue.one : LogicValue.zero)
       .toList()
-      .rswizzle();
+      .rconcat();
 }
 
 /// Simple main component BFM
@@ -255,8 +255,14 @@ class LtiBfmTest extends Test {
     sIntf.clk <= SimpleClockGenerator(10).clk;
     sIntf.resetN.put(1);
 
-    final la = LtiLaChannelInterface(config: LtiLaChannelConfig(), vcCount: 8);
-    final lr = LtiLrChannelInterface(config: LtiLrChannelConfig(), vcCount: 8);
+    final la = LtiLaChannelInterface(
+        config: LtiLaChannelConfig(addrWidth: 8, idWidth: 2, ogWidth: 2),
+        vcCount: 8,
+        idMixInEnable: true);
+    final lr = LtiLrChannelInterface(
+        config: LtiLrChannelConfig(addrWidth: 8, idWidth: 2),
+        vcCount: 8,
+        idMixInEnable: true);
     final lc = LtiLcChannelInterface(config: LtiLcChannelConfig());
     final lt = LtiLtChannelInterface(config: LtiLtChannelConfig());
     final lm = LtiManagementInterface();
@@ -351,7 +357,7 @@ void main() {
     if (dumpWaves) {
       final mod = LtiSubordinate(ltiBfmTest.sIntf, [ltiBfmTest.cluster]);
       await mod.build();
-      WaveDumper(mod);
+      mod.dumpWaves();
     }
 
     await ltiBfmTest.start();

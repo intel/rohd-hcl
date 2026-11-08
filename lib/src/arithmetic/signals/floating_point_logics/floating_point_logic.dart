@@ -7,7 +7,7 @@
 // 2024 April 1
 // Authors:
 //  Max Korbel <max.korbel@intel.com>
-//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
+//  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 
@@ -125,15 +125,8 @@ class FloatingPoint extends LogicStructure {
   /// mantissa resolved if not [isNormal] and [subNormalAsZero] is `true`.
   FloatingPoint resolveSubNormalAsZero() {
     if (subNormalAsZero) {
-      return clone()
-        ..gets(mux(
-            isNormal,
-            this,
-            FloatingPoint.zero(
-                exponentWidth: exponent.width,
-                mantissaWidth: mantissa.width,
-                explicitJBit: explicitJBit,
-                subNormalAsZero: subNormalAsZero)));
+      final zero = clone(name: 'subnormalZero')..gets(Const(0, width: width));
+      return mux<FloatingPoint>(isNormal, this, zero, outputGenerator: clone);
     } else {
       return this;
     }
@@ -250,7 +243,7 @@ class FloatingPoint extends LogicStructure {
       quietMantissa = [
         if (explicitJBit) Const(1),
         Const(1),
-      ].swizzle();
+      ].concat();
     } else {
       Logic payload;
       if (sourcePayloadWidth == 0) {
@@ -265,7 +258,7 @@ class FloatingPoint extends LogicStructure {
         if (explicitJBit) Const(1),
         Const(1),
         payload,
-      ].swizzle();
+      ].concat();
     }
     final quiet = clone(name: 'quietNaN');
     quiet.sign <= source.sign;
@@ -275,13 +268,14 @@ class FloatingPoint extends LogicStructure {
   }
 
   /// Propagate the first signaling NaN, otherwise the first quiet NaN.
+  /// Each input is interpreted using its own floating-point format.
   FloatingPoint propagateNaN(FloatingPoint first, FloatingPoint second) {
     final selectSecond = (~first.isSignalingNaN &
             (second.isSignalingNaN | (~first.isNaN & second.isNaN)))
         .named('selectSecondNaN');
-    final selected = first.clone(name: 'selectedNaN')
-      ..gets(mux(selectSecond, second, first));
-    return quietNaNFrom(selected);
+    return mux<FloatingPoint>(
+        selectSecond, quietNaNFrom(second), quietNaNFrom(first),
+        outputGenerator: clone);
   }
 
   FloatingPoint _constant(FloatingPointValue value, {Logic? sign}) {
@@ -355,14 +349,17 @@ class FloatingPoint extends LogicStructure {
   }
 
   /// Negate the [FloatingPoint].
-  FloatingPoint negate() => FloatingPoint._(
-        Logic()..gets(~sign),
-        Logic(width: exponent.width)..gets(exponent),
-        Logic(width: mantissa.width)..gets(mantissa),
-        explicitJBit,
-        subNormalAsZero,
-        name: name,
-      );
+  ///
+  /// The result has the same runtime type as this value (for example a
+  /// [FloatingPoint32]) so that it can be combined with this value using
+  /// type-preserving operations such as `mux`.
+  FloatingPoint negate() {
+    final result = clone(name: name)
+      ..sign.gets(~sign)
+      ..exponent.gets(exponent)
+      ..mantissa.gets(mantissa);
+    return result;
+  }
 
   /// Negate the [FloatingPoint].
   FloatingPoint operator -() => negate();

@@ -1,8 +1,40 @@
 # Reduction Tree
 
-The `ReductionTree` component is a general tree generator that allows for arbitrary radix or tree-branching factor in the computation.  It takes a sequence of `Logic` values and performs a specified operation at each node of the tree, taking in 'radix' inputs and producing one output.  If the operation widens the output (say in addition), then the `ReductionTree` will widen values using either sign-extension or zero-extension as specified.
+## Typed data and control
 
-The input sequence is provided in the form 'List\<Logic\>'.  The operation must be provided in the form:
+`ReductionTree<T, C>` and `ReductionTreeGenerator<T, C>` retain the data type
+`T` and optional control type `C`, including structures, enum mappings, and
+typed-array shapes/codecs. Their `out` and `controlOut` handles are typed, and
+pipelined payloads retain their schemas across enable stalls and resets.
+
+Operations have this signature:
+
+```dart
+T operation(List<T> inputs, {int depth, C? control, String name});
+```
+
+`T` describes a signal family, not a fixed bit width. A typed operation may
+produce a wider format and align its own fields at the next node. Structures and
+enums are never automatically flattened or bit-extended. Plain `Logic`
+reductions retain their existing sign/zero-extension behavior. An operation must
+also handle a singleton on an unbalanced branch.
+
+For bit-oriented callbacks and scalar constants, explicitly use
+`ReductionTree<Logic, Logic>(...)` or `ReductionTreeGenerator<Logic,
+Logic>(...)`. Pass `.packed` inputs when packed bit arithmetic rather than the
+payload's domain operations is intended.
+
+## Bit-oriented reductions
+
+The `ReductionTree` component is a general tree generator that allows for
+arbitrary radix or tree-branching factor in the computation.  It takes a
+sequence of `Logic` values and performs a specified operation at each node of
+the tree, taking in 'radix' inputs and producing one output.  If the operation
+widens the output (say in addition), then the `ReductionTree` will widen values
+using either sign-extension or zero-extension as specified.
+
+The input sequence is provided in the form 'List\<Logic\>'.  The operation must
+be provided in the form:
 
  ```dart
  Logic Function(List<Logic> operands, {int depth, Logic? control, String name})
@@ -10,11 +42,22 @@ The input sequence is provided in the form 'List\<Logic\>'.  The operation must 
 
  This function should support operand lengths between $[2,radix]$ if the tree is to support an arbitrary length sequence: Note that the `ReductionTree` itself does not require the sequence length to be a power of the radix; it will use shorter operations to balance the tree when the sequence length is not a power of the radix.
 
-The resulting tree can be pipelined by specifying the depth of nodes before a pipestage is added, a parameter called `depthBetweenFlops`.  Since the input can be of arbitrary length, paths in the tree may not be balanced, and extra pipestages will be added in shorter sections of the tree to align the computation.
+The resulting tree can be pipelined by specifying the depth of nodes before a
+pipestage is added, a parameter called `depthBetweenFlops`.  Since the input can
+be of arbitrary length, paths in the tree may not be balanced, and extra
+pipestages will be added in shorter sections of the tree to align the
+computation.
 
-An optional `control` Logic can be passed in to the operation function to provide control at each level of the reduction tree. The `depth` input informs this function what the depth of the tree is, which can be used to access the control.  The depth is computed from the leaves of the tree.  If the original sequence length is not a power of the radix, then the depth is the maximum depth at each node in the tree to the leaves.
+An optional `control` Logic can be passed in to the operation function to
+provide control at each level of the reduction tree. The `depth` input informs
+this function what the depth of the tree is, which can be used to access the
+control.  The depth is computed from the leaves of the tree.  If the original
+sequence length is not a power of the radix, then the depth is the maximum depth
+at each node in the tree to the leaves.
 
-Here is an example radix-4 computation tree using native addition on 79 13-bit inputs, pipelining every 2 operations deep, and producing a single 13-bit result.
+Here is an example radix-4 computation tree using native addition on 79 13-bit
+inputs, pipelining every 2 operations deep, and producing a single 13-bit
+result.
 
 ```dart
   Logic addReduce(List<Logic> inputs,
@@ -29,7 +72,10 @@ Here is an example radix-4 computation tree using native addition on 79 13-bit i
         vec, radix: 4, addReduce, clk: clk, depthBetweenFlops; 2);
   ```
 
-Here is the same example radix-4 computation tree but using prefix adders on 79 13-bit inputs, pipelining every 2 operations deep, and producing a single 21-bit result, due to width-extension of the prefix adder, adding 1 bit for each addition in 7 levels of the tree.
+Here is the same example radix-4 computation tree but using prefix adders on 79
+13-bit inputs, pipelining every 2 operations deep, and producing a single 21-bit
+result, due to width-extension of the prefix adder, adding 1 bit for each
+addition in 7 levels of the tree.
 
   ```dart
 Logic addReduceAdders(List<Logic> inputs, {int depth, Logic? control, String name = 'prefix'}) {

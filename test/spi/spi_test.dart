@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_test.dart
@@ -13,13 +13,13 @@ import 'package:test/test.dart';
 
 class SpiMainIntf extends Module {
   SpiMainIntf(SpiInterface intf, {super.name = 'SpiMainIntf'}) {
-    intf = intf.clone()..pairConnectIO(this, intf, PairRole.provider);
+    intf = addPairInterfacePorts(intf, PairRole.provider);
   }
 }
 
 class SpiSubIntf extends Module {
   SpiSubIntf(SpiInterface intf, {super.name = 'SpiSubIntf'}) {
-    intf = intf.clone()..pairConnectIO(this, intf, PairRole.consumer);
+    intf = addPairInterfacePorts(intf, PairRole.consumer);
   }
 }
 
@@ -40,7 +40,7 @@ void main() {
   test('spi_test', () async {
     final mod = SpiTopIntf();
     await mod.build();
-    final genSV = mod.generateSynth();
+    final genSV = mod.dumpSystemVerilog();
     expect(genSV, contains('input logic MOSI'));
   });
 }

@@ -11,6 +11,7 @@ import 'dart:async';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -59,6 +60,8 @@ void main() {
           allowLargerRegisters: true,
           logicalRegisterIncrement: increment,
         );
+        final CsrContainer container = top;
+        expect(container.logicalRegisterIncrement, BigInt.from(increment));
         await top.build();
         Simulator.setMaxSimTime(1000);
         final simulation = Simulator.run();

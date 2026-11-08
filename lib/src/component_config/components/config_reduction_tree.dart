@@ -29,14 +29,20 @@ enum ReductionTreeOperation {
 
 /// A [Configurator] for [ReductionTree].
 class ReductionTreeConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.dataflow;
+
+  @override
+  String get subcategory => 'reduction';
+
   /// Number of input terms.
-  final IntConfigKnob inputCountKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob inputCountKnob = PositiveIntConfigKnob(value: 4);
 
   /// Width of each input term.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob inputWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Number of branches per reduction node.
-  final IntConfigKnob radixKnob = IntConfigKnob(value: 2);
+  final IntConfigKnob radixKnob = IntConfigKnob(value: 2, minValue: 2);
 
   /// Reduction operation.
   final ChoiceConfigKnob<ReductionTreeOperation> operationKnob =

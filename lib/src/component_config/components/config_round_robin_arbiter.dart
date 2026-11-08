@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_round_robin_arbiter.dart
@@ -14,8 +14,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [PriorityArbiter].
 class RoundRobinArbiterConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.flowControl;
+
+  @override
+  String get subcategory => 'arbitration';
+
   /// A knob controlling the number of requests and grants.
-  final IntConfigKnob numRequestKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob numRequestKnob = PositiveIntConfigKnob(value: 4);
 
   /// A knob controlling the implementation.
   final ChoiceConfigKnob<Type> implementationKnob = ChoiceConfigKnob(

@@ -150,7 +150,7 @@ class FixedPoint extends LogicStructure {
     final fractionPadding = fractionWidth - this.fractionWidth;
     final aligned = fractionPadding == 0
         ? packed
-        : [packed, Const(0, width: fractionPadding)].swizzle();
+        : [packed, Const(0, width: fractionPadding)].concat();
     final targetWidth = integerWidth + fractionWidth + (signed ? 1 : 0);
     final extended = this.signed
         ? aligned.signExtend(targetWidth)
@@ -188,7 +188,7 @@ class FixedPoint extends LogicStructure {
     if (fractionWidth >= this.fractionWidth) {
       final padding = fractionWidth - this.fractionWidth;
       rescaled =
-          padding == 0 ? packed : [packed, Const(0, width: padding)].swizzle();
+          padding == 0 ? packed : [packed, Const(0, width: padding)].concat();
     } else {
       final discarded = this.fractionWidth - fractionWidth;
       final sign = this.signed ? packed[-1] : Const(0);
@@ -331,7 +331,10 @@ class FixedPoint extends LogicStructure {
       signed: resultSigned,
     );
     final product = NativeMultiplier(left, right,
-            signedMultiplicand: resultSigned, signedMultiplier: resultSigned)
+            signedMultiplicand:
+                StaticOrRuntimeParameter.staticValue(value: resultSigned),
+            signedMultiplier:
+                StaticOrRuntimeParameter.staticValue(value: resultSigned))
         .product;
     return FixedPoint.of(product,
         signed: resultSigned,

@@ -272,6 +272,16 @@ void main() {
     expect((-fp1).neq(fp2).value.toBool(), isFalse);
   });
 
+  test('FP negate preserves the receiver type for subtraction', () {
+    final fp1 = FloatingPoint32()
+      ..put(FloatingPoint32Value.populator().ofDouble(1.5));
+    final fp2 = FloatingPoint32()
+      ..put(FloatingPoint32Value.populator().ofDouble(2.25));
+
+    expect(fp2.negate(), isA<FloatingPoint32>());
+    expect(fp1.subtract(fp2).floatingPointValue.toDouble(), -0.75);
+  });
+
   test('FP direct arithmetic operations', () {
     final fp1 = FloatingPoint32()
       ..put(FloatingPoint32Value.populator().ofDouble(1.5));

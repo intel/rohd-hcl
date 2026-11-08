@@ -36,8 +36,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           'FloatingPointSqrtSimple does not support explicit-J-bit inputs.');
     }
 
-    final outputSqrt = a.clone(name: 'sqrt') as FpType;
-    output('sqrt') <= outputSqrt;
+    final outputSqrt = sqrt;
     late final error = output('error');
 
     // check to see if we do sqrt at all or just return a
@@ -45,7 +44,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final isNaN = a.isNaN.named('isNan');
     final isZero = a.isAZero.named('isZero');
     final rawSignificand =
-        [a.isNormal, a.mantissa].swizzle().named('rawSignificand');
+        [a.isNormal, a.mantissa].concat().named('rawSignificand');
     final leadingOne = RecursiveModulePriorityEncoder(rawSignificand.reversed,
             generateValid: true, name: 'leading_one')
         .out
@@ -69,7 +68,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
             normalizationShift.zeroExtend(exponentCalcWidth))
         .named('deBiasExp');
     final shiftedExp = [deBiasExp[-1], deBiasExp.slice(deBiasExp.width - 1, 1)]
-        .swizzle()
+        .concat()
         .named('shiftedExp');
     final isExpOdd = deBiasExp[0];
 
@@ -83,11 +82,12 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           Const(0, width: 2),
           normalizedSignificand,
           Const(0, width: extraPrecision)
-        ].swizzle().named('aFixed');
+        ].concat().named('aFixed');
 
-    final aFixedAdj = aFixed.clone(name: 'aFixedAdj')
-      ..gets(mux(isExpOdd, [aFixed.slice(-2, 0), Const(0)].swizzle(), aFixed)
-          .named('oddMantissaMux'));
+    final shiftedFixed = aFixed.clone(name: 'shiftedFixed')
+      ..gets([aFixed.slice(-2, 0), Const(0)].concat());
+    final aFixedAdj =
+        mux<FixedPoint>(isExpOdd, shiftedFixed, aFixed).namedTyped('aFixedAdj');
 
     final fixedSqrt = FixedPointSqrt(aFixedAdj).sqrt;
     final retainedSignificand = fixedSqrt
@@ -163,7 +163,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
         <({Logic mantissa, Logic carry, Logic inexact})>[];
     for (var shift = 1; shift <= a.mantissa.width + 1; shift++) {
       final subnormalInput = [Const(0, width: shift), retainedSignificand]
-          .swizzle()
+          .concat()
           .named('subnormalInput$shift');
       final subnormalRounder = FloatingPointRounder(subnormalInput, shift,
           roundingMode: roundingMode, sign: a.sign, extraSticky: inexact);
@@ -226,9 +226,7 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
           outputSqrt < outputSqrt.quietNaNFrom(a),
         ]),
         ElseIf(isZero, [
-          outputSqrt.sign < a.sign,
-          outputSqrt.exponent < a.exponent,
-          outputSqrt.mantissa < a.mantissa,
+          outputSqrt < a,
         ]),
         ElseIf(a.sign, [
           outputSqrt < outputSqrt.nan,

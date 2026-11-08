@@ -14,8 +14,14 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [OnesComplementAdder].
 class OnesComplementAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'addition';
+
   /// Width of each magnitude input.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Static or runtime subtraction configuration.
   final StaticOrRuntimeBoolKnob subtractKnob = StaticOrRuntimeBoolKnob();
@@ -39,7 +45,7 @@ class OnesComplementAdderConfigurator extends Configurator {
   Module createModule() => OnesComplementAdder(
         Logic(width: widthKnob.value),
         Logic(width: widthKnob.value),
-        subtract: subtractKnob.resolve('subtract'),
+        subtract: subtractKnob.resolveControl('subtract'),
         generateEndAroundCarry: generateEndAroundCarryKnob.value,
         adderGen: (a, b, {carryIn}) => adderSelectKnob.selectedAdder()(a, b,
             carryIn: carryIn, name: 'ones_add'),
@@ -60,8 +66,14 @@ enum SignMagnitudeAdderImplementation {
 
 /// A [Configurator] for sign-magnitude adders.
 class SignMagnitudeAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'addition';
+
   /// Width of each magnitude input.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Sign-magnitude implementation to instantiate.
   final ChoiceConfigKnob<SignMagnitudeAdderImplementation> implementationKnob =
@@ -124,11 +136,17 @@ class SignMagnitudeAdderConfigurator extends Configurator {
 
 /// A [Configurator] for [CarrySelectOnesComplementCompoundAdder].
 class CarrySelectOnesComplementCompoundAdderConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'addition';
+
   /// Width of each addend.
-  final IntConfigKnob widthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Size of each carry-select block.
-  final IntConfigKnob blockWidthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob blockWidthKnob = PositiveIntConfigKnob(value: 4);
 
   /// Static or runtime subtraction configuration.
   final StaticOrRuntimeBoolKnob subtractKnob = StaticOrRuntimeBoolKnob();
@@ -157,7 +175,7 @@ class CarrySelectOnesComplementCompoundAdderConfigurator extends Configurator {
   Module createModule() => CarrySelectOnesComplementCompoundAdder(
         Logic(width: widthKnob.value),
         Logic(width: widthKnob.value),
-        subtract: subtractKnob.resolve('subtract'),
+        subtract: subtractKnob.resolveControl('subtract'),
         generateCarryOut: generateCarryOutKnob.value,
         generateCarryOutP1: generateCarryOutP1Knob.value,
         widthGen: blockWidthKnob.value > 0

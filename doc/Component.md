@@ -3,9 +3,8 @@
 Since ROHD is an extension of the Dart programming language, please follow all
 Dart programming and documentation conventions.
 
-The `Module` class is the base class used in ROHD to build components, and
-calling the constructor the `Module` instantiates the component and connects it
-to signals passed into the constructor.
+The `Module` class is the base class used in ROHD to build components. Its
+constructor connects the component to the signals passed by its caller.
 
 Since ROHD is written in Dart, you should use the Dart best practices, such as
 camel-case variable naming, commenting patterns for all public APIs, and take
@@ -29,42 +28,56 @@ signals and other parameters.
 
 ## Port Types
 
-Signals can take various forms in ROHD, and it is important to consider what form
-you want for the API of the `Module` you are building. ROHD supports the basic
-`Logic` signal which has its width encode (therefore you should not be using
-width as a parameter to a `Module`). ROHD provides basic cloning and accessor
-helper functions like `addInput` and `input`.
+Choose port types according to the component's contract. A `Logic` carries its
+width, so derive input widths from the signals; a separate parameter may still
+be appropriate for output geometry or storage capacity. Use `addInput` and
+`addOutput` for scalar ports.
 
-`LogicArray` is a uniform multidimensional array of leaf `Logic` signals. Using
-this for input/output will require special routines like `addInputArray` to
-connect external and internal signals. Examples of using `LogicArray` are in the
-`Serializer` and `Deserializer` components.
+`LogicStructure` groups named fields, as in `FloatingPoint` and `FixedPoint`.
+Use generic `LogicType extends Logic` ports and `addTypedInput` or
+`addTypedOutput` with the appropriate clone factory when the component should
+preserve the caller's payload type. `TypedLogicArray<T, V>` additionally
+preserves array dimensions, leaf types, and its value codec. See the typed
+examples in [FIFO](./components/fifo.md),
+[serialization](./components/serialization.md), and
+[memory](./components/memory.md).
 
-`LogicStructure` is a hierarchical concatenation of named `Logic` fields, where
-the `FloatingPoint` arithmetic type is an example used in the
-`FloatingPointMultiplierSimple` module. We can also pass in `LogicStructure` as
-a type for certain components so that the field structure is not lost on input
-and output. A good example of this is `Fifo`, which is templatized on
-`LogicType` to allow for us to generate a `Fifo` for a particular
-`LogicStructure` to use when pushing and popping the data in and out. Here,
-`addTypedInput` is a method used to help with creating the internal signals.
+Do not assume equal bit width means compatible typed payloads. Validate the
+declared structure, array shape and codec, enum mapping, and any domain-specific
+format metadata as appropriate for the component. Use the existing payload shape
+helpers where they apply, and document additional constraints. For scalar
+constants passed into generic constructors, explicitly select `Logic` when a
+mutable port is required, for example `Fifo<Logic>`.
 
-`Interface` is similar to `LogicStructure`, yet it provides an ability to define
-directionality to the internal fields, useful in connecting modules that share a
-common protocol such as the `ApbInterface`. See
-[Interfaces](https://intel.github.io/rohd-website/docs/interfaces). A few
-examples of key general interface types that you can inherit from are the
-`PairInterface` and the `DataPortInterface`.  the `Memory` module has a good
-example of how `DataPortInterface`s are cloned internally using its `connectIO`
-method.
-The `Fifo` has a good example of using an `Interface` to wrap a `LogicStructure`.
+An `Interface` describes related signals and their directions; a `PairInterface`
+describes producer and consumer roles. Register cloned interfaces with ROHD's
+`addInterfacePorts` or `addPairInterfacePorts`, and use the registered internal
+interface in the module. Pass `uniquify` at connection or registration time when
+names need to be adjusted; the deprecated `PairInterface.modify` callback is not
+preserved. See [standard interfaces](./components/standard_interfaces.md) and
+[ready/valid interfaces](./components/ready_valid.md).
 
-When wrapping `LogicStructure` with `Interface`, don't name the `LogicStructure`
-as `Interface` will need to uniquify (a known bug in `Interface`).
+## Static and Runtime Parameters
 
-An important kind of `Interface` is the `PairInterface` which is designed for
-bidirectional communication and provides a `pairConnectIO` method for connecting
-external and internal ports based on producer/consumer filtering.
+Use ordinary Dart values for elaboration-time choices such as a depth or
+implementation strategy. When an option supports either a fixed value or a
+runtime signal, use `StaticOrRuntimeParameter` for a boolean or
+`StaticOrRuntimeControl<T>` for another static value type. Resolve the control
+inside the module so a runtime signal becomes an internal port, while a static
+value becomes a constant. Validate widths and unsupported values explicitly. See
+[static or runtime controls](./static_or_runtime_parameters.md) for construction
+and child-module patterns.
+
+## Typed Operations
+
+Transporting a typed payload does not imply that every arithmetic or comparison
+operation should treat it as packed bits. Preserve the domain's operations when
+that is the component contract, and explicitly use `.packed` when bit-vector
+semantics are required. Document signedness, rounding, overflow, unknown-value
+behavior, and output format where relevant. Examples include [typed
+extrema](./components/extrema.md#typed-comparisons), [typed
+sorting](./components/sort.md#typed-payloads), and [typed prefix
+networks](./components/parallel_prefix_operations.md#typed-prefix-networks).
 
 ## Logic Internals
 
@@ -75,7 +88,7 @@ flopping (`flop`).  See
 more detail.
 
  More complex logic can be constructed using
- [`Sequental`](https://intel.github.io/rohd-website/docs/sequentials/) and
+ [`Sequential`](https://intel.github.io/rohd-website/docs/sequentials/) and
  [`Combinational`](https://intel.github.io/rohd-website/docs/conditionals/)
  blocks similar to SystemVerilog `always` blocks.  There is also a
  [`FiniteStateMachine`](https://intel.github.io/rohd-website/docs/fsm/)
@@ -91,66 +104,49 @@ more detail.
 
  If you want to expose internal signals onto the interface of a `Module` for
  debug, a simple method is to declare them as a field in the class (Use
-`@protected` in case this is exposed, so it doesn't become part of the API). This
+`@protected` in case this is exposed, so it doesn't become part of the API).
+This
  signal will be available in tests as module.field.
 
 ## Unit Testing
 
- A good component has unit tests to validate the component and provide examples
- of use. We use the Dart testing framework which requires that tests are stored
- in the `test/` directory and are named ending in `_test.dart`. An example of
- unit tests for a component is shown below.  Note that grouping of tests can
- reuse a common component built for multiple tests.  Also note that each test
- with sequential logic will need a `SimpleClockGenerator`, a `Simulator.run()`
- and an `endSimulation`. Some helper methods (like `.waitCycles`) are available
- in the rohd-fv package.
+Unit tests validate a component and provide usage examples. Place Dart tests
+under `test/` in the matching component family, with names ending in
+`_test.dart`. For example:
 
- ```dart
+```dart
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:test/test.dart';
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
 
-  group('test narrow component', () {
-    final input = Logic(width: 5);
-    final component = MyComponent(input);
-    final output = component.out;
-
-    test('MyComponent smoke test', () async {
-      final clk = SimpleClockGenerator(10).clk;
-
-      unawaited(Simulator.run());
-        reset.inject(1);
-        await clk.waitCycles(3);
-        reset.inject(0);
-        await clk.waitCycles(1);
-        input.inject(1);
-        await clk.waitCycles(3);
-        expect(output.value, equals(Const(1, width: output.width)));
-
-      await Simulator.endSimulation();
-    });
-
-    test('MyComponent second test', () async {
-      final clk = SimpleClockGenerator(10).clk;
-
-      unawaited(Simulator.run());
-        reset.inject(1);
-        await clk.waitCycles(3);
-        reset.inject(0);
-        await clk.waitCycles(1);
-        input.inject(6);
-        await clk.waitCycles(3);
-        expect(output.value, equals(Const(6, width: output.width)));
-
-      await Simulator.endSimulation();
-    });
+  test('ripple adder adds two values', () async {
+    final a = Logic(width: 8);
+    final b = Logic(width: 8);
+    final adder = RippleCarryAdder(a, b);
+    await adder.build();
+    a.put(5);
+    b.put(6);
+    expect(adder.sum.value.toInt(), 11);
   });
 }
 ```
 
-Prefer using `waitCycles` instead of `nextPosedge` and use `inject` instead of
-`put` when working with sequential tests.
+Sequential tests additionally need a clock, a running simulator, and an explicit
+end to the simulation. Prefer `waitCycles` and `inject` when driving clocked
+stimulus. Test both functional behavior and generated RTL when timing or
+four-state behavior matters.
+
+For a parameterized test matrix, construct one DUT for each unique elaboration
+configuration, then drive all of that configuration's value vectors through the
+same DUT. Do not instantiate every configuration while registering tests in a
+loop: use a lazy factory inside each test callback so unexecuted configurations
+do not consume simulator memory. Construct separate DUTs only when a parameter
+changes the generated hardware.
 
 When testing a combinational path, and you `inject` inputs after a positive
 clock edge, if you sample at the next clock edge, you will miss the
@@ -165,19 +161,35 @@ functionality.
 
 ## ROHD-HCL Component Integration
 
-After implementing a component, export it from the appropriate library barrel
-and `lib/rohd_hcl.dart`. Add focused tests under `test/`, including a
-nested-parent build test for every composable module.
+After implementing a component, place it in the matching
+`lib/src/<category>/<subcategory>/` directory (see the source layout in
+[README.md](./README.md)) and export it from that subcategory's barrel. The
+category barrels are already exported by `lib/rohd_hcl.dart`. Add focused tests
+under `test/<category>/`, including a nested-parent build test for every
+composable module. When a category has more than about six direct test files,
+split tests into subdirectories matching the source subcategories under
+`lib/src/`.
 
-Every documented, synthesizable public `Module` must have a `Configurator`
+For a component that must accept and emit different transport protocols, keep
+the hardware core protocol-neutral. Define typed action/payload requests and
+bindings with `HardwareCoreFunctor`, then add one typed directional attachment
+per boundary. Each attachment owns its protocol handshake or accounting and maps
+it to the core actions; it also publishes `DirectionalAttachmentCapabilities` so
+composition behavior is explicit. Do not introduce a universal protocol
+interface or duplicate a core for each protocol pair. P00 establishes
+synchronous and ready/valid attachments over the FIFO core; later branches add
+credit or other protocol attachments using the same core-and-attachment seam.
+
+Every documented, synthesizable public `Module` should have a `Configurator`
 under `lib/src/component_config/components/` and an entry in
 `lib/src/component_config/components/component_registry.dart`. Update an
-existing configurator whenever its component gains a user-selectable
-elaboration parameter. Expose compile-time choices as `ConfigKnob`s and
-runtime-selectable controls as generated named `Logic` inputs. Pure
-`LogicStructure`/`Interface` APIs, callback-only implementation primitives,
-and simulation-only models do not require configurators. The registry drives
-both the configuration app and documentation netlist generation.
+existing configurator whenever its component gains a user-selectable elaboration
+parameter. Expose compile-time choices as `ConfigKnob`s and runtime-selectable
+controls as generated named `Logic` inputs. Pure `LogicStructure`/`Interface`
+APIs, callback-only implementation primitives, and simulation-only models do not
+require configurators. The registry drives both the configuration app and
+documentation netlist generation. Override each configurator's `category` and
+`subcategory` to match the source directory.
 
 Complete the Confapp source-asset, generated-view, and regression-test work
 described in [the Confapp README](../confapp/README.md). Application setup and

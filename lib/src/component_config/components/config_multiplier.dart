@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_multiplier.dart
@@ -12,6 +12,12 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Multiplier]s.
 class MultiplierConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'multiplication';
+
   /// The core selector for which [Multiplier] to instantiate.
   final multiplierSelectKnob = MultiplierSelectKnob(
       allowSigned: true, allowPipelining: true, name: 'Multiplier Selection');

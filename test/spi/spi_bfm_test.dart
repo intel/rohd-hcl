@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_bfm_test.dart
@@ -17,9 +17,8 @@ import 'package:test/test.dart';
 
 class SpiMod extends Module {
   SpiMod(SpiInterface intf, {super.name = 'SpiModIntf'}) {
-    intf = intf.clone()
-      ..connectIO(this, intf,
-          inputTags: [PairDirection.fromProvider, PairDirection.fromConsumer]);
+    intf = addInterfacePorts(intf,
+        inputTags: [PairDirection.fromProvider, PairDirection.fromConsumer]);
   }
 }
 
@@ -102,7 +101,7 @@ void main() {
     if (dumpWaves) {
       final mod = SpiMod(spiBfmTest.intf);
       await mod.build();
-      WaveDumper(mod, outputPath: '${spiBfmTest.outFolder}/waves.vcd');
+      mod.dumpWaves(outputPath: '${spiBfmTest.outFolder}/waves.vcd');
     }
 
     await spiBfmTest.start();

@@ -13,26 +13,22 @@ import 'package:test/test.dart';
 
 class Axi5Subordinate extends Module {
   Axi5Subordinate(Axi5SystemInterface sIntf, List<Axi5Cluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi5Cluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.consumer));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.consumer));
     }
   }
 }
 
 class Axi5Main extends Module {
   Axi5Main(Axi5SystemInterface sIntf, List<Axi5Cluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi5Cluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.provider));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.provider));
     }
   }
 }
@@ -73,26 +69,22 @@ class Axi5Pair extends Module {
 
 class Axi5LiteSubordinate extends Module {
   Axi5LiteSubordinate(Axi5SystemInterface sIntf, List<Axi5LiteCluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi5LiteCluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.consumer));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.consumer));
     }
   }
 }
 
 class Axi5LiteMain extends Module {
   Axi5LiteMain(Axi5SystemInterface sIntf, List<Axi5LiteCluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi5LiteCluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.provider));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.provider));
     }
   }
 }
@@ -131,26 +123,22 @@ class Axi5LitePair extends Module {
 
 class Ace5LiteSubordinate extends Module {
   Ace5LiteSubordinate(Axi5SystemInterface sIntf, List<Ace5LiteCluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Ace5LiteCluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.consumer));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.consumer));
     }
   }
 }
 
 class Ace5LiteMain extends Module {
   Ace5LiteMain(Axi5SystemInterface sIntf, List<Ace5LiteCluster> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Ace5LiteCluster>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.provider));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.provider));
     }
   }
 }
@@ -190,26 +178,22 @@ class Ace5LitePair extends Module {
 class Axi5StreamSubordinate extends Module {
   Axi5StreamSubordinate(
       Axi5SystemInterface sIntf, List<Axi5StreamInterface> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi5StreamInterface>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.consumer));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.consumer));
     }
   }
 }
 
 class Axi5StreamMain extends Module {
   Axi5StreamMain(Axi5SystemInterface sIntf, List<Axi5StreamInterface> lanes) {
-    sIntf = Axi5SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi5StreamInterface>[];
     for (var i = 0; i < lanes.length; i++) {
-      lanesL.add(
-          lanes[i].clone()..pairConnectIO(this, lanes[i], PairRole.provider));
+      lanesL.add(addPairInterfacePorts(lanes[i], PairRole.provider));
     }
   }
 }

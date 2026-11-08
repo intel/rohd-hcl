@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_fifo.dart
@@ -14,11 +14,17 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [Fifo].
 class FifoConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.flowControl;
+
+  @override
+  String get subcategory => 'storage';
+
   /// A knob controlling the data width of the FIFO.
-  final IntConfigKnob dataWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob dataWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// A knob controlling the depth of the FIFO.
-  final IntConfigKnob depthKnob = IntConfigKnob(value: 4);
+  final IntConfigKnob depthKnob = PositiveIntConfigKnob(value: 4);
 
   /// A knob controlling the generation of an error signal.
   final ToggleConfigKnob generateErrorKnob = ToggleConfigKnob(value: false);
