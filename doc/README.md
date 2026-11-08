@@ -108,7 +108,8 @@ subcategory, and the confapp sidebar groups components accordingly.
 - [Bitonic sort](./components/sort.md#bitonic-sort).
 - [Reduction trees](./components/reduction_tree.md).
 - [Extrema selection](./components/extrema.md).
-- [Serialization and deserialization](./components/serialization.md).
+- [Serialization and deserialization](./components/serialization.md) convert
+  between wider arrays and narrower streams.
 
 ### Encodings
 
@@ -131,6 +132,9 @@ subcategory, and the confapp sidebar groups components accordingly.
   [queue](./components/ready_valid.md#readyvalidqueue), and
   [legacy FIFO](./components/ready_valid.md#legacy-readyvalidfifo).
 - **Composition:** [protocol-neutral FIFO cores and directional attachments](./components/protocol_composition.md).
+- **Credit-related building blocks:** [up/down counters](./components/summation.md#counter)
+  support credit accounting, and the [LTI BFM](./components/amba/lti.md#validation)
+  models credit-based traffic.
 
 ### Interfaces
 
@@ -167,15 +171,17 @@ subcategory, and the confapp sidebar groups components accordingly.
 
 ## Ideas for Future Development
 
-These are ideas, not a promise of implementation or a complete roadmap:
+These are possible additions rather than a complete roadmap. Existing building
+blocks may already support parts of these use cases:
 
-- Arithmetic: Gray counter, inverse square root, additional logarithms, and
-  binary-coded decimal (BCD).
-- Bit operations: count pattern occurrences.
-- Dataflow: widening and narrowing.
+- Arithmetic: a dedicated Gray-coded counter, inverse square root, logarithms
+  beyond the existing `Log2Ceil`, and binary-coded decimal (BCD).
+- Bit operations: a component exposing the total number of pattern occurrences.
+  [FindPattern](./components/find_pattern.md) already finds the first or nth
+  occurrence, but does not expose its internal count.
 - Encodings: programmable logic arrays (PLAs).
 - Error control: CRC, interleaving, and pseudorandom generators such as LFSRs.
-- Flow control: connect/disconnect and crediting.
+- Flow control: general-purpose credit-based hardware attachments.
 - Interconnect: coherent and non-coherent networks on chip.
 - Interfaces: AHB, SFI, PCIe, UCIe, JTAG, UART, DDR, and HBM.
 - Models: CXL.
