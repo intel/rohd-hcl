@@ -74,6 +74,9 @@ Add an instance to
 The registry supplies the Confapp sidebar through
 [`ComponentCubit`](lib/hcl/cubit/component_cubit.dart) and is also consumed by
 [`gen/generate.dart`](../gen/generate.dart) for documentation netlists.
+Netlist filenames normally use the module definition name; when that name
+would exceed the filesystem's 255-byte filename limit, the generator uses the
+configurator type instead. The module name inside the netlist is unchanged.
 
 Confapp reads `Configurator.category` and `Configurator.subcategory` directly;
 no Dart annotations, reflection, or generated registry are required. This is the
