@@ -7,6 +7,8 @@
 // 2026 October
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 
 /// Sets the `count` least significant bits (`lsbs` true) or most significant
@@ -41,9 +43,12 @@ class SetBits extends Module {
     // Bit `i` is selected when its distance from the chosen end is below
     // `count`. Comparing per bit, rather than shifting, saturates correctly
     // for counts at or above the width.
+    final comparisonWidth = max(count.width, (inp.width - 1).bitLength);
+    final extendedCount = count.zeroExtend(comparisonWidth);
     final selectBits = [
       for (var i = inp.width - 1; i >= 0; i--)
-        Const(lsbs ? i : inp.width - 1 - i, width: count.width).lt(count)
+        Const(lsbs ? i : inp.width - 1 - i, width: comparisonWidth)
+            .lt(extendedCount)
     ];
     final selected = selectBits.concat();
     result <= (fill ? inp | selected : inp & ~selected);

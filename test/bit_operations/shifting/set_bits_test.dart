@@ -52,6 +52,32 @@ void main() {
           SimCompare.checkIverilogVector(dut, vectors);
         }
       });
+
+      for (final width in [8, 9]) {
+        test('set $side to $bit with width $width and a 2-bit count', () async {
+          final inp = Logic(name: 'inp', width: width);
+          final count = Logic(name: 'count', width: 2);
+          final dut = SetBits(inp, count, lsbs: lsbs, fill: fill);
+          await dut.build();
+
+          final full = (1 << width) - 1;
+          final vectors = [
+            for (final v in [0, full, 0x55, 0xAA])
+              for (var c = 0; c < 4; c++)
+                Vector({
+                  'inp': v,
+                  'count': c,
+                }, {
+                  'result': _expectedSet(v, width, c, lsbs: lsbs, fill: fill),
+                }),
+          ];
+
+          await SimCompare.checkFunctionalVector(dut, vectors);
+          if (width == 8 && lsbs && fill) {
+            SimCompare.checkIverilogVector(dut, vectors);
+          }
+        });
+      }
     }
   }
 }
