@@ -587,11 +587,11 @@ The core preserves the four built-in operations' existing meanings. It also
 advertises two extension encodings, requiring `operationWidth` of at least three
 bits:
 
-* `BehavioralCacheOperation.readThrough` (4) returns a cached block on a hit; on
+- `BehavioralCacheOperation.readThrough` (4) returns a cached block on a hit; on
   a miss it fetches and installs the backing block. The response is `hit` or
   `miss` according to the original lookup, and **both** carry the block data and
   metadata.
-* `BehavioralCacheOperation.writeAllocate` (5) performs a masked update,
+- `BehavioralCacheOperation.writeAllocate` (5) performs a masked update,
   fetching and installing the backing block on a miss. Its `hit` or `miss`
   response carries the pre-update block and metadata. The request's metadata
   replaces the line metadata, including when its mask is zero.
