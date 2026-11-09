@@ -10,6 +10,10 @@ Use this family for arithmetic, numeric representation, binary algebra, encoding
 - Use `arithmetic` for numeric operations, accumulation, normalization, and fixed/floating-point conversion.
 - Use `binary_math`, `bit_operations`, and `encodings` for GF(2) transforms, recurrence/LFSR logic, search/count operations, and representation conversion.
 - Use `clocking` for synchronization, event detection, and clock-enable/gating structures.
+- Use `IterativeDividerEngine` for direct start/busy/done control, or
+  `ReadyValidIterativeDivider` to wrap that engine with ready/valid command
+  and retained-result channels. The valid-only multiplier similarly wraps
+  `CarrySaveMultiplier`.
 
 ## Start here
 

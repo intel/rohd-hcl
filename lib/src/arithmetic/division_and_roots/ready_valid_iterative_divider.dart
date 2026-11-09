@@ -8,7 +8,8 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/arithmetic/division_and_roots/divider.dart';
+import 'package:rohd_hcl/src/arithmetic/division_and_roots/iterative_divider_engine.dart';
+import 'package:rohd_hcl/src/flow_control/ready_valid/buffers/ready_valid_fall_through_buffer.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
 
 /// Describes one signed or unsigned integer division command.
@@ -95,9 +96,8 @@ class DivisionResult extends LogicStructure {
 ///
 /// At most one command is in flight. The divider accepts a command only while
 /// idle and holds the result valid and stable until the result channel accepts
-/// it. This shell intentionally owns the divider's result-ready link rather
-/// than adapting the direct `IterativeDividerEngine`, whose result pulse is
-/// auto-consumed for scheduled use.
+/// it. A fall-through buffer retains the direct [IterativeDividerEngine]'s
+/// completion pulse when the result channel stalls.
 /// {@category Arithmetic}
 class ReadyValidIterativeDivider extends Module {
   /// Width of the request operands and result fields.
@@ -138,20 +138,29 @@ class ReadyValidIterativeDivider extends Module {
       uniquify: (original) => 'downstream_$original',
     );
 
-    final dividerInterface = MultiCycleDividerInterface(dataWidth: dataWidth);
-    dividerInterface.clk <= clk;
-    dividerInterface.reset <= reset;
-    dividerInterface.validIn <= _upstream.valid;
-    dividerInterface.dividend <= _upstream.data.dividend;
-    dividerInterface.divisor <= _upstream.data.divisor;
-    dividerInterface.isSigned <= _upstream.data.isSigned;
-    dividerInterface.readyOut <= _downstream.ready;
-    MultiCycleDivider(dividerInterface, name: '${name}_core');
-
-    _upstream.ready <= dividerInterface.readyIn;
-    _downstream.valid <= dividerInterface.validOut;
-    _downstream.data.quotient <= dividerInterface.quotient;
-    _downstream.data.remainder <= dividerInterface.remainder;
-    _downstream.data.divZero <= dividerInterface.divZero;
+    final start = Logic(name: 'start');
+    final engine = IterativeDividerEngine(
+      clk: clk,
+      reset: reset,
+      start: start,
+      dividend: _upstream.data.dividend,
+      divisor: _upstream.data.divisor,
+      isSigned: _upstream.data.isSigned,
+      name: '${name}_core',
+    );
+    final result = ReadyValidInterface(DivisionResult(dataWidth: dataWidth));
+    result.valid <= engine.done;
+    result.data.quotient <= engine.quotient;
+    result.data.remainder <= engine.remainder;
+    result.data.divZero <= engine.divZero;
+    final buffer = ReadyValidFallThroughBuffer<DivisionResult>(
+      clk: clk,
+      reset: reset,
+      upstream: result,
+      downstream: _downstream,
+      name: '${name}_result_buffer',
+    );
+    _upstream.ready <= ~engine.busy & ~buffer.occupied;
+    start <= _upstream.valid & _upstream.ready;
   }
 }
