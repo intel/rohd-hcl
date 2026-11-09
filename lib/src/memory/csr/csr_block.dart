@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_block.dart
@@ -24,9 +24,16 @@ class CsrBlock extends CsrContainer {
   /// CSRs in this block.
   final List<Csr> csrs;
 
-  /// What increment value to use when deriving logical addresses
-  /// for registers that are wider than the frontdoor data width.
-  final int logicalRegisterIncrement;
+  final BigInt? _addressExtent;
+
+  /// Indicates whether the `reset` signal driving this block's registers
+  /// should be treated as an asynchronous reset.
+  ///
+  /// If `true`, registers reset as soon as `reset` is asserted, independent
+  /// of `clk`. If `false` (the default), `reset` is treated as synchronous
+  /// and registers only reset on the next active edge of `clk`.
+  bool get asyncReset => _asyncReset;
+  final bool _asyncReset;
 
   /// Direct access ports for reading and writing individual registers.
   ///
@@ -38,7 +45,7 @@ class CsrBlock extends CsrContainer {
   final Map<int, int> _backdoorIndexMap = {};
 
   /// Getter for block's base address
-  int get baseAddr => config.baseAddr;
+  BigInt get baseAddr => config.baseAddr;
 
   /// Getter for the CSR configurations.
   List<CsrInstanceConfig> get registers => config.registers;
@@ -51,24 +58,28 @@ class CsrBlock extends CsrContainer {
     required super.frontWrite,
     required super.frontRead,
     super.allowLargerRegisters,
-    this.logicalRegisterIncrement = 1,
+    super.logicalRegisterIncrement,
+    super.wideLogicalRegisterIncrement,
+    BigInt? addressExtent,
+    bool asyncReset = false,
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName,
-  })  : csrs = List.unmodifiable(config.registers.map(Csr.new)),
+  })  : _asyncReset = asyncReset,
+        _addressExtent = addressExtent,
+        csrs = List.unmodifiable(config.registers.map(Csr.new)),
         super(
             definitionName: definitionName ?? 'CsrBlock_${config.name}_block') {
     _validate();
 
     for (var i = 0; i < csrs.length; i++) {
       if (csrs[i].config.backdoorAccessible) {
-        _backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
         backdoorInterfaces.add(CsrBackdoorInterface(config: csrs[i].config));
-        _backdoorInterfaces.last.connectIO(this, backdoorInterfaces.last,
+        _backdoorInterfaces.add(addInterfacePorts(backdoorInterfaces.last,
             outputTags: {CsrBackdoorPortGroup.read},
             inputTags: {CsrBackdoorPortGroup.write},
             uniquify: (original) =>
-                '${name}_${csrs[i].config.name}_backdoor_$original');
+                '${name}_${csrs[i].config.name}_backdoor_$original'));
         _backdoorIndexMap[i] = _backdoorInterfaces.length - 1;
       }
     }
@@ -86,6 +97,10 @@ class CsrBlock extends CsrContainer {
   CsrInstanceConfig getRegisterByAddr(int addr) =>
       config.getRegisterByAddr(addr);
 
+  /// Looks up a register by an arbitrary-width offset.
+  CsrInstanceConfig getRegisterByBigIntAddr(BigInt addr) =>
+      config.getRegisterByBigIntAddr(addr);
+
   /// Accessor to the backdoor ports of a particular register
   /// within the block by name [name].
   CsrBackdoorInterface getBackdoorPortsByName(String name) {
@@ -99,8 +114,12 @@ class CsrBlock extends CsrContainer {
 
   /// Accessor to the backdoor ports of a particular register
   /// within the block by relative address [addr].
-  CsrBackdoorInterface getBackdoorPortsByAddr(int addr) {
-    final idx = config.registers.indexOf(config.getRegisterByAddr(addr));
+  CsrBackdoorInterface getBackdoorPortsByAddr(int addr) =>
+      getBackdoorPortsByBigIntAddr(BigInt.from(addr));
+
+  /// Looks up a backdoor by an arbitrary-width register offset.
+  CsrBackdoorInterface getBackdoorPortsByBigIntAddr(BigInt addr) {
+    final idx = config.registers.indexOf(config.getRegisterByBigIntAddr(addr));
     if (_backdoorIndexMap.containsKey(idx)) {
       return backdoorInterfaces[_backdoorIndexMap[idx]!];
     } else {
@@ -111,47 +130,63 @@ class CsrBlock extends CsrContainer {
 
   // validate the frontdoor interface widths to ensure that they are wide enough
   void _validate() {
-    // check frontdoor interfaces
-    // data width must be at least as wide as the biggest register in the block
-    // address width must be at least wide enough
-    // to address all registers in the block
-    if (frontRead != null && frontRead!.dataWidth < config.maxRegWidth()) {
-      if (allowLargerRegisters) {
-        // must check for collisions in logical register addresses
-        final regCheck = <int>[];
-        for (final csr in csrs) {
-          if (csr.config.width > frontRead!.dataWidth) {
-            final targ = (csr.width / frontRead!.dataWidth).ceil();
-
-            for (var j = 0; j < targ; j++) {
-              regCheck.add(csr.addr + j * logicalRegisterIncrement);
-            }
-          } else {
-            regCheck.add(csr.addr);
-          }
+    if (logicalRegisterIncrement <= BigInt.zero) {
+      throw CsrValidationException(
+          'Logical register increment must be positive.');
+    }
+    for (final (port, isRead) in [(frontRead, true), (frontWrite, false)]) {
+      if (port == null) {
+        continue;
+      }
+      final used = <BigInt>{};
+      final extent =
+          _addressExtent ?? config.blockSize ?? (BigInt.one << port.addrWidth);
+      for (final csr in csrs) {
+        if (isRead
+            ? !csr.isFrontdoorReadable
+            : !csr.config.isFrontdoorWritable) {
+          continue;
         }
-        if (regCheck.length != regCheck.toSet().length) {
-          throw CsrValidationException(
-              'There is at least one collision across logical register '
-              'addresses due to some registers being wider than the '
-              'frontdoor data width. Note that each logical address '
-              'has a +$logicalRegisterIncrement increment to '
-              'the original address.');
+        final count = (csr.width + port.dataWidth - 1) ~/ port.dataWidth;
+        for (var chunk = 0; chunk < count; chunk++) {
+          final address =
+              csr.addr + BigInt.from(chunk) * logicalRegisterIncrement;
+          if (address >= extent || address >= BigInt.one << port.addrWidth) {
+            throw CsrValidationException(
+                'Wide CSR exceeds its address geometry.');
+          }
+          if (!used.add(address)) {
+            throw CsrValidationException(
+                'Overlapping logical CSR address $address.');
+          }
         }
       }
     }
   }
 
   void _buildLogic() {
+    // per-CSR frontdoor write pulse used to drive backdoor reads of
+    // writeOnly fields; null where the CSR has no writeOnly fields.
+    final frontdoorWriteValidFulls = <Logic?>[];
+    final frontdoorWriteDataFulls = <Logic?>[];
+
     // individual CSR write logic
     for (var i = 0; i < csrs.length; i++) {
       // this block of code mostly handles the case where
       // the register is wider than the data width of the frontdoor
       // which is only permissible if [allowLargerRegisters] is true.
       Logic? addrCheck;
-      Logic? dataToWrite;
+      Csr? dataToWrite;
+      final hasWriteOnlyField = csrs[i]
+          .config
+          .fields
+          .any((field) => field.access == CsrFieldAccess.writeOnly);
+      Logic? frontdoorWriteValidFull;
+      Logic? frontdoorWriteDataFull;
       if (frontWritePresent) {
         final dataWidth = frontWrite!.dataWidth;
+        final normalizedFrontWriteData =
+            frontWrite!.data ^ Const(0, width: dataWidth);
         if (dataWidth < csrs[i].config.width) {
           final rem = csrs[i].config.width % dataWidth;
           final targ = (csrs[i].config.width / dataWidth).ceil();
@@ -159,15 +194,17 @@ class CsrBlock extends CsrContainer {
           // must logically separate the register out across multiple addresses
           final addrs = List.generate(
               targ,
-              (j) => Const(csrs[i].addr + j * logicalRegisterIncrement,
+              (j) => Const(
+                  csrs[i].addr + BigInt.from(j) * logicalRegisterIncrement,
                   width: addrWidth));
           addrCheck = frontWrite!.addr.isIn(addrs);
 
           // we write the portion of the register that
           // corresponds to this logical address
-          final wrCases = <Logic, Logic>{};
+          final wrCases = <Logic, Csr>{};
           for (var j = 0; j < targ; j++) {
-            final key = Const(csrs[i].addr + j * logicalRegisterIncrement,
+            final key = Const(
+                csrs[i].addr + BigInt.from(j) * logicalRegisterIncrement,
                 width: addrWidth);
             if (j == targ - 1) {
               // might need to truncate the data on the interface
@@ -178,8 +215,9 @@ class CsrBlock extends CsrContainer {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        frontWrite!.data.getRange(0, rem == 0 ? dataWidth : rem)
-                      ].rswizzle())
+                        normalizedFrontWriteData.getRange(
+                            0, rem == 0 ? dataWidth : rem)
+                      ].rconcat())
                       .getRange(
                           j * dataWidth,
                           rem == 0
@@ -193,61 +231,126 @@ class CsrBlock extends CsrContainer {
                       .getWriteData([
                         if (j * dataWidth > 0)
                           csrs[i].getRange(0, j * dataWidth),
-                        frontWrite!.data,
+                        normalizedFrontWriteData,
                         if ((j + 1) * dataWidth < csrs[i].config.width)
                           csrs[i].getRange((j + 1) * dataWidth),
-                      ].rswizzle())
+                      ].rconcat())
                       .getRange(j * dataWidth, (j + 1) * dataWidth));
             }
           }
-          dataToWrite = cases(
+          dataToWrite = cases<Csr>(
               frontWrite!.addr,
               conditionalType: ConditionalType.unique,
               wrCases,
+              outputGenerator: csrs[i].clone,
               defaultValue: csrs[i]);
+
+          if (hasWriteOnlyField && config.registers[i].isFrontdoorWritable) {
+            final validCases = <Logic, Logic>{};
+            final dataCases = <Logic, Logic>{};
+            for (var j = 0; j < targ; j++) {
+              final key = Const(
+                  csrs[i].addr + BigInt.from(j) * logicalRegisterIncrement,
+                  width: addrWidth);
+              final chunkWidth =
+                  j == targ - 1 ? (rem == 0 ? dataWidth : rem) : dataWidth;
+              final chunkData = j == targ - 1
+                  ? normalizedFrontWriteData.getRange(0, chunkWidth)
+                  : normalizedFrontWriteData;
+              final highWidth =
+                  csrs[i].config.width - j * dataWidth - chunkWidth;
+              validCases[key] = [
+                if (j * dataWidth > 0) Const(0, width: j * dataWidth),
+                Const(1, width: 1).replicate(chunkWidth),
+                if (highWidth > 0) Const(0, width: highWidth),
+              ].rconcat();
+              dataCases[key] = [
+                if (j * dataWidth > 0) Const(0, width: j * dataWidth),
+                chunkData,
+                if (highWidth > 0) Const(0, width: highWidth),
+              ].rconcat();
+            }
+            frontdoorWriteValidFull = mux(
+                frontWrite!.en,
+                cases(
+                    frontWrite!.addr,
+                    conditionalType: ConditionalType.unique,
+                    validCases,
+                    defaultValue: Const(0, width: csrs[i].config.width)),
+                Const(0, width: csrs[i].config.width));
+            frontdoorWriteDataFull = cases(
+                frontWrite!.addr,
+                conditionalType: ConditionalType.unique,
+                dataCases,
+                defaultValue: Const(0, width: csrs[i].config.width));
+          }
         } else {
           // direct address check
           // direct application of write data
           addrCheck =
               frontWrite!.addr.eq(Const(csrs[i].addr, width: addrWidth));
-          dataToWrite = csrs[i]
-              .getWriteData(frontWrite!.data.getRange(0, csrs[i].config.width));
+          dataToWrite = csrs[i].getWriteData(
+              normalizedFrontWriteData.getRange(0, csrs[i].config.width));
+
+          if (hasWriteOnlyField && config.registers[i].isFrontdoorWritable) {
+            frontdoorWriteValidFull =
+                (frontWrite!.en & addrCheck).replicate(csrs[i].config.width);
+            frontdoorWriteDataFull =
+                normalizedFrontWriteData.getRange(0, csrs[i].config.width);
+          }
         }
       }
+      frontdoorWriteValidFulls.add(frontdoorWriteValidFull);
+      frontdoorWriteDataFulls.add(frontdoorWriteDataFull);
 
-      final seqConditions = [
-        // frontdoor write takes highest priority
-        if (frontWritePresent && config.registers[i].isFrontdoorWritable)
-          ElseIf(frontWrite!.en & addrCheck!, [
-            csrs[i] < dataToWrite,
-          ]),
-        // backdoor write takes next priority
-        if (_backdoorIndexMap.containsKey(i) &&
-            _backdoorInterfaces[_backdoorIndexMap[i]!].hasWrite)
-          ElseIf(_backdoorInterfaces[_backdoorIndexMap[i]!].wrEn!, [
-            csrs[i] <
-                csrs[i].getWriteData(
-                    _backdoorInterfaces[_backdoorIndexMap[i]!].wrData!),
-          ]),
+      final unknown = Const(LogicValue.filled(csrs[i].width, LogicValue.x));
+      final backdoor = _backdoorIndexMap.containsKey(i)
+          ? _backdoorInterfaces[_backdoorIndexMap[i]!]
+          : null;
+      final backdoorConditions = <Conditional>[
+        if (backdoor != null && backdoor.hasWrite)
+          Case(
+              backdoor.wrEn!,
+              [
+                CaseItem(Const(0), [csrs[i] < csrs[i]]),
+                CaseItem(Const(1), [
+                  csrs[i] <
+                      csrs[i]
+                          .getWriteData(backdoor.wrData!, isBackdoorWrite: true)
+                ]),
+              ],
+              exactMatch: true,
+              defaultItem: [csrs[i] < unknown])
+        else
+          csrs[i] < csrs[i],
       ];
 
-      Sequential(
-        clk,
-        reset: reset,
-        resetValues: {
-          csrs[i]: csrs[i].resetValue,
-        },
+      final writeConditions = <Conditional>[
+        if (frontWritePresent && config.registers[i].isFrontdoorWritable)
+          Case(
+              frontWrite!.en & addrCheck!,
+              [
+                CaseItem(Const(0), backdoorConditions),
+                CaseItem(Const(1), [csrs[i] < dataToWrite]),
+              ],
+              exactMatch: true,
+              defaultItem: [csrs[i] < unknown])
+        else
+          ...backdoorConditions,
+      ];
+      Sequential.multi(
+        [clk, if (asyncReset) reset],
         [
-          if (seqConditions.isNotEmpty)
-            If.block([
-              ...seqConditions,
-              // nothing to write this cycle
-              Else([
-                csrs[i] < csrs[i],
-              ]),
-            ])
-          else
-            csrs[i] < csrs[i],
+          Case(
+              reset,
+              [
+                CaseItem(Const(0), writeConditions),
+                CaseItem(Const(1), [
+                  csrs[i] < Const(csrs[i].resetValue, width: csrs[i].width)
+                ]),
+              ],
+              exactMatch: true,
+              defaultItem: [csrs[i] < unknown]),
         ],
       );
     }
@@ -273,7 +376,7 @@ class CsrBlock extends CsrContainer {
                       : rem
                   : frontRead!.dataWidth;
               rdCases.add(CaseItem(
-                  Const(csr.addr + j * logicalRegisterIncrement,
+                  Const(csr.addr + BigInt.from(j) * logicalRegisterIncrement,
                       width: addrWidth),
                   [
                     rdData <
@@ -308,7 +411,12 @@ class CsrBlock extends CsrContainer {
     for (var i = 0; i < csrs.length; i++) {
       if (_backdoorIndexMap.containsKey(i) &&
           _backdoorInterfaces[_backdoorIndexMap[i]!].hasRead) {
-        _backdoorInterfaces[_backdoorIndexMap[i]!].rdData! <= csrs[i];
+        final validFull = frontdoorWriteValidFulls[i] ??
+            Const(0, width: csrs[i].config.width);
+        final dataFull =
+            frontdoorWriteDataFulls[i] ?? Const(0, width: csrs[i].config.width);
+        _backdoorInterfaces[_backdoorIndexMap[i]!].rdData! <=
+            csrs[i].getBackdoorReadData(validFull, dataFull);
       }
     }
   }

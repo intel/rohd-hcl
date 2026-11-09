@@ -9,6 +9,7 @@
 //  Max Korbel <max.korbel@intel.com>
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com
 
+import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// TF32 floating point representation.
@@ -18,6 +19,16 @@ class FloatingPointTF32 extends FloatingPoint {
       : super(
             mantissaWidth: FloatingPointTF32Value.populator().mantissaWidth,
             exponentWidth: FloatingPointTF32Value.populator().exponentWidth);
+
+  /// Constructs a TF32 constant from [value].
+  factory FloatingPointTF32.constant(FloatingPointTF32Value value,
+          {String? name}) =>
+      FloatingPointTF32._(
+          Const(value.sign), Const(value.exponent), Const(value.mantissa),
+          name: name);
+
+  FloatingPointTF32._(super.sign, super.exponent, super.mantissa, {super.name})
+      : super.fromComponents(explicitJBit: false, subNormalAsZero: false);
 
   @override
   FloatingPointTF32 clone({String? name}) => FloatingPointTF32(name: name);

@@ -7,6 +7,7 @@
 // 2026 January 13
 // Author: Maifee Ul Asad <maifeeulasad@gmail.com>
 
+// This executable example prints simulation results for interactive inspection.
 // ignore_for_file: avoid_print
 
 import 'dart:async';
@@ -144,7 +145,7 @@ Future<void> main({bool noPrint = false}) async {
 
   // Set up waveform dumper
   if (!noPrint) {
-    WaveDumper(asyncFifo, outputPath: 'async_fifo_example.vcd');
+    asyncFifo.dumpWaves(outputPath: 'async_fifo_example.vcd');
   }
 
   // Initialize

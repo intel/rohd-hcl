@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_s_monitor.dart
@@ -54,9 +54,9 @@ class Axi4StreamMonitor extends Monitor<Axi4StreamPacket> {
         if (lastCheck) {
           add(
             Axi4StreamPacket(
-                data: _dataBuf.rswizzle(),
-                strb: _strbBuf.rswizzle(),
-                keep: _keepBuf.rswizzle(),
+                data: _dataBuf.rconcat(),
+                strb: _strbBuf.rconcat(),
+                keep: _keepBuf.rconcat(),
                 id: rIntf.id?.previousValue,
                 user: rIntf.user?.previousValue,
                 dest: rIntf.dest?.previousValue),

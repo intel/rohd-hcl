@@ -1,0 +1,1668 @@
+// Copyright (C) 2024-2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// csr_test.dart
+// Tests for CSRs
+//
+// 2024 December
+// Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
+import 'dart:async';
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_vf/rohd_vf.dart';
+import 'package:test/test.dart';
+
+///// DEFINE SOME HELPER CLASSES FOR TESTING /////
+
+class MyNoFieldCsr extends CsrConfig {
+  MyNoFieldCsr({super.name = 'myNoFieldCsr'})
+      : super(access: CsrAccess.readOnly, fields: []);
+}
+
+class MyNoFieldCsrInstance extends CsrInstanceConfig {
+  MyNoFieldCsrInstance({
+    required super.addr,
+    required super.width,
+    super.resetValue = 0x0,
+    String name = 'myNoFieldCsrInstance',
+  }) : super(
+            arch: MyNoFieldCsr(name: name),
+            isBackdoorReadable: addr != 0x1,
+            isBackdoorWritable: false);
+}
+
+class MyFieldCsr extends CsrConfig {
+  MyFieldCsr({required int width, super.name = 'myFieldCsr'})
+      : super(access: CsrAccess.readWrite, fields: [
+          // example of a static field
+          CsrFieldConfig(
+              start: 0,
+              width: 2,
+              name: 'field1',
+              access: CsrFieldAccess.readOnly),
+          CsrFieldConfig(
+              start: 2,
+              width: 2,
+              name: 'field2',
+              access: CsrFieldAccess.readWriteLegal,
+              legalValues: const [0x0, 0x1]),
+
+          // example of a write-only field, in the otherwise-reserved gap
+          // that only exists for wider register widths
+          if (width > 8)
+            CsrFieldConfig(
+                start: 4,
+                width: 4,
+                name: 'field5',
+                access: CsrFieldAccess.writeOnly),
+
+          // example of a field with dynamic start and width
+          CsrFieldConfig(
+              start: width ~/ 2,
+              width: width ~/ 4,
+              name: 'field3',
+              access: CsrFieldAccess.readWrite),
+
+          // example of field duplication
+          for (var i = 0; i < width ~/ 4; i++)
+            CsrFieldConfig(
+                start: (3 * width ~/ 4) + i,
+                width: 1,
+                name: 'field4_$i',
+                access: CsrFieldAccess.writeOnesClear)
+        ]);
+}
+
+class MyFieldCsrInstance extends CsrInstanceConfig {
+  MyFieldCsrInstance({
+    required super.addr,
+    required super.width,
+    super.resetValue = 0xff,
+    String name = 'myFieldCsrInstance',
+  }) : super(
+            arch: MyFieldCsr(name: name, width: width),
+            isBackdoorWritable: true);
+}
+
+class MyRegisterBlock extends CsrBlockConfig {
+  final int csrWidth;
+  final int numNoFieldCsrs;
+  final bool evensOnly;
+
+  MyRegisterBlock({
+    required super.baseAddr,
+    super.name = 'myRegisterBlock',
+    this.csrWidth = 32,
+    this.numNoFieldCsrs = 1,
+    this.evensOnly = false,
+  }) : super(registers: [
+          // static register instance
+          MyFieldCsrInstance(addr: 0x0, width: csrWidth, name: 'csr1'),
+
+          // dynamic register instances
+          for (var i = 0; i < numNoFieldCsrs; i++)
+            if (i.isEven || !evensOnly)
+              MyNoFieldCsrInstance(
+                  addr: i + 1, width: csrWidth, name: 'csr2_$i'),
+
+          // adding a register on the fly
+          // with a larger width for potential frontdoor excess
+          CsrInstanceConfig(
+              arch: CsrConfig(
+                  name: 'csr3', access: CsrAccess.readWrite, fields: const []),
+              addr: numNoFieldCsrs + 2,
+              width: csrWidth * 2)
+        ]);
+}
+
+class MyCsrModule extends CsrTopConfig {
+  final int numBlocks;
+
+  static const _baseAddr = 0x0;
+
+  MyCsrModule({
+    this.numBlocks = 1,
+    super.name = 'myCsrModule',
+    super.blockSize = 256,
+  }) : super(blocks: [
+          // example of dynamic block instantiation
+          for (var i = 0; i < numBlocks; i++)
+            MyRegisterBlock(
+                baseAddr: _baseAddr + (i * 0x100),
+                numNoFieldCsrs: i + 1,
+                evensOnly: i.isEven,
+                name: 'block_$i'),
+        ]);
+}
+
+/// A CSR module with heterogeneous block sizes for testing.
+///
+/// - block_large: uses the default [blockSize] of 256.
+/// - block_small: overrides to a smaller [blockSize] of 16.
+class MyHeterogeneousCsrModule extends CsrTopConfig {
+  MyHeterogeneousCsrModule()
+      : super(
+          name: 'myHeterogeneousCsrModule',
+          blockSize: 256, // default for blocks without their own override
+          blocks: [
+            // block_large uses the default blockSize = 256
+            MyRegisterBlock(
+              baseAddr: 0x000,
+              name: 'block_large',
+              numNoFieldCsrs: 2,
+            ),
+            // block_small overrides to a smaller blockSize = 16
+            CsrBlockConfig(
+              name: 'block_small',
+              baseAddr: 0x100,
+              blockSize: 16,
+              registers: [
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readWrite,
+                    name: 'sReg0',
+                    fields: const [],
+                  ),
+                  addr: 0x0,
+                  width: 32,
+                ),
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'sReg1',
+                    fields: const [],
+                  ),
+                  addr: 0x1,
+                  width: 32,
+                  resetValue: 0xABCD1234,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
+/// A CSR module where a block's base address is not aligned to a
+/// power-of-two boundary derived from its size.
+///
+/// - block_a: baseAddr 0x0, default blockSize 8.
+/// - block_b: baseAddr 0x8, overrides blockSize to 16 (0x10). 0x8 is not a
+///   multiple of 16, so block_b's base address is not power-of-two aligned
+///   relative to its size.
+class MyMisalignedCsrModule extends CsrTopConfig {
+  MyMisalignedCsrModule()
+      : super(
+          name: 'myMisalignedCsrModule',
+          blockSize: 8, // default for blocks without their own override
+          blocks: [
+            MyRegisterBlock(
+              baseAddr: 0x0,
+              name: 'block_a',
+              numNoFieldCsrs: 2,
+            ),
+            CsrBlockConfig(
+              name: 'block_b',
+              baseAddr: 0x8,
+              blockSize: 0x10,
+              registers: [
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readWrite,
+                    name: 'bReg0',
+                    fields: const [],
+                  ),
+                  addr: 0x0,
+                  width: 32,
+                ),
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'bReg1',
+                    fields: const [],
+                  ),
+                  addr: 0xF,
+                  width: 32,
+                  resetValue: 0xCAFEF00D,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
+/// A CSR module with a single block whose size exactly fills the address
+/// space implied by its own offset width (baseAddr 0x0, blockSize 8 ==
+/// 2^3), to test that block range matching does not overflow in that case.
+class MyFullSpanCsrModule extends CsrTopConfig {
+  MyFullSpanCsrModule()
+      : super(
+          name: 'myFullSpanCsrModule',
+          blockSize: 8,
+          blocks: [
+            CsrBlockConfig(
+              name: 'block_full',
+              baseAddr: 0x0,
+              registers: [
+                for (var i = 0; i < 7; i++)
+                  CsrInstanceConfig(
+                    arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg$i',
+                      fields: const [],
+                    ),
+                    addr: i,
+                    width: 32,
+                  ),
+                // read-only register at the highest address in the block
+                CsrInstanceConfig(
+                  arch: CsrConfig(
+                    access: CsrAccess.readOnly,
+                    name: 'reg7',
+                    fields: const [],
+                  ),
+                  addr: 7,
+                  width: 32,
+                  resetValue: 0xFEEDFACE,
+                ),
+              ],
+            ),
+          ],
+        );
+}
+
+// to test potentially issues with CsrTop port propagation
+class DummyCsrTopModule extends Module {
+  late final Logic _clk;
+  late final Logic _reset;
+
+  // Retaining the child module establishes the hierarchy under test.
+  // ignore: unused_field
+  late final CsrTop _top;
+  late final DataPortInterface _fdr;
+  late final DataPortInterface _fdw;
+
+  DummyCsrTopModule(
+      {required Logic clk,
+      required Logic reset,
+      required CsrTopConfig config}) {
+    _clk = addInput('clk', clk);
+    _reset = addInput('reset', reset);
+    _fdr = DataPortInterface(32, 32);
+    _fdw = DataPortInterface(32, 32);
+    _top = CsrTop(
+        config: config,
+        clk: _clk,
+        reset: _reset,
+        frontWrite: _fdw,
+        frontRead: _fdr,
+        allowLargerRegisters: true);
+  }
+}
+
+///// END DEFINE SOME HELPER CLASSES FOR TESTING /////
+
+void main() {
+  tearDown(() async {
+    await Simulator.reset();
+  });
+
+  test('CSR candidates preserve configuration, fields and reserved layout', () {
+    final config = CsrInstanceConfig(
+        arch: CsrConfig(name: 'typed', access: CsrAccess.readWrite, fields: [
+          CsrFieldConfig(
+              start: 0, width: 2, name: 'ro', access: CsrFieldAccess.readOnly),
+          CsrFieldConfig(
+              start: 4, width: 2, name: 'rw', access: CsrFieldAccess.readWrite),
+          CsrFieldConfig(
+              start: 6, width: 2, name: 'wo', access: CsrFieldAccess.writeOnly),
+          CsrFieldConfig(
+              start: 8,
+              width: 2,
+              name: 'w1c',
+              access: CsrFieldAccess.writeOnesClear),
+          CsrFieldConfig(
+              start: 10,
+              width: 2,
+              name: 'legal',
+              access: CsrFieldAccess.readWriteLegal,
+              legalValues: const [0, 1]),
+        ]),
+        addr: 0,
+        width: 16);
+    final csr = Csr(config)..put(0xffff);
+    final input = Logic(width: 16)..put(0xaaaa);
+    void check(Csr candidate, int expected) {
+      expect(identical(candidate.config, csr.config), isTrue);
+      expect(candidate.rsvdIndices, csr.rsvdIndices);
+      expect(candidate.elements.map((e) => e.name),
+          csr.elements.map((e) => e.name));
+      expect(candidate.value, LogicValue.ofInt(expected, 16));
+    }
+
+    // Includes ordinary, reserved, read-only, write-only, W1C and legal fields.
+    check(csr.getWriteData(input), 0xf1ef);
+    check(csr.getWriteData(input, isBackdoorWrite: true), 0xf3ef);
+    check(
+        csr.getBackdoorReadData(Const(0xc0, width: 16), Const(0x80, width: 16)),
+        0xffbf);
+    check(csr.withSet(3, Const(0, width: 10)), 0xe007);
+    expect(csr.getWriteData(input).getField('rw').width, 2);
+    expect(csr.value, LogicValue.ofInt(0xffff, 16));
+  });
+
+  test('implicit writable CSR fields remain structured', () {
+    final csr = Csr(CsrInstanceConfig(
+        arch: CsrConfig(
+            name: 'implicit', access: CsrAccess.readWrite, fields: const []),
+        addr: 1,
+        width: 8));
+    final input = Logic(width: 8)..put(0xa5);
+    final candidate = csr.getWriteData(input);
+    expect(identical(candidate.config, csr.config), isTrue);
+    expect(candidate.getField('data').value, input.value);
+    input.put(0x3c);
+    expect(candidate.getField('data').value, input.value);
+  });
+
+  test('simple individual CSRs', () {
+    const dataWidth1 = 32;
+    const dataWidth2 = 8;
+
+    // register with no explicit fields, read only
+    final csr1Cfg =
+        MyNoFieldCsrInstance(addr: 0x0, width: dataWidth1, name: 'csr1');
+    final csr1 = Csr(csr1Cfg);
+
+    // check address and reset value
+    expect(csr1.addr, BigInt.zero);
+    expect(csr1.resetValue, 0x0);
+    csr1.put(csr1.resetValue);
+
+    // check write data
+    // should return the reset value, since it's read only
+    final wd1 = csr1.getWriteData(Const(0x12345678, width: dataWidth1));
+    expect(wd1.value, LogicValue.ofInt(0x0, dataWidth1));
+
+    // register with 3 explicit fields, read/write
+    // fields don't cover full width of register
+    final csr2Cfg = MyFieldCsrInstance(addr: 0x1, width: 8, name: 'csr2');
+    final csr2 = Csr(csr2Cfg);
+
+    // check address and reset value
+    expect(csr2.addr, BigInt.one);
+    expect(csr2.resetValue, 0xff);
+    csr2.put(csr2.resetValue);
+
+    // check the write data
+    // only some of what we're trying to write should
+    // given the field access rules
+    // (field4_1 is write-ones-clear at bit 7; wd = 0xab has bit7 = 1,
+    // so that bit clears to 0, giving 0x63 instead of a literal copy)
+    final wd2 = csr2.getWriteData(Const(0xab, width: dataWidth2));
+    expect(wd2.value, LogicValue.ofInt(0x63, dataWidth2));
+
+    // check grabbing individual fields
+    final f1 = csr2.getField('field1');
+    expect(f1.value, LogicValue.ofInt(0x3, 2));
+    final f2 = csr2.getField('field2');
+    expect(f2.value, LogicValue.ofInt(0x3, 2)); // never wrote the value...
+    final f3 = csr2.getField('field3');
+    expect(f3.value, LogicValue.ofInt(0x3, 2));
+    final f4a = csr2.getField('field4_0');
+    expect(f4a.value, LogicValue.ofInt(0x1, 1));
+    final f4b = csr2.getField('field4_1');
+    expect(f4b.value, LogicValue.ofInt(0x1, 1));
+  });
+
+  test('CSR writes normalize high impedance bits to unknown', () {
+    const dataWidth = 12;
+    final csr = Csr(CsrInstanceConfig(
+      arch: CsrConfig(
+        name: 'highImpedanceWrite',
+        access: CsrAccess.readWrite,
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+    ));
+    final writeData = Logic(width: dataWidth)..put('zzzzzzzz1111');
+
+    expect(
+      csr.getWriteData(writeData).value,
+      LogicValue.ofString('xxxxxxxx1111'),
+    );
+  });
+
+  test('CSR frontdoor and backdoor writes normalize high impedance data',
+      () async {
+    const dataWidth = 12;
+    final register = CsrInstanceConfig(
+      arch: CsrConfig(
+        name: 'highImpedanceRegister',
+        access: CsrAccess.readWrite,
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+      isBackdoorWritable: true,
+    );
+    final clk = SimpleClockGenerator(10).clk;
+    final frontWrite = DataPortInterface(dataWidth, 1);
+    final block = CsrBlock(
+      config: CsrBlockConfig(
+        name: 'highImpedanceBlock',
+        baseAddr: 0,
+        registers: [register],
+      ),
+      clk: clk,
+      reset: Logic()..put(0),
+      frontWrite: frontWrite,
+      frontRead: null,
+    );
+    final backdoor = block.getBackdoorPortsByName(register.name);
+    final expected = LogicValue.ofString('xxxxxxxx1111');
+
+    frontWrite.en.put(0);
+    frontWrite.addr.put(register.addr);
+    frontWrite.data.put(0);
+    backdoor.wrEn!.put(0);
+    backdoor.wrData!.put(0);
+    await block.build();
+    final csr = block.csrs.single;
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    await clk.nextNegedge;
+    frontWrite.en.inject(1);
+    frontWrite.data.inject('zzzzzzzz1111');
+    await clk.nextNegedge;
+    frontWrite.en.inject(0);
+    expect(csr.value, expected);
+
+    await clk.nextNegedge;
+    backdoor.wrEn!.inject(1);
+    backdoor.wrData!.inject('zzzzzzzz1111');
+    await clk.nextNegedge;
+    backdoor.wrEn!.inject(0);
+    expect(csr.value, expected);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('simple CSR block', () async {
+    const csrWidth = 32;
+
+    final csrBlockCfg = MyRegisterBlock(
+      baseAddr: 0x0,
+      numNoFieldCsrs: 2,
+    );
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final rIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+    rIntf.en.put(0);
+    rIntf.addr.put(0);
+
+    await csrBlock.build();
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    // WaveDumper(csrBlock);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // retrieve block address
+    final blkAddr = csrBlock.baseAddr;
+    expect(blkAddr, BigInt.zero);
+
+    // grab pointers to the CSRs
+    final csr1 = csrBlock.getRegisterByName('csr1');
+    final csr2 = csrBlock.getRegisterByAddr(0x2);
+    final csr3 = csrBlock.getRegisterByName('csr3');
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // perform a read of csr2
+    // ensure that the read data is the reset value
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr2.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // perform a write of csr2 and then a read
+    // ensure that the write takes no effect b/c readonly
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr2.addr);
+    wIntf.data.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr2.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // perform a write of csr1
+    // ensure that the write data is modified appropriately
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1.addr);
+    wIntf.data.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr1.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0xad00f3, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // perform a write of the top half of csr3
+    // then a read of the bottom half
+    // ensure that the bottom half is unchanged
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr3.addr + csrBlock.logicalRegisterIncrement);
+    wIntf.data.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr3.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr3.resetValue, rIntf.dataWidth));
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr3.addr + csrBlock.logicalRegisterIncrement);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0xdeadbeef, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // perform a read of nothing
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(0xff);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // grab backdoor interfaces
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+    final back2 = csrBlock.getBackdoorPortsByAddr(0x2);
+
+    // perform backdoor read of csr2
+    expect(back2.rdData!.value,
+        LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+
+    // perform a backdoor write and then a backdoor read of csr1
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0xbeefdead);
+    await clk.nextNegedge;
+    back1.wrData!.inject(0);
+    expect(back1.rdData!.value, LogicValue.ofInt(0xbeef00f3, rIntf.dataWidth));
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('single-address CSR blocks use one-bit addresses in generated SV',
+      () async {
+    const dataWidth = 32;
+    final register = CsrInstanceConfig(
+      arch: CsrConfig(
+        access: CsrAccess.readWrite,
+        name: 'singleRegister',
+        fields: const [],
+      ),
+      addr: 0,
+      width: dataWidth,
+    );
+    final block = CsrBlockConfig(
+      name: 'singleBlock',
+      baseAddr: 0,
+      blockSize: 1,
+      registers: [register],
+    );
+    final topConfig = CsrTopConfig(
+      name: 'singleTop',
+      blockSize: 1,
+      blocks: [block],
+    );
+
+    expect(block.minAddrBits(), 1);
+    expect(topConfig.blockOffsetWidthForBlock(block), 1);
+    expect(topConfig.minAddrBits(), 1);
+
+    final csrTop = CsrTop(
+      config: topConfig,
+      clk: Logic(),
+      reset: Logic(),
+      frontWrite: DataPortInterface(dataWidth, 1),
+      frontRead: DataPortInterface(dataWidth, 1),
+    );
+    await csrTop.build();
+
+    final systemVerilog = csrTop.dumpSystemVerilog();
+    expect(systemVerilog, contains("1'h0"));
+    expect(systemVerilog, isNot(contains("0'h0")));
+  });
+
+  test('writeOnesClear field clears only on write of 1', () async {
+    const csrWidth = 8;
+
+    // csr1's reset value (0xff) sets every bit including the
+    // writeOnesClear fields (field4_0/field4_1) to 1.
+    final csrBlockCfg = MyRegisterBlock(
+      baseAddr: 0x0,
+      csrWidth: csrWidth,
+    );
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: null,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    // both writeOnesClear bits reset to 1
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_1').value, LogicValue.one);
+
+    // writing 0 to the writeOnesClear bits leaves them unchanged
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0x00);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_1').value, LogicValue.one);
+
+    // writing 1 to the writeOnesClear bits clears them to 0
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0xc0); // bits 6 (field4_0) and 7 (field4_1)
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.zero);
+    expect(csr1.getField('field4_1').value, LogicValue.zero);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('writeOnesClear field is set only by a backdoor write of 1', () async {
+    // csr1's writeOnesClear fields (field4_0..field4_7) occupy the upper
+    // byte (bits 31:24), which reset to 0 since csr1's reset value (0xff)
+    // only sets the low byte.
+    final csrBlockCfg = MyRegisterBlock(baseAddr: 0x0);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: null,
+        frontRead: null);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    expect(csr1.getField('field4_0').value, LogicValue.zero);
+    expect(csr1.getField('field4_7').value, LogicValue.zero);
+
+    // a backdoor write of 1 sets the writeOnesClear bits
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0xff000000);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_7').value, LogicValue.one);
+
+    // a subsequent backdoor write of 0 leaves the now-set bits unchanged
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0x00000000);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field4_0').value, LogicValue.one);
+    expect(csr1.getField('field4_7').value, LogicValue.one);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('writeOnly field always frontdoor reads as its reset value', () async {
+    const csrWidth = 32;
+
+    final csrBlockCfg = MyRegisterBlock(baseAddr: 0x0);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final rIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+    rIntf.en.put(0);
+    rIntf.addr.put(0);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1Cfg);
+    final csr1 = csrBlock.csrs[csr1Idx];
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    // field5 (bits 7:4) resets to 0xf, matching csr1's overall reset value
+    expect(csr1.getField('field5').value, LogicValue.ofInt(0xf, 4));
+
+    // a frontdoor write targeting field5's bits is accepted (no error),
+    // but a subsequent frontdoor read still returns the reset value
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0x50);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(csr1Cfg.addr);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value.getRange(4, 8), LogicValue.ofInt(0xf, 4));
+    expect(csr1.getField('field5').value, LogicValue.ofInt(0xf, 4));
+
+    // a backdoor write to field5 also has no effect on its storage
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0xf0);
+    await clk.nextNegedge;
+    back1.wrEn!.inject(0);
+    expect(csr1.getField('field5').value, LogicValue.ofInt(0xf, 4));
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test(
+      'writeOnly field backdoor read pulses the frontdoor write value '
+      'and otherwise shows the reset value', () async {
+    const csrWidth = 32;
+
+    final csrBlockCfg = MyRegisterBlock(baseAddr: 0x0);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(csrWidth, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: null,
+        allowLargerRegisters: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+
+    for (var i = 0; i < csrBlock.backdoorInterfaces.length; i++) {
+      if (csrBlock.backdoorInterfaces[i].hasWrite) {
+        csrBlock.backdoorInterfaces[i].wrEn!.put(0);
+        csrBlock.backdoorInterfaces[i].wrData!.put(0);
+      }
+    }
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final csr1Cfg = csrBlock.getRegisterByName('csr1');
+    final back1 = csrBlock.getBackdoorPortsByName('csr1');
+
+    reset.inject(1);
+    await clk.waitCycles(2);
+    reset.inject(0);
+    await clk.waitCycles(2);
+
+    // no frontdoor write this cycle: backdoor read shows the reset value
+    expect(back1.rdData!.value.getRange(4, 8), LogicValue.ofInt(0xf, 4));
+
+    // a frontdoor write combinationally pulses onto the backdoor read
+    // for the same cycle as the write, before the write is even clocked in
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(csr1Cfg.addr);
+    wIntf.data.inject(0xa0);
+    await clk.nextNegedge;
+    expect(back1.rdData!.value.getRange(4, 8), LogicValue.ofInt(0xa, 4));
+
+    // once the write is no longer happening, the pulse disappears and the
+    // backdoor read reverts to the reset value
+    wIntf.en.inject(0);
+    await clk.nextNegedge;
+    expect(back1.rdData!.value.getRange(4, 8), LogicValue.ofInt(0xf, 4));
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('simple CSR top', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyCsrModule(numBlocks: 4);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 32);
+    final rIntf = DataPortInterface(csrWidth, 32);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    // WaveDumper(csrTop);
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    // grab pointers to certain blocks and CSRs
+    final block1 = csrTop.getBlockByName('block_0');
+    final block2 = csrTop.getBlockByAddr(0x100);
+    final csr1 = block1.getRegisterByName('csr1');
+    final csr2 = block2.getRegisterByAddr(0x2);
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // perform a read to a particular register in a particular block
+    final addr1 = Const(block2.baseAddr + csr2.addr, width: rIntf.addrWidth);
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addr1.value);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // perform a write to a particular register in a particular block
+    final addr2 = Const(block1.baseAddr + csr1.addr, width: rIntf.addrWidth);
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addr2.value);
+    wIntf.data.inject(0xbeefdead);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addr2.value);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // perform a read to an invalid block
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(0xffffffff);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // grab backdoor interfaces
+    final back1 = csrTop.getBackdoorPortsByName('block_0', 'csr1');
+    final back2 = csrTop.getBackdoorPortsByAddr(0x100, 0x2);
+
+    // perform backdoor read of csr2
+    expect(back2.rdData!.value,
+        LogicValue.ofInt(csr2.resetValue, rIntf.dataWidth));
+
+    // perform a backdoor write and then a backdoor read of csr1
+    await clk.nextNegedge;
+    back1.wrEn!.inject(1);
+    back1.wrData!.inject(0xdeadbeef);
+    await clk.nextNegedge;
+    back1.wrData!.inject(0);
+    expect(back1.rdData!.value, LogicValue.ofInt(0xdead00f3, rIntf.dataWidth));
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('simple CSR top sub-instantiation', () async {
+    final csrTopCfg = MyCsrModule(numBlocks: 4);
+    final mod =
+        DummyCsrTopModule(clk: Logic(), reset: Logic(), config: csrTopCfg);
+    await mod.build();
+  });
+
+  test('CSR top with heterogeneous block offset widths', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyHeterogeneousCsrModule();
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 32);
+    final rIntf = DataPortInterface(csrWidth, 32);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final blockLarge = csrTop.getBlockByName('block_large');
+    final blockSmall = csrTop.getBlockByName('block_small');
+    final largeCsr1 = blockLarge.getRegisterByName('csr1');
+    final smallSReg0 = blockSmall.getRegisterByName('sReg0');
+    final smallSReg1 = blockSmall.getRegisterByName('sReg1');
+
+    // check that block sizes are as configured
+    expect(csrTopCfg.blockSizeForBlock(blockLarge), BigInt.from(256));
+    expect(csrTopCfg.blockSizeForBlock(blockSmall), BigInt.from(16));
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read small block's read-only register (has reset value 0xABCD1234)
+    final addrSmall1 = blockSmall.baseAddr + smallSReg1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value,
+        LogicValue.ofInt(smallSReg1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // attempt a write to small block's read-only register (sReg1) and verify
+    // it has no effect
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrSmall1);
+    wIntf.data.inject(0xDEADBEEF);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    // read-only, so value should remain the reset value
+    expect(rIntf.data.value,
+        LogicValue.ofInt(smallSReg1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to small block's read-write register (sReg0) and verify
+    final addrSmall0 = blockSmall.baseAddr + smallSReg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrSmall0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to large block's csr1 and verify: fields restrict the written value
+    final addrLarge1 = blockLarge.baseAddr + largeCsr1.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrLarge1);
+    wIntf.data.inject(0xbeefdead);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrLarge1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    // same field-masked result as in the uniform test
+    expect(rIntf.data.value, LogicValue.ofInt(0xef00f3, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // confirm small block sReg0 still holds its written value
+    // (write to large block must not corrupt small block)
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrSmall0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('CSR top with non-power-of-two-aligned block base address', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyMisalignedCsrModule();
+
+    // block_b's highest address (0x8 + 0x10 - 1 = 0x17) needs 5 bits, even
+    // though its base address (0x8) alone only needs 4
+    expect(csrTopCfg.minAddrBits(), 5);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 32);
+    final rIntf = DataPortInterface(csrWidth, 32);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final blockA = csrTop.getBlockByName('block_a');
+    final blockB = csrTop.getBlockByName('block_b');
+    final aCsr1 = blockA.getRegisterByName('csr1');
+    final bReg0 = blockB.getRegisterByName('bReg0');
+    final bReg1 = blockB.getRegisterByName('bReg1');
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read block_b's read-only register (reset value 0xCAFEF00D); block_b's
+    // base address (0x8) is not aligned to its size (0x10), so this only
+    // returns the correct value if the block's address range is matched
+    // instead of a power-of-two-aligned bitmask
+    final addrBReg1 = blockB.baseAddr + bReg1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrBReg1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(bReg1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to block_b's read-write register (bReg0) and verify
+    final addrBReg0 = blockB.baseAddr + bReg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrBReg0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrBReg0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // confirm block_a (aligned, at base address 0x0) is still reachable and
+    // unaffected by block_b's misaligned base address
+    final addrACsr1 = blockA.baseAddr + aCsr1.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrACsr1);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(aCsr1.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  test('CSR top with a block that spans the full address space', () async {
+    const csrWidth = 32;
+
+    final csrTopCfg = MyFullSpanCsrModule();
+
+    // block's baseAddr(0) + blockSize(8) == 2^3, exactly filling the
+    // address space implied by a 3-bit address
+    expect(csrTopCfg.minAddrBits(), 3);
+
+    final clk = SimpleClockGenerator(10).clk;
+    final reset = Logic()..inject(0);
+    final wIntf = DataPortInterface(csrWidth, 3);
+    final rIntf = DataPortInterface(csrWidth, 3);
+    final csrTop = CsrTop(
+        config: csrTopCfg,
+        clk: clk,
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true);
+
+    wIntf.en.inject(0);
+    wIntf.addr.inject(0);
+    wIntf.data.inject(0);
+    rIntf.en.inject(0);
+    rIntf.addr.inject(0);
+
+    await csrTop.build();
+
+    for (var i = 0; i < csrTop.backdoorInterfaces.length; i++) {
+      for (var j = 0; j < csrTop.backdoorInterfaces[i].length; j++) {
+        if (csrTop.backdoorInterfaces[i][j].hasWrite) {
+          csrTop.backdoorInterfaces[i][j].wrEn!.put(0);
+          csrTop.backdoorInterfaces[i][j].wrData!.put(0);
+        }
+      }
+    }
+
+    Simulator.setMaxSimTime(10000);
+    unawaited(Simulator.run());
+
+    final block = csrTop.getBlockByName('block_full');
+    final reg0 = block.getRegisterByName('reg0');
+    final reg7 = block.getRegisterByName('reg7');
+
+    // perform a reset
+    reset.inject(1);
+    await clk.waitCycles(10);
+    reset.inject(0);
+    await clk.waitCycles(10);
+
+    // read the register at the highest address in the block (reset value
+    // 0xFEEDFACE); only reachable if the block's range match doesn't
+    // overflow when baseAddr + blockSize == 2^addrWidth
+    final addrReg7 = block.baseAddr + reg7.addr;
+    await clk.nextNegedge;
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrReg7);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(
+        rIntf.data.value, LogicValue.ofInt(reg7.resetValue, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    // write to the register at the lowest address in the block and verify
+    final addrReg0 = block.baseAddr + reg0.addr;
+    await clk.nextNegedge;
+    wIntf.en.inject(1);
+    wIntf.addr.inject(addrReg0);
+    wIntf.data.inject(0x12345678);
+    await clk.nextNegedge;
+    wIntf.en.inject(0);
+    rIntf.en.inject(1);
+    rIntf.addr.inject(addrReg0);
+    await clk.nextNegedge;
+    rIntf.en.inject(0);
+    expect(rIntf.data.value, LogicValue.ofInt(0x12345678, rIntf.dataWidth));
+    await clk.waitCycles(10);
+
+    await Simulator.endSimulation();
+    await Simulator.simulationEnded;
+  });
+
+  group('omitted front-door interfaces', () {
+    test('no front write', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: null,
+          frontRead: DataPortInterface(64, 32));
+    });
+
+    test('no front read', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: DataPortInterface(64, 32),
+          frontRead: null);
+    });
+
+    test('no front door at all', () {
+      CsrTop(
+          config: MyCsrModule(),
+          clk: Logic(),
+          reset: Logic(),
+          frontWrite: null,
+          frontRead: null);
+    });
+  });
+
+  test('CSR validation failures', () {
+    // illegal individual field - no legal values
+    expect(
+        () => CsrFieldConfig(
+            start: 0,
+            width: 1,
+            name: 'badFieldCfg',
+            access: CsrFieldAccess.readWriteLegal),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal individual field - reset value doesn't fit
+    expect(
+        () => CsrFieldConfig(
+            start: 0,
+            width: 1,
+            name: 'badFieldCfg',
+            access: CsrFieldAccess.readWrite,
+            resetValue: 0xfff),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal individual field - legal value doesn't fit
+    expect(
+        () => CsrFieldConfig(
+            start: 0,
+            width: 1,
+            name: 'badFieldCfg',
+            access: CsrFieldAccess.readWriteLegal,
+            legalValues: const [0x0, 0xfff]),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal architectural register
+    expect(
+        () => CsrConfig(
+                access: CsrAccess.readWrite,
+                name: 'badArchRegCfg',
+                fields: [
+                  CsrFieldConfig(
+                    start: 0,
+                    width: 1,
+                    name: 'field',
+                    access: CsrFieldAccess.readWrite,
+                  ),
+                  CsrFieldConfig(
+                    start: 3,
+                    width: 4,
+                    name: 'field',
+                    access: CsrFieldAccess.readWrite,
+                  ),
+                  CsrFieldConfig(
+                    start: 3,
+                    width: 10,
+                    name: 'field1',
+                    access: CsrFieldAccess.readWrite,
+                  ),
+                  CsrFieldConfig(
+                    start: 9,
+                    width: 11,
+                    name: 'field2',
+                    access: CsrFieldAccess.readWrite,
+                  )
+                ]),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal register instance - field surpasses reg width
+    expect(
+        () => CsrInstanceConfig(
+            arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg', fields: [
+              CsrFieldConfig(
+                  start: 0,
+                  width: 32,
+                  name: 'field',
+                  access: CsrFieldAccess.readWrite)
+            ]),
+            addr: 0x0,
+            width: 4),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal register instance - reset value surpasses reg width
+    expect(
+        () => CsrInstanceConfig(
+            arch: CsrConfig(access: CsrAccess.readWrite, name: 'reg', fields: [
+              CsrFieldConfig(
+                  start: 0,
+                  width: 4,
+                  name: 'field',
+                  access: CsrFieldAccess.readWrite)
+            ]),
+            addr: 0x0,
+            width: 4,
+            resetValue: 0xfff),
+        throwsA(isA<CsrValidationException>()));
+  });
+
+  test('CSR block and top validation failures', () {
+    // illegal block - empty
+    expect(
+        () => CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: const []),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal block - duplication
+    expect(
+        () => CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: [
+              CsrInstanceConfig(
+                  arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg',
+                      fields: const []),
+                  addr: 0x0,
+                  width: 4),
+              CsrInstanceConfig(
+                  arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg',
+                      fields: const []),
+                  addr: 0x1,
+                  width: 4),
+              CsrInstanceConfig(
+                  arch: CsrConfig(
+                      access: CsrAccess.readWrite,
+                      name: 'reg1',
+                      fields: const []),
+                  addr: 0x1,
+                  width: 4)
+            ]),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal top - empty
+    expect(() => CsrTopConfig(name: 'top', blockSize: 256, blocks: const []),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal top - duplication and closeness
+    expect(
+        () => CsrTopConfig(name: 'top', blockSize: 256, blocks: [
+              CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: const []),
+              CsrBlockConfig(name: 'block', baseAddr: 0x1, registers: const []),
+              CsrBlockConfig(name: 'block1', baseAddr: 0x1, registers: const [])
+            ]),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal top - bad block offset width
+    expect(
+        () => CsrTopConfig(name: 'top', blockSize: 2, blocks: [
+              CsrBlockConfig(name: 'block', baseAddr: 0x0, registers: [
+                CsrInstanceConfig(
+                    arch: CsrConfig(
+                        access: CsrAccess.readWrite,
+                        name: 'reg',
+                        fields: const []),
+                    addr: 0x4,
+                    width: 4)
+              ])
+            ]),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal block-level blockSize override: too small for its registers
+    expect(
+        () => CsrBlockConfig(
+              name: 'block',
+              baseAddr: 0x0,
+              blockSize: 4, // too small: reg at addr=0x4 needs size >= 5
+              registers: [
+                CsrInstanceConfig(
+                    arch: CsrConfig(
+                        access: CsrAccess.readWrite,
+                        name: 'reg',
+                        fields: const []),
+                    addr: 0x4,
+                    width: 4)
+              ],
+            ),
+        throwsA(isA<CsrValidationException>()));
+
+    // illegal top - blocks too close considering larger per-block offset
+    // override.
+    expect(
+        () => CsrTopConfig(
+              name: 'top',
+              blockSize: 16, // default
+              blocks: [
+                CsrBlockConfig(
+                    name: 'block0',
+                    baseAddr: 0x0,
+                    blockSize: 256, // override: needs 256-address space
+                    registers: [
+                      CsrInstanceConfig(
+                          arch: CsrConfig(
+                              access: CsrAccess.readWrite,
+                              name: 'reg',
+                              fields: const []),
+                          addr: 0x0,
+                          width: 4)
+                    ]),
+                CsrBlockConfig(
+                    name: 'block1',
+                    baseAddr: 0x10, // only 16 away from block0 - too close
+                    registers: [
+                      CsrInstanceConfig(
+                          arch: CsrConfig(
+                              access: CsrAccess.readWrite,
+                              name: 'reg',
+                              fields: const []),
+                          addr: 0x0,
+                          width: 4)
+                    ]),
+              ],
+            ),
+        throwsA(isA<CsrValidationException>()));
+  });
+
+  test('CsrBlock honors asyncReset without waiting for a clock edge', () async {
+    final csrBlockCfg = MyRegisterBlock(
+      baseAddr: 0x0,
+      numNoFieldCsrs: 2,
+    );
+
+    // tie the clock off entirely: with a synchronous reset, the register
+    // would never receive its reset value since there is no clock edge to
+    // sample `reset` on. With an asynchronous reset, the register should
+    // reset immediately upon `reset` being asserted, independent of `clk`.
+    final reset = Logic()..put(0);
+    final wIntf = DataPortInterface(32, 8);
+    final rIntf = DataPortInterface(32, 8);
+    final csrBlock = CsrBlock(
+        config: csrBlockCfg,
+        clk: Const(0),
+        reset: reset,
+        frontWrite: wIntf,
+        frontRead: rIntf,
+        allowLargerRegisters: true,
+        asyncReset: true);
+
+    wIntf.en.put(0);
+    wIntf.addr.put(0);
+    wIntf.data.put(0);
+    rIntf.en.put(0);
+    rIntf.addr.put(0);
+
+    await csrBlock.build();
+
+    Simulator.setMaxSimTime(1000);
+    unawaited(Simulator.run());
+
+    final csr1 = csrBlock.getRegisterByName('csr1');
+    final csr1Idx = csrBlockCfg.registers.indexOf(csr1);
+
+    // assert reset with no clock ever ticking.
+    reset.inject(1);
+    await Simulator.tick();
+
+    // register should already reflect its reset value.
+    expect(csrBlock.csrs[csr1Idx].value,
+        LogicValue.ofInt(csr1.resetValue, csr1.width));
+
+    reset.inject(0);
+    await Simulator.tick();
+    await Simulator.endSimulation();
+  });
+}

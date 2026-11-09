@@ -54,6 +54,10 @@ abstract class CsrContainer extends Module {
   /// to any register that exceeds the data width of the frontdoor.
   final bool allowLargerRegisters;
 
+  /// What increment value to use when deriving logical addresses
+  /// for registers that are wider than the frontdoor data width.
+  final BigInt logicalRegisterIncrement;
+
   /// Constructs a base container.
   CsrContainer(
       {required Logic clk,
@@ -62,10 +66,14 @@ abstract class CsrContainer extends Module {
       required DataPortInterface? frontRead,
       required this.config,
       this.allowLargerRegisters = false,
+      int logicalRegisterIncrement = 1,
+      BigInt? wideLogicalRegisterIncrement,
       super.reserveName,
       super.reserveDefinitionName,
       String? definitionName})
-      : super(
+      : logicalRegisterIncrement = wideLogicalRegisterIncrement ??
+            BigInt.from(logicalRegisterIncrement),
+        super(
             definitionName: definitionName ??
                 'CsrContainer_A${config.minAddrBits()}_'
                     'W${config.maxRegWidth()}_'
@@ -73,24 +81,24 @@ abstract class CsrContainer extends Module {
                     'FR${frontRead?.dataWidth ?? 0}_'
                     'LR${allowLargerRegisters}_',
             name: config.name) {
+    if (wideLogicalRegisterIncrement != null && logicalRegisterIncrement != 1) {
+      throw ArgumentError('Specify only one logical register increment.');
+    }
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
 
     this.frontWrite = frontWrite == null
         ? null
-        : (frontWrite.clone()
-          ..connectIO(this, frontWrite,
-              inputTags: {DataPortGroup.control, DataPortGroup.data},
-              outputTags: {},
-              uniquify: (original) => 'frontWrite_$original'));
+        : addInterfacePorts(frontWrite,
+            inputTags: {DataPortGroup.control, DataPortGroup.data},
+            uniquify: (original) => 'frontWrite_$original');
 
     this.frontRead = frontRead == null
         ? null
-        : (frontRead.clone()
-          ..connectIO(this, frontRead,
-              inputTags: {DataPortGroup.control},
-              outputTags: {DataPortGroup.data},
-              uniquify: (original) => 'frontRead_$original'));
+        : addInterfacePorts(frontRead,
+            inputTags: {DataPortGroup.control},
+            outputTags: {DataPortGroup.data},
+            uniquify: (original) => 'frontRead_$original');
 
     _validate();
   }

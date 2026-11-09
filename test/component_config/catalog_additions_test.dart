@@ -1,0 +1,203 @@
+// Copyright (C) 2026 Intel Corporation
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// catalog_additions_test.dart
+// Tests for additional component configurators.
+//
+// 2026 November 4
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
+// Verify the legacy FIFO configurator remains available.
+// ignore_for_file: deprecated_member_use_from_same_package
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
+import 'package:test/test.dart';
+
+class _Parent extends Module {
+  _Parent(Module child) {
+    final childOutput = child.outputs.values.first;
+    addOutput('out', width: childOutput.width) <= childOutput;
+  }
+}
+
+void main() {
+  test('requested configurators are registered', () {
+    final names = componentRegistry.map((configurator) => configurator.name);
+    expect(
+      names,
+      containsAll([
+        'Absolute Value',
+        'Circular Pointer',
+        'Ceil Divide',
+        'Multiplexer',
+        'Bitwise Popcount',
+        'Pad',
+        'Set Bits',
+        'With Set',
+        'Synchronizer',
+        'Ready/Valid Queue',
+        'Parallel Associative Memory',
+        'CSR Example',
+      ]),
+    );
+  });
+
+  test('catalog excludes legacy components and includes replacements', () {
+    final names = componentRegistry.map((configurator) => configurator.name);
+    expect(names, isNot(contains('Ready/Valid FIFO')));
+    expect(names, isNot(contains('Content-Addressable Memory')));
+    expect(names, contains('Ready/Valid Queue'));
+    expect(names, contains('Parallel Associative Memory'));
+  });
+
+  test('legacy configurators remain usable outside the catalog', () async {
+    final variants = <({
+      Configurator config,
+      Configurator restored,
+      Type type,
+    })>[
+      (
+        config: ReadyValidFifoConfigurator(),
+        restored: ReadyValidFifoConfigurator(),
+        type: ReadyValidFifo<Logic>,
+      ),
+      (
+        config: CamConfigurator(),
+        restored: CamConfigurator(),
+        type: Cam<Logic>,
+      ),
+    ];
+    for (final variant in variants) {
+      variant.restored.loadJson(variant.config.toJson());
+      expect(variant.restored.toJson(), variant.config.toJson());
+      expect(variant.restored.createModule().runtimeType, variant.type);
+      expect(await variant.config.generateSV(), contains('module '));
+      await _Parent(variant.config.createModule()).build();
+    }
+  });
+
+  test('all requested implementations generate and compose', () async {
+    final variants = <({Configurator config, Type type})>[
+      (config: AbsoluteValueConfigurator(), type: AbsoluteValue),
+      (config: CircularPointerConfigurator(), type: CircularPointer),
+      (config: CeilDivideConfigurator(), type: CeilDivide),
+      for (final implementation in MuxImplementation.values)
+        (
+          config: MuxConfigurator()..implementationKnob.value = implementation,
+          type: switch (implementation) {
+            MuxImplementation.bitwise => BitwiseMux,
+            MuxImplementation.oneHot => OneHotMux,
+            MuxImplementation.priority => PriorityMux,
+          },
+        ),
+      for (final operation in BitwisePopcountOperation.values)
+        (
+          config: BitwisePopcountConfigurator()
+            ..operationKnob.value = operation,
+          type: operation == BitwisePopcountOperation.xor
+              ? XorPopcount
+              : XnorPopcount,
+        ),
+      (config: PadConfigurator(), type: Pad),
+      (config: SetBitsConfigurator(), type: SetBits),
+      (config: WithSetConfigurator(), type: WithSet),
+      for (final direction in RotateDirection.values)
+        (
+          config: RotateConfigurator()
+            ..fixedKnob.value = true
+            ..directionKnob.value = direction,
+          type: direction == RotateDirection.left
+              ? RotateLeftFixed
+              : RotateRightFixed,
+        ),
+      (config: SynchronizerConfigurator(), type: Synchronizer),
+      (config: ReadyValidQueueConfigurator(), type: ReadyValidQueue<Logic>),
+      (
+        config: ParallelAssociativeMemoryConfigurator(),
+        type: ParallelAssociativeMemory,
+      ),
+      (
+        config: CsrExampleConfigurator()
+          ..boundaryKnob.value = CsrExampleBoundary.block,
+        type: CsrBlock,
+      ),
+      (config: CsrExampleConfigurator(), type: CsrTop),
+    ];
+    for (final variant in variants) {
+      expect(variant.config.createModule().runtimeType, variant.type,
+          reason: variant.config.name);
+      final restored = componentRegistry.singleWhere(
+        (candidate) => candidate.runtimeType == variant.config.runtimeType,
+      )..loadJson(variant.config.toJson());
+      expect(restored.toJson(), variant.config.toJson(),
+          reason: '${variant.config.name} did not round-trip');
+      expect(restored.createModule().runtimeType, variant.type,
+          reason: '${variant.config.name} changed implementation on load');
+      expect(await variant.config.generateSV(), contains('module '),
+          reason: variant.config.name);
+      await _Parent(variant.config.createModule()).build();
+    }
+  });
+
+  test('fixed rotate settings round-trip without variable controls', () {
+    final configured = RotateConfigurator()
+      ..fixedKnob.value = true
+      ..fixedAmountKnob.value = 0
+      ..directionKnob.value = RotateDirection.left;
+    expect(configured.knobs.keys, contains('Fixed Rotate Amount'));
+    expect(configured.knobs.keys, isNot(contains('Rotate Amount Width')));
+    final loaded = RotateConfigurator()..loadJson(configured.toJson());
+    expect(loaded.fixedKnob.value, isTrue);
+    expect(loaded.fixedAmountKnob.value, 0);
+    expect(loaded.createModule(), isA<RotateLeftFixed>());
+  });
+
+  test('non-default geometry and behavior reach modules', () {
+    final pointer = (CircularPointerConfigurator()
+          ..slotsKnob.value = 13
+          ..incrementWidthKnob.value = 4)
+        .createModule() as CircularPointer;
+    expect(pointer.slots, 13);
+    expect(pointer.input('increment').width, 4);
+
+    final synchronizer = (SynchronizerConfigurator()
+          ..widthKnob.value = 3
+          ..stagesKnob.value = 3
+          ..resetKnob.value = true)
+        .createModule() as Synchronizer;
+    expect(synchronizer.numStages, 3);
+    expect(synchronizer.syncData.width, 3);
+
+    final fifo = (ReadyValidFifoConfigurator()
+          ..widthKnob.value = 5
+          ..depthKnob.value = 2
+          ..replacementKnob.value = true)
+        .createModule() as ReadyValidFifo<Logic>;
+    expect(fifo.depth, 2);
+    expect(fifo.upstream.data.width, 5);
+    expect(fifo.allowSameCycleReplacement, isTrue);
+
+    final queue = (ReadyValidQueueConfigurator()
+          ..dataWidthKnob.value = 5
+          ..depthKnob.value = 2
+          ..fallThroughKnob.value = true
+          ..storageKnob.value = ReadyValidQueueStorage.ring)
+        .createModule() as ReadyValidQueue<Logic>;
+    expect(queue.depth, 2);
+    expect(queue.upstream.data.width, 5);
+    expect(queue.policy, ReadyValidQueuePolicy.fallThrough);
+    expect(queue.storage, ReadyValidQueueStorage.ring);
+
+    final csr = (CsrExampleConfigurator()
+          ..widthKnob.value = 12
+          ..asyncResetKnob.value = true)
+        .createModule() as CsrTop;
+    expect(csr.config.asyncReset, isTrue);
+    expect(
+        csr.config.blocks.single.registers.map((reg) => reg.width), [12, 12]);
+    expect(csr.config.blocks.single.registers.map((reg) => reg.addr),
+        [BigInt.zero, BigInt.one]);
+  });
+}

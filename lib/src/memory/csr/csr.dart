@@ -27,7 +27,7 @@ class Csr extends LogicStructure {
   final List<int> rsvdIndices;
 
   /// Getter for the address of the CSR.
-  int get addr => config.addr;
+  BigInt get addr => config.addr;
 
   /// Getter for the reset value of the CSR.
   int get resetValue => config.resetValue;
@@ -106,14 +106,9 @@ class Csr extends LogicStructure {
     String? logicName,
   }) : super(fields, name: logicName ?? config.name);
 
-  // Historically the CSR disallowed renaming because the architectural
-  // name is tied to its configuration. However, interface cloning and
-  // IO uniquification can pass a `name` to clone; to support that
-  // workflow we ignore the requested `name` here and preserve the
-  // CSR's configured name while still cloning the underlying elements.
-  /// Creates a clone of this CSR.
+  /// Creates a clone preserving this CSR's configuration and field layout.
   ///
-  /// The CSR is not allowed to be renamed, so [name] must be null.
+  /// [name] renames the signal, not the architectural name in [config].
   @override
   Csr clone({String? name}) => Csr._(
         config: config,
@@ -121,6 +116,12 @@ class Csr extends LogicStructure {
         fields: elements.map((e) => e.clone()).toList(),
         logicName: name,
       );
+
+  /// Replaces bits while preserving this CSR's configuration and fields.
+  @override
+  Csr withSet(int startIndex, Logic update) =>
+      // The base implementation updates leaves of the result of clone().
+      super.withSet(startIndex, update) as Csr;
 
   /// Accessor to the bits of a particular field
   /// within the CSR by name [name].
@@ -137,22 +138,36 @@ class Csr extends LogicStructure {
   /// Given some arbitrary data [wd] to write to this CSR,
   /// return the data that should actually be written based
   /// on the access control of the CSR and its fields.
-  Logic getWriteData(Logic wd) {
-    // if the whole register is ready only, return the current value
-    if (access == CsrAccess.readOnly) {
+  ///
+  /// Register level access rules apply only to frontdoor writes: a
+  /// [CsrAccess.readOnly] register is still backdoor writeable when the
+  /// configuration says so, which is what makes a status register useful.
+  /// Set [isBackdoorWrite] for such a write to skip that check.  Field level
+  /// access rules are enforced for both paths, except that
+  /// [CsrFieldAccess.writeOnesClear] distinguishes the write source:
+  /// frontdoor writes of `1` clear the bit, while backdoor writes of `1`
+  /// set it (so a backdoor writer can raise a flag that a frontdoor
+  /// writer later clears).
+  Csr getWriteData(Logic wd, {bool isBackdoorWrite = false}) {
+    // Frontdoor writes cannot update a read-only register.
+    if (!isBackdoorWrite && access == CsrAccess.readOnly) {
       return this;
     }
     // register can be written, but still need to look at the fields...
     else {
+      // A CSR cannot retain a high-impedance value as architectural state.
+      // XOR with zero preserves 0, 1, and X while converting Z to X.
+      final normalizedWd = clone()..gets(wd ^ Const(0, width: wd.width));
+
       // special case of no explicit fields defined
       // in this case, we have an implicit read/write field
       // so there is nothing special to do
       if (fields.isEmpty) {
-        return wd;
+        return normalizedWd;
       }
 
       // otherwise, we need to look at the fields
-      var finalWd = wd;
+      var finalWd = normalizedWd;
       var currIdx = 0;
       var currField = 0;
       for (var i = 0; i < elements.length; i++) {
@@ -165,12 +180,26 @@ class Csr extends LogicStructure {
           continue;
         }
 
-        // if the given field is read only
-        // take the current value instead of the new value
+        // if the given field is read only or write only,
+        // take the current value instead of the new value:
+        // neither retains a written value as persistent storage.
         final chk2 = fields[currField].access == CsrFieldAccess.readOnly ||
-            fields[currField].access == CsrFieldAccess.writeOnesClear;
+            fields[currField].access == CsrFieldAccess.writeOnly;
         if (chk2) {
           finalWd = finalWd.withSet(currIdx, elements[i]);
+          currField++;
+          currIdx += elements[i].width;
+          continue;
+        }
+
+        // if the given field is write-ones-clear: frontdoor writes of 1
+        // clear the bit; backdoor writes of 1 set the bit instead.
+        final chk3 = fields[currField].access == CsrFieldAccess.writeOnesClear;
+        if (chk3) {
+          final wdField =
+              normalizedWd.getRange(currIdx, currIdx + elements[i].width);
+          finalWd = finalWd.withSet(currIdx,
+              isBackdoorWrite ? elements[i] | wdField : elements[i] & ~wdField);
           currField++;
           currIdx += elements[i].width;
           continue;
@@ -181,7 +210,7 @@ class Csr extends LogicStructure {
           // make sure the value is in fact legal
           // and transform it if not
           final origVal =
-              wd.getRange(currIdx, currIdx + fields[currField].width);
+              normalizedWd.getRange(currIdx, currIdx + fields[currField].width);
           final legalCases = <Logic, Logic>{};
           for (var i = 0; i < fields[currField].legalValues.length; i++) {
             legalCases[Const(fields[currField].legalValues[i],
@@ -205,5 +234,42 @@ class Csr extends LogicStructure {
       }
       return finalWd;
     }
+  }
+
+  /// Computes the value to drive on this CSR's backdoor read port.
+  ///
+  /// For [CsrFieldAccess.writeOnly] fields, this combinationally reflects
+  /// the current cycle's frontdoor write: [frontdoorWriteDataFull] where
+  /// [frontdoorWriteValidFull] indicates a frontdoor write occurred to that
+  /// bit this cycle, otherwise the field's reset value. All other bits pass
+  /// through the register's current stored value unchanged.
+  Csr getBackdoorReadData(
+      Logic frontdoorWriteValidFull, Logic frontdoorWriteDataFull) {
+    if (fields.isEmpty) {
+      return this;
+    }
+
+    var finalRd = this;
+    var currIdx = 0;
+    var currField = 0;
+    for (var i = 0; i < elements.length; i++) {
+      if (rsvdIndices.contains(i)) {
+        currIdx += elements[i].width;
+        continue;
+      }
+
+      if (fields[currField].access == CsrFieldAccess.writeOnly) {
+        final width = elements[i].width;
+        final valid =
+            frontdoorWriteValidFull.getRange(currIdx, currIdx + width).or();
+        final written =
+            frontdoorWriteDataFull.getRange(currIdx, currIdx + width);
+        finalRd = finalRd.withSet(currIdx, mux(valid, written, elements[i]));
+      }
+
+      currField++;
+      currIdx += elements[i].width;
+    }
+    return finalRd;
   }
 }

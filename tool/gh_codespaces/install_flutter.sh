@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2023-2024 Intel Corporation
+# Copyright (C) 2023-2026 Intel Corporation
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # install_flutter.sh
@@ -14,7 +14,10 @@
 
 set -euo pipefail
 
-wget -O /tmp/flutter_linux.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.16.9-stable.tar.xz
+declare -r flutter_version='3.47.2'
+
+wget -O /tmp/flutter_linux.tar.xz \
+  "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${flutter_version}-stable.tar.xz"
 cd /usr/local
 sudo tar -xf /tmp/flutter_linux.tar.xz
 echo 'export PATH="$PATH:/usr/local/flutter/bin"' >> ~/.bashrc

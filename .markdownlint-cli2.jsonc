@@ -2,15 +2,12 @@
   "config": {
     "default": true,
     "MD013": false,
+    // Allow repeated headings (e.g., "Bug fixes") under different releases.
+    "MD024": { "siblings_only": true },
     "MD041": false
   },
 
   "ignores": [
-    "doc/api/",
-    "doc/d3-hwschematic-assets/",
-    "doc/d3-hwschematic-assets/elkjs",
-    "doc/api/d3-hwschematic-assets/",
-    "doc/api/d3-hwschematic-assets/elkjs",
-    "doc/d3-hwschematic/"
-    ]
+    "doc/api/"
+  ]
 }

@@ -25,7 +25,7 @@ class CsrInstanceConfig {
   ///
   /// This can be thought of as an offset relative to the block address.
   /// This can also be thought of as a unique ID for this register.
-  final int addr;
+  final BigInt addr;
 
   /// Number of bits in the register.
   final int width;
@@ -63,6 +63,25 @@ class CsrInstanceConfig {
   /// Construct a new register configuration.
   CsrInstanceConfig({
     required this.arch,
+    required int addr,
+    required this.width,
+    int? resetValue,
+    bool? isFrontdoorReadable,
+    bool? isFrontdoorWritable,
+    bool? isBackdoorReadable,
+    bool? isBackdoorWritable,
+  })  : addr = BigInt.from(addr),
+        resetValue = resetValue ?? arch.resetValue,
+        isFrontdoorReadable = isFrontdoorReadable ?? arch.isFrontdoorReadable,
+        isFrontdoorWritable = isFrontdoorWritable ?? arch.isFrontdoorWritable,
+        isBackdoorReadable = isBackdoorReadable ?? arch.isBackdoorReadable,
+        isBackdoorWritable = isBackdoorWritable ?? arch.isBackdoorWritable {
+    _validate();
+  }
+
+  /// Constructs a register with an arbitrary-width address offset.
+  CsrInstanceConfig.wide({
+    required this.arch,
     required this.addr,
     required this.width,
     int? resetValue,
@@ -86,6 +105,9 @@ class CsrInstanceConfig {
   ///
   /// Must check that its fields are mutually valid.
   void _validate() {
+    if (addr.isNegative) {
+      throw CsrValidationException('Register $name has a negative address.');
+    }
     // reset value must fit within the register's width
     if (resetValue.bitLength > width) {
       throw CsrValidationException(
@@ -108,24 +130,29 @@ class CsrInstanceConfig {
 
   /// Clone the register configuration with optional overrides.
   CsrInstanceConfig clone(
-          {CsrConfig? arch,
-          int? addr,
-          int? width,
-          int? resetValue,
-          bool? isFrontdoorReadable,
-          bool? isFrontdoorWritable,
-          bool? isBackdoorReadable,
-          bool? isBackdoorWritable}) =>
-      CsrInstanceConfig(
-        arch: arch ?? this.arch,
-        addr: addr ?? this.addr,
-        width: width ?? this.width,
-        resetValue: resetValue ?? this.resetValue,
-        isFrontdoorReadable: isFrontdoorReadable ?? this.isFrontdoorReadable,
-        isFrontdoorWritable: isFrontdoorWritable ?? this.isFrontdoorWritable,
-        isBackdoorReadable: isBackdoorReadable ?? this.isBackdoorReadable,
-        isBackdoorWritable: isBackdoorWritable ?? this.isBackdoorWritable,
-      );
+      {CsrConfig? arch,
+      int? addr,
+      BigInt? wideAddr,
+      int? width,
+      int? resetValue,
+      bool? isFrontdoorReadable,
+      bool? isFrontdoorWritable,
+      bool? isBackdoorReadable,
+      bool? isBackdoorWritable}) {
+    if (addr != null && wideAddr != null) {
+      throw ArgumentError('Specify either addr or wideAddr, not both.');
+    }
+    return CsrInstanceConfig.wide(
+      arch: arch ?? this.arch,
+      addr: wideAddr ?? (addr == null ? this.addr : BigInt.from(addr)),
+      width: width ?? this.width,
+      resetValue: resetValue ?? this.resetValue,
+      isFrontdoorReadable: isFrontdoorReadable ?? this.isFrontdoorReadable,
+      isFrontdoorWritable: isFrontdoorWritable ?? this.isFrontdoorWritable,
+      isBackdoorReadable: isBackdoorReadable ?? this.isBackdoorReadable,
+      isBackdoorWritable: isBackdoorWritable ?? this.isBackdoorWritable,
+    );
+  }
 
   @override
   bool operator ==(Object other) {

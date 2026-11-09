@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_adder.dart
@@ -46,10 +46,17 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   /// getter for the computed [FpTypeOut] output.
   late final FpTypeOut sum;
 
+  /// IEEE 754 exception status for this operation.
+  late final FloatingPointStatus status;
+
   /// The conditional output [FloatingPoint] signal in which to store the
   /// result of the addition.
   @protected
   late final FpTypeOut internalSum;
+
+  /// Internal exception status driven by the implementation.
+  @protected
+  late final FloatingPointStatus internalStatus;
 
   /// The rounding mode to use for the adder.
   final FloatingPointRoundingMode roundingMode;
@@ -94,9 +101,11 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
 
     // expose typed output and drive it from internalSum
-    sum = addTypedOutput(
-        'sum', internalSum.clone as FpTypeOut Function({String? name}));
+    sum = addTypedOutput('sum', internalSum.cloneTyped);
     sum <= internalSum;
+    internalStatus = FloatingPointStatus(name: 'internalStatus');
+    status = addTypedOutput('status', internalStatus.clone);
+    status <= internalStatus;
 
     if (outSum != null) {
       outSum <= sum;
@@ -104,6 +113,6 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
-  Logic localFlop(Logic input) =>
+  LogicType localFlop<LogicType extends Logic>(LogicType input) =>
       condFlop(clk, input, en: enable, reset: reset);
 }

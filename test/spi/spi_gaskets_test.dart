@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // spi_gaskets_test.dart
@@ -60,9 +60,9 @@ class SpiMainTest extends Test {
       const numTransfers = 4;
       final jsonStr =
           File('$outFolder/spiTracker.tracker.json').readAsStringSync();
-      final jsonContents = json.decode(jsonStr);
-      // ignore: avoid_dynamic_calls
-      expect(jsonContents['records'].length, 2 * numTransfers);
+      final jsonContents = json.decode(jsonStr) as Map<String, dynamic>;
+      final records = jsonContents['records'] as List<Object?>;
+      expect(records.length, 2 * numTransfers);
 
       Directory(outFolder).deleteSync(recursive: true);
     });
@@ -283,8 +283,8 @@ void main() {
 
       if (dumpWaves) {
         await spiMainTest.main.build();
-        WaveDumper(spiMainTest.main,
-            outputPath: '${spiMainTest.outFolder}/waves.vcd');
+        spiMainTest.main
+            .dumpWaves(outputPath: '${spiMainTest.outFolder}/waves.vcd');
       }
       await spiMainTest.start();
     }
@@ -397,7 +397,7 @@ void main() {
       final mod = SpiTop(spiSubTest.intf, spiSubTest);
       if (dumpWaves) {
         await mod.build();
-        WaveDumper(mod, outputPath: '${spiSubTest.outFolder}/waves.vcd');
+        mod.dumpWaves(outputPath: '${spiSubTest.outFolder}/waves.vcd');
       }
 
       await spiSubTest.start();
@@ -523,7 +523,7 @@ void main() {
       final mod = SpiTop(spiPairTest.intf, null);
       if (dumpWaves) {
         await mod.build();
-        WaveDumper(mod, outputPath: '${spiPairTest.outFolder}/waves.vcd');
+        mod.dumpWaves(outputPath: '${spiPairTest.outFolder}/waves.vcd');
       }
       await spiPairTest.start();
     }
@@ -558,15 +558,11 @@ void main() {
     }
 
     void checkMainBusOut(SpiPairTest test, int data) {
-      if (test.main.busOut.value.toInt() != data) {
-        test.logger.severe('main busOut: ${test.main.busOut.value}');
-      }
+      expect(test.main.busOut.value.toInt(), data, reason: 'main busOut');
     }
 
     void checkSubBusOut(SpiPairTest test, int data) {
-      if (test.sub.busOut.value.toInt() != data) {
-        test.logger.severe('sub busOut: ${test.sub.busOut.value}');
-      }
+      expect(test.sub.busOut.value.toInt(), data, reason: 'sub busOut');
     }
 
     test('main busIn injects, both busOut checks, no gaps', () async {

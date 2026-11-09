@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_leading_digit_anticipate.dart
@@ -12,16 +12,29 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [LeadingDigitAnticipate] and [LeadingZeroAnticipate].
 class LeadingDigitAnticipateConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'normalization';
+
   /// Controls whether we anticipate the leading digit change or count
   /// leading zeros.
-  final ChoiceConfigKnob<Type> anticipator = ChoiceConfigKnob([
-    LeadingDigitAnticipate,
-    LeadingZeroAnticipate,
-    LeadingZeroAnticipateCarry
-  ], value: LeadingDigitAnticipate);
+  final ChoiceConfigKnob<Type> anticipator = ChoiceConfigKnob(
+      [
+        LeadingDigitAnticipate,
+        LeadingZeroAnticipate,
+        LeadingZeroAnticipateCarry
+      ],
+      value: LeadingDigitAnticipate,
+      choiceLabels: const {
+        LeadingDigitAnticipate: 'LeadingDigitAnticipate',
+        LeadingZeroAnticipate: 'LeadingZeroAnticipate',
+        LeadingZeroAnticipateCarry: 'LeadingZeroAnticipateCarry',
+      });
 
   /// Controls the width of the input.
-  final IntConfigKnob inputWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob inputWidthKnob = PositiveIntConfigKnob(value: 8);
 
   @override
   Module createModule() {

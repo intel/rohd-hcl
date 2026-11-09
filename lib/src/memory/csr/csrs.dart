@@ -6,4 +6,8 @@ export 'csr.dart';
 export 'csr_access.dart';
 export 'csr_backdoor.dart';
 export 'csr_block.dart';
+export 'csr_implementation.dart';
+export 'csr_model_description.dart';
+export 'csr_model_systemc.dart';
+export 'csr_software_model.dart';
 export 'csr_top.dart';

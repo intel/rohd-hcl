@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr_top_config.dart
@@ -22,17 +22,40 @@ class CsrTopConfig extends CsrContainerConfig {
   ///
   /// Individual blocks may override this value via
   /// [CsrBlockConfig.blockSize] to support heterogeneous block sizes.
-  final int blockSize;
+  final BigInt blockSize;
 
   /// Blocks in this module.
   final List<CsrBlockConfig> blocks;
 
+  /// Indicates whether the `reset` signal driving all registers in this
+  /// module should be treated as an asynchronous reset.
+  ///
+  /// If `true`, registers reset as soon as `reset` is asserted, independent
+  /// of `clk`. If `false` (the default), `reset` is treated as synchronous
+  /// and registers only reset on the next active edge of `clk`.
+  bool get asyncReset => _asyncReset;
+  final bool _asyncReset;
+
   /// Construct a new top level configuration.
   CsrTopConfig({
     required super.name,
+    required int blockSize,
+    required List<CsrBlockConfig> blocks,
+    bool asyncReset = false,
+  })  : blockSize = BigInt.from(blockSize),
+        _asyncReset = asyncReset,
+        blocks = List.unmodifiable(blocks) {
+    _validate();
+  }
+
+  /// Constructs a top with an arbitrary-width default block extent.
+  CsrTopConfig.wide({
+    required super.name,
     required this.blockSize,
     required List<CsrBlockConfig> blocks,
-  }) : blocks = List.unmodifiable(blocks) {
+    bool asyncReset = false,
+  })  : _asyncReset = asyncReset,
+        blocks = List.unmodifiable(blocks) {
     _validate();
   }
 
@@ -41,12 +64,18 @@ class CsrTopConfig extends CsrContainerConfig {
   /// If the block has its own [CsrBlockConfig.blockSize] set, that
   /// value is returned; otherwise the top-level [blockSize] default
   /// is used.
-  int blockSizeForBlock(CsrBlockConfig block) => block.blockSize ?? blockSize;
+  BigInt blockSizeForBlock(CsrBlockConfig block) =>
+      block.blockSize ?? blockSize;
 
   /// Returns the number of address offset bits needed to index within
   /// [block], derived from the effective block size.
-  int blockOffsetWidthForBlock(CsrBlockConfig block) =>
-      (blockSizeForBlock(block) - 1).bitLength;
+  ///
+  /// A one-address block still needs a one-bit hardware address so generated
+  /// constants and interfaces never have a zero width.
+  int blockOffsetWidthForBlock(CsrBlockConfig block) {
+    final width = (blockSizeForBlock(block) - BigInt.one).bitLength;
+    return width == 0 ? 1 : width;
+  }
 
   /// Accessor to the config of a particular register block
   /// within the module by name [name].
@@ -56,6 +85,10 @@ class CsrTopConfig extends CsrContainerConfig {
   /// Accessor to the config of a particular register block
   /// within the module by relative address [addr].
   CsrBlockConfig getBlockByAddr(int addr) =>
+      getBlockByBigIntAddr(BigInt.from(addr));
+
+  /// Looks up a block by its arbitrary-width base address.
+  CsrBlockConfig getBlockByBigIntAddr(BigInt addr) =>
       blocks.firstWhere((element) => element.baseAddr == addr);
 
   /// Method to validate the configuration of register top module.
@@ -66,6 +99,9 @@ class CsrTopConfig extends CsrContainerConfig {
   /// block validation is called separately (i.e., in [CsrBlock] HW
   /// construction).
   void _validate() {
+    if (blockSize <= BigInt.zero) {
+      throw CsrValidationException('Default block size must be positive.');
+    }
     // at least 1 block
     if (blocks.isEmpty) {
       throw CsrValidationException(
@@ -104,8 +140,8 @@ class CsrTopConfig extends CsrContainerConfig {
           // must not bleed into the block that comes second, based on
           // the first block's effective size
           final effectiveSizeJ = blockSizeForBlock(blocks[j]);
-          final int separation;
-          final int firstBlockSize;
+          final BigInt separation;
+          final BigInt firstBlockSize;
           if (blocks[i].baseAddr < blocks[j].baseAddr) {
             separation = blocks[j].baseAddr - blocks[i].baseAddr;
             firstBlockSize = effectiveSizeI;
@@ -128,18 +164,20 @@ class CsrTopConfig extends CsrContainerConfig {
 
   /// Method to determine the minimum number of address bits
   /// needed to address all registers across all blocks. This is
-  /// based on the maximum block base address. Note that we independently
-  /// validate the block size relative to the base addresses
-  /// so we can trust the simpler analysis here.
+  /// based on the highest address reachable in any block (its base
+  /// address plus its effective size).
   @override
   int minAddrBits() {
-    var maxAddr = 0;
+    var maxAddr = BigInt.zero;
     for (final block in blocks) {
-      if (block.baseAddr > maxAddr) {
-        maxAddr = block.baseAddr;
+      final highestBlockAddr =
+          block.baseAddr + blockSizeForBlock(block) - BigInt.one;
+      if (highestBlockAddr > maxAddr) {
+        maxAddr = highestBlockAddr;
       }
     }
-    return maxAddr.bitLength;
+    final width = maxAddr.bitLength;
+    return width == 0 ? 1 : width;
   }
 
   /// Method to determine the maximum register size.
@@ -160,13 +198,22 @@ class CsrTopConfig extends CsrContainerConfig {
   CsrTopConfig clone({
     String? name,
     int? blockSize,
+    BigInt? wideBlockSize,
     List<CsrBlockConfig>? blocks,
-  }) =>
-      CsrTopConfig(
-        name: name ?? this.name,
-        blockSize: blockSize ?? this.blockSize,
-        blocks: blocks ?? this.blocks,
-      );
+    bool? asyncReset,
+  }) {
+    if (blockSize != null && wideBlockSize != null) {
+      throw ArgumentError(
+          'Specify either blockSize or wideBlockSize, not both.');
+    }
+    return CsrTopConfig.wide(
+      name: name ?? this.name,
+      blockSize: wideBlockSize ??
+          (blockSize == null ? this.blockSize : BigInt.from(blockSize)),
+      blocks: blocks ?? this.blocks,
+      asyncReset: asyncReset ?? this.asyncReset,
+    );
+  }
 
   @override
   bool operator ==(Object other) {
@@ -177,6 +224,7 @@ class CsrTopConfig extends CsrContainerConfig {
     return other is CsrTopConfig &&
         super == other &&
         blockSize == other.blockSize &&
+        asyncReset == other.asyncReset &&
         blocks.length == other.blocks.length &&
         const ListEquality<CsrBlockConfig>().equals(blocks, other.blocks);
   }
@@ -185,5 +233,6 @@ class CsrTopConfig extends CsrContainerConfig {
   int get hashCode =>
       super.hashCode ^
       blockSize.hashCode ^
+      asyncReset.hashCode ^
       const ListEquality<CsrBlockConfig>().hash(blocks);
 }

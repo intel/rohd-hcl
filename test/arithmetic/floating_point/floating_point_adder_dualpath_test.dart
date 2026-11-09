@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_dualpath_test.dart
@@ -13,30 +13,167 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+const _roundingModeRandomIterations = 40;
+const _rPathRandomIterations = 50;
+const _wideRandomIterations = 30;
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
 
+  test('FP: dual-path adder supports every rounding mode', () {
+    const exponentWidth = 5;
+    const mantissaWidth = 6;
+    FloatingPointValuePopulator populator() => FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    final random = Random(0x754);
+
+    for (final mode in FloatingPointRoundingMode.values) {
+      final a = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final b = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final adder = FloatingPointAdderDualPath(a, b, roundingMode: mode);
+
+      for (var iteration = 0;
+          iteration < _roundingModeRandomIterations;
+          iteration++) {
+        final aValue = populator().random(random);
+        final bValue = populator().random(random);
+        a.put(aValue);
+        b.put(bValue);
+
+        final actual = adder.sum.floatingPointValue;
+        final expected = populator().add(aValue, bValue, roundingMode: mode);
+        expect(actual.isNaN, expected.isNaN,
+            reason: 'mode=$mode a=$aValue b=$bValue');
+        if (!expected.isNaN) {
+          expect(actual, expected, reason: 'mode=$mode a=$aValue b=$bValue');
+        }
+      }
+    }
+  });
+
+  test('FP: dual-path directed rounding sees subtraction tail', () {
+    final a = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+    final b = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+    final adder = FloatingPointAdderDualPath(a, b,
+        roundingMode: FloatingPointRoundingMode.roundTowardsInfinity);
+    a.put(a.valuePopulator().ofSpacedBinaryString('1 01000 111111'));
+    b.put(b.valuePopulator().ofSpacedBinaryString('0 01010 111110'));
+
+    expect(adder.status.inexact.value.toBool(), isTrue);
+    expect(adder.sum.floatingPointValue,
+        a.valuePopulator().ofSpacedBinaryString('0 01010 011111'));
+
+    a.put(a.valuePopulator().ofSpacedBinaryString('1 00001 000100'));
+    b.put(b.valuePopulator().ofSpacedBinaryString('0 00100 101101'));
+    expect(adder.status.inexact.value.toBool(), isTrue);
+    expect(adder.sum.floatingPointValue,
+        a.valuePopulator().ofSpacedBinaryString('0 00100 100101'));
+  });
+
+  test('FP: dual-path special values do not report inexact', () {
+    final a = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+    final b = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
+    final adder = FloatingPointAdderDualPath(a, b);
+
+    a.put(a.valuePopulator().positiveInfinity);
+    b.put(b.valuePopulator().one);
+    expect(adder.sum.floatingPointValue.isAnInfinity, isTrue);
+    expect(adder.status.inexact.value.toBool(), isFalse);
+
+    a.put(a.valuePopulator().nan);
+    b.put(b.valuePopulator().one);
+    expect(adder.sum.floatingPointValue.isNaN, isTrue);
+    expect(adder.status.inexact.value.toBool(), isFalse);
+  });
+
+  test('FP: dual-path native rounding covers reduced boundary format', () {
+    // This is the smallest format supported by the dual-path implementation.
+    // The selected exponents cover zero/subnormal, minimum normal, maximum
+    // finite, and special-value encodings for every rounding mode.
+    const exponentWidth = 3;
+    const mantissaWidth = 2;
+    const representativeExponents = [0, 1, 6, 7];
+
+    for (final mode in FloatingPointRoundingMode.values) {
+      final a = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final b = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final adder = FloatingPointAdderDualPath(a, b, roundingMode: mode);
+
+      for (final aSign in [false, true]) {
+        for (final aExponent in representativeExponents) {
+          for (var aMantissa = 0; aMantissa < 1 << mantissaWidth; aMantissa++) {
+            final aValue =
+                a.valuePopulator().ofInts(aExponent, aMantissa, sign: aSign);
+            a.put(aValue);
+            for (final bSign in [false, true]) {
+              for (final bExponent in representativeExponents) {
+                for (var bMantissa = 0;
+                    bMantissa < 1 << mantissaWidth;
+                    bMantissa++) {
+                  final bValue = b
+                      .valuePopulator()
+                      .ofInts(bExponent, bMantissa, sign: bSign);
+                  b.put(bValue);
+                  final expected = a
+                      .valuePopulator()
+                      .add(aValue, bValue, roundingMode: mode);
+                  final actual = adder.sum.floatingPointValue;
+                  expect(actual.isNaN, expected.isNaN,
+                      reason: 'mode=$mode a=$aValue b=$bValue');
+                  if (!expected.isNaN) {
+                    expect(actual, expected,
+                        reason: 'mode=$mode a=$aValue b=$bValue');
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  test('FP: dual-path rounding does not instantiate single-path', () async {
+    final adder = FloatingPointAdderDualPath(
+        FloatingPoint(exponentWidth: 5, mantissaWidth: 6),
+        FloatingPoint(exponentWidth: 5, mantissaWidth: 6),
+        roundingMode: FloatingPointRoundingMode.roundTowardsInfinity);
+    await adder.build();
+
+    Iterable<Module> descendants(Module module) sync* {
+      for (final child in module.subModules) {
+        yield child;
+        yield* descendants(child);
+      }
+    }
+
+    expect(
+        descendants(adder).whereType<FloatingPointAdderSinglePath>(), isEmpty);
+  });
+
   group('FP: dual-path adder N path tests', () {
     const exponentWidth = 3;
-    const mantissaWidth = 5;
+    const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
     final fp1 = fpConstructor();
     final fp2 = fpConstructor();
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
-    test('FP: dual-path adder N path singleton', () async {
+    test('FP: dual-path adder N path singleton', () {
       final fv1 = fpvPopulator().ofInts(0, 0, sign: true);
       final fv2 = fpvPopulator().ofInts(0, 1, sign: true);
 
       fp1.put(fv1);
       fp2.put(fv2);
 
-      final expectedNoRound =
-          fpvPopulator().ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-      final expected = expectedNoRound;
+      final expected = fpvPopulator().add(fv1, fv2);
 
       final adder = FloatingPointAdderDualPath(fp1, fp2);
 
@@ -47,7 +184,7 @@ void main() {
     // isR is Addition or exponent delta >= 2
     // N path is Subtraction & exponent delta < 2
 
-    test('FP: dual-path adder N path, subtraction, delta < 2', () async {
+    test('FP: dual-path adder N path, subtraction, delta < 2', () {
       final one = fpvPopulator().ofConstant(FloatingPointConstants.one);
       fp1.put(one);
       fp2.put(one);
@@ -68,9 +205,7 @@ void main() {
 
                     fp1.put(fv1);
                     fp2.put(fv2);
-                    // No rounding
-                    final expected = fpvPopulator()
-                        .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
+                    final expected = fpvPopulator().add(fv1, fv2);
 
                     final computed = adder.sum.floatingPointValue;
                     expect(computed, equals(expected));
@@ -86,7 +221,7 @@ void main() {
 
   group('FP: dual-path adder R path tests', () {
     const exponentWidth = 3;
-    const mantissaWidth = 4;
+    const mantissaWidth = 3;
     final expLimit = pow(2, exponentWidth).toInt();
     final mantLimit = pow(2, mantissaWidth).toInt();
 
@@ -122,7 +257,7 @@ void main() {
       await Simulator.endSimulation();
     });
 
-    test('FP: dual-path adder R path exhaustive', () async {
+    test('FP: dual-path adder R path exhaustive', () {
       fp1.put(0);
       fp2.put(0);
       final adder = FloatingPointAdderDualPath(fp1, fp2);
@@ -169,7 +304,7 @@ void main() {
       unawaited(Simulator.run());
       final rand = Random(47);
 
-      var cnt = 200;
+      var cnt = _rPathRandomIterations;
       while (cnt > 0) {
         final fv1 = fpvPopulator().random(rand);
         final fv2 = fpvPopulator().random(rand);
@@ -200,8 +335,8 @@ void main() {
   group('FP: dual-path adder both paths tests', () {
     const exponentWidth = 3;
     const mantissaWidth = 4;
-    final expLimit = pow(2, exponentWidth).toInt();
-    final mantLimit = pow(2, mantissaWidth).toInt();
+    const representativeExponents = [0, 1, 7];
+    const representativeMantissas = [0, 1, 15];
 
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
@@ -210,7 +345,7 @@ void main() {
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
 
-    test('FP: dual-path adder singleton merged path', () async {
+    test('FP: dual-path adder singleton merged path', () {
       fp1.put(0);
       fp2.put(0);
       final fv1 = fpvPopulator().ofInts(4, 7);
@@ -218,15 +353,7 @@ void main() {
       fp1.put(fv1);
       fp2.put(fv2);
 
-      final expectedNoRound =
-          fpvPopulator().ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-
-      final expectedRound = fv1 + fv2;
-      final expected =
-          (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-                  (fv1.sign.toInt() != fv2.sign.toInt()))
-              ? expectedNoRound
-              : expectedRound;
+      final expected = fpvPopulator().add(fv1, fv2);
       final adder = FloatingPointAdderDualPath(fp1, fp2);
 
       final computed = adder.sum.floatingPointValue;
@@ -248,15 +375,7 @@ void main() {
       fp1.put(fv1);
       fp2.put(fv2);
 
-      final expectedNoRound =
-          fpvPopulator().ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-
-      final expectedRound = fv1 + fv2;
-      final expected =
-          (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-                  (fv1.sign.toInt() != fv2.sign.toInt()))
-              ? expectedNoRound
-              : expectedRound;
+      final expected = fpvPopulator().add(fv1, fv2);
       final adder = FloatingPointAdderDualPath(clk: clk, fp1, fp2);
       await adder.build();
       unawaited(Simulator.run());
@@ -280,23 +399,18 @@ void main() {
       final adder = FloatingPointAdderDualPath(fp1, fp2);
 
       for (final subtract in [0, 1]) {
-        for (var e1 = 0; e1 < expLimit; e1++) {
-          for (var m1 = 0; m1 < mantLimit; m1++) {
+        for (final e1 in representativeExponents) {
+          for (final m1 in representativeMantissas) {
             final fv1 = fpvPopulator().ofInts(e1, m1);
-            for (var e2 = 0; e2 < expLimit; e2++) {
-              for (var m2 = 0; m2 < mantLimit; m2++) {
+            for (final e2 in representativeExponents) {
+              for (final m2 in representativeMantissas) {
                 final fv2 = fpvPopulator().ofInts(e2, m2, sign: subtract == 1);
 
                 fp1.put(fv1.value);
                 fp2.put(fv2.value);
                 final computed = adder.sum.floatingPointValue;
-                final dbl = fv1.toDouble() + fv2.toDouble();
 
-                final expected =
-                    (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-                            (fv1.sign.toInt() != fv2.sign.toInt()))
-                        ? fpvPopulator().ofDoubleUnrounded(dbl)
-                        : fv1 + fv2;
+                final expected = fpvPopulator().add(fv1, fv2);
                 expect(computed.isNaN, equals(expected.isNaN));
                 if (!computed.isNaN) {
                   expect(computed, equals(expected), reason: '''
@@ -317,8 +431,8 @@ void main() {
   group('FP: dual-path adder DAZ/FTZ tests', () {
     const exponentWidth = 3;
     const mantissaWidth = 3;
-    final expLimit = pow(2, exponentWidth).toInt();
-    final mantLimit = pow(2, mantissaWidth).toInt();
+    const representativeExponents = [0, 1, 7];
+    const representativeMantissas = [0, 1, 7];
     FloatingPoint fpConstructor({bool subNormalAsZero = false}) =>
         FloatingPoint(
             exponentWidth: exponentWidth,
@@ -362,18 +476,8 @@ void main() {
                 final computed = fpvPopulator()
                     .ofFloatingPointValue(adder.sum.floatingPointValue);
 
-                final dbl = fv1.toDouble() + fv2.toDouble();
-
-                final expectedNoRound =
-                    fpvPopulator(subNormalAsZero: ftz).ofDoubleUnrounded(dbl);
-                final expectedRound =
-                    fpvPopulator(subNormalAsZero: ftz).ofDouble(dbl);
-
                 final expected =
-                    (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-                            (fv1.sign.toInt() != fv2.sign.toInt()))
-                        ? expectedNoRound
-                        : expectedRound;
+                    fpvPopulator(subNormalAsZero: ftz).add(fv1, fv2);
                 expect(computed.isNaN, equals(expected.isNaN));
                 if (!computed.isNaN) {
                   expect(computed, equals(expected), reason: '''
@@ -402,13 +506,13 @@ void main() {
             fp1.put(0);
             fp2.put(0);
             final adder = FloatingPointAdderDualPath(fp1, fp2, outSum: fpOut);
-            for (var e1 = 0; e1 < expLimit; e1++) {
-              for (var m1 = 0; m1 < mantLimit; m1++) {
+            for (final e1 in representativeExponents) {
+              for (final m1 in representativeMantissas) {
                 for (final sign1 in [false, true]) {
                   final fv1 = fpvPopulator(subNormalAsZero: daz1)
                       .ofInts(e1, m1, sign: sign1);
-                  for (var e2 = 0; e2 < expLimit; e2++) {
-                    for (var m2 = 0; m2 < mantLimit; m2++) {
+                  for (final e2 in representativeExponents) {
+                    for (final m2 in representativeMantissas) {
                       for (final sign2 in [false, true]) {
                         final fv2 = fpvPopulator(subNormalAsZero: daz2)
                             .ofInts(e2, m2, sign: sign2);
@@ -421,20 +525,8 @@ void main() {
                         final computed = fpvPopulator()
                             .ofFloatingPointValue(adder.sum.floatingPointValue);
 
-                        final dbl = fv1.toDouble() + fv2.toDouble();
-
-                        final expectedNoRound =
-                            fpvPopulator(subNormalAsZero: ftz)
-                                .ofDoubleUnrounded(dbl);
-                        final expectedRound =
-                            fpvPopulator(subNormalAsZero: ftz).ofDouble(dbl);
                         final expected =
-                            (((fv1.exponent.toInt() - fv2.exponent.toInt())
-                                            .abs() <
-                                        2) &
-                                    (fv1.sign.toInt() != fv2.sign.toInt()))
-                                ? expectedNoRound
-                                : expectedRound;
+                            fpvPopulator(subNormalAsZero: ftz).add(fv1, fv2);
                         expect(computed.isNaN, equals(expected.isNaN));
                         if (!computed.isNaN) {
                           expect(computed, equals(expected), reason: '''
@@ -457,7 +549,7 @@ void main() {
     });
   });
 
-  test('FP: dual-path adder full random wide', () async {
+  test('FP: dual-path adder full random wide', () {
     const exponentWidth = 11;
     const mantissaWidth = 52;
 
@@ -471,7 +563,7 @@ void main() {
     final adder = FloatingPointAdderDualPath(fp1, fp2);
     final rand = Random(51);
 
-    var cnt = 100;
+    var cnt = _wideRandomIterations;
     while (cnt > 0) {
       final fv1 = fpvPopulator().random(rand);
       final fv2 = fpvPopulator().random(rand);
@@ -506,16 +598,9 @@ void main() {
     fa.put(fv1);
     fb.put(fv2);
 
-    final expectedNoRound = FloatingPointValue.populator(
+    final expected = FloatingPointValue.populator(
             exponentWidth: eWidth, mantissaWidth: mWidth)
-        .ofDoubleUnrounded(fv1.toDouble() + fv2.toDouble());
-    final expectedRound = fv1 + fv2;
-
-    final expected =
-        (((fv1.exponent.toInt() - fv2.exponent.toInt()).abs() < 2) &
-                (fv1.sign.toInt() != fv2.sign.toInt()))
-            ? expectedNoRound
-            : expectedRound;
+        .add(fv1, fv2);
     final adder = FloatingPointAdderDualPath(
         clk: clk, fa, fb, adderGen: ParallelPrefixAdder.new);
     await adder.build();

@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // config_fixed_to_float.dart
@@ -14,24 +14,40 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// A [Configurator] for [FixedToFloat].
 class FixedToFloatConfigurator extends Configurator {
+  @override
+  ComponentCategory get category => ComponentCategory.arithmetic;
+
+  @override
+  String get subcategory => 'conversion';
+
   /// A knob controlling the input sign.
   final ToggleConfigKnob signKnob = ToggleConfigKnob(value: true);
 
   /// A knob controlling leading digit prediction.
-  final ToggleConfigKnob leadingDigitPredictionKnob =
-      ToggleConfigKnob(value: false);
+  final ToggleConfigKnob leadingDigitPredictionKnob = ToggleConfigKnob(
+    value: false,
+  );
 
   /// Width of integer part.
-  final IntConfigKnob integerWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob integerWidthKnob = NonNegativeIntConfigKnob(value: 8);
 
   /// Width of fractional part.
-  final IntConfigKnob fractionWidthKnob = IntConfigKnob(value: 23);
+  final IntConfigKnob fractionWidthKnob = NonNegativeIntConfigKnob(value: 23);
 
   /// Width of exponent, must be greater than 0.
-  final IntConfigKnob exponentWidthKnob = IntConfigKnob(value: 8);
+  final IntConfigKnob exponentWidthKnob = PositiveIntConfigKnob(value: 8);
 
   /// Width of mantissa, must be greater than 0.
-  final IntConfigKnob mantissaWidthKnob = IntConfigKnob(value: 23);
+  final IntConfigKnob mantissaWidthKnob = PositiveIntConfigKnob(value: 23);
+
+  /// Whether the output format includes an explicit J bit.
+  final ToggleConfigKnob outputExplicitJBitKnob = ToggleConfigKnob(
+    value: false,
+  );
+
+  /// Rounding mode used for the conversion.
+  final FloatingPointRoundingModeKnob roundingModeKnob =
+      FloatingPointRoundingModeKnob();
 
   @override
   final String name = 'Fixed To Float Converter';
@@ -44,19 +60,26 @@ class FixedToFloatConfigurator extends Configurator {
     'Input fraction width': fractionWidthKnob,
     'Output exponent width': exponentWidthKnob,
     'Output mantissa width': mantissaWidthKnob,
+    'Output explicit J bit': outputExplicitJBitKnob,
+    'Rounding mode': roundingModeKnob,
   });
 
   @override
   Module createModule() => FixedToFloat(
-      FixedPoint(
+        FixedPoint(
           signed: signKnob.value,
           integerWidth: integerWidthKnob.value,
-          fractionWidth: fractionWidthKnob.value),
-      FloatingPoint(
+          fractionWidth: fractionWidthKnob.value,
+        ),
+        FloatingPoint(
           exponentWidth: exponentWidthKnob.value,
-          mantissaWidth: mantissaWidthKnob.value),
-      leadingDigitPredict: leadingDigitPredictionKnob.value
-          ? Logic(width: log2Ceil(integerWidthKnob.value))
-          : null,
-      definitionName: 'FixedToFloat');
+          mantissaWidth: mantissaWidthKnob.value,
+          explicitJBit: outputExplicitJBitKnob.value,
+        ),
+        leadingDigitPredict: leadingDigitPredictionKnob.value
+            ? Logic(width: integerWidthKnob.value.log2Ceil)
+            : null,
+        roundingMode: roundingModeKnob.value,
+        definitionName: 'FixedToFloat',
+      );
 }

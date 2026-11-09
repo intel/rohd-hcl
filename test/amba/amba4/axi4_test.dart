@@ -13,30 +13,26 @@ import 'package:test/test.dart';
 
 class Axi4Subordinate extends Module {
   Axi4Subordinate(Axi4SystemInterface sIntf, List<Axi4BaseCluster> lanes) {
-    sIntf = Axi4SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi4BaseCluster>[];
     for (var i = 0; i < lanes.length; i++) {
       if (lanes[i] is Axi4Cluster) {
-        lanesL.add((lanes[i] as Axi4Cluster).clone()
-          ..pairConnectIO(
-            this,
-            lanes[i],
-            PairRole.consumer,
-            uniquify: (original) => '$original$i',
-          ));
+        lanesL.add(addPairInterfacePorts(
+            lanes[i] as Axi4Cluster, PairRole.consumer,
+            uniquify: (original) => '$original$i'));
       } else if (lanes[i] is Axi4LiteCluster) {
-        lanesL.add((lanes[i] as Axi4LiteCluster).clone()
-          ..pairConnectIO(this, lanes[i], PairRole.consumer,
-              uniquify: (original) => '$original$i'));
+        lanesL.add(addPairInterfacePorts(
+            lanes[i] as Axi4LiteCluster, PairRole.consumer,
+            uniquify: (original) => '$original$i'));
       } else if (lanes[i] is Ace4LiteCluster) {
-        lanesL.add((lanes[i] as Ace4LiteCluster).clone()
-          ..pairConnectIO(this, lanes[i], PairRole.consumer,
-              uniquify: (original) => '$original$i'));
+        lanesL.add(addPairInterfacePorts(
+            lanes[i] as Ace4LiteCluster, PairRole.consumer,
+            uniquify: (original) => '$original$i'));
       } else {
-        // lanesL.add((lanes[i] as Ace4Cluster).clone()
-        //   ..pairConnectIO(this, lanes[i], PairRole.consumer));
+        // lanesL.add(
+        //     addPairInterfacePorts(
+        //         lanes[i] as Ace4Cluster, PairRole.consumer));
       }
     }
   }
@@ -44,26 +40,26 @@ class Axi4Subordinate extends Module {
 
 class Axi4Main extends Module {
   Axi4Main(Axi4SystemInterface sIntf, List<Axi4BaseCluster> lanes) {
-    sIntf = Axi4SystemInterface()
-      ..pairConnectIO(this, sIntf, PairRole.consumer);
+    sIntf = addPairInterfacePorts(sIntf, PairRole.consumer);
 
     final lanesL = <Axi4BaseCluster>[];
     for (var i = 0; i < lanes.length; i++) {
       if (lanes[i] is Axi4Cluster) {
-        lanesL.add((lanes[i] as Axi4Cluster).clone()
-          ..pairConnectIO(this, lanes[i], PairRole.provider,
-              uniquify: (original) => '$original$i'));
+        lanesL.add(addPairInterfacePorts(
+            lanes[i] as Axi4Cluster, PairRole.provider,
+            uniquify: (original) => '$original$i'));
       } else if (lanes[i] is Axi4LiteCluster) {
-        lanesL.add((lanes[i] as Axi4LiteCluster).clone()
-          ..pairConnectIO(this, lanes[i], PairRole.provider,
-              uniquify: (original) => '$original$i'));
+        lanesL.add(addPairInterfacePorts(
+            lanes[i] as Axi4LiteCluster, PairRole.provider,
+            uniquify: (original) => '$original$i'));
       } else if (lanes[i] is Ace4LiteCluster) {
-        lanesL.add((lanes[i] as Ace4LiteCluster).clone()
-          ..pairConnectIO(this, lanes[i], PairRole.provider,
-              uniquify: (original) => '$original$i'));
+        lanesL.add(addPairInterfacePorts(
+            lanes[i] as Ace4LiteCluster, PairRole.provider,
+            uniquify: (original) => '$original$i'));
       } else {
-        // lanesL.add((lanes[i] as Ace4Cluster).clone()
-        //   ..pairConnectIO(this, lanes[i], PairRole.provider));
+        // lanesL.add(
+        //     addPairInterfacePorts(
+        //         lanes[i] as Ace4Cluster, PairRole.provider));
       }
     }
   }

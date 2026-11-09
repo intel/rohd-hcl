@@ -1,18 +1,26 @@
 # Count
 
-ROHD-HCL comes with a `Count` component.  The detailed API docs are available [here](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html).
+ROHD-HCL comes with a `Count` component. See the
+[ROHD-HCL API reference](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html)
+for details.
 
 A `Count` will count all one(`1`)/zero(`0`) within a given Logic `bus`.
 
-It takes a binary Logic `bus` and counts all one or zero within the `bus`. A Count function without any constructor arguments will only count all Ones (`1`).
-That is to say, by default a Count will go for counting with a `countOne` which is set as `true` by default.
-The boolean `countOne` is optional. Only Logic `bus` is mandatory argument.
+It takes a binary Logic `bus` and counts all one or zero within the `bus`. A
+Count function without any constructor arguments will only count all Ones (`1`).
+That is to say, by default a Count will go for counting with a `countOne` which
+is set as `true` by default. The boolean `countOne` is optional. Only Logic
+`bus` is mandatory argument.
 
-This will return a Logic value labeled as `countOne` for `1` and `countZero` for `0`. The value is a result of count of all occurrence parsed (with `countOne` as `1` or `0`) through the entire Logic `bus`.
+Use the `count` getter to access the result. The generated output port is named
+`countOne` or `countZero` according to the selected operation. The optional
+`radix` controls the balanced reduction tree, and `treeDepth` reports its
+combinational depth.
 
 ## Count One
 
-To count all ones just pass in the `bus` with `countOne` as `true`. By default, `countOne` is `true`.
+To count all ones just pass in the `bus` with `countOne` as `true`. By default,
+`countOne` is `true`.
 
 ## Count Zero
 

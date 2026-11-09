@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Intel Corporation
+// Copyright (C) 2025-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_multiplier_simple.dart
@@ -46,6 +46,9 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   /// The computed [FpTypeOut] product of [a] * [b].
   late final FpTypeOut product;
 
+  /// IEEE 754 exception status for this operation.
+  late final FloatingPointStatus status;
+
   /// The rounding mode to use for the multiplier.
   late final FloatingPointRoundingMode roundingMode;
 
@@ -53,6 +56,10 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   /// multiplication.
   @protected
   late final FpTypeOut internalProduct;
+
+  /// Internal exception status driven by the implementation.
+  @protected
+  late final FloatingPointStatus internalStatus;
 
   /// Multiply two floating point numbers [a] and [b], returning result in
   /// [product].
@@ -70,9 +77,9 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
       Logic? enable,
       FpTypeOut? outProduct,
       this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
+      // Retained for API compatibility with concrete multiplier variants.
       // ignore: avoid_unused_constructor_parameters
-      ParallelPrefix Function(List<Logic>, Logic Function(Logic, Logic)) ppGen =
-          KoggeStone.new,
+      ParallelPrefixGenerator<Logic> ppGen = KoggeStone.new,
       super.name = 'floating_point_multiplier',
       super.reserveName,
       super.reserveDefinitionName,
@@ -93,9 +100,11 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
     internalProduct = (outProduct ?? a).clone(name: 'outSum') as FpTypeOut;
 
     // expose typed output and drive it from internalProduct
-    product = addTypedOutput(
-        'product', internalProduct.clone as FpTypeOut Function({String? name}));
+    product = addTypedOutput('product', internalProduct.cloneTyped);
     product <= internalProduct;
+    internalStatus = FloatingPointStatus(name: 'internalStatus');
+    status = addTypedOutput('status', internalStatus.clone);
+    status <= internalStatus;
 
     if (outProduct != null) {
       outProduct <= product;
@@ -110,6 +119,6 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
   }
 
   /// Pipelining helper that uses the context for signals clk/enable/reset
-  Logic localFlop(Logic input) =>
+  LogicType localFlop<LogicType extends Logic>(LogicType input) =>
       condFlop(clk, input, en: enable, reset: reset);
 }
