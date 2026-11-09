@@ -12,6 +12,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/floating_point/explicit_j_bit_canonicalization.dart';
 
 /// A converter module between different [FloatingPoint] logic signals.
 class FloatingPointConverter<FpTypeIn extends FloatingPoint,
@@ -51,9 +52,15 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
   /// - [priorityGen] is a [PriorityEncoder] generator to be used in the
   /// leading one detection (default [RecursiveModulePriorityEncoder]).
   /// - [adderGen] can specify the [Adder] to use for exponent calculations.
+  /// - [alignExplicitJBit] canonicalizes explicit-J-bit inputs before
+  /// conversion, including unnormalized and noncanonical zero encodings.
+  /// Aligned explicit-J sources require IEEE infinity and signaling-NaN
+  /// encodings and at least two exponent bits; explicit-J destinations
+  /// additionally require a fraction bit and IEEE special values.
   FloatingPointConverter(FpTypeIn source, this.destination,
       {FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven,
+      bool alignExplicitJBit = false,
       PriorityEncoder Function(Logic bitVector,
               {bool generateValid, String name})
           priorityGen = RecursiveModulePriorityEncoder.new,
@@ -66,15 +73,17 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       : sourceExponentWidth = source.exponent.width,
         sourceMantissaWidth = source.mantissa.width,
         super(
-            definitionName: definitionName ??
-                'FloatingPointConverter_'
-                    'SE${source.exponent.width}_'
-                    'SM${source.mantissa.width}_'
-                    'SJ${source.explicitJBit ? 1 : 0}_'
-                    'DE${destination.exponent.width}_'
-                    'DM${destination.mantissa.width}_'
-                    'DJ${destination.explicitJBit ? 1 : 0}_'
-                    'R${roundingMode.name}') {
+          definitionName: definitionName ??
+              'FloatingPointConverter_'
+                  'SE${source.exponent.width}_'
+                  'SM${source.mantissa.width}_'
+                  'SJ${source.explicitJBit ? 1 : 0}_'
+                  'DE${destination.exponent.width}_'
+                  'DM${destination.mantissa.width}_'
+                  'DJ${destination.explicitJBit ? 1 : 0}_'
+                  'R${roundingMode.name}'
+                  '${alignExplicitJBit && source.explicitJBit ? '_A1' : ''}',
+        ) {
     if (source.subNormalAsZero) {
       throw ArgumentError(
           'FloatingPointConverter does not support denormal as zero (DAZ)');
@@ -82,6 +91,19 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     if (destination.subNormalAsZero) {
       throw ArgumentError(
           'FloatingPointConverter does not support flush to zero (FTZ)');
+    }
+    if (alignExplicitJBit && source.explicitJBit) {
+      if (!source.supportsInfinities || !source.supportsSignalingNaNs) {
+        throw ArgumentError(
+            'Aligned explicit-J conversion requires IEEE special values.');
+      }
+      if (destination.explicitJBit &&
+          (destination.mantissa.width < 2 ||
+              !destination.supportsInfinities ||
+              !destination.supportsSignalingNaNs)) {
+        throw ArgumentError('Aligned conversion to an explicit-J format '
+            'requires a fraction bit and IEEE special values.');
+      }
     }
     destExponentWidth = destination.exponent.width;
     destMantissaWidth = destination.mantissa.width;
@@ -94,6 +116,95 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     status = addTypedOutput('status', _status.clone);
     status <= _status;
 
+    final calculationSource = alignExplicitJBit && source.explicitJBit
+        ? canonicalizeExplicitJBit(source, priorityGen: priorityGen)
+        : source;
+    if (alignExplicitJBit &&
+        source.explicitJBit &&
+        !destination.explicitJBit &&
+        destination.supportsInfinities &&
+        destination.supportsSignalingNaNs &&
+        destExponentWidth == source.exponent.width &&
+        destMantissaWidth == source.mantissa.width - 1) {
+      _status.invalid <= source.isSignalingNaN;
+      _status.divideByZero <= Const(0);
+      _status.overflow <= Const(0);
+      _status.underflow <= Const(0);
+      _status.inexact <= Const(0);
+      Combinational([
+        If.block([
+          Iff(source.isNaN, [
+            _destination < _destination.quietNaNFrom(source),
+          ]),
+          ElseIf(source.isAnInfinity, [
+            _destination < _destination.inf(sign: source.sign),
+          ]),
+          Else([
+            _destination.sign < calculationSource.sign,
+            _destination.exponent < calculationSource.exponent,
+            _destination.mantissa <
+                calculationSource.mantissa.getRange(0, destMantissaWidth),
+          ]),
+        ]),
+      ]);
+      return;
+    }
+
+    if (alignExplicitJBit && source.explicitJBit) {
+      final implicitSource = FloatingPoint(
+        exponentWidth: source.exponent.width,
+        mantissaWidth: source.mantissa.width - 1,
+        name: 'canonical_implicit_source',
+      );
+      implicitSource.sign <= calculationSource.sign;
+      implicitSource.exponent <= calculationSource.exponent;
+      implicitSource.mantissa <=
+          calculationSource.mantissa.getRange(0, source.mantissa.width - 1);
+      final implicitDestination = destination.explicitJBit
+          ? FloatingPoint(
+              exponentWidth: destExponentWidth,
+              mantissaWidth: destMantissaWidth - 1,
+              name: 'implicit_destination',
+            )
+          : destination.clone(name: 'implicit_destination');
+      final converter = FloatingPointConverter(
+        implicitSource,
+        implicitDestination,
+        roundingMode: roundingMode,
+        priorityGen: priorityGen,
+        adderGen: adderGen,
+      );
+      _status.invalid <= source.isSignalingNaN;
+      _status.divideByZero <= converter.status.divideByZero;
+      _status.overflow <= converter.status.overflow;
+      _status.underflow <= converter.status.underflow;
+      _status.inexact <= converter.status.inexact;
+      if (destination.explicitJBit) {
+        Combinational([
+          If.block([
+            Iff(source.isNaN, [
+              _destination < _destination.quietNaNFrom(source),
+            ]),
+            ElseIf(source.isAnInfinity, [
+              _destination < _destination.inf(sign: source.sign),
+            ]),
+            Else([
+              _destination.sign < implicitDestination.sign,
+              _destination.exponent < implicitDestination.exponent,
+              _destination.mantissa <
+                  [
+                    implicitDestination.exponent.or(),
+                    implicitDestination.mantissa,
+                  ].concat(),
+            ]),
+          ]),
+        ]);
+      } else {
+        _destination <= implicitDestination;
+      }
+      return;
+    }
+
     // maxExpWidth: mantissa +2:
     //     1 for the hidden jbit and 1 for going past with leadingOneDetect
     final maxExpWidth = [
@@ -102,12 +213,14 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
       (source.mantissa.width + 2).log2Ceil,
       (destMantissaWidth + 2).log2Ceil
     ].reduce(max);
-    final sBias = source.bias.zeroExtend(maxExpWidth).named('sourceBias');
+    final sBias =
+        calculationSource.bias.zeroExtend(maxExpWidth).named('sourceBias');
     final dBias = destination.bias.zeroExtend(maxExpWidth).named('destBias');
-    final se = source.exponent.zeroExtend(maxExpWidth).named('sourceExp');
+    final se =
+        calculationSource.exponent.zeroExtend(maxExpWidth).named('sourceExp');
     final mantissa = [
-      source.isNormal & ~Const(source.explicitJBit),
-      source.mantissa
+      calculationSource.isNormal & ~Const(calculationSource.explicitJBit),
+      calculationSource.mantissa
     ].concat().named('mantissa');
 
     final nan = source.isNaN;
@@ -137,8 +250,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
         fullDiff = mux(
                 Const(source.explicitJBit),
                 biasDiff +
-                    source.exponent.zeroExtend(biasDiff.width) +
-                    (~source.isNormal & Const(source.explicitJBit))
+                    calculationSource.exponent.zeroExtend(biasDiff.width) +
+                    (~calculationSource.isNormal & Const(source.explicitJBit))
                         .zeroExtend(maxExpWidth),
                 biasDiff)
             .named('fullDiff');
@@ -155,7 +268,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
       final trueShift = (shift +
               (Const(destination.explicitJBit & !source.explicitJBit) &
-                      source.isNormal)
+                      calculationSource.isNormal)
                   .replicate(maxExpWidth))
           .named('trueShift');
 
@@ -267,7 +380,9 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               .named('leadOne');
 
       final newSe = mux(
-              leadOneValid & Const(source.explicitJBit) & source.isNormal,
+              leadOneValid &
+                  Const(source.explicitJBit) &
+                  calculationSource.isNormal,
               mux(
                   se.gte(leadOne),
                   se - (leadOne - Const(1, width: maxExpWidth)),
@@ -277,7 +392,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
       final nextShift = mux(
               biasDiff.gte(newSe),
-              source.isNormal.zeroExtend(maxExpWidth) + (biasDiff - newSe),
+              calculationSource.isNormal.zeroExtend(maxExpWidth) +
+                  (biasDiff - newSe),
               Const(0, width: maxExpWidth))
           .named('nextShift');
 

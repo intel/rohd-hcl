@@ -31,9 +31,9 @@ subcategory barrels. The package barrel exports every category barrel.
 | --- | --- | --- |
 | [Arithmetic](#arithmetic) | [`arithmetic.dart`](../lib/src/arithmetic/arithmetic.dart) | `accumulation`, `addition`, `conversion`, `division_and_roots`, `floating_point`, `multiplication`, `multiply_accumulate`, `normalization`, `prefix_networks`, `signals`, `values` |
 | [Bit operations](#bit-operations) | [`bit_operations.dart`](../lib/src/bit_operations/bit_operations.dart) | `population_count`, `search`, `selection`, `shifting` |
-| [Clocking](#clocking) | [`clocking.dart`](../lib/src/clocking/clocking.dart) | `cdc`, `event_detection`, `gating` |
+| [Clocking](#clocking) | [`clocking.dart`](../lib/src/clocking/clocking.dart) | `cdc`, `event_detection`, `gating`, `generation` |
 | [Dataflow](#dataflow) | [`dataflow.dart`](../lib/src/dataflow/dataflow.dart) | `ordering`, `reduction`, `selection`, `serialization` |
-| [Encodings](#encodings) | [`encodings.dart`](../lib/src/encodings/encodings.dart) | `gray`, `one_hot`, `priority` |
+| [Encodings](#encodings) | [`encodings.dart`](../lib/src/encodings/encodings.dart) | `gray`, `one_hot`, `priority`, `thermometer` |
 | [Error control](#error-control) | [`error_control.dart`](../lib/src/error_control/error_control.dart) | `protection` |
 | [Flow control](#flow-control) | [`flow_control.dart`](../lib/src/flow_control/flow_control.dart) | `arbitration`, `attachments`, `control`, `ready_valid`, `storage` |
 | [Interfaces](#interfaces) | [`interfaces.dart`](../lib/src/interfaces/interfaces.dart) | `amba` (`amba4`, `amba5`, `endpoints`), `spi` (`endpoints`) |
@@ -78,6 +78,7 @@ subcategory, and the confapp sidebar groups components accordingly.
   [adders](./components/floating_point.md#floatingpointadder),
   [multiplier](./components/floating_point.md#floatingpointmultiplier),
   [converter](./components/floating_point.md#floatingpointconverter), and
+  [classification and comparison](./components/floating_point.md#floating-point-classification-and-comparison),
   [status](./components/floating_point.md#floating-point-status).
 - **Fixed point:** [values, signals and arithmetic](./components/fixed_point.md),
   [fixed-to-float](./components/fixed_point.md#fixedtofloat), and
@@ -102,6 +103,7 @@ subcategory, and the confapp sidebar groups components accordingly.
 - [Clock gating](./components/clock_gating.md) and [toggle gating](./components/toggle_gate.md).
 - [Edge detection](./components/edge_detector.md).
 - [Clock-domain synchronizer](./components/async_fifo.md#synchronizer-module).
+- [Divided-rate clock enable](./components/clock_gating.md#clock-enable-divider).
 
 ### Dataflow
 
@@ -115,6 +117,7 @@ subcategory, and the confapp sidebar groups components accordingly.
 
 - [One-hot codecs](./components/onehot.md).
 - [Binary/Gray conversion](./components/binary_gray.md).
+- [Thermometer conversion](./components/binary_gray.md#thermometer-conversion).
 - [Parallel-prefix and recursive priority encoders](./components/priority_encoder.md).
 
 ### Error control

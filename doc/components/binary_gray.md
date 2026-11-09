@@ -47,3 +47,10 @@ await grayToBin.build();
 
 print(grayToBin.binary.value.toString(includeWidth: false)); // output: 111
 ```
+## Thermometer conversion
+
+`BinaryToThermometer` converts an unsigned count to contiguous low-order ones,
+saturating at the output width and asserting `overflow` for larger inputs.
+`ThermometerToBinary` counts set bits and reports `valid` only when those bits
+are contiguous from bit zero. For an invalid input its binary output is still
+the population count.

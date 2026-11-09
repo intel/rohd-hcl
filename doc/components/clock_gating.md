@@ -111,3 +111,10 @@ without changing the design of the counter at all.
 
 An executable version of this example is available in
 `example/clock_gating_example.dart`.
+## Clock enable divider
+
+`ClockDivider` generates a periodic enable on the original clock rather than a
+new clock. A positive divisor specifies the number of input-clock cycles per
+enable; divisor one enables every cycle. Synchronous reset suppresses the enable
+and restarts the period. Apply the enable to registers clocked by the original
+clock; it is not a generated-clock or clock-domain crossing primitive.

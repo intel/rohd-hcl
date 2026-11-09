@@ -5,7 +5,7 @@
 // Tests for the iterative divider engine and ready/valid wrapper.
 //
 // 2026 November 8
-// Author: Copilot <223556219+Copilot@users.noreply.github.com>
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
 

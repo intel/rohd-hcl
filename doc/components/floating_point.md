@@ -277,6 +277,26 @@ and
 subclasses are provided as these are the most common floating-point number
 types.
 
+## Floating-point classification and comparison
+
+`FloatingPointClassifier` reports the sign and whether the value is zero,
+subnormal, normal, infinity, quiet NaN, or signaling NaN. Classification does
+not flush subnormals even when they are configured as zero for arithmetic.
+
+`FloatingPointComparator` reports less, equal, greater, and unordered results.
+NaNs are unordered, signed zeros compare equal, and `subNormalAsZero` flushes
+subnormal operands for comparison. The comparator requires matching operand
+formats.
+
+Both modules accept explicit-J-bit inputs when `alignExplicitJBit: true` is
+specified. A shared leading-one detector and shift network canonicalizes
+unnormalized inputs without losing precision; classification and comparison
+then use the numerical value, including noncanonical zero and infinity
+encodings. Comparison applies `subNormalAsZero` after canonicalization. The
+option defaults to false, rejecting explicit-J inputs and generating no
+alignment logic for implicit-J inputs. Alignment requires at least two
+exponent bits so that canonical normal values can be represented.
+
 ## FloatingPointAdder
 
 A single path
@@ -358,6 +378,16 @@ overflow are rounded, defaulting to
 `FloatingPointRoundingMode.roundNearestEven`. The converter rejects a source
 configured for denormal-as-zero (DAZ) or a destination configured for
 flush-to-zero (FTZ).
+
+For unnormalized explicit-J inputs, `alignExplicitJBit: true` enables the
+same canonicalization used by the classifier and comparator. It reuses the
+converter's rounding and exponent conversion for other precisions; its
+`priorityGen` also selects the canonicalizer's leading-one detector. The
+default converter behavior is unchanged. This opt-in path requires IEEE
+infinity and signaling-NaN encodings and at least two exponent bits for the
+source; an explicit-J
+destination must also have those special values and at least one fraction
+bit.
 
 Here is an example using the converter to translate from 32-bit single-precision
 floating point to 16-bit brain (bfloat16) floating-point format.

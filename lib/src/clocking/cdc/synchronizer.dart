@@ -10,11 +10,11 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-/// A multi-flop synchronizer for safely crossing clock domains.
+/// A multi-flop synchronizer for a stable single-bit control crossing.
 ///
 /// The [Synchronizer] implements a chain of flip-flops to reduce metastability
 /// when crossing signals from one clock domain to another. This is essential
-/// for Clock Domain Crossing (CDC) to prevent metastability issues.
+/// for Clock Domain Crossing (CDC) to reduce metastability risk.
 ///
 /// The typical implementation uses 2 or 3 flip-flop stages. The first stage
 /// may capture a metastable value, but subsequent stages allow time for the
@@ -22,10 +22,16 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 ///
 /// **Implementation Note**: This extends [ShiftRegister] with CDC-specific
 /// constraints: minimum 2 stages, no enable signal, no async reset, and
-/// intermediate stages are hidden to prevent misuse.
+/// the [stages] getter is inaccessible. The inherited module output ports for
+/// intermediate stages still exist and must not be used by downstream logic.
 ///
-/// **WARNING**: This synchronizer is only suitable for control signals, not
-/// data buses. For data transfer between clock domains, use an async FIFO.
+/// Reset, when supplied, is synchronous to the destination clock. Its
+/// assertion and release must meet destination-domain timing requirements.
+/// Input levels must remain stable long enough to be sampled; pulses and
+/// events can be lost. Multi-bit inputs are independently synchronized and
+/// are not guaranteed to be coherent. Use an appropriate handshake or async
+/// FIFO for changing multi-bit data. Simulation cannot prove metastability
+/// safety: use technology-specific synchronizer placement and CDC constraints.
 class Synchronizer extends ShiftRegister<Logic> {
   /// The synchronized output signal in the destination clock domain.
   Logic get syncData => dataOut;
@@ -73,10 +79,11 @@ class Synchronizer extends ShiftRegister<Logic> {
     }
   }
 
-  /// Hides intermediate stages to prevent CDC violations.
+  /// Prevents access to intermediate stages through the Dart getter.
   ///
   /// Accessing intermediate stages of a synchronizer can lead to metastability
-  /// issues. Use [syncData] to access the properly synchronized output.
+  /// issues. Inherited intermediate output ports must not be connected; use
+  /// [syncData] instead.
   @override
   List<Logic> get stages => throw RohdHclException(
       'Cannot access intermediate stages of Synchronizer - CDC hazard! '

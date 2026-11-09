@@ -21,6 +21,7 @@ const moduleSourceAssets = <String, String>{
   'AsyncFifo': 'rohd_src/flow_control/storage/async_fifo.dart',
   'BinaryToOneHot': 'rohd_src/encodings/one_hot/binary_to_one_hot.dart',
   'BinaryToGrayConverter': 'rohd_src/encodings/gray/binary_gray.dart',
+  'BinaryToThermometer': 'rohd_src/encodings/thermometer/thermometer_code.dart',
   'BitonicSort': 'rohd_src/dataflow/ordering/sort.dart',
   'BitwiseMux': 'rohd_src/bit_operations/selection/bitwise_mux.dart',
   'Cache': 'rohd_src/memory/cache/cache.dart',
@@ -38,6 +39,7 @@ const moduleSourceAssets = <String, String>{
   'CeilDivide': 'rohd_src/arithmetic/division_and_roots/ceil_divide.dart',
   'CircularPointer': 'rohd_src/arithmetic/accumulation/circular_pointer.dart',
   'ClockGate': 'rohd_src/clocking/gating/clock_gating.dart',
+  'ClockDivider': 'rohd_src/clocking/generation/clock_divider.dart',
   'CompressionTreeDotProduct':
       'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
   'CompressionTreeMultiplyAccumulate':
@@ -70,6 +72,10 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/floating_point/floating_point_sqrt_simple.dart',
   'FloatingPointConverter':
       'rohd_src/arithmetic/floating_point/floating_point_converter.dart',
+  'FloatingPointClassifier':
+      'rohd_src/arithmetic/floating_point/floating_point_classification.dart',
+  'FloatingPointComparator':
+      'rohd_src/arithmetic/floating_point/floating_point_classification.dart',
   'GatedCounter': 'rohd_src/arithmetic/accumulation/gated_counter.dart',
   'GeneralDotProduct':
       'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
@@ -141,6 +147,7 @@ const moduleSourceAssets = <String, String>{
   'SpiSub': 'rohd_src/interfaces/spi/endpoints/spi_sub.dart',
   'Sum': 'rohd_src/arithmetic/accumulation/sum.dart',
   'Synchronizer': 'rohd_src/clocking/cdc/synchronizer.dart',
+  'ThermometerToBinary': 'rohd_src/encodings/thermometer/thermometer_code.dart',
   'ToggleGate': 'rohd_src/clocking/gating/toggle_gate.dart',
   'TreeOneHotToBinary':
       'rohd_src/encodings/one_hot/tree_one_hot_to_binary.dart',
@@ -158,6 +165,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
       AsyncFifo() => moduleSourceAssets['AsyncFifo'],
       BinaryToOneHot() => moduleSourceAssets['BinaryToOneHot'],
       BinaryToGrayConverter() => moduleSourceAssets['BinaryToGrayConverter'],
+      BinaryToThermometer() => moduleSourceAssets['BinaryToThermometer'],
       BitonicSort() => moduleSourceAssets['BitonicSort'],
       BitwiseMux() => moduleSourceAssets['BitwiseMux'],
       // Experimental cache components are intentionally exposed in Confapp.
@@ -177,6 +185,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
       CeilDivide() => moduleSourceAssets['CeilDivide'],
       CircularPointer() => moduleSourceAssets['CircularPointer'],
       ClockGate() => moduleSourceAssets['ClockGate'],
+      ClockDivider() => moduleSourceAssets['ClockDivider'],
       CompressionTreeDotProduct() =>
         moduleSourceAssets['CompressionTreeDotProduct'],
       CompressionTreeMultiplyAccumulate() =>
@@ -211,6 +220,10 @@ String? moduleSourceAsset(Module module) => switch (module) {
       FloatingPointSqrtSimple() =>
         moduleSourceAssets['FloatingPointSqrtSimple'],
       FloatingPointConverter() => moduleSourceAssets['FloatingPointConverter'],
+      FloatingPointClassifier() =>
+        moduleSourceAssets['FloatingPointClassifier'],
+      FloatingPointComparator() =>
+        moduleSourceAssets['FloatingPointComparator'],
       GeneralDotProduct() => moduleSourceAssets['GeneralDotProduct'],
       GrayToBinaryConverter() => moduleSourceAssets['GrayToBinaryConverter'],
       HammingEccReceiver() => moduleSourceAssets['HammingEccReceiver'],
@@ -264,6 +277,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
       Serializer() => moduleSourceAssets['Serializer'],
       SetBits() => moduleSourceAssets['SetBits'],
       Synchronizer() => moduleSourceAssets['Synchronizer'],
+      ThermometerToBinary() => moduleSourceAssets['ThermometerToBinary'],
       ShiftRegister() => moduleSourceAssets['ShiftRegister'],
       SignMagnitudeAdder() => moduleSourceAssets['SignMagnitudeAdder'],
       SignMagnitudeDualAdder() => moduleSourceAssets['SignMagnitudeDualAdder'],

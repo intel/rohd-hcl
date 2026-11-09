@@ -31,6 +31,44 @@ void main() {
     }
   });
 
+  test('compute component sources are bundled', () async {
+    final cases = <({Configurator config, String asset, String declaration})>[
+      (
+        config: ClockDividerConfigurator(),
+        asset: 'rohd_src/clocking/generation/clock_divider.dart',
+        declaration: 'class ClockDivider',
+      ),
+      for (final config in [
+        BinaryToThermometerConfigurator(),
+        ThermometerToBinaryConfigurator(),
+      ])
+        (
+          config: config,
+          asset: 'rohd_src/encodings/thermometer/thermometer_code.dart',
+          declaration: 'class ${config.createModule().runtimeType}',
+        ),
+      for (final config in [
+        FloatingPointClassifierConfigurator(),
+        FloatingPointComparatorConfigurator(),
+      ])
+        (
+          config: config,
+          asset:
+              'rohd_src/arithmetic/floating_point/floating_point_classification.dart',
+          declaration: 'class ${config.createModule().runtimeType}',
+        ),
+    ];
+    for (final item in cases) {
+      expect(moduleSourceAsset(item.config.createModule()), item.asset);
+      final source = await rootBundle.loadString('assets/${item.asset}');
+      expect(source, contains(item.declaration), reason: item.config.name);
+    }
+    final canonicalizer =
+        await rootBundle.loadString('assets/rohd_src/arithmetic/floating_point/'
+            'explicit_j_bit_canonicalization.dart');
+    expect(canonicalizer, contains('canonicalizeExplicitJBit'));
+  });
+
   test('carry-save multiplier uses its implementation source asset', () {
     final module = CarrySaveMultiplierConfigurator().createModule();
 

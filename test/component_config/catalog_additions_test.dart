@@ -33,6 +33,11 @@ void main() {
         'Ceil Divide',
         'Multiplexer',
         'Bitwise Popcount',
+        'Binary to Thermometer',
+        'Thermometer to Binary',
+        'Clock Enable Divider',
+        'Floating-Point Classifier',
+        'Floating-Point Comparator',
         'Pad',
         'Set Bits',
         'With Set',
@@ -50,6 +55,34 @@ void main() {
     expect(names, isNot(contains('Content-Addressable Memory')));
     expect(names, contains('Ready/Valid Queue'));
     expect(names, contains('Parallel Associative Memory'));
+  });
+
+  test('explicit-J alignment configurators round-trip and generate', () async {
+    final pairs = <(Configurator, Configurator)>[
+      (
+        FloatingPointClassifierConfigurator()
+          ..explicitJBitKnob.value = true
+          ..alignExplicitJBitKnob.value = true,
+        FloatingPointClassifierConfigurator(),
+      ),
+      (
+        FloatingPointComparatorConfigurator()
+          ..explicitJBitKnob.value = true
+          ..alignExplicitJBitKnob.value = true,
+        FloatingPointComparatorConfigurator(),
+      ),
+      (
+        FloatingPointConverterConfigurator()
+          ..sourceExplicitJBitKnob.value = true
+          ..alignExplicitJBitKnob.value = true,
+        FloatingPointConverterConfigurator(),
+      ),
+    ];
+    for (final (configured, restored) in pairs) {
+      restored.loadJson(configured.toJson());
+      expect(restored.toJson(), configured.toJson());
+      expect(await restored.generateSV(), contains('canonical_leading_one'));
+    }
   });
 
   test('legacy configurators remain usable outside the catalog', () async {
@@ -113,6 +146,17 @@ void main() {
               : RotateRightFixed,
         ),
       (config: SynchronizerConfigurator(), type: Synchronizer),
+      (config: ClockDividerConfigurator(), type: ClockDivider),
+      (config: BinaryToThermometerConfigurator(), type: BinaryToThermometer),
+      (config: ThermometerToBinaryConfigurator(), type: ThermometerToBinary),
+      (
+        config: FloatingPointClassifierConfigurator(),
+        type: FloatingPointClassifier
+      ),
+      (
+        config: FloatingPointComparatorConfigurator(),
+        type: FloatingPointComparator
+      ),
       (config: ReadyValidQueueConfigurator(), type: ReadyValidQueue<Logic>),
       (
         config: ParallelAssociativeMemoryConfigurator(),
@@ -155,6 +199,31 @@ void main() {
   });
 
   test('non-default geometry and behavior reach modules', () {
+    final divider = (ClockDividerConfigurator()..divisorKnob.value = 5)
+        .createModule() as ClockDivider;
+    expect(divider.divisor, 5);
+
+    final encoder = (BinaryToThermometerConfigurator()
+          ..binaryWidthKnob.value = 3
+          ..thermometerWidthKnob.value = 6)
+        .createModule() as BinaryToThermometer;
+    expect(encoder.input('binary').width, 3);
+    expect(encoder.encoded.width, 6);
+
+    final decoder = (ThermometerToBinaryConfigurator()
+          ..thermometerWidthKnob.value = 6)
+        .createModule() as ThermometerToBinary;
+    expect(decoder.input('thermometer').width, 6);
+    expect(decoder.binary.width, 3);
+
+    final comparator = (FloatingPointComparatorConfigurator()
+          ..exponentWidthKnob.value = 3
+          ..mantissaWidthKnob.value = 2
+          ..subNormalAsZeroKnob.value = true)
+        .createModule() as FloatingPointComparator;
+    expect(comparator.input('a').width, 6);
+    expect(comparator.input('b').width, 6);
+
     final pointer = (CircularPointerConfigurator()
           ..slotsKnob.value = 13
           ..incrementWidthKnob.value = 4)
