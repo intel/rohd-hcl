@@ -8,7 +8,6 @@
 // Author: Soner Yaldiz <soner.yaldiz@intel.com>
 
 // The legacy multiply operator remains for source compatibility.
-// ignore_for_file: remove_deprecations_in_breaking_versions
 
 import 'dart:math';
 

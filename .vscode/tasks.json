@@ -115,7 +115,6 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "dependsOn": "Generate Confapp Assets",
             "isBackground": true,
             "problemMatcher": {
                 "owner": "confapp-web-release",
@@ -142,7 +141,6 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "dependsOn": "Generate Confapp Assets",
             "isBackground": true,
             "problemMatcher": {
                 "owner": "confapp-web-wasm",
@@ -169,7 +167,6 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "dependsOn": "Generate Confapp Assets",
             "isBackground": true,
             "problemMatcher": {
                 "owner": "confapp-web",

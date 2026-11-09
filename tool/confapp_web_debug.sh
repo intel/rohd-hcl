@@ -20,9 +20,9 @@ flutter_bin="$(command -v "$flutter_bin")" || {
 }
 
 cd "$repo_root"
-bash "$repo_root/tool/generate_confapp_assets.sh"
 "$flutter_bin" pub get
-cd confapp
+bash "$repo_root/tool/generate_confapp_assets.sh"
+cd build/confapp
 exec "$flutter_bin" run \
   --no-pub \
   -d web-server \

@@ -10,7 +10,6 @@
 //  Desmond A Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 // The legacy converter remains for compatibility and regression testing.
-// ignore_for_file: remove_deprecations_in_breaking_versions
 
 import 'dart:math';
 

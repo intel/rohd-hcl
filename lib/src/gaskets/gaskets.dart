@@ -11,7 +11,6 @@
 library;
 
 // Deprecated compatibility APIs remain available for this release.
-// ignore_for_file: remove_deprecations_in_breaking_versions
 
 export '../interfaces/amba/endpoints/amba_endpoints.dart';
 export '../interfaces/spi/endpoints/spi_endpoints.dart';

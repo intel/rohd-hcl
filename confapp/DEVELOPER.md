@@ -9,22 +9,34 @@ dependencies from the repository root:
 flutter pub get
 ```
 
+Confapp source assets are not needed for workspace resolution or root tests.
+For Confapp builds and tests, `bash tool/generate_confapp_assets.sh` creates an
+ignored project in `build/confapp`, including a generated `pubspec.yaml` and a
+mirror of `lib/src/`. Asset entries are written to that generated manifest, not
+to either `pubspec_overrides.yaml`. The generated project resolves dependencies
+using the workspace lockfile and existing dependency overrides without modifying
+them. It links to the Confapp source and
+tests; rerun the generator after changing ROHD-HCL source files, dependencies,
+overrides, or static assets. It requires `rsync`. In VS Code, the **Generate
+Confapp Assets** task runs the generator.
+
 The workspace has one root `pubspec.lock` and
-`.dart_tool/package_config.json`. Overrides are stored beside the manifest
-that owns the direct dependency.
+`.dart_tool/package_config.json`. The checked-in root `pubspec_overrides.yaml`
+declares the workspace; it and Confapp are excluded from the published package.
 
 Each workspace member still owns a `pubspec.yaml` and declares only its direct
 dependencies. The root `rohd_hcl` package depends directly on `rohd`, while
 the Flutter, schematic-viewer, hierarchy, widget, and source-navigator
 dependencies belong to `confapp/pubspec.yaml`. Pub resolves both manifests
-together. The helper writes the shared `rohd` override at the workspace root
-and confapp-only overrides in `confapp/pubspec_overrides.yaml`.
+together. The helper writes all temporary dependency overrides, including
+`rohd`, to `confapp/pubspec_overrides.yaml`. Pub applies them to the entire
+workspace.
 
 ## Dependency sources
 
-The checked-in manifests use hosted release constraints. The helper generates
-ignored override files beside the owning manifests when a dependency source
-differs from its manifest entry:
+The checked-in manifests use hosted release constraints. After resolving the
+workspace with `flutter pub get`, the helper updates the ignored Confapp
+override file when a dependency source differs from its manifest entry:
 
 ```bash
 # Set the ROHD-family packages and viewer independently.
@@ -37,15 +49,24 @@ The **Configure ROHD Dependency**, **Configure Package Dependencies**,
 accept `hosted`, `git`, or `local` and preserve the other source selections.
 
 The group commands write an ignored `.confapp_dependency_sources` state file.
-The generated override contains only Git and Local entries; selecting Hosted
-removes that package from the override so Pub uses its `pubspec.yaml`
-constraint. Prefer one source for the ROHD companion packages unless
-deliberately validating a mixed graph.
+Selecting Hosted removes that package's override so Pub uses its
+`pubspec.yaml` constraint. Only the selected dependencies are changed;
+unrelated existing entries and other override settings are preserved. Prefer
+one source for the ROHD companion packages unless deliberately validating a
+mixed graph.
 
-Before a Configure task replaces or disables an existing override, it moves
-the file to a sibling `pubspec_overrides.yaml.disabled`. If that backup already
-exists, the task uses `.disabled.1`, `.disabled.2`, and so on. This applies to
-both generated and manually maintained override files.
+Before a Configure task changes an existing override, it copies the file to a
+sibling `pubspec_overrides.yaml.disabled`. If that backup already exists, the
+task uses `.disabled.1`, `.disabled.2`, and so on. If a selected dependency was
+overridden at the root, the helper removes that entry there before writing the
+new selection in Confapp; the root workspace declaration and unrelated entries
+are preserved. This can leave the tracked root override modified in Git.
+
+Older checkouts may have an ignored root `pubspec_overrides.yaml` containing
+dependency overrides. Back it up before updating to a revision that tracks the
+file. Move any overrides you still need to `confapp/pubspec_overrides.yaml`,
+adjusting relative paths for its new location, or reselect them using the
+Configure tasks.
 
 The common local shortcuts are:
 
@@ -77,10 +98,10 @@ local paths so configuring one dependency group does not reset another.
 ## Running Confapp
 
 ```bash
-bash tool/generate_confapp_assets.sh
 flutter pub get
-cd confapp
-flutter run --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
+bash tool/generate_confapp_assets.sh
+cd build/confapp
+flutter run --no-pub --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
 ```
 
 Use **ROHD-HCL Confapp: Web Debug** for the current source configuration. If
@@ -104,8 +125,8 @@ Keep browser-independent behavior in normal VM tests. The JavaScript web build
 is the integration gate:
 
 ```bash
-cd confapp
-flutter test test/hcl/view/hcl_page_test.dart
+cd build/confapp
+flutter test --no-pub test/hcl/view/hcl_page_test.dart
 flutter build web --debug --no-pub
 ```
 
