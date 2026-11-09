@@ -1,3 +1,8 @@
+## 0.3.1
+
+- Fixed the published package's workspace metadata so consumers do not need the
+  separate Confapp application.
+
 ## 0.3.0
 
 ### Behavioral models

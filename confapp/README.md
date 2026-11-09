@@ -103,14 +103,17 @@ assets. The same SystemVerilog service supplies the displayed text and its
 cross-probe line positions. Point to the source path beneath `lib/src/`, using
 the `rohd_src/` asset prefix.
 
-Run the source asset generator from the repository root after source changes:
+Resolve the workspace, then run the source asset generator from the repository
+root after source changes:
 
 ```bash
+flutter pub get
 bash tool/generate_confapp_assets.sh
 ```
 
-It mirrors `lib/src/` into the ignored `confapp/assets/rohd_src/` directory and
-updates the generated asset-directory list in `confapp/pubspec.yaml`.
+It creates an ignored Confapp build project under `build/confapp`, with its own
+generated source mirror and asset-directory list. It does not modify the
+workspace manifest.
 
 Source cross-probing requires Dart source locations in the recorded stack
 traces, as supplied by Flutter's debug web compiler (DDC). Optimized `dart2js`
@@ -148,14 +151,14 @@ At minimum:
   [`module_source_assets_test.dart`](test/hcl/module_source_assets_test.dart) to
   verify registry and bundled-source coverage.
 
-Run Confapp tests with `flutter test` from the `confapp` directory. A bare `dart
-test` reports this requirement; explicitly named paths bypass that guard. Run
-the tracing regression on both the VM and DDC web runtime:
+Generate the Confapp project first, then run its tests from `build/confapp`.
+The source workspace's bare `dart test` guard still requires Flutter tests.
+Run the tracing regression on both the VM and DDC web runtime:
 
 ```bash
-cd confapp
-flutter test test/hcl/view/screen/flc_trace_data_test.dart test/hcl/view/hcl_page_test.dart
-flutter test --platform chrome test/hcl/view/screen/flc_trace_data_test.dart
+cd build/confapp
+flutter test --no-pub test/hcl/view/screen/flc_trace_data_test.dart test/hcl/view/hcl_page_test.dart
+flutter test --no-pub --platform chrome test/hcl/view/screen/flc_trace_data_test.dart
 ```
 
 ## Widget Tree

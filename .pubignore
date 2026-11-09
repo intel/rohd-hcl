@@ -34,3 +34,4 @@ devtools_options.yaml
 # Special things for .pubignore
 confapp
 doc/schematic_viewer
+test/tool/workspace_publication_test.dart

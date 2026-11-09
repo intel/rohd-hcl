@@ -60,6 +60,9 @@ jobs:
       - name: Install project dependencies
         run: tool/gh_actions/install_dependencies.sh
 
+      - name: Verify published workspace contents
+        run: bash tool/gh_actions/check_published_workspace.sh
+
       - name: Verify project formatting
         run: tool/gh_actions/verify_formatting.sh
 
@@ -196,7 +199,7 @@ jobs:
       - name: Deploy the generated site to website branch
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: confapp/build/web
+          folder: build/confapp/build/web
           target-folder: confapp
           branch: website
           clean: false  # goes in after the documentation, which does a clean

@@ -17,8 +17,8 @@ repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 # them here so deployment jobs work from a fresh checkout.
 bash "$repo_root/tool/generate_confapp_assets.sh"
 
-cd "$repo_root/confapp"
+cd "$repo_root/build/confapp"
 
 # Use profile instead of release to avoid certain module names being replaced.
 # JavaScript is required by the confapp's browser integrations.
-flutter build web --profile --base-href /rohd-hcl/confapp/
+flutter build web --no-pub --profile --base-href /rohd-hcl/confapp/

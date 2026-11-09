@@ -8,7 +8,6 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 // Deprecated subtraction aliases remain for source compatibility.
-// ignore_for_file: remove_deprecations_in_breaking_versions
 
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';

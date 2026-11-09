@@ -124,9 +124,10 @@ To run the component Configurator, especially useful for visualizing the RTL
 output of your component using different parameters:
 
 ```shell
+flutter pub get
 bash tool/generate_confapp_assets.sh
-cd confapp
-flutter run --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
+cd build/confapp
+flutter run --no-pub --profile -d web-server --web-hostname=0.0.0.0 --web-port=3000
 ```
 
 ### Cloning and Running the Tests
@@ -140,9 +141,15 @@ flutter pub get
 dart test
 ```
 
-The root `pubspec.yaml` defines a pub workspace containing `confapp`, so
-dependency resolution is shared and should be run from the repository root. The
-app includes the root `analysis_options.yaml`, keeping both packages on the same
+The checked-in root `pubspec_overrides.yaml` defines the local Pub workspace
+containing `confapp`, so dependency resolution is shared and should be run from
+the repository root. Pub excludes this override and Confapp from the published
+`rohd_hcl` package.
+Confapp's source assets are generated only for app builds and tests. The
+generator creates an ignored project in `build/confapp`, leaving the workspace
+manifest and ordinary root tests independent of the generated assets.
+
+The app includes the root `analysis_options.yaml`, keeping both packages on the same
 analyzer policy while retaining app-specific generated-file exclusions. Open
 `rohd-hcl-multipackage.code-workspace` in VS Code to load both workspace
 packages as top-level folders.
@@ -153,11 +160,11 @@ assumptions, dependency-source selection, and generated override workflow.
 To validate both workspace packages:
 
 ```shell
-bash tool/generate_confapp_assets.sh
 dart analyze --fatal-infos
 dart test
 (cd confapp && flutter analyze --fatal-infos)
-(cd confapp && flutter test --platform chrome)
+bash tool/generate_confapp_assets.sh
+(cd build/confapp && flutter test --no-pub --platform chrome)
 ```
 
 ## How to Contribute

@@ -15,9 +15,9 @@ repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
 
 bash "$repo_root/tool/generate_confapp_assets.sh"
 
-cd "$repo_root/confapp"
+cd "$repo_root/build/confapp"
 
-flutter test
+flutter test --no-pub
 flutter_bin_dir="$(dirname "$(readlink -f "$(command -v flutter)")")"
 "$flutter_bin_dir/dart" run test:test \
   --platform chrome \
