@@ -10,7 +10,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/division_and_roots/divider.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
-import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
 
 /// Describes one signed or unsigned integer division command.
 /// {@category Arithmetic}
@@ -130,7 +129,7 @@ class ReadyValidIterativeDivider extends Module {
 
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
-    _upstream = addPairInterface(upstream, PairRole.consumer,
+    _upstream = addPairInterfacePorts(upstream, PairRole.consumer,
         uniquify: (original) => 'upstream_$original');
     _downstream = addPairInterfaceFrom(
       IrrevocableReadyValidInterface<DivisionResult>(downstream.data.clone()),

@@ -10,7 +10,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/multiplication/carry_save_multiplier.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/valid_only_interface.dart';
-import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
 import 'package:rohd_hcl/src/pipeline_timing_contract.dart';
 
 /// Multiplies valid-only operands with fixed physical-cycle latency.
@@ -55,11 +54,11 @@ class ValidOnlyCarrySaveMultiplier extends Module {
     }
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
-    _multiplicand = addPairInterface(multiplicand, PairRole.consumer,
+    _multiplicand = addPairInterfacePorts(multiplicand, PairRole.consumer,
         uniquify: (original) => 'multiplicand_$original');
-    _multiplier = addPairInterface(multiplier, PairRole.consumer,
+    _multiplier = addPairInterfacePorts(multiplier, PairRole.consumer,
         uniquify: (original) => 'multiplier_$original');
-    _product = addPairInterface(product, PairRole.provider,
+    _product = addPairInterfacePorts(product, PairRole.provider,
         uniquify: (original) => 'product_$original');
 
     final core = CarrySaveMultiplier(
