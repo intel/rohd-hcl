@@ -10,6 +10,8 @@
 // Verify the legacy FIFO configurator remains available.
 // ignore_for_file: deprecated_member_use_from_same_package
 
+import 'dart:convert';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
@@ -33,6 +35,8 @@ void main() {
         'Ceil Divide',
         'Multiplexer',
         'Bitwise Popcount',
+        'Parallel Prefix Scan',
+        'Sparse to Dense',
         'Binary to Thermometer',
         'Thermometer to Binary',
         'Clock Enable Divider',
@@ -147,6 +151,8 @@ void main() {
         ),
       (config: SynchronizerConfigurator(), type: Synchronizer),
       (config: ClockDividerConfigurator(), type: ClockDivider),
+      (config: ParallelPrefixScanConfigurator(), type: ParallelPrefixScan),
+      (config: SparseToDenseConfigurator(), type: SparseToDense),
       (config: BinaryToThermometerConfigurator(), type: BinaryToThermometer),
       (config: ThermometerToBinaryConfigurator(), type: ThermometerToBinary),
       (
@@ -183,6 +189,53 @@ void main() {
           reason: variant.config.name);
       await _Parent(variant.config.createModule()).build();
     }
+  });
+
+  test('scan, scatter, and Gray topology configurations round-trip', () async {
+    final scanConfig = ParallelPrefixScanConfigurator()
+      ..widthKnob.value = 4
+      ..operationKnob.value = PrefixScanOperation.xor
+      ..directionKnob.value = PrefixScanDirection.highToLow
+      ..treeKnob.value = BrentKung;
+    final restoredScan = ParallelPrefixScanConfigurator()
+      ..loadJson(scanConfig.toJson());
+    expect(restoredScan.toJson(), scanConfig.toJson());
+    final scan = restoredScan.createModule() as ParallelPrefixScan;
+    await scan.build();
+    scan.input('inp').put(5);
+    expect(scan.out.value.toInt(), 6);
+
+    final scatterConfig = SparseToDenseConfigurator()
+      ..inputCountKnob.value = 2
+      ..indexWidthKnob.value = 3
+      ..outputWidthKnob.value = 5;
+    final restoredScatter = SparseToDenseConfigurator()
+      ..loadJson(scatterConfig.toJson());
+    expect(restoredScatter.toJson(), scatterConfig.toJson());
+    final scatter = restoredScatter.createModule() as SparseToDense;
+    await scatter.build();
+    scatter.input('index0').put(2);
+    scatter.input('valid0').put(1);
+    scatter.input('index1').put(4);
+    scatter.input('valid1').put(1);
+    expect(scatter.out.value.toInt(), 20);
+
+    final grayConfig = GrayToBinaryConfigurator()
+      ..widthKnob.value = 3
+      ..topologyKnob.value = GrayToBinaryTopology.brentKung;
+    final restoredGray = GrayToBinaryConfigurator()
+      ..loadJson(grayConfig.toJson());
+    expect(restoredGray.toJson(), grayConfig.toJson());
+    final gray = restoredGray.createModule() as GrayToBinaryConverter;
+    await gray.build();
+    gray.input('gray').put(6);
+    expect(gray.binary.value.toInt(), 4);
+
+    final legacy =
+        jsonDecode(GrayToBinaryConfigurator().toJson()) as Map<String, dynamic>;
+    (legacy['knobs'] as Map<String, dynamic>).remove('Topology');
+    final legacyGray = GrayToBinaryConfigurator()..loadJson(jsonEncode(legacy));
+    expect(legacyGray.topologyKnob.value, GrayToBinaryTopology.linear);
   });
 
   test('fixed rotate settings round-trip without variable controls', () {

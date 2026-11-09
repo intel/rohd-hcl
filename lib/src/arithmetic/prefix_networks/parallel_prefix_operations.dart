@@ -7,6 +7,7 @@
 // 2023 Sep 29
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 //   Borrowed from https://github.com/stevenmburns/rohd_sklansky.git
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 
@@ -195,6 +196,72 @@ class BrentKung<T extends Logic> extends ParallelPrefix<T> {
     iseq.forEachIndexed((i, el) {
       _oseq[i] <= _named(el, 'o_$i');
     });
+  }
+}
+
+/// The associative bitwise operation used by [ParallelPrefixScan].
+enum PrefixScanOperation {
+  /// Bitwise AND.
+  and,
+
+  /// Bitwise OR.
+  or,
+
+  /// Bitwise XOR.
+  xor,
+}
+
+/// The direction in which a [ParallelPrefixScan] accumulates bits.
+enum PrefixScanDirection {
+  /// Output bit `i` combines input bits `0` through `i`.
+  lowToHigh,
+
+  /// Output bit `i` combines input bits `width - 1` through `i`.
+  highToLow,
+}
+
+/// An inclusive bitwise scan implemented using a [ParallelPrefix] network.
+class ParallelPrefixScan extends Module {
+  /// The inclusive scan, with the same width and bit ordering as the input.
+  Logic get out => output('out');
+
+  /// Creates a scan of the nonempty bitvector [inp].
+  ///
+  /// [operation] and [direction] are fixed when the circuit is constructed.
+  /// [ppGen] selects the prefix network topology.
+  ParallelPrefixScan(Logic inp,
+      {required PrefixScanOperation operation,
+      PrefixScanDirection direction = PrefixScanDirection.lowToHigh,
+      ParallelPrefixGenerator<Logic> ppGen = KoggeStone.new,
+      super.name = 'parallel_prefix_scan',
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
+      : super(
+            definitionName: definitionName ??
+                'ParallelPrefixScan_${operation.name}_${direction.name}'
+                    '_W${inp.width}') {
+    if (inp.width == 0) {
+      throw RohdHclException('A prefix scan requires a nonempty input.');
+    }
+    inp = addInput('inp', inp, width: inp.width);
+    final inputs = direction == PrefixScanDirection.lowToHigh
+        ? inp.elements
+        : inp.elements.reversed.toList();
+    final prefix = ppGen(inputs, (a, b) {
+      switch (operation) {
+        case PrefixScanOperation.and:
+          return a & b;
+        case PrefixScanOperation.or:
+          return a | b;
+        case PrefixScanOperation.xor:
+          return a ^ b;
+      }
+    });
+    final bits = direction == PrefixScanDirection.lowToHigh
+        ? prefix.val
+        : prefix.val.reversed.toList();
+    addOutput('out', width: inp.width) <= bits.rconcat();
   }
 }
 

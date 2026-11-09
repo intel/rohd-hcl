@@ -28,6 +28,18 @@ position. Each select and input has the same width, with one select per input.
 At each bit, selected inputs are ORed, so one-hot selection per bit is the
 intended use.
 
+## Boolean Sparse-to-Dense Scatter
+
+`SparseToDense(indices, valids, outputWidth: n)` produces an `n`-bit vector
+with a bit set for each valid, in-range unsigned index. Repeated indices are
+combined with OR; out-of-range indices contribute zero. Indices must be
+nonempty and equal-width, with one single-bit valid per index.
+
+The implementation uses bounded-width shifts and a `ReductionTree`, without
+constructing a `2^indexWidth` decoder. See the
+[reduction-tree example](reduction_tree.md#boolean-sparse-to-dense-scatter)
+for the composition and four-state behavior.
+
 ## Padding and Bit Replacement
 
 `Pad(inp, atLeast: n)` extends the input to at least `n` bits. It pads the

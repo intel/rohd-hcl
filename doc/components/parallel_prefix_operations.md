@@ -30,6 +30,27 @@ class. For background on basic parallel prefix adder structures, see
 <https://en.wikipedia.org/wiki/Kogge%E2%80%93Stone_adder>. In this
 case, the prefix trees carry named `GeneratePropagate` records at each node.
 
+## Bitwise Scans
+
+`ParallelPrefixScan` computes an inclusive AND, OR, or XOR scan of a bit
+vector. `PrefixScanDirection.lowToHigh` combines bits from index zero through
+each output index; `highToLow` combines from the most-significant bit down.
+`ppGen` selects a prefix topology, defaulting to Kogge-Stone. Operation,
+direction, and topology are selected at construction time.
+
+```dart
+final bits = Logic(width: 8);
+final scan = ParallelPrefixScan(
+  bits,
+  operation: PrefixScanOperation.xor,
+  direction: PrefixScanDirection.highToLow,
+  ppGen: BrentKung.new,
+);
+final Logic prefixes = scan.out;
+```
+
+`ParallelPrefixOrScan` retains its existing low-to-high OR behavior.
+
 ## Priority Finding
 
 `ParallelPrefixPriorityFinder` produces a one-hot mask for the least-significant

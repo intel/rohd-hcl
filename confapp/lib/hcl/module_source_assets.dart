@@ -106,6 +106,8 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/memory/associative/parallel_associative_memory.dart',
   'ParallelPrefixOrScan':
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+  'ParallelPrefixScan':
+      'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
   'ParallelPrefixPriorityEncoder':
       'rohd_src/encodings/priority/priority_encoder.dart',
   'ParallelPrefixPriorityFinder':
@@ -143,6 +145,7 @@ const moduleSourceAssets = <String, String>{
   'SignMagnitudeDualAdder':
       'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
   'SignedShifter': 'rohd_src/bit_operations/shifting/signed_shifter.dart',
+  'SparseToDense': 'rohd_src/bit_operations/selection/sparse_to_dense.dart',
   'SpiMain': 'rohd_src/interfaces/spi/endpoints/spi_main.dart',
   'SpiSub': 'rohd_src/interfaces/spi/endpoints/spi_sub.dart',
   'Sum': 'rohd_src/arithmetic/accumulation/sum.dart',
@@ -244,6 +247,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
       ParallelPrefixDecr() => moduleSourceAssets['ParallelPrefixDecr'],
       ParallelPrefixIncr() => moduleSourceAssets['ParallelPrefixIncr'],
       ParallelPrefixOrScan() => moduleSourceAssets['ParallelPrefixOrScan'],
+      ParallelPrefixScan() => moduleSourceAssets['ParallelPrefixScan'],
       ParallelPrefixPriorityEncoder() =>
         moduleSourceAssets['ParallelPrefixPriorityEncoder'],
       ParallelPrefixPriorityFinder() =>
@@ -282,6 +286,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
       SignMagnitudeAdder() => moduleSourceAssets['SignMagnitudeAdder'],
       SignMagnitudeDualAdder() => moduleSourceAssets['SignMagnitudeDualAdder'],
       SignedShifter() => moduleSourceAssets['SignedShifter'],
+      SparseToDense() => moduleSourceAssets['SparseToDense'],
       SpiMain() => moduleSourceAssets['SpiMain'],
       SpiSub() => moduleSourceAssets['SpiSub'],
       Sum() => moduleSourceAssets['Sum'],

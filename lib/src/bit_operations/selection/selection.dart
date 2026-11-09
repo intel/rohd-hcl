@@ -4,3 +4,4 @@
 export 'bitwise_mux.dart';
 export 'one_hot_mux.dart';
 export 'priority_mux.dart';
+export 'sparse_to_dense.dart';

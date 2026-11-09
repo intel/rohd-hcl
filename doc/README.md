@@ -72,7 +72,7 @@ subcategory, and the confapp sidebar groups components accordingly.
 - **Normalization:** [absolute value](./components/arithmetic_primitives.md#absolute-value)
   and [leading digit and zero anticipation](./components/leading_digit_anticipate.md).
 - **Prefix networks:** [prefix operations and typed networks](./components/parallel_prefix_operations.md)
-  for operations such as priority finding, OR scans, incrementing, and
+  for operations such as priority finding, bitwise scans, incrementing, and
   decrementing.
 - **Floating point:** [values and formats](./components/floating_point.md#floatingpointvalue),
   [adders](./components/floating_point.md#floatingpointadder),
@@ -93,7 +93,9 @@ subcategory, and the confapp sidebar groups components accordingly.
 - **Search:** [find bits](./components/find.md),
   [find patterns](./components/find_pattern.md), and
   [leading and trailing zeros](./components/bit_operations.md#leading-and-trailing-zeros).
-- **Selection:** [one-hot, priority, and bitwise multiplexers](./components/bit_operations.md#multiplexers).
+- **Selection:** [one-hot, priority, and bitwise multiplexers](./components/bit_operations.md#multiplexers)
+  and sparse-to-dense boolean scatter, illustrated with
+  [reduction trees](./components/reduction_tree.md).
 - **Shifting and bit manipulation:** [rotate](./components/rotate.md),
   [signed shifter](./components/shifter.md), and
   [padding and bit replacement](./components/bit_operations.md#padding-and-bit-replacement).

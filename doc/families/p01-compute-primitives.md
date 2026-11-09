@@ -63,13 +63,13 @@ The partition is the authoritative ownership inventory. This table lists the cur
 | `arithmetic/multiplication` | `BitCompressor`, `CarrySaveMultiplier`, `ColumnCompressor`, `CompressionTreeMultiplier`, `Compressor2`, `Compressor3`, `Multiplier`, `NativeMultiplier`, `PartialProduct`, `PartialProductMatrix`, `UnsignedMulWithOverflow`, `ValidOnlyCarrySaveMultiplier` |
 | `arithmetic/multiply-accumulate` | `CompressionTreeDotProduct`, `CompressionTreeMultiplyAccumulate`, `DotProductBase`, `GeneralDotProduct`, `GenericMultiplyAccumulate`, `MultiplyAccumulate`, `MultiplyOnly` |
 | `arithmetic/normalization` | `AbsoluteValue`, `LeadingDigitAnticipate`, `LeadingZeroAnticipate`, `LeadingZeroAnticipateBase`, `LeadingZeroAnticipateCarry` |
-| `arithmetic/prefix-networks` | `BrentKung`, `KoggeStone`, `ParallelPrefix`, `ParallelPrefixAdder`, `ParallelPrefixDecr`, `ParallelPrefixIncr`, `ParallelPrefixOrScan`, `ParallelPrefixPriorityFinder`, `Ripple`, `Sklansky` |
+| `arithmetic/prefix-networks` | `BrentKung`, `KoggeStone`, `ParallelPrefix`, `ParallelPrefixAdder`, `ParallelPrefixDecr`, `ParallelPrefixIncr`, `ParallelPrefixOrScan`, `ParallelPrefixPriorityFinder`, `ParallelPrefixScan`, `Ripple`, `Sklansky` |
 | `binary_math/algebra` | `BinaryLinearTransform` |
 | `binary_math/prbs` | `PrbsChecker`, `PrbsGenerator` |
 | `binary_math/recurrence` | `BinaryLinearRecurrence`, `ParallelLfsr`, `SerialLfsr`, `SignatureAnalyzer` |
 | `bit_operations/population-count` | `BitwisePopcount`, `Count`, `XnorPopcount`, `XorPopcount` |
 | `bit_operations/search` | `CountLeadingZeros`, `CountTrailingZeros`, `Find`, `FindPattern`, `FirstMatchPrefix` |
-| `bit_operations/selection` | `BitwiseMux`, `OneHotMux`, `PriorityMux` |
+| `bit_operations/selection` | `BitwiseMux`, `OneHotMux`, `PriorityMux`, `SparseToDense` |
 | `bit_operations/shifting` | `Pad`, `RotateLeft`, `RotateLeftFixed`, `RotateRight`, `RotateRightFixed`, `SetBits`, `SignedShifter`, `WithSet` |
 | `clocking/cdc` | `Synchronizer` |
 | `clocking/event-detection` | `EdgeDetector` |

@@ -38,6 +38,17 @@ void main() {
         asset: 'rohd_src/clocking/generation/clock_divider.dart',
         declaration: 'class ClockDivider',
       ),
+      (
+        config: ParallelPrefixScanConfigurator(),
+        asset:
+            'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+        declaration: 'class ParallelPrefixScan',
+      ),
+      (
+        config: SparseToDenseConfigurator(),
+        asset: 'rohd_src/bit_operations/selection/sparse_to_dense.dart',
+        declaration: 'class SparseToDense',
+      ),
       for (final config in [
         BinaryToThermometerConfigurator(),
         ThermometerToBinaryConfigurator(),

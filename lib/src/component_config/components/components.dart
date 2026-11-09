@@ -56,6 +56,7 @@ export 'config_serialization.dart';
 export 'config_shift_register.dart';
 export 'config_signed_shifter.dart';
 export 'config_sort.dart';
+export 'config_sparse_to_dense.dart';
 export 'config_spi.dart';
 export 'config_summation.dart';
 export 'config_synchronizer.dart';

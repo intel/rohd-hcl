@@ -12,6 +12,24 @@ import 'dart:collection';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
+/// Gray-to-binary conversion topology.
+enum GrayToBinaryTopology {
+  /// Preserve the original linear XOR chain.
+  linear,
+
+  /// A ripple-shaped prefix network.
+  ripple,
+
+  /// A Sklansky prefix network.
+  sklansky,
+
+  /// A Kogge-Stone prefix network.
+  koggeStone,
+
+  /// A Brent-Kung prefix network.
+  brentKung,
+}
+
 /// Shared configuration for a fixed-width binary/Gray-code converter.
 abstract class _BinaryGrayConfigurator extends Configurator {
   @override
@@ -24,7 +42,7 @@ abstract class _BinaryGrayConfigurator extends Configurator {
   final IntConfigKnob widthKnob = PositiveIntConfigKnob(value: 8);
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs =
+  Map<String, ConfigKnob<dynamic>> get knobs =>
       UnmodifiableMapView({'Width': widthKnob});
 }
 
@@ -39,8 +57,29 @@ class BinaryToGrayConfigurator extends _BinaryGrayConfigurator {
 
 /// A [Configurator] for [GrayToBinaryConverter].
 class GrayToBinaryConfigurator extends _BinaryGrayConfigurator {
+  /// Implementation topology, defaulting to the original linear circuit.
+  final ChoiceConfigKnob<GrayToBinaryTopology> topologyKnob = ChoiceConfigKnob(
+    GrayToBinaryTopology.values,
+    value: GrayToBinaryTopology.linear,
+  );
+
   @override
-  Module createModule() => GrayToBinaryConverter(Logic(width: widthKnob.value));
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Width': widthKnob,
+        'Topology': topologyKnob,
+      });
+
+  @override
+  Module createModule() => GrayToBinaryConverter(
+        Logic(width: widthKnob.value),
+        ppGen: switch (topologyKnob.value) {
+          GrayToBinaryTopology.linear => null,
+          GrayToBinaryTopology.ripple => Ripple<Logic>.new,
+          GrayToBinaryTopology.sklansky => Sklansky<Logic>.new,
+          GrayToBinaryTopology.koggeStone => KoggeStone<Logic>.new,
+          GrayToBinaryTopology.brentKung => BrentKung<Logic>.new,
+        },
+      );
 
   @override
   String get name => 'Gray to Binary Converter';

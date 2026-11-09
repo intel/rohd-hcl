@@ -100,6 +100,38 @@ Logic addReduceAdders(List<Logic> inputs, {int depth, Logic? control, String nam
         vec, radix: 4, addReduceWithAdders, clk: clk, depthBetweenFlops; 2, signExtend: true);
   ```
 
+## Boolean sparse-to-dense scatter
+
+The following combinational composition scatters valid unsigned indices into
+a five-bit vector. Duplicate indices combine with OR; indices at least five
+are ignored. The shift result is bounded to five bits even when the indices
+are much wider. An unknown index yields an all-X shifted word; a zero valid
+masks it, while a known 1 from another contribution wins through the OR.
+
+```dart
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+
+Logic scatter(List<Logic> indices, List<Logic> valids, int width) {
+  final terms = [
+    for (var i = 0; i < indices.length; i++)
+      (Const(1, width: width) << indices[i]) & valids[i].replicate(width),
+  ];
+  return ReductionTree<Logic, Logic>(
+    terms,
+    (inputs, {depth = 0, control, name = ''}) =>
+        inputs.reduce((a, b) => a | b),
+  ).out;
+}
+
+final indices = [Logic(width: 3), Logic(width: 3), Logic(width: 3)];
+final valids = [Logic(), Logic(), Logic()];
+final dense = scatter(indices, valids, 5);
+```
+
+The inputs must be nonempty, indices equally wide and positive-width, valids
+single-bit with one per index, and `width` positive.
+
 ## ReductionTree with control  
 
   Here is an example using a radix-2 computation tree with muxes and a selection control signal.
