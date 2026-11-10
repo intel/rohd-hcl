@@ -1,3 +1,9 @@
+## Unreleased
+
+- Restored the standard `if`-based asynchronous CSR reset synthesis template
+  while preserving X/Z reset poisoning, write priority, and synchronous reset
+  behavior.
+
 ## 0.3.1
 
 - Fixed the published package's workspace metadata so consumers do not need the

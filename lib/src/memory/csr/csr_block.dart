@@ -338,9 +338,11 @@ class CsrBlock extends CsrContainer {
         else
           ...backdoorConditions,
       ];
-      Sequential.multi(
-        [clk, if (asyncReset) reset],
+      Sequential(
+        clk,
         [
+          // Retain X/Z poisoning when the asynchronous reset wrapper's
+          // Verilog `if` takes its else branch for an unknown reset.
           Case(
               reset,
               [
@@ -352,6 +354,9 @@ class CsrBlock extends CsrContainer {
               exactMatch: true,
               defaultItem: [csrs[i] < unknown]),
         ],
+        reset: asyncReset ? reset : null,
+        asyncReset: asyncReset,
+        resetValues: asyncReset ? {csrs[i]: csrs[i].resetValue} : null,
       );
     }
 

@@ -131,6 +131,7 @@ CsrTopConfig csrMatrixConfig({required bool asyncReset}) => CsrTopConfig(
 class _Op {
   const _Op({
     this.reset = false,
+    this.resetValue,
     this.write = false,
     this.addr = 0,
     this.data = 0,
@@ -143,6 +144,7 @@ class _Op {
   });
 
   final bool reset;
+  final LogicValue? resetValue;
   final bool write;
   final int addr;
   final int data;
@@ -152,6 +154,8 @@ class _Op {
   final int hardwareData;
   final bool hardwareEnableX;
   final bool hardwareDataX;
+
+  LogicValue get resetLogic => resetValue ?? LogicValue.ofInt(reset ? 1 : 0, 1);
 
   LogicValue get enable =>
       enableX ? LogicValue.x : LogicValue.ofInt(write ? 1 : 0, 1);
@@ -253,10 +257,36 @@ const List<_Op> _xOps = [
   _Op(reset: true, addr: 4),
 ];
 
-final List<_Op> _allOps = [..._commonOps, ..._xOps];
+final List<_Op> _resetUnknownOps = [
+  for (final unknown in [LogicValue.x, LogicValue.z]) ...[
+    const _Op(
+        reset: true,
+        addr: 3,
+        write: true,
+        data: 0xffffffff,
+        hardware: 'ro',
+        hardwareData: 0xffff),
+    const _Op(addr: 1),
+    const _Op(addr: 3, write: true, data: 0xdeadbeef),
+    _Op(
+        resetValue: unknown,
+        addr: 3,
+        write: true,
+        data: 0x1234,
+        hardware: 'ro',
+        hardwareData: 0xffff),
+    _Op(resetValue: unknown, addr: 3),
+    const _Op(addr: 3),
+    const _Op(addr: 1),
+    const _Op(addr: 3, write: true, data: 0xcafef00d),
+    const _Op(reset: true, addr: 3),
+  ],
+];
+
+final List<_Op> _allOps = [..._commonOps, ..._xOps, ..._resetUnknownOps];
 
 LogicValue _portValue(_Op op, String name, int width) => switch (name) {
-      'reset' => LogicValue.ofInt(op.reset ? 1 : 0, 1),
+      'reset' => op.resetLogic,
       'frontWrite_en' => op.enable,
       'frontWrite_addr' => LogicValue.ofInt(op.addr, width),
       'frontWrite_data' => op.dataValue,
@@ -343,7 +373,7 @@ Future<List<String>> _dartTrace(
   unawaited(Simulator.run());
   final trace = <String>[];
   for (final op in ops) {
-    reset.inject(op.reset ? 1 : 0);
+    reset.inject(op.resetLogic);
     harness.write.en.inject(op.enable);
     harness.write.addr.inject(op.addr);
     harness.write.data.inject(op.dataValue);
@@ -693,6 +723,24 @@ void main() {
             reason: 'software model diverged from RTL golden');
       });
 
+      test('[$mode] unknown reset poisons state and known reset wins writes',
+          timeout: matrixTimeout, () async {
+        final legs = (await _matrix())[asyncReset]!;
+        expect(legs.golden.skip(_commonOps.length + _xOps.length), [
+          for (var i = 0; i < 2; i++) ...[
+            '00010010001101000101011001111000',
+            '00000000000000001010101111001101',
+            '11011110101011011011111011101111',
+            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            '0000000000000000xxxxxxxxxxxxxxxx',
+            '11001010111111101111000000001101',
+            '00010010001101000101011001111000',
+          ],
+        ]);
+      });
+
       test('[$mode] read-only registers enforce frontdoor and field policies',
           timeout: matrixTimeout, () async {
         final legs = (await _matrix())[asyncReset]!;
@@ -723,6 +771,52 @@ void main() {
           final locked = harness.top.getBackdoorPortsByName('ctrl', 'locked');
           expect(locked.wrEn, isNull);
           expect(locked.wrData, isNull);
+        }
+      });
+
+      test('[$mode] CSR storage uses the expected reset synthesis template',
+          () async {
+        final top = _buildSynthTop(
+            asyncReset: asyncReset, implementation: CsrImplementation.rtl);
+        await top.build();
+        final blocks = RegExp(r'always_ff\s*@\(([^)]*)\)\s*begin\s*(\w+)')
+            .allMatches(top.dumpSystemVerilog());
+        expect(
+            blocks.length,
+            csrMatrixConfig(asyncReset: asyncReset)
+                .blocks
+                .single
+                .registers
+                .length);
+        for (final block in blocks) {
+          expect(block[1]!.contains('posedge reset'), asyncReset);
+          expect(block[2], asyncReset ? 'if' : 'case');
+        }
+      });
+
+      test('[$mode] CSR reset storage synthesizes with yosys',
+          skip: _hasTool('yosys') ? null : 'yosys not on PATH', () async {
+        final directory =
+            await Directory.systemTemp.createTemp('hcl_csr_synth_');
+        try {
+          final top = _buildSynthTop(
+              asyncReset: asyncReset, implementation: CsrImplementation.rtl);
+          await top.build();
+          final path = '${directory.path}/dut.sv';
+          await File(path).writeAsString(top.dumpSystemVerilog());
+          final script =
+              'read_verilog -sv "$path"; hierarchy -top ${top.definitionName}; '
+              'proc; opt; check -assert';
+          final synthesis =
+              await Process.run('yosys', ['-Q', '-T', '-p', script]);
+          expect(synthesis.exitCode, 0,
+              reason: 'asyncReset=$asyncReset\n'
+                  '${synthesis.stdout}\n${synthesis.stderr}');
+          if (asyncReset) {
+            expect(synthesis.stdout, contains(r'$adff'));
+          }
+        } finally {
+          await directory.delete(recursive: true);
         }
       });
 

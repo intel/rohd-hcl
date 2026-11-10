@@ -1,3 +1,7 @@
 # Local workspace membership is excluded from the published package.
 workspace:
   - confapp
+
+dependency_overrides:
+  rohd:
+    path: /home/desmond/rohd

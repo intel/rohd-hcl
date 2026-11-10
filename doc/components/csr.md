@@ -620,6 +620,11 @@ edge. Do not rely on equivalence across backends for these transitions. Known
 reset transitions and reset `0` to `X` are covered by the cross-backend
 regression.
 
+Asynchronous RTL storage uses an outer `if (reset)` with constant reset values
+for synthesis compatibility. An exact-match reset guard remains in the normal
+operation branch so an X/Z reset still poisons state rather than allowing a
+write. Synchronous RTL storage retains its exact-match reset selection.
+
 `allowLargerRegisters` and `logicalRegisterIncrement` apply to both
 implementations. The top now forwards a non-default increment to RTL blocks as
 documented; older top construction inadvertently ignored that parameter.
