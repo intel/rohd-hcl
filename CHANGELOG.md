@@ -7,6 +7,19 @@
 
 - Fixed compilation with ROHD 0.7.3 while retaining compatibility with ROHD 0.7.2.
 
+### Compute primitives
+
+- Added `Accumulator` for unsigned, increment-only accumulation with optional saturation, enable, clear, and restart controls.
+- Added `NumericNarrowing` for signed or unsigned rounding and narrowing, with wrap or saturation and overflow, underflow, and inexact reporting.
+- Added `IterativeDividerEngine` for direct start/busy/done control and `ReadyValidIterativeDivider` for ready/valid commands and retained results. Added `ValidOnlyCarrySaveMultiplier`, a fixed-latency valid-only wrapper around `CarrySaveMultiplier`. These specialized wrappers contribute to [intel/rohd-hcl#146](https://github.com/intel/rohd-hcl/issues/146), but do not provide a general wrapper for arbitrary hardware. The divider wrappers do not implement the core optimizations requested in [intel/rohd-hcl#139](https://github.com/intel/rohd-hcl/issues/139).
+- Added binary-field arithmetic and combinational constant multiplication, inversion, and polynomial evaluation. Added binary matrix and polynomial utilities, linear and affine transforms, serial and parallel LFSRs, signature analysis, and configurable PRBS generation and checking. The PRBS checker requires seed and enable alignment; it does not acquire phase. The LFSRs address the original request in [intel/rohd-hcl#8](https://github.com/intel/rohd-hcl/issues/8), while the subsequently requested simple tap-based API remains outstanding. The recurrence and signature primitives provide groundwork for [intel/rohd-hcl#46](https://github.com/intel/rohd-hcl/issues/46), but are not a configurable CRC generator and checker.
+- Added `FloatingPointClassifier` and `FloatingPointComparator`. Explicit-J inputs require opt-in `alignExplicitJBit`; the comparator requires matching formats and applies subnormal-as-zero after alignment. The classifier reports subnormals independently of that arithmetic setting.
+- Added opt-in explicit-J alignment to `FloatingPointConverter` for unnormalized inputs and noncanonical zeros. The default conversion path is unchanged. Aligned explicit-J sources require at least two exponent bits and IEEE infinity and signaling-NaN encodings; an explicit-J destination also requires IEEE special values and at least one fraction bit.
+- Added configurable inclusive `ParallelPrefixScan` for AND, OR, and XOR in either bit direction. `GrayToBinaryConverter` can optionally use a selected prefix topology; its default linear implementation is unchanged.
+- Added `FirstMatchPrefix` and `SparseToDense` for first-match lane selection and boolean indexed scatter. Scatter ORs duplicate indices and ignores out-of-range indices.
+- Added binary/thermometer converters and `ClockDivider`, which produces a periodic clock enable rather than a divided clock. Clarified `Synchronizer` restrictions for reset, pulses, multi-bit crossings, and physical CDC implementation.
+- Added Confapp configurators and source views for the new classifier, comparator, clock enable, thermometer converters, prefix scan, and scatter, plus opt-in converter and Gray-code topology controls.
+
 ## 0.3.1
 
 - Fixed the published package's workspace metadata so consumers do not need the separate Confapp application.
