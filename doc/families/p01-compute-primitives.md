@@ -1,7 +1,7 @@
 # P01: Compute Primitives
 
 **Branch:** `P01_compute` (`hcl-compute-primitives` family)
-**Requires:** `P00_arithmetic`
+**Requires:** `main` (merged P00 foundation)
 
 Use this family for arithmetic, numeric representation, binary algebra, encoding, bit manipulation, and clocking primitives. It provides the datapaths required by the priority inference family and later component families.
 
@@ -49,7 +49,7 @@ topologies and arithmetic policies built on that baseline.
 
 ## Component catalog
 
-The partition is the authoritative ownership inventory. This table lists the current public module types by source subfamily; add new types to the same family when they share its responsibility and dependency contract.
+This table lists the current public module types by source subfamily; add new types to the same family when they share its responsibility and dependency contract.
 
 | Source subfamily | Module types |
 | --- | --- |
@@ -85,7 +85,7 @@ The partition is the authoritative ownership inventory. This table lists the cur
 ## Adding a component
 
 Place a new component in this family when it shares the responsibility and
-dependency contract above. Update the branch partition, this catalog, the
+dependency contract above. Update this catalog, the
 public barrel, focused tests, and any applicable Confapp/source-view exposure
 in the same change. Do not move a component solely because its boundary uses
 a transport interface; a domain engine remains with its domain family.

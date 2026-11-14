@@ -14,5 +14,6 @@ export 'src/flow_control/flow_control.dart';
 export 'src/interfaces/interfaces.dart';
 export 'src/memory/memories.dart';
 export 'src/models/models.dart';
+export 'src/pipeline_timing_contract.dart';
 export 'src/static_or_runtime_control.dart';
 export 'src/utils.dart';

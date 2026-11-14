@@ -148,7 +148,7 @@ class ParallelPrefixScanConfigurator extends Configurator {
         Logic(name: 'input', width: widthKnob.value),
         operation: operationKnob.value,
         direction: directionKnob.value,
-        ppGen: ParallelPrefixOperationConfigurator._treeGenerators[
-            treeKnob.value]!,
+        ppGen: ParallelPrefixOperationConfigurator
+            ._treeGenerators[treeKnob.value]!,
       );
 }

@@ -47,6 +47,7 @@ class GfConstantMultiplier extends Module {
     if (input.width != field.degree) {
       throw ArgumentError('Input width must equal the field degree.');
     }
+    input = addInput('dataIn', input, width: input.width);
     transform = _multiplicationTransform(field, constant);
     final multiplier = BinaryLinearTransform(
       input,

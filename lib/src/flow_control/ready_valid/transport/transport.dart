@@ -2,3 +2,4 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'ready_valid_interface.dart';
+export 'valid_only_interface.dart';
