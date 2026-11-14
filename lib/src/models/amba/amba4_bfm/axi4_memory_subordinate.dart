@@ -43,8 +43,9 @@ class AxiAddressRange {
 /// in which the underlying target is a persistent memory.
 ///
 /// Requests and write data are captured by channel monitors at their respective
-/// handshakes. Write responses wait for both the address and the complete data
-/// burst.
+/// handshakes. Complete write bursts are queued in order independently of their
+/// addresses. Write responses wait for both the address and the complete data
+/// burst, retaining later bursts while a response is delayed.
 class Axi4SubordinateMemoryAgent extends Agent {
   /// The system interface.
   final Axi4SystemInterface sIntf;
@@ -99,8 +100,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
   // to handle writes
   final List<List<Axi4RequestPacket>> _writeMetadataQueue = [];
-  final List<List<Axi4DataPacket>> _writeDataQueue = [];
-  final List<bool> _writeReadyToOccur = [];
+  final List<List<List<Axi4DataPacket>>> _writeDataQueue = [];
 
   // per-channel countdown of remaining cycles to delay the response
   // currently at the head of the queue, keyed by channel (mapIdx)
@@ -154,7 +154,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
       // write side handling
       _writeMetadataQueue.add([]);
       _writeDataQueue.add([]);
-      _writeReadyToOccur.add(false);
       _writeAddrToChannel[i] = _writeMetadataQueue.length - 1;
     }
   }
@@ -176,7 +175,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
         // write side reset
         _writeMetadataQueue[_writeAddrToChannel[i]!].clear();
         _writeDataQueue[_writeAddrToChannel[i]!].clear();
-        _writeReadyToOccur[_writeAddrToChannel[i]!] = false;
         _writeResponseDelayRemaining.remove(_writeAddrToChannel[i]);
       }
     });
@@ -448,7 +446,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
     // NOTE: we are dropping wUser on the floor for now...
     // The W-channel monitor fires once per burst with all beats aggregated in
     // packet.data via rconcat(); unpack each beat.
-    _writeDataQueue[mapIdx].clear();
+    final beats = <Axi4DataPacket>[];
     final dw = wIntf.dataWidth;
     final sw = wIntf.strbWidth;
     final numBeats = packet.data.width ~/ dw;
@@ -457,13 +455,12 @@ class Axi4SubordinateMemoryAgent extends Agent {
       final beatStrb = packet.strb != null
           ? packet.strb!.getRange(i * sw, (i + 1) * sw)
           : LogicValue.filled(sw, LogicValue.one);
-      _writeDataQueue[mapIdx]
-          .add(Axi4DataPacket(data: beatData, strb: beatStrb));
+      beats.add(Axi4DataPacket(data: beatData, strb: beatStrb));
     }
     logger
       ..info('Captured write data on channel $index.')
       ..info('Finished capturing write data on channel $index.');
-    _writeReadyToOccur[mapIdx] = true;
+    _writeDataQueue[mapIdx].add(beats);
   }
 
   void _respondWrite({int index = 0}) {
@@ -471,7 +468,8 @@ class Axi4SubordinateMemoryAgent extends Agent {
     final mapIdx = _writeAddrToChannel[index]!;
 
     // Both channels must have completed their handshakes before responding.
-    if (_writeMetadataQueue[mapIdx].isNotEmpty && _writeReadyToOccur[mapIdx]) {
+    if (_writeMetadataQueue[mapIdx].isNotEmpty &&
+        _writeDataQueue[mapIdx].isNotEmpty) {
       final packet = _writeMetadataQueue[mapIdx][0];
 
       // hold off responding until the requested delay has elapsed for
@@ -514,7 +512,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
       // compute the addresses to write to
       // based on the burst mode, len, and size
       final addrsToWrite = <LogicValue>[];
-      final dataToWrite = _writeDataQueue[mapIdx];
+      final dataToWrite = _writeDataQueue[mapIdx][0];
       for (var i = 0; i < dataToWrite.length; i++) {
         addrsToWrite.add(addrToWrite);
         if (inRegion &&
@@ -608,8 +606,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
       // pop this write response off the queue
       _writeMetadataQueue[mapIdx].removeAt(0);
-      _writeDataQueue[mapIdx].clear();
-      _writeReadyToOccur[mapIdx] = false;
+      _writeDataQueue[mapIdx].removeAt(0);
 
       logger.info('Sent write response on channel $index.');
     }
