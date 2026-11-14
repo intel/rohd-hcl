@@ -1,7 +1,10 @@
+## Unreleased
+
+- Fixed AXI4 subordinate memory transactions to use monitor-captured request fields rather than live signals after a handshake. Write data is captured only by its channel monitor, and write responses wait for both address and data.
+
 ## 0.3.1
 
-- Fixed the published package's workspace metadata so consumers do not need the
-  separate Confapp application.
+- Fixed the published package's workspace metadata so consumers do not need the separate Confapp application.
 
 ## 0.3.0
 
