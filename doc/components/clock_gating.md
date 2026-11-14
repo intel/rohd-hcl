@@ -111,6 +111,7 @@ without changing the design of the counter at all.
 
 An executable version of this example is available in
 `example/clock_gating_example.dart`.
+
 ## Clock enable divider
 
 `ClockDivider` generates a periodic enable on the original clock rather than a

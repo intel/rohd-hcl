@@ -49,6 +49,7 @@ await grayToBin.build();
 
 print(grayToBin.binary.value.toString(includeWidth: false)); // output: 111
 ```
+
 ## Thermometer conversion
 
 `BinaryToThermometer` converts an unsigned count to contiguous low-order ones,
