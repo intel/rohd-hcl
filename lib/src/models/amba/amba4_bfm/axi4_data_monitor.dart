@@ -12,7 +12,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
-/// A monitor for [Axi4DataChannelInterface]s.
+/// A monitor for [Axi4DataChannelInterface]s that captures values at the
+/// handshake edge.
 class Axi4DataChannelMonitor extends Monitor<Axi4DataPacket> {
   /// AXI4 System Interface.
   final Axi4SystemInterface sIntf;
@@ -56,9 +57,10 @@ class Axi4DataChannelMonitor extends Monitor<Axi4DataPacket> {
         final lastCheck = rIntf.last == null ||
             rIntf.last!.previousValue!.isValid &&
                 rIntf.last!.previousValue!.toBool();
-        final curr = rIntf.data.value;
-        final currS =
-            (isWr ? (rIntf as Axi4BaseWChannelInterface).strb.value : null);
+        final curr = rIntf.data.previousValue!;
+        final currS = (isWr
+            ? (rIntf as Axi4BaseWChannelInterface).strb.previousValue
+            : null);
         _dataBuf.add(curr);
         if (isWr) {
           _strbBuf.add(currS!);
@@ -71,7 +73,7 @@ class Axi4DataChannelMonitor extends Monitor<Axi4DataPacket> {
                 id: rIntf.id?.previousValue,
                 user: rIntf.user?.previousValue,
                 resp: (isRd
-                    ? (rIntf as Axi4BaseRChannelInterface).resp?.value
+                    ? (rIntf as Axi4BaseRChannelInterface).resp?.previousValue
                     : null)),
           );
           _dataBuf.clear();

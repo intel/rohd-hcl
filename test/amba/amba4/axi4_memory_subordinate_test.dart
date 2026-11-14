@@ -21,6 +21,8 @@ enum _Scenario {
   writeDataTiming,
   simultaneousWriteData,
   writeDataBeforeAddress,
+  writeDataSampling,
+  queuedWrites,
 }
 
 class _MemoryTest extends Test {
@@ -37,6 +39,8 @@ class _MemoryTest extends Test {
   _MemoryTest(this.scenario) : super(scenario.name, randomSeed: 123) {
     final isRead = scenario == _Scenario.readAddress;
     final earlyData = scenario == _Scenario.writeDataTiming;
+    final sampledData = scenario == _Scenario.writeDataSampling;
+    final queuedWrites = scenario == _Scenario.queuedWrites;
     request = isRead ? bus.read.arIntf : bus.write.awIntf;
     sys.clk <= SimpleClockGenerator(10).clk;
     sys.resetN.put(0);
@@ -48,8 +52,10 @@ class _MemoryTest extends Test {
     if (!earlyData) {
       w.valid.put(0);
     }
-    w.data.put(0x12345678);
-    w.strb.put(0xf);
+    if (!sampledData) {
+      w.data.put(0x12345678);
+      w.strb.put(0xf);
+    }
     w.last!.put(1);
     w.id?.put(0);
     for (final p in [
@@ -72,10 +78,20 @@ class _MemoryTest extends Test {
         id < 0,
         address < 0,
         if (earlyData) w.valid < 0,
+        if (sampledData) ...[
+          w.data < 0x12345678,
+          w.strb < 0x5,
+        ],
       ], orElse: [
-        if (scenario == _Scenario.writeId) If(handshake, then: [id < id + 1]),
-        if (scenario == _Scenario.writeAddress || isRead)
+        if (scenario == _Scenario.writeId || queuedWrites)
+          If(handshake, then: [id < id + 1]),
+        if (scenario == _Scenario.writeAddress || isRead || queuedWrites)
           If(handshake, then: [address < address + 4]),
+        if (sampledData)
+          If(w.valid & w.ready, then: [
+            w.data < 0xdeadbeef,
+            w.strb < 0xa,
+          ]),
         // WVALID rises after AW's edge, one edge before its own handshake.
         if (earlyData) w.valid < handshake,
       ]),
@@ -110,7 +126,11 @@ class _MemoryTest extends Test {
           .listen((p) => responseIds.add(p.id!.toInt()));
     }
     Axi4SubordinateMemoryAgent(
-        sIntf: sys, lanes: [lane], storage: storage, parent: this);
+        sIntf: sys,
+        lanes: [lane],
+        storage: storage,
+        parent: this,
+        writeResponseDelay: queuedWrites ? (_) => 8 : null);
   }
 
   Future<void> sendWriteData() async {
@@ -130,6 +150,22 @@ class _MemoryTest extends Test {
     storage
       ..writeData(LogicValue.ofInt(0, 32), LogicValue.ofInt(0x11111111, 32))
       ..writeData(LogicValue.ofInt(4, 32), LogicValue.ofInt(0x22222222, 32));
+    if (scenario == _Scenario.queuedWrites) {
+      for (var i = 0; i < 3; i++) {
+        await sys.clk.nextNegedge;
+        bus.write.wIntf.data.inject(0x100 + i);
+        request.valid.inject(1);
+        final dataSent = sendWriteData();
+        do {
+          await sys.clk.nextPosedge;
+        } while (!request.ready.previousValue!.toBool());
+        request.valid.inject(0);
+        await dataSent;
+      }
+      await sys.clk.waitCycles(50);
+      objection.drop();
+      return;
+    }
     await sys.clk.nextNegedge;
     if (scenario == _Scenario.writeDataBeforeAddress) {
       await sendWriteData();
@@ -150,7 +186,9 @@ class _MemoryTest extends Test {
     if (scenario == _Scenario.simultaneousWriteData) {
       bus.write.wIntf.valid.inject(0);
     }
-    if (scenario == _Scenario.writeId || scenario == _Scenario.writeAddress) {
+    if (scenario == _Scenario.writeId ||
+        scenario == _Scenario.writeAddress ||
+        scenario == _Scenario.writeDataSampling) {
       await sys.clk.nextNegedge;
       await sendWriteData();
     }
@@ -191,6 +229,27 @@ void main() {
     expect(tb.responseIds, [0]);
     expect(tb.readData, [0x11111111],
         reason: 'Live ARADDR advanced to 4, whose data is 0x22222222.');
+  });
+
+  test('write data and strobes preserve handshake values', () async {
+    final tb = await run(_Scenario.writeDataSampling);
+    expect(tb.responseIds, [0]);
+    expect(tb.storage.readData(LogicValue.ofInt(0, 32)),
+        LogicValue.ofInt(0x11341178, 32),
+        reason: 'Only bytes selected by the captured strobe 0x5 are written.');
+  });
+
+  test('delayed writes preserve each queued data burst', () async {
+    Simulator.setMaxSimTime(1000);
+    final tb = _MemoryTest(_Scenario.queuedWrites);
+    await tb.start();
+    expect(tb.requestIds, [0, 1, 2]);
+    expect(tb.requestAddresses, [0, 4, 8]);
+    expect(tb.responseIds, [0, 1, 2]);
+    for (var i = 0; i < 3; i++) {
+      expect(tb.storage.readData(LogicValue.ofInt(i * 4, 32)),
+          LogicValue.ofInt(0x100 + i, 32));
+    }
   });
 
   for (final scenario in [
