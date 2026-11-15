@@ -75,6 +75,7 @@ does not stall the core. For zero latency, the result is combinational in the
 same cycle as `start`.
 
 The registered result queue adds transport latency beyond the core latency.
+It retains the typed result together with any ID as a structured payload.
 Results remain stable while stalled. An optional `requestId` is sampled with
 each input and made available as `resultId` alongside its output; the caller
 must keep the ID stable with a stalled input. Reset suppresses transfers and

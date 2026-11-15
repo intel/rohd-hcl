@@ -17,25 +17,41 @@ import 'package:rohd_hcl/src/arithmetic/finite_field/gf_logic.dart';
 /// mapped to zero rather than inheriting the mathematical convention for
 /// exponent zero in the degree-one field.
 class GfInverse extends Module {
-  /// The inverted field element.
-  Logic get result => output('result');
+  /// The inverted field element as a plain bit vector.
+  @Deprecated('Use gfResult for field-typed operations.')
+  Logic get result => _legacyResult;
 
-  /// Creates a synthesizable combinational inverse for [field].
+  /// The inverted field element.
+  late final GfLogic gfResult;
+  late final Logic _legacyResult;
+
+  /// Creates an inverse from a plain bit-vector input.
+  @Deprecated('Use GfInverse.typed with a field-typed input.')
   GfInverse(
     Logic input, {
     required BinaryExtensionField field,
-    super.name = 'gf_inverse',
-  }) : super(
+    String name = 'gf_inverse',
+  }) : this._(input, field: field, name: name, typedPorts: false);
+
+  /// Creates a synthesizable combinational inverse for the input field.
+  GfInverse.typed(GfLogic input, {String name = 'gf_inverse'})
+      : this._(input, field: input.field, name: name, typedPorts: true);
+
+  GfInverse._(Logic input,
+      {required BinaryExtensionField field,
+      required super.name,
+      required bool typedPorts})
+      : super(
           definitionName: 'GfInverse_D${field.degree}',
         ) {
     if (input.width != field.degree) {
       throw ArgumentError('Input width must equal the field degree.');
     }
 
-    final localInput = GfLogic.of(
-      addInput('dataIn', input, width: input.width),
-      field: field,
-    );
+    final localInput = typedPorts
+        ? addTypedInput('dataIn', GfLogic.of(input, field: field))
+        : GfLogic.of(addInput('dataIn', input, width: input.width),
+            field: field);
     var exponent = field.size - BigInt.two;
     var power = localInput;
     var inverse = GfLogic.constant(field.one);
@@ -50,7 +66,16 @@ class GfInverse extends Module {
     }
 
     final isZero = localInput.eq(GfLogic.constant(field.zero));
-    addOutput('result', width: field.degree) <=
-        mux(isZero, GfLogic.constant(field.zero), inverse);
+    GfLogic resultSchema({String? name}) => GfLogic(field, name: name);
+    if (typedPorts) {
+      gfResult = addTypedOutput<GfLogic>('result', resultSchema);
+      _legacyResult = Logic(name: 'result', width: field.degree)
+        ..gets(gfResult);
+      gfResult <= mux(isZero, GfLogic.constant(field.zero), inverse);
+    } else {
+      _legacyResult = addOutput('result', width: field.degree);
+      gfResult = GfLogic.of(_legacyResult, field: field);
+      _legacyResult <= mux(isZero, GfLogic.constant(field.zero), inverse);
+    }
   }
 }

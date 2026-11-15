@@ -25,7 +25,10 @@ Separate elaboration/reference data from hardware:
 | Evaluate a field polynomial | `GfPolynomialEvaluator` |
 
 Choose consistent field and polynomial representations for every operand.
-The three field modules are combinational and expose `result`.
+The three field modules are combinational. Use their `.typed` constructors
+with `GfLogic` inputs and `gfResult` outputs for field operations. The
+bit-vector constructors and `result` views are deprecated compatibility APIs;
+they retain ordinary bit-vector arithmetic semantics.
 `GfInverse` maps zero to zero explicitly; this is a hardware convention, not a
 claim that zero has a multiplicative inverse. `GfPolynomialEvaluator` takes
 coefficients from highest degree to constant term and uses Horner evaluation.

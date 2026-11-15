@@ -103,6 +103,8 @@ Use `ValidOnlyCarrySaveMultiplier` when a pipeline can accept a result at a
 fixed physical-cycle latency and does not need backpressure. It wraps the
 existing `CarrySaveMultiplier` with two `ValidOnlyInterface<Logic>` operand
 channels and one product channel.
+`ValidOnlyInterface<T>` also supports typed payloads in other compositions;
+module registration preserves structured and typed-array payload schemas.
 
 Operand widths must match; the product width is their sum. The conjunction of
 the operand valid signals is delayed by `timing.latency`, so bubbles propagate

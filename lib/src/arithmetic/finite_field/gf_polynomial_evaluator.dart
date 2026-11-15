@@ -16,16 +16,43 @@ import 'package:rohd_hcl/src/arithmetic/finite_field/gf_value.dart';
 ///
 /// `coefficients` are ordered from highest degree to constant term.
 class GfPolynomialEvaluator extends Module {
-  /// The evaluated polynomial value.
-  Logic get result => output('result');
+  /// The evaluated polynomial value as a plain bit vector.
+  @Deprecated('Use gfResult for field-typed operations.')
+  Logic get result => _legacyResult;
 
-  /// Creates a finite-field polynomial evaluator.
+  /// The evaluated polynomial value.
+  late final GfLogic gfResult;
+  late final Logic _legacyResult;
+
+  /// Creates an evaluator from a plain bit-vector input.
+  @Deprecated('Use GfPolynomialEvaluator.typed with a field-typed input.')
   GfPolynomialEvaluator(
     Logic input, {
     required BinaryExtensionField field,
     required List<GfValue> coefficients,
-    super.name = 'gf_polynomial_evaluator',
-  }) : super(
+    String name = 'gf_polynomial_evaluator',
+  }) : this._(input,
+            field: field,
+            coefficients: coefficients,
+            name: name,
+            typedPorts: false);
+
+  /// Creates a polynomial evaluator for the input field.
+  GfPolynomialEvaluator.typed(GfLogic input,
+      {required List<GfValue> coefficients,
+      String name = 'gf_polynomial_evaluator'})
+      : this._(input,
+            field: input.field,
+            coefficients: coefficients,
+            name: name,
+            typedPorts: true);
+
+  GfPolynomialEvaluator._(Logic input,
+      {required BinaryExtensionField field,
+      required List<GfValue> coefficients,
+      required super.name,
+      required bool typedPorts})
+      : super(
           definitionName:
               'GfPolynomialEvaluator_D${field.degree}_N${coefficients.length}',
         ) {
@@ -38,14 +65,24 @@ class GfPolynomialEvaluator extends Module {
     if (input.width != field.degree) {
       throw ArgumentError('Input width must equal the field degree.');
     }
-    final localInput = GfLogic.of(
-      addInput('dataIn', input, width: input.width),
-      field: field,
-    );
+    final localInput = typedPorts
+        ? addTypedInput('dataIn', GfLogic.of(input, field: field))
+        : GfLogic.of(addInput('dataIn', input, width: input.width),
+            field: field);
     var value = GfLogic.constant(coefficients.first);
     for (final coefficient in coefficients.skip(1)) {
       value = (value * localInput) + GfLogic.constant(coefficient);
     }
-    addOutput('result', width: field.degree) <= value;
+    GfLogic resultSchema({String? name}) => GfLogic(field, name: name);
+    if (typedPorts) {
+      gfResult = addTypedOutput<GfLogic>('result', resultSchema);
+      _legacyResult = Logic(name: 'result', width: field.degree)
+        ..gets(gfResult);
+      gfResult <= value;
+    } else {
+      _legacyResult = addOutput('result', width: field.degree);
+      gfResult = GfLogic.of(_legacyResult, field: field);
+      _legacyResult <= value;
+    }
   }
 }

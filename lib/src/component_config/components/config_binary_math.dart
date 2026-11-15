@@ -81,8 +81,8 @@ class GfConstantMultiplierConfigurator extends _FiniteFieldConfigurator {
   @override
   Module createModule() {
     final field = this.field;
-    return GfConstantMultiplier(Logic(name: 'data', width: field.degree),
-        field: field, constant: field.element(_hex(constantKnob.value)));
+    return GfConstantMultiplier.typed(GfLogic(field, name: 'data'),
+        constant: field.element(_hex(constantKnob.value)));
   }
 }
 
@@ -96,7 +96,7 @@ class GfInverseConfigurator extends _FiniteFieldConfigurator {
   @override
   Module createModule() {
     final field = this.field;
-    return GfInverse(Logic(name: 'data', width: field.degree), field: field);
+    return GfInverse.typed(GfLogic(field, name: 'data'));
   }
 }
 
@@ -114,9 +114,8 @@ class GfPolynomialEvaluatorConfigurator extends _FiniteFieldConfigurator {
   @override
   Module createModule() {
     final field = this.field;
-    return GfPolynomialEvaluator(
-      Logic(name: 'data', width: field.degree),
-      field: field,
+    return GfPolynomialEvaluator.typed(
+      GfLogic(field, name: 'data'),
       coefficients: [
         for (final coefficient in _entries(coefficientsKnob.value))
           field.element(_hex(coefficient))

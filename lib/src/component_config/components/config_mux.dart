@@ -68,7 +68,7 @@ class MuxConfigurator extends Configurator {
         ),
       MuxImplementation.oneHot =>
         OneHotMux(Logic(name: 'selector', width: inputCountKnob.value), inputs),
-      MuxImplementation.priority => PriorityMux(
+      MuxImplementation.priority => TypedPriorityMux<Logic>(
           Logic(name: 'selector', width: inputCountKnob.value),
           inputs,
           Logic(name: 'defaultValue', width: widthKnob.value),

@@ -29,6 +29,11 @@ models can be used as cache components. This does **not** yet provide a
 port-compatible behavioral replacement for every complete cache controller or
 for the legacy `Cam`; their limitations are described below.
 
+`TypedAssociativeMatcher<T>` retains structured query and stored-key ports and
+passes `T` to custom comparators. Its default comparison is four-state exact
+matching. The older `AssociativeMatcher` retains flat ports for compatibility
+and is deprecated.
+
 ## Cache Organization Examples
 
 The cache-specific APIs in these examples, including their ports and replacement
@@ -68,6 +73,9 @@ final lookup = CacheLookupPort<Logic>(
 final fill = CacheFillPort<Logic>(
   addressWidth: 8, dataSchema: Logic(width: 32));
 ```
+
+For structured data, use the same payload schema for the lookup and fill ports.
+Cache module ports preserve that structure for fill, lookup and eviction data.
 
 ### Direct-mapped: four sets, one entry per set
 

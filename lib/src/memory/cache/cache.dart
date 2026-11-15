@@ -155,9 +155,79 @@ enum CacheEvictionConcurrency {
   oneAtATime,
 }
 
+mixin _TypedCachePayloadPorts<T extends Logic> on PairInterface {
+  Iterable<T> get _payloads;
+
+  Set<String> _handledPayloads = {};
+
+  @override
+  Map<String, Logic> getPorts([Iterable<PairDirection>? tags]) {
+    final ports = super.getPorts(tags);
+    if (_handledPayloads.isEmpty) {
+      return ports;
+    }
+    return Map<String, Logic>.of(ports)
+      ..removeWhere((name, _) => _handledPayloads.contains(name));
+  }
+
+  @override
+  void connectIO(
+    Module module,
+    Interface<dynamic> srcInterface, {
+    Iterable<PairDirection>? inputTags,
+    Iterable<PairDirection>? outputTags,
+    Iterable<PairDirection>? inOutTags,
+    String Function(String original)? uniquify,
+  }) {
+    final inputs =
+        inputTags == null ? <String>{} : getPorts(inputTags).keys.toSet();
+    final outputs =
+        outputTags == null ? <String>{} : getPorts(outputTags).keys.toSet();
+    final handled = <String>{};
+    for (final payload in _payloads) {
+      final isInput = inputs.contains(payload.name);
+      final isOutput = outputs.contains(payload.name);
+      if (!isInput && !isOutput) {
+        continue;
+      }
+      final source = srcInterface.port(payload.name);
+      if (source.width != payload.width ||
+          (((source is LogicStructure && payload is LogicStructure) ||
+                  (source is LogicEnum && payload is LogicEnum)) &&
+              !sameDeclaredPayloadShape(payload, source))) {
+        throw PortTypeException.forIntendedName(
+            payload.name, 'Cache payload shape does not match.');
+      }
+      final name = uniquify?.call(payload.name) ?? payload.name;
+      if (isInput) {
+        final bridge = payload.cloneTyped(name: '${payload.name}_input_bridge')
+          ..gets(source);
+        payload <= module.addTypedInput<T>(name, bridge);
+      }
+      if (isOutput) {
+        final registered = module.addTypedOutput<T>(name, payload.cloneTyped);
+        registered <= payload;
+        source <= registered;
+      }
+      handled.add(payload.name);
+    }
+    _handledPayloads = handled;
+    try {
+      super.connectIO(module, srcInterface,
+          inputTags: inputTags,
+          outputTags: outputTags,
+          inOutTags: inOutTags,
+          uniquify: uniquify);
+    } finally {
+      _handledPayloads = {};
+    }
+  }
+}
+
 /// One caller-owned cache lookup interface.
 @experimental
-class CacheLookupPort<T extends Logic> extends PairInterface {
+class CacheLookupPort<T extends Logic> extends PairInterface
+    with _TypedCachePayloadPorts<T> {
   /// Lookup request valid.
   Logic get valid => port('valid');
 
@@ -172,6 +242,9 @@ class CacheLookupPort<T extends Logic> extends PairInterface {
 
   /// Lookup data.
   T get data => port('data') as T;
+
+  @override
+  Iterable<T> get _payloads => [data];
 
   /// Creates a lookup port with a typed data schema.
   CacheLookupPort({required int addressWidth, required T dataSchema})
@@ -194,7 +267,8 @@ class CacheLookupPort<T extends Logic> extends PairInterface {
 
 /// One caller-owned fill port and its associated eviction response.
 @experimental
-class CacheFillPort<T extends Logic> extends PairInterface {
+class CacheFillPort<T extends Logic> extends PairInterface
+    with _TypedCachePayloadPorts<T> {
   /// Fill request valid.
   Logic get valid => port('valid');
 
@@ -218,6 +292,9 @@ class CacheFillPort<T extends Logic> extends PairInterface {
 
   /// Data of the evicted block.
   T get evictionData => port('evictionData') as T;
+
+  @override
+  Iterable<T> get _payloads => [data, evictionData];
 
   /// Creates a fill port with a typed data schema.
   CacheFillPort({required int addressWidth, required T dataSchema})

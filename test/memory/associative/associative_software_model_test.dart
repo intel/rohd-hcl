@@ -54,8 +54,86 @@ AssociativeSoftwareUpdate _write(int index, int key, {bool valid = true}) =>
     AssociativeSoftwareUpdate(
         index: index, key: _v(key), valid: LogicValue.ofBool(valid));
 
+class _Key extends LogicStructure {
+  _Key({String name = 'key', String secondName = 'second'})
+      : super([Logic(name: 'first', width: 2), Logic(name: secondName)],
+            name: name);
+
+  Logic get first => elements[0];
+  Logic get second => elements[1];
+
+  @override
+  _Key clone({String? name}) =>
+      _Key(name: name ?? this.name, secondName: second.name);
+}
+
 void main() {
   tearDown(Simulator.reset);
+
+  test('typed matcher retains structured keys for custom comparisons',
+      () async {
+    final query = _Key();
+    final stored = [_Key(), _Key()];
+    final valid = Logic(width: 2)..put(3);
+    final matcher = TypedAssociativeMatcher<_Key>(
+      query: query,
+      storedKeys: stored,
+      validMask: valid,
+      comparisonName: 'first',
+      comparator: (
+              {required query,
+              required stored,
+              required index,
+              required name}) =>
+          query.first.eq(stored.first),
+    );
+    expect(matcher.input('query'), isA<_Key>());
+    expect(matcher.input('storedKey_0'), isA<_Key>());
+    query.first.put(2);
+    stored[0].first.put(2);
+    stored[1].first.put(1);
+    expect(matcher.matchVector.value, LogicValue.ofInt(1, 2));
+    await matcher.build();
+    expect(matcher.dumpSystemVerilog(), contains('module AssociativeMatcher'));
+  });
+
+  test('typed matcher checks key shape and retains exact four-state matching',
+      () {
+    final query = _Key();
+    expect(
+      () => TypedAssociativeMatcher<_Key>(
+        query: query,
+        storedKeys: [_Key(secondName: 'other')],
+        validMask: Logic(),
+      ),
+      throwsArgumentError,
+    );
+    final stored = _Key();
+    final matcher = TypedAssociativeMatcher<_Key>(
+      query: query,
+      storedKeys: [stored],
+      validMask: Logic()..put(1),
+    );
+    query.first.put(0);
+    query.second.put(LogicValue.x);
+    stored.first.put(1);
+    stored.second.put(LogicValue.x);
+    expect(matcher.hit.value, LogicValue.zero);
+    stored.first.put(0);
+    expect(matcher.hit.value, LogicValue.x);
+  });
+
+  test('legacy matcher keeps flattened key ports', () {
+    // Verify the compatibility API rather than the typed replacement.
+    // ignore: deprecated_member_use_from_same_package
+    final matcher = AssociativeMatcher(
+      query: _Key(),
+      storedKeys: [_Key()],
+      validMask: Logic(),
+    );
+    expect(matcher.input('query'), isNot(isA<LogicStructure>()));
+    expect(matcher.input('storedKey_0'), isNot(isA<LogicStructure>()));
+  });
 
   for (final visibility in [
     AssociativeLookupUpdatePolicy.lookupBeforeUpdate,
@@ -132,6 +210,8 @@ void main() {
       final valid = Logic(width: 3);
       final query = Logic(width: 4);
       final matcher =
+          // Exercise the compatibility matcher against the software model.
+          // ignore: deprecated_member_use_from_same_package
           AssociativeMatcher(query: query, storedKeys: keys, validMask: valid);
       final selector = AssociativeMatchSelector(
         matchVector: matcher.matchVector,

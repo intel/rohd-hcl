@@ -341,7 +341,7 @@ void main() {
           type: switch (implementation) {
             MuxImplementation.bitwise => BitwiseMux,
             MuxImplementation.oneHot => OneHotMux,
-            MuxImplementation.priority => PriorityMux,
+            MuxImplementation.priority => TypedPriorityMux<Logic>,
           },
         ),
       for (final operation in BitwisePopcountOperation.values)

@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/finite_field/binary_extension_field.dart';
+import 'package:rohd_hcl/src/arithmetic/finite_field/gf_logic.dart';
 import 'package:rohd_hcl/src/arithmetic/finite_field/gf_value.dart';
 import 'package:rohd_hcl/src/binary_math/algebra/binary_affine_transform.dart';
 import 'package:rohd_hcl/src/binary_math/algebra/binary_linear_transform.dart';
@@ -28,18 +29,39 @@ class GfConstantMultiplier extends Module {
   /// The binary linear transform implementing the multiplication.
   late final BinaryAffineTransform transform;
 
-  /// The multiplied field element.
-  Logic get result => output('result');
+  /// The multiplied field element as a plain bit vector.
+  @Deprecated('Use gfResult for field-typed operations.')
+  Logic get result => _legacyResult;
 
-  /// Creates a constant finite-field multiplier.
+  /// The multiplied field element.
+  late final GfLogic gfResult;
+  late final Logic _legacyResult;
+
+  /// Creates a constant multiplier from a plain bit-vector input.
+  @Deprecated('Use GfConstantMultiplier.typed with a field-typed input.')
   GfConstantMultiplier(
     Logic input, {
     required BinaryExtensionField field,
     required GfValue constant,
-    super.name = 'gf_constant_multiplier',
-  })  : field = field,
-        constant = constant,
-        super(
+    String name = 'gf_constant_multiplier',
+  }) : this._(input,
+            field: field, constant: constant, name: name, typedPorts: false);
+
+  /// Creates a constant multiplier for the input field.
+  GfConstantMultiplier.typed(GfLogic input,
+      {required GfValue constant, String name = 'gf_constant_multiplier'})
+      : this._(input,
+            field: input.field,
+            constant: constant,
+            name: name,
+            typedPorts: true);
+
+  GfConstantMultiplier._(Logic input,
+      {required this.field,
+      required this.constant,
+      required super.name,
+      required bool typedPorts})
+      : super(
           definitionName: 'GfConstantMultiplier_D${field.degree}_C'
               '${constant.value.toRadixString(16)}',
         ) {
@@ -47,15 +69,28 @@ class GfConstantMultiplier extends Module {
     if (input.width != field.degree) {
       throw ArgumentError('Input width must equal the field degree.');
     }
-    input = addInput('dataIn', input, width: input.width);
+    final localInput = typedPorts
+        ? addTypedInput('dataIn', GfLogic.of(input, field: field))
+        : GfLogic.of(addInput('dataIn', input, width: input.width),
+            field: field);
     transform = _multiplicationTransform(field, constant);
     final multiplier = BinaryLinearTransform(
-      input,
+      localInput,
       matrix: transform.matrix,
       definitionName: 'GfConstantMultiplierTransform_'
           '${transform.configurationSignature}',
     );
-    addOutput('result', width: field.degree) <= multiplier.result;
+    GfLogic resultSchema({String? name}) => GfLogic(field, name: name);
+    if (typedPorts) {
+      gfResult = addTypedOutput<GfLogic>('result', resultSchema);
+      _legacyResult = Logic(name: 'result', width: field.degree)
+        ..gets(gfResult);
+      gfResult <= multiplier.result;
+    } else {
+      _legacyResult = addOutput('result', width: field.degree);
+      gfResult = GfLogic.of(_legacyResult, field: field);
+      _legacyResult <= multiplier.result;
+    }
   }
 
   static BinaryAffineTransform _multiplicationTransform(

@@ -64,6 +64,12 @@ void main() {
     }
   });
 
+  test('typed priority mux uses its source asset', () {
+    final mux =
+        TypedPriorityMux<Logic>(Logic(), [Logic(width: 4)], Logic(width: 4));
+    expect(moduleSourceAsset(mux), moduleSourceAssets['PriorityMux']);
+  });
+
   test('compute component sources are bundled', () async {
     final cases = <({Configurator config, String asset, String declaration})>[
       (

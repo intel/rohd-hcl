@@ -63,6 +63,16 @@ class _Payload extends LogicStructure {
   _Payload clone({String? name}) => _Payload(name: name ?? this.name);
 }
 
+class _OtherPayload extends LogicStructure {
+  _OtherPayload({String name = 'payload'})
+      : super([Logic(name: 'other', width: 8)], name: name);
+
+  @override
+  _OtherPayload clone({String? name}) => _OtherPayload(name: name ?? this.name);
+}
+
+class _PortTestModule extends Module {}
+
 class _ArrayPortHarness extends Module {
   late final Cache<TypedLogicArray<_Payload, LogicValue>> cache;
 
@@ -316,6 +326,44 @@ void main() {
     await dut.build();
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('cache ports preserve structures in both interface directions', () {
+    final dut = _TypedHarness();
+    expect(dut.cache.input('fill_data'), isA<_Payload>());
+    expect(dut.cache.output('lookup_data'), isA<_Payload>());
+    expect(dut.cache.output('eviction_data'), isA<_Payload>());
+
+    final provider = _ProviderPortModule(
+      CacheLookupPort<_Payload>(addressWidth: 8, dataSchema: _Payload()),
+      CacheFillPort<_Payload>(addressWidth: 8, dataSchema: _Payload()),
+      Logic(),
+      Logic(width: 8),
+      Logic(),
+      Logic(width: 8),
+      Logic(width: 8),
+      Logic(),
+    );
+    expect(provider.input('lookup_data'), isA<_Payload>());
+    expect(provider.input('fill_evictionData'), isA<_Payload>());
+    expect(provider.output('fill_data'), isA<_Payload>());
+  });
+
+  test('cache port registration rejects incompatible structured layouts', () {
+    final local =
+        CacheLookupPort<Logic>(addressWidth: 8, dataSchema: _Payload());
+    final source =
+        CacheLookupPort<Logic>(addressWidth: 8, dataSchema: _OtherPayload());
+    expect(
+      () => local.connectIO(_PortTestModule(), source,
+          inputTags: [PairDirection.fromConsumer]),
+      throwsA(isA<PortTypeException>()),
+    );
+    expect(
+      () => local.connectIO(_PortTestModule(), source,
+          outputTags: [PairDirection.fromConsumer]),
+      throwsA(isA<PortTypeException>()),
+    );
   });
 
   test('cache ports register typed provider endpoints', () async {

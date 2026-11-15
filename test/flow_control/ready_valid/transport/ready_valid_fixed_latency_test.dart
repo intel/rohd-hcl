@@ -191,6 +191,67 @@ typedef _Transaction = ({int data, int id});
 void main() {
   tearDown(Simulator.reset);
 
+  test('result queue preserves structured payloads with and without IDs',
+      () async {
+    for (final withId in [false, true]) {
+      final wrapper = ReadyValidFixedLatency<_Packet, _Packet>(
+        clk: Logic(),
+        reset: Logic(),
+        upstream: ReadyValidInterface(_Packet()),
+        downstream: ReadyValidInterface(_Packet()),
+        requestId: withId ? Logic(width: 4) : null,
+        latency: 1,
+        coreIdentity: 'TypedQueue',
+        coreGenerator: ({
+          required clk,
+          required reset,
+          required start,
+          required data,
+        }) =>
+            flop(clk, data, outputGenerator: data.clone),
+      );
+      await wrapper.build();
+      final queue = wrapper.subModules.whereType<ReadyValidQueue>().single;
+      final queued = queue.upstream.data as LogicStructure;
+      expect(queued.elements.first, isA<_Packet>());
+      expect(queued.elements.length, withId ? 2 : 1);
+    }
+  });
+
+  test('result queue preserves unpacked typed arrays', () async {
+    TypedLogicArray<_Packet, LogicValue> array() =>
+        TypedLogicArray<_Packet, LogicValue>(
+          [2, 2],
+          ({name}) => _Packet(name: name ?? 'packet'),
+          numUnpackedDimensions: 1,
+        );
+    final wrapper = ReadyValidFixedLatency<TypedLogicArray<_Packet, LogicValue>,
+        TypedLogicArray<_Packet, LogicValue>>(
+      clk: Logic(),
+      reset: Logic(),
+      upstream: ReadyValidInterface(array()),
+      downstream: ReadyValidInterface(array()),
+      requestId: Logic(width: 4),
+      latency: 0,
+      coreIdentity: 'TypedArray',
+      coreGenerator: ({
+        required clk,
+        required reset,
+        required start,
+        required data,
+      }) =>
+          data,
+    );
+    await wrapper.build();
+    final queue = wrapper.subModules.whereType<ReadyValidQueue>().single;
+    final queued = queue.upstream.data as LogicStructure;
+    final payload =
+        queued.elements.first as TypedLogicArray<_Packet, LogicValue>;
+    expect(payload.dimensions, [2, 2]);
+    expect(payload.numUnpackedDimensions, 1);
+    expect(wrapper.dumpSystemVerilog(), contains('module ReadyValid'));
+  });
+
   for (final (latency, interval, capacity, withId, multiCycle) in [
     (0, 1, 1, false, false),
     (0, 1, 2, true, false),

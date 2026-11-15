@@ -27,6 +27,21 @@ typedef FixedLatencyCoreGenerator<Input extends Logic, Output extends Logic>
   required Input data,
 });
 
+class _FixedLatencyResult<T extends Logic> extends LogicStructure {
+  T get payload => elements[0] as T;
+  Logic? get id => elements.length == 1 ? null : elements[1];
+
+  _FixedLatencyResult(T schema, int? idWidth, {String? name})
+      : super([
+          schema.cloneTyped(name: 'payload'),
+          if (idWidth != null) Logic(name: 'id', width: idWidth),
+        ], name: name ?? 'result');
+
+  @override
+  _FixedLatencyResult<T> clone({String? name}) =>
+      _FixedLatencyResult(payload, id?.width, name: name ?? this.name);
+}
+
 /// Ready/valid admission and result retention around a fixed-latency core.
 ///
 /// The compute core is never stalled. Result capacity is reserved when a
@@ -155,15 +170,16 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
       }
       delayedId = id;
     }
-    final payloadWidth = result.width + (delayedId?.width ?? 0);
     final queueInput =
-        ReadyValidInterface(Logic(name: 'payload', width: payloadWidth));
+        ReadyValidInterface(_FixedLatencyResult(output.data, delayedId?.width));
     final queueOutput =
-        ReadyValidInterface(Logic(name: 'payload', width: payloadWidth));
-    queueInput.data <=
-        (delayedId == null ? result : [delayedId, result].concat());
+        ReadyValidInterface(_FixedLatencyResult(output.data, delayedId?.width));
+    queueInput.data.payload <= result;
+    if (delayedId != null) {
+      queueInput.data.id! <= delayedId;
+    }
     queueInput.valid <= tracker.completed;
-    ReadyValidQueue<Logic>(
+    ReadyValidQueue<_FixedLatencyResult<Output>>(
       clk: clk,
       reset: reset,
       upstream: queueInput,
@@ -174,9 +190,9 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
     );
     queueOutput.ready <= output.ready & ~reset;
     output.valid <= queueOutput.valid & ~reset;
-    output.data <= queueOutput.data.getRange(0, result.width);
+    output.data <= queueOutput.data.payload;
     if (delayedId != null) {
-      resultId! <= queueOutput.data.getRange(result.width, payloadWidth);
+      resultId! <= queueOutput.data.id!;
     }
     retire <= queueOutput.accepted;
     addOutput('error') <=

@@ -130,6 +130,8 @@ typedef ParallelAssociativeLookupSignals = ({
   final storedValidMask = entryValid.rconcat().named('${name}_storedValidMask');
   for (var lookupIndex = 0; lookupIndex < lookups.length; lookupIndex++) {
     final lookup = lookups[lookupIndex];
+    // Keep the established flat matcher ports in the existing memory hierarchy.
+    // ignore: deprecated_member_use_from_same_package
     final matcher = AssociativeMatcher(
       query: lookup.key,
       storedKeys: storedKeys,

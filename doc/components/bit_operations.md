@@ -32,8 +32,9 @@ the result is the input width.
 
 `OneHotMux(selector, cases)` combines every selected case with bitwise OR. No
 selected bits produce zero; multiple selected bits OR the selected words.
-`PriorityMux` selects the lowest-index asserted selector bit or a supplied
-default when none is asserted.
+`TypedPriorityMux<T>` selects the lowest-index asserted selector bit or a
+supplied default when none is asserted, preserving the payload type and layout.
+The flat-port `PriorityMux` remains available but is deprecated.
 
 `BitwiseMux(selects, inputs)` makes an independent selection for each bit
 position. Each select and input has the same width, with one select per input.
