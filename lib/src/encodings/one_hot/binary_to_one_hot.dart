@@ -30,3 +30,20 @@ class BinaryToOneHot extends Module {
     encoded <= Const(1, width: encoded.width) << binary;
   }
 }
+
+/// Converts binary [Logic] signals to one-hot signals.
+extension BinaryToOneHotLogic on Logic {
+  /// Encodes this binary index using [BinaryToOneHot].
+  ///
+  /// The output has `2^width` bits.
+  Logic binaryToOneHot() => BinaryToOneHot(this).encoded;
+}
+
+/// Converts binary [LogicValue]s to one-hot values.
+extension BinaryToOneHotLogicValue on LogicValue {
+  /// Evaluates [BinaryToOneHot] for this binary index.
+  ///
+  /// The output has `2^width` bits and follows the codec's four-state
+  /// behavior.
+  LogicValue binaryToOneHot() => BinaryToOneHot(Const(this)).encoded.value;
+}

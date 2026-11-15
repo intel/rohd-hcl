@@ -45,6 +45,36 @@ TypedLogicArray<_Word, _WordValue> _words(List<int> dimensions,
         valueCodec: _wordCodec, numUnpackedDimensions: numUnpackedDimensions);
 
 void main() {
+  for (final unpacked in [0, 1]) {
+    test('aligned serializer retains nested typed payloads, unpacked=$unpacked',
+        () async {
+      final tx = Serializer(_words([2, 2], numUnpackedDimensions: unpacked),
+          clk: Logic(),
+          reset: Logic(),
+          enable: Logic(),
+          flopInput: true,
+          alignOutputLatency: true);
+      await tx.build();
+      const first = 3 | (5 << 5);
+      const second = 9 | (17 << 5);
+      final vectors = [
+        Vector({
+          'clk': 0,
+          'reset': 1,
+          'enable': 0,
+          'deserialized': first | (second << tx.serialized.width),
+        }, {}),
+        Vector({'clk': 1}, {}),
+        Vector({'clk': 0, 'reset': 0, 'enable': 1},
+            {'serialized': first, 'count': 0, 'done': 0}),
+        Vector({'clk': 1}, {}),
+        Vector({'clk': 0, 'deserialized': 0},
+            {'serialized': second, 'count': 1, 'done': 1}),
+      ];
+      await SimCompare.checkFunctionalVector(tx, vectors);
+      SimCompare.checkIverilogVector(tx, vectors);
+    });
+  }
   tearDown(() async {
     await Simulator.reset();
   });

@@ -1,6 +1,6 @@
 ## Unreleased
 
-- Fixed Confapp source cross-probing in optimized JavaScript and experimental Wasm builds by mapping stack frames back to bundled Dart sources and retaining generated SystemVerilog positions.
+- Add an opt-in serializer timing mode that bypasses the first element while capturing the rest, making flopped-input output timing match unflopped timing (progress on [intel/rohd-hcl#149](https://github.com/intel/rohd-hcl/issues/149)) without changing the default.
 
 - Fixed AXI4 subordinate memory transactions to use monitor-captured request fields rather than live signals after a handshake. Write data is captured only by its channel monitor, and write responses wait for both address and data.
 - Fixed AXI4 data monitors to capture data, strobes, and responses at the handshake edge, and retained queued write bursts while earlier responses are delayed.
@@ -15,8 +15,10 @@
 - Added opt-in explicit-J alignment to `FloatingPointConverter` for unnormalized inputs and noncanonical zeros. The default conversion path is unchanged. Aligned explicit-J sources require at least two exponent bits and IEEE infinity and signaling-NaN encodings; an explicit-J destination also requires IEEE special values and at least one fraction bit.
 - Added configurable inclusive `ParallelPrefixScan` for AND, OR, and XOR in either bit direction. `GrayToBinaryConverter` can optionally use a selected prefix topology; its default linear implementation is unchanged.
 - Added `FirstMatchPrefix` and `SparseToDense` for first-match lane selection and boolean indexed scatter. Scatter ORs duplicate indices and ignores out-of-range indices.
+- Added one-hot/binary conversion extensions for `Logic` and `LogicValue`, addressing [intel/rohd-hcl#19](https://github.com/intel/rohd-hcl/issues/19).
 - Added binary/thermometer converters and `ClockDivider`, which produces a periodic clock enable rather than a divided clock. Clarified `Synchronizer` restrictions for reset, pulses, multi-bit crossings, and physical CDC implementation.
 - Added Confapp configurators and source views for the new classifier, comparator, clock enable, thermometer converters, prefix scan, and scatter, plus opt-in converter and Gray-code topology controls.
+- Fixed Confapp source cross-probing in optimized JavaScript and experimental Wasm builds by mapping stack frames back to bundled Dart sources and retaining generated SystemVerilog positions.
 
 ## 0.3.2
 

@@ -59,6 +59,17 @@ requires at least one input axis to remove; the deserializer accepts rank zero.
 
 ## Serializer
 
+By default, enabling `flopInput` captures the input and delays the serialized
+output, count, and done by one cycle. Set `alignOutputLatency: true` together
+with `flopInput: true` to match the timing without input flops: the first
+element passes through directly, and the remaining elements come from the
+input captured on the enabled clock edge at count zero. Keep the first element
+stable until that edge, including while stalled. The option has no effect when
+`flopInput` is false.
+
+`endCount` can assert `done` before the final element, but does not restart the
+counter; the counter continues to the final element unless reset.
+
 The `Serializer` is a module that accepts a wider `LogicArray` `deserialized`
 for input data and optionally a `Logic` `enable` to allow for pausing
 serialization. While `enable` is high, the `Serializer` sequentially outputs

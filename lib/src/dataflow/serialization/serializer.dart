@@ -38,14 +38,25 @@ class Serializer<T extends Logic, V> extends Module {
   /// [done] is asserted after the full [TypedLogicArray] [deserialized] is
   /// transferred. This will delay the serialized output by one cycle.
   ///
+  /// When [flopInput] and [alignOutputLatency] are both `true`, the first
+  /// element instead passes through directly, and [count] and [done] have
+  /// the same timing as when [flopInput] is `false`. The input is captured
+  /// on the enabled clock edge at count zero; subsequent elements come from
+  /// that captured value. The first element must remain stable until that
+  /// edge, including while stalled. When [flopInput] is `false`,
+  /// [alignOutputLatency] has no effect. Its default is `false`, preserving
+  /// the original registered timing.
+  ///
   /// If [endCount] is connected, it is used as a potential early indicator for
-  /// completion of the serialization.
+  /// completion of the serialization. It does not restart the counter; the
+  /// counter continues to the final element unless reset.
   Serializer(TypedLogicArray<T, V> deserialized,
       {required Logic clk,
       required Logic reset,
       Logic? enable,
       Logic? endCount,
       bool flopInput = false,
+      bool alignOutputLatency = false,
       super.name = 'serializer',
       super.reserveName,
       super.reserveDefinitionName,
@@ -53,7 +64,8 @@ class Serializer<T extends Logic, V> extends Module {
       : super(
             definitionName: definitionName ??
                 'Serializer_W${deserialized.width}_'
-                    '${deserialized.elementWidth}') {
+                    '${deserialized.elementWidth}'
+                    '${flopInput && alignOutputLatency ? '_Aligned' : ''}') {
     if (deserialized.dimensions.isEmpty ||
         deserialized.dimensions.any((dimension) => dimension <= 0)) {
       throw ArgumentError.value(deserialized.dimensions, 'deserialized',
@@ -101,7 +113,7 @@ class Serializer<T extends Logic, V> extends Module {
     final latchTheInput =
         ((enable ?? Const(1)) & ~cnt.count.or()).named('latchTheInput');
     count <=
-        (flopInput
+        (flopInput && !alignOutputLatency
             ? flop(clk, reset: reset, en: enable, cnt.count)
             : cnt.count);
 
@@ -117,11 +129,15 @@ class Serializer<T extends Logic, V> extends Module {
                   outputGenerator: deserialized.elements[i].clone)
               : deserialized.elements[i]);
     }
+    final selected = dataOutput.elements
+        .selectIndex(count, outputGenerator: dataOutput.elements.first.clone);
     serialized <=
-        dataOutput.elements.selectIndex(count,
-            outputGenerator: dataOutput.elements.first.clone);
+        (flopInput && alignOutputLatency
+            ? mux(~cnt.count.or(), deserialized.elements.first, selected,
+                outputGenerator: dataOutput.elements.first.clone)
+            : selected);
     done <=
-        (flopInput
+        (flopInput && !alignOutputLatency
             ? flop(
                 clk,
                 reset: reset,
