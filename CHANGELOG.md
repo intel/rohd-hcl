@@ -1,11 +1,9 @@
-
 ## Unreleased
 
 - Fixed Confapp source cross-probing in optimized JavaScript and experimental Wasm builds by mapping stack frames back to bundled Dart sources and retaining generated SystemVerilog positions.
 
-## 0.3.2
-
-- Fixed compilation with ROHD 0.7.3 while retaining compatibility with ROHD 0.7.2.
+- Fixed AXI4 subordinate memory transactions to use monitor-captured request fields rather than live signals after a handshake. Write data is captured only by its channel monitor, and write responses wait for both address and data.
+- Fixed AXI4 data monitors to capture data, strobes, and responses at the handshake edge, and retained queued write bursts while earlier responses are delayed.
 
 ### Compute primitives
 
@@ -19,6 +17,10 @@
 - Added `FirstMatchPrefix` and `SparseToDense` for first-match lane selection and boolean indexed scatter. Scatter ORs duplicate indices and ignores out-of-range indices.
 - Added binary/thermometer converters and `ClockDivider`, which produces a periodic clock enable rather than a divided clock. Clarified `Synchronizer` restrictions for reset, pulses, multi-bit crossings, and physical CDC implementation.
 - Added Confapp configurators and source views for the new classifier, comparator, clock enable, thermometer converters, prefix scan, and scatter, plus opt-in converter and Gray-code topology controls.
+
+## 0.3.2
+
+- Fixed compilation with ROHD 0.7.3 while retaining compatibility with ROHD 0.7.2.
 
 ## 0.3.1
 
