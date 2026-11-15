@@ -176,9 +176,9 @@ bindings with `HardwareCoreFunctor`, then add one typed directional attachment
 per boundary. Each attachment owns its protocol handshake or accounting and maps
 it to the core actions; it also publishes `DirectionalAttachmentCapabilities` so
 composition behavior is explicit. Do not introduce a universal protocol
-interface or duplicate a core for each protocol pair. P00 establishes
-synchronous and ready/valid attachments over the FIFO core; later branches add
-credit or other protocol attachments using the same core-and-attachment seam.
+interface or duplicate a core for each protocol pair. Synchronous and
+ready/valid attachments use the FIFO core; other protocols can use the same
+[core-and-attachment pattern](./components/protocol_composition.md).
 
 Every documented, synthesizable public `Module` should have a `Configurator`
 under `lib/src/component_config/components/` and an entry in

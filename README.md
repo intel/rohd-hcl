@@ -53,6 +53,7 @@ The library is organized into the same component families used by the
 configurator. Examples include:
 
 - **Arithmetic:** adders, multipliers, counters, and floating-point operations.
+- **Binary Math:** binary transforms, finite fields, recurrences, and PRBS.
 - **Bit Operations:** searching, population counts, multiplexers, and shifting.
 - **Clocking:** clock gating, event detection, and clock-domain crossing.
 - **Dataflow:** sorting, selection, reduction, and serialization.

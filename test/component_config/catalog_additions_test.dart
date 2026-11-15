@@ -13,6 +13,7 @@
 import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 import 'package:test/test.dart';
@@ -42,6 +43,27 @@ void main() {
         'Clock Enable Divider',
         'Floating-Point Classifier',
         'Floating-Point Comparator',
+        'Accumulator',
+        'Numeric Narrowing',
+        'Majority',
+        'First-Match Prefix',
+        'Iterative Divider Engine',
+        'Ready/Valid Iterative Divider',
+        'Valid-Only Carry-Save Multiplier',
+        'Fixed-Latency Tracker',
+        'Fixed-Latency Ready/Valid Delay Example',
+        '4:2 Compressor',
+        'Binary Linear/Affine Transform',
+        'Binary Linear Recurrence',
+        'GF Constant Multiplier',
+        'GF Inverse',
+        'GF Polynomial Evaluator',
+        'Serial LFSR',
+        'Parallel LFSR',
+        'Tap-List LFSR',
+        'Signature Analyzer',
+        'PRBS Generator',
+        'PRBS Checker',
         'Pad',
         'Set Bits',
         'With Set',
@@ -51,6 +73,199 @@ void main() {
         'CSR Example',
       ]),
     );
+  });
+
+  test('compute and binary configurators round-trip and generate', () async {
+    final configs = <Configurator>[
+      AccumulatorConfigurator(),
+      NumericNarrowingConfigurator(),
+      MajorityConfigurator(),
+      FirstMatchPrefixConfigurator(),
+      IterativeDividerEngineConfigurator(),
+      ReadyValidIterativeDividerConfigurator(),
+      ValidOnlyCarrySaveMultiplierConfigurator(),
+      FixedLatencyTrackerConfigurator(),
+      ReadyValidFixedLatencyConfigurator(),
+      Compressor4Configurator(),
+      BinaryLinearTransformConfigurator(),
+      BinaryLinearRecurrenceConfigurator(),
+      GfConstantMultiplierConfigurator(),
+      GfInverseConfigurator(),
+      GfPolynomialEvaluatorConfigurator(),
+      SerialLfsrConfigurator(),
+      ParallelLfsrConfigurator(),
+      LfsrConfigurator(),
+      SignatureAnalyzerConfigurator(),
+      PrbsGeneratorConfigurator(),
+      PrbsCheckerConfigurator(),
+    ];
+    for (final config in configs) {
+      final restored = componentRegistry.singleWhere(
+          (candidate) => candidate.runtimeType == config.runtimeType)
+        ..loadJson(config.toJson());
+      expect(restored.toJson(), config.toJson(), reason: config.name);
+      expect(restored.createModule().runtimeType,
+          config.createModule().runtimeType,
+          reason: config.name);
+      expect(await restored.generateSV(), contains('module '),
+          reason: config.name);
+      await _Parent(restored.createModule()).build();
+    }
+  });
+
+  test('binary-math controls configure hardware and reject invalid input',
+      () async {
+    final transform = BinaryLinearTransformConfigurator()
+      ..rowsKnob.value = '10, 01'
+      ..offsetKnob.value = '1';
+    final restored = BinaryLinearTransformConfigurator()
+      ..loadJson(transform.toJson());
+    final module = restored.createModule() as BinaryLinearTransform;
+    await module.build();
+    module.input('data_in').put(2);
+    expect(module.result.value.toInt(), 0);
+
+    final lfsr = LfsrConfigurator()
+      ..widthKnob.value = 5
+      ..tapsKnob.value = '1, 3'
+      ..stepsKnob.value = 2;
+    final restoredLfsr = LfsrConfigurator()..loadJson(lfsr.toJson());
+    final lfsrModule = restoredLfsr.createModule() as Lfsr;
+    expect(lfsrModule.lfsrDescriptor.polynomial.coefficients,
+        (BigInt.one << 5) | (BigInt.one << 3) | (BigInt.one << 1));
+    expect(lfsrModule.stepsPerCycle, 2);
+    lfsr.tapsKnob.value = '1, invalid';
+    expect(lfsr.createModule, throwsFormatException);
+
+    final field = GfConstantMultiplierConfigurator()
+      ..modulusKnob.value = '13'
+      ..constantKnob.value = '3';
+    final fieldModule = field.createModule() as GfConstantMultiplier;
+    expect(fieldModule.constant.value, BigInt.from(3));
+    field.modulusKnob.value = '15';
+    expect(field.createModule, throwsA(isA<RohdHclException>()));
+
+    final prbs = PrbsCheckerConfigurator()
+      ..customPolynomialKnob.value = true
+      ..polynomialKnob.value = '13'
+      ..customSeedKnob.value = true
+      ..seedKnob.value = '3'
+      ..bitsKnob.value = 2;
+    final restoredPrbs = PrbsCheckerConfigurator()..loadJson(prbs.toJson());
+    final checker = restoredPrbs.createModule() as PrbsChecker;
+    expect(checker.configuration.lfsrDescriptor.polynomial.coefficients,
+        BigInt.from(0x13));
+    expect(checker.configuration.seed, BigInt.from(3));
+    expect(checker.bitsPerCycle, 2);
+
+    final recurrence = BinaryLinearRecurrenceConfigurator()
+      ..hasInputKnob.value = true
+      ..inputRowsKnob.value = '10, 01, 11, 00'
+      ..enableKnob.value = true
+      ..loadKnob.value = true;
+    final restoredRecurrence = BinaryLinearRecurrenceConfigurator()
+      ..loadJson(recurrence.toJson());
+    final recurrenceModule =
+        restoredRecurrence.createModule() as BinaryLinearRecurrence;
+    expect(recurrenceModule.descriptor.inputWidth, 2);
+    expect(recurrenceModule.inputs.keys,
+        containsAll(['data_in', 'enable', 'load', 'load_state']));
+    await recurrenceModule.build();
+  });
+
+  test('fixed-latency wrapper configures timing and IDs', () async {
+    final configured = ReadyValidFixedLatencyConfigurator()
+      ..widthKnob.value = 6
+      ..latencyKnob.value = 2
+      ..intervalKnob.value = 2
+      ..capacityKnob.value = 3
+      ..useIdKnob.value = true
+      ..idWidthKnob.value = 5;
+    final restored = ReadyValidFixedLatencyConfigurator()
+      ..loadJson(configured.toJson());
+    final wrapper = restored.createModule() as ReadyValidFixedLatency;
+    expect(wrapper.latency, 2);
+    expect(wrapper.initiationInterval, 2);
+    expect(wrapper.capacity, 3);
+    expect(wrapper.input('request_id').width, 5);
+    expect(wrapper.resultId!.width, 5);
+    await wrapper.build();
+  });
+
+  test('compression and serialization options round-trip', () async {
+    final config = MultiplyAccumulateConfigurator()
+      ..use42CompressorsKnob.value = true
+      ..customDelayKnob.value = true;
+    (config.compressionDelayKnob.subKnobs['3:2 Sum']! as StringConfigKnob)
+        .value = '2, 3, 4';
+    final restored = MultiplyAccumulateConfigurator()
+      ..loadJson(config.toJson());
+    expect(restored.toJson(), config.toJson());
+    final module = restored.createModule();
+    await module.build();
+    final tree = module.subModules.whereType<ColumnCompressor>().single;
+    expect(tree.use42Compressors, isTrue);
+    expect(tree.delayConfig.compressor3.sum, [2, 3, 4]);
+    (config.compressionDelayKnob.subKnobs['3:2 Sum']! as StringConfigKnob)
+        .value = 'bad';
+    expect(config.createModule, throwsFormatException);
+    (config.compressionDelayKnob.subKnobs['3:2 Sum']! as StringConfigKnob)
+        .value = '1, -2, 3';
+    expect(config.createModule, throwsArgumentError);
+
+    final dot = DotProductConfigurator()
+      ..implementationKnob.value = DotProductImplementation.compressionTree
+      ..use42CompressorsKnob.value = true
+      ..customDelayKnob.value = true;
+    final restoredDot = DotProductConfigurator()..loadJson(dot.toJson());
+    final dotModule = restoredDot.createModule();
+    await dotModule.build();
+    expect(
+        dotModule.subModules
+            .whereType<ColumnCompressor>()
+            .single
+            .use42Compressors,
+        isTrue);
+    expect(restoredDot.toJson(), dot.toJson());
+
+    final multiplier = MultiplierConfigurator();
+    multiplier.multiplierSelectKnob.compressionTreeMultiplierKnob.value = true;
+    multiplier.multiplierSelectKnob.use42CompressorsKnob.value = true;
+    multiplier.multiplierSelectKnob.customDelayKnob.value = true;
+    final restoredMultiplier = MultiplierConfigurator()
+      ..loadJson(multiplier.toJson());
+    expect(restoredMultiplier.toJson(), multiplier.toJson());
+    expect(await restoredMultiplier.generateSV(), contains('Compressor4'));
+
+    final serializer = SerializationConfigurator()
+      ..flopInputKnob.value = true
+      ..alignOutputLatencyKnob.value = true;
+    final restoredSerializer = SerializationConfigurator()
+      ..loadJson(serializer.toJson());
+    expect(restoredSerializer.toJson(), serializer.toJson());
+    expect(await restoredSerializer.generateSV(), contains('module '));
+  });
+
+  test('configured serializer forwards aligned timing', () async {
+    addTearDown(Simulator.reset);
+    final config = SerializationConfigurator()
+      ..inputWidthKnob.value = 8
+      ..inputLengthKnob.value = 3
+      ..enableKnob.value = true
+      ..flopInputKnob.value = true
+      ..alignOutputLatencyKnob.value = true;
+    final restored = SerializationConfigurator()..loadJson(config.toJson());
+    final serializer = restored.createModule();
+    await serializer.build();
+    await SimCompare.checkFunctionalVector(serializer, [
+      Vector({'clk': 0, 'reset': 1, 'enable': 0, 'deserialized': 0x332211}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'reset': 0}, {'serialized': 0x11, 'count': 0}),
+      Vector({'enable': 1}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'enable': 0, 'deserialized': 0x998877},
+          {'serialized': 0x22, 'count': 1}),
+    ]);
   });
 
   test('catalog excludes legacy components and includes replacements', () {

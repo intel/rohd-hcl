@@ -2,4 +2,5 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'fifo_core_functor.dart';
+export 'fixed_latency_tracker.dart';
 export 'hardware_core_functor.dart';

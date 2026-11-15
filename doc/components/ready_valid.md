@@ -63,6 +63,55 @@ fall-through stage. Their downstream interfaces provide an irrevocable offer.
 For authors building a custom protocol shell around an action-driven core, see
 [protocol composition](protocol_composition.md).
 
+## Fixed-latency compute
+
+`ReadyValidFixedLatency<Input, Output>` wraps an in-order compute core and
+reserves result capacity when each request is accepted. Its core generator
+receives the clock, synchronous reset, `start` pulse, and typed input data, and
+returns the typed output. The core must produce exactly one result per start,
+in order, after the configured `latency` cycles, continue advancing through
+bubbles, and accept starts at the configured `initiationInterval`. The wrapper
+does not stall the core. For zero latency, the result is combinational in the
+same cycle as `start`.
+
+The registered result queue adds transport latency beyond the core latency.
+Results remain stable while stalled. An optional `requestId` is sampled with
+each input and made available as `resultId` alongside its output; the caller
+must keep the ID stable with a stalled input. Reset suppresses transfers and
+discards outstanding requests and results on the reset edge. The core must be
+ready to accept new starts afterward; reset its state if necessary.
+
+`capacity` counts all accepted but unretired requests, including in-flight
+work, and defaults to `latency + 1`. Smaller positive capacities are allowed
+but can reduce throughput. A downstream transfer may permit admission on the
+same edge, so downstream ready can affect upstream ready combinationally.
+Check the surrounding composition for loops. `error` reports an invalid
+retirement or result-buffer overflow; with a core meeting the contract it
+should remain low. The wrapper's `timing` describes the core, not the
+additional queue latency or the wrapper's admission capacity.
+
+```dart
+final upstream = ReadyValidInterface(Logic(width: 8));
+final downstream = ReadyValidInterface(Logic(width: 8));
+final requestId = Logic(width: 4);
+final wrapper = ReadyValidFixedLatency<Logic, Logic>(
+  clk: clk,
+  reset: reset,
+  upstream: upstream,
+  downstream: downstream,
+  requestId: requestId,
+  latency: 0,
+  coreIdentity: 'Invert8',
+  coreGenerator: ({required clk, required reset, required start, required data}) =>
+      data ^ Const(0xff, width: 8),
+);
+final resultId = wrapper.resultId!;
+```
+
+`coreIdentity` must be a SystemVerilog-safe identifier fragment that uniquely
+identifies the generated core configuration. Keep using the caller-owned
+interfaces to connect neighboring modules.
+
 ## ReadyValidQueue
 
 `ReadyValidQueue<T>` buffers a typed payload with an explicit visibility policy
@@ -99,7 +148,7 @@ timing assumptions when migrating.
 `ReadyValidFifo<T extends Logic>` buffers a typed payload between upstream and
 downstream ready/valid interfaces. Its default depth is 8. The upstream side
 deasserts `ready` when full, and the downstream side deasserts `valid` when
-empty. It is the P00 reference protocol shell: its storage is constructed
+empty. It is a reference protocol shell: its storage is constructed
 through `FifoCoreFunctor`, while `ReadyValidIngressAttachmentPolicy` and
 `ReadyValidEgressAttachmentPolicy` map the two ready/valid boundaries to the
 core's enqueue and dequeue actions. Future protocol combinations reuse that

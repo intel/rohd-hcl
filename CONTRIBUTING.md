@@ -247,7 +247,32 @@ Here is an example of a recommended file header template:
 // Author: Max Korbel <max.korbel@intel.com>
 ```
 
+### Component design and ownership
+
+Organize components by their public responsibility and dependency contract,
+not by the branch or PR that introduced them. Start with the
+[component guide and index](doc/README.md) and reuse, extend, or compose an
+existing component when it already supplies the needed behavior.
+
+* Keep synthesizable hardware, simulation-only models, and verification
+  helpers clearly identified. Components should be reusable and configurable
+  where useful, with tests and documentation for timing and restrictions.
+* Keep domain algorithms and state in their functional category. Separate
+  protocol-neutral cores from transport handshakes, buffering, and accounting;
+  see [protocol composition](doc/components/protocol_composition.md).
+* ROHD owns fundamental signal/value operations, simulation, and backend
+  generation. HCL owns configurable components and their behavioral models;
+  ROHD-VF owns reusable verification infrastructure.
+* Preserve existing arithmetic and interface behavior when adopting upstream
+  primitives. Define width, signedness, X/Z, reset, and compatibility semantics
+  and test relevant reference and generated-RTL behavior. Moving an HCL
+  operation upstream requires a compatibility review and migration plan.
+
 #### Adding a New Component
+
+Check existing components and open issues first. The
+[component authoring guide](doc/Component.md) covers construction, testing,
+and integration requirements.
 
 You can generate a schematic netlist from a module while developing it; a
 `Configurator` is not required. Create a small runner such as
@@ -299,7 +324,11 @@ components as examples.
    1. Add the module's source path to
       `confapp/lib/hcl/module_source_assets.dart` and run `bash
       tool/generate_confapp_assets.sh`.
-1. Add documentation to `doc/components/name.md`.
+1. Add or update the permanent topic documentation under `doc/components/` and
+   link it from [doc/README.md](doc/README.md). Update the root README when
+   introducing a new category.
+1. Add user-visible changes and compatibility notes to the Unreleased section
+   of [CHANGELOG.md](CHANGELOG.md).
 
 After registering a `Configurator`, run `dart run gen/generate.dart` to generate
 native ROHD netlists for the registered components in `build/*.rohd.json`.

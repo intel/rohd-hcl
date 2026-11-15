@@ -117,7 +117,7 @@ and maps it onto those actions and a wrapper-owned payload signal.
 
 `DirectionalAttachmentCapabilities` describes the storage, latency, retention,
 same-cycle replacement, credit-reuse, contract, and combinational dependency
-properties of one attachment. P00 provides:
+properties of one attachment. The common action and ready/valid policies are:
 
 - `SynchronousActionAttachmentPolicy` for a caller-owned one-bit action; and
 - `ReadyValidIngressAttachmentPolicy` and `ReadyValidEgressAttachmentPolicy` for
@@ -136,7 +136,7 @@ policy and ring storage; the queue allows full replacement and also offers
 fall-through and register storage options. See [Ready/Valid
 Hardware](ready_valid.md).
 
-Later protocol families add their own typed attachments to the same core action
+Other protocols can use their own typed attachments at the same core action
 boundary. For example, a credited ingress may own admission accounting and map
 legal credit traffic to `enqueue`, while a ready/valid egress maps `dequeue` to
 its transfer handshake. Do not add a universal protocol interface, and do not

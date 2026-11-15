@@ -1,4 +1,4 @@
-// Copyright (C) 2023-2025 Intel Corporation
+// Copyright (C) 2023-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // utils.dart
@@ -22,7 +22,9 @@ extension LogicValueBitString on LogicValue {
 
 /// This extension will eventually move to ROHD once it is proven useful.
 extension LogicValueMajority on LogicValue {
-  /// Compute the unary majority on [LogicValue].
+  /// Whether strictly more than half of the bits are one.
+  ///
+  /// Returns false for a tie or when any bit is X or Z.
   bool majority() {
     if (!isValid) {
       return false;

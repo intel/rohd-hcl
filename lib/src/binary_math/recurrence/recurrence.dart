@@ -9,6 +9,7 @@
 
 export 'binary_linear_recurrence.dart';
 export 'binary_linear_recurrence_descriptor.dart';
+export 'lfsr.dart';
 export 'lfsr_descriptor.dart';
 export 'parallel_lfsr.dart';
 export 'serial_lfsr.dart';

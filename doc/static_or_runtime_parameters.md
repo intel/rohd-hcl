@@ -66,6 +66,12 @@ creates a module input with the signal's width. A runtime value takes precedence
 over the static default. `ofDynamic` is available for legacy input boundaries
 that need to validate or convert untyped values.
 
+By default, runtime inputs are flattened. Use `resolveTyped` or
+`getTypedRuntimeInput` to use ROHD's typed input registration, including its
+handling of constants. An incompatible existing input is rejected rather than
+silently reused. Set `reuseExisting: false` to require a new input instead of
+reusing one.
+
 ## Passing Parameters to Child Components
 
 Use `forChild(parent)` to preserve the static choice or pass the parent's

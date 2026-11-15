@@ -119,3 +119,9 @@ new clock. A positive divisor specifies the number of input-clock cycles per
 enable; divisor one enables every cycle. Synchronous reset suppresses the enable
 and restarts the period. Apply the enable to registers clocked by the original
 clock; it is not a generated-clock or clock-domain crossing primitive.
+
+Prefer an enable when work should occur less frequently in the same domain.
+An actual divided clock requires a technology-appropriate implementation and
+generated-clock timing constraints; `ClockDivider` does not provide either.
+For real crossings, see
+[synchronizer limitations and asynchronous FIFOs](async_fifo.md#synchronizer-module).

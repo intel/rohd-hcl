@@ -189,6 +189,7 @@ abstract class Axi4RequestChannelInterface extends Axi4ChannelInterface {
   /// Constructor.
   Axi4RequestChannelInterface({
     required super.prefix,
+    super.main = true,
     super.idWidth = 4,
     super.userWidth = 4,
     this.addrWidth = 32,
@@ -200,7 +201,7 @@ abstract class Axi4RequestChannelInterface extends Axi4ChannelInterface {
     this.protWidth = 3,
     this.qosWidth = 4,
     this.regionWidth = 4,
-  }) : super(main: true) {
+  }) {
     _validateParameters();
 
     setPorts([
@@ -214,7 +215,7 @@ abstract class Axi4RequestChannelInterface extends Axi4ChannelInterface {
       if (qosWidth > 0) Logic.port('${prefix}QOS', qosWidth),
       if (regionWidth > 0) Logic.port('${prefix}REGION', regionWidth),
     ], [
-      PairDirection.fromProvider,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
   }
 
@@ -498,14 +499,15 @@ abstract class Axi4ResponseChannelInterface extends Axi4ChannelInterface {
   /// Constructor.
   Axi4ResponseChannelInterface({
     required super.prefix,
+    super.main = false,
     super.idWidth = 4,
     super.userWidth = 16,
     this.respWidth = 2,
-  }) : super(main: false) {
+  }) {
     setPorts([
       if (respWidth > 0) Logic.port('${prefix}RESP', respWidth),
     ], [
-      PairDirection.fromConsumer,
+      if (main) PairDirection.fromProvider else PairDirection.fromConsumer,
     ]);
   }
 }

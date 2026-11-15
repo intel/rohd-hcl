@@ -327,6 +327,165 @@ void main() {
     SimCompare.checkIverilogVector(recurrence, vectors);
   });
 
+  for (final (taps, steps) in [
+    (<int>[0], 1),
+    (<int>[0, 1], 3),
+    (<int>[1], 2),
+  ]) {
+    test('tap-list LFSR $taps, $steps steps matches RTL', () async {
+      const width = 4;
+      final dut = Lfsr(
+        clk: Logic(),
+        reset: Logic(),
+        enable: Logic(),
+        load: Logic(),
+        loadState: Logic(width: width),
+        stateWidth: width,
+        feedbackTaps: taps,
+        stepsPerCycle: steps,
+        initialState: BigInt.from(9),
+      );
+      await dut.build();
+
+      int advance(int state) {
+        var feedback = 0;
+        for (final tap in taps) {
+          feedback ^= (state >> tap) & 1;
+        }
+        return (state >> 1) | (feedback << (width - 1));
+      }
+
+      int outputWord(int state) {
+        var result = 0;
+        for (var i = 0; i < steps; i++) {
+          result |= (state & 1) << i;
+          state = advance(state);
+        }
+        return result;
+      }
+
+      var state = 0;
+      final vectors = <Vector>[];
+      void cycle({
+        int reset = 0,
+        int enable = 1,
+        int load = 0,
+        int loadState = 0,
+      }) {
+        final inputs = {
+          'reset': reset,
+          'enable': enable,
+          'load': load,
+          'load_state': loadState,
+        };
+        vectors
+          ..add(Vector({'clk': 0, ...inputs}, {}))
+          ..add(Vector({'clk': 1, ...inputs}, {}));
+        if (reset == 1) {
+          state = 9;
+        } else if (load == 1) {
+          state = loadState;
+        } else if (enable == 1) {
+          for (var i = 0; i < steps; i++) {
+            state = advance(state);
+          }
+        }
+        var next = state;
+        for (var i = 0; i < steps; i++) {
+          next = advance(next);
+        }
+        vectors.add(Vector({
+          'clk': 0,
+          ...inputs,
+        }, {
+          'state': state,
+          'next_state': next,
+          'data_out': outputWord(state),
+        }));
+      }
+
+      cycle(reset: 1);
+      for (var i = 0; i < 10; i++) {
+        cycle();
+      }
+      cycle(enable: 0);
+      cycle(enable: 0, load: 1, loadState: 6);
+      cycle();
+      cycle(reset: 1, load: 1, loadState: 15);
+
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      SimCompare.checkIverilogVector(dut, vectors);
+    });
+  }
+
+  test('single-bit tap-list LFSR emits parallel bits', () async {
+    final dut = Lfsr(
+      clk: Logic(),
+      reset: Logic(),
+      stateWidth: 1,
+      feedbackTaps: [0],
+      stepsPerCycle: 2,
+      initialState: BigInt.one,
+    );
+    await dut.build();
+    final vectors = [
+      Vector({'clk': 0, 'reset': 1}, {}),
+      Vector({'clk': 1, 'reset': 1}, {}),
+      Vector({'clk': 0, 'reset': 0}, {'state': 1, 'data_out': 3}),
+      Vector({'clk': 1, 'reset': 0}, {}),
+      Vector({'clk': 0, 'reset': 0}, {'state': 1, 'data_out': 3}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('tap-list LFSR forwards asynchronous reset', () async {
+    final dut = Lfsr(
+      clk: Logic(),
+      reset: Logic(),
+      stateWidth: 3,
+      feedbackTaps: [0, 1],
+      initialState: BigInt.from(5),
+      asyncReset: true,
+    );
+    await dut.build();
+    final vectors = [
+      Vector({'clk': 0, 'reset': 0}, {}),
+      Vector({'clk': 0, 'reset': 1}, {'state': 5, 'data_out': 1}),
+      Vector({'clk': 0, 'reset': 0}, {'state': 5, 'data_out': 1}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('tap-list LFSR validates its configuration', () {
+    for (final (width, taps) in [
+      (0, <int>[0]),
+      (3, <int>[]),
+      (3, <int>[-1]),
+      (3, <int>[3]),
+      (3, <int>[0, 0]),
+    ]) {
+      expect(
+        () => Lfsr(clk: Logic(), stateWidth: width, feedbackTaps: taps),
+        throwsA(isA<RohdHclException>()),
+      );
+    }
+    expect(
+      () => Lfsr(
+        clk: Logic(),
+        stateWidth: 3,
+        feedbackTaps: [0],
+        stepsPerCycle: 0,
+      ),
+      throwsA(isA<RohdHclException>()),
+    );
+    expect(
+      () => LfsrDescriptor(BinaryPolynomial.fromExponents(const [3, 1])),
+      throwsA(isA<RohdHclException>()),
+    );
+  });
+
   test('validates recurrence ports and controls', () {
     final descriptor = BinaryLinearRecurrenceDescriptor(
       stateMatrix: BinaryMatrix.identity(3),

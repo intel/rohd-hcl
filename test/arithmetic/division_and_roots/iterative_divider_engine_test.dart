@@ -18,14 +18,15 @@ Future<void> _tick(Logic clk) async {
   await clk.nextNegedge;
 }
 
-Future<void> _waitFor(Logic clk, Logic signal) async {
+Future<void> _waitFor(Logic clk, Logic signal, {String? reason}) async {
   for (var cycle = 0; cycle < 200; cycle++) {
     if (signal.value.toBool()) {
       return;
     }
     await _tick(clk);
   }
-  fail('Timed out waiting for ${signal.name}');
+  fail('Timed out waiting for ${signal.name}'
+      '${reason == null ? '' : ': $reason'}');
 }
 
 void main() {
@@ -72,6 +73,74 @@ void main() {
       await Simulator.endSimulation();
     }
   });
+
+  for (final width in [1, 2, 3, 4]) {
+    test('direct engine exhaustively divides $width-bit operands', () async {
+      final clk = SimpleClockGenerator(10).clk;
+      final reset = Logic();
+      final start = Logic();
+      final dividend = Logic(width: width);
+      final divisor = Logic(width: width);
+      final isSigned = Logic();
+      final engine = IterativeDividerEngine(
+        clk: clk,
+        reset: reset,
+        start: start,
+        dividend: dividend,
+        divisor: divisor,
+        isSigned: isSigned,
+      );
+      await engine.build();
+      unawaited(Simulator.run());
+      try {
+        reset.inject(1);
+        start.inject(0);
+        dividend.inject(0);
+        divisor.inject(0);
+        isSigned.inject(0);
+        await _tick(clk);
+        reset.inject(0);
+
+        final range = 1 << width;
+        int interpret(int value, {required bool signed}) =>
+            signed && value >= range ~/ 2 ? value - range : value;
+
+        for (final signed in [false, true]) {
+          isSigned.inject(signed);
+          for (var a = 0; a < range; a++) {
+            for (var b = 0; b < range; b++) {
+              final reason =
+                  'width=$width signed=$signed dividend=$a divisor=$b';
+              expect(engine.busy.value.toBool(), isFalse, reason: reason);
+              dividend.inject(a);
+              divisor.inject(b);
+              start.inject(1);
+              await _tick(clk);
+              start.inject(0);
+              await _waitFor(clk, engine.done, reason: reason);
+
+              expect(engine.divZero.value.toBool(), b == 0, reason: reason);
+              if (b != 0) {
+                final numerator = interpret(a, signed: signed);
+                final denominator = interpret(b, signed: signed);
+                final quotient = numerator ~/ denominator;
+                final remainder = numerator - denominator * quotient;
+                expect(
+                    engine.quotient.value.toInt(), quotient.toUnsigned(width),
+                    reason: reason);
+                expect(
+                    engine.remainder.value.toInt(), remainder.toUnsigned(width),
+                    reason: reason);
+              }
+              await _tick(clk);
+            }
+          }
+        }
+      } finally {
+        await Simulator.endSimulation();
+      }
+    });
+  }
 
   test('ready/valid wrapper retains stalled results and blocks commands',
       () async {

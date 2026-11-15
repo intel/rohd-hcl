@@ -5,6 +5,26 @@ implementation is not pipelined; its latency depends on operand values and
 widths. The documented upper bound is `O(WIDTH**2)`, with a worst case including
 the largest dividend divided by one.
 
+## Choosing a Control Interface
+
+| Parent's timing contract | Component | Result behavior |
+| --- | --- | --- |
+| Existing divider request/result handshake | `MultiCycleDivider` with `MultiCycleDividerInterface` | Holds `validOut` and result until `readyOut` |
+| Direct start/busy/done scheduling | `IterativeDividerEngine` | Pulses `done`; the caller must consume or retain the result |
+| Ready/valid commands with a backpressured consumer | `ReadyValidIterativeDivider` | Retains the result until the downstream transfer |
+
+The direct engine wraps `MultiCycleDivider`. The ready/valid shell composes
+that engine with a fall-through result buffer; it accepts no new command while
+the engine is busy or a buffered result is outstanding. Its `DivisionRequest`
+contains `dividend`, `divisor`, and `isSigned`; `DivisionResult` contains
+`quotient`, `remainder`, and `divZero`.
+
+Choose the boundary that matches the parent rather than duplicating the divide
+algorithm for each protocol. Neither wrapper adds a pipelined or faster divide
+algorithm; the arithmetic and operand-dependent latency remain those of the
+underlying divider. The following sections describe that common divider
+interface and its mathematical behavior.
+
 ## Interface
 
 The inputs to the divider module are:

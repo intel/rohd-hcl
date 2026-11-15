@@ -10,6 +10,18 @@ The following components complement the [count](count.md), [find](find.md), and
 counts equal positions. Inputs must have equal widths; both expose `count` and
 the underlying count tree's `treeDepth`.
 
+## Majority
+
+`Majority(bits).majority` and `bits.majority()` for `Logic` produce one when
+strictly more than half of the bits are one. An even-width tie produces zero.
+X and Z inputs are treated as unknown: the output is known when all possible
+assignments agree, and X otherwise. The general hardware uses a sorting network
+of AND/OR comparators; the three-input case shares the existing full-adder
+carry logic.
+
+The existing `LogicValue.majority()` instead returns a Dart `bool` and returns
+false whenever any bit is X or Z. It cannot represent an unknown result.
+
 ## Leading and Trailing Zeros
 
 `CountLeadingZeros(inp)` and `CountTrailingZeros(inp)` expose the number of
@@ -27,6 +39,19 @@ default when none is asserted.
 position. Each select and input has the same width, with one select per input.
 At each bit, selected inputs are ORed, so one-hot selection per bit is the
 intended use.
+
+## First-Match Prefix
+
+`FirstMatchPrefix` takes equal-width `eligibleMask` and `matchMask` inputs.
+Lane zero is considered first. `selectedMask` identifies the first eligible
+matching lane, and `keepMask` retains eligible lanes up to and including it.
+When there is no eligible match, `keepMask` retains every eligible lane,
+`selectedMask` is zero, and `anyMatch` is low. `keptCount` counts the retained
+lanes.
+
+Use this for a lane group that must stop at the first qualifying event while
+retaining earlier eligible work. It does not compact data or retain state;
+`keepMask` can still contain gaps where lanes were ineligible.
 
 ## Boolean Sparse-to-Dense Scatter
 

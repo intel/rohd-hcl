@@ -31,6 +31,39 @@ void main() {
     }
   });
 
+  test('new compute and binary modules use their specific sources', () {
+    final configs = <String, Configurator>{
+      'Accumulator': AccumulatorConfigurator(),
+      'NumericNarrowing': NumericNarrowingConfigurator(),
+      'Majority': MajorityConfigurator(),
+      'FirstMatchPrefix': FirstMatchPrefixConfigurator(),
+      'IterativeDividerEngine': IterativeDividerEngineConfigurator(),
+      'ReadyValidIterativeDivider': ReadyValidIterativeDividerConfigurator(),
+      'ValidOnlyCarrySaveMultiplier':
+          ValidOnlyCarrySaveMultiplierConfigurator(),
+      'FixedLatencyTracker': FixedLatencyTrackerConfigurator(),
+      'ReadyValidFixedLatency': ReadyValidFixedLatencyConfigurator(),
+      'Compressor4': Compressor4Configurator(),
+      'BinaryLinearTransform': BinaryLinearTransformConfigurator(),
+      'BinaryLinearRecurrence': BinaryLinearRecurrenceConfigurator(),
+      'GfConstantMultiplier': GfConstantMultiplierConfigurator(),
+      'GfInverse': GfInverseConfigurator(),
+      'GfPolynomialEvaluator': GfPolynomialEvaluatorConfigurator(),
+      'SerialLfsr': SerialLfsrConfigurator(),
+      'ParallelLfsr': ParallelLfsrConfigurator(),
+      'Lfsr': LfsrConfigurator(),
+      'SignatureAnalyzer': SignatureAnalyzerConfigurator(),
+      'PrbsGenerator': PrbsGeneratorConfigurator(),
+      'PrbsChecker': PrbsCheckerConfigurator(),
+    };
+    for (final entry in configs.entries) {
+      expect(moduleSourceAssets[entry.key], isNotNull, reason: entry.key);
+      expect(moduleSourceAsset(entry.value.createModule()),
+          moduleSourceAssets[entry.key],
+          reason: entry.value.name);
+    }
+  });
+
   test('compute component sources are bundled', () async {
     final cases = <({Configurator config, String asset, String declaration})>[
       (

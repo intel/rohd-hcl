@@ -36,7 +36,8 @@ mixin ResettableEntries on Module {
       return List.generate(numEntries, (_) => Const(0, width: entryWidth));
     } else if (resetValue is Logic) {
       _validateResetValue(resetValue, entryWidth: entryWidth);
-      final resetValueInput = addTypedInput('resetValue', resetValue);
+      final resetValueInput = _makeResetValue(resetValue,
+          name: 'resetValue', entryWidth: entryWidth);
       return List.generate(numEntries, (_) => resetValueInput);
     } else if (resetValue is List) {
       if (resetValue.length != numEntries) {
@@ -48,17 +49,10 @@ mixin ResettableEntries on Module {
         _validateResetValue(resetVal, entryWidth: entryWidth);
       }
 
-      // TODO(mkorbel1): it would be nice to use the `StaticOrDynamicParameter`
-      //  instead of recreating it for int here, but it needs upgrades
-
       return [
         for (final (i, resetVal) in resetValue.indexed)
-          if (resetVal is Logic)
-            addTypedInput('resetValue_$i', resetVal)
-          else if (resetVal == null)
-            Const(0, width: entryWidth)
-          else
-            Const(resetVal, width: entryWidth)
+          _makeResetValue(resetVal,
+              name: 'resetValue_$i', entryWidth: entryWidth)
       ];
     } else if (resetValue is Map<int, dynamic>) {
       if (resetValue.keys.any((key) => key < 0 || key >= numEntries)) {
@@ -72,17 +66,24 @@ mixin ResettableEntries on Module {
 
       return [
         for (var i = 0; i < numEntries; i++)
-          if (resetValue[i] is Logic)
-            addTypedInput('resetValue_$i', resetValue[i] as Logic)
-          else if (resetValue[i] == null)
-            Const(0, width: entryWidth)
-          else
-            Const(resetValue[i], width: entryWidth)
+          _makeResetValue(resetValue[i],
+              name: 'resetValue_$i', entryWidth: entryWidth)
       ];
     } else {
       return List.generate(
           numEntries, (_) => Const(resetValue, width: entryWidth));
     }
+  }
+
+  Logic _makeResetValue(Object? resetValue,
+      {required String name, required int entryWidth}) {
+    final control = StaticOrRuntimeControl<Object>(
+        name: name,
+        staticConfig: resetValue is Logic ? 0 : resetValue ?? 0,
+        runtimeConfig: resetValue is Logic ? resetValue : null);
+    return control.resolveTyped(this,
+        staticToLogic: (value) => Const(value, width: entryWidth),
+        reuseExisting: false);
   }
 
   void _validateResetValue(dynamic resetVal, {required int entryWidth}) {

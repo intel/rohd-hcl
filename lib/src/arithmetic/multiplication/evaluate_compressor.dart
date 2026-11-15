@@ -31,15 +31,18 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
     var accum = BigInt.zero;
 
     for (var row = 0; row < rows; row++) {
+      final shift = usesColumnAlignedRows ? 0 : rowShift[row];
       final rowLogic = <Logic>[];
       for (var col = columns.length - 1; col >= 0; col--) {
         final colList = columns[col].toList();
         if (row < colList.length) {
           rowLogic.insert(0, colList[row].logic);
+        } else if (usesColumnAlignedRows) {
+          rowLogic.insert(0, Const(0));
         }
       }
       final rowBits = [for (final c in rowLogic) c.value].reversed.toList()
-        ..addAll(List.filled(rowShift[row], LogicValue.zero));
+        ..addAll(List.filled(shift, LogicValue.zero));
       final rowBitsExtend = rowBits.length < width
           ? rowBits.concat().zeroExtend(width)
           : rowBits.concat();
@@ -52,7 +55,7 @@ extension EvaluateLiveColumnCompressor on ColumnCompressor {
             prefix: prefix,
             extraSpace: extraSpace,
             intValue: true,
-            shift: rowShift[row]))
+            shift: shift))
         ..write('\n');
     }
 

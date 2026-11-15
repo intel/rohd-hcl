@@ -202,9 +202,9 @@ class MultiCycleDivider extends Module {
     // combinational logic signal to check for overflow when shifting
     final tmpShift = Logic(name: 'tmpShift', width: dataWidth + 1);
 
-    // current value of i to try
-    // need log(dataWidth) bits
-    final currIndex = Logic(name: 'currIndex', width: logDataWidth);
+    // The index must represent dataWidth before the shift can overflow.
+    final indexWidth = (dataWidth + 1).log2Ceil;
+    final currIndex = Logic(name: 'currIndex', width: indexWidth);
 
     intf.quotient <=
         outBuffer.getRange(
@@ -253,24 +253,10 @@ class MultiCycleDivider extends Module {
         ]),
         CaseItem(state(_MultiCycleDividerState.processing), [
           tmpShift < (bBuf << currIndex),
-          If(
-              // special case: b is most negative #
-              // XOR of signOut and signNum is high iff
-              // signed AND denominator is negative
-              bBuf[dataWidth - 1] &
-                  ~bBuf.getRange(0, dataWidth - 2).or() &
-                  (signOut ^ signNum),
-              then: [
-                tmpDifference < ~Const(0, width: dataWidth + 1), // -1
-                nextState < _MultiCycleDividerState.accumulate
-              ],
-              orElse: [
-                tmpDifference < (aBuf - tmpShift),
-                // move to accumulate if tmpDifference <= 0
-                If(~tmpShift.or() | tmpDifference[-1] | ~tmpDifference.or(),
-                    then: [nextState < _MultiCycleDividerState.accumulate],
-                    orElse: [nextState < _MultiCycleDividerState.processing])
-              ])
+          tmpDifference < (aBuf - tmpShift),
+          If(~tmpShift.or() | tmpDifference[-1] | ~tmpDifference.or(),
+              then: [nextState < _MultiCycleDividerState.accumulate],
+              orElse: [nextState < _MultiCycleDividerState.processing])
         ]),
         CaseItem(state(_MultiCycleDividerState.ready), [
           If(intf.validIn, then: [
@@ -352,14 +338,14 @@ class MultiCycleDivider extends Module {
     // handle updates of curr_index
     Sequential(intf.clk, [
       If.block([
-        Iff(intf.reset, [currIndex < Const(0, width: logDataWidth)]),
+        Iff(intf.reset, [currIndex < Const(0, width: indexWidth)]),
         ElseIf(
           currentState.eq(_MultiCycleDividerState
               .processing), // increment current index each PROCESS cycle
-          [currIndex < (currIndex + Const(1, width: logDataWidth))],
+          [currIndex < (currIndex + Const(1, width: indexWidth))],
         ),
         Else(
-          [currIndex < Const(0, width: logDataWidth)], // reset curr_index
+          [currIndex < Const(0, width: indexWidth)], // reset curr_index
         )
       ])
     ]);

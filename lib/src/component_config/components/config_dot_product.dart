@@ -55,6 +55,15 @@ class DotProductConfigurator extends Configurator {
     value: 4,
   );
 
+  /// Enables 4:2 compressors in the fused tree.
+  final ToggleConfigKnob use42CompressorsKnob = ToggleConfigKnob(value: false);
+
+  /// Enables custom fused-tree compressor timing estimates.
+  final ToggleConfigKnob customDelayKnob = ToggleConfigKnob(value: false);
+
+  /// Per-input fused-tree compressor timing estimates.
+  final CompressionDelayKnob compressionDelayKnob = CompressionDelayKnob();
+
   /// Radix of the general implementation's reduction tree.
   final IntConfigKnob reductionRadixKnob = IntConfigKnob(value: 2, minValue: 2);
 
@@ -80,6 +89,16 @@ class DotProductConfigurator extends Configurator {
         'Multiplier Width': multiplierWidthKnob,
         'Implementation': implementationKnob,
         'Product Radix': productRadixKnob,
+        if (implementationKnob.value ==
+            DotProductImplementation.compressionTree)
+          'Use 4:2 Compressors': use42CompressorsKnob,
+        if (implementationKnob.value ==
+            DotProductImplementation.compressionTree)
+          'Custom Delay Tables': customDelayKnob,
+        if (implementationKnob.value ==
+                DotProductImplementation.compressionTree &&
+            customDelayKnob.value)
+          'Delay Tables': compressionDelayKnob,
         if (implementationKnob.value == DotProductImplementation.general)
           'Reduction Tree Radix': reductionRadixKnob,
         'Multiplicand Signedness': signedMultiplicandKnob,
@@ -137,6 +156,9 @@ class DotProductConfigurator extends Configurator {
         signedMultiplicand: signedMultiplicand,
         signedMultiplier: signedMultiplier,
         productRadix: productRadixKnob.value,
+        use42Compressors: use42CompressorsKnob.value,
+        delayConfig:
+            customDelayKnob.value ? compressionDelayKnob.resolve() : null,
         adderGen: adderGen,
       );
     }

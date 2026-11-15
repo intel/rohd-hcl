@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_tracker.dart
@@ -57,6 +57,12 @@ class Axi4RequestTracker extends Tracker<Axi4RequestPacket> {
   /// Tracker field for BAR.
   static const barField = 'BAR';
 
+  /// Tracker field for SNOOP.
+  static const snoopField = 'SNOOP';
+
+  /// Tracker field for AWUNIQUE.
+  static const uniqueField = 'UNIQUE';
+
   /// Constructor.
   Axi4RequestTracker({
     String name = 'Axi4RequestTracker',
@@ -77,6 +83,8 @@ class Axi4RequestTracker extends Tracker<Axi4RequestPacket> {
     int userColumnWidth = 0,
     int domainColumnWidth = 0,
     int barColumnWidth = 0,
+    int snoopColumnWidth = 0,
+    int uniqueColumnWidth = 0,
   }) : super(name, [
           TrackerField(timeField, columnWidth: timeColumnWidth),
           const TrackerField(typeField, columnWidth: 1),
@@ -104,6 +112,10 @@ class Axi4RequestTracker extends Tracker<Axi4RequestPacket> {
             TrackerField(domainField, columnWidth: domainColumnWidth),
           if (barColumnWidth > 0)
             TrackerField(barField, columnWidth: barColumnWidth),
+          if (snoopColumnWidth > 0)
+            TrackerField(snoopField, columnWidth: snoopColumnWidth),
+          if (uniqueColumnWidth > 0)
+            TrackerField(uniqueField, columnWidth: uniqueColumnWidth),
         ]);
 }
 

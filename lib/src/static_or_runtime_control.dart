@@ -64,16 +64,35 @@ class StaticOrRuntimeControl<T> {
   bool get isRuntime => runtimeConfig != null;
 
   /// Constructs and returns the internal input when runtime-configured.
-  Logic? getRuntimeInput(Module module) {
+  Logic? getRuntimeInput(Module module) =>
+      _getRuntimeInput(module, typed: false, reuseExisting: true);
+
+  /// Constructs and returns a typed internal input when runtime-configured.
+  ///
+  /// Set [reuseExisting] to false to require a new input.
+  Logic? getTypedRuntimeInput(Module module, {bool reuseExisting = true}) =>
+      _getRuntimeInput(module, typed: true, reuseExisting: reuseExisting);
+
+  Logic? _getRuntimeInput(Module module,
+      {required bool typed, required bool reuseExisting}) {
     final config = runtimeConfig;
     if (config == null) {
       return null;
     }
-    final existing = tryRuntimeInput(module);
+    final existing = reuseExisting ? tryRuntimeInput(module) : null;
     if (existing != null) {
+      if (typed &&
+          config is! Const &&
+          !(config is LogicStructure && config.hasConsts) &&
+          existing.runtimeType != config.runtimeType) {
+        throw RohdHclException(
+            'Runtime control "$name" requires a typed module input.');
+      }
       return existing;
     }
-    final input = module.addInput(name, config, width: config.width);
+    final input = typed
+        ? module.addTypedInput<Logic>(name, config)
+        : module.addInput(name, config, width: config.width);
     (_runtimeSources[module] ??= {})[name] = config;
     return input;
   }
@@ -91,8 +110,9 @@ class StaticOrRuntimeControl<T> {
       final registeredSource = _runtimeSources[module]?[name];
       final matches = registeredSource != null
           ? identical(registeredSource, config)
-          : identical(module.inputSource(name),
-              config is LogicStructure ? config.packed : config);
+          : identical(module.inputSource(name), config) ||
+              (config is LogicStructure &&
+                  identical(module.inputSource(name), config.packed));
       if (!matches) {
         throw RohdHclException(
             'Runtime control "$name" conflicts with an existing module input.');
@@ -119,6 +139,15 @@ class StaticOrRuntimeControl<T> {
   Logic resolve(Module module,
           {required Logic Function(T value) staticToLogic}) =>
       getRuntimeInput(module) ?? staticToLogic(staticConfig);
+
+  /// Resolves this value using a typed runtime input or [staticToLogic].
+  ///
+  /// Set [reuseExisting] to false to require a new runtime input.
+  Logic resolveTyped(Module module,
+          {required Logic Function(T value) staticToLogic,
+          bool reuseExisting = true}) =>
+      getTypedRuntimeInput(module, reuseExisting: reuseExisting) ??
+      staticToLogic(staticConfig);
 }
 
 /// A boolean configuration that can be selected statically or at runtime.

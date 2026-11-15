@@ -9,5 +9,6 @@
 
 export 'bitwise_popcount.dart';
 export 'count.dart';
+export 'majority.dart';
 export 'xnor_popcount.dart';
 export 'xor_popcount.dart';

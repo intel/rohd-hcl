@@ -188,6 +188,7 @@ void main() {
     )
       ..compressionTreeMultiplierKnob.value = true
       ..radixKnob.value = 8
+      ..use42CompressorsKnob.value = true
       ..multiplicandWidthKnob.value = 7
       ..multiplierWidthKnob.value = 9
       ..signMultiplicandValueKnob.value = 'selected'
@@ -203,6 +204,13 @@ void main() {
     expect(loadedMultiplier.toJson(), multiplier.toJson());
     expect(loadedMultiplier.subKnobs.containsKey('Pipelined'), isTrue);
     expect(loadedMultiplier.pipelinedKnob.value, isTrue);
+    expect(loadedMultiplier.use42CompressorsKnob.value, isTrue);
+    final selected = loadedMultiplier.selectedMultiplier()(
+      Logic(width: 7),
+      Logic(width: 9),
+    );
+    expect(selected, isA<CompressionTreeMultiplier>());
+    expect(selected.definitionName, endsWith('_C42'));
     expect(
       loadedMultiplier.adderSelectionKnob.parallelPrefixTypeKnob.value,
       Ripple,

@@ -213,10 +213,15 @@ class CompressionTreeMultiplier extends Multiplier {
   /// after compression.  [reset] and [enable] are optional
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the Column Compressor is built as a combinational tree of compressors.
+  ///
+  /// [use42Compressors] enables 4:2 compressors in the compression tree.
+  /// [delayConfig] overrides the tree's input-to-output delay estimates.
   CompressionTreeMultiplier(
     super.a,
     super.b, {
     int radix = 4,
+    bool use42Compressors = false,
+    CompressionTreeDelayConfig? delayConfig,
     super.clk,
     super.reset,
     super.enable,
@@ -236,7 +241,9 @@ class CompressionTreeMultiplier extends Multiplier {
                 'CompressionTreeMultiplier_W${a.width}x'
                     '${b.width}_${Multiplier.signedMD(signedMultiplicand)}_'
                     '${Multiplier.signedML(signedMultiplier)}_'
-                    'with${adderGen(a, a).definitionName}') {
+                    'with${adderGen(a, a).definitionName}'
+                    '${use42Compressors ? '_C42' : ''}'
+                    '${delayConfig?.definitionNameSuffix ?? ''}') {
     final pp = PartialProduct(a, b, RadixEncoder(radix),
         signedMultiplicand: signedMultiplicandParameter.forChild(this),
         signedMultiplier: signedMultiplierParameter.forChild(this),
@@ -253,6 +260,8 @@ class CompressionTreeMultiplier extends Multiplier {
       clk: clk,
       reset: reset,
       enable: enable,
+      use42Compressors: use42Compressors,
+      delayConfig: delayConfig,
     );
     final adder = adderGen(compressor.add0, compressor.add1);
     product <= adder.sum.slice(a.width + b.width - 1, 0);

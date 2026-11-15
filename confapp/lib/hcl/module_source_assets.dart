@@ -16,11 +16,16 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Maps configurable module runtime types to bundled ROHD source assets.
 const moduleSourceAssets = <String, String>{
   'AbsoluteValue': 'rohd_src/arithmetic/normalization/absolute_value.dart',
+  'Accumulator': 'rohd_src/arithmetic/accumulation/accumulator.dart',
   'ApbCsrCompleter':
       'rohd_src/interfaces/amba/endpoints/apb_csr_completer.dart',
   'AsyncFifo': 'rohd_src/flow_control/storage/async_fifo.dart',
   'BinaryToOneHot': 'rohd_src/encodings/one_hot/binary_to_one_hot.dart',
   'BinaryToGrayConverter': 'rohd_src/encodings/gray/binary_gray.dart',
+  'BinaryLinearTransform':
+      'rohd_src/binary_math/algebra/binary_linear_transform.dart',
+  'BinaryLinearRecurrence':
+      'rohd_src/binary_math/recurrence/binary_linear_recurrence.dart',
   'BinaryToThermometer': 'rohd_src/encodings/thermometer/thermometer_code.dart',
   'BitonicSort': 'rohd_src/dataflow/ordering/sort.dart',
   'BitwiseMux': 'rohd_src/bit_operations/selection/bitwise_mux.dart',
@@ -46,6 +51,7 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/multiply_accumulate/multiply_accumulate.dart',
   'CompressionTreeMultiplier':
       'rohd_src/arithmetic/multiplication/multiplier.dart',
+  'Compressor4': 'rohd_src/arithmetic/multiplication/column_compressor.dart',
   'Counter': 'rohd_src/arithmetic/accumulation/counter.dart',
   'Count': 'rohd_src/bit_operations/population_count/count.dart',
   'CsrBlock': 'rohd_src/memory/csr/csr_block.dart',
@@ -56,8 +62,11 @@ const moduleSourceAssets = <String, String>{
   'Fifo': 'rohd_src/flow_control/storage/fifo.dart',
   'Find': 'rohd_src/bit_operations/search/find.dart',
   'FindPattern': 'rohd_src/bit_operations/search/find_pattern.dart',
+  'FirstMatchPrefix': 'rohd_src/bit_operations/search/first_match_prefix.dart',
   'Float8ToFixed': 'rohd_src/arithmetic/conversion/float_to_fixed.dart',
   'FixedPointSqrt': 'rohd_src/arithmetic/division_and_roots/fixed_sqrt.dart',
+  'FixedLatencyTracker':
+      'rohd_src/flow_control/control/fixed_latency_tracker.dart',
   'FixedPriorityCacheScheduler':
       'rohd_src/memory/cache/fixed_priority_cache_scheduler.dart',
   'FixedToFloat': 'rohd_src/arithmetic/conversion/fixed_to_float.dart',
@@ -80,8 +89,15 @@ const moduleSourceAssets = <String, String>{
   'GeneralDotProduct':
       'rohd_src/arithmetic/multiply_accumulate/dotproduct.dart',
   'GrayToBinaryConverter': 'rohd_src/encodings/gray/binary_gray.dart',
+  'GfConstantMultiplier':
+      'rohd_src/arithmetic/finite_field/gf_constant_multiplier.dart',
+  'GfInverse': 'rohd_src/arithmetic/finite_field/gf_inverse.dart',
+  'GfPolynomialEvaluator':
+      'rohd_src/arithmetic/finite_field/gf_polynomial_evaluator.dart',
   'HammingEccReceiver': 'rohd_src/error_control/protection/ecc.dart',
   'InferredSram': 'rohd_src/memory/storage/inferred_sram.dart',
+  'IterativeDividerEngine':
+      'rohd_src/arithmetic/division_and_roots/iterative_divider_engine.dart',
   'LeadingDigitAnticipate':
       'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
   'LeadingZeroAnticipate':
@@ -90,9 +106,12 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/normalization/leading_digit_anticipate.dart',
   'MaskRoundRobinArbiter':
       'rohd_src/flow_control/arbitration/mask_round_robin_arbiter.dart',
+  'Lfsr': 'rohd_src/binary_math/recurrence/lfsr.dart',
+  'Majority': 'rohd_src/bit_operations/population_count/majority.dart',
   'MultiCycleDivider': 'rohd_src/arithmetic/division_and_roots/divider.dart',
   'MultiPortCache': 'rohd_src/memory/cache/cache.dart',
   'NativeMultiplier': 'rohd_src/arithmetic/multiplication/multiplier.dart',
+  'NumericNarrowing': 'rohd_src/arithmetic/conversion/numeric_narrowing.dart',
   'OneHotMux': 'rohd_src/bit_operations/selection/one_hot_mux.dart',
   'OnesComplementAdder':
       'rohd_src/arithmetic/addition/ones_complement_adder.dart',
@@ -104,6 +123,7 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
   'ParallelAssociativeMemory':
       'rohd_src/memory/associative/parallel_associative_memory.dart',
+  'ParallelLfsr': 'rohd_src/binary_math/recurrence/parallel_lfsr.dart',
   'ParallelPrefixOrScan':
       'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
   'ParallelPrefixScan':
@@ -117,6 +137,12 @@ const moduleSourceAssets = <String, String>{
   'Pad': 'rohd_src/bit_operations/shifting/pad.dart',
   'PriorityArbiter': 'rohd_src/flow_control/arbitration/priority_arbiter.dart',
   'PriorityMux': 'rohd_src/bit_operations/selection/priority_mux.dart',
+  'PrbsChecker': 'rohd_src/binary_math/prbs/prbs_checker.dart',
+  'PrbsGenerator': 'rohd_src/binary_math/prbs/prbs_generator.dart',
+  'ReadyValidFixedLatency':
+      'rohd_src/flow_control/ready_valid/transport/ready_valid_fixed_latency.dart',
+  'ReadyValidIterativeDivider':
+      'rohd_src/arithmetic/division_and_roots/ready_valid_iterative_divider.dart',
   'ReadyValidFifo':
       'rohd_src/flow_control/ready_valid/queues/ready_valid_fifo.dart',
   'ReadyValidQueue':
@@ -138,8 +164,11 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/memory/replacement/round_robin_replacement.dart',
   'SerializedCache': 'rohd_src/memory/cache/serialized_cache.dart',
   'Serializer': 'rohd_src/dataflow/serialization/serialization.dart',
+  'SerialLfsr': 'rohd_src/binary_math/recurrence/serial_lfsr.dart',
   'SetBits': 'rohd_src/bit_operations/shifting/set_bits.dart',
   'ShiftRegister': 'rohd_src/memory/sequential/shift_register.dart',
+  'SignatureAnalyzer':
+      'rohd_src/binary_math/recurrence/signature_analyzer.dart',
   'SignMagnitudeAdder':
       'rohd_src/arithmetic/addition/sign_magnitude_adder.dart',
   'SignMagnitudeDualAdder':
@@ -157,6 +186,8 @@ const moduleSourceAssets = <String, String>{
   'TreePseudoLruReplacement':
       'rohd_src/memory/replacement/tree_pseudo_lru_replacement.dart',
   'WithSet': 'rohd_src/bit_operations/shifting/with_set.dart',
+  'ValidOnlyCarrySaveMultiplier':
+      'rohd_src/arithmetic/multiplication/valid_only_carry_save_multiplier.dart',
   'XnorPopcount': 'rohd_src/bit_operations/population_count/xnor_popcount.dart',
   'XorPopcount': 'rohd_src/bit_operations/population_count/xor_popcount.dart',
 };
@@ -164,10 +195,18 @@ const moduleSourceAssets = <String, String>{
 /// Returns the bundled ROHD source asset for [module], if one is indexed.
 String? moduleSourceAsset(Module module) => switch (module) {
       AbsoluteValue() => moduleSourceAssets['AbsoluteValue'],
+      Accumulator() => moduleSourceAssets['Accumulator'],
       ApbCsrCompleter() => moduleSourceAssets['ApbCsrCompleter'],
       AsyncFifo() => moduleSourceAssets['AsyncFifo'],
       BinaryToOneHot() => moduleSourceAssets['BinaryToOneHot'],
       BinaryToGrayConverter() => moduleSourceAssets['BinaryToGrayConverter'],
+      BinaryLinearTransform() => moduleSourceAssets['BinaryLinearTransform'],
+      PrbsChecker() => moduleSourceAssets['PrbsChecker'],
+      PrbsGenerator() => moduleSourceAssets['PrbsGenerator'],
+      Lfsr() => moduleSourceAssets['Lfsr'],
+      ParallelLfsr() => moduleSourceAssets['ParallelLfsr'],
+      SerialLfsr() => moduleSourceAssets['SerialLfsr'],
+      BinaryLinearRecurrence() => moduleSourceAssets['BinaryLinearRecurrence'],
       BinaryToThermometer() => moduleSourceAssets['BinaryToThermometer'],
       BitonicSort() => moduleSourceAssets['BitonicSort'],
       BitwiseMux() => moduleSourceAssets['BitwiseMux'],
@@ -195,6 +234,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
         moduleSourceAssets['CompressionTreeMultiplyAccumulate'],
       CompressionTreeMultiplier() =>
         moduleSourceAssets['CompressionTreeMultiplier'],
+      Compressor4() => moduleSourceAssets['Compressor4'],
       GatedCounter() => moduleSourceAssets['GatedCounter'],
       Counter() => moduleSourceAssets['Counter'],
       Count() => moduleSourceAssets['Count'],
@@ -206,8 +246,10 @@ String? moduleSourceAsset(Module module) => switch (module) {
       Fifo() => moduleSourceAssets['Fifo'],
       Find() => moduleSourceAssets['Find'],
       FindPattern() => moduleSourceAssets['FindPattern'],
+      FirstMatchPrefix() => moduleSourceAssets['FirstMatchPrefix'],
       Float8ToFixed() => moduleSourceAssets['Float8ToFixed'],
       FixedPointSqrt() => moduleSourceAssets['FixedPointSqrt'],
+      FixedLatencyTracker() => moduleSourceAssets['FixedLatencyTracker'],
       // The catalog intentionally exposes this experimental scheduler.
       // ignore: experimental_member_use
       FixedPriorityCacheScheduler() =>
@@ -229,8 +271,12 @@ String? moduleSourceAsset(Module module) => switch (module) {
         moduleSourceAssets['FloatingPointComparator'],
       GeneralDotProduct() => moduleSourceAssets['GeneralDotProduct'],
       GrayToBinaryConverter() => moduleSourceAssets['GrayToBinaryConverter'],
+      GfConstantMultiplier() => moduleSourceAssets['GfConstantMultiplier'],
+      GfInverse() => moduleSourceAssets['GfInverse'],
+      GfPolynomialEvaluator() => moduleSourceAssets['GfPolynomialEvaluator'],
       HammingEccReceiver() => moduleSourceAssets['HammingEccReceiver'],
       InferredSram() => moduleSourceAssets['InferredSram'],
+      IterativeDividerEngine() => moduleSourceAssets['IterativeDividerEngine'],
       LeadingDigitAnticipate() => moduleSourceAssets['LeadingDigitAnticipate'],
       LeadingZeroAnticipate() => moduleSourceAssets['LeadingZeroAnticipate'],
       LeadingZeroAnticipateCarry() =>
@@ -241,6 +287,8 @@ String? moduleSourceAsset(Module module) => switch (module) {
       // ignore: experimental_member_use
       MultiPortCache() => moduleSourceAssets['MultiPortCache'],
       NativeMultiplier() => moduleSourceAssets['NativeMultiplier'],
+      NumericNarrowing() => moduleSourceAssets['NumericNarrowing'],
+      Majority() => moduleSourceAssets['Majority'],
       OneHotMux() => moduleSourceAssets['OneHotMux'],
       OnesComplementAdder() => moduleSourceAssets['OnesComplementAdder'],
       ParallelPrefixAdder() => moduleSourceAssets['ParallelPrefixAdder'],
@@ -258,6 +306,9 @@ String? moduleSourceAsset(Module module) => switch (module) {
       PriorityArbiter() => moduleSourceAssets['PriorityArbiter'],
       PriorityMux() => moduleSourceAssets['PriorityMux'],
       ReadyValidFifo() => moduleSourceAssets['ReadyValidFifo'],
+      ReadyValidFixedLatency() => moduleSourceAssets['ReadyValidFixedLatency'],
+      ReadyValidIterativeDivider() =>
+        moduleSourceAssets['ReadyValidIterativeDivider'],
       ReadyValidQueue() => moduleSourceAssets['ReadyValidQueue'],
       ParallelAssociativeMemory() =>
         moduleSourceAssets['ParallelAssociativeMemory'],
@@ -283,6 +334,7 @@ String? moduleSourceAsset(Module module) => switch (module) {
       Synchronizer() => moduleSourceAssets['Synchronizer'],
       ThermometerToBinary() => moduleSourceAssets['ThermometerToBinary'],
       ShiftRegister() => moduleSourceAssets['ShiftRegister'],
+      SignatureAnalyzer() => moduleSourceAssets['SignatureAnalyzer'],
       SignMagnitudeAdder() => moduleSourceAssets['SignMagnitudeAdder'],
       SignMagnitudeDualAdder() => moduleSourceAssets['SignMagnitudeDualAdder'],
       SignedShifter() => moduleSourceAssets['SignedShifter'],
@@ -295,6 +347,8 @@ String? moduleSourceAsset(Module module) => switch (module) {
       TreePseudoLruReplacement() =>
         moduleSourceAssets['TreePseudoLruReplacement'],
       WithSet() => moduleSourceAssets['WithSet'],
+      ValidOnlyCarrySaveMultiplier() =>
+        moduleSourceAssets['ValidOnlyCarrySaveMultiplier'],
       XnorPopcount() => moduleSourceAssets['XnorPopcount'],
       XorPopcount() => moduleSourceAssets['XorPopcount'],
       _ when InferredSramConfigurator.isConfiguredModule(module) =>

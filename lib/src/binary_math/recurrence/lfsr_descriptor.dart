@@ -25,8 +25,8 @@ import 'package:rohd_hcl/src/exceptions.dart';
 /// nextState[3]   = state[1] XOR state[0]
 /// ```
 ///
-/// The polynomial must have positive degree and a non-zero constant
-/// coefficient. Primitivity is not required.
+/// The polynomial must have positive degree. The default constructor also
+/// requires a non-zero constant coefficient. Primitivity is not required.
 /// {@category Binary Math}
 @immutable
 class LfsrDescriptor {
@@ -45,6 +45,36 @@ class LfsrDescriptor {
       throw RohdHclException(
           'LFSR polynomial must have a non-zero constant coefficient.');
     }
+  }
+
+  LfsrDescriptor._fromTapPolynomial(this.polynomial);
+
+  /// Creates a descriptor from zero-based feedback state-bit indices.
+  ///
+  /// Taps must be nonempty, unique, and in the range `0..stateWidth - 1`.
+  /// Unlike the polynomial constructor, bit zero need not be a tap.
+  factory LfsrDescriptor.fromFeedbackTaps({
+    required int stateWidth,
+    required Iterable<int> feedbackTaps,
+  }) {
+    if (stateWidth < 1) {
+      throw RohdHclException('LFSR state width must be positive.');
+    }
+    final taps = <int>{};
+    for (final tap in feedbackTaps) {
+      if (tap < 0 || tap >= stateWidth) {
+        throw RohdHclException(
+            'LFSR feedback tap $tap is outside 0..${stateWidth - 1}.');
+      }
+      if (!taps.add(tap)) {
+        throw RohdHclException('Duplicate LFSR feedback tap $tap.');
+      }
+    }
+    if (taps.isEmpty) {
+      throw RohdHclException('LFSR feedback taps must not be empty.');
+    }
+    return LfsrDescriptor._fromTapPolynomial(
+        BinaryPolynomial.fromExponents([stateWidth, ...taps]));
   }
 
   /// The number of state bits.

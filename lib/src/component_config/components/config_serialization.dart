@@ -37,6 +37,13 @@ class SerializationConfigurator extends Configurator {
   /// When available, controls whether to generate an error signal.
   final ToggleConfigKnob enableKnob = ToggleConfigKnob(value: false);
 
+  /// Whether to register serializer inputs.
+  final ToggleConfigKnob flopInputKnob = ToggleConfigKnob(value: false);
+
+  /// Whether to align registered serializer output timing.
+  final ToggleConfigKnob alignOutputLatencyKnob =
+      ToggleConfigKnob(value: false);
+
   @override
   Module createModule() {
     final deserializeIn = Logic(width: inputWidthKnob.value);
@@ -48,6 +55,8 @@ class SerializationConfigurator extends Configurator {
             enable: enableKnob.value ? enable : null,
             clk: clk,
             reset: reset,
+            flopInput: flopInputKnob.value,
+            alignOutputLatency: alignOutputLatencyKnob.value,
             definitionName: 'Serializer')
         : Deserializer(deserializeIn, inputLengthKnob.value,
             valueCodec: LogicValueCodec.logicValue,
@@ -62,6 +71,9 @@ class SerializationConfigurator extends Configurator {
         'Serialize/Deserialize': directionKnob,
         'Input Length': inputLengthKnob,
         if (directionKnob.value == Serializer) 'Input Width': inputWidthKnob,
+        if (directionKnob.value == Serializer) 'Flop Input': flopInputKnob,
+        if (directionKnob.value == Serializer && flopInputKnob.value)
+          'Align Output Latency': alignOutputLatencyKnob,
         'enable': enableKnob,
       };
 

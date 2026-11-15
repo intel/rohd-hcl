@@ -1,6 +1,8 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 
+export 'ace4_acknowledgement_driver.dart';
+export 'ace4_compliance_checker.dart';
 export 'axi4_data_driver.dart';
 export 'axi4_data_monitor.dart';
 export 'axi4_main_agent.dart';
