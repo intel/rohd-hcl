@@ -249,8 +249,39 @@ Here is an example of a recommended file header template:
 
 #### Adding a New Component
 
-To add a new component to the library, you can follow the steps below,
-referencing other components as examples.
+You can generate a schematic netlist from a module while developing it; a
+`Configurator` is not required. Create a small runner such as
+`tool/generate_my_component_netlist.dart`:
+
+```dart
+import 'dart:io';
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+
+Future<void> main() async {
+  final module = MyComponent(/* constructor arguments */);
+  await module.build();
+
+  final output = File('build/my_component.rohd.json');
+  output.parent.createSync(recursive: true);
+  await output.writeAsString(module.generateNetlist());
+}
+```
+
+Replace `MyComponent` and its arguments with the module you want to inspect,
+then run:
+
+```shell
+dart run tool/generate_my_component_netlist.dart
+```
+
+This writes a native ROHD netlist to `build/my_component.rohd.json`. The
+standalone [ROHD schematic viewer](doc/schematic_viewer/README.md) loads a
+netlist through its `json` query parameter.
+
+To add the component to the library, follow the steps below, referencing other
+components as examples.
 
 1. Create the dart code for constructing the module in the matching
    `lib/src/<category>/<subcategory>/` directory (see the source layout in
@@ -259,8 +290,8 @@ referencing other components as examples.
    `lib/src/<category>/` family. When a category grows beyond roughly six direct
    test files, split them into `test/<category>/<subcategory>/` directories
    matching the source subcategories.
-1. Create a `Configurator` for the component (enabling things like schematic
-   generation, web-app generation, etc.).
+1. To expose the component in the configuration app and include it in the
+   registry-wide netlist generation:
    1. Create a new config in `lib/src/component_config/components`, overriding
       `category` and `subcategory` to match the source directory.
    1. Update the component registry in
@@ -270,12 +301,11 @@ referencing other components as examples.
       tool/generate_confapp_assets.sh`.
 1. Add documentation to `doc/components/name.md`.
 
-Run `dart run gen/generate.dart` to generate native ROHD netlists in
-`build/*.rohd.json`. The ROHD schematic viewer loads these netlists directly;
-there is no HTML conversion step. The configuration app also offers a
-synthesized schematic by running Yosys in a web worker. For equivalent
-command-line conversion, install OSS CAD Suite with
-`tool/gh_actions/install_opencadsuite.sh` and run
+After registering a `Configurator`, run `dart run gen/generate.dart` to generate
+native ROHD netlists for the registered components in `build/*.rohd.json`.
+The configuration app also offers a synthesized schematic by running Yosys in
+a web worker. For equivalent command-line conversion, install OSS CAD Suite
+with `tool/gh_actions/install_opencadsuite.sh` and run
 `tool/converters/verilog_json.sh <module.sv>`.
 
 The `confapp/` directory contains the source code for the Flutter configuration
