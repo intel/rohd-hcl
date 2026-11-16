@@ -70,6 +70,31 @@ void main() {
     expect(moduleSourceAsset(mux), moduleSourceAssets['PriorityMux']);
   });
 
+  test('typed and legacy SPI endpoints use their source assets', () {
+    final main = SpiConfigurator().createModule();
+    final sub =
+        (SpiConfigurator()..roleKnob.value = SpiRole.sub).createModule();
+    // The deprecated flat endpoint remains supported.
+    // ignore: deprecated_member_use
+    final legacyMain = SpiMain(
+      SpiInterface(dataLength: 8),
+      clk: Logic(),
+      reset: Logic(),
+      start: Logic(),
+      busIn: Logic(width: 8),
+    );
+    // The deprecated flat endpoint remains supported.
+    // ignore: deprecated_member_use
+    final legacySub = SpiSub(intf: SpiInterface(dataLength: 8));
+
+    for (final module in [main, legacyMain]) {
+      expect(moduleSourceAsset(module), moduleSourceAssets['SpiMain']);
+    }
+    for (final module in [sub, legacySub]) {
+      expect(moduleSourceAsset(module), moduleSourceAssets['SpiSub']);
+    }
+  });
+
   test('compute component sources are bundled', () async {
     final cases = <({Configurator config, String asset, String declaration})>[
       (
