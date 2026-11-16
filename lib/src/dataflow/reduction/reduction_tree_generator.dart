@@ -35,7 +35,7 @@ class ReductionTreeGenerator<T extends Logic, C extends Logic> {
 
   /// Operation to be performed at each node. Note that [operation] can widen
   /// the output. The logic function must support singleton branches and up to
-  /// [radix] inputs. Structured operations align their own fields and formats;
+  /// [radix] inputs. Declared payloads align their own fields and formats;
   /// plain [Logic] operands retain automatic sign/zero extension.
   /// The [depth] input is the depth of the current node in the
   /// tree to the leaves.  For sequences that are not powers of [radix], the

@@ -39,10 +39,19 @@ ports for data and scalar ports for ready and valid. Subclass provider sidebands
 and nested pair subinterfaces continue through normal ROHD traversal. When an
 intentionally retyped connection uses a plain packed `Logic` on one side,
 registration creates a typed bridge from the target payload template after
-validating width; two declared structures must also have matching recursive
-field or array shape. Pass `uniquify` when connecting or registering an
+validating width; two declared payloads must also have matching recursive
+layout and declared semantic format, including GF field, fixed-point signedness,
+and floating-point format metadata. Pass `uniquify` when connecting or registering an
 interface to rename data, valid, ready, sidebands, and nested interface ports.
 Nested subinterface naming is applied before the connection's `uniquify`.
+Compatible structured constant sources with driveable clones are supported by
+ready/valid and valid-only registration. For scalar constant sources, use
+`ReadyValidInterface<Logic>` or `ValidOnlyInterface<Logic>` so the registered
+local payload can be driveable; a concrete `Const` payload type cannot be
+driven as a module port.
+Declared payload clones must preserve their runtime type and semantic format;
+interface cloning, typed bridge registration, and storage reject incompatible
+clones.
 
 ## Elastic Buffers
 
@@ -56,6 +65,10 @@ registered stages have `depth` cycles of empty-pipeline latency; setting
 `fallThrough: true` allows bypass when all stages are empty. The depth must be
 at least one.
 
+Buffers, pipelines, and queues check that their upstream and downstream payload
+shapes and declared semantic formats match; an explicit plain packed `Logic`
+payload remains usable as a bridge.
+
 These components expose `capacity`, `occupancy`, `empty`, and `full`; their
 occupancy counts retained entries, not an offer passing through an empty
 fall-through stage. Their downstream interfaces provide an irrevocable offer.
@@ -65,7 +78,7 @@ For authors building a custom protocol shell around an action-driven core, see
 
 ## Fixed-latency compute
 
-`ReadyValidFixedLatency<Input, Output>` wraps an in-order compute core and
+`ReadyValidFixedLatency<Input, Output, Id>` wraps an in-order compute core and
 reserves result capacity when each request is accepted. Its core generator
 receives the clock, synchronous reset, `start` pulse, and typed input data, and
 returns the typed output. The core must produce exactly one result per start,
@@ -73,14 +86,20 @@ in order, after the configured `latency` cycles, continue advancing through
 bubbles, and accept starts at the configured `initiationInterval`. The wrapper
 does not stall the core. For zero latency, the result is combinational in the
 same cycle as `start`.
+The core result may be a structured constant when its format matches the
+downstream payload.
 
 The registered result queue adds transport latency beyond the core latency.
 It retains the typed result together with any ID as a structured payload.
 Results remain stable while stalled. An optional `requestId` is sampled with
 each input and made available as `resultId` alongside its output; the caller
-must keep the ID stable with a stalled input. Reset suppresses transfers and
-discards outstanding requests and results on the reset edge. The core must be
-ready to accept new starts afterward; reset its state if necessary.
+can use a structured `Id` to preserve named fields. Use `Logic` for `Id` when
+IDs are not supplied. The caller must keep the ID stable with a stalled input.
+Structured constant IDs with driveable clones retain their type even when
+widened to `Logic`.
+Reset suppresses transfers and discards outstanding requests and results on the
+reset edge. The core must be ready to accept new starts afterward; reset its
+state if necessary.
 
 `capacity` counts all accepted but unretired requests, including in-flight
 work, and defaults to `latency + 1`. Smaller positive capacities are allowed
@@ -95,7 +114,7 @@ additional queue latency or the wrapper's admission capacity.
 final upstream = ReadyValidInterface(Logic(width: 8));
 final downstream = ReadyValidInterface(Logic(width: 8));
 final requestId = Logic(width: 4);
-final wrapper = ReadyValidFixedLatency<Logic, Logic>(
+final wrapper = ReadyValidFixedLatency<Logic, Logic, Logic>(
   clk: clk,
   reset: reset,
   upstream: upstream,

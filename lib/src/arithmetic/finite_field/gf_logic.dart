@@ -19,9 +19,13 @@ import 'package:rohd_hcl/src/exceptions.dart';
 /// carries a field descriptor so incompatible fields cannot participate in
 /// finite-field operations accidentally.
 /// {@category Arithmetic}
-class GfLogic extends Logic {
+class GfLogic extends Logic implements PayloadShapeMetadata {
   /// The field represented by this signal.
   final BinaryExtensionField field;
+
+  @override
+  String get payloadShapeMetadata =>
+      'GF_${field.basis.name}_${field.modulus.coefficients.toRadixString(16)}';
 
   /// Creates an undriven signal representing an element of [field].
   GfLogic(

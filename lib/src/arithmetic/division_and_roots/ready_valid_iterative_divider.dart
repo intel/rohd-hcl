@@ -132,7 +132,8 @@ class ReadyValidIterativeDivider extends Module {
     _upstream = addPairInterfacePorts(upstream, PairRole.consumer,
         uniquify: (original) => 'upstream_$original');
     _downstream = addPairInterfaceFrom(
-      IrrevocableReadyValidInterface<DivisionResult>(downstream.data.clone()),
+      IrrevocableReadyValidInterface<DivisionResult>(
+          downstream.data.cloneTyped()),
       downstream,
       PairRole.provider,
       uniquify: (original) => 'downstream_$original',

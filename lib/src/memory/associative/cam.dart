@@ -107,34 +107,39 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
       Iterable<DataPortGroup>? outputTags,
       Iterable<DataPortGroup>? inOutTags,
       String Function(String original)? uniquify}) {
-    final source = srcInterface.port('tag');
-    if (source.width != tagWidth ||
-        (((source is LogicStructure && tag is LogicStructure) ||
-                (source is LogicEnum && tag is LogicEnum)) &&
-            !sameHclPayloadShape(tag, source))) {
-      throw PortTypeException.forIntendedName(
-          'tag', 'CAM tag layout does not match ${payloadShapeIdentity(tag)}.');
+    final inputs = inputTags?.toSet();
+    final outputs = outputTags?.toSet();
+    final inOuts = inOutTags?.toSet();
+    final isInput = inputs?.contains(DataPortGroup.control) ?? false;
+    final isOutput = outputs?.contains(DataPortGroup.control) ?? false;
+    final isInOut = inOuts?.contains(DataPortGroup.control) ?? false;
+    if (isInput || isOutput || isInOut) {
+      final source = srcInterface.port('tag');
+      if (!compatiblePayloadConnection(tag, source)) {
+        throw PortTypeException.forIntendedName('tag',
+            'CAM tag layout does not match ${payloadShapeIdentity(tag)}.');
+      }
+      final tagName = uniquify?.call('tag') ?? 'tag';
+      if (isInput) {
+        final bridge = tag.cloneTyped(name: 'tag_input_bridge')..gets(source);
+        tag <= module.addTypedInput(tagName, bridge);
+      }
+      if (isOutput) {
+        final output = addTypedPayloadOutput(module, tagName, tag);
+        output <= tag;
+        source <= output;
+      }
+      if (isInOut) {
+        final bridge = tag.cloneTyped(name: 'tag_inout_bridge')..gets(source);
+        tag <= module.addTypedInOut(tagName, bridge);
+      }
     }
-    final tagName = uniquify?.call('tag') ?? 'tag';
-    if (inputTags?.contains(DataPortGroup.control) ?? false) {
-      final bridge = tag.cloneTyped(name: 'tag_input_bridge')..gets(source);
-      tag <= module.addTypedInput(tagName, bridge);
-    }
-    if (outputTags?.contains(DataPortGroup.control) ?? false) {
-      final output = module.addTypedOutput(tagName, tag.cloneTyped);
-      output <= tag;
-      source <= output;
-    }
-    if (inOutTags?.contains(DataPortGroup.control) ?? false) {
-      final bridge = tag.cloneTyped(name: 'tag_inout_bridge')..gets(source);
-      tag <= module.addTypedInOut(tagName, bridge);
-    }
-    _suppressTag = true;
+    _suppressTag = isInput || isOutput || isInOut;
     try {
       super.connectIO(module, srcInterface,
-          inputTags: inputTags,
-          outputTags: outputTags,
-          inOutTags: inOutTags,
+          inputTags: inputs,
+          outputTags: outputs,
+          inOutTags: inOuts,
           uniquify: uniquify);
     } finally {
       _suppressTag = false;
@@ -280,7 +285,7 @@ class Cam<T extends Logic> extends Module {
 
     // create local storage bank
     _storageBank = TypedLogicArray<T, LogicValue>(
-        [numEntries], lookupPorts.first.tag.cloneTyped,
+        [numEntries], ({name}) => lookupPorts.first.tag.cloneTyped(name: name),
         name: 'tags');
 
     // Create valid bits for each entry

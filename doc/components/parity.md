@@ -32,6 +32,9 @@ final rx = ParityReceiver<Packet>(tx.transmission, dataSchema: packet);
 final Packet received = rx.originalData;
 ```
 
+Structured constant transmitter inputs with driveable clones retain their type
+when widened to `Logic`.
+
 The schema is cloned, never driven, and must match the payload width. Without a
 schema, receivers retain ordinary `Logic` outputs. Specialized receiver type
 arguments require a schema. `correctedData` remains null for parity. The code

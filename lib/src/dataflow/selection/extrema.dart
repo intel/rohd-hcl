@@ -69,8 +69,9 @@ class Extrema<T extends Logic> extends Module {
     if (signals.isEmpty) {
       throw RohdHclException('List cannot be empty.');
     }
-    if (signals.any((s) => s is LogicStructure || s is LogicEnum) &&
-        signals.any((s) => !sameHclPayloadShape(signals.first, s))) {
+    if (signals.any(hasDeclaredPayloadShape) &&
+        signals.any((s) => !sameDeclaredPayloadShape(signals.first, s,
+            ignoreConstantNames: true))) {
       throw RohdHclException('Extrema payload layouts must match.');
     }
     final logics = [
@@ -114,7 +115,7 @@ class Extrema<T extends Logic> extends Module {
     );
     treeDepth = tree.depth;
     addOutput('index', width: indexWidth) <= tree.out.index;
-    T valueClone({String? name}) => tree.out.payload.cloneTyped(name: name);
-    val = addTypedOutput<T>('val', valueClone)..gets(tree.out.payload);
+    val = addTypedPayloadOutput<T>(this, 'val', tree.out.payload)
+      ..gets(tree.out.payload);
   }
 }

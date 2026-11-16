@@ -86,8 +86,14 @@ class _BehavioralSystemCSynthesizer extends SystemCSynthesizer {
   }
 
   @override
-  bool generatesDefinition(Module module) =>
-      _model(module) != null || super.generatesDefinition(module);
+  bool generatesDefinition(Module module) {
+    for (var parent = module.parent; parent != null; parent = parent.parent) {
+      if (_model(parent) != null) {
+        return false;
+      }
+    }
+    return _model(module) != null || super.generatesDefinition(module);
+  }
 
   @override
   SynthesisResult synthesize(

@@ -50,7 +50,7 @@ FloatingPoint canonicalizeExplicitJBit(
     Const(0, width: width),
   ).getRange(0, value.exponent.width);
   final special = value.isNaN | value.isAnInfinity;
-  final result = value.clone(name: 'canonical_explicit_j');
+  final result = value.cloneTyped(name: 'canonical_explicit_j');
   result.sign <= value.sign;
   result.exponent <= mux(special, value.exponent, canonicalExponent);
   result.mantissa <=

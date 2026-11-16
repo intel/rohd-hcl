@@ -25,6 +25,8 @@ Multidimensional inputs produce array slices, with no cast required. Specify the
 deserializer's leaf type explicitly for custom or enum leaves; its input can be
 either that leaf or an array slice, including a rank-zero array. Deserializing a
 rank-zero input produces shape `[length]`.
+Structured constant inputs with driveable clones retain their leaf type.
+Array and leaf clones must retain their declared payload types and formats.
 
 Deserialization requires a `valueCodec` for each leaf, not for an entire slice.
 Pass the source array's `valueCodec` when reconstructing a transfer, or
@@ -56,6 +58,11 @@ final LogicEnum<Phase> first = deserializer.deserialized.at([0, 0]);
 Ports, buffered inputs, and selected slices retain their hardware structure.
 Dimension sizes and the deserializer length must be positive. The serializer
 requires at least one input axis to remove; the deserializer accepts rank zero.
+Serializer slices must have matching declared formats, although different
+positions within each slice may have different formats. The deserializer
+currently requires every input leaf to have the same declared format, because
+its output array is constructed from one leaf prototype. Incompatible formats
+are rejected rather than silently reinterpreted.
 
 ## Serializer
 

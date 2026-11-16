@@ -9,17 +9,22 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/interfaces/spi/endpoints/spi_shift_register.dart';
 
-/// Sub component for Serial Peripheral Interface (SPI).
-class SpiSub extends Module {
+/// SPI subordinate endpoint with independently typed transmit and receive
+/// payloads.
+class TypedSpiSub<TIn extends Logic, TOut extends Logic> extends Module {
+  /// Optional input bus carrying the transmit payload.
+  TIn? get busIn => tryInput('busIn') as TIn?;
+
   /// Output bus from Sub.
-  Logic get busOut => output('busOut');
+  TOut get busOut => output('busOut') as TOut;
 
   /// Done signal from Sub.
   Logic? get done => tryOutput('done');
 
-  /// Creates a SPI Sub component that interfaces with [SpiInterface].
+  /// Creates a SPI subordinate component that interfaces with [SpiInterface].
   ///
   /// The SPI Sub component will enable via chip select from [SpiInterface.csb].
   /// Clock signal will be received on [SpiInterface.sclk], data will shift in
@@ -31,9 +36,35 @@ class SpiSub extends Module {
   /// falling SPI clock edge after reset; its most significant bit is driven
   /// before the first rising edge and the rest is loaded on that rising edge.
   /// An optional [done] indicates completion.
-  SpiSub(
+  ///
+  /// [busOutSchema] describes the receive payload even when [busIn] is
+  /// omitted. Both payloads must match the interface data length; their
+  /// layouts may differ. Bits are shifted without semantic conversion.
+  TypedSpiSub(
       {required SpiInterface intf,
-      Logic? busIn,
+      required TOut busOutSchema,
+      TIn? busIn,
+      Logic? reset,
+      String name = 'spiSub',
+      bool reserveName = false,
+      bool reserveDefinitionName = false,
+      String? definitionName})
+      : this._(
+            intf: intf,
+            busIn: busIn,
+            busOutSchema: busOutSchema,
+            reset: reset,
+            flatPorts: false,
+            name: name,
+            reserveName: reserveName,
+            reserveDefinitionName: reserveDefinitionName,
+            definitionName: definitionName);
+
+  TypedSpiSub._(
+      {required SpiInterface intf,
+      required TOut busOutSchema,
+      required bool flatPorts,
+      TIn? busIn,
       Logic? reset,
       super.name = 'spiSub',
       super.reserveName,
@@ -43,14 +74,26 @@ class SpiSub extends Module {
             definitionName: definitionName ??
                 'SpiSub_W${busIn?.width ?? 0}_'
                     '${intf.dataLength}_'
-                    '${intf.sclk.width}') {
+                    '${intf.sclk.width}'
+                    '${flatPorts || busIn == null ? '' : '_T'}'
+                    '${flatPorts || busIn == null ? '' : ''
+                        '${payloadShapeIdentity(busIn)}'}'
+                    '${flatPorts ? '' : '_R'}'
+                    '${flatPorts ? '' : payloadShapeIdentity(busOutSchema)}') {
+    if (!flatPorts &&
+        (busOutSchema.width != intf.dataLength ||
+            (busIn != null && busIn.width != intf.dataLength))) {
+      throw ArgumentError('SPI payload widths must match the data length.');
+    }
     // SPI Interface
     intf = addPairInterfacePorts(intf, PairRole.consumer);
 
     // Bus Input to sub, if provided.
-    if (busIn != null) {
-      busIn = addInput('busIn', busIn, width: intf.dataLength);
-    }
+    final localBusIn = busIn == null
+        ? null
+        : flatPorts
+            ? addInput('busIn', busIn, width: intf.dataLength)
+            : addTypedInput<TIn>('busIn', busIn);
 
     // If reset is provided, add the reset input and done output.
     if (reset != null) {
@@ -72,7 +115,11 @@ class SpiSub extends Module {
     }
 
     // Bus Output from Sub
-    addOutput('busOut', width: intf.dataLength);
+    if (flatPorts) {
+      addOutput('busOut', width: intf.dataLength);
+    } else {
+      addTypedPayloadOutput<TOut>(this, 'busOut', busOutSchema);
+    }
 
     final shiftReg = buildSpiShiftRegister(
       serialIn: intf.mosi,
@@ -80,11 +127,38 @@ class SpiSub extends Module {
       clock: intf.sclk,
       width: intf.dataLength,
       reset: reset,
-      parallelIn: busIn,
+      parallelIn: localBusIn?.packed,
     );
 
     busOut <= shiftReg.parallelOut;
 
     intf.miso <= shiftReg.serialOut;
   }
+}
+
+/// Compatibility SPI subordinate endpoint with flat parallel ports.
+@Deprecated('Use TypedSpiSub to preserve payload types.')
+class SpiSub extends TypedSpiSub<Logic, Logic> {
+  /// Creates an SPI subordinate endpoint with flat parallel ports.
+  @Deprecated('Use TypedSpiSub to preserve payload types.')
+  // The compatibility output schema depends on the interface width.
+  // ignore: use_super_parameters
+  SpiSub(
+      {required SpiInterface intf,
+      Logic? busIn,
+      Logic? reset,
+      String name = 'spiSub',
+      bool reserveName = false,
+      bool reserveDefinitionName = false,
+      String? definitionName})
+      : super._(
+            intf: intf,
+            busIn: busIn,
+            busOutSchema: Logic(width: intf.dataLength),
+            reset: reset,
+            flatPorts: true,
+            name: name,
+            reserveName: reserveName,
+            reserveDefinitionName: reserveDefinitionName,
+            definitionName: definitionName);
 }

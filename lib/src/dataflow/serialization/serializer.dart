@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Serializes wide aggregated data onto a narrower serialization stream.
 class Serializer<T extends Logic, V> extends Module {
@@ -50,6 +51,8 @@ class Serializer<T extends Logic, V> extends Module {
   /// If [endCount] is connected, it is used as a potential early indicator for
   /// completion of the serialization. It does not restart the counter; the
   /// counter continues to the final element unless reset.
+  ///
+  /// All outermost slices must have matching declared payload formats.
   Serializer(TypedLogicArray<T, V> deserialized,
       {required Logic clk,
       required Logic reset,
@@ -71,6 +74,11 @@ class Serializer<T extends Logic, V> extends Module {
       throw ArgumentError.value(deserialized.dimensions, 'deserialized',
           'Serialization requires non-empty dimensions.');
     }
+    if (deserialized.elements.skip(1).any((element) =>
+        !sameDeclaredPayloadShape(deserialized.elements.first, element))) {
+      throw ArgumentError.value(deserialized, 'deserialized',
+          'Serialization requires matching outermost payload formats.');
+    }
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {
@@ -90,11 +98,13 @@ class Serializer<T extends Logic, V> extends Module {
             'serialized',
             ({name = 'serialized'}) => TypedLogicArray<T, V>(
                   const [],
-                  deserialized.arrayElements.first.cloneTyped,
+                  ({name}) =>
+                      deserialized.arrayElements.first.cloneTyped(name: name),
                   valueCodec: deserialized.valueCodec,
                   name: name,
                 ))
-        : addTypedOutput('serialized', deserialized.majorSlices.first.clone);
+        : addTypedPayloadOutput(
+            this, 'serialized', deserialized.majorSlices.first);
 
     Logic? earlyEnd;
     final cnt = Counter.simple(
@@ -117,7 +127,7 @@ class Serializer<T extends Logic, V> extends Module {
             ? flop(clk, reset: reset, en: enable, cnt.count)
             : cnt.count);
 
-    final dataOutput = deserialized.clone(name: 'dataOutput');
+    final dataOutput = deserialized.cloneTyped(name: 'dataOutput');
     for (var i = 0; i < deserialized.elements.length; i++) {
       dataOutput.elements[i] <=
           (flopInput
@@ -126,15 +136,18 @@ class Serializer<T extends Logic, V> extends Module {
                   reset: reset,
                   en: latchTheInput,
                   deserialized.elements[i],
-                  outputGenerator: deserialized.elements[i].clone)
+                  outputGenerator: ({name}) =>
+                      deserialized.elements[i].cloneTyped(name: name))
               : deserialized.elements[i]);
     }
-    final selected = dataOutput.elements
-        .selectIndex(count, outputGenerator: dataOutput.elements.first.clone);
+    final selected = dataOutput.elements.selectIndex(count,
+        outputGenerator: ({name}) =>
+            dataOutput.elements.first.cloneTyped(name: name));
     serialized <=
         (flopInput && alignOutputLatency
             ? mux(~cnt.count.or(), deserialized.elements.first, selected,
-                outputGenerator: dataOutput.elements.first.clone)
+                outputGenerator: ({name}) =>
+                    dataOutput.elements.first.cloneTyped(name: name))
             : selected);
     done <=
         (flopInput && !alignOutputLatency

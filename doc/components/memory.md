@@ -29,8 +29,13 @@ final resultByte = rf.rdData(0).at([1, 2]);
 ```
 
 Drive the write port's `en`, `addr`, and payload, and the read port's `en` and
-`addr`, as usual. Declared structured layouts and array codecs must match across
-ports. Plain packed bridges remain supported.
+`addr`, as usual. Declared payload layouts, semantic formats, and array codecs
+must match across ports, even when another port is a plain packed bridge. Plain
+packed bridges remain supported.
+Typed schema and storage clones must preserve the declared payload type and
+semantic format.
+When registering an interface with selected direction tags, payload
+compatibility is checked only if the `data` group is selected.
 
 The existing `DataPortInterface(dataWidth, addrWidth)` constructor still creates
 plain `Logic` data ports. When a register file has an empty read or write list,
@@ -133,7 +138,9 @@ another enabled read or reset. `DataPortInterface` names the address signal
 `addr`. In the configurator, this SRAM is shown as a cell in a small structural
 wrapper: its hand-written Verilog array is not expanded into ROHD logic in the
 ROHD schematic. The generated SystemVerilog contains the SRAM definition; actual
-macro inference depends on the synthesis flow.
+macro inference depends on the synthesis flow. Typed payloads with unpacked
+dimensions retain their external shape and use a packed bridge to the inferred
+array cell.
 
 `InferredSram` provides `peek`, `poke`, `snapshot`, `restore`, and
 `stateTransactions` for simulation. Its execution image includes the stored

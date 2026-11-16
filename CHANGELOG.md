@@ -6,6 +6,46 @@
 - Fixed AXI4 data monitors to capture data, strobes, and responses at the handshake edge, and retained queued write bursts while earlier responses are delayed.
 - Added an opt-in ACE4 signal layout with independently configured channel widths, snoop and acknowledgement support, and shared signal-level BFM checks; the legacy layout remains the default. Fixed AXI4 response monitoring to capture the response at the handshake edge.
 - Extended `StaticOrRuntimeControl` with typed runtime input resolution and reused it for resettable entries while preserving reset input shapes and existing behavior.
+- Typed payload shape checks and generated identities now include declared semantic metadata, including GF field descriptors, fixed-point signedness, and floating-point format flags. Matching packed-vector interface bridges remain supported. Floating-point swaps reject incompatible formats.
+- Ready/valid buffers, pipelines, and queues reject incompatible declared payloads while retaining packed-vector bridges. Provider ports cannot be registered as both directional ports and inouts.
+- Typed reductions preserve scalar payload domain metadata during alignment. Serializers reject incompatible selected slices, and deserializers reject mixed leaf formats that their output prototype cannot preserve.
+- Shift-register and toggle-gate reset signals validate declared payload formats; shift registers preserve typed reset ports and accept explicit packed reset bits.
+- Shared `swap` and `condFlop` utilities preserve finite-field payload types and reject incompatible declared formats while retaining packed bridges.
+- Static-or-runtime selection preserves runtime payload schemas and rejects incompatible declared formats, with packed bridges and static selection retained.
+- Typed static-or-runtime control inputs preserve driveable structured clones of constant-containing sources and reject flattened or incompatible reused inputs.
+- Typed priority muxes preserve compatible structured constants, including when payloads are widened to `Logic`.
+- Typed payload input registration rejects clones that change the declared runtime type or semantic format. Structured constants widened to `Logic` depend on the unreleased ROHD `addTypedInput` preservation default; update the ROHD dependency before publishing.
+- Typed clone and input/inout port validation use ROHD's shared recursive shape and semantic metadata contract; update the ROHD dependency before publishing.
+- Typed clone validation also rejects nested declared type erasure, and the ready/valid divider validates its result schema clone.
+- Fixed-latency wrappers retain declared ID schemas throughout their pipelines and result queues, including IDs widened to `Logic`.
+- Memory and associative interface registration validates typed payloads only when their port group is selected.
+- Typed memory, associative, and cache schemas and ports reject clones that change their payload type or semantic format.
+- Added `TypedAssociativeMatchSelector` for typed selection values and preference callbacks; the flat `AssociativeMatchSelector` remains available but is deprecated.
+- Fixed typed associative selection for enum payloads whose mappings omit zero, including nested enums.
+- Typed associative matching and selection preserve compatible structured constants, including when widened to `Logic`.
+- Extrema, bitonic sort, and reduction-tree data and control preserve structured constants widened to `Logic`.
+- Shift registers, FIFOs, and fixed-latency request IDs preserve structured constants widened to `Logic`; typed shift reset constants retain their declared formats.
+- Parallel-prefix networks and deserializers retain structured constant payloads through typed ports.
+- Typed SPI transmit ports, clock/toggle gates, error transmitters, and floating-point swap metadata retain structured constants widened to `Logic`.
+- Shared swap, conditional flop, runtime selection, floating-point sorting, and fixed-latency core results accept compatible structured constants.
+- Ready/valid and valid-only interface registration and ready/valid egress attachments accept compatible structured constant sources.
+- Ready/valid and valid-only consumer interfaces accept scalar constant payloads widened to `Logic`; the ready-then-valid adapter also supports them.
+- Ready/valid and valid-only interfaces reject clones that change declared payload types or semantic formats, including during packed-bridge registration.
+- Typed serialization, arithmetic, storage, clock control, protection, and cache transaction paths reject clones that change declared payload types or formats.
+- Added typed associative indexed side-read response views for RTL, behavioral, and compatible custom providers. The existing packed response remains available but is deprecated.
+- Added `TypedSynchronousAssociativeLookupPortInterface` for typed keys on fixed-latency associative memories; the packed-key constructor remains available but is deprecated.
+- Fixed inferred SRAM SystemVerilog for typed payloads containing unpacked arrays, retaining typed boundary ports while bridging to the packed SRAM cell. Behavioral SystemC substitution now excludes descendants of selected modules.
+- Memory ports now reject incompatible declared payload formats even when the first port is a plain packed bridge.
+- Delayed `ClockGate.controlled` signals validate and register typed or packed reset signals at the module boundary.
+- Clock-gate control interfaces preserve declared types on additional configuration ports across module boundaries.
+- Floating-point adders retain mixed J-bit and subnormal-mode support while sorting operand fields without reinterpreting their formats.
+- CSR backdoor read ports retain their `Csr` structure and configuration across module boundaries.
+- Typed CSR payload compatibility now includes register and field configuration; explicit packed bridges remain supported.
+- Fixed `RadixEncode` cloning to retain its requested name and field layout for typed module ports.
+- Added `TypedSpiMain` and `TypedSpiSub` with independently typed transmit and receive payloads. The original flat `SpiMain` and `SpiSub` remain available but are deprecated.
+- Fixed `ReadyValidFixedLatency` to preserve the type of optional request IDs through its pipeline, result queue, and output.
+- Floating-point sort utilities reject incompatible operand formats rather than reinterpreting swapped values.
+- Cache transaction staging, serialized-cache request state, and multiport-cache eviction buffers preserve declared payload structures. Packed masking and stored-value normalization retain their existing semantics.
 
 ### Compute primitives
 

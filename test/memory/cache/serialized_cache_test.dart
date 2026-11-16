@@ -95,17 +95,19 @@ class _MismatchedModel implements BehavioralModel {
       throw StateError('Port validation must precede export.');
 }
 
-class _TypedHarness extends Module {
-  _TypedHarness(
+class _TypedHarness<T extends Logic> extends Module {
+  late final SerializedCache<T, _Metadata, _Context, _Result> cache;
+
+  _TypedHarness(T schema,
       {required bool behavioral,
       bool inferredSram = false,
       bool behavioralTags = false}) {
-    CacheTransactionPort<_Data, _Metadata, _Context, _Result> port() =>
+    CacheTransactionPort<T, _Metadata, _Context, _Result> port() =>
         CacheTransactionPort(
           addressWidth: 8,
           tokenWidth: 2,
           operationWidth: 3,
-          dataSchema: _Data(),
+          dataSchema: schema,
           writeMaskWidth: 2,
           lineMetadataSchema: _Metadata(),
           contextSchema: _Context(),
@@ -141,8 +143,8 @@ class _TypedHarness extends Module {
       maxOutstanding: 2,
     );
     final factory = inferredSram
-        ? inferredSramArray<_Data>()
-        : MemoryArrayFunctor<_Data>(
+        ? inferredSramArray<T>()
+        : MemoryArrayFunctor<T>(
             identity: behavioral ? 'typedBehavioralSram' : 'typedFlopSram',
             capabilities: MemoryArrayCapabilities(
               readLatency: 1,
@@ -165,13 +167,12 @@ class _TypedHarness extends Module {
               required name,
             }) =>
                 behavioral
-                    ? MemoryModel<_Data>(clk, reset, writePorts, readPorts,
+                    ? MemoryModel<T>(clk, reset, writePorts, readPorts,
                         asyncReset: false, name: name)
-                    : _SynchronousArray<_Data>(
-                        clk, reset, writePorts, readPorts,
+                    : _SynchronousArray<T>(clk, reset, writePorts, readPorts,
                         entryCount: entryCount, readLatency: 1, name: name),
           );
-    SerializedCache<_Data, _Metadata, _Context, _Result>(
+    cache = SerializedCache<T, _Metadata, _Context, _Result>(
       clk: clk,
       reset: reset,
       ports: [internal],
@@ -653,6 +654,36 @@ List<Vector> _referenceVectors(int latency) {
 void main() {
   tearDown(Simulator.reset);
 
+  test('serialized cache retains its typed request in state', () async {
+    final dut = _TypedHarness(_Data(), behavioral: false);
+    await dut.build();
+    final request = dut.cache.internalSignals
+        .whereType<CacheTransactionRequest<_Data, _Metadata, _Context>>()
+        .singleWhere((signal) => signal.name == 'saved_request');
+    expect(request.data, isA<_Data>());
+    expect(request.context, isA<_Context>());
+  });
+
+  test('unpacked request data survives serialized cache transactions',
+      () async {
+    final schema = TypedLogicArray<Logic, LogicValue>(
+      [2],
+      ({name}) => Logic(name: name, width: 4),
+      numUnpackedDimensions: 1,
+    );
+    final dut = _TypedHarness(schema, behavioral: false, inferredSram: true);
+    await dut.build();
+    final request = dut.cache.internalSignals
+        .whereType<
+            CacheTransactionRequest<TypedLogicArray<Logic, LogicValue>,
+                _Metadata, _Context>>()
+        .singleWhere((signal) => signal.name == 'saved_request');
+    expect(request.data.numUnpackedDimensions, 1);
+    final vectors = _vectors(1, useAdapter: true);
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
   test('rejects unsupported operation without modifying state', () async {
     final dut = _Harness(1, behavioral: false);
     final vectors = [
@@ -843,7 +874,7 @@ void main() {
   });
 
   test('typed transactions use inferred SRAM data', () async {
-    final dut = _TypedHarness(behavioral: false, inferredSram: true);
+    final dut = _TypedHarness(_Data(), behavioral: false, inferredSram: true);
     final vectors = _vectors(1, useAdapter: true);
     await dut.build();
     await SimCompare.checkFunctionalVector(dut, vectors);
@@ -852,7 +883,7 @@ void main() {
   });
   test('typed transactions use behavioral tags with inferred SRAM data',
       () async {
-    final dut = _TypedHarness(
+    final dut = _TypedHarness(_Data(),
         behavioral: false, inferredSram: true, behavioralTags: true);
     final vectors = _vectors(1, useAdapter: true);
     await dut.build();
@@ -863,7 +894,7 @@ void main() {
   for (final behavioral in [false, true]) {
     test('typed transactions through adapter and core behavioral=$behavioral',
         () async {
-      final dut = _TypedHarness(behavioral: behavioral);
+      final dut = _TypedHarness(_Data(), behavioral: behavioral);
       final vectors = _vectors(1, useAdapter: true);
       await dut.build();
       await SimCompare.checkFunctionalVector(dut, vectors);

@@ -7,6 +7,9 @@
 // 2024 October 10
 // Author: Roberto Torres <roberto.torres@intel.com>
 
+// Retain regression coverage for the original SPI wrappers.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';

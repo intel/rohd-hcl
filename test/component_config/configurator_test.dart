@@ -154,6 +154,15 @@ void main() {
     );
   });
 
+  test('SPI configurator builds typed endpoints for both roles', () {
+    final spi = SpiConfigurator();
+    expect(spi.createModule(), isA<TypedSpiMain<Logic, Logic>>());
+    spi.roleKnob.value = SpiRole.sub;
+    expect(spi.createModule(), isA<TypedSpiSub<Logic, Logic>>());
+    spi.subBusInKnob.value = false;
+    expect((spi.createModule() as TypedSpiSub<Logic, Logic>).busIn, isNull);
+  });
+
   test('loads conditional floating-point adder knobs from JSON', () {
     final configured = FloatingPointAdderConfigurator()
       ..dualPathAdderKnob.value = true

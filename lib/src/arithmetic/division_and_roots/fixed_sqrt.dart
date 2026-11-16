@@ -12,6 +12,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Base class for fixed-point square root
 abstract class FixedPointSqrtBase<T extends FixedPoint> extends Module {
@@ -37,7 +38,7 @@ abstract class FixedPointSqrtBase<T extends FixedPoint> extends Module {
                 definitionName ?? 'FixedPointSquareRoot${a.width}') {
     this.a = addTypedInput('a', a);
 
-    sqrt = addTypedOutput('sqrt', a.cloneTyped);
+    sqrt = addTypedPayloadOutput(this, 'sqrt', a);
   }
 }
 

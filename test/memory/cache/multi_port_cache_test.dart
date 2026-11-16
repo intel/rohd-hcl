@@ -77,20 +77,21 @@ class _Harness extends Module {
   }
 }
 
-class _TypedHarness extends Module {
-  late final CacheLookupPort<_Payload> lookup;
-  late final CacheFillPort<_Payload> fill;
+class _TypedHarness<T extends Logic> extends Module {
+  late final CacheLookupPort<T> lookup;
+  late final CacheFillPort<T> fill;
+  late final MultiPortCache<T> cache;
 
-  _TypedHarness(CacheDataStorage storage) {
-    lookup = CacheLookupPort<_Payload>(addressWidth: 8, dataSchema: _Payload());
-    fill = CacheFillPort<_Payload>(addressWidth: 8, dataSchema: _Payload());
+  _TypedHarness(T schema, CacheDataStorage storage) {
+    lookup = CacheLookupPort<T>(addressWidth: 8, dataSchema: schema);
+    fill = CacheFillPort<T>(addressWidth: 8, dataSchema: schema);
     lookup.valid <= addInput('lv', Logic());
     lookup.address <= addInput('la', Logic(width: 8), width: 8);
     fill.valid <= addInput('fv', Logic());
     fill.address <= addInput('fa', Logic(width: 8), width: 8);
     fill.data <= addInput('fd', Logic(width: 8), width: 8);
     fill.evictionReady <= addInput('er', Logic());
-    MultiPortCache<_Payload>(
+    cache = MultiPortCache<T>(
       clk: addInput('clk', Logic()),
       reset: addInput('reset', Logic()),
       lookups: [lookup],
@@ -652,7 +653,7 @@ void main() {
 
   for (final storage in CacheDataStorage.values) {
     test('$storage preserves typed payloads and normalizes stored Z', () async {
-      final dut = _TypedHarness(storage);
+      final dut = _TypedHarness(_Payload(), storage);
       expect(dut.lookup.data, isA<_Payload>());
       expect(dut.fill.evictionData, isA<_Payload>());
       final vectors = [
@@ -671,16 +672,74 @@ void main() {
         Vector({'clk': 1}, {}),
         Vector({'clk': 0, 'fv': 0},
             {'lh': 1, 'ld': LogicValue.ofString('10xx10xx')}),
-        Vector({'fv': 1, 'fa': 2, 'fd': 0x22}, {}),
+        Vector({'fv': 1, 'fa': 2, 'fd': LogicValue.ofString('01zx01zx')}, {}),
         Vector({'clk': 1}, {'ev': 1, 'ed': LogicValue.ofString('10xx10xx')}),
+        Vector({'clk': 0, 'fv': 0, 'fd': 0}, {'ev': 1}),
+        Vector({'clk': 1}, {'ev': 1, 'ed': LogicValue.ofString('10xx10xx')}),
+        Vector({'clk': 0, 'er': 1}, {'ev': 1}),
+        Vector({'clk': 1}, {'ev': 0}),
+        Vector({'clk': 0, 'la': 2},
+            {'lh': 1, 'ld': LogicValue.ofString('01xx01xx')}),
       ];
       await dut.build();
+      for (final name in ['pending_data_0', 'victim_data_0']) {
+        expect(
+            dut.cache.internalSignals
+                .whereType<_Payload>()
+                .any((signal) => signal.name == name),
+            isTrue);
+      }
       await SimCompare.checkFunctionalVector(dut, vectors);
       if (storage == CacheDataStorage.registerFile) {
         SimCompare.checkIverilogVector(dut, vectors);
       }
     });
   }
+
+  test('unpacked payloads survive pending fills and stalled evictions',
+      () async {
+    final schema = TypedLogicArray<Logic, LogicValue>(
+      [2],
+      ({name}) => Logic(name: name, width: 4),
+      numUnpackedDimensions: 1,
+    );
+    final dut = _TypedHarness(schema, CacheDataStorage.registerFile);
+    await dut.build();
+    for (final name in ['pending_data_0', 'victim_data_0']) {
+      final typedSignals = dut.cache.internalSignals
+          .whereType<TypedLogicArray<Logic, LogicValue>>();
+      expect(
+          typedSignals.any((signal) =>
+              signal.name == name && signal.numUnpackedDimensions == 1),
+          isTrue);
+    }
+    final vectors = [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'lv': 1,
+        'la': 1,
+        'fv': 0,
+        'fa': 1,
+        'fd': 0xa5,
+        'er': 0,
+      }, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'reset': 0, 'fv': 1}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'fv': 0}, {'lh': 1, 'ld': 0xa5}),
+      Vector({'fv': 1, 'fa': 2, 'fd': LogicValue.ofString('01zx01zx')}, {}),
+      Vector({'clk': 1}, {'ev': 1, 'ed': 0xa5}),
+      Vector({'clk': 0, 'fv': 0, 'fd': 0}, {'ev': 1, 'ed': 0xa5}),
+      Vector({'clk': 1}, {'ev': 1, 'ed': 0xa5}),
+      Vector({'clk': 0, 'er': 1}, {'ev': 1}),
+      Vector({'clk': 1}, {'ev': 0}),
+      Vector({'clk': 0, 'la': 2},
+          {'lh': 1, 'ld': LogicValue.ofString('01xx01xx')}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
 
   test('forwarding excludes fills incompatible with known address bits',
       () async {

@@ -601,9 +601,13 @@ class BehavioralParallelAssociativeMemory extends AssociativeMemory
       description.generateSystemC(className: className, options: options);
 
   @override
+  // Retain the packed provider interface for existing consumers.
+  // ignore: deprecated_member_use_from_same_package
   final List<AssociativeIndexedSideReadResponse> sideReadResponses;
 
   @override
+  // Retain the packed provider interface for existing consumers.
+  // ignore: deprecated_member_use_from_same_package
   AssociativeIndexedSideReadResponse? get sideReadResponse =>
       sideReadResponses.isEmpty ? null : sideReadResponses.first;
 
@@ -642,6 +646,8 @@ class BehavioralParallelAssociativeMemory extends AssociativeMemory
   })  : _sideReads = List.unmodifiable(sideReadRequests),
         sideReadResponses = List.unmodifiable([
           for (final _ in sideReadRequests)
+            // Retain packed responses on the compatibility provider.
+            // ignore: deprecated_member_use_from_same_package
             AssociativeIndexedSideReadResponse(keyWidth: lookups.first.keyWidth)
         ]),
         super(definitionName: 'BehavioralParallelAssociativeMemory') {

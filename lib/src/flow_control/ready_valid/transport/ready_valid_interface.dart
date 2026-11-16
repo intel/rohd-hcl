@@ -221,36 +221,34 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
     final dataName = data.name;
     final inputTagSet = inputTags?.toSet();
     final outputTagSet = outputTags?.toSet();
+    final inOutTagSet = inOutTags?.toSet();
     final inputIncludesProvider =
         inputTagSet?.contains(PairDirection.fromProvider) ?? false;
     final outputIncludesProvider =
         outputTagSet?.contains(PairDirection.fromProvider) ?? false;
+    if ((inputIncludesProvider || outputIncludesProvider) &&
+        (inOutTagSet?.contains(PairDirection.fromProvider) ?? false)) {
+      throw PortTypeException.forIntendedName(
+          dataName, 'Ready/valid provider ports cannot also be inOut ports.');
+    }
     final nonNullUniquify = uniquify ?? (original) => original;
     final portName = nonNullUniquify(dataName);
     final validPortName = nonNullUniquify('valid');
 
     if (inputIncludesProvider) {
-      final sourcePayload = _validatePayloadCompatibility(
+      final sourcePayload = validatePayloadCompatibility(
         srcInterface.port(dataName),
       );
-      final typedSource =
-          data.clone(name: '${data.name}_input_bridge') as LogicType;
+      final typedSource = data.cloneTyped(name: '${data.name}_input_bridge');
       typedSource <= sourcePayload;
-      data <=
-          module.addTypedInput(
-            portName,
-            typedSource,
-          );
+      data <= module.addTypedInput(portName, typedSource);
       valid <= module.addInput(validPortName, srcInterface.port('valid'));
     }
     if (outputIncludesProvider) {
-      final sourcePayload = _validatePayloadCompatibility(
+      final sourcePayload = validatePayloadCompatibility(
         srcInterface.port(dataName),
       );
-      final output = module.addTypedOutput(
-        portName,
-        data.clone as LogicType Function({String? name}),
-      );
+      final output = addTypedPayloadOutput(module, portName, data);
       output <= data;
       sourcePayload <= output;
       final validOutput = module.addOutput(validPortName);
@@ -258,14 +256,15 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
       srcInterface.port('valid') <= validOutput;
     }
 
-    _suppressHandledProviderPorts = true;
+    _suppressHandledProviderPorts =
+        inputIncludesProvider || outputIncludesProvider;
     try {
       super.connectIO(
         module,
         srcInterface,
-        inputTags: inputTags,
-        outputTags: outputTags,
-        inOutTags: inOutTags,
+        inputTags: inputTagSet,
+        outputTags: outputTagSet,
+        inOutTags: inOutTagSet,
         uniquify: uniquify,
       );
     } finally {
@@ -273,7 +272,9 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
     }
   }
 
-  Logic _validatePayloadCompatibility(Logic sourcePayload) {
+  /// Validates a payload connected to this interface.
+  @internal
+  Logic validatePayloadCompatibility(Logic sourcePayload) {
     if (sourcePayload.width != data.width) {
       throw PortTypeException.forIntendedName(
         data.name,
@@ -281,9 +282,8 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
         'but found ${sourcePayload.width}.',
       );
     }
-    if (((sourcePayload is LogicStructure && data is LogicStructure) ||
-            (sourcePayload is LogicEnum && data is LogicEnum)) &&
-        !sameHclPayloadShape(data, sourcePayload)) {
+    if (!compatiblePayloadConnection(data, sourcePayload,
+        ignoreConstantNames: true)) {
       throw PortTypeException.forIntendedName(
         data.name,
         'Expected ready/valid payload shape '
@@ -309,7 +309,7 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
 
   @override
   ReadyValidInterface<LogicType> clone() => ReadyValidInterface(
-        data.clone() as LogicType,
+        cloneInterfacePayload<LogicType>(data),
         contract: contract,
       );
 }
@@ -324,7 +324,7 @@ class ReadyAndValidInterface<LogicType extends Logic>
 
   @override
   ReadyAndValidInterface<LogicType> clone() =>
-      ReadyAndValidInterface(data.clone() as LogicType);
+      ReadyAndValidInterface(cloneInterfacePayload<LogicType>(data));
 }
 
 /// A ready/valid interface where ready must be asserted before valid can be
@@ -343,7 +343,7 @@ class ReadyThenValidInterface<LogicType extends Logic>
     Logic reset,
   ) {
     final downstream = ReadyAndValidInterface<LogicType>(
-      data.clone() as LogicType,
+      cloneInterfacePayload<LogicType>(data),
     );
 
     final readEnable = Logic();
@@ -367,7 +367,7 @@ class ReadyThenValidInterface<LogicType extends Logic>
 
   @override
   ReadyThenValidInterface<LogicType> clone() =>
-      ReadyThenValidInterface(data.clone() as LogicType);
+      ReadyThenValidInterface(cloneInterfacePayload<LogicType>(data));
 }
 
 /// A ready/valid interface where ready may be computed after valid.
@@ -380,7 +380,7 @@ class ValidThenReadyInterface<LogicType extends Logic>
 
   @override
   ValidThenReadyInterface<LogicType> clone() =>
-      ValidThenReadyInterface(data.clone() as LogicType);
+      ValidThenReadyInterface(cloneInterfacePayload<LogicType>(data));
 }
 
 /// A valid-first ready/valid interface that holds an offer stable until it is
@@ -394,5 +394,5 @@ class IrrevocableReadyValidInterface<LogicType extends Logic>
 
   @override
   IrrevocableReadyValidInterface<LogicType> clone() =>
-      IrrevocableReadyValidInterface(data.clone() as LogicType);
+      IrrevocableReadyValidInterface(cloneInterfacePayload<LogicType>(data));
 }

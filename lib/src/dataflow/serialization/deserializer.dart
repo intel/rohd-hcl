@@ -37,6 +37,7 @@ class Deserializer<T extends Logic, V> extends Module {
   /// A scalar or structured [T] input produces a one-dimensional array.
   /// [valueCodec] describes the semantic value of each leaf [T], not a whole
   /// array slice. Use [LogicValueCodec.logicValue] for packed values.
+  /// Array inputs must have matching declared formats for all leaves.
   ///
   /// If [last] is connected, it is used as a potential early indicator for
   /// completion of the deserialization.
@@ -56,6 +57,15 @@ class Deserializer<T extends Logic, V> extends Module {
     if (length <= 0) {
       throw ArgumentError.value(length, 'length', 'Must be positive.');
     }
+    if (serialized is TypedLogicArray<T, V>) {
+      final leaves = serialized.arrayElements;
+      if (leaves.isNotEmpty &&
+          leaves.skip(1).any(
+              (element) => !sameDeclaredPayloadShape(leaves.first, element))) {
+        throw ArgumentError.value(serialized, 'serialized',
+            'Deserialization requires matching leaf payload formats.');
+      }
+    }
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
     if (enable != null) {
@@ -67,7 +77,7 @@ class Deserializer<T extends Logic, V> extends Module {
       floppedLast = Logic(name: 'floppedLast')
         ..gets(flop(clk, reset: reset, en: (enable ?? Const(1)), last));
     }
-    serialized = addTypedInput('serialized', serialized);
+    serialized = addTypedInput<Logic>('serialized', serialized);
     final List<int> dimensions;
     final int numUnpackedDimensions;
     final T prototype;
@@ -118,6 +128,6 @@ class Deserializer<T extends Logic, V> extends Module {
             reset: reset,
             en: (enable ?? Const(1)) & count.eq(i),
             serialized,
-            outputGenerator: serialized.clone));
+            outputGenerator: ({name}) => serialized.cloneTyped(name: name)));
   }
 }

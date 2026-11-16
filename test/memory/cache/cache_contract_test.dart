@@ -13,7 +13,6 @@ library;
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Metadata extends LogicStructure {
@@ -23,6 +22,16 @@ class _Metadata extends LogicStructure {
 
   @override
   _Metadata clone({String? name}) => _Metadata(name: name ?? this.name);
+}
+
+class _MisclonedField extends GfLogic {
+  final BinaryExtensionField replacement;
+
+  _MisclonedField(super.field, this.replacement, {super.name});
+
+  @override
+  _MisclonedField clone({String? name}) =>
+      _MisclonedField(replacement, replacement, name: name ?? this.name);
 }
 
 class _QueueHarness extends Module {
@@ -174,6 +183,40 @@ class _EmptyModule extends Module {
 }
 
 void main() {
+  test('cache transaction schemas reject changed payload clone metadata', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    _MisclonedField bad() => _MisclonedField(first, second);
+
+    expect(
+        () => CacheTransactionRequest<Logic, Logic, Logic>(
+            addressWidth: 4,
+            tokenWidth: 1,
+            dataSchema: bad(),
+            writeMaskWidth: 1,
+            lineMetadataSchema: Logic(),
+            contextSchema: Logic()),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => CacheTransactionResponse<Logic, Logic, Logic, Logic>(
+            tokenWidth: 1,
+            dataSchema: Logic(width: 3),
+            lineMetadataSchema: bad(),
+            contextSchema: Logic(),
+            resultSchema: Logic()),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => CacheTransactionEviction<Logic, Logic, Logic>(
+            addressWidth: 4,
+            tokenWidth: 1,
+            dataSchema: Logic(width: 3),
+            lineMetadataSchema: Logic(),
+            contextSchema: bad()),
+        throwsA(isA<LogicConstructionException>()));
+  });
+
   tearDown(Simulator.reset);
 
   test('scheduler ports preserve resource geometry and isolate input lists',

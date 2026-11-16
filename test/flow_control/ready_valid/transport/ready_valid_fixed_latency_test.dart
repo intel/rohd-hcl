@@ -87,43 +87,203 @@ class _Packet extends LogicStructure {
   _Packet clone({String? name}) => _Packet(name: name ?? this.name);
 }
 
+class _Tag extends LogicStructure {
+  Logic get lane => elements[0];
+  Logic get group => elements[1];
+
+  _Tag({String name = 'tag'})
+      : super([Logic(name: 'lane', width: 2), Logic(name: 'group', width: 2)],
+            name: name);
+
+  @override
+  _Tag clone({String? name}) => _Tag(name: name ?? this.name);
+}
+
 class _TypedHarness extends Module {
-  _TypedHarness() {
+  late final ReadyValidFixedLatency<_Packet, _Packet, _Tag> wrapper;
+
+  _TypedHarness({int latency = 0}) {
     final clk = addInput('clk', Logic());
     final reset = addInput('reset', Logic());
     final low = addInput('low', Logic(width: 4), width: 4);
     final high = addInput('high', Logic(width: 4), width: 4);
     final valid = addInput('valid', Logic());
     final ready = addInput('ready', Logic());
-    final id = addInput('id', Logic(width: 4), width: 4);
+    final id = _Tag()..gets(addInput('id', Logic(width: 4), width: 4));
     final upstream = ReadyValidInterface(_Packet());
     final downstream = ReadyValidInterface(_Packet());
     upstream.data.low <= low;
     upstream.data.high <= high;
     upstream.valid <= valid;
     downstream.ready <= ready;
-    final wrapper = ReadyValidFixedLatency<_Packet, _Packet>(
+    wrapper = ReadyValidFixedLatency<_Packet, _Packet, _Tag>(
       clk: clk,
       reset: reset,
       upstream: upstream,
       downstream: downstream,
       requestId: id,
-      latency: 0,
-      coreIdentity: 'TypedIdentity',
+      latency: latency,
+      coreIdentity: 'TypedIdentity_L$latency',
       coreGenerator: ({
         required clk,
         required reset,
         required start,
         required data,
-      }) =>
-          data,
+      }) {
+        var result = data;
+        for (var stage = 0; stage < latency; stage++) {
+          result = flop(clk, result);
+        }
+        return result;
+      },
     );
     addOutput('input_ready') <= upstream.ready;
     addOutput('output_valid') <= downstream.valid;
     addOutput('low_result', width: 4) <= downstream.data.low;
     addOutput('high_result', width: 4) <= downstream.data.high;
     addOutput('result_id', width: 4) <= wrapper.resultId!;
+    addOutput('id_lane', width: 2) <= wrapper.resultId!.lane;
     addOutput('error') <= wrapper.error;
+  }
+}
+
+typedef _ArrayId = TypedLogicArray<Logic, LogicValue>;
+
+_ArrayId _arrayId() =>
+    _ArrayId([2], ({name}) => Logic(name: name ?? 'part', width: 2),
+        numUnpackedDimensions: 1);
+
+class _ArrayIdHarness extends Module {
+  late final ReadyValidFixedLatency<Logic, Logic, _ArrayId> wrapper;
+
+  _ArrayIdHarness() {
+    final clk = addInput('clk', Logic());
+    final reset = addInput('reset', Logic());
+    final upstream = ReadyValidInterface(Logic(width: 8));
+    final downstream = ReadyValidInterface(Logic(width: 8));
+    upstream.data <= addInput('data', Logic(width: 8), width: 8);
+    upstream.valid <= addInput('valid', Logic());
+    downstream.ready <= addInput('ready', Logic());
+    final id = _arrayId()..gets(addInput('id', Logic(width: 4), width: 4));
+    wrapper = ReadyValidFixedLatency<Logic, Logic, _ArrayId>(
+      clk: clk,
+      reset: reset,
+      upstream: upstream,
+      downstream: downstream,
+      requestId: id,
+      latency: 1,
+      coreIdentity: 'ArrayId',
+      coreGenerator: ({
+        required clk,
+        required reset,
+        required start,
+        required data,
+      }) =>
+          flop(clk, data),
+    );
+    addOutput('result', width: 8) <= downstream.data;
+    addOutput('output_valid') <= downstream.valid;
+    addOutput('result_id', width: 4) <= wrapper.resultId!.packed;
+    addOutput('id_first', width: 2) <= wrapper.resultId!.arrayElements[0];
+  }
+}
+
+class _WidenedArrayIdHarness extends Module {
+  late final ReadyValidFixedLatency<Logic, Logic, Logic> wrapper;
+
+  _WidenedArrayIdHarness() {
+    final clk = addInput('clk', Logic());
+    final reset = addInput('reset', Logic());
+    final upstream = ReadyValidInterface(Logic(width: 8));
+    final downstream = ReadyValidInterface(Logic(width: 8));
+    upstream.data <= addInput('data', Logic(width: 8), width: 8);
+    upstream.valid <= addInput('valid', Logic());
+    downstream.ready <= addInput('ready', Logic());
+    final id = _arrayId()..gets(addInput('id', Logic(width: 4), width: 4));
+    wrapper = ReadyValidFixedLatency<Logic, Logic, Logic>(
+      clk: clk,
+      reset: reset,
+      upstream: upstream,
+      downstream: downstream,
+      requestId: id,
+      latency: 1,
+      coreIdentity: 'WidenedArrayId',
+      coreGenerator: ({
+        required clk,
+        required reset,
+        required start,
+        required data,
+      }) =>
+          flop(clk, data),
+    );
+    addOutput('result', width: 8) <= downstream.data;
+    addOutput('output_valid') <= downstream.valid;
+    addOutput('result_id', width: 4) <= wrapper.resultId!;
+  }
+}
+
+class _ConstantIdHarness extends Module {
+  late final ReadyValidFixedLatency<Logic, Logic, Logic> wrapper;
+
+  _ConstantIdHarness() {
+    final clk = addInput('clk', Logic());
+    final reset = addInput('reset', Logic());
+    final upstream = ReadyValidInterface(Logic(width: 8));
+    final downstream = ReadyValidInterface(Logic(width: 8));
+    upstream.data <= addInput('data', Logic(width: 8), width: 8);
+    upstream.valid <= addInput('valid', Logic());
+    downstream.ready <= addInput('ready', Logic());
+    final id = FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(5, 3), fraction: LogicValue.ofInt(0, 1)));
+    wrapper = ReadyValidFixedLatency<Logic, Logic, Logic>(
+      clk: clk,
+      reset: reset,
+      upstream: upstream,
+      downstream: downstream,
+      requestId: id,
+      latency: 1,
+      coreIdentity: 'ConstantId',
+      coreGenerator: ({
+        required clk,
+        required reset,
+        required start,
+        required data,
+      }) =>
+          flop(clk, data),
+    );
+    addOutput('result', width: 8) <= downstream.data;
+    addOutput('output_valid') <= downstream.valid;
+    addOutput('result_id', width: 4) <= wrapper.resultId!;
+  }
+}
+
+class _ConstantCoreHarness extends Module {
+  _ConstantCoreHarness() {
+    final upstream = ReadyValidInterface(Logic(width: 8));
+    final downstream =
+        ReadyValidInterface(FixedPoint(integerWidth: 3, fractionWidth: 4));
+    upstream.data <= addInput('data', Logic(width: 8), width: 8);
+    upstream.valid <= addInput('valid', Logic());
+    downstream.ready <= addInput('ready', Logic());
+    ReadyValidFixedLatency<Logic, FixedPoint, Logic>(
+      clk: addInput('clk', Logic()),
+      reset: addInput('reset', Logic()),
+      upstream: upstream,
+      downstream: downstream,
+      latency: 0,
+      coreIdentity: 'ConstantCore',
+      coreGenerator: ({
+        required clk,
+        required reset,
+        required start,
+        required data,
+      }) =>
+          FixedPoint.constant(FixedPointValue.withSignedness(
+              integer: LogicValue.ofInt(3, 4),
+              fraction: LogicValue.ofInt(1, 4))),
+    );
+    addOutput('result', width: 8) <= downstream.data;
+    addOutput('output_valid') <= downstream.valid;
   }
 }
 
@@ -148,7 +308,7 @@ class _Harness extends Module {
     upstream.data <= request;
     upstream.valid <= valid;
     downstream.ready <= ready;
-    final wrapper = ReadyValidFixedLatency<Logic, Logic>(
+    final wrapper = ReadyValidFixedLatency<Logic, Logic, Logic>(
       clk: clk,
       reset: reset,
       upstream: upstream,
@@ -194,7 +354,7 @@ void main() {
   test('result queue preserves structured payloads with and without IDs',
       () async {
     for (final withId in [false, true]) {
-      final wrapper = ReadyValidFixedLatency<_Packet, _Packet>(
+      final wrapper = ReadyValidFixedLatency<_Packet, _Packet, Logic>(
         clk: Logic(),
         reset: Logic(),
         upstream: ReadyValidInterface(_Packet()),
@@ -226,7 +386,7 @@ void main() {
           numUnpackedDimensions: 1,
         );
     final wrapper = ReadyValidFixedLatency<TypedLogicArray<_Packet, LogicValue>,
-        TypedLogicArray<_Packet, LogicValue>>(
+        TypedLogicArray<_Packet, LogicValue>, Logic>(
       clk: Logic(),
       reset: Logic(),
       upstream: ReadyValidInterface(array()),
@@ -250,6 +410,176 @@ void main() {
     expect(payload.dimensions, [2, 2]);
     expect(payload.numUnpackedDimensions, 1);
     expect(wrapper.dumpSystemVerilog(), contains('module ReadyValid'));
+  });
+
+  test('structured IDs survive a pipeline and stalled result queue', () async {
+    final dut = _TypedHarness(latency: 2);
+    expect(dut.wrapper.input('request_id'), isA<_Tag>());
+    expect(dut.wrapper.resultId, isA<_Tag>());
+    await dut.build();
+    final queue = dut.wrapper.subModules.whereType<ReadyValidQueue>().single;
+    final queued = queue.upstream.data as LogicStructure;
+    expect(queued.elements[1], isA<_Tag>());
+    final vectors = [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'low': 0,
+        'high': 0,
+        'valid': 0,
+        'ready': 0,
+        'id': 0,
+      }, {}),
+      Vector({'clk': 1}, {}),
+      Vector({
+        'clk': 0,
+        'reset': 0,
+        'low': 3,
+        'high': 12,
+        'valid': 1,
+        'id': 9,
+      }, {
+        'input_ready': 1
+      }),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'valid': 0, 'id': 2}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({
+        'clk': 0,
+      }, {
+        'output_valid': 1,
+        'low_result': 3,
+        'high_result': 12,
+        'result_id': 9,
+        'id_lane': 1,
+        'error': 0,
+      }),
+      Vector({'clk': 1}, {}),
+      Vector({
+        'clk': 0,
+        'ready': 1
+      }, {
+        'output_valid': 1,
+        'result_id': 9,
+        'id_lane': 1,
+      }),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('unpacked array IDs survive a pipeline in generated RTL', () async {
+    final dut = _ArrayIdHarness();
+    expect(dut.wrapper.resultId!.numUnpackedDimensions, 1);
+    await dut.build();
+    final vectors = [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'data': 0,
+        'valid': 0,
+        'ready': 0,
+        'id': 0,
+      }, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'reset': 0, 'data': 0xa5, 'valid': 1, 'id': 9}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'valid': 0, 'id': 2}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({
+        'clk': 0
+      }, {
+        'output_valid': 1,
+        'result': 0xa5,
+        'result_id': 9,
+        'id_first': 1,
+      }),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('widened unpacked array IDs retain their schema through the queue',
+      () async {
+    final dut = _WidenedArrayIdHarness();
+    await dut.build();
+    final queue = dut.wrapper.subModules.whereType<ReadyValidQueue>().single;
+    final queued = queue.upstream.data as LogicStructure;
+    expect(queued.elements[1], isA<_ArrayId>());
+    expect((queued.elements[1] as _ArrayId).numUnpackedDimensions, 1);
+    final vectors = [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'data': 0,
+        'valid': 0,
+        'ready': 0,
+        'id': 0,
+      }, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'reset': 0, 'data': 0xa5, 'valid': 1, 'id': 9}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'valid': 0, 'id': 2}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0}, {'output_valid': 1, 'result': 0xa5, 'result_id': 9}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('widened structured constant IDs survive a stalled result', () async {
+    final dut = _ConstantIdHarness();
+    expect(dut.wrapper.input('request_id'), isA<FixedPoint>());
+    expect(dut.wrapper.resultId, isA<FixedPoint>());
+    await dut.build();
+    final queue = dut.wrapper.subModules.whereType<ReadyValidQueue>().single;
+    final queued = queue.upstream.data as LogicStructure;
+    expect(queued.elements[1], isA<FixedPoint>());
+    final vectors = [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'data': 0,
+        'valid': 0,
+        'ready': 0,
+      }, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'reset': 0, 'data': 0xa5, 'valid': 1}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'valid': 0}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0}, {'output_valid': 1, 'result': 0xa5, 'result_id': 10}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'ready': 1},
+          {'output_valid': 1, 'result': 0xa5, 'result_id': 10}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('fixed-latency core may return a matching structured constant',
+      () async {
+    final dut = _ConstantCoreHarness();
+    await dut.build();
+    final vectors = [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'data': 0,
+        'valid': 0,
+        'ready': 0,
+      }, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'reset': 0, 'data': 0xa5, 'valid': 1}, {}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'valid': 0}, {'output_valid': 1, 'result': 0x31}),
+      Vector({'clk': 1}, {}),
+      Vector({'clk': 0, 'ready': 1}, {'output_valid': 1, 'result': 0x31}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
   });
 
   for (final (latency, interval, capacity, withId, multiCycle) in [
@@ -545,14 +875,14 @@ void main() {
   });
 
   test('wrapper validates timing, identity, and core result shape', () {
-    ReadyValidFixedLatency<Logic, Logic> create({
+    ReadyValidFixedLatency<Logic, Logic, Logic> create({
       int latency = 1,
       int initiationInterval = 1,
       int capacity = 2,
       String coreIdentity = 'ValidCore',
       Logic? result,
     }) =>
-        ReadyValidFixedLatency<Logic, Logic>(
+        ReadyValidFixedLatency<Logic, Logic, Logic>(
           clk: Logic(),
           reset: Logic(),
           upstream: ReadyValidInterface(Logic(width: 8)),
@@ -576,5 +906,26 @@ void main() {
     expect(() => create(coreIdentity: 'bad-name'), throwsArgumentError);
     expect(() => create(result: Logic(width: 7)), throwsArgumentError);
     expect(() => create(result: _Packet()), throwsArgumentError);
+    expect(
+        () => ReadyValidFixedLatency<Logic, FixedPoint, Logic>(
+              clk: Logic(),
+              reset: Logic(),
+              upstream: ReadyValidInterface(Logic(width: 8)),
+              downstream: ReadyValidInterface(
+                  FixedPoint(integerWidth: 3, fractionWidth: 4)),
+              latency: 0,
+              coreIdentity: 'WrongConstantFormat',
+              coreGenerator: ({
+                required clk,
+                required reset,
+                required start,
+                required data,
+              }) =>
+                  FixedPoint.constant(FixedPointValue.withSignedness(
+                      integer: LogicValue.ofInt(3, 4),
+                      fraction: LogicValue.ofInt(1, 4),
+                      signed: false)),
+            ),
+        throwsArgumentError);
   });
 }

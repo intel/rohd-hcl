@@ -281,7 +281,7 @@ class ReadyValidFixedLatencyConfigurator extends Configurator {
         if (useIdKnob.value) 'ID Width': idWidthKnob,
       };
   @override
-  Module createModule() => ReadyValidFixedLatency<Logic, Logic>(
+  Module createModule() => ReadyValidFixedLatency<Logic, Logic, Logic>(
         clk: Logic(name: 'clk'),
         reset: Logic(name: 'reset'),
         upstream: ReadyValidInterface(Logic(width: widthKnob.value)),

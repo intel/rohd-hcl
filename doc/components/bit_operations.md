@@ -34,12 +34,17 @@ the result is the input width.
 selected bits produce zero; multiple selected bits OR the selected words.
 `TypedPriorityMux<T>` selects the lowest-index asserted selector bit or a
 supplied default when none is asserted, preserving the payload type and layout.
+Structured constants are supported when their clones are driveable, including
+when the static payload type is `Logic`. Declared payload clones must preserve
+their runtime type and semantic format.
 The flat-port `PriorityMux` remains available but is deprecated.
 
 `BitwiseMux(selects, inputs)` makes an independent selection for each bit
 position. Each select and input has the same width, with one select per input.
 At each bit, selected inputs are ORed, so one-hot selection per bit is the
-intended use.
+intended use. `OneHotMux` and `BitwiseMux` are packed-bit operations: combining
+multiple words can produce a value that does not belong to a payload's semantic
+type. Use `TypedPriorityMux` when selecting an intact typed payload.
 
 ## First-Match Prefix
 

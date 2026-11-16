@@ -22,6 +22,8 @@ The FIFO has a configurable `depth`.
 multidimensional and rank-zero arrays). For array payloads, each FIFO entry is
 the entire array; no payload dimension is consumed. Array leaf codecs survive
 cloning.
+Structured constant `writeData` with a driveable clone retains its payload
+type even when widened to `Logic`.
 
 `FifoCoreFunctor<T>` and the existing ready/valid adapters preserve these
 schemas as well. `ReadyValidFifo<T>` accepts structure-derived payloads,

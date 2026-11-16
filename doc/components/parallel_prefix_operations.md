@@ -71,6 +71,8 @@ final Logic firstOneMask = finder.out;
 and output `val` lists. Structures, enums, floating/fixed-point signals, and
 typed arrays retain their recursive layouts, mappings, dimensions, and codecs.
 The output list is read-only.
+Structured constants with driveable clones retain their types when widened to
+`Logic`.
 
 ```dart
 Sample combine(Sample left, Sample right) =>

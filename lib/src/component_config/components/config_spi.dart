@@ -21,7 +21,7 @@ enum SpiRole {
   sub,
 }
 
-/// A [Configurator] for [SpiMain] and [SpiSub].
+/// A [Configurator] for [TypedSpiMain] and [TypedSpiSub].
 class SpiConfigurator extends Configurator {
   @override
   ComponentCategory get category => ComponentCategory.interfaces;
@@ -61,17 +61,19 @@ class SpiConfigurator extends Configurator {
   Module createModule() {
     final intf = SpiInterface(dataLength: dataLengthKnob.value);
     return roleKnob.value == SpiRole.main
-        ? SpiMain(
+        ? TypedSpiMain<Logic, Logic>(
             intf,
             clk: Logic(),
             reset: Logic(),
             start: Logic(),
             busIn: Logic(width: dataLengthKnob.value),
+            busOutSchema: Logic(width: dataLengthKnob.value),
           )
-        : SpiSub(
+        : TypedSpiSub<Logic, Logic>(
             intf: intf,
             busIn:
                 subBusInKnob.value ? Logic(width: dataLengthKnob.value) : null,
+            busOutSchema: Logic(width: dataLengthKnob.value),
             reset: subResetKnob.value ? Logic() : null,
           );
   }

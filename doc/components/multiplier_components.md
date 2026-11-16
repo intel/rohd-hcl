@@ -170,6 +170,8 @@ An argument to the `PartialProductGenerator` is the `RadixEncoder` to be used.
 The
 [RadixEncoder](https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html)
 takes a single argument which is the radix (power of 2) to be used.
+The resulting `RadixEncode` record preserves its row and field names when
+cloned, including when registered as a typed module port.
 
 Instead of using the 1's in the multiplier to select shifted versions of the
 multiplicand to add in a partial product matrix, radix-encoding will encode

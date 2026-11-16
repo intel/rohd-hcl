@@ -68,3 +68,5 @@ The complete record travels with its key. The comparison is propagated through
 all recursive sort and merge stages, in both ascending and descending modes. For
 scalar constant inputs, request `BitonicSort<Logic>(...)` explicitly so mutable
 ports and pipeline registers are not inferred as `Const`.
+Structured constants with driveable clones retain their payload type even when
+widened to `Logic`.

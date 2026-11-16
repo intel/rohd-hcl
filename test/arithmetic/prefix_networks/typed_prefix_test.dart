@@ -15,7 +15,6 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 enum _Topology { ripple, sklansky, koggeStone, brentKung }
@@ -73,6 +72,30 @@ class _Harness<T extends Logic> extends Module {
             (a, b) => mux<T>(a[0], a, b, outputGenerator: a.cloneTyped));
     for (var i = 0; i < count; i++) {
       addOutput('result$i', width: schema.width) <= tree.val[i];
+    }
+  }
+}
+
+FixedPoint _constantFixed(int value) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(value >> 4, 4),
+        fraction: LogicValue.ofInt(value & 0xf, 4)));
+
+class _ConstantHarness extends Module {
+  late final ParallelPrefix<Logic> tree;
+
+  _ConstantHarness(_Topology topology) {
+    tree = _tree<Logic>(
+      topology,
+      [_constantFixed(0x12), _constantFixed(0x15), _constantFixed(0x26)],
+      (a, b) {
+        expect(a, isA<FixedPoint>());
+        expect(b, isA<FixedPoint>());
+        return mux<Logic>(a[0], a, b, outputGenerator: a.cloneTyped);
+      },
+    );
+    for (var i = 0; i < tree.val.length; i++) {
+      addOutput('result$i', width: 8) <= tree.val[i];
     }
   }
 }
@@ -152,6 +175,30 @@ void main() {
 
   // Affine composition modulo 16 changes when operands are swapped.
   for (final topology in _Topology.values) {
+    test('structured constants preserve prefix payloads $topology', () async {
+      final dut = _ConstantHarness(topology);
+      expect(dut.tree.input('i0'), isA<FixedPoint>());
+      expect(dut.tree.val.every((value) => value is FixedPoint), isTrue);
+      await _compare(dut, [
+        Vector({}, {'result0': 0x12, 'result1': 0x15, 'result2': 0x15})
+      ]);
+      expect(
+          () => _tree<Logic>(
+              topology,
+              [
+                _constantFixed(0x12),
+                FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false),
+              ],
+              (a, b) => a),
+          throwsA(isA<RohdHclException>()));
+      final constantResult = _tree<Logic>(
+          topology,
+          [FixedPoint(integerWidth: 3, fractionWidth: 4), _constantFixed(0x12)],
+          (a, b) => _constantFixed(0x34));
+      expect(constantResult.val.last, isA<FixedPoint>());
+      expect(constantResult.val.last.value.toInt(), 0x34);
+    });
+
     for (final count in [1, 2, 3, 5, 8, 9, 17]) {
       test('noncommutative affine prefix $topology count=$count', () async {
         final dut = _Harness<_Affine>(topology, _Affine(),

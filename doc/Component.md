@@ -49,6 +49,13 @@ helpers where they apply, and document additional constraints. For scalar
 constants passed into generic constructors, explicitly select `Logic` when a
 mutable port is required, for example `Fifo<Logic>`.
 
+Signals with semantic formats beyond their layout can implement ROHD's
+`PayloadShapeMetadata`. Its identifier must be stable, domain-specific, and
+equal for compatible semantic formats. Include metadata for any subclass that
+changes the format. ROHD validates it on typed clones and input/inout ports;
+HCL shape checks and generated identities also use it, including when such
+signals are nested in structures or typed arrays.
+
 An `Interface` describes related signals and their directions; a `PairInterface`
 describes producer and consumer roles. Register cloned interfaces with ROHD's
 `addInterfacePorts` or `addPairInterfacePorts`, and use the registered internal

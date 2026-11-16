@@ -143,8 +143,7 @@ class SerializedCache<T extends Logic, M extends Logic, C extends Logic,
     final respond = inState(_CacheState.respond);
     final ownerWidth = max(1, (ports.length - 1).bitLength);
     final owner = Logic(name: 'owner', width: ownerWidth);
-    final requestBits = Logic(name: 'request_bits', width: requestSchema.width);
-    final savedRequest = requestSchema.clone()..gets(requestBits);
+    final savedRequest = requestSchema.cloneTyped(name: 'saved_request');
     final accepted = <Logic>[];
     Logic earlierValid = Const(0);
     for (var i = 0; i < ports.length; i++) {
@@ -159,15 +158,21 @@ class SerializedCache<T extends Logic, M extends Logic, C extends Logic,
       localPorts[i].tokenConflict <= conflict;
     }
     final accept = combine(accepted);
-    Logic incoming = Const(0, width: requestSchema.width);
+    var incoming = requestSchema.cloneTyped()
+      ..gets(Const(0, width: requestSchema.width));
     Logic incomingOwner = Const(0, width: ownerWidth);
     for (var i = ports.length - 1; i >= 0; i--) {
-      incoming = mux(accepted[i], requests[i].data, incoming);
+      incoming = mux<CacheTransactionRequest<T, M, C>>(
+          accepted[i], requests[i].data, incoming);
       incomingOwner =
           mux(accepted[i], Const(i, width: ownerWidth), incomingOwner);
     }
-    requestBits <=
-        flop(localClk, mux(accept, incoming, requestBits), reset: localReset);
+    savedRequest <=
+        flop<CacheTransactionRequest<T, M, C>>(
+            localClk,
+            mux<CacheTransactionRequest<T, M, C>>(
+                accept, incoming, savedRequest),
+            reset: localReset);
     owner <=
         flop(localClk, mux(accept, incomingOwner, owner), reset: localReset);
 

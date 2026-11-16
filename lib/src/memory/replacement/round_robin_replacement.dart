@@ -37,6 +37,8 @@ class RoundRobinReplacement extends ReplacementPolicy {
       select: (state, candidates) {
         final width = entryCount.bitLength;
         final pointer = state.zeroExtend(width);
+        // Keep the existing flattened module ports and generated definition.
+        // ignore: deprecated_member_use_from_same_package
         final selector = AssociativeMatchSelector(
           matchVector: candidates,
           selectionValues: [

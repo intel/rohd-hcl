@@ -37,6 +37,9 @@ final Packet received = rx.originalData;
 final Packet? corrected = rx.correctedData;
 ```
 
+Structured constant transmitter inputs with driveable clones retain their type
+when widened to `Logic`.
+
 The schema provides layout only: it is cloned, not driven, and its width must
 match the decoded payload. Structures, fixed/floating-point formats, enums, and
 typed arrays (including rank-zero arrays and custom codecs) are preserved.

@@ -46,14 +46,20 @@ class ValidOnlyInterface<LogicType extends Logic> extends PairInterface {
     Iterable<PairDirection>? inOutTags,
     String Function(String original)? uniquify,
   }) {
-    final input = inputTags?.contains(PairDirection.fromProvider) ?? false;
-    final output = outputTags?.contains(PairDirection.fromProvider) ?? false;
+    final inputTagSet = inputTags?.toSet();
+    final outputTagSet = outputTags?.toSet();
+    final inOutTagSet = inOutTags?.toSet();
+    final input = inputTagSet?.contains(PairDirection.fromProvider) ?? false;
+    final output = outputTagSet?.contains(PairDirection.fromProvider) ?? false;
+    if ((input || output) &&
+        (inOutTagSet?.contains(PairDirection.fromProvider) ?? false)) {
+      throw PortTypeException.forIntendedName(
+          data.name, 'Valid-only provider ports cannot also be inOut ports.');
+    }
     if (input || output) {
       final source = srcInterface.port(data.name);
-      if (source.width != data.width ||
-          (((source is LogicStructure && data is LogicStructure) ||
-                  (source is LogicEnum && data is LogicEnum)) &&
-              !sameDeclaredPayloadShape(data, source))) {
+      if (!compatiblePayloadConnection(data, source,
+          ignoreConstantNames: true)) {
         throw PortTypeException.forIntendedName(
             data.name, 'Valid-only payload shape does not match.');
       }
@@ -64,7 +70,7 @@ class ValidOnlyInterface<LogicType extends Logic> extends PairInterface {
         data <= module.addTypedInput(name, bridge);
       }
       if (output) {
-        final registered = module.addTypedOutput(name, data.cloneTyped);
+        final registered = addTypedPayloadOutput(module, name, data);
         registered <= data;
         source <= registered;
       }
@@ -72,9 +78,9 @@ class ValidOnlyInterface<LogicType extends Logic> extends PairInterface {
     _suppressPayload = input || output;
     try {
       super.connectIO(module, srcInterface,
-          inputTags: inputTags,
-          outputTags: outputTags,
-          inOutTags: inOutTags,
+          inputTags: inputTagSet,
+          outputTags: outputTagSet,
+          inOutTags: inOutTagSet,
           uniquify: uniquify);
     } finally {
       _suppressPayload = false;
@@ -83,5 +89,5 @@ class ValidOnlyInterface<LogicType extends Logic> extends PairInterface {
 
   @override
   ValidOnlyInterface<LogicType> clone() =>
-      ValidOnlyInterface(data.cloneTyped());
+      ValidOnlyInterface(cloneInterfacePayload<LogicType>(data));
 }

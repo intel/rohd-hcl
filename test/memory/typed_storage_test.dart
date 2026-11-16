@@ -28,6 +28,37 @@ class _Word extends LogicStructure {
   _Word clone({String? name}) => _Word(name: name ?? this.name);
 }
 
+class _MisclonedField extends GfLogic {
+  final BinaryExtensionField cloneField;
+  final int clonesBeforeChange;
+
+  _MisclonedField(super.field, this.cloneField,
+      {this.clonesBeforeChange = 0, super.name});
+
+  @override
+  _MisclonedField clone({String? name}) => _MisclonedField(
+      clonesBeforeChange == 0 ? cloneField : field, cloneField,
+      clonesBeforeChange: clonesBeforeChange == 0 ? 0 : clonesBeforeChange - 1,
+      name: name ?? this.name);
+}
+
+class _MisclonedNet extends LogicNet implements PayloadShapeMetadata {
+  final int clonesBeforeChange;
+
+  @override
+  final String payloadShapeMetadata;
+
+  _MisclonedNet(this.payloadShapeMetadata,
+      {this.clonesBeforeChange = 0, super.name})
+      : super(width: 8);
+
+  @override
+  _MisclonedNet clone({String? name}) => _MisclonedNet(
+      clonesBeforeChange == 0 ? 'changed' : payloadShapeMetadata,
+      clonesBeforeChange: clonesBeforeChange == 0 ? 0 : clonesBeforeChange - 1,
+      name: name ?? this.name);
+}
+
 enum _Phase { idle, busy, done }
 
 typedef _WordValue = ({LogicValue low, LogicValue high});
@@ -40,6 +71,18 @@ LogicValue _encodeWord(_WordValue value) =>
 
 const _wordCodec =
     LogicValueCodec<_WordValue>(decode: _decodeWord, encode: _encodeWord);
+
+class _PortRegistration extends Module {}
+
+class _MemoryControlOnly extends Interface<DataPortGroup> {
+  _MemoryControlOnly() {
+    setPorts(
+        [Logic.port('en'), Logic.port('addr', 2)], [DataPortGroup.control]);
+  }
+
+  @override
+  _MemoryControlOnly clone() => _MemoryControlOnly();
+}
 
 class _RegisterHarness<T extends Logic> extends Module {
   late final RegisterFile<T> rf;
@@ -70,6 +113,32 @@ class _RegisterHarness<T extends Logic> extends Module {
     rf = RegisterFile<T>(clk, reset, [first, second], [read],
         numEntries: 3, resetValue: [1, 2, 1]);
     addOutput('result', width: schema.width) <= rf.rdData(0);
+  }
+}
+
+class _PackedBridgeHarness extends Module {
+  late final RegisterFile<Logic> rf;
+
+  _PackedBridgeHarness() {
+    final packedWrite = DataPortInterface<Logic>(8, 2);
+    final typedWrite = DataPortInterface<Logic>.typed(_Word(), 2);
+    final typedRead = DataPortInterface<Logic>.typed(_Word(), 2);
+    packedWrite.en <= addInput('write', Logic());
+    packedWrite.addr <= addInput('address', Logic(width: 2), width: 2);
+    packedWrite.data <= addInput('data', Logic(width: 8), width: 8);
+    typedWrite.en <= Const(0);
+    typedWrite.addr <= Const(0, width: 2);
+    typedWrite.data <= Const(0, width: 8);
+    typedRead.en <= addInput('read', Logic());
+    typedRead.addr <= packedWrite.addr;
+    rf = RegisterFile<Logic>(
+      addInput('clk', Logic()),
+      addInput('reset', Logic()),
+      [packedWrite, typedWrite],
+      [typedRead],
+      numEntries: 3,
+    );
+    addOutput('result', width: 8) <= typedRead.data;
   }
 }
 
@@ -227,6 +296,178 @@ void _checkStorage<T extends Logic>(String label, T schema,
 void main() {
   tearDown(Simulator.reset);
 
+  final firstField =
+      BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(0x11b)));
+  final secondField =
+      BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(0x11d)));
+  final malformedSchema = _MisclonedField(firstField, secondField);
+  final schemaConstructors = <String, Object Function()>{
+    'memory': () => DataPortInterface<Logic>.typed(malformedSchema, 2),
+    'masked memory': () =>
+        MaskedDataPortInterface<Logic>.typed(malformedSchema, 2),
+    'CAM tag': () => TagInterface<Logic>.typed(2, malformedSchema),
+    'associative update': () => TypedAssociativeUpdatePortInterface<Logic>(
+        malformedSchema,
+        indexWidth: 2),
+    'associative lookup': () => TypedAssociativeLookupPortInterface<Logic>(
+        malformedSchema,
+        indexWidth: 2),
+    'synchronous lookup': () =>
+        TypedSynchronousAssociativeLookupPortInterface<Logic>(malformedSchema,
+            indexWidth: 2),
+    'associative side read': () =>
+        TypedAssociativeIndexedSideReadResponse<Logic>(malformedSchema),
+    'cache lookup': () =>
+        CacheLookupPort<Logic>(addressWidth: 2, dataSchema: malformedSchema),
+    'cache fill': () =>
+        CacheFillPort<Logic>(addressWidth: 2, dataSchema: malformedSchema),
+  };
+  for (final entry in schemaConstructors.entries) {
+    test('${entry.key} rejects a clone with changed payload metadata', () {
+      expect(entry.value, throwsA(isA<LogicConstructionException>()));
+    });
+  }
+
+  for (final output in [false, true]) {
+    for (final unchangedClones in output ? [1] : [1, 2]) {
+      test(
+          'memory ${output ? 'output' : 'input'} rejects a changed port clone '
+          'after $unchangedClones unchanged clones', () {
+        final schema = _MisclonedField(firstField, secondField,
+            clonesBeforeChange: unchangedClones);
+        final target = DataPortInterface<Logic>.typed(schema, 2);
+        final packedSource = DataPortInterface<Logic>(schema.width, 2);
+        expect(
+            () => target.connectIO(_PortRegistration(), packedSource,
+                inputTags: output ? null : [DataPortGroup.data],
+                outputTags: output ? [DataPortGroup.data] : null),
+            throwsA(anyOf(
+                isA<LogicConstructionException>(), isA<PortTypeException>())));
+      });
+    }
+  }
+  for (final unchangedClones in [1, 2]) {
+    test('memory inout rejects a changed clone after $unchangedClones clones',
+        () {
+      final schema =
+          _MisclonedNet('original', clonesBeforeChange: unchangedClones);
+      final target = DataPortInterface<Logic>.typed(schema, 2);
+      final source = DataPortInterface<Logic>.typed(LogicNet(width: 8), 2);
+      expect(
+          () => target.connectIO(_PortRegistration(), source,
+              inOutTags: [DataPortGroup.data]),
+          throwsA(anyOf(
+              isA<LogicConstructionException>(), isA<PortTypeException>())));
+    });
+  }
+
+  test('memory output rejects a constant clone flattened by registration', () {
+    final schema = LogicStructure([Const(0, width: 8)], name: 'data');
+    final target = DataPortInterface<Logic>.typed(schema, 2);
+    final source = DataPortInterface<Logic>(8, 2);
+    expect(
+        () => target.connectIO(_PortRegistration(), source,
+            outputTags: [DataPortGroup.data]),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('unselected memory payloads do not constrain port registration', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+
+    final memoryTarget = DataPortInterface<Logic>.typed(GfLogic(first), 2);
+    final memorySource = DataPortInterface<Logic>.typed(GfLogic(second), 2);
+    final memoryModule = _PortRegistration();
+    memoryTarget.connectIO(memoryModule, memorySource,
+        inputTags: [DataPortGroup.control]);
+    expect(memoryModule.inputs.keys, containsAll(['en', 'addr']));
+    expect(memoryModule.inputs, isNot(contains('data')));
+    final controlOnly = _PortRegistration();
+    DataPortInterface<Logic>.typed(GfLogic(first), 2).connectIO(
+        controlOnly, _MemoryControlOnly(),
+        inputTags: [DataPortGroup.control]);
+    expect(controlOnly.inputs.keys, containsAll(['en', 'addr']));
+    expect(
+        () => DataPortInterface<Logic>.typed(GfLogic(first), 2).connectIO(
+            _PortRegistration(), memorySource,
+            inputTags: [DataPortGroup.data]),
+        throwsA(isA<PortTypeException>()));
+    expect(
+        () => DataPortInterface<Logic>.typed(GfLogic(first), 2).connectIO(
+            _PortRegistration(), memorySource,
+            outputTags: [DataPortGroup.data]),
+        throwsA(isA<PortTypeException>()));
+
+    final updateTarget = TypedAssociativeUpdatePortInterface<Logic>(
+        GfLogic(first),
+        indexWidth: 2);
+    final updateSource = TypedAssociativeUpdatePortInterface<Logic>(
+        GfLogic(second),
+        indexWidth: 2);
+    final updateModule = _PortRegistration();
+    updateTarget.connectIO(updateModule, updateSource,
+        inputTags: [DataPortGroup.control]);
+    expect(updateModule.inputs.keys, containsAll(['en', 'index']));
+    expect(updateModule.inputs, isNot(contains('key')));
+    expect(
+        () => TypedAssociativeUpdatePortInterface<Logic>(GfLogic(first),
+                indexWidth: 2)
+            .connectIO(_PortRegistration(), updateSource,
+                inputTags: [DataPortGroup.data]),
+        throwsA(isA<PortTypeException>()));
+
+    final lookupTarget = TypedAssociativeLookupPortInterface<Logic>(
+        GfLogic(first),
+        indexWidth: 2);
+    final lookupSource = TypedAssociativeLookupPortInterface<Logic>(
+        GfLogic(second),
+        indexWidth: 2);
+    final lookupModule = _PortRegistration();
+    lookupTarget.connectIO(lookupModule, lookupSource,
+        outputTags: [DataPortGroup.data]);
+    expect(lookupModule.outputs.keys, containsAll(['hit', 'index']));
+    expect(lookupModule.inputs, isNot(contains('key')));
+    expect(
+        () => TypedAssociativeLookupPortInterface<Logic>(GfLogic(first),
+                indexWidth: 2)
+            .connectIO(_PortRegistration(), lookupSource,
+                inputTags: [DataPortGroup.control]),
+        throwsA(isA<PortTypeException>()));
+
+    final camTarget = TagInterface<Logic>.typed(2, GfLogic(first));
+    final camSource = TagInterface<Logic>.typed(2, GfLogic(second));
+    final camModule = _PortRegistration();
+    camTarget.connectIO(camModule, camSource, outputTags: [DataPortGroup.data]);
+    expect(camModule.outputs.keys, containsAll(['hit', 'idx']));
+    expect(camModule.inputs, isNot(contains('tag')));
+    expect(
+        () => TagInterface<Logic>.typed(2, GfLogic(first)).connectIO(
+            _PortRegistration(), camSource,
+            inputTags: [DataPortGroup.control]),
+        throwsA(isA<PortTypeException>()));
+  });
+
+  test('typed memory inout connects nets bidirectionally', () {
+    final external = DataPortInterface<LogicNet>.typed(LogicNet(width: 3), 2);
+    final module = _PortRegistration();
+    final internal =
+        module.addInterfacePorts(external, inOutTags: [DataPortGroup.data]);
+    final outsideDrive = Logic(width: 3)
+      ..put(LogicValue.filled(3, LogicValue.z));
+    final insideDrive = Logic(width: 3)
+      ..put(LogicValue.filled(3, LogicValue.z));
+    external.data <= outsideDrive;
+    internal.data <= insideDrive;
+
+    insideDrive.put(5);
+    expect(external.data.value.toInt(), 5);
+    insideDrive.put(LogicValue.filled(3, LogicValue.z));
+    outsideDrive.put(3);
+    expect(internal.data.value.toInt(), 3);
+  });
+
   for (final schema in <Logic>[
     Logic(width: 8),
     LogicEnum<_Phase>(_Phase.values),
@@ -356,6 +597,77 @@ void main() {
             [DataPortInterface.typed(second, 2)]),
         throwsA(isA<RohdHclException>()));
     expect(payloadShapeIdentity(first), isNot(payloadShapeIdentity(second)));
+  });
+
+  test('packed memory port cannot hide incompatible declared formats', () {
+    for (final behavioral in [false, true]) {
+      for (final packedIsWrite in [false, true]) {
+        final packed = DataPortInterface<Logic>(8, 2);
+        final signed = DataPortInterface<Logic>.typed(
+            FixedPoint(integerWidth: 3, fractionWidth: 4), 2);
+        final unsigned = DataPortInterface<Logic>.typed(
+            FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false), 2);
+        final writes = packedIsWrite ? [packed] : <DataPortInterface<Logic>>[];
+        final reads =
+            packedIsWrite ? [signed, unsigned] : [packed, signed, unsigned];
+        expect(
+          () => behavioral
+              ? MemoryModel<Logic>.registerFile(Logic(), Logic(), writes, reads,
+                  numEntries: 3)
+              : RegisterFile<Logic>(Logic(), Logic(), writes, reads,
+                  numEntries: 3),
+          throwsA(isA<RohdHclException>()),
+          reason: 'behavioral=$behavioral packedIsWrite=$packedIsWrite',
+        );
+      }
+    }
+
+    final first = TypedLogicArray<Logic, LogicValue>(
+        [2], ({name}) => Logic(width: 4, name: name));
+    final second = TypedLogicArray<Logic, LogicValue>(
+        [4], ({name}) => Logic(width: 2, name: name));
+    expect(
+      () => RegisterFile<Logic>(
+        Logic(),
+        Logic(),
+        [DataPortInterface<Logic>(8, 2)],
+        [
+          DataPortInterface<Logic>.typed(first, 2),
+          DataPortInterface<Logic>.typed(second, 2),
+        ],
+      ),
+      throwsA(isA<RohdHclException>()),
+    );
+  });
+
+  test('packed-first memory accepts matching typed payloads', () async {
+    final dut = _PackedBridgeHarness();
+    expect(dut.rf.rdData(0), isA<_Word>());
+    final model = MemoryModel<Logic>.registerFile(
+      Logic(),
+      Logic(),
+      [
+        DataPortInterface<Logic>(8, 2),
+        DataPortInterface<Logic>.typed(_Word(), 2),
+      ],
+      [DataPortInterface<Logic>.typed(_Word(), 2)],
+      numEntries: 3,
+    );
+    expect(model.input('wr_data_1'), isA<_Word>());
+    await _compare(dut, [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'write': 0,
+        'read': 1,
+        'address': 1,
+        'data': 0xab,
+      }, {}),
+      Vector({'clk': 1}, {'result': 0}),
+      Vector({'clk': 0, 'reset': 0, 'write': 1}, {}),
+      Vector({'clk': 1}, {'result': 0xab}),
+      Vector({'clk': 0, 'write': 0}, {'result': 0xab}),
+    ]);
   });
 
   test('typed memory clones preserve codec and reject incompatible codecs', () {

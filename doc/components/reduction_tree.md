@@ -6,6 +6,8 @@
 `T` and optional control type `C`, including structures, enum mappings, and
 typed-array shapes/codecs. Their `out` and `controlOut` handles are typed, and
 pipelined payloads retain their schemas across enable stalls and resets.
+The module form also preserves structured constant data and control with
+driveable clones when widened to `Logic`.
 
 Operations have this signature:
 
@@ -14,10 +16,11 @@ T operation(List<T> inputs, {int depth, C? control, String name});
 ```
 
 `T` describes a signal family, not a fixed bit width. A typed operation may
-produce a wider format and align its own fields at the next node. Structures and
-enums are never automatically flattened or bit-extended. Plain `Logic`
-reductions retain their existing sign/zero-extension behavior. An operation must
-also handle a singleton on an unbalanced branch.
+produce a wider format and align its own fields at the next node. Structures,
+enums, and signals declaring semantic payload metadata are never automatically
+flattened or bit-extended. Plain `Logic` reductions retain their existing
+sign/zero-extension behavior. An operation must also handle a singleton on an
+unbalanced branch.
 
 For bit-oriented callbacks and scalar constants, explicitly use
 `ReductionTree<Logic, Logic>(...)` or `ReductionTreeGenerator<Logic,

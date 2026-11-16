@@ -13,6 +13,7 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/arithmetic/floating_point/explicit_j_bit_canonicalization.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A converter module between different [FloatingPoint] logic signals.
 class FloatingPointConverter<FpTypeIn extends FloatingPoint,
@@ -109,7 +110,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     destMantissaWidth = destination.mantissa.width;
     source = addTypedInput('source', source);
 
-    final destOut = addTypedOutput('destination', _destination.cloneTyped);
+    final destOut = addTypedPayloadOutput(this, 'destination', _destination);
     destOut <= _destination;
     destination <= destOut;
     _status = FloatingPointStatus(name: 'internalStatus');
@@ -166,7 +167,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               mantissaWidth: destMantissaWidth - 1,
               name: 'implicit_destination',
             )
-          : destination.clone(name: 'implicit_destination');
+          : destination.cloneTyped(name: 'implicit_destination');
       final converter = FloatingPointConverter(
         implicitSource,
         implicitDestination,

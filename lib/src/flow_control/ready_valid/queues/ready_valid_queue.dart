@@ -125,6 +125,7 @@ class ReadyValidQueue<LogicType extends Logic> extends Module
       throw ArgumentError(
           'Queue thresholds must be between zero and depth inclusive.');
     }
+    downstream.validatePayloadCompatibility(upstream.data);
 
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);

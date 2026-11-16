@@ -27,19 +27,20 @@ typedef FixedLatencyCoreGenerator<Input extends Logic, Output extends Logic>
   required Input data,
 });
 
-class _FixedLatencyResult<T extends Logic> extends LogicStructure {
+class _FixedLatencyResult<T extends Logic, Id extends Logic>
+    extends LogicStructure {
   T get payload => elements[0] as T;
-  Logic? get id => elements.length == 1 ? null : elements[1];
+  Id? get id => elements.length == 1 ? null : elements[1] as Id;
 
-  _FixedLatencyResult(T schema, int? idWidth, {String? name})
+  _FixedLatencyResult(T schema, Id? idSchema, {String? name})
       : super([
           schema.cloneTyped(name: 'payload'),
-          if (idWidth != null) Logic(name: 'id', width: idWidth),
+          if (idSchema != null) idSchema.cloneTyped(name: 'id'),
         ], name: name ?? 'result');
 
   @override
-  _FixedLatencyResult<T> clone({String? name}) =>
-      _FixedLatencyResult(payload, id?.width, name: name ?? this.name);
+  _FixedLatencyResult<T, Id> clone({String? name}) =>
+      _FixedLatencyResult(payload, id, name: name ?? this.name);
 }
 
 /// Ready/valid admission and result retention around a fixed-latency core.
@@ -49,8 +50,8 @@ class _FixedLatencyResult<T extends Logic> extends LogicStructure {
 /// Optional IDs are captured with accepted inputs and returned with outputs.
 /// Results remain ordered and valid until accepted.
 /// {@category Flow Control}
-class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
-    extends Module {
+class ReadyValidFixedLatency<Input extends Logic, Output extends Logic,
+    Id extends Logic> extends Module {
   /// Configured number of core cycles from acceptance to completion.
   final int latency;
 
@@ -66,7 +67,7 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
   final bool _hasId;
 
   /// ID associated with the offered output, or null when IDs are disabled.
-  Logic? get resultId => _hasId ? output('result_id') : null;
+  Id? get resultId => _hasId ? output('result_id') as Id : null;
 
   /// High on a scheduling or result-buffer overflow error.
   Logic get error => output('error');
@@ -75,7 +76,9 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
   ///
   /// [coreIdentity] must uniquely identify the generated core configuration
   /// and be a valid SystemVerilog identifier fragment. [requestId], when
-  /// supplied, must remain stable alongside a stalled input payload.
+  /// supplied, retains its declared schema even when [Id] is [Logic] and
+  /// must remain stable alongside a stalled input payload. Use [Logic] as
+  /// [Id] when IDs are omitted.
   /// [capacity] defaults to `latency + 1` and may be reduced at the cost of
   /// throughput. Reset discards all outstanding requests and results.
   ReadyValidFixedLatency({
@@ -88,7 +91,7 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
     required this.latency,
     this.initiationInterval = 1,
     int? capacity,
-    Logic? requestId,
+    Id? requestId,
     String name = 'ready_valid_fixed_latency',
   })  : capacity = capacity ?? latency + 1,
         _hasId = requestId != null,
@@ -97,6 +100,7 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
           definitionName: 'ReadyValidFixedLatency_${coreIdentity}_'
               'L${latency}_I${initiationInterval}_C${capacity ?? latency + 1}_'
               'Id${requestId?.width ?? 0}_'
+              '${requestId == null ? 'none' : payloadShapeIdentity(requestId)}_'
               '${payloadShapeIdentity(upstream.data)}_'
               '${payloadShapeIdentity(downstream.data)}',
         ) {
@@ -134,9 +138,10 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
       PairRole.provider,
       uniquify: (original) => 'downstream_$original',
     );
-    if (requestId != null) {
-      requestId = addInput('request_id', requestId, width: requestId.width);
-      addOutput('result_id', width: requestId.width);
+    final localId =
+        requestId == null ? null : addTypedInput<Id>('request_id', requestId);
+    if (localId != null) {
+      addTypedPayloadOutput<Id>(this, 'result_id', localId);
     }
 
     final retire = Logic(name: 'retire');
@@ -157,29 +162,32 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic>
       start: tracker.accepted,
       data: input.data,
     );
-    if (!sameDeclaredPayloadShape(downstream.data, result)) {
+    if (!sameDeclaredPayloadShape(downstream.data, result,
+        ignoreConstantNames: true)) {
       throw ArgumentError(
           'Core result must match the downstream payload shape.');
     }
 
-    Logic? delayedId;
-    if (requestId != null) {
-      var id = requestId;
+    Id? delayedId;
+    if (localId != null) {
+      var id = localId;
       for (var stage = 0; stage < latency; stage++) {
-        id = flop(clk, id);
+        id = flop<Id>(clk, id,
+            outputGenerator:
+                hasDeclaredPayloadShape(id) ? id.cloneTyped : null);
       }
       delayedId = id;
     }
-    final queueInput =
-        ReadyValidInterface(_FixedLatencyResult(output.data, delayedId?.width));
-    final queueOutput =
-        ReadyValidInterface(_FixedLatencyResult(output.data, delayedId?.width));
+    final queueInput = ReadyValidInterface(
+        _FixedLatencyResult<Output, Id>(output.data, delayedId));
+    final queueOutput = ReadyValidInterface(
+        _FixedLatencyResult<Output, Id>(output.data, delayedId));
     queueInput.data.payload <= result;
     if (delayedId != null) {
       queueInput.data.id! <= delayedId;
     }
     queueInput.valid <= tracker.completed;
-    ReadyValidQueue<_FixedLatencyResult<Output>>(
+    ReadyValidQueue<_FixedLatencyResult<Output, Id>>(
       clk: clk,
       reset: reset,
       upstream: queueInput,

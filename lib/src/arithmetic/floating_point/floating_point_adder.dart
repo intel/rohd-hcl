@@ -10,6 +10,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// An abstract API for floating point adders.
 abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
@@ -94,14 +95,14 @@ abstract class FloatingPointAdder<FpTypeIn extends FloatingPoint,
     this.a = addTypedInput('a', a);
     this.b = addTypedInput('b', b);
 
-    internalSum =
-        (outSum ?? (a.explicitJBit ? b : a)).clone(name: 'outSum') as FpTypeOut;
+    internalSum = (outSum ?? (a.explicitJBit ? b : a))
+        .cloneTyped(name: 'outSum') as FpTypeOut;
 
     exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
     mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
 
     // expose typed output and drive it from internalSum
-    sum = addTypedOutput('sum', internalSum.cloneTyped);
+    sum = addTypedPayloadOutput(this, 'sum', internalSum);
     sum <= internalSum;
     internalStatus = FloatingPointStatus(name: 'internalStatus');
     status = addTypedOutput('status', internalStatus.clone);

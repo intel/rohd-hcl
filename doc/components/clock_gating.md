@@ -78,6 +78,10 @@ free clock and honor the supplied `resetValue`. Repeated calls with the same
 signal return the same delayed signal. When gating is absent or delays are
 disabled, the original signal is returned unchanged. Request
 `controlled<Logic>(Const(...))` for a driveable delayed scalar constant.
+When reset values are signals, their declared payload formats must match the
+controlled signal; a plain packed signal supplies raw reset bits.
+Structured constants with driveable clones retain their types when widened to
+`Logic`, including signal-valued resets.
 
 The `ClockGateControlInterface` comes with an optional `enableOverride` which
 can force the clocks to always be enabled. It also contains a boolean
@@ -85,6 +89,11 @@ can force the clocks to always be enabled. It also contains a boolean
 Since configuration information is automatically carried down through the
 hierarchy, this means you *can turn on or off clock gating generation through an
 entire hierarchy without modifying your design*.
+
+Additional clock-gate control ports retain declared payload types and layouts
+across interface registration. Declared source and destination formats must
+match; a plain packed signal can bridge a typed control payload. Clones must
+preserve the declared payload type and format.
 
 Suppose now we wanted to add our own custom clock gating module implementation.
 This implementation may require some additional signals as well. When we pass a

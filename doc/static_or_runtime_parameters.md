@@ -41,7 +41,11 @@ final operand = signParameter.select(signedOperand, unsignedOperand,
 In an inline generator that does not own ports, omit `module` and supply a
 control already bound to the enclosing module. As with ROHD's `mux`, use
 `select<Logic>(Const(1), Const(0))` when both inputs are scalar constants and
-the selector is runtime-configurable.
+the selector is runtime-configurable. Declared payload formats must match;
+plain packed signals can bridge formats. A dynamic runtime selection preserves
+the false operand's declared schema, even when its static type is `Logic`; a
+constant runtime selector returns the selected input directly. Structured
+constant operands with matching formats are supported.
 
 ## General Controls
 
@@ -68,16 +72,19 @@ that need to validate or convert untyped values.
 
 By default, runtime inputs are flattened. Use `resolveTyped` or
 `getTypedRuntimeInput` to use ROHD's typed input registration, including its
-handling of constants. An incompatible existing input is rejected rather than
-silently reused. Set `reuseExisting: false` to require a new input instead of
-reusing one.
+handling of constants. Structured signals containing constants retain their
+schema when their clone is driveable; a plain scalar constant becomes a `Logic`
+input. An incompatible existing input is rejected rather than silently reused.
+Set `reuseExisting: false` to require a new input instead of reusing one.
 
 ## Passing Parameters to Child Components
 
 Use `forChild(parent)` to preserve the static choice or pass the parent's
 internal runtime input to a child component. It creates that input if needed;
 the optional `name` changes the child's input name. The boolean specialization
-retains its type.
+retains its type. For a structured runtime control, call
+`getTypedRuntimeInput(parent)` first and use `getTypedRuntimeInput(child)` on
+the returned control to preserve its schema across both boundaries.
 
 Use `tryRuntimeInput` to retrieve an already-created input without creating it,
 or `getRuntimeInput` to create one if needed. Reusing an input name for a

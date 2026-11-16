@@ -177,36 +177,41 @@ class DataPortInterface<LogicType extends Logic>
       Iterable<DataPortGroup>? outputTags,
       Iterable<DataPortGroup>? inOutTags,
       String Function(String original)? uniquify}) {
-    final source = srcInterface.port('data');
-    if (source.width != dataWidth ||
-        (((source is LogicStructure && data is LogicStructure) ||
-                (source is LogicEnum && data is LogicEnum)) &&
-            !sameHclPayloadShape(data, source))) {
-      throw PortTypeException.forIntendedName(
-          'data',
-          'Memory payload layout does not match '
-              '${payloadShapeIdentity(data)}.');
+    final inputs = inputTags?.toSet();
+    final outputs = outputTags?.toSet();
+    final inOuts = inOutTags?.toSet();
+    final isInput = inputs?.contains(DataPortGroup.data) ?? false;
+    final isOutput = outputs?.contains(DataPortGroup.data) ?? false;
+    final isInOut = inOuts?.contains(DataPortGroup.data) ?? false;
+    if (isInput || isOutput || isInOut) {
+      final source = srcInterface.port('data');
+      if (!compatiblePayloadConnection(data, source)) {
+        throw PortTypeException.forIntendedName(
+            'data',
+            'Memory payload layout does not match '
+                '${payloadShapeIdentity(data)}.');
+      }
+      final dataName = uniquify?.call('data') ?? 'data';
+      if (isInput) {
+        final bridge = data.cloneTyped(name: 'data_input_bridge')..gets(source);
+        data <= module.addTypedInput(dataName, bridge);
+      }
+      if (isOutput) {
+        final output = addTypedPayloadOutput(module, dataName, data);
+        output <= data;
+        source <= output;
+      }
+      if (isInOut) {
+        final bridge = data.cloneTyped(name: 'data_inout_bridge')..gets(source);
+        data <= module.addTypedInOut(dataName, bridge);
+      }
     }
-    final dataName = uniquify?.call('data') ?? 'data';
-    if (inputTags?.contains(DataPortGroup.data) ?? false) {
-      final bridge = data.cloneTyped(name: 'data_input_bridge')..gets(source);
-      data <= module.addTypedInput(dataName, bridge);
-    }
-    if (outputTags?.contains(DataPortGroup.data) ?? false) {
-      final output = module.addTypedOutput(dataName, data.cloneTyped);
-      output <= data;
-      source <= output;
-    }
-    if (inOutTags?.contains(DataPortGroup.data) ?? false) {
-      final bridge = data.cloneTyped(name: 'data_inout_bridge')..gets(source);
-      data <= module.addTypedInOut(dataName, bridge);
-    }
-    _suppressData = true;
+    _suppressData = isInput || isOutput || isInOut;
     try {
       super.connectIO(module, srcInterface,
-          inputTags: inputTags,
-          outputTags: outputTags,
-          inOutTags: inOutTags,
+          inputTags: inputs,
+          outputTags: outputs,
+          inOutTags: inOuts,
           uniquify: uniquify);
     } finally {
       _suppressData = false;
@@ -295,9 +300,7 @@ abstract class Memory<LogicType extends Logic> extends Module {
       throw RohdHclException('Read latency must be non-negative.');
     }
 
-    final prototype =
-        (writePorts.isNotEmpty ? writePorts.first : readPorts.first).data;
-    // make sure widths of everything match expectations
+    Logic? declaredSchema;
     for (final port in [...writePorts, ...readPorts]) {
       if (port.addrWidth != addrWidth) {
         throw RohdHclException('All ports must have the same address width.');
@@ -305,11 +308,13 @@ abstract class Memory<LogicType extends Logic> extends Module {
       if (port.dataWidth != dataWidth) {
         throw RohdHclException('All ports must have the same data width.');
       }
-      if (((prototype is LogicStructure && port.data is LogicStructure) ||
-              (prototype is LogicEnum && port.data is LogicEnum)) &&
-          !sameHclPayloadShape(prototype, port.data)) {
-        throw RohdHclException('All memory ports must have matching payload '
-            'layouts and value codecs.');
+      if (hasDeclaredPayloadShape(port.data)) {
+        if (declaredSchema != null &&
+            !sameDeclaredPayloadShape(declaredSchema, port.data)) {
+          throw RohdHclException('All memory ports must have matching payload '
+              'layouts and value codecs.');
+        }
+        declaredSchema ??= port.data;
       }
     }
 

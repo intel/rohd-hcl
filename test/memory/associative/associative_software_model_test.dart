@@ -13,6 +13,7 @@ library;
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
@@ -67,8 +68,334 @@ class _Key extends LogicStructure {
       _Key(name: name ?? this.name, secondName: second.name);
 }
 
+enum _Priority { low, high }
+
+LogicEnum<_Priority> _priority({String? name}) =>
+    LogicEnum.withMapping({_Priority.high: 2, _Priority.low: 1},
+        width: 2, name: name);
+
+class _EnumKey extends LogicStructure {
+  _EnumKey({String? name})
+      : super([_priority(name: 'priority'), Logic(name: 'tag')],
+            name: name ?? 'enumKey');
+
+  LogicEnum<_Priority> get priority => elements.first as LogicEnum<_Priority>;
+
+  @override
+  _EnumKey clone({String? name}) => _EnumKey(name: name ?? this.name);
+}
+
+class _EnumSelectorHarness extends Module {
+  _EnumSelectorHarness({required bool nested}) {
+    final inputs = List.generate(
+        2,
+        (index) => addInput('value$index', Logic(width: nested ? 3 : 2),
+            width: nested ? 3 : 2));
+    final matches = addInput('matchMask', Logic(width: 2), width: 2);
+    final TypedAssociativeMatchSelector selector;
+    if (nested) {
+      selector = TypedAssociativeMatchSelector<_EnumKey>(
+        matchVector: matches,
+        selectionValues: [
+          _EnumKey()..gets(inputs[0]),
+          _EnumKey()..gets(inputs[1]),
+        ],
+        preference: (
+                {required candidateValue,
+                required selectedValue,
+                required candidateIndex,
+                required selectedIndex,
+                required name}) =>
+            candidateValue.priority.lt(selectedValue.priority),
+      );
+    } else {
+      selector = TypedAssociativeMatchSelector<LogicEnum<_Priority>>(
+        matchVector: matches,
+        selectionValues: [
+          _priority()..gets(inputs[0]),
+          _priority()..gets(inputs[1]),
+        ],
+      );
+    }
+    addOutput('valid') <= selector.valid;
+    addOutput('index') <= selector.selectedIndex;
+    addOutput('oneHot', width: 2) <= selector.selectedOneHot;
+  }
+}
+
+class _SignedSelectorHarness extends Module {
+  _SignedSelectorHarness() {
+    final values = List.generate(2, (index) {
+      final bits = addInput('value$index', Logic(width: 4), width: 4);
+      return FixedPoint(integerWidth: 2, fractionWidth: 1)..gets(bits);
+    });
+    final selector = TypedAssociativeMatchSelector<FixedPoint>(
+      matchVector: addInput('matchMask', Logic(width: 2), width: 2),
+      selectionValues: values,
+    );
+    addOutput('valid') <= selector.valid;
+    addOutput('index') <= selector.selectedIndex;
+    addOutput('oneHot', width: 2) <= selector.selectedOneHot;
+  }
+}
+
+FixedPoint _constantPriority(int integer) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(integer, 3),
+        fraction: LogicValue.ofInt(0, 1)));
+
+class _ConstantAssociativeHarness extends Module {
+  late final TypedAssociativeMatcher<Logic> matcher;
+  late final TypedAssociativeMatchSelector<Logic> selector;
+
+  _ConstantAssociativeHarness() {
+    final mask = addInput('mask', Logic(width: 2), width: 2);
+    final values = [_constantPriority(1), _constantPriority(7)];
+    matcher = TypedAssociativeMatcher<Logic>(
+      query: _constantPriority(7),
+      storedKeys: values,
+      validMask: mask,
+      comparator: (
+          {required query, required stored, required index, required name}) {
+        expect(query, isA<FixedPoint>());
+        expect(stored, isA<FixedPoint>());
+        return query.eq(stored);
+      },
+    );
+    selector = TypedAssociativeMatchSelector<Logic>(
+      matchVector: mask,
+      selectionValues: values,
+      preference: (
+          {required candidateValue,
+          required selectedValue,
+          required candidateIndex,
+          required selectedIndex,
+          required name}) {
+        expect(candidateValue, isA<FixedPoint>());
+        expect(selectedValue, isA<FixedPoint>());
+        return candidateValue.lt(selectedValue);
+      },
+    );
+    addOutput('matchBits', width: 2) <= matcher.matchVector;
+    addOutput('valid') <= selector.valid;
+    addOutput('index') <= selector.selectedIndex;
+    addOutput('oneHot', width: 2) <= selector.selectedOneHot;
+  }
+}
+
 void main() {
   tearDown(Simulator.reset);
+
+  test('typed associative components preserve widened constant structures',
+      () async {
+    final dut = _ConstantAssociativeHarness();
+    expect(dut.matcher.input('query'), isA<FixedPoint>());
+    expect(dut.matcher.input('storedKey_0'), isA<FixedPoint>());
+    expect(dut.selector.input('selectionValue_0'), isA<FixedPoint>());
+    final vectors = [
+      Vector(
+          {'mask': 0}, {'matchBits': 0, 'valid': 0, 'index': 0, 'oneHot': 0}),
+      Vector(
+          {'mask': 1}, {'matchBits': 0, 'valid': 1, 'index': 0, 'oneHot': 1}),
+      Vector(
+          {'mask': 2}, {'matchBits': 2, 'valid': 1, 'index': 1, 'oneHot': 2}),
+      Vector(
+          {'mask': 3}, {'matchBits': 2, 'valid': 1, 'index': 1, 'oneHot': 2}),
+      Vector({
+        'mask': LogicValue.ofString('x0')
+      }, {
+        'matchBits': LogicValue.ofString('x0'),
+        'valid': LogicValue.x,
+        'index': LogicValue.x,
+        'oneHot': LogicValue.ofString('xx'),
+      }),
+    ];
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('typed associative constant schemas retain format validation', () {
+    final constant = _constantPriority(1);
+    final matching = FixedPoint(integerWidth: 2, fractionWidth: 1);
+    final incompatible =
+        FixedPoint(integerWidth: 3, fractionWidth: 1, signed: false);
+    final matcher = TypedAssociativeMatcher<Logic>(
+        query: constant, storedKeys: [matching], validMask: Logic());
+    final selector = TypedAssociativeMatchSelector<Logic>(
+        matchVector: Logic(width: 2), selectionValues: [constant, matching]);
+    expect(matcher.input('query'), isA<FixedPoint>());
+    expect(selector.input('selectionValue_0'), isA<FixedPoint>());
+    expect(
+        () => TypedAssociativeMatcher<Logic>(
+            query: constant, storedKeys: [incompatible], validMask: Logic()),
+        throwsArgumentError);
+    expect(
+        () => TypedAssociativeMatchSelector<Logic>(
+            matchVector: Logic(width: 2),
+            selectionValues: [constant, incompatible]),
+        throwsArgumentError);
+  });
+
+  test('typed selector compares structured fields and preserves its ports',
+      () async {
+    final values = List.generate(3, (_) => _Key());
+    final matches = Logic(width: 3)..put(7);
+    final selector = TypedAssociativeMatchSelector<_Key>(
+      matchVector: matches,
+      selectionValues: values,
+      selectionName: 'first',
+      preference: (
+              {required candidateValue,
+              required selectedValue,
+              required candidateIndex,
+              required selectedIndex,
+              required name}) =>
+          candidateValue.first.lt(selectedValue.first),
+    );
+    expect(selector.input('selectionValue_0'), isA<_Key>());
+    for (var index = 0; index < values.length; index++) {
+      values[index].first.put([2, 1, 1][index]);
+      values[index].second.put(index == 0 ? 0 : 1);
+    }
+    expect(selector.valid.value, LogicValue.one);
+    expect(selector.selectedIndex.value, LogicValue.ofInt(1, 2));
+    expect(selector.selectedOneHot.value, LogicValue.ofInt(2, 3));
+    matches.put(4);
+    expect(selector.selectedIndex.value, LogicValue.ofInt(2, 2));
+    matches.put(0);
+    expect(selector.valid.value, LogicValue.zero);
+    expect(selector.selectedOneHot.value, LogicValue.ofInt(0, 3));
+    await selector.build();
+    expect(selector.dumpSystemVerilog(), contains('module AssociativeMatch'));
+  });
+
+  test('typed selector uses signed fixed-point ordering and checks formats',
+      () {
+    final values =
+        List.generate(2, (_) => FixedPoint(integerWidth: 2, fractionWidth: 1));
+    final selector = TypedAssociativeMatchSelector<FixedPoint>(
+      matchVector: Logic(width: 2)..put(3),
+      selectionValues: values,
+    );
+    values[0].integer.put(1);
+    values[1].integer.put(7);
+    for (final value in values) {
+      value.fraction.put(0);
+    }
+    expect(selector.input('selectionValue_0'), isA<FixedPoint>());
+    expect(selector.selectedIndex.value, LogicValue.one);
+    expect(
+      () => TypedAssociativeMatchSelector<FixedPoint>(
+        matchVector: Logic(width: 2),
+        selectionValues: [
+          values[0],
+          FixedPoint(integerWidth: 3, fractionWidth: 1, signed: false),
+        ],
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => TypedAssociativeMatchSelector<_Key>(
+        matchVector: Logic(width: 2),
+        selectionValues: [_Key(), _Key(secondName: 'other')],
+      ),
+      throwsArgumentError,
+    );
+  });
+
+  test('typed signed selection agrees with generated Verilog', () async {
+    final dut = _SignedSelectorHarness();
+    final vectors = [
+      Vector({'matchMask': 3, 'value0': 2, 'value1': 14},
+          {'valid': 1, 'index': 1, 'oneHot': 2}),
+      Vector(
+          {'value0': 12, 'value1': 2}, {'valid': 1, 'index': 0, 'oneHot': 1}),
+      Vector(
+          {'value0': 14, 'value1': 14}, {'valid': 1, 'index': 0, 'oneHot': 1}),
+      Vector({'matchMask': 2}, {'valid': 1, 'index': 1, 'oneHot': 2}),
+      Vector({'matchMask': 0}, {'valid': 0, 'index': 0, 'oneHot': 0}),
+    ];
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  for (final nested in [false, true]) {
+    test('typed selection accepts nonzero enum encodings nested=$nested',
+        () async {
+      final dut = _EnumSelectorHarness(nested: nested);
+      final vectors = [
+        Vector({'matchMask': 3, 'value0': 2, 'value1': 1},
+            {'valid': 1, 'index': 1, 'oneHot': 2}),
+        Vector(
+            {'value0': 1, 'value1': 2}, {'valid': 1, 'index': 0, 'oneHot': 1}),
+        Vector({'matchMask': 2}, {'valid': 1, 'index': 1, 'oneHot': 2}),
+        Vector({
+          'matchMask': LogicValue.ofString('x0')
+        }, {
+          'valid': LogicValue.x,
+          'index': LogicValue.x,
+          'oneHot': LogicValue.ofString('xx')
+        }),
+        Vector({'matchMask': 0}, {'valid': 0, 'index': 0, 'oneHot': 0}),
+      ];
+      await dut.build();
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      SimCompare.checkIverilogVector(dut, vectors);
+    });
+  }
+
+  test('selector initializes enum array leaves with their lowest encoding', () {
+    TypedLogicArray<LogicEnum<_Priority>, LogicValue> schema() =>
+        TypedLogicArray<LogicEnum<_Priority>, LogicValue>([2], _priority);
+    TypedLogicArray<LogicEnum<_Priority>, LogicValue>? initial;
+    final selector = TypedAssociativeMatchSelector(
+      matchVector: Logic(width: 2)..put(0),
+      selectionValues: [schema(), schema()],
+      preference: (
+          {required candidateValue,
+          required selectedValue,
+          required candidateIndex,
+          required selectedIndex,
+          required name}) {
+        if (candidateIndex == 0) {
+          initial = selectedValue;
+        }
+        return candidateValue.arrayElements.first
+            .lt(selectedValue.arrayElements.first);
+      },
+    );
+    expect(initial!.arrayElements.map((element) => element.value),
+        [LogicValue.ofInt(1, 2), LogicValue.ofInt(1, 2)]);
+    expect(selector.valid.value, LogicValue.zero);
+    expect(selector.selectedIndex.value, LogicValue.zero);
+  });
+
+  test('typed scalar selector retains flat selector four-state behavior', () {
+    final matches = Logic(width: 2);
+    final values = List.generate(2, (_) => Logic(width: 2));
+    final typed = TypedAssociativeMatchSelector<Logic>(
+        matchVector: matches, selectionValues: values);
+    final flat =
+        // Exercise the compatibility selector's original packed behavior.
+        // ignore: deprecated_member_use_from_same_package
+        AssociativeMatchSelector(matchVector: matches, selectionValues: values);
+    for (final mask in ['00', '01', '11', 'x1', '1x', 'xx']) {
+      matches.put(LogicValue.ofString(mask));
+      for (final first in ['00', '01', 'x0', 'zz']) {
+        values[0].put(LogicValue.ofString(first));
+        for (final second in ['00', '10', '1x', 'zz']) {
+          values[1].put(LogicValue.ofString(second));
+          expect(typed.valid.value, flat.valid.value);
+          expect(typed.selectedIndex.value, flat.selectedIndex.value,
+              reason: '$mask $first $second');
+          expect(typed.selectedOneHot.value, flat.selectedOneHot.value,
+              reason: '$mask $first $second');
+        }
+      }
+    }
+  });
 
   test('typed matcher retains structured keys for custom comparisons',
       () async {
@@ -213,6 +540,8 @@ void main() {
           // Exercise the compatibility matcher against the software model.
           // ignore: deprecated_member_use_from_same_package
           AssociativeMatcher(query: query, storedKeys: keys, validMask: valid);
+      // Exercise the compatibility selector against the software model.
+      // ignore: deprecated_member_use_from_same_package
       final selector = AssociativeMatchSelector(
         matchVector: matcher.matchVector,
         preference: selection == AssociativeMatchSelection.lowestIndex

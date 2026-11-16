@@ -46,16 +46,17 @@ class ParallelPrefix<T extends Logic> extends Module {
     if (inps.isEmpty) {
       throw RohdHclException("Don't use $name with an empty sequence.");
     }
-    if (inps.any((s) => s is LogicStructure || s is LogicEnum) &&
-        inps.any((s) => !sameHclPayloadShape(inps.first, s))) {
+    if (inps.any(hasDeclaredPayloadShape) &&
+        inps.any((s) => !sameDeclaredPayloadShape(inps.first, s,
+            ignoreConstantNames: true))) {
       throw RohdHclException('Prefix payload layouts must match.');
     }
   }
 
   T _combine(T left, T right, T Function(T left, T right) op, {String? name}) {
     final result = op(left, right);
-    if ((left is LogicStructure || left is LogicEnum) &&
-        !sameHclPayloadShape(left, result)) {
+    if (hasDeclaredPayloadShape(left) &&
+        !sameDeclaredPayloadShape(left, result, ignoreConstantNames: true)) {
       throw RohdHclException(
           'Prefix operations must preserve the payload layout.');
     }
@@ -75,9 +76,9 @@ class Ripple<T extends Logic> extends ParallelPrefix<T> {
     final iseq = <T>[];
 
     inps.forEachIndexed((i, el) {
-      final input = addTypedInput('i$i', el);
+      final input = addTypedInput<T>('i$i', el);
       iseq.add(input);
-      _oseq.add(addTypedOutput('o$i', input.cloneTyped));
+      _oseq.add(addTypedPayloadOutput(this, 'o$i', input));
     });
 
     for (var i = 0; i < iseq.length; ++i) {
@@ -99,9 +100,9 @@ class Sklansky<T extends Logic> extends ParallelPrefix<T> {
     final iseq = <T>[];
 
     inps.forEachIndexed((i, el) {
-      final input = addTypedInput('i$i', el);
+      final input = addTypedInput<T>('i$i', el);
       iseq.add(input);
-      _oseq.add(addTypedOutput('o$i', input.cloneTyped));
+      _oseq.add(addTypedPayloadOutput(this, 'o$i', input));
     });
 
     if (iseq.length == 1) {
@@ -134,9 +135,9 @@ class KoggeStone<T extends Logic> extends ParallelPrefix<T> {
     final iseq = <T>[];
 
     inps.forEachIndexed((i, el) {
-      final input = addTypedInput('i$i', el);
+      final input = addTypedInput<T>('i$i', el);
       iseq.add(input);
-      _oseq.add(addTypedOutput('o$i', input.cloneTyped));
+      _oseq.add(addTypedPayloadOutput(this, 'o$i', input));
     });
 
     var skip = 1;
@@ -165,9 +166,9 @@ class BrentKung<T extends Logic> extends ParallelPrefix<T> {
     final iseq = <T>[];
 
     inps.forEachIndexed((i, el) {
-      final input = addTypedInput('i$i', el);
+      final input = addTypedInput<T>('i$i', el);
       iseq.add(input);
-      _oseq.add(addTypedOutput('o$i', input.cloneTyped));
+      _oseq.add(addTypedPayloadOutput(this, 'o$i', input));
     });
 
     // Reduce phase

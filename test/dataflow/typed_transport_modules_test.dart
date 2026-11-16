@@ -12,7 +12,6 @@ import 'dart:async';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Record extends LogicStructure {
@@ -25,6 +24,67 @@ class _Record extends LogicStructure {
 
   @override
   _Record clone({String? name}) => _Record(name: name ?? this.name);
+}
+
+class _FieldRecord extends LogicStructure {
+  final BinaryExtensionField field;
+
+  _FieldRecord(this.field, {String? name})
+      : super([GfLogic(field, name: 'field')], name: name ?? 'record');
+
+  @override
+  _FieldRecord clone({String? name}) =>
+      _FieldRecord(field, name: name ?? this.name);
+}
+
+FixedPoint _constantFixed(int value) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(value >> 4, 4),
+        fraction: LogicValue.ofInt(value & 0xf, 4)));
+
+class _ConstantShiftHarness extends Module {
+  late final ShiftRegister<Logic> shift;
+
+  _ConstantShiftHarness() {
+    shift = ShiftRegister<Logic>(_constantFixed(0x31),
+        clk: addInput('clk', Logic()),
+        reset: addInput('reset', Logic()),
+        resetValue: _constantFixed(0x52),
+        depth: 1);
+    addOutput('result', width: 8) <= shift.dataOut;
+  }
+}
+
+class _ConstantFifoHarness extends Module {
+  late final Fifo<Logic> fifo;
+
+  _ConstantFifoHarness() {
+    fifo = Fifo<Logic>(addInput('clk', Logic()), addInput('reset', Logic()),
+        writeEnable: addInput('write', Logic()),
+        writeData: _constantFixed(0x31),
+        readEnable: Const(0),
+        depth: 2);
+    addOutput('result', width: 8) <= fifo.readData;
+    addOutput('empty') <= fifo.empty;
+  }
+}
+
+class _ConstantAsyncHarness extends Module {
+  late final AsyncFifo<Logic> fifo;
+
+  _ConstantAsyncHarness() {
+    fifo = AsyncFifo<Logic>(
+        writeClk: addInput('writeClk', Logic()),
+        readClk: addInput('readClk', Logic()),
+        writeReset: addInput('writeReset', Logic()),
+        readReset: addInput('readReset', Logic()),
+        writeEnable: addInput('write', Logic()),
+        readEnable: Const(0),
+        writeData: _constantFixed(0x31),
+        depth: 4);
+    addOutput('result', width: 8) <= fifo.readData;
+    addOutput('empty') <= fifo.empty;
+  }
 }
 
 enum _Phase { idle, busy, done, error }
@@ -261,6 +321,71 @@ void main() {
     await Simulator.reset();
   });
 
+  test('shift register preserves widened structured constant inputs', () async {
+    final dut = _ConstantShiftHarness();
+    expect(dut.shift.input('data_in'), isA<FixedPoint>());
+    expect(dut.shift.input('resetValue'), isA<FixedPoint>());
+    expect(dut.shift.dataOut, isA<FixedPoint>());
+    await _compare(dut, [
+      Vector({'clk': 0, 'reset': 1}, {}),
+      Vector({'clk': 1}, {'result': 0x52}),
+      Vector({'clk': 0, 'reset': 0}, {}),
+      Vector({'clk': 1}, {'result': 0x31}),
+    ]);
+  });
+
+  test('constant shift reset still rejects incompatible formats', () {
+    expect(
+        () => ShiftRegister<Logic>(_constantFixed(0x31),
+            clk: Logic(),
+            reset: Logic(),
+            depth: 1,
+            resetValue:
+                FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false)),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('FIFO preserves widened structured constant payloads', () async {
+    final dut = _ConstantFifoHarness();
+    expect(dut.fifo.input('writeData'), isA<FixedPoint>());
+    expect(dut.fifo.readData, isA<FixedPoint>());
+    await _compare(dut, [
+      Vector({'clk': 0, 'reset': 1, 'write': 0}, {}),
+      Vector({'clk': 1}, {'empty': 1}),
+      Vector({'clk': 0, 'reset': 0, 'write': 1}, {}),
+      Vector({'clk': 1}, {'empty': 0, 'result': 0x31}),
+    ]);
+  });
+
+  test('async FIFO preserves widened structured constant payloads', () async {
+    final dut = _ConstantAsyncHarness();
+    expect(dut.fifo.input('writeData'), isA<FixedPoint>());
+    expect(dut.fifo.readData, isA<FixedPoint>());
+    await _compare(dut, [
+      Vector({
+        'writeClk': 0,
+        'readClk': 0,
+        'writeReset': 1,
+        'readReset': 1,
+        'write': 0,
+      }, {}),
+      Vector({'writeClk': 1, 'readClk': 1}, {}),
+      Vector({
+        'writeClk': 0,
+        'readClk': 0,
+        'writeReset': 0,
+        'readReset': 0,
+        'write': 1,
+      }, {}),
+      Vector({'writeClk': 1}, {}),
+      Vector({'writeClk': 0, 'write': 0}, {}),
+      for (var i = 0; i < 4; i++) ...[
+        Vector({'readClk': 1}, i == 3 ? {'empty': 0, 'result': 0x31} : {}),
+        Vector({'readClk': 0}, {}),
+      ],
+    ]);
+  });
+
   _checkTransport('scalar', Logic(width: 8), systemC: true);
   _checkTransport('record', _Record(), systemC: true);
   _checkTransport<Logic>('record with Logic static type', _Record());
@@ -469,6 +594,68 @@ void main() {
           {'clk': 0, 'reset': 1, 'enable': 0, 'data': 0, 'resetData': 0}, {}),
       Vector({'clk': 1}, {'result': 0xa3, 'stage0': 0xa3, 'stage1': 0xa3}),
     ]);
+  });
+
+  test('shift reset preserves field domain and accepts packed bits', () async {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    expect(
+        () => ShiftRegister<GfLogic>(GfLogic(first),
+            clk: Logic(),
+            depth: 1,
+            reset: Logic(),
+            resetValue: GfLogic(second)),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => ShiftRegister<GfLogic>(GfLogic(first),
+            clk: Logic(),
+            depth: 2,
+            reset: Logic(),
+            resetValue: [GfLogic(first), GfLogic(second)]),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => ShiftRegister<_FieldRecord>(_FieldRecord(first),
+            clk: Logic(),
+            depth: 1,
+            reset: Logic(),
+            resetValue: _FieldRecord(second)),
+        throwsA(isA<RohdHclException>()));
+    for (final packed in [false, true]) {
+      final shift = ShiftRegister<GfLogic>(GfLogic(first),
+          clk: Logic(),
+          depth: 1,
+          reset: Logic(),
+          resetValue: packed ? Logic(width: 3) : GfLogic(first));
+      expect(shift.input('resetValue'),
+          packed ? isNot(isA<GfLogic>()) : isA<GfLogic>());
+      await _compare(shift, [
+        Vector({'clk': 0, 'reset': 1, 'data_in': 1, 'resetValue': 5}, {}),
+        Vector({'clk': 1}, {'data_out': 5}),
+        Vector({'clk': 0, 'reset': 0, 'data_in': 2}, {}),
+        Vector({'clk': 1}, {'data_out': 2}),
+      ]);
+      await Simulator.reset();
+    }
+  });
+
+  test('structured shift accepts compatible and packed reset signals',
+      () async {
+    final resetSignals = [
+      LogicStructure(
+          [Logic(name: 'key', width: 4), Logic(name: 'tag', width: 4)]),
+      Logic(width: 8),
+    ];
+    for (final resetSignal in resetSignals) {
+      final shift = ShiftRegister<_Record>(_Record(),
+          clk: Logic(), depth: 1, reset: Logic(), resetValue: resetSignal);
+      await _compare(shift, [
+        Vector({'clk': 0, 'reset': 1, 'data_in': 1, 'resetValue': 0xa5}, {}),
+        Vector({'clk': 1}, {'data_out': 0xa5}),
+      ]);
+      await Simulator.reset();
+    }
   });
 
   test('scalar constants can request driveable Logic ports', () async {

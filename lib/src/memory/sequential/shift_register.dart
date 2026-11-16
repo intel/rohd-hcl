@@ -45,7 +45,8 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
   /// aynchronously if [asyncReset] is `true`. The [reset] will reset all stages
   /// to a default of `0` or to the provided [resetValue]. If [resetValue] is a
   /// [List] the stages will reset to the corresponding value in the list.
-  /// When both reset and payload are structured, their layouts must match.
+  /// Declared reset and payload formats must match; a plain packed reset
+  /// signal supplies raw bits.
   /// Scalar constants used as [dataIn] require `ShiftRegister<Logic>` for
   /// driveable ports.
   ShiftRegister(
@@ -171,13 +172,15 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
           'Entry $resetValue does not have expected width $width.',
         );
       }
-      if (_requiresPayloadShape(schema)) {
-        if (!sameHclPayloadShape(schema, resetValue)) {
-          throw RohdHclException(
-            'ShiftRegister reset signal layout must match the payload.',
-          );
-        }
-        return addTypedInput<T>(name, resetValue as T);
+      if (!compatiblePayloadConnection(schema, resetValue,
+          ignoreConstantNames: true)) {
+        throw RohdHclException(
+          'ShiftRegister reset signal layout must match the payload.',
+        );
+      }
+      if (hasDeclaredPayloadShape(schema) &&
+          hasDeclaredPayloadShape(resetValue)) {
+        return addTypedInput<Logic>(name, resetValue);
       }
       return addInput(name, resetValue, width: width);
     }
@@ -190,9 +193,4 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
 
     return Const(resetValue ?? 0, width: width);
   }
-
-  static bool _requiresPayloadShape(Logic payload) =>
-      payload is LogicStructure ||
-      payload is LogicEnum ||
-      payload is TypedLogicArray;
 }

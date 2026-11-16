@@ -12,6 +12,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// An abstract API for floating point square root.
 abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
@@ -82,7 +83,7 @@ abstract class FloatingPointSqrt<FpType extends FloatingPoint> extends Module {
     this.enable = (enable != null) ? addInput('enable', enable) : null;
     this.a = addTypedInput('a', a);
 
-    sqrt = addTypedOutput('sqrt', a.cloneTyped);
+    sqrt = addTypedPayloadOutput(this, 'sqrt', a);
     addOutput('error');
     internalStatus = FloatingPointStatus(name: 'internalStatus');
     status = addTypedOutput('status', internalStatus.clone);

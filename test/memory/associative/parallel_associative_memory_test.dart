@@ -13,7 +13,6 @@ library;
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Key extends LogicStructure {
@@ -33,6 +32,130 @@ class _OtherKey extends LogicStructure {
   _OtherKey clone({String? name}) => _OtherKey(name: name ?? this.name);
 }
 
+class _SingleReadMemory extends AssociativeMemory
+    implements AssociativeIndexedSideReadProvider {
+  @override
+  // This custom provider exercises the established packed contract.
+  // ignore: deprecated_member_use_from_same_package
+  final AssociativeIndexedSideReadResponse sideReadResponse;
+
+  _SingleReadMemory(AssociativeLookupPortInterface lookup)
+      // This custom provider exercises the established packed contract.
+      // ignore: deprecated_member_use_from_same_package
+      : sideReadResponse = AssociativeIndexedSideReadResponse(keyWidth: 8),
+        super(
+          clk: Logic(),
+          reset: Logic(),
+          updates: [],
+          lookups: [lookup],
+          entryCount: 1,
+          contract: _contract(),
+        ) {
+    sideReadResponse.key <= Const(0xab, width: 8);
+    sideReadResponse.entryValid <= Const(1);
+  }
+}
+
+class _NoSideReadMemory extends AssociativeMemory {
+  _NoSideReadMemory(AssociativeLookupPortInterface lookup)
+      : super(
+          clk: Logic(),
+          reset: Logic(),
+          updates: [],
+          lookups: [lookup],
+          entryCount: 1,
+          contract: _contract(),
+        );
+}
+
+class _SynchronousMemory extends SynchronousAssociativeMemory {
+  _SynchronousMemory(
+      {required Logic clock,
+      required Logic resetSignal,
+      required SynchronousAssociativeLookupPortInterface lookup,
+      super.updates = const []})
+      : super(
+          clk: clock,
+          reset: resetSignal,
+          lookups: [lookup],
+          entryCount: 4,
+          contract: _contract(lookupLatency: 1),
+        ) {
+    final port =
+        localLookups.single as SynchronousAssociativeLookupPortInterface;
+    port.valid <= flop(clk, port.en, reset: reset);
+    port.hit <= flop(clk, port.en, reset: reset);
+    port.index <= flop(clk, port.key.getRange(0, 4), reset: reset);
+    port.matchVector! <= flop(clk, Const(5, width: 4), reset: reset);
+  }
+}
+
+class _SynchronousHarness extends Module {
+  late final TypedSynchronousAssociativeLookupPortInterface<_Key> lookup;
+  late final _SynchronousMemory memory;
+
+  _SynchronousHarness() {
+    lookup = TypedSynchronousAssociativeLookupPortInterface<_Key>(_Key(),
+        indexWidth: 4, matchEntryCount: 4);
+    lookup.en <= addInput('en', Logic());
+    lookup.key <= addInput('key', Logic(width: 8), width: 8);
+    memory = _SynchronousMemory(
+      clock: addInput('clk', Logic()),
+      resetSignal: addInput('reset', Logic()),
+      lookup: lookup,
+    );
+    addOutput('valid') <= lookup.valid;
+    addOutput('hit') <= lookup.hit;
+    addOutput('index', width: 4) <= lookup.index;
+    addOutput('matchBits', width: 4) <= lookup.matchVector!;
+  }
+}
+
+class _TypedSideReadHarness extends Module {
+  late final AssociativeMemory memory;
+
+  _TypedSideReadHarness({required bool behavioral}) {
+    final update = TypedAssociativeUpdatePortInterface(_Key(), indexWidth: 2);
+    final lookup = TypedAssociativeLookupPortInterface(_Key(), indexWidth: 2);
+    final sides = List.generate(
+        2, (_) => AssociativeIndexedSideReadRequest(indexWidth: 2));
+    update.en <= addInput('write', Logic());
+    update.index <= addInput('writeIndex', Logic(width: 2), width: 2);
+    update.key <= addInput('writeKey', Logic(width: 8), width: 8);
+    update.entryValid <= addInput('writeValid', Logic());
+    lookup.en <= Const(0);
+    lookup.key <= Const(0, width: 8);
+    for (var index = 0; index < sides.length; index++) {
+      sides[index].index <=
+          addInput('sideIndex$index', Logic(width: 2), width: 2);
+    }
+    final factory = behavioral
+        ? behavioralParallelAssociativeMemoryFunctor
+        : parallelAssociativeMemoryFunctor;
+    memory = factory(
+      clk: addInput('clk', Logic()),
+      reset: addInput('reset', Logic()),
+      updatePorts: [update],
+      lookupPorts: [lookup],
+      sideReadRequests: sides,
+      entryCount: 3,
+      lookupLatency: 0,
+      duplicateKeyPolicy: AssociativeDuplicateKeyPolicy.allow,
+      matchSelection: AssociativeMatchSelection.lowestIndex,
+      resultShape: AssociativeResultShape.selectedIndex,
+      lookupUpdatePolicy: AssociativeLookupUpdatePolicy.lookupAfterUpdate,
+      updateCollisionPolicy: AssociativeUpdateCollisionPolicy.highestPortWins,
+      name: 'memory',
+    ).memory!;
+    final responses = memory.typedSideReadResponses(lookup.key);
+    for (var index = 0; index < responses.length; index++) {
+      addOutput('low$index', width: 4) <= responses[index].key.elements[0];
+      addOutput('high$index', width: 4) <= responses[index].key.elements[1];
+      addOutput('valid$index') <= responses[index].entryValid;
+    }
+  }
+}
+
 enum _Phase { idle, busy, done }
 
 typedef _KeyValue = ({LogicValue low, LogicValue high});
@@ -44,14 +167,15 @@ LogicValue _encode(_KeyValue value) => [value.high, value.low].concat();
 const _codec = LogicValueCodec<_KeyValue>(decode: _decode, encode: _encode);
 
 AssociativeMemoryContract _contract(
-        {AssociativeMatchSelection selection =
+        {int lookupLatency = 0,
+        AssociativeMatchSelection selection =
             AssociativeMatchSelection.lowestIndex,
         AssociativeUpdateCollisionPolicy collision =
             AssociativeUpdateCollisionPolicy.highestPortWins,
         AssociativeMemoryResetTiming resetTiming =
             AssociativeMemoryResetTiming.synchronous}) =>
     AssociativeMemoryContract(
-      lookupLatency: 0,
+      lookupLatency: lookupLatency,
       updateLatency: 0,
       duplicateKeyPolicy: AssociativeDuplicateKeyPolicy.allow,
       matchSelection: selection,
@@ -217,6 +341,179 @@ class _MultiSideReadHarness extends Module {
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('typed synchronous lookup retains its schema and response timing',
+      () async {
+    final dut = _SynchronousHarness();
+    final clone = dut.lookup.clone();
+    expect(clone.key, isA<_Key>());
+    expect(clone.matchEntryCount, 4);
+    expect(clone.valid.width, 1);
+    expect(dut.memory.input('lookup_key_0'), isA<_Key>());
+    expect(
+        () => _SynchronousMemory(
+              clock: Logic(),
+              resetSignal: Logic(),
+              lookup: TypedSynchronousAssociativeLookupPortInterface<_Key>(
+                  _Key(),
+                  indexWidth: 4,
+                  matchEntryCount: 4),
+              updates: [
+                TypedAssociativeUpdatePortInterface(_OtherKey(), indexWidth: 4)
+              ],
+            ),
+        throwsArgumentError);
+    final vectors = [
+      Vector({'clk': 0, 'reset': 1, 'en': 0, 'key': 0xa2}, {}),
+      Vector({'clk': 1}, {'valid': 0, 'hit': 0}),
+      Vector({'clk': 0, 'reset': 0, 'en': 1, 'key': 0xa3}, {}),
+      Vector({'clk': 1}, {'valid': 1, 'hit': 1, 'index': 3, 'matchBits': 5}),
+      Vector({'clk': 0, 'en': 0, 'key': 0xb7}, {}),
+      Vector({'clk': 1}, {'valid': 0, 'hit': 0, 'index': 7}),
+    ];
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('synchronous lookup retains array schemas and packed compatibility',
+      () async {
+    final schema = TypedLogicArray<_Key, _KeyValue>([2], _Key.new,
+        valueCodec: _codec, numUnpackedDimensions: 1);
+    final typed =
+        TypedSynchronousAssociativeLookupPortInterface(schema, indexWidth: 4);
+    final clone = typed.clone();
+    expect(clone.matchVector, isNull);
+    expect(clone.key.dimensions, [2]);
+    expect(clone.key.numUnpackedDimensions, 1);
+    expect(clone.key.valueCodec, same(_codec));
+
+    // Exercise the existing packed constructor and its clone.
+    // ignore: deprecated_member_use_from_same_package
+    final legacy = SynchronousAssociativeLookupPortInterface(
+        keyWidth: 8, indexWidth: 4, matchEntryCount: 4);
+    expect(legacy.clone().key, isNot(isA<LogicStructure>()));
+    legacy.en <= Const(1);
+    legacy.key <= Const(0xab, width: 8);
+    final memory = _SynchronousMemory(
+        clock: Logic(), resetSignal: Logic(), lookup: legacy);
+    expect(memory.input('lookup_key_0'), isNot(isA<LogicStructure>()));
+    await memory.build();
+    expect(memory.dumpSystemVerilog(), contains('lookup_valid_0'));
+  });
+
+  for (final behavioral in [false, true]) {
+    test('typed indexed side reads preserve fields behavioral=$behavioral',
+        () async {
+      final dut = _TypedSideReadHarness(behavioral: behavioral);
+      final responses = dut.memory.typedSideReadResponses(_Key());
+      expect(responses, hasLength(2));
+      expect(responses.first.key, isA<_Key>());
+      expect(responses.first.clone().key, isA<_Key>());
+      expect(dut.memory.typedSideReadResponse(_Key())!.key, isA<_Key>());
+      final legacy = dut.memory as AssociativeMultiIndexedSideReadProvider;
+      expect(legacy.sideReadResponses.first.key, isNot(isA<_Key>()));
+      expect(dut.memory.typedSideReadResponses(Logic(width: 8)).first.key,
+          isNot(isA<_Key>()));
+      expect(() => dut.memory.typedSideReadResponses(_OtherKey()),
+          throwsArgumentError);
+      final vectors = [
+        Vector({
+          'clk': 0,
+          'reset': 1,
+          'write': 0,
+          'writeIndex': 1,
+          'writeKey': 0xab,
+          'writeValid': 1,
+          'sideIndex0': 1,
+          'sideIndex1': 3,
+        }, {}),
+        Vector({'clk': 1}, {'valid0': 0, 'valid1': 0}),
+        Vector({'clk': 0, 'reset': 0, 'write': 1}, {}),
+        Vector(
+            {'clk': 1}, {'low0': 0xb, 'high0': 0xa, 'valid0': 1, 'valid1': 0}),
+        Vector({'clk': 0, 'write': 0, 'sideIndex1': 1},
+            {'low1': 0xb, 'high1': 0xa, 'valid1': 1}),
+        Vector({
+          'sideIndex0': LogicValue.ofString('0x')
+        }, {
+          'low0': LogicValue.filled(4, LogicValue.x),
+          'high0': LogicValue.filled(4, LogicValue.x),
+          'valid0': LogicValue.x,
+        }),
+      ];
+      await dut.build();
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      if (!behavioral) {
+        SimCompare.checkIverilogVector(dut, vectors);
+      }
+    });
+  }
+
+  test('typed side-read schema checks semantic formats', () {
+    final update = TypedAssociativeUpdatePortInterface(
+        FixedPoint(integerWidth: 3, fractionWidth: 4),
+        indexWidth: 2);
+    final lookup = TypedAssociativeLookupPortInterface(
+        FixedPoint(integerWidth: 3, fractionWidth: 4),
+        indexWidth: 2,
+        matchEntryCount: 3);
+    final memory = ParallelAssociativeMemory(
+      clk: Logic(),
+      reset: Logic(),
+      updates: [update],
+      lookups: [lookup],
+      entryCount: 3,
+      contract: _contract(),
+      sideReadRequest: AssociativeIndexedSideReadRequest(indexWidth: 2),
+    );
+    final response = memory.typedSideReadResponse(lookup.key)!;
+    expect(response.key.signed, isTrue);
+    expect(response.clone().key.signed, isTrue);
+    expect(
+        () => memory.typedSideReadResponse(
+            FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false)),
+        throwsArgumentError);
+  });
+
+  test('typed side reads preserve array dimensions and codecs', () async {
+    final schema = TypedLogicArray<_Key, _KeyValue>([2], _Key.new,
+        valueCodec: _codec, numUnpackedDimensions: 1);
+    final lookup = TypedAssociativeLookupPortInterface(schema,
+        indexWidth: 2, matchEntryCount: 3);
+    final update = TypedAssociativeUpdatePortInterface(schema, indexWidth: 2);
+    final memory = ParallelAssociativeMemory(
+      clk: Logic(),
+      reset: Logic(),
+      updates: [update],
+      lookups: [lookup],
+      entryCount: 3,
+      contract: _contract(),
+      sideReadRequest: AssociativeIndexedSideReadRequest(indexWidth: 2),
+    );
+    final result = memory.typedSideReadResponse(lookup.key)!;
+    expect(result.key.dimensions, [2]);
+    expect(result.key.numUnpackedDimensions, 1);
+    expect(result.key.valueCodec, same(_codec));
+    expect(result.clone().key.valueCodec, same(_codec));
+    await memory.build();
+    expect(memory.dumpSystemVerilog(), contains('side_read_key'));
+  });
+
+  test('typed side-read views support single-only custom providers', () {
+    final lookup = TypedAssociativeLookupPortInterface(_Key(),
+        indexWidth: 1, matchEntryCount: 1);
+    final memory = _SingleReadMemory(lookup);
+    final single = memory.typedSideReadResponse(_Key())!;
+    final multiple = memory.typedSideReadResponses(_Key());
+    expect(multiple, hasLength(1));
+    expect(single.key.elements[0].value, LogicValue.ofInt(0xb, 4));
+    expect(single.key.elements[1].value, LogicValue.ofInt(0xa, 4));
+    expect(multiple.single.entryValid.value, LogicValue.one);
+    final noSide = _NoSideReadMemory(TypedAssociativeLookupPortInterface(_Key(),
+        indexWidth: 1, matchEntryCount: 1));
+    expect(() => noSide.typedSideReadResponse(_Key()), throwsStateError);
+  });
 
   test('multiple indexed reads observe independent simultaneous updates',
       () async {
@@ -447,6 +744,8 @@ void main() {
     );
     expect(called, isTrue);
     expect(binding.memory, isA<ParallelAssociativeMemory>());
+    expect(binding.memory!.typedSideReadResponses(Logic(width: 8)), isEmpty);
+    expect(binding.memory!.typedSideReadResponse(Logic(width: 8)), isNull);
     final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
     final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2);
     final legacyRequest = AssociativeMemoryRequest.fromPorts(

@@ -1,9 +1,19 @@
 # SPI Gaskets
 
-ROHD-HCL implements a `SpiMain` and `SpiSub` set of components that enable
-communication via a Serial Peripheral Interface.
+ROHD-HCL provides `TypedSpiMain` and `TypedSpiSub` endpoints for communication
+via a Serial Peripheral Interface. Their transmit (`busIn`) and receive
+(`busOut`) payloads can use different `Logic` types or structures. Specify
+`busOutSchema` to describe the received data, including for a receive-only
+subordinate. Each supplied payload must have the interface's `dataLength`.
+Transmission operates on the packed bits, most significant bit first, without
+semantic conversion.
+Structured constant transmit inputs with driveable clones retain their type
+even when widened to `Logic`.
 
-## SpiMain
+`SpiMain` and `SpiSub` remain available as deprecated compatibility wrappers
+with their original flat parallel ports and generated definition names.
+
+## TypedSpiMain
 
 Interacts as the provider on the `SpiInterface`.
 
@@ -28,7 +38,7 @@ remaining bits are captured on that rising edge. Pulsing `start` makes
 out on `mosi` and in from `miso`; received data is available on `busOut`. The
 `done` signal indicates when the transfer is complete.
 
-## SpiSub
+## TypedSpiSub
 
 Interacts as the consumer on the `SpiInterface`.
 

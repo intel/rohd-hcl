@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // floating_point_utilities.dart
@@ -12,12 +12,22 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
+void _requireMatchingFloatingPointFormats(FloatingPoint a, FloatingPoint b) {
+  if (!sameDeclaredPayloadShape(a, b, ignoreConstantNames: true)) {
+    throw RohdHclException(
+        'Floating-point operands must have matching formats.');
+  }
+}
+
 /// A utility class for floating point operations.
 abstract class FloatingPointUtilities {
   /// Sort two [FloatingPoint]s and swap them if necessary so that the larger
   /// of the two is the first element in the returned tuple.
+  ///
+  /// Both operands must have the same floating-point format.
   static ({(FpType larger, FpType smaller) sorted, Logic didSwap})
       sort<FpType extends FloatingPoint>((FpType, FpType) toSort) {
+    _requireMatchingFloatingPointFormats(toSort.$1, toSort.$2);
     final ae = toSort.$1.exponent;
     final be = toSort.$2.exponent;
     final am = toSort.$1.mantissa;
@@ -36,8 +46,11 @@ abstract class FloatingPointUtilities {
 
   /// Sort two [FloatingPoint]s and swap them if necessary so that the one
   /// the larger exponent is the first element in the returned tuple.
+  ///
+  /// Both operands must have the same floating-point format.
   static ({(FpType larger, FpType smaller) sorted, Logic didSwap})
       sortByExp<FpType extends FloatingPoint>((FpType, FpType) toSort) {
+    _requireMatchingFloatingPointFormats(toSort.$1, toSort.$2);
     final ae = toSort.$1.exponent;
     final be = toSort.$2.exponent;
     final doSwap = (ae.lt(be) | ((ae.eq(be)) & toSort.$1.sign)).named('doSwap');
@@ -53,8 +66,9 @@ abstract class FloatingPointUtilities {
 /// A module that swaps two floating point values.
 ///
 /// Payload [FpType] and optional metadata [MetaType] are independently typed.
-/// Metadata must have matching recursive layouts and value codecs. Use [Logic]
-/// as [MetaType] for scalar constants so outputs are driveable.
+/// Floating-point formats must match; metadata must have matching recursive
+/// layouts and value codecs. Use [Logic] as [MetaType] for scalar constants
+/// so outputs are driveable.
 abstract class FloatingPointSwap<FpType extends FloatingPoint,
     MetaType extends Logic> extends Module {
   /// The first output floating point values after the swap.
@@ -99,30 +113,33 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint,
       throw RohdHclException(
           'FloatingPointSwap requires inputs a and b to have the same width.');
     }
+    _requireMatchingFloatingPointFormats(a, b);
     if ((metaA == null) != (metaB == null)) {
       throw RohdHclException(
           'FloatingPointSwap requires both metaA and metaB to be either '
           'both null or both non-null.');
     }
     if (metaA != null && metaB != null) {
-      if (!sameHclPayloadShape(metaA, metaB)) {
+      if (!sameDeclaredPayloadShape(metaA, metaB, ignoreConstantNames: true)) {
         throw RohdHclException('FloatingPointSwap requires metaA and metaB to '
             'have matching layouts and value codecs.');
       }
-      outMetaA = addTypedOutput('outMetaA', metaA.cloneTyped);
-      outMetaB = addTypedOutput('outMetaB', metaB.cloneTyped);
+      outMetaA = addTypedPayloadOutput(this, 'outMetaA', metaA);
+      outMetaB = addTypedPayloadOutput(this, 'outMetaB', metaB);
     } else {
       outMetaA = null;
       outMetaB = null;
     }
-    this.metaA = (metaA != null) ? addTypedInput('inMetaA', metaA) : null;
-    this.metaB = (metaB != null) ? addTypedInput('inMetaB', metaB) : null;
+    this.metaA =
+        metaA != null ? addTypedInput<MetaType>('inMetaA', metaA) : null;
+    this.metaB =
+        metaB != null ? addTypedInput<MetaType>('inMetaB', metaB) : null;
 
     this.a = addTypedInput('a', a);
     this.b = addTypedInput('b', b);
 
-    outA = addTypedOutput('outA', a.cloneTyped);
-    outB = addTypedOutput('outB', b.cloneTyped);
+    outA = addTypedPayloadOutput(this, 'outA', a);
+    outB = addTypedPayloadOutput(this, 'outB', b);
   }
 }
 

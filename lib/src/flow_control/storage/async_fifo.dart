@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// An asynchronous FIFO for safely passing data between two clock domains.
 ///
@@ -149,8 +150,7 @@ class AsyncFifo<T extends Logic> extends Module {
     addInput('readEnable', readEnable);
 
     // Add outputs
-    T readDataClone({String? name}) => _writeData.cloneTyped(name: name);
-    readData = addTypedOutput<T>('readData', readDataClone);
+    readData = addTypedPayloadOutput<T>(this, 'readData', _writeData);
     addOutput('full');
     addOutput('empty');
 

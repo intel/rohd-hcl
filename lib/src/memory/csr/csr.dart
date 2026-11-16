@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // csr.dart
@@ -6,6 +6,8 @@
 //
 // 2024 December
 // Author: Josh Kimmel <joshua1.kimmel@intel.com>
+
+import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
@@ -16,9 +18,41 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 /// Semantically, a register can be created with no fields.
 /// In this case, a single implicit field is created that is
 /// read/write and the entire width of the register.
-class Csr extends LogicStructure {
+class Csr extends LogicStructure implements PayloadShapeMetadata {
   /// Configuration for the CSR.
   final CsrInstanceConfig config;
+
+  @override
+  String get payloadShapeMetadata => jsonEncode([
+        'Csr',
+        config.addr.toString(),
+        config.width,
+        config.resetValue,
+        config.isFrontdoorReadable,
+        config.isFrontdoorWritable,
+        config.isBackdoorReadable,
+        config.isBackdoorWritable,
+        [
+          config.arch.name,
+          config.arch.access.name,
+          config.arch.resetValue,
+          config.arch.isFrontdoorReadable,
+          config.arch.isFrontdoorWritable,
+          config.arch.isBackdoorReadable,
+          config.arch.isBackdoorWritable,
+          [
+            for (final field in config.fields)
+              [
+                field.start,
+                field.width,
+                field.name,
+                field.access.name,
+                field.resetValue,
+                field.legalValues,
+              ],
+          ],
+        ],
+      ]);
 
   /// A list of indices of all of the reserved fields in the CSR.
   /// This is necessary because the configuration does not explicitly

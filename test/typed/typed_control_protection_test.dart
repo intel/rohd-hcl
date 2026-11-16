@@ -10,7 +10,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Payload extends LogicStructure {
@@ -24,6 +23,19 @@ class _Payload extends LogicStructure {
 
   @override
   _Payload clone({String? name}) => _Payload(name: name ?? this.name);
+}
+
+class _SecondCloneField extends GfLogic {
+  final BinaryExtensionField replacement;
+  final bool preserveNext;
+
+  _SecondCloneField(super.field, this.replacement,
+      {this.preserveNext = true, super.name});
+
+  @override
+  _SecondCloneField clone({String? name}) =>
+      _SecondCloneField(preserveNext ? field : replacement, replacement,
+          preserveNext: false, name: name ?? this.name);
 }
 
 enum _State { idle, busy, done }
@@ -105,6 +117,94 @@ class _ConstantControl extends Module {
     addOutput('result', width: 8) <= delayed;
   }
 }
+
+FixedPoint _constantFixed(int value) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(value >> 4, 4),
+        fraction: LogicValue.ofInt(value & 0xf, 4)));
+
+class _StructuredConstantControl extends Module {
+  late final ClockGate gate;
+  late final Logic delayed;
+
+  _StructuredConstantControl() {
+    gate = ClockGate(addInput('clk', Logic()),
+        enable: Const(0),
+        reset: addInput('reset', Logic()),
+        delayControlledSignals: true);
+    delayed = gate.controlled<Logic>(_constantFixed(0x31),
+        resetValue: _constantFixed(0x52));
+    addOutput('result', width: 8) <= delayed;
+  }
+}
+
+class _StructuredConstantToggle extends Module {
+  late final ToggleGate<Logic> gate;
+
+  _StructuredConstantToggle() {
+    gate = ToggleGate<Logic>(
+        data: _constantFixed(0x31),
+        clk: addInput('clk', Logic()),
+        reset: addInput('reset', Logic()),
+        enable: addInput('enable', Logic()),
+        resetValue: _constantFixed(0x52),
+        clockGateControlIntf: ClockGateControlInterface(isPresent: false));
+    addOutput('result', width: 8) <= gate.gatedData;
+  }
+}
+
+class _StructuredConstantProtection extends Module {
+  late final ParityTransmitter<Logic> tx;
+  late final HammingEccTransmitter<Logic> ecc;
+
+  _StructuredConstantProtection() {
+    tx = ParityTransmitter<Logic>(_constantFixed(0x31));
+    ecc = HammingEccTransmitter<Logic>(_constantFixed(0x31),
+        hammingType: HammingType.secded);
+    final rx = ParityReceiver<FixedPoint>(tx.transmission,
+        dataSchema: FixedPoint(integerWidth: 3, fractionWidth: 4));
+    final eccRx = HammingEccReceiver<FixedPoint>(ecc.transmission,
+        hammingType: HammingType.secded,
+        dataSchema: FixedPoint(integerWidth: 3, fractionWidth: 4));
+    addOutput('original', width: 8) <= rx.originalData;
+    addOutput('error') <= rx.error;
+    addOutput('corrected', width: 8) <= eccRx.correctedData!;
+    addOutput('eccError') <= eccRx.error;
+  }
+}
+
+class _ControlledSignalReset<T extends Logic> extends Module {
+  late final ClockGate gate;
+
+  _ControlledSignalReset(T schema, {required bool typedReset}) {
+    final data = schema.cloneTyped(name: 'payload')
+      ..gets(addInput('data', Logic(width: schema.width), width: schema.width));
+    final resetBits =
+        addInput('resetData', Logic(width: schema.width), width: schema.width);
+    final resetValue =
+        typedReset ? (data.cloneTyped()..gets(resetBits)) : resetBits;
+    gate = ClockGate(addInput('clk', Logic()),
+        enable: addInput('enable', Logic()),
+        reset: addInput('reset', Logic()),
+        delayControlledSignals: true);
+    addOutput('result', width: schema.width) <=
+        gate.controlled(data, resetValue: resetValue);
+  }
+}
+
+class _ClockControlConfig extends Module {
+  late final ClockGateControlInterface control;
+
+  _ClockControlConfig(ClockGateControlInterface source) {
+    control = addPairInterfacePorts(source, PairRole.consumer,
+        uniquify: (name) => 'config_$name');
+    final gate = ClockGate(addInput('clk', Logic()),
+        enable: addInput('enable', Logic()), controlIntf: control);
+    addOutput('out') <= gate.gatedClk;
+  }
+}
+
+class _PortModule extends Module {}
 
 Future<void> _compare(Module dut, List<Vector> vectors,
     {bool systemC = false}) async {
@@ -200,7 +300,110 @@ void _checkPayload<T extends Logic>(String label, T schema) {
 }
 
 void main() {
+  test('storage and protection reject changing payload clone metadata', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    _SecondCloneField source() => _SecondCloneField(first, second);
+
+    expect(
+        () => Fifo<Logic>(Logic(), Logic(),
+            writeEnable: Logic(),
+            writeData: source(),
+            readEnable: Logic(),
+            depth: 2),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => AsyncFifo<Logic>(
+            writeClk: Logic(),
+            readClk: Logic(),
+            writeReset: Logic(),
+            readReset: Logic(),
+            writeEnable: Logic(),
+            writeData: source(),
+            readEnable: Logic(),
+            depth: 2),
+        throwsA(isA<LogicConstructionException>()));
+    expect(() => ShiftRegister<Logic>(source(), clk: Logic(), depth: 1),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => ToggleGate<Logic>(
+            enable: Logic(), data: source(), clk: Logic(), reset: Logic()),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => ParityReceiver<Logic>(Logic(width: 4),
+            dataSchema: _SecondCloneField(first, second, preserveNext: false)),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => ClockGateControlInterface(additionalPorts: [
+              _SecondCloneField(first, second,
+                  preserveNext: false, name: 'config')
+            ]).clone(),
+        throwsA(isA<LogicConstructionException>()));
+    final bad = _SecondCloneField(first, second, preserveNext: false);
+    expect(() => condFlop<Logic>(Logic(), bad),
+        throwsA(isA<LogicConstructionException>()));
+    expect(() => swap<Logic>(Logic(), (bad, GfLogic(first))),
+        throwsA(isA<LogicConstructionException>()));
+  });
+
   tearDown(Simulator.reset);
+
+  test('clock control preserves widened structured constants', () async {
+    final dut = _StructuredConstantControl();
+    expect(dut.delayed, isA<FixedPoint>());
+    expect(dut.gate.inputs.values.whereType<FixedPoint>().length, 2);
+    await _compare(dut, [
+      Vector({'clk': 0, 'reset': 1}, {}),
+      Vector({'clk': 1}, {'result': 0x52}),
+      Vector({'clk': 0, 'reset': 0}, {}),
+      Vector({'clk': 1}, {'result': 0x31}),
+    ]);
+  });
+
+  test('toggle gate preserves widened structured constants', () async {
+    final dut = _StructuredConstantToggle();
+    expect(dut.gate.input('data'), isA<FixedPoint>());
+    expect(dut.gate.input('resetValue'), isA<FixedPoint>());
+    expect(dut.gate.gatedData, isA<FixedPoint>());
+    await _compare(dut, [
+      Vector({'clk': 0, 'reset': 1, 'enable': 0}, {}),
+      Vector({'clk': 1}, {'result': 0x52}),
+      Vector({'clk': 0, 'reset': 0, 'enable': 1}, {'result': 0x31}),
+      Vector({'clk': 1}, {'result': 0x31}),
+      Vector({'clk': 0, 'enable': 0}, {'result': 0x31}),
+    ]);
+  });
+
+  test('error transmitter preserves widened structured constants', () async {
+    final dut = _StructuredConstantProtection();
+    expect(dut.tx.input('data'), isA<FixedPoint>());
+    expect(dut.ecc.input('data'), isA<FixedPoint>());
+    await _compare(dut, [
+      Vector(
+          {}, {'original': 0x31, 'error': 0, 'corrected': 0x31, 'eccError': 0})
+    ]);
+  });
+
+  test('clock and toggle constant resets reject incompatible formats', () {
+    final incompatible =
+        FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    final gate = ClockGate(Logic(),
+        enable: Logic(), reset: Logic(), delayControlledSignals: true);
+    expect(
+        () => gate.controlled<Logic>(_constantFixed(0x31),
+            resetValue: incompatible),
+        throwsArgumentError);
+    expect(
+        () => ToggleGate<Logic>(
+            data: _constantFixed(0x31),
+            clk: Logic(),
+            reset: Logic(),
+            enable: Logic(),
+            resetValue: incompatible),
+        throwsArgumentError);
+  });
   _checkPayload('scalar', Logic(width: 8));
   _checkPayload('fixed point', FixedPoint(integerWidth: 3, fractionWidth: 2));
   _checkPayload(
@@ -228,6 +431,105 @@ void main() {
   test('controlled structure SystemC', () async {
     await _compare(_Controlled(_Payload()), _clockVectors(), systemC: true);
   }, testOn: 'vm');
+
+  test('clock-gate additional ports preserve structured configuration',
+      () async {
+    final control = ClockGateControlInterface(
+      additionalPorts: [_Payload(name: 'gate_cfg')],
+      gatedClockGenerator: (intf, clk, enable) =>
+          clk & (intf.port('gate_cfg') as _Payload).elements[1][0],
+    );
+    final dut = _ClockControlConfig(control);
+    expect(dut.input('config_gate_cfg'), isA<_Payload>());
+    await _compare(dut, [
+      Vector({'clk': 1, 'enable': 0, 'config_gate_cfg': 0}, {'out': 0}),
+      Vector({'config_gate_cfg': 64}, {'out': 1}),
+      Vector({'clk': 0}, {'out': 0}),
+    ]);
+  });
+
+  test('clock-gate configuration supports typed output and packed bridge', () {
+    final target = ClockGateControlInterface(
+        additionalPorts: [_Payload(name: 'gate_cfg')]);
+    final packed =
+        PairInterface(portsFromProvider: [Logic(name: 'gate_cfg', width: 9)]);
+    final consumer = _PortModule()
+      ..addPairInterfaceFrom(target, packed, PairRole.consumer,
+          uniquify: (name) => 'input_$name');
+    expect(consumer.input('input_gate_cfg'), isA<_Payload>());
+
+    final provider = _PortModule()
+      ..addPairInterfacePorts(
+          ClockGateControlInterface(
+              additionalPorts: [_Payload(name: 'gate_cfg')]),
+          PairRole.provider,
+          uniquify: (name) => 'output_$name');
+    expect(provider.output('output_gate_cfg'), isA<_Payload>());
+  });
+
+  test('clock-gate configuration validates only selected payloads', () {
+    final target = ClockGateControlInterface(
+        additionalPorts: [_Payload(name: 'gate_cfg')]);
+    final source = PairInterface(portsFromProvider: [
+      FixedPoint(integerWidth: 6, fractionWidth: 2, name: 'gate_cfg')
+    ]);
+    expect(
+        () => _PortModule()
+            .addPairInterfaceFrom(target, source, PairRole.consumer),
+        throwsA(isA<PortTypeException>()));
+    expect(
+        () => _PortModule().addInterfaceFrom(target, source,
+            inputTags: {PairDirection.fromConsumer}),
+        returnsNormally);
+  });
+
+  test('controlled rejects incompatible declared reset formats', () {
+    final gate = ClockGate(Logic(),
+        enable: Logic(), reset: Logic(), delayControlledSignals: true);
+    expect(
+        () => gate.controlled(
+              FixedPoint(integerWidth: 3, fractionWidth: 2),
+              resetValue:
+                  FixedPoint(integerWidth: 4, fractionWidth: 2, signed: false),
+            ),
+        throwsArgumentError);
+  });
+
+  for (final typedReset in [true, false]) {
+    test('controlled registers ${typedReset ? 'typed' : 'packed'} reset',
+        () async {
+      final dut = _ControlledSignalReset(
+          FixedPoint(integerWidth: 3, fractionWidth: 2),
+          typedReset: typedReset);
+      expect(dut.gate.input('payload_resetValue'),
+          typedReset ? isA<FixedPoint>() : isNot(isA<LogicStructure>()));
+      await _compare(dut, [
+        Vector(
+            {'clk': 0, 'enable': 0, 'reset': 1, 'data': 3, 'resetData': 5}, {}),
+        Vector({'clk': 1}, {'result': 5}),
+        Vector({'clk': 0, 'reset': 0, 'data': 7}, {'result': 5}),
+        Vector({'clk': 1}, {'result': 7}),
+        Vector({'clk': 0, 'reset': 1, 'resetData': 9}, {'result': 7}),
+        Vector({'clk': 1}, {'result': 9}),
+      ]);
+    });
+  }
+
+  test('controlled registers an unpacked typed reset', () async {
+    final schema = TypedLogicArray<_Payload, LogicValue>([2], _Payload.new,
+        numUnpackedDimensions: 1);
+    final dut = _ControlledSignalReset(schema, typedReset: true);
+    expect(
+        sameDeclaredPayloadShape(dut.gate.input('payload_resetValue'), schema),
+        isTrue);
+    await _compare(dut, [
+      Vector(
+          {'clk': 0, 'enable': 0, 'reset': 1, 'data': 3, 'resetData': 5}, {}),
+      Vector({'clk': 1}, {'result': 5}),
+      Vector({'clk': 0, 'reset': 0, 'data': 7}, {'result': 5}),
+      Vector({'clk': 1}, {'result': 7}),
+    ]);
+  });
 
   test('scalar constants produce driveable controlled and transmitter ports',
       () async {

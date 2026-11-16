@@ -22,6 +22,72 @@ class _Payload extends LogicStructure {
       _Payload(name: name ?? this.name, tagName: elements.first.name);
 }
 
+class _MisclonedField extends GfLogic {
+  final BinaryExtensionField cloneField;
+
+  _MisclonedField(super.field, this.cloneField, {super.name});
+
+  @override
+  _MisclonedField clone({String? name}) =>
+      _MisclonedField(cloneField, cloneField, name: name ?? this.name);
+}
+
+class _SecondCloneField extends GfLogic {
+  final BinaryExtensionField replacement;
+  final bool preserveNext;
+
+  _SecondCloneField(super.field, this.replacement,
+      {this.preserveNext = true, super.name});
+
+  @override
+  _SecondCloneField clone({String? name}) =>
+      _SecondCloneField(preserveNext ? field : replacement, replacement,
+          preserveNext: false, name: name ?? this.name);
+}
+
+class _MisclonedRecord extends LogicStructure {
+  final BinaryExtensionField cloneField;
+
+  _MisclonedRecord(BinaryExtensionField field, this.cloneField,
+      {bool constant = true, String? name})
+      : super([
+          if (constant) Const(1) else Logic(name: 'flag'),
+          GfLogic(field, name: 'field'),
+        ], name: name ?? 'record');
+
+  @override
+  _MisclonedRecord clone({String? name}) =>
+      _MisclonedRecord(cloneField, cloneField,
+          constant: false, name: name ?? this.name);
+}
+
+class _ErasedRecord extends LogicStructure {
+  _ErasedRecord({String? name})
+      : super([Logic(name: 'value', width: 3)], name: name ?? 'record');
+
+  @override
+  LogicStructure clone({String? name}) =>
+      LogicStructure([Logic(name: 'value', width: 3)], name: name ?? this.name);
+}
+
+FixedPoint _fixedConstant(int value) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(value >> 4, 4),
+        fraction: LogicValue.ofInt(value & 0xf, 4)));
+
+class _ConstantPriorityHarness extends Module {
+  late final TypedPriorityMux<Logic> mux;
+
+  _ConstantPriorityHarness() {
+    mux = TypedPriorityMux<Logic>(
+      addInput('sel', Logic(width: 2), width: 2),
+      [_fixedConstant(0x12), _fixedConstant(0x34)],
+      _fixedConstant(0x56),
+    );
+    addOutput('out', width: 8) <= mux.result;
+  }
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -133,6 +199,86 @@ void main() {
           Logic(), [_Payload(tagName: 'other')], _Payload()),
       throwsArgumentError,
     );
+    expect(
+      () => TypedPriorityMux<Logic>(Logic(), [_fixedConstant(0x12)],
+          FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false)),
+      throwsArgumentError,
+    );
+  });
+
+  test('typed priority mux accepts matching constant and driveable payloads',
+      () {
+    final dut = TypedPriorityMux<FixedPoint>(Logic(), [_fixedConstant(0x12)],
+        FixedPoint(integerWidth: 3, fractionWidth: 4));
+    expect(dut.input('case0'), isA<FixedPoint>());
+    expect(dut.input('defaultValue'), isA<FixedPoint>());
+    expect(dut.result, isA<FixedPoint>());
+  });
+
+  test('typed input registration rejects scalar clone metadata changes', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    final scalar = _MisclonedField(first, second);
+    expect(() => TypedPriorityMux<Logic>(Logic(), [scalar], scalar),
+        throwsA(isA<PortTypeException>()));
+  });
+
+  test('typed priority mux rejects changed result clone metadata', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    expect(
+        () => TypedPriorityMux<Logic>(
+            Logic(), [GfLogic(first)], _SecondCloneField(first, second)),
+        throwsA(isA<LogicConstructionException>()));
+  });
+
+  test('typed input registration rejects structured clone metadata changes',
+      () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    final structured = _MisclonedRecord(first, second);
+    expect(() => TypedPriorityMux<Logic>(Logic(), [structured], structured),
+        throwsA(isA<PortTypeException>()));
+  });
+
+  test('typed input registration rejects a clone that erases its type', () {
+    final record = _ErasedRecord();
+    expect(() => TypedPriorityMux<Logic>(Logic(), [record], record),
+        throwsA(isA<PortTypeException>()));
+  });
+
+  test('typed priority mux retains constant structures widened to Logic',
+      () async {
+    final dut = _ConstantPriorityHarness();
+    for (final port in [
+      dut.mux.input('case0'),
+      dut.mux.input('case1'),
+      dut.mux.input('defaultValue'),
+      dut.mux.result,
+    ]) {
+      expect(port, isA<FixedPoint>());
+      final fixed = port as FixedPoint;
+      expect(fixed.signed, isTrue);
+      expect(fixed.integerWidth, 3);
+      expect(fixed.fractionWidth, 4);
+    }
+    final vectors = [
+      Vector({'sel': 0}, {'out': 0x56}),
+      Vector({'sel': 1}, {'out': 0x12}),
+      Vector({'sel': 2}, {'out': 0x34}),
+      Vector({'sel': 3}, {'out': 0x12}),
+      Vector({'sel': LogicValue.ofString('x0')},
+          {'out': LogicValue.ofString('0xx101x0')}),
+    ];
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
   });
 
   test('legacy priority mux keeps flat structured inputs and result', () {

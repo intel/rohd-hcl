@@ -13,6 +13,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A component control that is configured statically or supplied by [Logic] at
 /// runtime.
@@ -81,20 +82,30 @@ class StaticOrRuntimeControl<T> {
     }
     final existing = reuseExisting ? tryRuntimeInput(module) : null;
     if (existing != null) {
-      if (typed &&
-          config is! Const &&
-          !(config is LogicStructure && config.hasConsts) &&
-          existing.runtimeType != config.runtimeType) {
-        throw RohdHclException(
-            'Runtime control "$name" requires a typed module input.');
+      if (typed) {
+        _validateTypedInput(config, existing);
       }
       return existing;
     }
     final input = typed
         ? module.addTypedInput<Logic>(name, config)
         : module.addInput(name, config, width: config.width);
+    if (typed) {
+      _validateTypedInput(config, input);
+    }
     (_runtimeSources[module] ??= {})[name] = config;
     return input;
+  }
+
+  void _validateTypedInput(Logic config, Logic input) {
+    if (config is Const) {
+      return;
+    }
+    if (input.runtimeType != config.runtimeType ||
+        !sameDeclaredPayloadShape(config, input, ignoreConstantNames: true)) {
+      throw RohdHclException(
+          'Runtime control "$name" requires a matching typed module input.');
+    }
   }
 
   /// Returns the existing internal runtime input on [module], if any.
@@ -238,18 +249,31 @@ class StaticOrRuntimeParameter extends StaticOrRuntimeControl<bool> {
   ///
   /// A static control selects during generation. A runtime control uses a
   /// hardware mux; provide [module] when its input must be registered there.
+  /// Declared payload formats must match; plain packed values are bridges.
+  /// For a dynamic runtime selection, the false operand supplies the result
+  /// schema. A constant runtime selector returns the selected input directly.
   /// As with [mux], specify `<Logic>` for two scalar [Const] inputs when the
   /// control is runtime-configurable.
   LogicType select<LogicType extends Logic>(
       LogicType whenTrue, LogicType whenFalse,
       {Module? module}) {
+    if (whenTrue.width == whenFalse.width &&
+        !compatiblePayloadConnection(whenTrue, whenFalse,
+            ignoreConstantNames: true)) {
+      throw ArgumentError('Selection payloads must be compatible.');
+    }
     final config = runtimeConfig;
     final selector = config == null
         ? Const(staticConfig ? 1 : 0)
         : module == null
             ? config
             : getRuntimeInput(module)!;
-    return mux<LogicType>(selector, whenTrue, whenFalse);
+    return mux<LogicType>(selector, whenTrue, whenFalse,
+        outputGenerator: config != null &&
+                !(selector is Const && selector.value.isValid) &&
+                hasDeclaredPayloadShape(whenFalse)
+            ? whenFalse.cloneTyped
+            : null);
   }
 }
 

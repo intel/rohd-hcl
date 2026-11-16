@@ -10,6 +10,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// An abstract API for floating-point multipliers.
 abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
@@ -97,10 +98,10 @@ abstract class FloatingPointMultiplier<FpTypeIn extends FloatingPoint,
     mantissaWidth =
         (outProduct == null) ? a.mantissa.width : outProduct.mantissa.width;
 
-    internalProduct = (outProduct ?? a).clone(name: 'outSum') as FpTypeOut;
+    internalProduct = (outProduct ?? a).cloneTyped(name: 'outSum') as FpTypeOut;
 
     // expose typed output and drive it from internalProduct
-    product = addTypedOutput('product', internalProduct.cloneTyped);
+    product = addTypedPayloadOutput(this, 'product', internalProduct);
     product <= internalProduct;
     internalStatus = FloatingPointStatus(name: 'internalStatus');
     status = addTypedOutput('status', internalStatus.clone);

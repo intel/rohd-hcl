@@ -26,6 +26,16 @@ class _Word extends LogicStructure {
   _Word clone({String? name}) => _Word(name: name ?? this.name);
 }
 
+class _MisclonedField extends GfLogic {
+  final BinaryExtensionField replacement;
+
+  _MisclonedField(super.field, this.replacement, {super.name});
+
+  @override
+  _MisclonedField clone({String? name}) =>
+      _MisclonedField(replacement, replacement, name: name ?? this.name);
+}
+
 typedef _WordValue = ({LogicValue data, LogicValue last});
 
 _WordValue _decodeWord(LogicValue value) =>
@@ -44,7 +54,41 @@ TypedLogicArray<_Word, _WordValue> _words(List<int> dimensions,
     TypedLogicArray<_Word, _WordValue>(dimensions, _Word.new,
         valueCodec: _wordCodec, numUnpackedDimensions: numUnpackedDimensions);
 
+class _ConstantDeserializerHarness extends Module {
+  late final Deserializer<FixedPoint, LogicValue> deserializer;
+
+  _ConstantDeserializerHarness() {
+    final value = FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(3, 4), fraction: LogicValue.ofInt(1, 4)));
+    deserializer = Deserializer<FixedPoint, LogicValue>(value, 2,
+        valueCodec: LogicValueCodec.logicValue,
+        clk: addInput('clk', Logic()),
+        reset: addInput('reset', Logic()));
+    addOutput('result', width: 16) <= deserializer.deserialized;
+  }
+}
+
 void main() {
+  test('deserializer preserves structured constant input', () async {
+    final dut = _ConstantDeserializerHarness();
+    expect(dut.deserializer.input('serialized'), isA<FixedPoint>());
+    expect(
+        dut.deserializer.deserialized.arrayElements
+            .every((element) => element.signed && element.integerWidth == 3),
+        isTrue);
+    await dut.build();
+    final vectors = [
+      Vector({'clk': 0, 'reset': 1}, {}),
+      Vector({'clk': 1}, {'result': 0}),
+      Vector({'clk': 0, 'reset': 0}, {}),
+      Vector({'clk': 1}, {'result': 0x31}),
+      Vector({'clk': 0}, {}),
+      Vector({'clk': 1}, {'result': 0x3131}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
   for (final unpacked in [0, 1]) {
     test('aligned serializer retains nested typed payloads, unpacked=$unpacked',
         () async {
@@ -261,6 +305,86 @@ void main() {
     await rx.build();
     expect(rx.deserialized.arrayElements.first, isNot(isA<Const>()));
     expect(rx.input('serialized').width, 4);
+  });
+
+  test('serialization rejects incompatible selected payload domains', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    final mixed = TypedLogicArray<GfLogic, LogicValue>(
+      [2],
+      ({name}) => GfLogic(name!.endsWith('1') ? second : first, name: name),
+    );
+    expect(() => Serializer(mixed, clk: Logic(), reset: Logic()),
+        throwsArgumentError);
+    expect(
+        () => Deserializer<GfLogic, LogicValue>(mixed, 2,
+            valueCodec: mixed.valueCodec, clk: Logic(), reset: Logic()),
+        throwsArgumentError);
+    final nested = TypedLogicArray<GfLogic, LogicValue>(
+      [2, 2],
+      ({name}) => GfLogic(name!.endsWith('1') ? second : first, name: name),
+    );
+    expect(
+        () => Deserializer<GfLogic, LogicValue>(nested, 2,
+            valueCodec: nested.valueCodec, clk: Logic(), reset: Logic()),
+        throwsArgumentError);
+  });
+
+  test('serialization rejects metadata changes across array and leaf clones',
+      () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    var current = first;
+    final changing = TypedLogicArray<GfLogic, LogicValue>(
+        [2], ({name}) => GfLogic(current, name: name));
+    current = second;
+    expect(() => Serializer(changing, clk: Logic(), reset: Logic()),
+        throwsA(isA<PortTypeException>()));
+
+    TypedLogicArray<GfLogic, LogicValue> badLeaves() =>
+        TypedLogicArray<GfLogic, LogicValue>(
+            [2], ({name}) => _MisclonedField(first, second, name: name));
+    expect(() => Serializer(badLeaves(), clk: Logic(), reset: Logic()),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => Deserializer<GfLogic, LogicValue>(badLeaves(), 2,
+            valueCodec: LogicValueCodec.logicValue,
+            clk: Logic(),
+            reset: Logic()),
+        throwsA(isA<LogicConstructionException>()));
+  });
+
+  test('serializer preserves compatible heterogeneous slices', () async {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    final input = TypedLogicArray<GfLogic, LogicValue>(
+      [2, 2],
+      ({name}) => GfLogic(name!.endsWith('1') ? second : first, name: name),
+    );
+    final tx = Serializer(input, clk: Logic(), reset: Logic());
+    await tx.build();
+    expect(tx.serialized.arrayElements[0].field, first);
+    expect(tx.serialized.arrayElements[1].field, second);
+    const firstSlice = 1 | (2 << 3);
+    const secondSlice = 3 | (4 << 3);
+    final vectors = [
+      Vector({
+        'clk': 0,
+        'reset': 1,
+        'deserialized': firstSlice | (secondSlice << 6),
+      }, {}),
+      Vector({'clk': 1}, {'serialized': firstSlice}),
+      Vector({'clk': 0, 'reset': 0}, {}),
+      Vector({'clk': 1}, {'serialized': secondSlice}),
+    ];
+    await SimCompare.checkFunctionalVector(tx, vectors);
+    SimCompare.checkIverilogVector(tx, vectors);
   });
 
   test('invalid lengths, empty dimensions and mismatched leaves fail', () {

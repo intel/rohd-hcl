@@ -10,6 +10,7 @@
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/floating_point/floating_point_sort_fields.dart';
 
 /// A single-path adder implementation for [FloatingPoint] values.
 class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
@@ -64,14 +65,12 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
     final fa = a.resolveSubNormalAsZero();
     final fb = b.resolveSubNormalAsZero();
 
-    final aExplicit = Const(a.explicitJBit);
-    final bExplicit = Const(b.explicitJBit);
-    final swapper = FloatingPointSortByExp<FloatingPoint, Logic>(fa, fb,
-        metaA: aExplicit, metaB: bExplicit, name: 'sorter_${a.name}_${b.name}');
-    final larger = swapper.outA;
-    final smaller = swapper.outB;
-    final largerExplicit = swapper.outMetaA!;
-    final smallerExplicit = swapper.outMetaB!;
+    final doSwap =
+        fa.exponent.lt(fb.exponent) | (fa.exponent.eq(fb.exponent) & fa.sign);
+    final (larger, smaller) = swap(
+        doSwap, (FloatingPointSortFields(fa), FloatingPointSortFields(fb)));
+    final largerExplicit = larger.explicitJBit;
+    final smallerExplicit = smaller.explicitJBit;
 
     final effectiveSubtraction = (fa.sign ^ fb.sign).named('effSubtraction');
 

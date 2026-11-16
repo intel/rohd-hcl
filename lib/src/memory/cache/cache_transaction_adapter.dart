@@ -112,8 +112,7 @@ class CacheTransactionAdapter<T extends Logic, M extends Logic, C extends Logic,
     final duplicate = matches(inputRequests.data.token);
     final free = combine([for (final entry in occupied) ~entry]);
     final staged = Logic(name: 'staged');
-    final stagedData =
-        Logic(name: 'staged_data', width: inputRequests.data.width);
+    final stagedData = inputRequests.data.cloneTyped(name: 'staged_data');
     inputRequests.ready <= ~localReset & ~staged & free & ~duplicate;
     final accept = inputRequests.valid & inputRequests.ready;
     cacheRequests.valid <= ~localReset & staged;
@@ -123,7 +122,10 @@ class CacheTransactionAdapter<T extends Logic, M extends Logic, C extends Logic,
         flop(localClk, mux(accept, Const(1), mux(issue, Const(0), staged)),
             reset: localReset);
     stagedData <=
-        flop(localClk, mux(accept, inputRequests.data, stagedData),
+        flop<CacheTransactionRequest<T, M, C>>(
+            localClk,
+            mux<CacheTransactionRequest<T, M, C>>(
+                accept, inputRequests.data, stagedData),
             reset: localReset);
 
     final responseMatch = matches(cacheResponses.data.token);

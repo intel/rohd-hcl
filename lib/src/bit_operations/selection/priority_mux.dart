@@ -50,7 +50,8 @@ class TypedPriorityMux<T extends Logic> extends Module {
       throw Exception('All cases must have the same width as the default.');
     }
     if (!flatPorts &&
-        cases.any((c) => !sameDeclaredPayloadShape(defaultValue, c))) {
+        cases.any((c) => !sameDeclaredPayloadShape(defaultValue, c,
+            ignoreConstantNames: true))) {
       throw ArgumentError('Cases must match the default payload shape.');
     }
     if (selector.width != cases.length) {
@@ -70,7 +71,7 @@ class TypedPriorityMux<T extends Logic> extends Module {
         : addTypedInput<T>('defaultValue', defaultValue);
     final result = flatPorts
         ? addOutput('result', width: width) as T
-        : addTypedOutput<T>('result', localDefault.cloneTyped);
+        : addTypedPayloadOutput<T>(this, 'result', localDefault);
 
     // Build from the most significant selector bit down, so that the lowest
     // set bit is applied last and wins.

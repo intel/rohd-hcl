@@ -8,10 +8,42 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 class _TestModule extends Module {}
+
+class _TypedSelectHarness extends Module {
+  late final Logic selected;
+
+  _TypedSelectHarness(Logic schema) {
+    final inputs = List.generate(2, (index) {
+      final bits = addInput('data$index', Logic(width: schema.width),
+          width: schema.width);
+      return schema.cloneTyped(name: 'value$index')..gets(bits);
+    });
+    final selector = addInput('sel', Logic());
+    selected = StaticOrRuntimeParameter.runtime(selector, name: 'sel')
+        .select<Logic>(inputs[0], inputs[1]);
+    addOutput('out', width: schema.width) <= selected;
+  }
+}
+
+class _ConstantSelectHarness extends Module {
+  late final Logic selected;
+
+  _ConstantSelectHarness() {
+    FixedPoint fixed(int value) =>
+        FixedPoint.constant(FixedPointValue.withSignedness(
+            integer: LogicValue.ofInt(value >> 4, 4),
+            fraction: LogicValue.ofInt(value & 0xf, 4)));
+    selected = StaticOrRuntimeParameter.runtime(addInput('sel', Logic()),
+            name: 'select')
+        .select<Logic>(fixed(0x12), fixed(0x34));
+    addOutput('out', width: 8) <= selected;
+  }
+}
 
 class _ControlStructure extends LogicStructure {
   final Logic bits;
@@ -25,6 +57,21 @@ class _ControlStructure extends LogicStructure {
 }
 
 void main() {
+  tearDown(Simulator.reset);
+
+  test('runtime selection retains widened structured constants', () async {
+    final dut = _ConstantSelectHarness();
+    expect(dut.selected, isA<FixedPoint>());
+    await dut.build();
+    final vectors = [
+      Vector({'sel': 0}, {'out': 0x34}),
+      Vector({'sel': 1}, {'out': 0x12}),
+      Vector({'sel': LogicValue.x}, {'out': LogicValue.ofString('00x10xx0')}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
   test('typed boolean constructors preserve values and validate width', () {
     final signal = Logic(name: 'source');
     final staticControl = StaticOrRuntimeParameter.staticValue(value: true);
@@ -125,6 +172,69 @@ void main() {
     expect(constants.value, LogicValue.one);
     expect(() => staticTrue.select(Logic(width: 2), Logic()),
         throwsA(isA<PortWidthMismatchException>()));
+  });
+
+  test('typed selection validates semantic formats and accepts packed bridges',
+      () {
+    final signed = FixedPoint(integerWidth: 3, fractionWidth: 4);
+    final unsigned =
+        FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    final runtime = StaticOrRuntimeParameter.runtime(Logic(), name: 'sel');
+    final fixed = StaticOrRuntimeParameter.staticValue(value: true);
+    expect(() => runtime.select<Logic>(signed, unsigned), throwsArgumentError);
+    expect(() => fixed.select<Logic>(signed, unsigned), throwsArgumentError);
+
+    final firstField =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final secondField =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    final firstElement = GfLogic(firstField);
+    final secondElement = GfLogic(firstField);
+    expect(
+        StaticOrRuntimeParameter.runtime(Const(1), name: 'sel')
+            .select<Logic>(firstElement, secondElement),
+        same(firstElement));
+    expect(
+        () => runtime.select<Logic>(GfLogic(firstField), GfLogic(secondField)),
+        throwsArgumentError);
+    final firstArray = TypedLogicArray<GfLogic, LogicValue>(
+        [2], ({name}) => GfLogic(firstField, name: name));
+    final secondArray = TypedLogicArray<GfLogic, LogicValue>(
+        [2], ({name}) => GfLogic(secondField, name: name));
+    expect(() => runtime.select<Logic>(firstArray, secondArray),
+        throwsArgumentError);
+
+    final select = Logic()..put(1);
+    final packed = Logic(width: 8)..put(0xa6);
+    signed.fraction.put(1);
+    signed.integer.put(2);
+    final result = StaticOrRuntimeParameter.runtime(select, name: 'sel')
+        .select<Logic>(packed, signed);
+    expect(result, isA<FixedPoint>());
+    expect(result.value, LogicValue.ofInt(0xa6, 8));
+  });
+
+  test('runtime selection retains widened payloads in simulation and RTL',
+      () async {
+    final field =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(0x11b)));
+    for (final schema in <Logic>[
+      GfLogic(field),
+      FixedPoint(integerWidth: 3, fractionWidth: 4),
+    ]) {
+      final dut = _TypedSelectHarness(schema);
+      expect(sameDeclaredPayloadShape(dut.selected, schema), isTrue);
+      expect(dut.selected.runtimeType, schema.runtimeType);
+      final vectors = [
+        Vector({'sel': 0, 'data0': 0xa5, 'data1': 0x35}, {'out': 0x35}),
+        Vector({'sel': 1}, {'out': 0xa5}),
+        Vector({'sel': LogicValue.x}, {'out': LogicValue.ofString('x01x0101')}),
+      ];
+      await dut.build();
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      SimCompare.checkIverilogVector(dut, vectors);
+      await Simulator.reset();
+    }
   });
 
   test('structured sources are reused only when they are identical', () {

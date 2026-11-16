@@ -11,10 +11,13 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 const _randomIterations = 4;
+
+class _PortModule extends Module {}
 
 // Here are the variations needed testing:
 // - Sign variants
@@ -151,6 +154,27 @@ void checkPartialProduct(PartialProductGeneratorBase pp, BigInt iX, BigInt iY) {
 }
 
 void main() {
+  test('radix encodings retain their names and shape as typed ports', () async {
+    addTearDown(Simulator.reset);
+    final encoded = RadixEncoder(4).encode(Logic(width: 3), 3);
+    final clone = encoded.clone(name: 'renamed');
+    expect(clone.name, 'renamed');
+    expect(clone.row, encoded.row);
+    expect(sameDeclaredPayloadShape(encoded, clone), isTrue);
+
+    final dut = _PortModule();
+    final input = dut.addTypedInput('encoded', encoded);
+    final output = dut.addTypedOutput('result', input.clone)..gets(input);
+    expect(output.row, 3);
+    await dut.build();
+    final vectors = [
+      Vector({'encoded': 0}, {'result': 0}),
+      Vector({'encoded': 5}, {'result': 5}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
   group('unified signedness controls', () {
     for (final radix in [2, 4]) {
       for (final extension

@@ -10,23 +10,32 @@
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 String _selectorDefinitionName(
-    Logic matchVector, List<Logic>? selectionValues, String selectionName) {
+    Logic matchVector, List<Logic>? selectionValues, String selectionName,
+    {required bool flatPorts}) {
   final valuesName = selectionValues == null || selectionValues.isEmpty
       ? 'I'
       : 'V${selectionValues.first.width}';
+  final shapeName =
+      flatPorts || selectionValues == null || selectionValues.isEmpty
+          ? ''
+          : '${payloadShapeIdentity(selectionValues.first)}_';
   return 'AssociativeMatchSelector_E${matchVector.width}_'
-      '${valuesName}_$selectionName';
+      '${valuesName}_$shapeName$selectionName';
 }
 
 /// Determines whether a candidate should replace the selected match.
-typedef AssociativeMatchPreference = Logic Function(
-    {required Logic candidateValue,
-    required Logic selectedValue,
+typedef TypedAssociativeMatchPreference<T extends Logic> = Logic Function(
+    {required T candidateValue,
+    required T selectedValue,
     required int candidateIndex,
     required Logic selectedIndex,
     required String name});
+
+/// Determines preference between flattened selection values.
+typedef AssociativeMatchPreference = TypedAssociativeMatchPreference<Logic>;
 
 /// Prefers a candidate with a lower selection value.
 Logic lowerAssociativeSelectionValue(
@@ -50,13 +59,32 @@ Logic higherAssociativeSelectionValue(
         .gt(selectedValue)
         .named('${name}_prefer_higher_$candidateIndex');
 
-/// Selects one entry from an associative match vector.
+LogicValue _initialSelectionValue(Logic template) {
+  final leaves =
+      template is LogicStructure ? template.leafElements : <Logic>[template];
+  return leaves
+      .map((leaf) {
+        final zero = LogicValue.filled(leaf.width, LogicValue.zero);
+        if (leaf is! LogicEnum || leaf.mapping.containsValue(zero)) {
+          return zero;
+        }
+        return leaf.mapping.values
+            .reduce((a, b) => a.toBigInt() < b.toBigInt() ? a : b);
+      })
+      .toList()
+      .rconcat();
+}
+
+/// Selects one entry from an associative match vector using typed values.
 ///
-/// `selectionValues` may carry static priority, age, or another policy value.
-/// With no values, entry indices are used, so the default selects the lowest
-/// matching index. A custom `preference` can implement wrapping-age comparison.
+/// Selection values may carry priority, age, or another policy value. The
+/// default preference calls the payload's `lt` operation; a custom preference
+/// can compare fields or implement wrapping-age comparison. The preference
+/// must return one bit and is evaluated for every entry, including before a
+/// match has been found. Initially the selected index and value bits are zero,
+/// except enum leaves without a zero encoding use their lowest encoding.
 /// {@category Memory}
-class AssociativeMatchSelector extends Module {
+class TypedAssociativeMatchSelector<T extends Logic> extends Module {
   /// Number of selectable entries.
   final int entryCount;
 
@@ -72,18 +100,36 @@ class AssociativeMatchSelector extends Module {
   /// One-hot selected entry.
   Logic get selectedOneHot => output('selectedOneHot');
 
-  /// Creates a composable associative match selector.
-  AssociativeMatchSelector({
+  /// Creates a selector with matching typed selection value ports.
+  TypedAssociativeMatchSelector({
     required Logic matchVector,
-    List<Logic>? selectionValues,
-    AssociativeMatchPreference preference = lowerAssociativeSelectionValue,
+    required List<T> selectionValues,
+    TypedAssociativeMatchPreference<T> preference =
+        lowerAssociativeSelectionValue,
     String selectionName = 'lower',
-    super.name = 'associative_match_selector',
+    String name = 'associative_match_selector',
+  }) : this._(
+          matchVector: matchVector,
+          selectionValues: selectionValues,
+          preference: preference,
+          selectionName: selectionName,
+          name: name,
+          flatPorts: false,
+        );
+
+  TypedAssociativeMatchSelector._({
+    required Logic matchVector,
+    required List<T>? selectionValues,
+    required TypedAssociativeMatchPreference<T> preference,
+    required String selectionName,
+    required bool flatPorts,
+    required super.name,
   })  : entryCount = matchVector.width,
         indexWidth = max(1, (matchVector.width - 1).bitLength),
         super(
           definitionName: _selectorDefinitionName(
-              matchVector, selectionValues, selectionName),
+              matchVector, selectionValues, selectionName,
+              flatPorts: flatPorts),
         ) {
     if (matchVector.width < 1) {
       throw ArgumentError.value(
@@ -101,19 +147,37 @@ class AssociativeMatchSelector extends Module {
       throw ArgumentError(
           'selectionValues must provide one equally sized value per entry.');
     }
+    if (!flatPorts &&
+        selectionValues != null &&
+        selectionValues.any((value) => !sameDeclaredPayloadShape(
+            selectionValues.first, value,
+            ignoreConstantNames: true))) {
+      throw ArgumentError(
+          'Selection values must have matching payload shapes.');
+    }
 
     final localMatches =
         addInput('matchVector', matchVector, width: entryCount);
     final valueWidth = selectionValues?.first.width ?? indexWidth;
-    final localValues = selectionValues == null
-        ? List.generate(entryCount, (index) => Const(index, width: valueWidth))
-        : List.generate(
-            entryCount,
-            (index) => addInput('selectionValue_$index', selectionValues[index],
-                width: valueWidth));
+    final List<T> localValues;
+    if (selectionValues == null) {
+      localValues = List.generate(
+          entryCount, (index) => Const(index, width: valueWidth) as T);
+    } else {
+      localValues = List.generate(
+          entryCount,
+          (index) => flatPorts
+              ? addInput('selectionValue_$index', selectionValues[index],
+                  width: valueWidth) as T
+              : addTypedInput<T>(
+                  'selectionValue_$index', selectionValues[index]));
+    }
     Logic found = Const(0);
     Logic selected = Const(0, width: indexWidth);
-    Logic selectedValue = Const(0, width: valueWidth);
+    var selectedValue = flatPorts
+        ? Const(0, width: valueWidth) as T
+        : (localValues.first.cloneTyped(name: 'initialSelectedValue')
+          ..gets(Const(_initialSelectionValue(localValues.first))));
     for (var index = 0; index < entryCount; index++) {
       final preferred = preference(
           candidateValue: localValues[index],
@@ -129,8 +193,12 @@ class AssociativeMatchSelector extends Module {
           .named('${name}_choose_$index');
       selected = mux(choose, Const(index, width: indexWidth), selected)
           .named('${name}_selected_index_$index');
-      selectedValue = mux(choose, localValues[index], selectedValue)
-          .named('${name}_selected_value_$index');
+      selectedValue = flatPorts
+          ? mux<T>(choose, localValues[index], selectedValue)
+              .named('${name}_selected_value_$index') as T
+          : mux<T>(choose, localValues[index], selectedValue,
+              outputGenerator: ({name}) =>
+                  localValues.first.cloneTyped(name: name));
       found = (found | localMatches[index]).named('${name}_found_$index');
     }
     final oneHot = List.generate(
@@ -144,4 +212,18 @@ class AssociativeMatchSelector extends Module {
     addOutput('selectedIndex', width: indexWidth) <= selected;
     addOutput('selectedOneHot', width: entryCount) <= oneHot;
   }
+}
+
+/// Compatibility selector with flattened selection value ports.
+@Deprecated('Use TypedAssociativeMatchSelector to preserve selection types.')
+class AssociativeMatchSelector extends TypedAssociativeMatchSelector<Logic> {
+  /// Creates a selector using packed values or entry indices.
+  @Deprecated('Use TypedAssociativeMatchSelector to preserve selection types.')
+  AssociativeMatchSelector({
+    required super.matchVector,
+    super.selectionValues,
+    super.preference = lowerAssociativeSelectionValue,
+    super.selectionName = 'lower',
+    super.name = 'associative_match_selector',
+  }) : super._(flatPorts: true);
 }

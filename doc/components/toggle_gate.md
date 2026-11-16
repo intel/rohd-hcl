@@ -28,7 +28,10 @@ produces a statically typed `FloatingPoint32` output without a cast. Structures,
 enum signals, and typed arrays retain their layouts and codecs.
 
 Both constant and signal-driven reset values are supported. A structured reset
-signal retains its schema as a typed input; its layout must match the payload.
+signal retains its schema as a typed input; declared reset and payload layouts
+and semantic formats must match. A plain packed reset signal supplies raw bits.
 Clock-gating controls, reset priority, capture timing, and enable-low hold
 behavior are unchanged. As with the underlying typed ROHD operations, use
 `ToggleGate<Logic>(...)` for a scalar `Const` payload.
+Structured constant payloads and resets with driveable clones retain their
+types when widened to `Logic`.

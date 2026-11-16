@@ -10,6 +10,7 @@
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart' show FixedPoint, FixedPointValue;
 import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_hcl/src/memory/memories.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -143,6 +144,14 @@ void main() {
       final resetValue = LogicArray([4], 8)..inject(0xcafef00d);
       final vals = await setupAndDumpRf(resetValue);
       expect(vals.every((e) => e.toInt() == 0xcafef00d), isTrue);
+    });
+
+    test('structured constant reset is applied as packed bits', () async {
+      final resetValue = FixedPoint.constant(FixedPointValue.withSignedness(
+          integer: LogicValue.ofInt(0x1234, 16),
+          fraction: LogicValue.ofInt(0x5678, 16)));
+      final vals = await setupAndDumpRf(resetValue);
+      expect(vals.every((value) => value.toInt() == 0x12345678), isTrue);
     });
 
     group('list', () {

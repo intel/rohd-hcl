@@ -34,6 +34,9 @@ passes `T` to custom comparators. Its default comparison is four-state exact
 matching. The older `AssociativeMatcher` retains flat ports for compatibility
 and is deprecated.
 
+Typed associative and cache port schemas must clone with the same declared
+payload type and semantic format.
+
 ## Cache Organization Examples
 
 The cache-specific APIs in these examples, including their ports and replacement
@@ -564,6 +567,9 @@ associative memory, which defaults to parallel flops. `metadataMemory` can
 select a separate shared array factory, but it must have combinational reads;
 its default is a flop-backed register file. A synchronous SRAM cannot be used
 for this metadata path without changing the controller pipeline.
+The controller retains the declared request type in its pipeline state. Read
+data and metadata intermediates, masked updates, and storage normalization
+operate on packed bits.
 
 The serialized RTL controller can be exercised with both a behavioral data array
 and `CacheReplacement.behavioral(...)`; the controller itself remains RTL. Its
@@ -676,8 +682,10 @@ using the same typed payloads on its external channels. It stages one request
 and tracks up to `maxOutstanding` distinct tokens, including the staged request.
 It forwards matched responses and evictions and exposes `duplicateRequest`,
 `invalidResponse`, and `invalidEviction` diagnostics. Unmatched responses and
-events are held rather than forwarded. Matching is against accepted external
-requests, so it assumes a compliant core never responds or emits an event before
+events are held rather than forwarded. The staged request retains its declared
+payload structure, including array and enum fields. Matching is against
+accepted external requests, so it assumes a compliant core never responds or
+emits an event before
 accepting the corresponding staged request. For example, using the `port` and
 `core` above:
 
@@ -713,6 +721,9 @@ enabled lookup port accepts a request every cycle. A positive-latency
 implementation uses `SynchronousAssociativeLookupPortInterface`, whose `valid`
 marks the response cycle. That interface is a contract for other
 implementations, not a pipelined mode of `ParallelAssociativeMemory`.
+Use `TypedSynchronousAssociativeLookupPortInterface<T>(schema, indexWidth: ...)`
+to retain a typed key across this boundary. The original constructor taking
+`keyWidth` remains available for packed keys but is deprecated.
 
 ## Port-Compatible Associative Behavioral Model
 
@@ -806,13 +817,17 @@ is not yet available.
   one bit per entry.
 - `TypedAssociativeUpdatePortInterface<T>` and
   `TypedAssociativeLookupPortInterface<T>` retain a key schema through clones
-  and module ports. Drive the port's cloned key, not the schema object.
+  and module ports. The corresponding positive-latency lookup is
+  `TypedSynchronousAssociativeLookupPortInterface<T>`. Drive the port's cloned
+  key, not the schema object.
 
 All ports must have matching key and index widths; the index must represent
 every entry, and at least one lookup port is required. Declared structured
 layouts and enum mappings must be compatible, including typed-array dimensions
 and codecs. The parallel implementation compares packed key bits, not
 domain-specific numeric values.
+When registering individual interface groups, key compatibility is checked
+only when the group containing `key` is selected.
 
 ## Parallel Memory Example
 
@@ -912,6 +927,16 @@ arranging the read themselves. A single bound side read requires an
 `AssociativeMultiIndexedSideReadProvider`. The builder must connect each
 supplied index to its corresponding response.
 
+For a typed key, call `memory.typedSideReadResponse(lookup.key)` or
+`memory.typedSideReadResponses(lookup.key)` before building the surrounding
+module. These return connected `TypedAssociativeIndexedSideReadResponse` views
+whose `key` retains the supplied type. The schema must be compatible with every
+declared lookup and update key; an explicitly packed `Logic` can be used as a
+bridge. An empty set of reads gives `null` or an empty list, respectively;
+a memory without a side-read provider throws `StateError`. The existing
+providers retain their packed responses for compatibility, but
+`AssociativeIndexedSideReadResponse` is deprecated.
+
 ## Replacement Policies
 
 Replacement is separate from associative storage. When `enableValidTracking` is
@@ -964,19 +989,34 @@ committing its replacement.
 
 ## Matching and Selection Without Storage
 
-`AssociativeMatcher` compares a query with a list of keys under a valid mask,
-returning `matchVector`, `hit`, and `multipleMatches`. Its default comparator
-uses logical equality; a custom comparator must return one bit per entry.
-`AssociativeMatchSelector` selects a match, exposing `valid`, `selectedIndex`,
-and `selectedOneHot`. By default it selects the lowest matching index; optional
-selection values and a preference callback support other policies.
+`TypedAssociativeMatcher` compares a query with a list of keys under a valid
+mask, returning `matchVector`, `hit`, and `multipleMatches`. Its default
+comparator uses logical equality; a custom comparator must return one bit per
+entry. The flat `AssociativeMatcher` is deprecated.
+`TypedAssociativeMatchSelector` selects a match, exposing `valid`,
+`selectedIndex`, and `selectedOneHot`. It retains the selection value type for
+the default lower-value comparison and custom preference callbacks. All values
+must have the same declared payload shape. Both typed components accept
+constant-containing structures with driveable clones, even when widened to
+`Logic`. A custom comparison should use a
+distinct `selectionName` to distinguish its generated module definition and
+return one bit. It is evaluated for every entry, including before a match has
+been found. Initially the selected index and value bits are zero, except enum
+leaves without a zero encoding use their lowest encoding. Equal preferences
+under the default lower-value comparison retain the earlier matching entry.
+The deprecated `AssociativeMatchSelector` retains flattened value ports and,
+without selection values, selects the lowest matching index by default.
 
 ```dart
-final matcher = AssociativeMatcher(
+final matcher = TypedAssociativeMatcher(
     query: query, storedKeys: keys, validMask: validMask);
-final selector = AssociativeMatchSelector(matchVector: matcher.matchVector);
+final selector = TypedAssociativeMatchSelector(
+    matchVector: matcher.matchVector, selectionValues: priorities);
 final selected = selector.selectedIndex;
 ```
+
+For lowest-index selection, supply a constant priority equal to each entry's
+index, with one value per entry and a common width.
 
 These are combinational building blocks: neither owns key storage nor performs
 clocked updates. Give custom comparison and selection functions distinct

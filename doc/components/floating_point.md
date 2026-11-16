@@ -91,7 +91,10 @@ types as `FloatingPointSwap<FpType, MetaType>`,
 MetaType>`, and `FloatingPointSortByExp<FpType, MetaType>`. Optional metadata
 outputs have type `MetaType?`; fields are accessible without casting. Structured
 and typed-array metadata use typed muxes and must have matching recursive
-layouts, enum mappings, and value codecs.
+layouts, enum mappings, and value codecs. The swap/sort modules and the
+`FloatingPointUtilities.sort` and `sortByExp` functions require matching
+floating-point operand formats.
+Compatible floating-point constants are supported as operands.
 
 ```dart
 final sorter = FloatingPointSort(a, b, metaA: packetA, metaB: packetB);
@@ -103,6 +106,8 @@ Calls with inferred type arguments remain supported. Explicit old
 type, for example `FloatingPointSort<FloatingPoint32, Packet>`. Use `Logic` as
 the metadata type for scalar constants so outputs are driveable; with no
 metadata, optional outputs remain absent.
+Structured constant metadata with driveable clones retains its type when
+widened to `Logic`.
 
 The single-path and dual-path adders and the simple multiplier retain propagated
 NaNs as floating-point payloads through their optional pipeline stage, rather

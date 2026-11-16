@@ -6,6 +6,7 @@
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Returns the minimum number of bits needed to represent [val] distinct
 /// values, with a minimum of 1 (since 0-width signals are not valid in
@@ -90,7 +91,8 @@ extension SignedBigInt on BigInt {
 /// Preserves [LogicType] and runtime structured layouts. [outputGenerator] can
 /// supply an explicit registered output schema. A null [clk] returns [d]
 /// unchanged. Use `condFlop<Logic>` for scalar constants or nets that need a
-/// driveable registered result.
+/// driveable registered result. The output must be compatible with the input
+/// and any signal reset value; packed values remain valid bridges.
 LogicType condFlop<LogicType extends Logic>(
   Logic? clk,
   LogicType d, {
@@ -103,29 +105,53 @@ LogicType condFlop<LogicType extends Logic>(
   if (clk == null) {
     return d;
   }
-  final clone = d.cloneTyped;
+  final generator = outputGenerator ??
+      (hasDeclaredPayloadShape(d)
+          ? ({name}) => d.cloneTyped(name: name)
+          : null);
+  LogicType checkedOutput({String? name}) {
+    final output = generator!(name: name);
+    if (output.width == d.width &&
+        !compatiblePayloadConnection(output, d, ignoreConstantNames: true)) {
+      throw ArgumentError('Register output and input payloads must be '
+          'compatible.');
+    }
+    if (reset != null &&
+        resetValue is Logic &&
+        output.width == resetValue.width &&
+        !compatiblePayloadConnection(output, resetValue,
+            ignoreConstantNames: true)) {
+      throw ArgumentError('Register output and reset payloads must be '
+          'compatible.');
+    }
+    return output;
+  }
+
   final registered = flop<LogicType>(clk, d,
       en: en,
       reset: reset,
       resetValue: resetValue,
       asyncReset: asyncReset,
-      outputGenerator: outputGenerator ??
-          (d is LogicStructure || d is LogicEnum ? clone : null));
+      outputGenerator: generator == null ? null : checkedOutput);
   return registered.cloneTyped(name: '${d.name}_flopped')..gets(registered);
 }
 
-/// Swap two [Logic] structures based on a conditional [doSwap].
+/// Swap two compatible payloads based on a conditional [doSwap].
+///
+/// Declared payload formats must match; plain packed values are bridges.
 (LogicType, LogicType) swap<LogicType extends Logic>(
     Logic doSwap, (LogicType, LogicType) toSwap) {
   final (in1, in2) = toSwap;
-  final firstClone = in1.cloneTyped;
-  final secondClone = in2.cloneTyped;
+  if (in1.width == in2.width &&
+      !compatiblePayloadConnection(in1, in2, ignoreConstantNames: true)) {
+    throw ArgumentError('Swap payloads must be compatible.');
+  }
+  LogicType firstClone({String? name}) => in1.cloneTyped(name: name);
+  LogicType secondClone({String? name}) => in2.cloneTyped(name: name);
   final out1 = mux<LogicType>(doSwap, in2, in1,
-      outputGenerator:
-          in1 is LogicStructure || in1 is LogicEnum ? firstClone : null);
+      outputGenerator: hasDeclaredPayloadShape(in1) ? firstClone : null);
   final out2 = mux<LogicType>(doSwap, in1, in2,
-      outputGenerator:
-          in2 is LogicStructure || in2 is LogicEnum ? secondClone : null);
+      outputGenerator: hasDeclaredPayloadShape(in2) ? secondClone : null);
   return (
     out1.cloneTyped(name: 'swapOut1')..gets(out1),
     out2.cloneTyped(name: 'swapOut2')..gets(out2),

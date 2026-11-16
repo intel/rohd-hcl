@@ -12,6 +12,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A recursive reduction tree retaining data type [T] and control type [C].
 class ReductionTree<T extends Logic, C extends Logic> extends Module {
@@ -29,7 +30,7 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
 
   /// Operation to be performed at each node. Note that [operation] can widen
   /// the output. The logic function must support singleton branches and up to
-  /// [radix] inputs. Structured operations align their own fields and formats;
+  /// [radix] inputs. Declared payloads align their own fields and formats;
   /// plain [Logic] operands retain automatic sign/zero extension.
   /// The [depth] input is the depth of the current node in the
   /// tree to the leaves.  For sequences that are not powers of [radix], the
@@ -139,15 +140,15 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
         StaticOrRuntimeParameter.ofDynamic(signExtend, name: 'signExtend');
     _sequence = [
       for (var i = 0; i < sequence.length; i++)
-        addTypedInput('seq$i', sequence[i])
+        addTypedInput<T>('seq$i', sequence[i])
     ];
-    _control = (control != null ? addTypedInput('control', control) : null);
+    _control = control != null ? addTypedInput<C>('control', control) : null;
     _clk = (clk != null) ? addInput('clk', clk) : null;
     _enable = (enable != null) ? addInput('enable', enable) : null;
     _reset = (reset != null) ? addInput('reset', reset) : null;
 
     _controlOut = (_control != null
-        ? addTypedOutput('controlOut', _control.cloneTyped)
+        ? addTypedPayloadOutput(this, 'controlOut', _control)
         : null);
 
     _buildLogic();
@@ -158,7 +159,7 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
   static L cloneSignal<L extends Logic>(L source, {String? name}) {
     final cloned = source is Const
         ? Logic(width: source.width, name: name)
-        : source.clone(name: name);
+        : source.cloneTyped(name: name);
     if (cloned is! L) {
       throw RohdHclException(
           'Reduction signals require driveable clones. Use Logic for scalar '
@@ -167,7 +168,7 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
     return cloned;
   }
 
-  /// Aligns scalar operands without erasing structured formats or enum types.
+  /// Aligns plain scalar operands without erasing declared payload formats.
   ///
   /// Typed operations handle their own field/format alignment and may widen
   /// their outputs. Scalar reductions retain the existing bit-extension policy.
@@ -175,7 +176,7 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
   static L alignInput<L extends Logic>(
       L signal, int width, StaticOrRuntimeParameter signExtension,
       {Module? module}) {
-    if (signal is LogicStructure || signal is LogicEnum) {
+    if (hasDeclaredPayloadShape(signal)) {
       return signal;
     }
     final extended = signExtension.runtimeConfig == null

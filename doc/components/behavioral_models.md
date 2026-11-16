@@ -73,8 +73,8 @@ their input and output names and widths and uses ROHD's normal SystemC
 generation for the rest. The result contains `source` and the uniquified
 `topClassName`. Selected modules without a model and unsupported unselected
 modules cause errors; they are not replaced with stubs. The selector is
-evaluated once per module. ROHD's builder still visits descendants of selected
-modules, so unsupported descendants must themselves be handled.
+evaluated at most once per visited module. Descendants of selected modules are
+not generated or selected separately.
 
 ```dart
 final hierarchy = generateBehavioralSystemCHierarchy(

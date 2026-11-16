@@ -67,6 +67,11 @@ split writes to registers wider than the frontdoor. Architectural frontdoor and
 backdoor buses remain packed bits; access policies and write priority are
 unchanged.
 
+Typed payload compatibility includes the CSR's instance and architectural
+configuration, not just its field layout. Equivalent configurations connect
+normally; use an explicit packed `Logic` bridge when transferring raw bits
+between different CSR configurations.
+
 ### CsrInstanceConfig
 
 The `CsrInstanceConfig` is associated with a particular instantiation of an
@@ -357,6 +362,9 @@ The `CsrBackdoorInterface` has the following ports:
   cycle
 - `wrData` (width = `dataWidth`) => the data to write to the associated CSR for
   a backdoor write
+
+Read ports retain the `Csr` structure and field configuration when registered
+through module boundaries. Write data remains a packed bit vector.
 
 The `CsrBackdoorInterface` is constructed with a `CsrInstanceConfig`. This
 config enables the following:

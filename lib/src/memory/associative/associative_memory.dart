@@ -47,33 +47,41 @@ abstract class AssociativePortInterface extends Interface<DataPortGroup> {
       Iterable<DataPortGroup>? outputTags,
       Iterable<DataPortGroup>? inOutTags,
       String Function(String original)? uniquify}) {
-    final source = srcInterface.port('key');
-    if (source.width != keyWidth || !_compatibleKeys(key, source)) {
-      throw PortTypeException.forIntendedName(
-          'key',
-          'Associative key layout does not match '
-              '${payloadShapeIdentity(key)}.');
+    final inputs = inputTags?.toSet();
+    final outputs = outputTags?.toSet();
+    final inOuts = inOutTags?.toSet();
+    final isInput = inputs?.contains(_keyGroup) ?? false;
+    final isOutput = outputs?.contains(_keyGroup) ?? false;
+    final isInOut = inOuts?.contains(_keyGroup) ?? false;
+    if (isInput || isOutput || isInOut) {
+      final source = srcInterface.port('key');
+      if (source.width != keyWidth || !_compatibleKeys(key, source)) {
+        throw PortTypeException.forIntendedName(
+            'key',
+            'Associative key layout does not match '
+                '${payloadShapeIdentity(key)}.');
+      }
+      final keyName = uniquify?.call('key') ?? 'key';
+      if (isInput) {
+        final bridge = key.cloneTyped(name: 'key_input_bridge')..gets(source);
+        key <= module.addTypedInput(keyName, bridge);
+      }
+      if (isOutput) {
+        final output = addTypedPayloadOutput(module, keyName, key);
+        output <= key;
+        source <= output;
+      }
+      if (isInOut) {
+        final bridge = key.cloneTyped(name: 'key_inout_bridge')..gets(source);
+        key <= module.addTypedInOut(keyName, bridge);
+      }
     }
-    final keyName = uniquify?.call('key') ?? 'key';
-    if (inputTags?.contains(_keyGroup) ?? false) {
-      final bridge = key.cloneTyped(name: 'key_input_bridge')..gets(source);
-      key <= module.addTypedInput(keyName, bridge);
-    }
-    if (outputTags?.contains(_keyGroup) ?? false) {
-      final output = module.addTypedOutput(keyName, key.cloneTyped);
-      output <= key;
-      source <= output;
-    }
-    if (inOutTags?.contains(_keyGroup) ?? false) {
-      final bridge = key.cloneTyped(name: 'key_inout_bridge')..gets(source);
-      key <= module.addTypedInOut(keyName, bridge);
-    }
-    _suppressKey = true;
+    _suppressKey = isInput || isOutput || isInOut;
     try {
       super.connectIO(module, srcInterface,
-          inputTags: inputTags,
-          outputTags: outputTags,
-          inOutTags: inOutTags,
+          inputTags: inputs,
+          outputTags: outputs,
+          inOutTags: inOuts,
           uniquify: uniquify);
     } finally {
       _suppressKey = false;
@@ -82,9 +90,7 @@ abstract class AssociativePortInterface extends Interface<DataPortGroup> {
 }
 
 bool _compatibleKeys(Logic left, Logic right) =>
-    !((left is LogicStructure && right is LogicStructure) ||
-        (left is LogicEnum && right is LogicEnum)) ||
-    sameHclPayloadShape(left, right);
+    compatiblePayloadConnection(left, right);
 
 /// A port that updates one indexed associative-memory entry.
 ///
@@ -253,11 +259,22 @@ class SynchronousAssociativeLookupPortInterface
   /// Indicates that [hit] and [index] carry a lookup response.
   Logic get valid => port('valid');
 
-  /// Creates a synchronous associative-memory lookup port.
+  /// Creates a synchronous associative-memory lookup port with a packed key.
+  @Deprecated('Use TypedSynchronousAssociativeLookupPortInterface instead.')
   SynchronousAssociativeLookupPortInterface(
       {required super.keyWidth,
       required super.indexWidth,
       super.matchEntryCount}) {
+    _setValidPort();
+  }
+
+  SynchronousAssociativeLookupPortInterface._typed(super.key,
+      {required super.indexWidth, super.matchEntryCount})
+      : super._typed() {
+    _setValidPort();
+  }
+
+  void _setValidPort() {
     setPorts([
       Logic.port('valid'),
     ], [
@@ -268,10 +285,30 @@ class SynchronousAssociativeLookupPortInterface
   /// Makes a copy of this interface with matching configuration.
   @override
   SynchronousAssociativeLookupPortInterface clone() =>
+      // The packed constructor remains the compatibility path.
+      // ignore: deprecated_member_use_from_same_package
       SynchronousAssociativeLookupPortInterface(
           keyWidth: keyWidth,
           indexWidth: indexWidth,
           matchEntryCount: matchEntryCount);
+}
+
+/// A synchronous associative lookup port preserving a typed key schema.
+/// {@category Memory}
+class TypedSynchronousAssociativeLookupPortInterface<T extends Logic>
+    extends SynchronousAssociativeLookupPortInterface {
+  /// Creates a synchronous lookup port with the shape and type of [key].
+  TypedSynchronousAssociativeLookupPortInterface(T super.key,
+      {required super.indexWidth, super.matchEntryCount})
+      : super._typed();
+
+  @override
+  T get key => super.key as T;
+
+  @override
+  TypedSynchronousAssociativeLookupPortInterface<T> clone() =>
+      TypedSynchronousAssociativeLookupPortInterface<T>(key,
+          indexWidth: indexWidth, matchEntryCount: matchEntryCount);
 }
 
 /// A raw associative memory with fixed lookup timing and initiation interval.
@@ -303,6 +340,59 @@ abstract class AssociativeMemory extends Module {
 
   /// Resolved timing and semantic contract.
   final AssociativeMemoryContract contract;
+
+  /// Returns typed views of all indexed side reads in request order.
+  ///
+  /// [key] supplies the result schema and must be compatible with every
+  /// declared update and lookup key. Packed keys are explicit bridges. A
+  /// memory without an indexed side-read provider throws [StateError].
+  List<TypedAssociativeIndexedSideReadResponse<T>>
+      typedSideReadResponses<T extends Logic>(T key) =>
+          _typedSideReadResponses(key);
+
+  List<TypedAssociativeIndexedSideReadResponse<T>>
+      _typedSideReadResponses<T extends Logic>(T key,
+          {bool preferSingle = false}) {
+    if (<AssociativePortInterface>[...localUpdates, ...localLookups]
+        .any((port) => !compatiblePayloadConnection(key, port.key))) {
+      throw ArgumentError('The side-read key schema must be compatible with '
+          'all associative ports.');
+    }
+
+    final provider = this;
+    final List<TypedAssociativeIndexedSideReadResponse<Logic>> responses;
+    if (preferSingle && provider is AssociativeIndexedSideReadProvider) {
+      final response =
+          (provider as AssociativeIndexedSideReadProvider).sideReadResponse;
+      responses = response == null ? [] : [response];
+    } else if (provider is AssociativeMultiIndexedSideReadProvider) {
+      responses = (provider as AssociativeMultiIndexedSideReadProvider)
+          .sideReadResponses;
+    } else if (provider is AssociativeIndexedSideReadProvider) {
+      final response =
+          (provider as AssociativeIndexedSideReadProvider).sideReadResponse;
+      responses = response == null ? [] : [response];
+    } else {
+      throw StateError('This associative memory does not provide indexed '
+          'side reads.');
+    }
+    return List.unmodifiable(responses.map((response) {
+      final typed = TypedAssociativeIndexedSideReadResponse<T>(key);
+      typed.key <= response.key;
+      typed.entryValid <= response.entryValid;
+      return typed;
+    }));
+  }
+
+  /// Returns the first typed side read, or null when no read is configured.
+  ///
+  /// The schema and provider requirements are the same as for
+  /// [typedSideReadResponses].
+  TypedAssociativeIndexedSideReadResponse<T>?
+      typedSideReadResponse<T extends Logic>(T key) {
+    final responses = _typedSideReadResponses(key, preferSingle: true);
+    return responses.isEmpty ? null : responses.first;
+  }
 
   /// Internal update ports connected to the caller-owned update ports.
   @protected

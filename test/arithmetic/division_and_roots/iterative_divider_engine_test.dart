@@ -13,6 +13,14 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+class _ErasedDivisionResult extends DivisionResult {
+  _ErasedDivisionResult() : super(dataWidth: 8);
+
+  @override
+  DivisionResult clone({String? name}) =>
+      DivisionResult(dataWidth: dataWidth, name: name);
+}
+
 Future<void> _tick(Logic clk) async {
   await clk.nextPosedge;
   await clk.nextNegedge;
@@ -31,6 +39,19 @@ Future<void> _waitFor(Logic clk, Logic signal, {String? reason}) async {
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('ready/valid divider rejects an erased result schema clone', () {
+    expect(
+        () => ReadyValidIterativeDivider(
+              clk: Logic(),
+              reset: Logic(),
+              upstream: ReadyValidInterface(DivisionRequest(dataWidth: 8),
+                  contract: ReadyValidContract.readyAndValid),
+              downstream:
+                  ReadyValidInterface<DivisionResult>(_ErasedDivisionResult()),
+            ),
+        throwsA(isA<LogicConstructionException>()));
+  });
 
   test('direct engine accepts a start and pulses done', () async {
     final clk = SimpleClockGenerator(10).clk;

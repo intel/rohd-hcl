@@ -138,6 +138,8 @@ typedef ParallelAssociativeLookupSignals = ({
       validMask: validMask,
       name: '${name}_matcher_$lookupIndex',
     );
+    // Index selection uses the compatibility selector's built-in indices.
+    // ignore: deprecated_member_use_from_same_package
     final selector = AssociativeMatchSelector(
       matchVector: matcher.matchVector,
       preference:
@@ -201,10 +203,14 @@ class ParallelAssociativeMemory extends AssociativeMemory
   Logic? get validMask => enableValidTracking ? output('valid_mask') : null;
 
   @override
+  // Retain the packed provider interface for existing consumers.
+  // ignore: deprecated_member_use_from_same_package
   AssociativeIndexedSideReadResponse? get sideReadResponse =>
       sideReadResponses.isEmpty ? null : sideReadResponses.first;
 
   @override
+  // Retain the packed provider interface for existing consumers.
+  // ignore: deprecated_member_use_from_same_package
   final List<AssociativeIndexedSideReadResponse> sideReadResponses;
   final List<AssociativeIndexedSideReadRequest> _sideReadRequests;
 
@@ -226,6 +232,8 @@ class ParallelAssociativeMemory extends AssociativeMemory
           for (var i = 0;
               i < _sideReadCount(sideReadRequest, sideReadRequests);
               i++)
+            // Retain packed responses on the compatibility provider.
+            // ignore: deprecated_member_use_from_same_package
             AssociativeIndexedSideReadResponse(keyWidth: lookups.first.keyWidth)
         ],
         super(
