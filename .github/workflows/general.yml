@@ -119,6 +119,9 @@ jobs:
       - name: Run confapp tests
         run: tool/gh_actions/run_flutter_tests.sh
 
+      - name: Test root package on WebAssembly
+        run: dart test -p chrome -c dart2wasm test/wasm_compatibility_test.dart
+
       - name: Build static site
         run: tool/gh_actions/hcl_site_generation_build.sh
 
