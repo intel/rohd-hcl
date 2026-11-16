@@ -190,7 +190,8 @@ dependency_overrides:
     expect(resetRoot['dependency_overrides'], isEmpty);
   });
 
-  test('a consumer resolves and tests without the Confapp directory', () async {
+  test('a consumer without Confapp uses the configured ROHD override',
+      () async {
     final package = Directory('${fixture.path}/package');
     final consumer = Directory('${fixture.path}/consumer');
     await Directory('${package.path}/lib').create(recursive: true);
@@ -206,6 +207,37 @@ dependency_overrides:
         await entry.copy(destination.path);
       }
     }
+    final manifest =
+        loadYaml(await File('${repository.path}/pubspec.yaml').readAsString())
+            as YamlMap;
+    final overridesFile = File('${repository.path}/pubspec_overrides.yaml');
+    final overrides = overridesFile.existsSync()
+        ? loadYaml(await overridesFile.readAsString()) as YamlMap
+        : <dynamic, dynamic>{};
+    final configuredOverrides = (overrides.containsKey('dependency_overrides')
+        ? overrides['dependency_overrides']
+        : manifest['dependency_overrides']) as Map?;
+    final rohdOverride = configuredOverrides?['rohd'];
+    final dependencies = <String, dynamic>{};
+    if (rohdOverride != null) {
+      final normalized = jsonDecode(jsonEncode(rohdOverride));
+      if (normalized is Map<String, dynamic>) {
+        final path = normalized['path'];
+        if (path is String) {
+          normalized['path'] = repository.uri.resolve(path).toFilePath();
+        }
+        final git = normalized['git'];
+        if (git is Map<String, dynamic> &&
+            git['url'] is String &&
+            (git['url'] as String).startsWith('.')) {
+          git['url'] =
+              repository.uri.resolve(git['url'] as String).toFilePath();
+        } else if (git is String && git.startsWith('.')) {
+          normalized['git'] = repository.uri.resolve(git).toFilePath();
+        }
+      }
+      dependencies['rohd'] = normalized;
+    }
     await File('${consumer.path}/pubspec.yaml').writeAsString(jsonEncode({
       'name': 'hcl_consumer_fixture',
       'publish_to': 'none',
@@ -214,6 +246,9 @@ dependency_overrides:
         'rohd_hcl': {'path': package.path},
       },
       'dev_dependencies': {'test': '^1.25.0'},
+      // Pub ignores dependency overrides of packages that are dependencies.
+      // Remove this temporary override once the required ROHD is published.
+      if (dependencies.isNotEmpty) 'dependency_overrides': dependencies,
     }));
     await File('${consumer.path}/test/consumer_test.dart').writeAsString('''
 import 'package:rohd_hcl/rohd_hcl.dart';
