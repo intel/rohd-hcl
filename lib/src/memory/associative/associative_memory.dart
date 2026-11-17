@@ -84,7 +84,7 @@ abstract class AssociativePortInterface extends Interface<DataPortGroup> {
 bool _compatibleKeys(Logic left, Logic right) =>
     !((left is LogicStructure && right is LogicStructure) ||
         (left is LogicEnum && right is LogicEnum)) ||
-    sameDeclaredPayloadShape(left, right);
+    sameHclPayloadShape(left, right);
 
 /// A port that updates one indexed associative-memory entry.
 ///

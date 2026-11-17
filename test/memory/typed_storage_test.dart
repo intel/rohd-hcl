@@ -161,8 +161,8 @@ void _checkStorage<T extends Logic>(String label, T schema,
   // simultaneous writes to the same entry (the later port wins).
   test('$label register file functional and $backend', () async {
     final dut = _RegisterHarness<T>(schema);
-    expect(sameDeclaredPayloadShape(dut.rf.rdData(0), schema), isTrue);
-    expect(sameDeclaredPayloadShape(dut.rf.input('wr_data_0'), schema), isTrue);
+    expect(sameHclPayloadShape(dut.rf.rdData(0), schema), isTrue);
+    expect(sameHclPayloadShape(dut.rf.input('wr_data_0'), schema), isTrue);
     await _compare(
         dut,
         [
@@ -199,7 +199,7 @@ void _checkStorage<T extends Logic>(String label, T schema,
     // Fill, replace while full, drain in order, then bypass while empty.
     test('$label FIFO depth $depth functional and $backend', () async {
       final dut = _FifoHarness<T>(schema, depth);
-      expect(sameDeclaredPayloadShape(dut.binding.output, schema), isTrue);
+      expect(sameHclPayloadShape(dut.binding.output, schema), isTrue);
       final vectors = [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'empty': 1}),
@@ -237,9 +237,8 @@ void main() {
     // A full FIFO cannot replace an entry on the same cycle it dequeues.
     test('ready/valid ${schema.runtimeType} full backpressure', () async {
       final dut = _ReadyValidHarness(schema);
-      expect(sameDeclaredPayloadShape(dut.fifo.upstream.data, schema), isTrue);
-      expect(
-          sameDeclaredPayloadShape(dut.fifo.downstream.data, schema), isTrue);
+      expect(sameHclPayloadShape(dut.fifo.upstream.data, schema), isTrue);
+      expect(sameHclPayloadShape(dut.fifo.downstream.data, schema), isTrue);
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'valid': 0}),
@@ -288,8 +287,7 @@ void main() {
     // Hold the consumer stalled across several cycles before draining.
     test('ready/valid typed $dimensions functional and Icarus', () async {
       final dut = _ReadyValidHarness(schema);
-      expect(
-          sameDeclaredPayloadShape(dut.fifo.downstream.data, schema), isTrue);
+      expect(sameHclPayloadShape(dut.fifo.downstream.data, schema), isTrue);
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'valid': 0}),
@@ -308,9 +306,8 @@ void main() {
       final schema = TypedLogicArray<_Word, _WordValue>([2], _Word.new,
           valueCodec: _wordCodec);
       final dut = _ReadyValidQueueHarness(schema, storage);
-      expect(sameDeclaredPayloadShape(dut.queue.upstream.data, schema), isTrue);
-      expect(
-          sameDeclaredPayloadShape(dut.queue.downstream.data, schema), isTrue);
+      expect(sameHclPayloadShape(dut.queue.upstream.data, schema), isTrue);
+      expect(sameHclPayloadShape(dut.queue.downstream.data, schema), isTrue);
       expect(dut.queue.downstream.data.valueCodec, same(_wordCodec));
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
@@ -387,7 +384,7 @@ void main() {
     final renamed = TypedLogicArray<_Word, LogicValue>([2, 2], _Word.new,
         dimensionNames: ['x', 'y']);
     final reshaped = TypedLogicArray<_Word, LogicValue>([4], _Word.new);
-    expect(sameDeclaredPayloadShape(first, renamed), isTrue);
+    expect(sameHclPayloadShape(first, renamed), isTrue);
     expect(payloadShapeIdentity(first), payloadShapeIdentity(renamed));
     expect(
         () => ReadyValidFifo(

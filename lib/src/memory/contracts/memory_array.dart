@@ -198,7 +198,7 @@ class MemoryArrayFunctor<T extends Logic> {
     if (BigInt.from(entryCount) > (BigInt.one << first.addrWidth) ||
         ports.any((port) =>
             port.addrWidth != first.addrWidth ||
-            !sameDeclaredPayloadShape(first.data, port.data))) {
+            !sameHclPayloadShape(first.data, port.data))) {
       throw ArgumentError('Memory-array ports have incompatible geometry '
           'or payload layouts.');
     }

@@ -105,7 +105,7 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint,
           'both null or both non-null.');
     }
     if (metaA != null && metaB != null) {
-      if (!sameDeclaredPayloadShape(metaA, metaB)) {
+      if (!sameHclPayloadShape(metaA, metaB)) {
         throw RohdHclException('FloatingPointSwap requires metaA and metaB to '
             'have matching layouts and value codecs.');
       }

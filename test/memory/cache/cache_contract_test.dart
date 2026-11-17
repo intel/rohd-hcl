@@ -345,17 +345,13 @@ void main() {
     expect(port.requests.contract, ReadyValidContract.irrevocable);
     expect(port.responses.contract, ReadyValidContract.irrevocable);
     expect(port.evictions.contract, ReadyValidContract.irrevocable);
-    expect(
-        sameDeclaredPayloadShape(
-            port.requests.data, port.requests.data.clone()),
+    expect(sameHclPayloadShape(port.requests.data, port.requests.data.clone()),
         isTrue);
     expect(
-        sameDeclaredPayloadShape(
-            port.responses.data, port.responses.data.clone()),
+        sameHclPayloadShape(port.responses.data, port.responses.data.clone()),
         isTrue);
     expect(
-        sameDeclaredPayloadShape(
-            port.evictions.data, port.evictions.data.clone()),
+        sameHclPayloadShape(port.evictions.data, port.evictions.data.clone()),
         isTrue);
     expect(port.requests.data.clone().operation.width, 4);
     expect(port.evictions.data.clone().cause.width, 2);

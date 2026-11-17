@@ -1,6 +1,6 @@
-## Unreleased
+## 0.3.2
 
-- Fixed AXI4 subordinate memory transactions to use monitor-captured request fields rather than live signals after a handshake. Write data is captured only by its channel monitor, and write responses wait for both address and data.
+- Fixed compilation with ROHD 0.7.3 while retaining compatibility with ROHD 0.7.2.
 
 ## 0.3.1
 

@@ -196,11 +196,11 @@ void _checkMetadata<T extends Logic>(String label, T schema,
         first,
         dut.sorter.outMetaB!,
       ]) {
-        expect(sameDeclaredPayloadShape(schema, port), isTrue);
+        expect(sameHclPayloadShape(schema, port), isTrue);
       }
       final metadataMuxes = dut.sorter.subModules
           .whereType<Mux<T>>()
-          .where((mux) => sameDeclaredPayloadShape(schema, mux.out));
+          .where((mux) => sameHclPayloadShape(schema, mux.out));
       expect(metadataMuxes, hasLength(2));
       final mask = (1 << schema.width) - 1;
       final a = 0x102030a1 & mask;

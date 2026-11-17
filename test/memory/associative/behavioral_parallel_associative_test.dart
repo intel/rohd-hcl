@@ -660,10 +660,10 @@ void main() {
       name: 'typed_model',
     );
     final model = binding.memory!;
-    expect(sameDeclaredPayloadShape(model.input('update_key_0'), update.key),
-        isTrue);
-    expect(sameDeclaredPayloadShape(model.input('lookup_key_0'), lookup.key),
-        isTrue);
+    expect(
+        sameHclPayloadShape(model.input('update_key_0'), update.key), isTrue);
+    expect(
+        sameHclPayloadShape(model.input('lookup_key_0'), lookup.key), isTrue);
     await model.build();
     Simulator.registerAction(1, () {
       clk.put(0);

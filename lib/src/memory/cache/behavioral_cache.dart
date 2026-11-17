@@ -577,9 +577,9 @@ class BehavioralCache<T extends Logic, M extends Logic, C extends Logic,
         backingStore.dataWidth != request.data.width ||
         backingStore.metadataWidth != request.lineMetadata.width ||
         ports.any((port) =>
-            !sameDeclaredPayloadShape(request, port.requests.data) ||
-            !sameDeclaredPayloadShape(response, port.responses.data) ||
-            !sameDeclaredPayloadShape(eviction, port.evictions.data))) {
+            !sameHclPayloadShape(request, port.requests.data) ||
+            !sameHclPayloadShape(response, port.responses.data) ||
+            !sameHclPayloadShape(eviction, port.evictions.data))) {
       throw ArgumentError('Cache ports and backing store must have matching '
           'geometry and payload shapes.');
     }

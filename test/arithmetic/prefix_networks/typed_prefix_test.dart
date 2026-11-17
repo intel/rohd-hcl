@@ -89,7 +89,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
 
 void _expectPayload<T extends Logic>(T schema, T signal) {
   expect(signal.runtimeType, schema.runtimeType);
-  expect(sameDeclaredPayloadShape(schema, signal), isTrue);
+  expect(sameHclPayloadShape(schema, signal), isTrue);
 }
 
 void _checkPayload<T extends Logic>(String label, T schema,
@@ -100,7 +100,7 @@ void _checkPayload<T extends Logic>(String label, T schema,
       final dut = _Harness<T>(topology, schema);
       for (var i = 0; i < 5; i++) {
         _expectPayload<T>(schema, dut.tree.val[i]);
-        expect(sameDeclaredPayloadShape(schema, dut.tree.input('i$i')), isTrue);
+        expect(sameHclPayloadShape(schema, dut.tree.input('i$i')), isTrue);
       }
       expect(() => dut.tree.val.clear(), throwsUnsupportedError);
       final vectors = <Vector>[];

@@ -525,9 +525,9 @@ void main() {
       final dut = _Harness(schema, selection);
       expect(dut.update.clone().key, isA<_Key>());
       expect(dut.lookup.clone().key, isA<_Key>());
-      expect(sameDeclaredPayloadShape(dut.memory.input('update_key_0'), schema),
+      expect(sameHclPayloadShape(dut.memory.input('update_key_0'), schema),
           isTrue);
-      expect(sameDeclaredPayloadShape(dut.memory.input('lookup_key_0'), schema),
+      expect(sameHclPayloadShape(dut.memory.input('lookup_key_0'), schema),
           isTrue);
       final vectors = [
         Vector({
@@ -569,8 +569,8 @@ void main() {
     final dut = _Harness(schema, AssociativeMatchSelection.lowestIndex);
     expect(dut.update.key.valueCodec, same(_codec));
     expect(dut.lookup.clone().key.valueCodec, same(_codec));
-    expect(sameDeclaredPayloadShape(dut.memory.input('update_key_0'), schema),
-        isTrue);
+    expect(
+        sameHclPayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
     await dut.build();
     final vectors = [
       Vector({
@@ -601,11 +601,11 @@ void main() {
     test('preserves ${schema.runtimeType} associative keys', () async {
       final dut =
           _Harness<Logic>(schema, AssociativeMatchSelection.lowestIndex);
-      expect(sameDeclaredPayloadShape(dut.update.clone().key, schema), isTrue);
-      expect(sameDeclaredPayloadShape(dut.lookup.clone().key, schema), isTrue);
-      expect(sameDeclaredPayloadShape(dut.memory.input('update_key_0'), schema),
+      expect(sameHclPayloadShape(dut.update.clone().key, schema), isTrue);
+      expect(sameHclPayloadShape(dut.lookup.clone().key, schema), isTrue);
+      expect(sameHclPayloadShape(dut.memory.input('update_key_0'), schema),
           isTrue);
-      expect(sameDeclaredPayloadShape(dut.memory.input('lookup_key_0'), schema),
+      expect(sameHclPayloadShape(dut.memory.input('lookup_key_0'), schema),
           isTrue);
       await dut.build();
     });

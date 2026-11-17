@@ -111,7 +111,7 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
     if (source.width != tagWidth ||
         (((source is LogicStructure && tag is LogicStructure) ||
                 (source is LogicEnum && tag is LogicEnum)) &&
-            !sameDeclaredPayloadShape(tag, source))) {
+            !sameHclPayloadShape(tag, source))) {
       throw PortTypeException.forIntendedName(
           'tag', 'CAM tag layout does not match ${payloadShapeIdentity(tag)}.');
     }
@@ -239,7 +239,7 @@ class Cam<T extends Logic> extends Module {
     }
     final schema = lookupPorts.first.tag;
     for (final port in [...writePorts, ...lookupPorts]) {
-      if (!sameDeclaredPayloadShape(schema, port.tag)) {
+      if (!sameHclPayloadShape(schema, port.tag)) {
         throw RohdHclException('CAM ports must have matching tag layouts.');
       }
       if (port.idWidth < widthFor(numEntries)) {
