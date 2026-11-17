@@ -24,7 +24,7 @@ void putPackedLogicValue(Logic data, LogicValue value) {
 }
 
 /// Whether two payloads declare matching recursive hardware layouts.
-bool sameDeclaredPayloadShape(Logic template, Logic source) {
+bool sameHclPayloadShape(Logic template, Logic source) {
   if (template.width != source.width) {
     return false;
   }
@@ -39,7 +39,7 @@ bool sameDeclaredPayloadShape(Logic template, Logic source) {
         template.numUnpackedDimensions == source.numUnpackedDimensions &&
         identical(template.valueCodec, source.valueCodec) &&
         (template.arrayElements.isEmpty ||
-            sameDeclaredPayloadShape(
+            sameHclPayloadShape(
                 template.arrayElements.first, source.arrayElements.first));
   }
   if (template is LogicEnum || source is LogicEnum) {
@@ -55,7 +55,7 @@ bool sameDeclaredPayloadShape(Logic template, Logic source) {
       template.elements.indexed.every((entry) {
         final other = source.elements[entry.$1];
         return entry.$2.name == other.name &&
-            sameDeclaredPayloadShape(entry.$2, other);
+            sameHclPayloadShape(entry.$2, other);
       });
 }
 

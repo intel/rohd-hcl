@@ -283,7 +283,7 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
     }
     if (((sourcePayload is LogicStructure && data is LogicStructure) ||
             (sourcePayload is LogicEnum && data is LogicEnum)) &&
-        !sameDeclaredPayloadShape(data, sourcePayload)) {
+        !sameHclPayloadShape(data, sourcePayload)) {
       throw PortTypeException.forIntendedName(
         data.name,
         'Expected ready/valid payload shape '

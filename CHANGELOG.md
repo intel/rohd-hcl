@@ -1,7 +1,10 @@
+## 0.3.2
+
+- Fixed compilation with ROHD 0.7.3 while retaining compatibility with ROHD 0.7.2.
+
 ## 0.3.1
 
-- Fixed the published package's workspace metadata so consumers do not need the
-  separate Confapp application.
+- Fixed the published package's workspace metadata so consumers do not need the separate Confapp application.
 
 ## 0.3.0
 

@@ -16,7 +16,7 @@ void _validatePayload(Logic boundary, Logic payload) {
   if (boundary.width != payload.width ||
       (((boundary is LogicStructure && payload is LogicStructure) ||
               (boundary is LogicEnum && payload is LogicEnum)) &&
-          !sameDeclaredPayloadShape(boundary, payload))) {
+          !sameHclPayloadShape(boundary, payload))) {
     throw PortTypeException.forIntendedName(boundary.name,
         'Attachment payload does not match ${payloadShapeIdentity(boundary)}.');
   }

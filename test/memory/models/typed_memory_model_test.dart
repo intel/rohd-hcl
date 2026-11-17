@@ -84,11 +84,9 @@ void _check<T extends Logic>(String label, T schema) {
         // ignore: omit_local_variable_types, verifies static payload type
         final T payload = model.reads.single.data;
         expect(payload.runtimeType, schema.runtimeType);
-        expect(sameDeclaredPayloadShape(payload, schema), isTrue);
-        expect(
-            sameDeclaredPayloadShape(model.input('wr_data_0'), schema), isTrue);
-        expect(sameDeclaredPayloadShape(model.output('rd_data_0'), schema),
-            isTrue);
+        expect(sameHclPayloadShape(payload, schema), isTrue);
+        expect(sameHclPayloadShape(model.input('wr_data_0'), schema), isTrue);
+        expect(sameHclPayloadShape(model.output('rd_data_0'), schema), isTrue);
         await model.build();
         final known = LogicValue.ofBigInt(
             (BigInt.one << (schema.width - 1)) | BigInt.from(0x96a5),

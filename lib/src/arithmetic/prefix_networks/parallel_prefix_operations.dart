@@ -46,7 +46,7 @@ class ParallelPrefix<T extends Logic> extends Module {
       throw RohdHclException("Don't use $name with an empty sequence.");
     }
     if (inps.any((s) => s is LogicStructure || s is LogicEnum) &&
-        inps.any((s) => !sameDeclaredPayloadShape(inps.first, s))) {
+        inps.any((s) => !sameHclPayloadShape(inps.first, s))) {
       throw RohdHclException('Prefix payload layouts must match.');
     }
   }
@@ -54,7 +54,7 @@ class ParallelPrefix<T extends Logic> extends Module {
   T _combine(T left, T right, T Function(T left, T right) op, {String? name}) {
     final result = op(left, right);
     if ((left is LogicStructure || left is LogicEnum) &&
-        !sameDeclaredPayloadShape(left, result)) {
+        !sameHclPayloadShape(left, result)) {
       throw RohdHclException(
           'Prefix operations must preserve the payload layout.');
     }

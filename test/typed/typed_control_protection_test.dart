@@ -176,7 +176,7 @@ void _checkPayload<T extends Logic>(String label, T schema) {
     for (final delay in [true, false]) {
       test('$label controlled present=$present delay=$delay', () async {
         final dut = _Controlled<T>(schema, present: present, delay: delay);
-        expect(sameDeclaredPayloadShape(dut.delayed, schema), isTrue);
+        expect(sameHclPayloadShape(dut.delayed, schema), isTrue);
         await _compare(dut, _clockVectors(bypass: !present || !delay));
       });
     }
@@ -187,11 +187,11 @@ void _checkPayload<T extends Logic>(String label, T schema) {
         () async {
       final before = schema.value;
       final dut = _Protection<T>(schema, type: type);
-      expect(sameDeclaredPayloadShape(dut.tx.input('data'), schema), isTrue);
-      expect(sameDeclaredPayloadShape(dut.original, schema), isTrue);
+      expect(sameHclPayloadShape(dut.tx.input('data'), schema), isTrue);
+      expect(sameHclPayloadShape(dut.original, schema), isTrue);
       expect(dut.corrected == null, !(type?.hasCorrection ?? false));
       if (dut.corrected != null) {
-        expect(sameDeclaredPayloadShape(dut.corrected!, schema), isTrue);
+        expect(sameHclPayloadShape(dut.corrected!, schema), isTrue);
       }
       await _compare(dut, _protectionVectors(dut, type: type));
       expect(schema.value, before, reason: 'A schema is not an output driver.');

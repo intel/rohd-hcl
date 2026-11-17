@@ -172,7 +172,7 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
         );
       }
       if (_requiresPayloadShape(schema)) {
-        if (!sameDeclaredPayloadShape(schema, resetValue)) {
+        if (!sameHclPayloadShape(schema, resetValue)) {
           throw RohdHclException(
             'ShiftRegister reset signal layout must match the payload.',
           );

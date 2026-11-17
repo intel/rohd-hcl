@@ -181,7 +181,7 @@ class DataPortInterface<LogicType extends Logic>
     if (source.width != dataWidth ||
         (((source is LogicStructure && data is LogicStructure) ||
                 (source is LogicEnum && data is LogicEnum)) &&
-            !sameDeclaredPayloadShape(data, source))) {
+            !sameHclPayloadShape(data, source))) {
       throw PortTypeException.forIntendedName(
           'data',
           'Memory payload layout does not match '
@@ -307,7 +307,7 @@ abstract class Memory<LogicType extends Logic> extends Module {
       }
       if (((prototype is LogicStructure && port.data is LogicStructure) ||
               (prototype is LogicEnum && port.data is LogicEnum)) &&
-          !sameDeclaredPayloadShape(prototype, port.data)) {
+          !sameHclPayloadShape(prototype, port.data)) {
         throw RohdHclException('All memory ports must have matching payload '
             'layouts and value codecs.');
       }
