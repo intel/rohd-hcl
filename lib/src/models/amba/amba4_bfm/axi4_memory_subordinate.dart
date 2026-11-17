@@ -41,6 +41,11 @@ class AxiAddressRange {
 /// A model for the subordinate side of
 /// an AXI4 multi-lane cluster of read/write channels
 /// in which the underlying target is a persistent memory.
+///
+/// Requests and write data are captured by channel monitors at their respective
+/// handshakes. Complete write bursts are queued in order independently of their
+/// addresses. Write responses wait for both the address and the complete data
+/// burst, retaining later bursts while a response is delayed.
 class Axi4SubordinateMemoryAgent extends Agent {
   /// The system interface.
   final Axi4SystemInterface sIntf;
@@ -95,8 +100,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
   // to handle writes
   final List<List<Axi4RequestPacket>> _writeMetadataQueue = [];
-  final List<List<Axi4DataPacket>> _writeDataQueue = [];
-  final List<bool> _writeReadyToOccur = [];
+  final List<List<List<Axi4DataPacket>>> _writeDataQueue = [];
 
   // per-channel countdown of remaining cycles to delay the response
   // currently at the head of the queue, keyed by channel (mapIdx)
@@ -150,7 +154,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
       // write side handling
       _writeMetadataQueue.add([]);
       _writeDataQueue.add([]);
-      _writeReadyToOccur.add(false);
       _writeAddrToChannel[i] = _writeMetadataQueue.length - 1;
     }
   }
@@ -172,7 +175,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
         // write side reset
         _writeMetadataQueue[_writeAddrToChannel[i]!].clear();
         _writeDataQueue[_writeAddrToChannel[i]!].clear();
-        _writeReadyToOccur[_writeAddrToChannel[i]!] = false;
         _writeResponseDelayRemaining.remove(_writeAddrToChannel[i]);
       }
     });
@@ -261,7 +263,6 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
   /// Receives one packet (or returns if not selected).
   void _receiveRead({required Axi4RequestPacket packet, int index = 0}) {
-    final rIntf = lanes[index].arIntf;
     final mapIdx = _readAddrToChannel[index]!;
 
     logger.info('Received read request on channel $index.');
@@ -280,14 +281,14 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
     // query storage to retrieve the data
     final data = <LogicValue>[];
-    var addrToRead = rIntf.addr.value;
-    final endCount = (rIntf.len?.value.toInt() ?? 0) + 1;
+    var addrToRead = packet.addr;
+    final endCount = (packet.len?.toInt() ?? 0) + 1;
     final dSize = Axi4SizeField.getImpliedSize(
-        Axi4SizeField.fromValue(rIntf.size?.value.toInt() ?? 0));
+        Axi4SizeField.fromValue(packet.size?.toInt() ?? 0));
     var increment = 0;
-    if (rIntf.burst == null ||
-        rIntf.burst?.value.toInt() == Axi4BurstField.wrap.value ||
-        rIntf.burst?.value.toInt() == Axi4BurstField.incr.value) {
+    if (packet.burst == null ||
+        packet.burst!.toInt() == Axi4BurstField.wrap.value ||
+        packet.burst!.toInt() == Axi4BurstField.incr.value) {
       increment = dSize ~/ 8;
     }
 
@@ -297,7 +298,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
     // examine locking behavior
     final isRmw =
-        supportLocking && (rIntf.lock != null && rIntf.lock!.value.toBool());
+        supportLocking && (packet.lock != null && packet.lock!.toBool());
 
     for (var i = 0; i < endCount; i++) {
       var currData = storage.readData(addrToRead);
@@ -330,7 +331,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
       if (inRegion && (addrToRead + increment >= ranges[region].end).toBool()) {
         // the original access fell in a region but the next access in
         // the burst overflows the region
-        if (rIntf.burst?.value.toInt() == Axi4BurstField.wrap.value) {
+        if (packet.burst?.toInt() == Axi4BurstField.wrap.value) {
           // indication that we should wrap around back to the region start
           addrToRead = ranges[region].start;
         } else {
@@ -427,43 +428,15 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
   // handle an incoming write request
   void _receiveWrite({required Axi4RequestPacket packet, int index = 0}) {
-    final awIntf = lanes[index].awIntf;
-    final wIntf = lanes[index].wIntf;
     final mapIdx = _writeAddrToChannel[index]!;
 
     logger.info('Received write request on channel $index.');
-    final packet = Axi4RequestPacket(
-      addr: awIntf.addr.value,
-      prot: awIntf.prot.value,
-      id: awIntf.id?.value,
-      len: awIntf.len?.value,
-      size: awIntf.size?.value,
-      burst: awIntf.burst?.value,
-      lock: awIntf.lock?.value,
-      cache: awIntf.cache?.value,
-      qos: awIntf.qos?.value,
-      region: awIntf.region?.value,
-      user: awIntf.user?.value,
-    );
-
-    // might need to capture the first data and strobe simultaneously
-    // NOTE: we are dropping wUser on the floor for now...
-    if (wIntf.valid.value.toBool() && wIntf.ready.value.toBool()) {
-      final dataPacket =
-          Axi4DataPacket(data: wIntf.data.value, strb: wIntf.strb.value);
-      _writeDataQueue[mapIdx].add(dataPacket);
-      if (wIntf.last!.value.toBool()) {
-        _writeReadyToOccur[mapIdx] = true;
-      }
-    }
 
     // queue up the packet for further processing
     _writeMetadataQueue[mapIdx].add(packet);
   }
 
-  // method to capture incoming write data after the initial request
-  // note that this method does not handle the first flit of write data
-  // if it is transmitted simultaneously with the write request
+  // Capture a complete write burst independently of its address request.
   void _captureWriteData({required Axi4DataPacket packet, int index = 0}) {
     final wIntf = lanes[index].wIntf;
     final mapIdx = _writeAddrToChannel[index]!;
@@ -472,8 +445,8 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
     // NOTE: we are dropping wUser on the floor for now...
     // The W-channel monitor fires once per burst with all beats aggregated in
-    // packet.data via rconcat(); clear any stale entry then unpack each beat.
-    _writeDataQueue[mapIdx].clear();
+    // packet.data via rconcat(); unpack each beat.
+    final beats = <Axi4DataPacket>[];
     final dw = wIntf.dataWidth;
     final sw = wIntf.strbWidth;
     final numBeats = packet.data.width ~/ dw;
@@ -482,21 +455,21 @@ class Axi4SubordinateMemoryAgent extends Agent {
       final beatStrb = packet.strb != null
           ? packet.strb!.getRange(i * sw, (i + 1) * sw)
           : LogicValue.filled(sw, LogicValue.one);
-      _writeDataQueue[mapIdx]
-          .add(Axi4DataPacket(data: beatData, strb: beatStrb));
+      beats.add(Axi4DataPacket(data: beatData, strb: beatStrb));
     }
     logger
       ..info('Captured write data on channel $index.')
       ..info('Finished capturing write data on channel $index.');
-    _writeReadyToOccur[mapIdx] = true;
+    _writeDataQueue[mapIdx].add(beats);
   }
 
   void _respondWrite({int index = 0}) {
     final bIntf = lanes[index].bIntf;
     final mapIdx = _writeAddrToChannel[index]!;
 
-    // only work to do if we have received all of the data for our write request
-    if (_writeReadyToOccur[mapIdx]) {
+    // Both channels must have completed their handshakes before responding.
+    if (_writeMetadataQueue[mapIdx].isNotEmpty &&
+        _writeDataQueue[mapIdx].isNotEmpty) {
       final packet = _writeMetadataQueue[mapIdx][0];
 
       // hold off responding until the requested delay has elapsed for
@@ -539,7 +512,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
       // compute the addresses to write to
       // based on the burst mode, len, and size
       final addrsToWrite = <LogicValue>[];
-      final dataToWrite = _writeDataQueue[mapIdx];
+      final dataToWrite = _writeDataQueue[mapIdx][0];
       for (var i = 0; i < dataToWrite.length; i++) {
         addrsToWrite.add(addrToWrite);
         if (inRegion &&
@@ -633,8 +606,7 @@ class Axi4SubordinateMemoryAgent extends Agent {
 
       // pop this write response off the queue
       _writeMetadataQueue[mapIdx].removeAt(0);
-      _writeDataQueue[mapIdx].clear();
-      _writeReadyToOccur[mapIdx] = false;
+      _writeDataQueue[mapIdx].removeAt(0);
 
       logger.info('Sent write response on channel $index.');
     }
