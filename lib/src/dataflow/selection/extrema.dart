@@ -19,7 +19,7 @@ class _IndexedCandidate<T extends Logic> extends LogicStructure {
 
   _IndexedCandidate(T schema, int indexWidth, {String? name})
       : super([
-          schema.cloneTyped(name: 'payload'),
+          cloneTypedPayload(schema, name: 'payload'),
           Logic(name: 'index', width: indexWidth),
         ], name: name ?? 'candidate');
 
@@ -70,8 +70,8 @@ class Extrema<T extends Logic> extends Module {
       throw RohdHclException('List cannot be empty.');
     }
     if (signals.any(hasDeclaredPayloadShape) &&
-        signals.any((s) => !sameDeclaredPayloadShape(signals.first, s,
-            ignoreConstantNames: true))) {
+        signals.any(
+            (s) => !samePayloadShapeAllowingRenamedClone(signals.first, s))) {
       throw RohdHclException('Extrema payload layouts must match.');
     }
     final logics = [

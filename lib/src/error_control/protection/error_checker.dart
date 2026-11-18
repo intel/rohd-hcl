@@ -96,6 +96,8 @@ abstract class ErrorCheckingReceiver<T extends Logic> extends Module {
   /// Implementation to calculate corrected data, if supported.
   ///
   /// Returns null if not [supportsErrorCorrection].
+  /// Declared result and payload formats must match; a plain packed result
+  /// supplies raw bits.
   @protected
   T? calculateCorrectedData();
 
@@ -162,7 +164,14 @@ abstract class ErrorCheckingReceiver<T extends Logic> extends Module {
     error <= correctableError | uncorrectableError;
 
     if (supportsErrorCorrection) {
-      correctedData! <= calculateCorrectedData()!;
+      final corrected = calculateCorrectedData();
+      if (corrected == null ||
+          !compatiblePayloadConnectionAllowingRenamedClone(
+              correctedData!, corrected)) {
+        throw RohdHclException(
+            'Corrected data must match the payload width and format.');
+      }
+      correctedData! <= corrected;
     }
   }
 }

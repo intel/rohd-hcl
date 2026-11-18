@@ -68,6 +68,17 @@ class _Key extends LogicStructure {
       _Key(name: name ?? this.name, secondName: second.name);
 }
 
+class _NamedKey extends LogicStructure {
+  final String suffix;
+
+  _NamedKey({String name = 'key', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 4)], name: name);
+
+  @override
+  _NamedKey clone({String? name}) =>
+      _NamedKey(name: name ?? this.name, suffix: suffix);
+}
+
 enum _Priority { low, high }
 
 LogicEnum<_Priority> _priority({String? name}) =>
@@ -185,6 +196,45 @@ class _ConstantAssociativeHarness extends Module {
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('typed associative paths accept parent-renamed payloads', () async {
+    final first = _NamedKey(name: 'firstKey');
+    final second = _NamedKey(name: 'secondKey');
+    final matcher = TypedAssociativeMatcher<_NamedKey>(
+        query: first, storedKeys: [second], validMask: Logic());
+    await matcher.build();
+    final matchVectors = [
+      Vector({'query': 3, 'storedKey_0': 3, 'validMask': 1},
+          {'matchVector': 1, 'hit': 1, 'multipleMatches': 0}),
+      Vector({'storedKey_0': 2}, {'matchVector': 0, 'hit': 0}),
+    ];
+    await SimCompare.checkFunctionalVector(matcher, matchVectors);
+    SimCompare.checkIverilogVector(matcher, matchVectors);
+    await Simulator.reset();
+
+    final selector = TypedAssociativeMatchSelector<_NamedKey>(
+        matchVector: Logic(width: 2), selectionValues: [first, second]);
+    await selector.build();
+    final selectionVectors = [
+      Vector({'matchVector': 3, 'selectionValue_0': 12, 'selectionValue_1': 3},
+          {'valid': 1, 'selectedIndex': 1, 'selectedOneHot': 2}),
+      Vector({'selectionValue_0': 1},
+          {'valid': 1, 'selectedIndex': 0, 'selectedOneHot': 1}),
+    ];
+    await SimCompare.checkFunctionalVector(selector, selectionVectors);
+    SimCompare.checkIverilogVector(selector, selectionVectors);
+
+    final incompatible = _NamedKey(name: 'otherKey', suffix: 'other');
+    expect(
+        () => TypedAssociativeMatcher<_NamedKey>(
+            query: first, storedKeys: [incompatible], validMask: Logic()),
+        throwsArgumentError);
+    expect(
+        () => TypedAssociativeMatchSelector<_NamedKey>(
+            matchVector: Logic(width: 2),
+            selectionValues: [first, incompatible]),
+        throwsArgumentError);
+  });
 
   test('typed associative components preserve widened constant structures',
       () async {

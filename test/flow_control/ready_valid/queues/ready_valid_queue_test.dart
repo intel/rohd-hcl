@@ -28,6 +28,44 @@ class _Packet extends LogicStructure {
 void main() {
   tearDown(Simulator.reset);
 
+  test('single-entry buffer checks all declared payloads across packed storage',
+      () {
+    for (final mode in SingleEntryBufferMode.values) {
+      for (var packedIndex = 0; packedIndex < 3; packedIndex++) {
+        final payloads = <Logic>[
+          FixedPoint(integerWidth: 3, fractionWidth: 4),
+          FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false),
+        ]..insert(packedIndex, Logic(width: 8));
+        expect(
+            () => configureSingleEntryBuffer<Logic>(
+                  clk: Logic(),
+                  reset: Logic(),
+                  occupied: Logic(),
+                  upstream: ReadyValidInterface(payloads[0]),
+                  downstream: IrrevocableReadyValidInterface(payloads[1]),
+                  storedData: payloads[2],
+                  mode: mode,
+                  name: 'buffer',
+                ),
+            throwsA(isA<PortTypeException>()));
+      }
+      expect(
+          () => configureSingleEntryBuffer<Logic>(
+                clk: Logic(),
+                reset: Logic(),
+                occupied: Logic(),
+                upstream: ReadyValidInterface(
+                    FixedPoint(integerWidth: 3, fractionWidth: 4)),
+                downstream: IrrevocableReadyValidInterface(
+                    FixedPoint(integerWidth: 3, fractionWidth: 4)),
+                storedData: Logic(width: 8),
+                mode: mode,
+                name: 'buffer',
+              ),
+          returnsNormally);
+    }
+  });
+
   for (final storage in ReadyValidQueueStorage.values) {
     for (final policy in ReadyValidQueuePolicy.values) {
       for (final depth in [1, 3]) {

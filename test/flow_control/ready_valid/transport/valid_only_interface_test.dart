@@ -24,6 +24,16 @@ class _Payload extends LogicStructure {
   _Payload clone({String? name}) => _Payload(name: name ?? this.name);
 }
 
+class _WrongWidthClone extends Logic {
+  _WrongWidthClone({super.name, super.width = 8});
+
+  @override
+  _WrongWidthClone clone({String? name}) =>
+      _WrongWidthClone(name: name ?? this.name, width: width + 1);
+}
+
+class _EmptyModule extends Module {}
+
 class _PassThrough<T extends Logic> extends Module {
   _PassThrough(ValidOnlyInterface<T> input, ValidOnlyInterface<T> output) {
     final localInput = addPairInterfacePorts(input, PairRole.consumer,
@@ -32,6 +42,40 @@ class _PassThrough<T extends Logic> extends Module {
         uniquify: (name) => 'output_$name');
     localOutput.data <= localInput.data;
     localOutput.valid <= localInput.valid;
+  }
+}
+
+class _PayloadRegistration extends Module {
+  _PayloadRegistration(Logic source, Logic destination,
+      {required bool shared}) {
+    final input = _Payload(name: 'input_data');
+    final output = _Payload(name: 'output_data');
+    if (shared) {
+      connectTypedPayloadPorts(this,
+          name: 'input_data', local: input, source: source, input: true);
+      connectTypedPayloadPorts(this,
+          name: 'output_data',
+          local: output,
+          source: destination,
+          output: true);
+    } else {
+      final bridge = input.cloneTyped(name: 'input_data_input_bridge')
+        ..gets(source);
+      input <= addTypedInput('input_data', bridge);
+      final registered = addTypedPayloadOutput(this, 'output_data', output);
+      registered <= output;
+      destination <= registered;
+    }
+    output <= input;
+  }
+}
+
+class _PayloadRegistrationTop extends Module {
+  _PayloadRegistrationTop({required bool shared}) {
+    final source = addInput('source', Logic(width: 8), width: 8);
+    final destination = Logic(width: 8);
+    _PayloadRegistration(source, destination, shared: shared);
+    addOutput('result', width: 8) <= destination;
   }
 }
 
@@ -210,6 +254,32 @@ class _FieldMuxHarness extends Module {
 }
 
 void main() {
+  test('flow-control interface clones reject changed packed widths', () {
+    expect(() => ValidOnlyInterface<Logic>(_WrongWidthClone()).clone(),
+        throwsA(isA<RohdHclException>()));
+    expect(() => ReadyValidInterface<Logic>(_WrongWidthClone()).clone(),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => ClockGateControlInterface(
+            additionalPorts: [_WrongWidthClone(name: 'control')]).clone(),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('typed output registration rejects changed packed widths', () {
+    expect(
+        () => addTypedPayloadOutput<Logic>(
+            _EmptyModule(), 'out', _WrongWidthClone()),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => addTypedPayloadOutput<Logic>(
+            _EmptyModule(), 'out', Logic(width: 8),
+            generator: ({name}) => Logic(name: name, width: 9)),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        addTypedPayloadOutput<Logic>(_EmptyModule(), 'out', Const(0, width: 8),
+            generator: ({name}) => Logic(name: name, width: 8)).width,
+        8);
+  });
   tearDown(Simulator.reset);
 
   final readyValidTypes = <String, ReadyValidInterface<Logic> Function(Logic)?>{
@@ -379,6 +449,17 @@ void main() {
     SimCompare.checkIverilogVector(module, vectors);
   });
 
+  test('shared payload registration preserves manual wiring RTL', () async {
+    final shared = _PayloadRegistrationTop(shared: true);
+    final manual = _PayloadRegistrationTop(shared: false);
+    await shared.build();
+    await manual.build();
+    String withoutTimestamp(Module module) => module
+        .dumpSystemVerilog()
+        .replaceFirst(RegExp(r' \* Generation time:.*\n'), '');
+    expect(withoutTimestamp(shared), withoutTimestamp(manual));
+  });
+
   test('preserves unpacked typed array schemas', () async {
     TypedLogicArray<_Payload, LogicValue> array() =>
         TypedLogicArray<_Payload, LogicValue>(
@@ -452,26 +533,26 @@ void main() {
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
     final fieldA = _FieldPayload(first);
     final fieldB = _FieldPayload(second);
-    expect(sameDeclaredPayloadShape(fieldA, fieldA.clone()), isTrue);
-    expect(sameDeclaredPayloadShape(fieldA, fieldB), isFalse);
+    expect(sameRohdPayloadShape(fieldA, fieldA.clone()), isTrue);
+    expect(sameRohdPayloadShape(fieldA, fieldB), isFalse);
     expect(payloadShapeIdentity(fieldA), isNot(payloadShapeIdentity(fieldB)));
     TypedLogicArray<GfLogic, LogicValue> array(BinaryExtensionField field) =>
         TypedLogicArray<GfLogic, LogicValue>(
             [2], ({name}) => GfLogic(field, name: name));
-    expect(sameDeclaredPayloadShape(array(first), array(second)), isFalse);
+    expect(sameRohdPayloadShape(array(first), array(second)), isFalse);
     expect(payloadShapeIdentity(array(first)),
         isNot(payloadShapeIdentity(array(second))));
 
     final signed = FixedPoint(integerWidth: 2, fractionWidth: 2);
     final unsigned =
         FixedPoint(integerWidth: 3, fractionWidth: 2, signed: false);
-    expect(sameDeclaredPayloadShape(signed, unsigned), isFalse);
+    expect(sameRohdPayloadShape(signed, unsigned), isFalse);
     expect(payloadShapeIdentity(signed), isNot(payloadShapeIdentity(unsigned)));
 
     final normal = FloatingPoint(exponentWidth: 3, mantissaWidth: 2);
     final explicit =
         FloatingPoint(exponentWidth: 3, mantissaWidth: 2, explicitJBit: true);
-    expect(sameDeclaredPayloadShape(normal, explicit), isFalse);
+    expect(sameRohdPayloadShape(normal, explicit), isFalse);
     expect(payloadShapeIdentity(normal), isNot(payloadShapeIdentity(explicit)));
   });
 
@@ -505,7 +586,7 @@ void main() {
         );
     final uniform = array(mixed: false);
     final mixed = array(mixed: true);
-    expect(sameDeclaredPayloadShape(uniform, mixed), isFalse);
+    expect(sameRohdPayloadShape(uniform, mixed), isFalse);
     expect(payloadShapeIdentity(uniform), isNot(payloadShapeIdentity(mixed)));
     expect(
       () => TypedPriorityMux<TypedLogicArray<GfLogic, LogicValue>>(

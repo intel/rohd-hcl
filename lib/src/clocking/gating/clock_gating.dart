@@ -123,16 +123,12 @@ class ClockGateControlInterface extends PairInterface {
           // ignore: deprecated_member_use
           final modifiedName = modify?.call(extra.name) ?? extra.name;
           final name = uniquify?.call(modifiedName) ?? modifiedName;
-          if (isInput) {
-            final bridge = local.cloneTyped(name: '${extra.name}_input_bridge')
-              ..gets(source);
-            local <= module.addTypedInput(name, bridge);
-          }
-          if (isOutput) {
-            final output = addTypedPayloadOutput(module, name, local);
-            output <= local;
-            source <= output;
-          }
+          connectTypedPayloadPorts(module,
+              name: name,
+              local: local,
+              source: source,
+              input: isInput,
+              output: isOutput);
           _suppressedPorts.add(extra.name);
         }
       }
@@ -155,7 +151,10 @@ class ClockGateControlInterface extends PairInterface {
       isPresent: isPresent,
       hasEnableOverride: hasEnableOverride,
       additionalPorts: (additionalPorts != null)
-          ? [for (final p in additionalPorts!) p.cloneTyped(name: p.name)]
+          ? [
+              for (final p in additionalPorts!)
+                cloneTypedPayload(p, name: p.name)
+            ]
           : null,
       gatedClockGenerator: gatedClockGenerator);
 }
@@ -192,8 +191,8 @@ class ClockGate extends Module {
     if (_reset != null &&
         resetValue is Logic &&
         resetValue.width == original.width &&
-        !compatiblePayloadConnection(original, resetValue,
-            ignoreConstantNames: true)) {
+        !compatiblePayloadConnectionAllowingRenamedClone(
+            original, resetValue)) {
       throw ArgumentError.value(
           resetValue, 'resetValue', 'Payload formats must match.');
     }

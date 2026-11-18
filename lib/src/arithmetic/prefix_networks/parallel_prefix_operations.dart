@@ -47,8 +47,7 @@ class ParallelPrefix<T extends Logic> extends Module {
       throw RohdHclException("Don't use $name with an empty sequence.");
     }
     if (inps.any(hasDeclaredPayloadShape) &&
-        inps.any((s) => !sameDeclaredPayloadShape(inps.first, s,
-            ignoreConstantNames: true))) {
+        inps.any((s) => !samePayloadShapeAllowingRenamedClone(inps.first, s))) {
       throw RohdHclException('Prefix payload layouts must match.');
     }
   }
@@ -56,7 +55,7 @@ class ParallelPrefix<T extends Logic> extends Module {
   T _combine(T left, T right, T Function(T left, T right) op, {String? name}) {
     final result = op(left, right);
     if (hasDeclaredPayloadShape(left) &&
-        !sameDeclaredPayloadShape(left, result, ignoreConstantNames: true)) {
+        !samePayloadShapeAllowingRenamedClone(left, result)) {
       throw RohdHclException(
           'Prefix operations must preserve the payload layout.');
     }

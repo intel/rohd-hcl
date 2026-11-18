@@ -22,6 +22,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 - [Static or Runtime Parameters](./static_or_runtime_parameters.md)
 - [Utilities and Building Blocks](./utilities.md)
+- [Payload Schemas and Typed Boundaries](./components/payload_schemas.md)
 
 ## Choosing and composing components
 

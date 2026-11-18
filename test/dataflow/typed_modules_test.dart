@@ -24,6 +24,25 @@ class _Record extends LogicStructure {
   _Record clone({String? name}) => _Record(name: name ?? this.name);
 }
 
+class _BadCandidateClone extends Logic {
+  _BadCandidateClone({super.name, super.width = 8});
+
+  @override
+  _BadCandidateClone clone({String? name}) => _BadCandidateClone(
+      name: name ?? this.name, width: name == 'payload' ? width + 1 : width);
+}
+
+class _NamedRecord extends LogicStructure {
+  final String suffix;
+
+  _NamedRecord({String name = 'record', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 4)], name: name);
+
+  @override
+  _NamedRecord clone({String? name}) =>
+      _NamedRecord(name: name ?? this.name, suffix: suffix);
+}
+
 class _GrowingWord extends LogicStructure {
   Logic get data => elements[0];
   Logic get valid => elements[1];
@@ -367,6 +386,58 @@ void _checkStorage<T extends Logic>(String name, T schema,
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('extrema rejects a candidate clone that changes payload width', () {
+    expect(() => Extrema<Logic>([_BadCandidateClone(), _BadCandidateClone()]),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('extrema and sorting accept parent-renamed payloads', () async {
+    final inputs = [
+      _NamedRecord(name: 'firstInput'),
+      _NamedRecord(name: 'secondInput'),
+    ];
+    final extrema = Extrema<_NamedRecord>(inputs);
+    await extrema.build();
+    await _compare(extrema, [
+      Vector({'signal0': 3, 'signal1': 12}, {'val': 12, 'index': 1}),
+      Vector({'signal0': 7, 'signal1': 2}, {'val': 7, 'index': 0}),
+    ]);
+    await Simulator.reset();
+
+    final sort = _SortHarness(_NamedRecord());
+    await sort.build();
+    await _compare(sort, [
+      Vector({
+        'clk': 0,
+        'reset': 0,
+        'data0': 9,
+        'data1': 1,
+        'data2': 7,
+        'data3': 3
+      }, {}),
+      for (var cycle = 0; cycle < sort.sorter.latency; cycle++) ...[
+        Vector({
+          'clk': 1
+        }, {
+          if (cycle == sort.sorter.latency - 1) ...{
+            'result0': 1,
+            'result1': 3,
+            'result2': 7,
+            'result3': 9,
+          }
+        }),
+        Vector({'clk': 0}, {}),
+      ],
+    ]);
+    final incompatible = _NamedRecord(name: 'secondInput', suffix: 'other');
+    expect(() => Extrema<_NamedRecord>([inputs.first, incompatible]),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => BitonicSort<_NamedRecord>(Logic(), Logic(),
+            toSort: [inputs.first, incompatible]),
+        throwsA(isA<RohdHclException>()));
+  });
 
   test('extrema retains widened structured constants', () async {
     final dut = _ConstantExtremaHarness();

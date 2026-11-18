@@ -86,7 +86,8 @@ If desired, the `initialValues` argument can be used to pre-load the FIFO with
 data upon reset. The length of `initialValues` must be less than or equal to the
 `depth` of the FIFO. A fully initialized FIFO starts with its write pointer
 wrapped to the first slot, so a simultaneous full dequeue and replacement writes
-the newly released slot at every supported depth.
+the newly released slot at every supported depth. Initial values provide packed
+entry bits and are checked for width rather than declared payload format.
 
 ## Protocol-Neutral Construction
 

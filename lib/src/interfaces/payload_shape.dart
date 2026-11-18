@@ -20,8 +20,57 @@ bool compatiblePayloadConnection(Logic target, Logic source,
   }
   return !hasDeclaredPayloadShape(target) ||
       !hasDeclaredPayloadShape(source) ||
-      sameDeclaredPayloadShape(target, source,
+      sameRohdPayloadShape(target, source,
           ignoreConstantNames: ignoreConstantNames);
+}
+
+/// Whether all payloads are pairwise compatible, allowing packed bridges.
+///
+/// [allowRenamedClones] also permits parent-renamed typed clones and ignores
+/// generated constant names.
+bool compatiblePayloadSet(Iterable<Logic> payloads,
+    {bool ignoreConstantNames = false, bool allowRenamedClones = false}) {
+  final values = payloads.toList();
+  for (var i = 0; i < values.length; i++) {
+    for (var j = i + 1; j < values.length; j++) {
+      final compatible = allowRenamedClones
+          ? compatiblePayloadConnectionAllowingRenamedClone(
+              values[i], values[j])
+          : compatiblePayloadConnection(values[i], values[j],
+              ignoreConstantNames: ignoreConstantNames);
+      if (!compatible) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/// Whether corresponding payloads have identical declared shapes.
+bool samePayloadSchemas(List<Logic> expected, List<Logic> actual) =>
+    expected.length == actual.length &&
+    expected.indexed
+        .every((entry) => sameRohdPayloadShape(entry.$2, actual[entry.$1]));
+
+/// Whether payload formats match, allowing renamed fields in typed clones.
+bool samePayloadShapeAllowingRenamedClone(Logic source, Logic other) =>
+    sameRohdPayloadShape(source, other, ignoreConstantNames: true) ||
+    (source.width == other.width &&
+        hasDeclaredPayloadShape(source) &&
+        hasDeclaredPayloadShape(other) &&
+        sameTypedCloneShape(source, other));
+
+/// Whether payloads connect through a packed bridge or a renamed typed clone.
+bool compatiblePayloadConnectionAllowingRenamedClone(
+        Logic target, Logic source) =>
+    compatiblePayloadConnection(target, source, ignoreConstantNames: true) ||
+    samePayloadShapeAllowingRenamedClone(target, source);
+
+/// Clones a payload and checks its width and declared shape.
+T cloneTypedPayload<T extends Logic>(T source, {String? name}) {
+  final clone = source.cloneTyped(name: name);
+  _validatePayloadClone(source, clone, name ?? source.name);
+  return clone;
 }
 
 /// Clones an interface payload, making a widened scalar constant driveable.
@@ -29,22 +78,53 @@ T cloneInterfacePayload<T extends Logic>(T source) {
   if (T == Logic && source is Const) {
     return Logic(name: source.name, width: source.width) as T;
   }
-  return source.cloneTyped();
+  return cloneTypedPayload(source);
 }
 
-/// Registers an output with a validated clone of [schema].
-T addTypedPayloadOutput<T extends Logic>(Module module, String name, T schema) {
-  T generator({String? name}) => schema.cloneTyped(name: name);
-  final output = module.addTypedOutput<T>(name, generator);
+/// Registers an output and validates its width and declared shape against
+/// [schema].
+///
+/// [generator] may provide a driveable representation of [schema].
+T addTypedPayloadOutput<T extends Logic>(Module module, String name, T schema,
+    {T Function({String? name})? generator}) {
+  T clone({String? name}) => schema.cloneTyped(name: name);
+  final output = module.addTypedOutput<T>(name, generator ?? clone);
   _validatePayloadClone(schema, output, name);
   return output;
 }
 
+/// Registers and connects a payload whose compatibility was already checked.
+void connectTypedPayloadPorts<T extends Logic>(
+  Module module, {
+  required String name,
+  required T local,
+  required Logic source,
+  bool input = false,
+  bool output = false,
+  bool inOut = false,
+}) {
+  if (input) {
+    final bridge = cloneTypedPayload(local, name: '${local.name}_input_bridge')
+      ..gets(source);
+    local <= module.addTypedInput<T>(name, bridge);
+  }
+  if (output) {
+    final registered = addTypedPayloadOutput<T>(module, name, local);
+    registered <= local;
+    source <= registered;
+  }
+  if (inOut) {
+    final bridge = cloneTypedPayload(local, name: '${local.name}_inout_bridge')
+      ..gets(source);
+    local <= module.addTypedInOut<T>(name, bridge);
+  }
+}
+
 void _validatePayloadClone(Logic source, Logic clone, String name) {
-  if (!sameTypedCloneShape(source, clone)) {
+  if (source.width != clone.width || !sameTypedCloneShape(source, clone)) {
     throw RohdHclException(
-        'Typed payload "$name" requires a clone with the same payload type '
-        'and format.');
+        'Typed payload "$name" requires a clone with the same width, '
+        'payload type and format.');
   }
 }
 
@@ -60,42 +140,6 @@ void putPackedLogicValue(Logic data, LogicValue value) {
   } else {
     data.put(value);
   }
-}
-
-/// Whether two payloads declare matching recursive hardware layouts.
-bool sameHclPayloadShape(Logic template, Logic source) {
-  if (template.width != source.width) {
-    return false;
-  }
-  if (template is TypedLogicArray || source is TypedLogicArray) {
-    if (template is! TypedLogicArray || source is! TypedLogicArray) {
-      return false;
-    }
-    return template.dimensions.length == source.dimensions.length &&
-        template.dimensions.indexed
-            .every((d) => d.$2 == source.dimensions[d.$1]) &&
-        template.elementWidth == source.elementWidth &&
-        template.numUnpackedDimensions == source.numUnpackedDimensions &&
-        identical(template.valueCodec, source.valueCodec) &&
-        (template.arrayElements.isEmpty ||
-            sameHclPayloadShape(
-                template.arrayElements.first, source.arrayElements.first));
-  }
-  if (template is LogicEnum || source is LogicEnum) {
-    return template is LogicEnum &&
-        source is LogicEnum &&
-        template.mapping.length == source.mapping.length &&
-        template.mapping.entries.every((e) => source.mapping[e.key] == e.value);
-  }
-  if (template is! LogicStructure || source is! LogicStructure) {
-    return template is! LogicStructure && source is! LogicStructure;
-  }
-  return template.elements.length == source.elements.length &&
-      template.elements.indexed.every((entry) {
-        final other = source.elements[entry.$1];
-        return entry.$2.name == other.name &&
-            sameHclPayloadShape(entry.$2, other);
-      });
 }
 
 /// A deterministic recursive hardware-layout identity for generated modules.

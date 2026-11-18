@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/memory/associative/associative_memory.dart';
 import 'package:rohd_hcl/src/memory/state/state_transactions.dart';
 
@@ -325,7 +326,7 @@ class TypedAssociativeIndexedSideReadResponse<T extends Logic>
   TypedAssociativeIndexedSideReadResponse(
     T key, {
     String name = 'associativeIndexedSideReadResponse',
-  }) : super([key.cloneTyped(name: 'key'), Logic(name: 'entryValid')],
+  }) : super([cloneTypedPayload(key, name: 'key'), Logic(name: 'entryValid')],
             name: name);
 
   /// Makes a copy with the same shape.

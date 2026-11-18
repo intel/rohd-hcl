@@ -96,12 +96,13 @@ class InferredSramImage {
   final int _entryCount;
   final int _addressWidth;
   final int _dataWidth;
-  final String _shape;
+  final List<Logic> _schemas;
   final MemoryStorageImage _storage;
   final LogicValue _output;
 
-  const InferredSramImage._(this._entryCount, this._addressWidth,
-      this._dataWidth, this._shape, this._storage, this._output);
+  InferredSramImage._(this._entryCount, this._addressWidth, this._dataWidth,
+      List<Logic> schemas, this._storage, this._output)
+      : _schemas = List.unmodifiable(schemas);
 }
 
 /// A synchronous, single-port SRAM described as an inferable Verilog array.
@@ -125,7 +126,6 @@ class InferredSram<T extends Logic> extends Memory<T>
 
   late final SparseMemoryStorage _storage;
   late final MemoryStorageState _raw;
-  late final String _shape;
   late final Logic _readValue;
   late final bool _usesPackedCell;
 
@@ -167,7 +167,6 @@ class InferredSram<T extends Logic> extends Memory<T>
       throw ArgumentError('An inferred SRAM needs one unmasked read and write '
           'port with valid geometry.');
     }
-    _shape = payloadShapeIdentity(wrPorts.single.data);
     _storage = SparseMemoryStorage(addrWidth: addrWidth, dataWidth: dataWidth);
     _raw = MemoryStorageState(_storage);
     _usesPackedCell = _hasUnpackedPayload(wrPorts.single.data) ||
@@ -244,15 +243,24 @@ class InferredSram<T extends Logic> extends Memory<T>
   }
 
   /// Captures the array contents and registered read result.
-  InferredSramImage snapshot() => InferredSramImage._(entryCount, addrWidth,
-      dataWidth, _shape, _raw.snapshot(), rdPorts.single.data.value);
+  InferredSramImage snapshot() => InferredSramImage._(
+      entryCount,
+      addrWidth,
+      dataWidth,
+      [
+        cloneTypedPayload(wrPorts.single.data),
+        cloneTypedPayload(rdPorts.single.data)
+      ],
+      _raw.snapshot(),
+      rdPorts.single.data.value);
 
-  /// Atomically restores a compatible array and registered read result.
+  /// Atomically restores an array and read result with matching port schemas.
   void restore(InferredSramImage image) {
     if (image._entryCount != entryCount ||
         image._addressWidth != addrWidth ||
         image._dataWidth != dataWidth ||
-        image._shape != _shape ||
+        !samePayloadSchemas(
+            image._schemas, [wrPorts.single.data, rdPorts.single.data]) ||
         image._output.width != dataWidth ||
         image._storage.uncertainWrites.isNotEmpty ||
         image._storage.entries.keys

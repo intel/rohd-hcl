@@ -44,6 +44,12 @@ _WordValue _decodeWord(LogicValue value) =>
 LogicValue _encodeWord(_WordValue value) =>
     LogicValue.of([value.last, value.data]);
 
+_WordValue _decodeWordAlternate(LogicValue value) =>
+    (data: value.getRange(1, 5), last: value[0]);
+
+LogicValue _encodeWordAlternate(_WordValue value) =>
+    LogicValue.of([value.data, value.last]);
+
 const _wordCodec =
     LogicValueCodec<_WordValue>(decode: _decodeWord, encode: _encodeWord);
 
@@ -263,6 +269,22 @@ void main() {
     await rx.build();
     expect(rx.deserialized.dimensions, [3, 2, 2]);
     expect(rx.deserialized.numUnpackedDimensions, 2);
+  });
+
+  test('deserializer rejects a different array value codec', () {
+    final source = _words([2]);
+    const otherCodec = LogicValueCodec<_WordValue>(
+        decode: _decodeWordAlternate, encode: _encodeWordAlternate);
+    expect(
+        () => Deserializer<_Word, _WordValue>(source, 2,
+            valueCodec: otherCodec, clk: Logic(), reset: Logic()),
+        throwsArgumentError);
+    expect(
+        Deserializer<_Word, _WordValue>(source, 2,
+                valueCodec: source.valueCodec, clk: Logic(), reset: Logic())
+            .deserialized
+            .valueCodec,
+        same(source.valueCodec));
   });
 
   // Enum mapping must survive cloning, selection, and registration.

@@ -71,9 +71,7 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
     dataIn = addTypedInput<T>('${dataName}_in', dataIn);
     clk = addInput('clk', clk);
 
-    T outputClone({String? name}) => dataIn.cloneTyped(name: name);
-
-    dataOut = addTypedOutput<T>('${dataName}_out', outputClone);
+    dataOut = addTypedPayloadOutput<T>(this, '${dataName}_out', dataIn);
 
     final Map<Logic, dynamic>? resetValues;
     final List<Logic>? resetValueList;
@@ -92,7 +90,7 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
     var conds = <Conditional>[];
 
     for (var i = 0; i < depth; i++) {
-      final stageI = addTypedOutput<T>(_stageName(i), outputClone);
+      final stageI = addTypedPayloadOutput<T>(this, _stageName(i), dataIn);
       stageSignals.add(stageI);
       conds.add(stageI < normalizeStoredLogic(dataStage));
 
@@ -172,8 +170,8 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
           'Entry $resetValue does not have expected width $width.',
         );
       }
-      if (!compatiblePayloadConnection(schema, resetValue,
-          ignoreConstantNames: true)) {
+      if (!compatiblePayloadConnectionAllowingRenamedClone(
+          schema, resetValue)) {
         throw RohdHclException(
           'ShiftRegister reset signal layout must match the payload.',
         );

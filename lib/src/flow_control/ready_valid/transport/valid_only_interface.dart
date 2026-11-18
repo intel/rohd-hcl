@@ -64,16 +64,12 @@ class ValidOnlyInterface<LogicType extends Logic> extends PairInterface {
             data.name, 'Valid-only payload shape does not match.');
       }
       final name = uniquify?.call(data.name) ?? data.name;
-      if (input) {
-        final bridge = data.cloneTyped(name: '${data.name}_input_bridge')
-          ..gets(source);
-        data <= module.addTypedInput(name, bridge);
-      }
-      if (output) {
-        final registered = addTypedPayloadOutput(module, name, data);
-        registered <= data;
-        source <= registered;
-      }
+      connectTypedPayloadPorts(module,
+          name: name,
+          local: data,
+          source: source,
+          input: input,
+          output: output);
     }
     _suppressPayload = input || output;
     try {

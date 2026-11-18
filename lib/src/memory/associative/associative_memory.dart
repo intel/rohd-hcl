@@ -62,19 +62,13 @@ abstract class AssociativePortInterface extends Interface<DataPortGroup> {
                 '${payloadShapeIdentity(key)}.');
       }
       final keyName = uniquify?.call('key') ?? 'key';
-      if (isInput) {
-        final bridge = key.cloneTyped(name: 'key_input_bridge')..gets(source);
-        key <= module.addTypedInput(keyName, bridge);
-      }
-      if (isOutput) {
-        final output = addTypedPayloadOutput(module, keyName, key);
-        output <= key;
-        source <= output;
-      }
-      if (isInOut) {
-        final bridge = key.cloneTyped(name: 'key_inout_bridge')..gets(source);
-        key <= module.addTypedInOut(keyName, bridge);
-      }
+      connectTypedPayloadPorts(module,
+          name: keyName,
+          local: key,
+          source: source,
+          input: isInput,
+          output: isOutput,
+          inOut: isInOut);
     }
     _suppressKey = isInput || isOutput || isInOut;
     try {
@@ -122,7 +116,7 @@ class AssociativeUpdatePortInterface extends AssociativePortInterface {
 
   AssociativeUpdatePortInterface._typed(Logic key, {required super.indexWidth})
       : super(keyWidth: key.width) {
-    _setPorts(key.cloneTyped(name: 'key'));
+    _setPorts(cloneTypedPayload(key, name: 'key'));
   }
 
   void _setPorts(Logic key) {
@@ -201,7 +195,7 @@ class AssociativeLookupPortInterface extends AssociativePortInterface {
   AssociativeLookupPortInterface._typed(Logic key,
       {required super.indexWidth, this.matchEntryCount})
       : super(keyWidth: key.width) {
-    _setPorts(key.cloneTyped(name: 'key'));
+    _setPorts(cloneTypedPayload(key, name: 'key'));
   }
 
   void _setPorts(Logic key) {
@@ -353,8 +347,9 @@ abstract class AssociativeMemory extends Module {
   List<TypedAssociativeIndexedSideReadResponse<T>>
       _typedSideReadResponses<T extends Logic>(T key,
           {bool preferSingle = false}) {
-    if (<AssociativePortInterface>[...localUpdates, ...localLookups]
-        .any((port) => !compatiblePayloadConnection(key, port.key))) {
+    if (<AssociativePortInterface>[...localUpdates, ...localLookups].any(
+        (port) =>
+            !compatiblePayloadConnectionAllowingRenamedClone(key, port.key))) {
       throw ArgumentError('The side-read key schema must be compatible with '
           'all associative ports.');
     }
@@ -437,13 +432,9 @@ abstract class AssociativeMemory extends Module {
       }
     }
     final ports = <AssociativePortInterface>[...updates, ...lookups];
-    for (var i = 0; i < ports.length; i++) {
-      for (var j = i + 1; j < ports.length; j++) {
-        if (!_compatibleKeys(ports[i].key, ports[j].key)) {
-          throw ArgumentError('All associative keys must have compatible '
-              'declared layouts.');
-        }
-      }
+    if (!compatiblePayloadSet(ports.map((port) => port.key))) {
+      throw ArgumentError('All associative keys must have compatible '
+          'declared layouts.');
     }
     if (contract.resultShape ==
             AssociativeResultShape.matchVectorAndSelectedIndex &&

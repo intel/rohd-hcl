@@ -32,6 +32,17 @@ class _OtherKey extends LogicStructure {
   _OtherKey clone({String? name}) => _OtherKey(name: name ?? this.name);
 }
 
+class _NamedKey extends LogicStructure {
+  final String suffix;
+
+  _NamedKey({String name = 'prototype', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 8)], name: name);
+
+  @override
+  _NamedKey clone({String? name}) =>
+      _NamedKey(name: name ?? this.name, suffix: suffix);
+}
+
 class _SingleReadMemory extends AssociativeMemory
     implements AssociativeIndexedSideReadProvider {
   @override
@@ -153,6 +164,47 @@ class _TypedSideReadHarness extends Module {
       addOutput('high$index', width: 4) <= responses[index].key.elements[1];
       addOutput('valid$index') <= responses[index].entryValid;
     }
+  }
+}
+
+class _NamedSideReadHarness extends Module {
+  late final AssociativeMemory memory;
+
+  _NamedSideReadHarness({required bool behavioral}) {
+    final update =
+        TypedAssociativeUpdatePortInterface(_NamedKey(), indexWidth: 2);
+    final lookup =
+        TypedAssociativeLookupPortInterface(_NamedKey(), indexWidth: 2);
+    final side = AssociativeIndexedSideReadRequest(indexWidth: 2);
+    update.en <= addInput('write', Logic());
+    update.index <= addInput('index', Logic(width: 2), width: 2);
+    update.key <= addInput('data', Logic(width: 8), width: 8);
+    update.entryValid <= Const(1);
+    lookup.en <= Const(0);
+    lookup.key <= Const(0, width: 8);
+    side.index <= update.index;
+    final factory = behavioral
+        ? behavioralParallelAssociativeMemoryFunctor
+        : parallelAssociativeMemoryFunctor;
+    memory = factory(
+      clk: addInput('clk', Logic()),
+      reset: addInput('reset', Logic()),
+      updatePorts: [update],
+      lookupPorts: [lookup],
+      sideReadRequests: [side],
+      entryCount: 3,
+      lookupLatency: 0,
+      duplicateKeyPolicy: AssociativeDuplicateKeyPolicy.allow,
+      matchSelection: AssociativeMatchSelection.lowestIndex,
+      resultShape: AssociativeResultShape.selectedIndex,
+      lookupUpdatePolicy: AssociativeLookupUpdatePolicy.lookupAfterUpdate,
+      updateCollisionPolicy: AssociativeUpdateCollisionPolicy.highestPortWins,
+      name: 'memory',
+    ).memory!;
+    final response =
+        memory.typedSideReadResponse(_NamedKey(name: 'requested'))!;
+    addOutput('out', width: 8) <= response.key;
+    addOutput('valid') <= response.entryValid;
   }
 }
 
@@ -403,6 +455,36 @@ void main() {
   });
 
   for (final behavioral in [false, true]) {
+    test('typed side read accepts parent-renamed key behavioral=$behavioral',
+        () async {
+      final dut = _NamedSideReadHarness(behavioral: behavioral);
+      expect(
+          dut.memory
+              .typedSideReadResponses(_NamedKey(name: 'requested'))
+              .single
+              .key,
+          isA<_NamedKey>());
+      expect(
+          () => dut.memory.typedSideReadResponses(
+              _NamedKey(name: 'requested', suffix: 'different')),
+          throwsArgumentError);
+      expect(() => dut.memory.typedSideReadResponse(Logic(width: 7)),
+          throwsArgumentError);
+      final vectors = [
+        Vector(
+            {'clk': 0, 'reset': 1, 'write': 0, 'index': 1, 'data': 0xab}, {}),
+        Vector({'clk': 1}, {'valid': 0}),
+        Vector({'clk': 0, 'reset': 0, 'write': 1}, {}),
+        Vector({'clk': 1}, {'valid': 1, 'out': 0xab}),
+        Vector({'clk': 0, 'write': 0}, {'valid': 1, 'out': 0xab}),
+      ];
+      await dut.build();
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      if (!behavioral) {
+        SimCompare.checkIverilogVector(dut, vectors);
+      }
+    });
+
     test('typed indexed side reads preserve fields behavioral=$behavioral',
         () async {
       final dut = _TypedSideReadHarness(behavioral: behavioral);
@@ -824,9 +906,9 @@ void main() {
       final dut = _Harness(schema, selection);
       expect(dut.update.clone().key, isA<_Key>());
       expect(dut.lookup.clone().key, isA<_Key>());
-      expect(sameHclPayloadShape(dut.memory.input('update_key_0'), schema),
+      expect(sameRohdPayloadShape(dut.memory.input('update_key_0'), schema),
           isTrue);
-      expect(sameHclPayloadShape(dut.memory.input('lookup_key_0'), schema),
+      expect(sameRohdPayloadShape(dut.memory.input('lookup_key_0'), schema),
           isTrue);
       final vectors = [
         Vector({
@@ -869,7 +951,7 @@ void main() {
     expect(dut.update.key.valueCodec, same(_codec));
     expect(dut.lookup.clone().key.valueCodec, same(_codec));
     expect(
-        sameHclPayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
+        sameRohdPayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
     await dut.build();
     final vectors = [
       Vector({
@@ -900,11 +982,11 @@ void main() {
     test('preserves ${schema.runtimeType} associative keys', () async {
       final dut =
           _Harness<Logic>(schema, AssociativeMatchSelection.lowestIndex);
-      expect(sameHclPayloadShape(dut.update.clone().key, schema), isTrue);
-      expect(sameHclPayloadShape(dut.lookup.clone().key, schema), isTrue);
-      expect(sameHclPayloadShape(dut.memory.input('update_key_0'), schema),
+      expect(sameRohdPayloadShape(dut.update.clone().key, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.lookup.clone().key, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.memory.input('update_key_0'), schema),
           isTrue);
-      expect(sameHclPayloadShape(dut.memory.input('lookup_key_0'), schema),
+      expect(sameRohdPayloadShape(dut.memory.input('lookup_key_0'), schema),
           isTrue);
       await dut.build();
     });

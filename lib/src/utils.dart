@@ -105,6 +105,13 @@ LogicType condFlop<LogicType extends Logic>(
   if (clk == null) {
     return d;
   }
+  if (reset != null &&
+      resetValue is Logic &&
+      d.width == resetValue.width &&
+      !compatiblePayloadConnectionAllowingRenamedClone(d, resetValue)) {
+    throw ArgumentError(
+        'Register input and reset payloads must be compatible.');
+  }
   final generator = outputGenerator ??
       (hasDeclaredPayloadShape(d)
           ? ({name}) => d.cloneTyped(name: name)
@@ -112,15 +119,14 @@ LogicType condFlop<LogicType extends Logic>(
   LogicType checkedOutput({String? name}) {
     final output = generator!(name: name);
     if (output.width == d.width &&
-        !compatiblePayloadConnection(output, d, ignoreConstantNames: true)) {
+        !compatiblePayloadConnectionAllowingRenamedClone(output, d)) {
       throw ArgumentError('Register output and input payloads must be '
           'compatible.');
     }
     if (reset != null &&
         resetValue is Logic &&
         output.width == resetValue.width &&
-        !compatiblePayloadConnection(output, resetValue,
-            ignoreConstantNames: true)) {
+        !compatiblePayloadConnectionAllowingRenamedClone(output, resetValue)) {
       throw ArgumentError('Register output and reset payloads must be '
           'compatible.');
     }
@@ -143,7 +149,7 @@ LogicType condFlop<LogicType extends Logic>(
     Logic doSwap, (LogicType, LogicType) toSwap) {
   final (in1, in2) = toSwap;
   if (in1.width == in2.width &&
-      !compatiblePayloadConnection(in1, in2, ignoreConstantNames: true)) {
+      !compatiblePayloadConnectionAllowingRenamedClone(in1, in2)) {
     throw ArgumentError('Swap payloads must be compatible.');
   }
   LogicType firstClone({String? name}) => in1.cloneTyped(name: name);

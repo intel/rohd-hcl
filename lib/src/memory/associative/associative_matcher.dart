@@ -95,8 +95,8 @@ class TypedAssociativeMatcher<T extends Logic> extends Module {
           'one bit per entry.');
     }
     if (!flatPorts &&
-        storedKeys.any((key) =>
-            !sameDeclaredPayloadShape(query, key, ignoreConstantNames: true))) {
+        storedKeys
+            .any((key) => !samePayloadShapeAllowingRenamedClone(query, key))) {
       throw ArgumentError('Stored keys must match the query payload shape.');
     }
     if (comparisonName.isEmpty) {

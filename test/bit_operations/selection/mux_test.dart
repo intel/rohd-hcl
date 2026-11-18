@@ -22,6 +22,17 @@ class _Payload extends LogicStructure {
       _Payload(name: name ?? this.name, tagName: elements.first.name);
 }
 
+class _NamedPayload extends LogicStructure {
+  final String suffix;
+
+  _NamedPayload({String name = 'payload', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 4)], name: name);
+
+  @override
+  _NamedPayload clone({String? name}) =>
+      _NamedPayload(name: name ?? this.name, suffix: suffix);
+}
+
 class _MisclonedField extends GfLogic {
   final BinaryExtensionField cloneField;
 
@@ -91,6 +102,28 @@ class _ConstantPriorityHarness extends Module {
 void main() {
   tearDown(() async {
     await Simulator.reset();
+  });
+
+  test('typed priority mux accepts parent-renamed payloads', () async {
+    final dut = TypedPriorityMux<_NamedPayload>(
+        Logic(width: 2),
+        [_NamedPayload(name: 'firstInput'), _NamedPayload(name: 'secondInput')],
+        _NamedPayload(name: 'defaultInput'));
+    await dut.build();
+    final vectors = [
+      Vector({'selector': 0, 'case0': 3, 'case1': 12, 'defaultValue': 5},
+          {'result': 5}),
+      Vector({'selector': 2}, {'result': 12}),
+      Vector({'selector': 3}, {'result': 3}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+    expect(
+        () => TypedPriorityMux<_NamedPayload>(
+            Logic(),
+            [_NamedPayload(name: 'firstInput', suffix: 'other')],
+            _NamedPayload(name: 'defaultInput')),
+        throwsArgumentError);
   });
 
   const caseWidth = 4;

@@ -211,16 +211,12 @@ mixin _TypedCachePayloadPorts<T extends Logic> on PairInterface {
             payload.name, 'Cache payload shape does not match.');
       }
       final name = uniquify?.call(payload.name) ?? payload.name;
-      if (isInput) {
-        final bridge = payload.cloneTyped(name: '${payload.name}_input_bridge')
-          ..gets(source);
-        payload <= module.addTypedInput<T>(name, bridge);
-      }
-      if (isOutput) {
-        final registered = addTypedPayloadOutput<T>(module, name, payload);
-        registered <= payload;
-        source <= registered;
-      }
+      connectTypedPayloadPorts<T>(module,
+          name: name,
+          local: payload,
+          source: source,
+          input: isInput,
+          output: isOutput);
       handled.add(payload.name);
     }
     _handledPayloads = handled;
@@ -268,7 +264,7 @@ class CacheLookupPort<T extends Logic> extends PairInterface
           portsFromConsumer: [
             Logic.port('ready'),
             Logic.port('hit'),
-            dataSchema.cloneTyped(name: 'data'),
+            cloneTypedPayload(dataSchema, name: 'data'),
           ],
         );
 
@@ -314,14 +310,14 @@ class CacheFillPort<T extends Logic> extends PairInterface
           portsFromProvider: [
             Logic.port('valid'),
             Logic.port('address', addressWidth),
-            dataSchema.cloneTyped(name: 'data'),
+            cloneTypedPayload(dataSchema, name: 'data'),
             Logic.port('evictionReady'),
           ],
           portsFromConsumer: [
             Logic.port('ready'),
             Logic.port('evictionValid'),
             Logic.port('evictionAddress', addressWidth),
-            dataSchema.cloneTyped(name: 'evictionData'),
+            cloneTypedPayload(dataSchema, name: 'evictionData'),
           ],
         );
 
@@ -414,7 +410,7 @@ class Cache<T extends Logic> extends Module {
     if (clk.width != 1 || reset.width != 1) {
       throw ArgumentError('Clock and reset must be bits.');
     }
-    if (!sameHclPayloadShape(fill.data, lookup.data)) {
+    if (!sameRohdPayloadShape(fill.data, lookup.data)) {
       throw ArgumentError('Cache port payload shapes must match.');
     }
 
@@ -743,10 +739,10 @@ class MultiPortCache<T extends Logic> extends Module {
         reset.width != 1 ||
         lookups.any((port) =>
             port.address.width != addressWidth ||
-            !sameHclPayloadShape(fills.first.data, port.data)) ||
+            !sameRohdPayloadShape(fills.first.data, port.data)) ||
         fills.any((port) =>
             port.address.width != addressWidth ||
-            !sameHclPayloadShape(fills.first.data, port.data))) {
+            !sameRohdPayloadShape(fills.first.data, port.data))) {
       throw ArgumentError('Cache port widths, payload shapes, or control '
           'signals do not match.');
     }

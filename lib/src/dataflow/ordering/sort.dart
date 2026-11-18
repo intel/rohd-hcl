@@ -275,8 +275,7 @@ class BitonicSort<T extends Logic> extends Sort<T> {
     }
 
     for (final signal in toSort.skip(1)) {
-      if (!sameDeclaredPayloadShape(toSort.first, signal,
-          ignoreConstantNames: true)) {
+      if (!samePayloadShapeAllowingRenamedClone(toSort.first, signal)) {
         throw RohdHclException(
             'Bitonic sort requires matching payload layouts.');
       }

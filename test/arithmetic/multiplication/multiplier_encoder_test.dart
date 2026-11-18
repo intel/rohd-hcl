@@ -160,7 +160,7 @@ void main() {
     final clone = encoded.clone(name: 'renamed');
     expect(clone.name, 'renamed');
     expect(clone.row, encoded.row);
-    expect(sameDeclaredPayloadShape(encoded, clone), isTrue);
+    expect(sameRohdPayloadShape(encoded, clone), isTrue);
 
     final dut = _PortModule();
     final input = dut.addTypedInput('encoded', encoded);

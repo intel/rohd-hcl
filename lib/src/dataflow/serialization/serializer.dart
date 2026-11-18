@@ -75,7 +75,7 @@ class Serializer<T extends Logic, V> extends Module {
           'Serialization requires non-empty dimensions.');
     }
     if (deserialized.elements.skip(1).any((element) =>
-        !sameDeclaredPayloadShape(deserialized.elements.first, element))) {
+        !sameRohdPayloadShape(deserialized.elements.first, element))) {
       throw ArgumentError.value(deserialized, 'deserialized',
           'Serialization requires matching outermost payload formats.');
     }
@@ -98,8 +98,9 @@ class Serializer<T extends Logic, V> extends Module {
             'serialized',
             ({name = 'serialized'}) => TypedLogicArray<T, V>(
                   const [],
-                  ({name}) =>
-                      deserialized.arrayElements.first.cloneTyped(name: name),
+                  ({name}) => cloneTypedPayload(
+                      deserialized.arrayElements.first,
+                      name: name),
                   valueCodec: deserialized.valueCodec,
                   name: name,
                 ))
@@ -127,7 +128,7 @@ class Serializer<T extends Logic, V> extends Module {
             ? flop(clk, reset: reset, en: enable, cnt.count)
             : cnt.count);
 
-    final dataOutput = deserialized.cloneTyped(name: 'dataOutput');
+    final dataOutput = cloneTypedPayload(deserialized, name: 'dataOutput');
     for (var i = 0; i < deserialized.elements.length; i++) {
       dataOutput.elements[i] <=
           (flopInput
@@ -137,17 +138,17 @@ class Serializer<T extends Logic, V> extends Module {
                   en: latchTheInput,
                   deserialized.elements[i],
                   outputGenerator: ({name}) =>
-                      deserialized.elements[i].cloneTyped(name: name))
+                      cloneTypedPayload(deserialized.elements[i], name: name))
               : deserialized.elements[i]);
     }
     final selected = dataOutput.elements.selectIndex(count,
         outputGenerator: ({name}) =>
-            dataOutput.elements.first.cloneTyped(name: name));
+            cloneTypedPayload(dataOutput.elements.first, name: name));
     serialized <=
         (flopInput && alignOutputLatency
             ? mux(~cnt.count.or(), deserialized.elements.first, selected,
                 outputGenerator: ({name}) =>
-                    dataOutput.elements.first.cloneTyped(name: name))
+                    cloneTypedPayload(dataOutput.elements.first, name: name))
             : selected);
     done <=
         (flopInput && !alignOutputLatency

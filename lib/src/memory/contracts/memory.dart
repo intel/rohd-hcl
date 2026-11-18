@@ -153,7 +153,7 @@ class DataPortInterface<LogicType extends Logic>
       : dataWidth = data.width {
     setPorts([Logic.port('en'), Logic.port('addr', addrWidth)],
         [DataPortGroup.control]);
-    setPorts([data.cloneTyped(name: 'data')], [DataPortGroup.data]);
+    setPorts([cloneTypedPayload(data, name: 'data')], [DataPortGroup.data]);
   }
 
   /// Makes a copy of this [Interface] with matching configuration.
@@ -192,19 +192,13 @@ class DataPortInterface<LogicType extends Logic>
                 '${payloadShapeIdentity(data)}.');
       }
       final dataName = uniquify?.call('data') ?? 'data';
-      if (isInput) {
-        final bridge = data.cloneTyped(name: 'data_input_bridge')..gets(source);
-        data <= module.addTypedInput(dataName, bridge);
-      }
-      if (isOutput) {
-        final output = addTypedPayloadOutput(module, dataName, data);
-        output <= data;
-        source <= output;
-      }
-      if (isInOut) {
-        final bridge = data.cloneTyped(name: 'data_inout_bridge')..gets(source);
-        data <= module.addTypedInOut(dataName, bridge);
-      }
+      connectTypedPayloadPorts(module,
+          name: dataName,
+          local: data,
+          source: source,
+          input: isInput,
+          output: isOutput,
+          inOut: isInOut);
     }
     _suppressData = isInput || isOutput || isInOut;
     try {
@@ -300,7 +294,6 @@ abstract class Memory<LogicType extends Logic> extends Module {
       throw RohdHclException('Read latency must be non-negative.');
     }
 
-    Logic? declaredSchema;
     for (final port in [...writePorts, ...readPorts]) {
       if (port.addrWidth != addrWidth) {
         throw RohdHclException('All ports must have the same address width.');
@@ -308,14 +301,11 @@ abstract class Memory<LogicType extends Logic> extends Module {
       if (port.dataWidth != dataWidth) {
         throw RohdHclException('All ports must have the same data width.');
       }
-      if (hasDeclaredPayloadShape(port.data)) {
-        if (declaredSchema != null &&
-            !sameDeclaredPayloadShape(declaredSchema, port.data)) {
-          throw RohdHclException('All memory ports must have matching payload '
-              'layouts and value codecs.');
-        }
-        declaredSchema ??= port.data;
-      }
+    }
+    if (!compatiblePayloadSet(
+        [...writePorts, ...readPorts].map((port) => port.data))) {
+      throw RohdHclException('All memory ports must have matching payload '
+          'layouts and value codecs.');
     }
 
     addInput('clk', clk);

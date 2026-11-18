@@ -1,64 +1,23 @@
 ## Unreleased
 
-- Add an opt-in serializer timing mode that bypasses the first element while capturing the rest, making flopped-input output timing match unflopped timing (addressing [intel/rohd-hcl#149](https://github.com/intel/rohd-hcl/issues/149)) without changing the default.
+### New components and APIs
 
-- Fixed AXI4 subordinate memory transactions to use monitor-captured request fields rather than live signals after a handshake. Write data is captured only by its channel monitor, and write responses wait for both address and data.
-- Fixed AXI4 data monitors to capture data, strobes, and responses at the handshake edge, and retained queued write bursts while earlier responses are delayed.
-- Added an opt-in ACE4 signal layout with independently configured channel widths, snoop and acknowledgement support, and shared signal-level BFM checks; the legacy layout remains the default. Fixed AXI4 response monitoring to capture the response at the handshake edge.
-- Extended `StaticOrRuntimeControl` with typed runtime input resolution and reused it for resettable entries while preserving reset input shapes and existing behavior.
-- Typed payload shape checks and generated identities now include declared semantic metadata, including GF field descriptors, fixed-point signedness, and floating-point format flags. Matching packed-vector interface bridges remain supported. Floating-point swaps reject incompatible formats.
-- Ready/valid buffers, pipelines, and queues reject incompatible declared payloads while retaining packed-vector bridges. Provider ports cannot be registered as both directional ports and inouts.
-- Typed reductions preserve scalar payload domain metadata during alignment. Serializers reject incompatible selected slices, and deserializers reject mixed leaf formats that their output prototype cannot preserve.
-- Shift-register and toggle-gate reset signals validate declared payload formats; shift registers preserve typed reset ports and accept explicit packed reset bits.
-- Shared `swap` and `condFlop` utilities preserve finite-field payload types and reject incompatible declared formats while retaining packed bridges.
-- Static-or-runtime selection preserves runtime payload schemas and rejects incompatible declared formats, with packed bridges and static selection retained.
-- Typed static-or-runtime control inputs preserve driveable structured clones of constant-containing sources and reject flattened or incompatible reused inputs.
-- Typed priority muxes preserve compatible structured constants, including when payloads are widened to `Logic`.
-- Typed payload input registration rejects clones that change the declared runtime type or semantic format. Structured constants widened to `Logic` depend on the unreleased ROHD `addTypedInput` preservation default; update the ROHD dependency before publishing.
-- Typed clone and input/inout port validation use ROHD's shared recursive shape and semantic metadata contract; update the ROHD dependency before publishing.
-- Typed clone validation also rejects nested declared type erasure, and the ready/valid divider validates its result schema clone.
-- Fixed-latency wrappers retain declared ID schemas throughout their pipelines and result queues, including IDs widened to `Logic`.
-- Memory and associative interface registration validates typed payloads only when their port group is selected.
-- Typed memory, associative, and cache schemas and ports reject clones that change their payload type or semantic format.
 - Added `TypedAssociativeMatchSelector` for typed selection values and preference callbacks; the flat `AssociativeMatchSelector` remains available but is deprecated.
-- Fixed typed associative selection for enum payloads whose mappings omit zero, including nested enums.
-- Typed associative matching and selection preserve compatible structured constants, including when widened to `Logic`.
-- Extrema, bitonic sort, and reduction-tree data and control preserve structured constants widened to `Logic`.
-- Shift registers, FIFOs, and fixed-latency request IDs preserve structured constants widened to `Logic`; typed shift reset constants retain their declared formats.
-- Parallel-prefix networks and deserializers retain structured constant payloads through typed ports.
-- Typed SPI transmit ports, clock/toggle gates, error transmitters, and floating-point swap metadata retain structured constants widened to `Logic`.
-- Shared swap, conditional flop, runtime selection, floating-point sorting, and fixed-latency core results accept compatible structured constants.
-- Ready/valid and valid-only interface registration and ready/valid egress attachments accept compatible structured constant sources.
-- Ready/valid and valid-only consumer interfaces accept scalar constant payloads widened to `Logic`; the ready-then-valid adapter also supports them.
-- Ready/valid and valid-only interfaces reject clones that change declared payload types or semantic formats, including during packed-bridge registration.
-- Typed serialization, arithmetic, storage, clock control, protection, and cache transaction paths reject clones that change declared payload types or formats.
-- Added typed associative indexed side-read response views for RTL, behavioral, and compatible custom providers. The existing packed response remains available but is deprecated.
-- Added `TypedSynchronousAssociativeLookupPortInterface` for typed keys on fixed-latency associative memories; the packed-key constructor remains available but is deprecated.
-- Fixed inferred SRAM SystemVerilog for typed payloads containing unpacked arrays, retaining typed boundary ports while bridging to the packed SRAM cell. Behavioral SystemC substitution now excludes descendants of selected modules.
-- Memory ports now reject incompatible declared payload formats even when the first port is a plain packed bridge.
-- Delayed `ClockGate.controlled` signals validate and register typed or packed reset signals at the module boundary.
-- Clock-gate control interfaces preserve declared types on additional configuration ports across module boundaries.
-- Floating-point adders retain mixed J-bit and subnormal-mode support while sorting operand fields without reinterpreting their formats.
-- CSR backdoor read ports retain their `Csr` structure and configuration across module boundaries.
-- Typed CSR payload compatibility now includes register and field configuration; explicit packed bridges remain supported.
-- Fixed `RadixEncode` cloning to retain its requested name and field layout for typed module ports.
+- Added typed associative indexed side-read response views for RTL, behavioral, and compatible custom providers, and `TypedSynchronousAssociativeLookupPortInterface` for fixed-latency memories. The existing packed response and packed-key constructor remain available but are deprecated.
 - Added `TypedSpiMain` and `TypedSpiSub` with independently typed transmit and receive payloads. The original flat `SpiMain` and `SpiSub` remain available but are deprecated.
-- Fixed `ReadyValidFixedLatency` to preserve the type of optional request IDs through its pipeline, result queue, and output.
-- Floating-point sort utilities reject incompatible operand formats rather than reinterpreting swapped values.
-- Cache transaction staging, serialized-cache request state, and multiport-cache eviction buffers preserve declared payload structures. Packed masking and stored-value normalization retain their existing semantics.
+- Added an opt-in ACE4 signal layout with independently configured channel widths, snoop and acknowledgement support, and shared signal-level BFM checks; the legacy layout remains the default.
+- Added an opt-in serializer timing mode that bypasses the first element while capturing the rest, making flopped-input output timing match unflopped timing (addressing [intel/rohd-hcl#149](https://github.com/intel/rohd-hcl/issues/149)) without changing the default.
+- Extended `StaticOrRuntimeControl` with typed runtime input resolution and reused it for resettable entries while preserving reset input shapes and existing behavior.
 
-### Compute primitives
-
-- Added an opt-in 4:2 compressor path for column-compression trees, multipliers, multiply-accumulates, and dot products, including delay-driven selection and a configurator toggle. The existing tree remains the default. Fixed pipelined compression-tree MAC clock, reset, and enable port registration.
+- Added an opt-in 4:2 compressor path for column-compression trees, multipliers, multiply-accumulates, and dot products, including delay-driven selection and a configurator toggle. The existing tree remains the default.
 - Added configurable per-input, per-output delay estimates for 2:1, 3:2, and 4:2 compression trees and their multiplier, MAC, and dot-product users. Defaults preserve the existing tree heuristics; custom 4:2 estimates can be derived from two 3:2 stages. Custom-configured trees retain output column positions for irregular row shifts.
 - Added `Accumulator` for unsigned, increment-only accumulation with optional saturation, enable, clear, and restart controls.
 - Added `NumericNarrowing` for signed or unsigned rounding and narrowing, with wrap or saturation and overflow, underflow, and inexact reporting.
 - Added `IterativeDividerEngine` for direct start/busy/done control and `ReadyValidIterativeDivider` for ready/valid commands and retained results. Added `ValidOnlyCarrySaveMultiplier`, a fixed-latency wrapper around `CarrySaveMultiplier`, along with the public `ValidOnlyInterface` and `PipelineTimingContract` types.
 - Added protocol-neutral `FixedLatencyTracker` and `ReadyValidFixedLatency` for in-order, continuously advancing fixed-latency cores, with initiation-interval scheduling, reserved result buffering, backpressure, and optional request IDs (addressing [intel/rohd-hcl#146](https://github.com/intel/rohd-hcl/issues/146)).
-- Fixed divider nontermination for some power-of-two operand widths and signed divisions by the most negative divisor, and added exhaustive 1- through 4-bit tests. The typed divider FSM was already added to main; the remaining optimizations in [intel/rohd-hcl#139](https://github.com/intel/rohd-hcl/issues/139) are proposed in [intel/rohd-hcl#287](https://github.com/intel/rohd-hcl/pull/287), which remains open and requires rebasing and validation.
 - Added binary-field arithmetic and combinational constant multiplication, inversion, and polynomial evaluation. Added binary matrix and polynomial utilities, linear and affine transforms, serial and parallel LFSRs, a zero-based tap-list `Lfsr` API, signature analysis, and configurable PRBS generation and checking. The PRBS checker requires seed and enable alignment; it does not acquire phase. The LFSRs and tap-list API address [intel/rohd-hcl#8](https://github.com/intel/rohd-hcl/issues/8). The recurrence and signature primitives provide groundwork for [intel/rohd-hcl#46](https://github.com/intel/rohd-hcl/issues/46), but are not a configurable CRC generator and checker.
-- Added field-typed constructors and outputs for finite-field modules; their bit-vector constructors and result views remain available but are deprecated. Fixed-latency result queues retain structured payloads and IDs without flattening, and valid-only interface registration preserves typed payloads.
-- Added `TypedAssociativeMatcher` for typed query ports and comparators; the flat `AssociativeMatcher` remains available but is deprecated. Cache lookup, fill, and eviction ports now retain structured payload types during interface registration.
+- Added field-typed constructors and outputs for finite-field modules; their bit-vector constructors and result views remain available but are deprecated.
+- Added `TypedAssociativeMatcher` for typed query ports and comparators; the flat `AssociativeMatcher` remains available but is deprecated.
 - Added `TypedPriorityMux` for structured case and result ports; the flat-port `PriorityMux` remains available but is deprecated.
 - Added `FloatingPointClassifier` and `FloatingPointComparator`. Explicit-J inputs require opt-in `alignExplicitJBit`; the comparator requires matching formats and applies subnormal-as-zero after alignment. The classifier reports subnormals independently of that arithmetic setting.
 - Added opt-in explicit-J alignment to `FloatingPointConverter` for unnormalized inputs and noncanonical zeros. The default conversion path is unchanged. Aligned explicit-J sources require at least two exponent bits and IEEE infinity and signaling-NaN encodings; an explicit-J destination also requires IEEE special values and at least one fraction bit.
@@ -69,6 +28,33 @@
 - Added binary/thermometer converters and `ClockDivider`, which produces a periodic clock enable rather than a divided clock. Clarified `Synchronizer` restrictions for reset, pulses, multi-bit crossings, and physical CDC implementation.
 - Added Confapp configurators and source views for the new compute, binary-math, recurrence, and fixed-latency components. Added controls for custom compressor delays, 4:2 compression, serializer alignment, explicit-J conversion, and Gray-code topology. The generic ready/valid fixed-latency configurator demonstrates a delay core.
 - Fixed Confapp source cross-probing in optimized JavaScript and experimental Wasm builds by mapping stack frames back to bundled Dart sources and retaining generated SystemVerilog positions.
+
+### Typed payload compatibility
+
+- Typed payload checks use ROHD's recursive shape and semantic metadata contract, including GF field descriptors, fixed-point signedness, floating-point format flags, and CSR register and field configuration. Equal-width packed `Logic` bridges remain supported; components sharing or selecting payloads validate declared schemas pairwise. These checks run during construction and add no checking hardware; see the [payload schema guide](doc/components/payload_schemas.md).
+- Typed interface, transport, arithmetic, selection, serialization, clock-control, protection, memory, associative, and cache paths reject clones that change payload width, declared type, or semantic format, including nested type erasure. Typed output registration also checks the registered schema.
+- Ready/valid buffers, queues, and attachments; extrema, bitonic sort, priority muxes, and associative selection; runtime controls, prefix networks, and fixed-latency results; and typed swaps and resets accept compatible parent-renamed clones without weakening format checks.
+- Typed operations and ports retain compatible structured constants widened to `Logic`, including in selection, reduction, storage, serialization, SPI, clocking, protection, and ready/valid paths. Ready/valid and valid-only consumers and the ready-then-valid adapter also accept scalar constants widened to `Logic`.
+- Serializers reject incompatible selected slices; deserializers reject mixed leaf formats and incompatible array value codecs. Memory-array factories accept packed bridges while checking every declared port schema.
+- Shift-register and toggle-gate resets validate declared formats, and conditional flops compare data, reset, and output formats even through packed bridges. Memory and associative interface registration checks payloads only when their port group is selected.
+- In-memory SRAM, memory-model, behavioral-cache, and behavioral associative snapshots require matching port schemas and array codecs when restored.
+
+### Fixes
+
+- Fixed divider nontermination for some power-of-two operand widths and signed divisions by the most negative divisor, and added exhaustive 1- through 4-bit tests. The typed divider FSM was already added to main; the remaining optimizations in [intel/rohd-hcl#139](https://github.com/intel/rohd-hcl/issues/139) are proposed in [intel/rohd-hcl#287](https://github.com/intel/rohd-hcl/pull/287), which remains open and requires rebasing and validation.
+- Fixed pipelined compression-tree MAC clock, reset, and enable port registration.
+- Fixed AXI4 subordinate memory transactions and monitors to capture address, data, strobes, and responses at the handshake edge. Write responses wait for both address and data, and queued write bursts are retained while earlier responses are delayed.
+- Fixed inferred SRAM SystemVerilog for typed payloads containing unpacked arrays, retaining typed boundary ports while bridging to the packed SRAM cell. Behavioral SystemC substitution now excludes descendants of selected modules.
+- Fixed typed associative selection for enum payloads whose mappings omit zero, including nested enums.
+- Fixed `RadixEncode` cloning to retain its requested name and field layout for typed module ports.
+- Floating-point sort utilities reject incompatible operand formats; adders retain mixed J-bit and subnormal-mode support without reinterpreting sorted fields.
+- Fixed-latency result queues and request-ID pipelines preserve structured payloads and IDs. Cache transaction staging, serialized-cache request state, and multiport-cache eviction buffers preserve declared payload structures without changing packed masking or stored-value normalization.
+- Cache lookup, fill, and eviction ports, valid-only interfaces, clock-gate control ports, and CSR backdoor read ports preserve their declared payload structures across module boundaries. Delayed `ClockGate.controlled` signals also validate and register typed or packed reset signals.
+- Ready/valid provider ports cannot be registered as both directional ports and inouts. Error-correction receivers reject corrected payloads with incompatible declared formats while retaining packed-bit results.
+
+### Dependencies
+
+- Require hosted ROHD 0.7.4 or later in the 0.7.x series for typed payload support.
 
 ## 0.3.2
 

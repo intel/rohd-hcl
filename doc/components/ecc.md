@@ -50,3 +50,7 @@ Codewords and syndromes remain bit-oriented with unchanged encoding. Correction
 operates on raw received bits before applying the output schema, so an invalid
 enum encoding caused by a bit flip can still be corrected. `correctedData` is
 null for SEDDED and SEDDEDTED, as before.
+
+Custom `ErrorCheckingReceiver` implementations must return corrected data with
+the output width and a compatible declared payload format. Plain packed results
+remain supported as raw bits.

@@ -36,6 +36,17 @@ class _Affine extends LogicStructure {
       _Affine(name: name ?? this.name, width: scale.width);
 }
 
+class _ParentNamed extends LogicStructure {
+  final String suffix;
+
+  _ParentNamed({String name = 'payload', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 4)], name: name);
+
+  @override
+  _ParentNamed clone({String? name}) =>
+      _ParentNamed(name: name ?? this.name, suffix: suffix);
+}
+
 typedef _AffineValue = ({LogicValue scale, LogicValue offset});
 
 _AffineValue _decode(LogicValue bits) =>
@@ -112,7 +123,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
 
 void _expectPayload<T extends Logic>(T schema, T signal) {
   expect(signal.runtimeType, schema.runtimeType);
-  expect(sameHclPayloadShape(schema, signal), isTrue);
+  expect(sameRohdPayloadShape(schema, signal), isTrue);
 }
 
 void _checkPayload<T extends Logic>(String label, T schema,
@@ -123,7 +134,7 @@ void _checkPayload<T extends Logic>(String label, T schema,
       final dut = _Harness<T>(topology, schema);
       for (var i = 0; i < 5; i++) {
         _expectPayload<T>(schema, dut.tree.val[i]);
-        expect(sameHclPayloadShape(schema, dut.tree.input('i$i')), isTrue);
+        expect(sameRohdPayloadShape(schema, dut.tree.input('i$i')), isTrue);
       }
       expect(() => dut.tree.val.clear(), throwsUnsupportedError);
       final vectors = <Vector>[];
@@ -154,6 +165,23 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
+  for (final topology in _Topology.values) {
+    test('prefix accepts parent-renamed payload clones $topology', () async {
+      final inputs = [_ParentNamed(), _ParentNamed(), _ParentNamed()];
+      final tree = _tree<_ParentNamed>(topology, inputs,
+          (left, right) => left.cloneTyped(name: 'combined')..gets(left));
+      await tree.build();
+      inputs[0].put(3);
+      inputs[1].put(5);
+      inputs[2].put(7);
+      expect(tree.val.map((value) => value.value.toInt()), [3, 3, 3]);
+      expect(
+          () => _tree<_ParentNamed>(topology, [_ParentNamed(), _ParentNamed()],
+              (left, right) => _ParentNamed(name: 'combined', suffix: 'other')),
+          throwsA(isA<RohdHclException>()));
+    });
+  }
 
   _checkPayload('scalar', Logic(width: 8));
   _checkPayload('structured', _Affine(), systemC: true);

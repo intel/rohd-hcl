@@ -25,6 +25,17 @@ class _Payload extends LogicStructure {
   _Payload clone({String? name}) => _Payload(name: name ?? this.name);
 }
 
+class _ParentNamedPayload extends LogicStructure {
+  final String suffix;
+
+  _ParentNamedPayload({String name = 'payload', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 8)], name: name);
+
+  @override
+  _ParentNamedPayload clone({String? name}) =>
+      _ParentNamedPayload(name: name ?? this.name, suffix: suffix);
+}
+
 class _SecondCloneField extends GfLogic {
   final BinaryExtensionField replacement;
   final bool preserveNext;
@@ -46,6 +57,10 @@ _PayloadValue _decode(LogicValue value) =>
 LogicValue _encode(_PayloadValue value) =>
     LogicValue.of([value.flags, value.number]);
 const _codec = LogicValueCodec<_PayloadValue>(decode: _decode, encode: _encode);
+
+LogicValue _rawValue(LogicValue value) => value;
+const _alternateRawCodec =
+    LogicValueCodec<LogicValue>(decode: _rawValue, encode: _rawValue);
 
 class _Controlled<T extends Logic> extends Module {
   late final ClockGate gate;
@@ -181,8 +196,9 @@ class _ControlledSignalReset<T extends Logic> extends Module {
       ..gets(addInput('data', Logic(width: schema.width), width: schema.width));
     final resetBits =
         addInput('resetData', Logic(width: schema.width), width: schema.width);
-    final resetValue =
-        typedReset ? (data.cloneTyped()..gets(resetBits)) : resetBits;
+    final resetValue = typedReset
+        ? (data.cloneTyped(name: 'resetPayload')..gets(resetBits))
+        : resetBits;
     gate = ClockGate(addInput('clk', Logic()),
         enable: addInput('enable', Logic()),
         reset: addInput('reset', Logic()),
@@ -205,6 +221,26 @@ class _ClockControlConfig extends Module {
 }
 
 class _PortModule extends Module {}
+
+class _CustomCorrectionReceiver extends ErrorCheckingReceiver<Logic> {
+  final Logic? result;
+
+  _CustomCorrectionReceiver(Logic schema, this.result)
+      : super(Logic(width: schema.width + 1),
+            codeWidth: 1,
+            supportsErrorCorrection: true,
+            name: 'custom_correction',
+            dataSchema: schema);
+
+  @override
+  Logic calculateCorrectableError() => Const(0);
+
+  @override
+  Logic calculateUncorrectableError() => Const(0);
+
+  @override
+  Logic? calculateCorrectedData() => result;
+}
 
 Future<void> _compare(Module dut, List<Vector> vectors,
     {bool systemC = false}) async {
@@ -276,7 +312,7 @@ void _checkPayload<T extends Logic>(String label, T schema) {
     for (final delay in [true, false]) {
       test('$label controlled present=$present delay=$delay', () async {
         final dut = _Controlled<T>(schema, present: present, delay: delay);
-        expect(sameHclPayloadShape(dut.delayed, schema), isTrue);
+        expect(sameRohdPayloadShape(dut.delayed, schema), isTrue);
         await _compare(dut, _clockVectors(bypass: !present || !delay));
       });
     }
@@ -287,11 +323,11 @@ void _checkPayload<T extends Logic>(String label, T schema) {
         () async {
       final before = schema.value;
       final dut = _Protection<T>(schema, type: type);
-      expect(sameHclPayloadShape(dut.tx.input('data'), schema), isTrue);
-      expect(sameHclPayloadShape(dut.original, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.tx.input('data'), schema), isTrue);
+      expect(sameRohdPayloadShape(dut.original, schema), isTrue);
       expect(dut.corrected == null, !(type?.hasCorrection ?? false));
       if (dut.corrected != null) {
-        expect(sameHclPayloadShape(dut.corrected!, schema), isTrue);
+        expect(sameRohdPayloadShape(dut.corrected!, schema), isTrue);
       }
       await _compare(dut, _protectionVectors(dut, type: type));
       expect(schema.value, before, reason: 'A schema is not an output driver.');
@@ -300,6 +336,77 @@ void _checkPayload<T extends Logic>(String label, T schema) {
 }
 
 void main() {
+  test('typed reset boundaries accept parent-renamed payloads', () {
+    _ParentNamedPayload data() => _ParentNamedPayload(name: 'inputPayload');
+    _ParentNamedPayload resetData({String suffix = 'bits'}) =>
+        _ParentNamedPayload(name: 'resetPayload', suffix: suffix);
+    final constructors = <void Function(_ParentNamedPayload)>[
+      (reset) => ShiftRegister<_ParentNamedPayload>(data(),
+          clk: Logic(), reset: Logic(), resetValue: reset, depth: 1),
+      (reset) => ToggleGate<_ParentNamedPayload>(
+          data: data(),
+          clk: Logic(),
+          reset: Logic(),
+          enable: Logic(),
+          resetValue: reset),
+      (reset) => ClockGate(Logic(),
+              enable: Logic(), reset: Logic(), delayControlledSignals: true)
+          .controlled(data(), resetValue: reset),
+    ];
+    for (final construct in constructors) {
+      expect(() => construct(resetData()), returnsNormally);
+      expect(() => construct(resetData(suffix: 'other')),
+          throwsA(anyOf(isA<ArgumentError>(), isA<RohdHclException>())));
+    }
+  });
+
+  test('clock control retains parent-renamed reset values', () async {
+    final dut = _ControlledSignalReset(_ParentNamedPayload(), typedReset: true);
+    await _compare(dut, [
+      Vector(
+          {'clk': 0, 'enable': 0, 'reset': 1, 'data': 3, 'resetData': 5}, {}),
+      Vector({'clk': 1}, {'result': 5}),
+      Vector({'clk': 0, 'reset': 0, 'data': 7}, {'result': 5}),
+      Vector({'clk': 1}, {'result': 7}),
+    ]);
+  });
+
+  test('corrected data checks declared formats and allows packed bits', () {
+    Logic schema() => FixedPoint(integerWidth: 3, fractionWidth: 4);
+    expect(
+        () => _CustomCorrectionReceiver(schema(),
+            FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false)),
+        throwsA(isA<RohdHclException>()));
+    expect(() => _CustomCorrectionReceiver(schema(), Logic(width: 9)),
+        throwsA(isA<RohdHclException>()));
+    expect(() => _CustomCorrectionReceiver(schema(), null),
+        throwsA(isA<RohdHclException>()));
+    Logic array(LogicValueCodec<LogicValue> codec) =>
+        TypedLogicArray<Logic, LogicValue>([2], ({name}) => Logic(width: 4),
+            valueCodec: codec);
+    expect(
+        () => _CustomCorrectionReceiver(
+            array(LogicValueCodec.logicValue), array(_alternateRawCodec)),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => _CustomCorrectionReceiver(
+            schema(), FixedPoint(integerWidth: 3, fractionWidth: 4)),
+        returnsNormally);
+    expect(() => _CustomCorrectionReceiver(schema(), Logic(width: 8)),
+        returnsNormally);
+    expect(
+        () => _CustomCorrectionReceiver(
+            Logic(width: 8), FixedPoint(integerWidth: 3, fractionWidth: 4)),
+        returnsNormally);
+  });
+
+  test('correction preserves payloads with parent-derived field names', () {
+    expect(
+        () => HammingEccReceiver<_ParentNamedPayload>(Logic(width: 13),
+            hammingType: HammingType.secded, dataSchema: _ParentNamedPayload()),
+        returnsNormally);
+  });
+
   test('storage and protection reject changing payload clone metadata', () {
     final first =
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
@@ -519,8 +626,7 @@ void main() {
     final schema = TypedLogicArray<_Payload, LogicValue>([2], _Payload.new,
         numUnpackedDimensions: 1);
     final dut = _ControlledSignalReset(schema, typedReset: true);
-    expect(
-        sameDeclaredPayloadShape(dut.gate.input('payload_resetValue'), schema),
+    expect(sameRohdPayloadShape(dut.gate.input('payload_resetValue'), schema),
         isTrue);
     await _compare(dut, [
       Vector(

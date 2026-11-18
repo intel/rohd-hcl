@@ -45,8 +45,7 @@ class ToggleGate<T extends Logic> extends Module {
       : super(definitionName: definitionName ?? 'ToggleGate_W${data.width}') {
     if (resetValue is Logic &&
         resetValue.width == data.width &&
-        !compatiblePayloadConnection(data, resetValue,
-            ignoreConstantNames: true)) {
+        !compatiblePayloadConnectionAllowingRenamedClone(data, resetValue)) {
       throw ArgumentError.value(
           resetValue, 'resetValue', 'Payload formats must match.');
     }
@@ -66,7 +65,7 @@ class ToggleGate<T extends Logic> extends Module {
 
     gatedData = addTypedPayloadOutput(this, 'gatedData', data);
 
-    final lastData = data.cloneTyped(name: 'lastData');
+    final lastData = cloneTypedPayload(data, name: 'lastData');
 
     final gateEnable = enable & (lastData.neq(data));
 
@@ -83,7 +82,7 @@ class ToggleGate<T extends Logic> extends Module {
             en: clkGate.isPresent ? null : gateEnable,
             reset: reset,
             resetValue: resetValue,
-            outputGenerator: ({name}) => data.cloneTyped(name: name),
+            outputGenerator: ({name}) => cloneTypedPayload(data, name: name),
             data);
 
     gatedData <=
@@ -91,7 +90,7 @@ class ToggleGate<T extends Logic> extends Module {
           enable,
           data,
           lastData,
-          outputGenerator: ({name}) => data.cloneTyped(name: name),
+          outputGenerator: ({name}) => cloneTypedPayload(data, name: name),
         );
   }
 }

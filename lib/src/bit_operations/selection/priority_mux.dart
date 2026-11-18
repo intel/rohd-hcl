@@ -50,8 +50,8 @@ class TypedPriorityMux<T extends Logic> extends Module {
       throw Exception('All cases must have the same width as the default.');
     }
     if (!flatPorts &&
-        cases.any((c) => !sameDeclaredPayloadShape(defaultValue, c,
-            ignoreConstantNames: true))) {
+        cases.any(
+            (c) => !samePayloadShapeAllowingRenamedClone(defaultValue, c))) {
       throw ArgumentError('Cases must match the default payload shape.');
     }
     if (selector.width != cases.length) {

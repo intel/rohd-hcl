@@ -83,7 +83,7 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
     'TypedAssociativeLookupPortInterface.',
   )
   TagInterface.typed(this.idWidth, T tag) : tagWidth = tag.width {
-    setPorts([Logic.port('en'), tag.cloneTyped(name: 'tag')],
+    setPorts([Logic.port('en'), cloneTypedPayload(tag, name: 'tag')],
         [DataPortGroup.control]);
     setPorts(
         [Logic.port('idx', idWidth), Logic.port('hit')], [DataPortGroup.data]);
@@ -120,19 +120,13 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
             'CAM tag layout does not match ${payloadShapeIdentity(tag)}.');
       }
       final tagName = uniquify?.call('tag') ?? 'tag';
-      if (isInput) {
-        final bridge = tag.cloneTyped(name: 'tag_input_bridge')..gets(source);
-        tag <= module.addTypedInput(tagName, bridge);
-      }
-      if (isOutput) {
-        final output = addTypedPayloadOutput(module, tagName, tag);
-        output <= tag;
-        source <= output;
-      }
-      if (isInOut) {
-        final bridge = tag.cloneTyped(name: 'tag_inout_bridge')..gets(source);
-        tag <= module.addTypedInOut(tagName, bridge);
-      }
+      connectTypedPayloadPorts(module,
+          name: tagName,
+          local: tag,
+          source: source,
+          input: isInput,
+          output: isOutput,
+          inOut: isInOut);
     }
     _suppressTag = isInput || isOutput || isInOut;
     try {
@@ -244,7 +238,7 @@ class Cam<T extends Logic> extends Module {
     }
     final schema = lookupPorts.first.tag;
     for (final port in [...writePorts, ...lookupPorts]) {
-      if (!sameHclPayloadShape(schema, port.tag)) {
+      if (!sameRohdPayloadShape(schema, port.tag)) {
         throw RohdHclException('CAM ports must have matching tag layouts.');
       }
       if (port.idWidth < widthFor(numEntries)) {

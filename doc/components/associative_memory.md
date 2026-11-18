@@ -931,8 +931,9 @@ For a typed key, call `memory.typedSideReadResponse(lookup.key)` or
 `memory.typedSideReadResponses(lookup.key)` before building the surrounding
 module. These return connected `TypedAssociativeIndexedSideReadResponse` views
 whose `key` retains the supplied type. The schema must be compatible with every
-declared lookup and update key; an explicitly packed `Logic` can be used as a
-bridge. An empty set of reads gives `null` or an empty list, respectively;
+declared lookup and update key, including compatible parent-renamed clones;
+an explicitly packed `Logic` can be used as a bridge. An empty set of reads
+gives `null` or an empty list, respectively;
 a memory without a side-read provider throws `StateError`. The existing
 providers retain their packed responses for compatibility, but
 `AssociativeIndexedSideReadResponse` is deprecated.

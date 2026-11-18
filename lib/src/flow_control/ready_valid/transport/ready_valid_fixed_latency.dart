@@ -34,8 +34,8 @@ class _FixedLatencyResult<T extends Logic, Id extends Logic>
 
   _FixedLatencyResult(T schema, Id? idSchema, {String? name})
       : super([
-          schema.cloneTyped(name: 'payload'),
-          if (idSchema != null) idSchema.cloneTyped(name: 'id'),
+          cloneTypedPayload(schema, name: 'payload'),
+          if (idSchema != null) cloneTypedPayload(idSchema, name: 'id'),
         ], name: name ?? 'result');
 
   @override
@@ -133,7 +133,8 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic,
     final input = addPairInterfacePorts(upstream, PairRole.consumer,
         uniquify: (original) => 'upstream_$original');
     final output = addPairInterfaceFrom(
-      IrrevocableReadyValidInterface<Output>(downstream.data.cloneTyped()),
+      IrrevocableReadyValidInterface<Output>(
+          cloneTypedPayload(downstream.data)),
       downstream,
       PairRole.provider,
       uniquify: (original) => 'downstream_$original',
@@ -162,8 +163,7 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic,
       start: tracker.accepted,
       data: input.data,
     );
-    if (!sameDeclaredPayloadShape(downstream.data, result,
-        ignoreConstantNames: true)) {
+    if (!samePayloadShapeAllowingRenamedClone(downstream.data, result)) {
       throw ArgumentError(
           'Core result must match the downstream payload shape.');
     }

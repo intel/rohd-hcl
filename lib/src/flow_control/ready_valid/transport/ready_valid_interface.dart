@@ -239,18 +239,16 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
       final sourcePayload = validatePayloadCompatibility(
         srcInterface.port(dataName),
       );
-      final typedSource = data.cloneTyped(name: '${data.name}_input_bridge');
-      typedSource <= sourcePayload;
-      data <= module.addTypedInput(portName, typedSource);
+      connectTypedPayloadPorts(module,
+          name: portName, local: data, source: sourcePayload, input: true);
       valid <= module.addInput(validPortName, srcInterface.port('valid'));
     }
     if (outputIncludesProvider) {
       final sourcePayload = validatePayloadCompatibility(
         srcInterface.port(dataName),
       );
-      final output = addTypedPayloadOutput(module, portName, data);
-      output <= data;
-      sourcePayload <= output;
+      connectTypedPayloadPorts(module,
+          name: portName, local: data, source: sourcePayload, output: true);
       final validOutput = module.addOutput(validPortName);
       validOutput <= valid;
       srcInterface.port('valid') <= validOutput;
@@ -282,8 +280,7 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
         'but found ${sourcePayload.width}.',
       );
     }
-    if (!compatiblePayloadConnection(data, sourcePayload,
-        ignoreConstantNames: true)) {
+    if (!compatiblePayloadConnectionAllowingRenamedClone(data, sourcePayload)) {
       throw PortTypeException.forIntendedName(
         data.name,
         'Expected ready/valid payload shape '

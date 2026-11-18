@@ -98,11 +98,10 @@ class StaticOrRuntimeControl<T> {
   }
 
   void _validateTypedInput(Logic config, Logic input) {
-    if (config is Const) {
-      return;
-    }
-    if (input.runtimeType != config.runtimeType ||
-        !sameDeclaredPayloadShape(config, input, ignoreConstantNames: true)) {
+    if (input.width != config.width ||
+        (config is! Const &&
+            (input.runtimeType != config.runtimeType ||
+                !sameTypedCloneShape(config, input)))) {
       throw RohdHclException(
           'Runtime control "$name" requires a matching typed module input.');
     }
@@ -258,8 +257,7 @@ class StaticOrRuntimeParameter extends StaticOrRuntimeControl<bool> {
       LogicType whenTrue, LogicType whenFalse,
       {Module? module}) {
     if (whenTrue.width == whenFalse.width &&
-        !compatiblePayloadConnection(whenTrue, whenFalse,
-            ignoreConstantNames: true)) {
+        !compatiblePayloadConnectionAllowingRenamedClone(whenTrue, whenFalse)) {
       throw ArgumentError('Selection payloads must be compatible.');
     }
     final config = runtimeConfig;

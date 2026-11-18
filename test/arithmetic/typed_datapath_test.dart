@@ -21,6 +21,17 @@ class _Packet extends LogicStructure {
   _Packet clone({String? name}) => _Packet(name: name ?? this.name);
 }
 
+class _ParentNamedPacket extends LogicStructure {
+  final String suffix;
+
+  _ParentNamedPacket({String name = 'packet', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 8)], name: name);
+
+  @override
+  _ParentNamedPacket clone({String? name}) =>
+      _ParentNamedPacket(name: name ?? this.name, suffix: suffix);
+}
+
 class _DazFloat extends FloatingPoint {
   _DazFloat({super.name})
       : super(
@@ -78,9 +89,9 @@ class _TypedSwap<T extends Logic> extends Module {
   late final (T, T) swapped;
 
   _TypedSwap(T schema) {
-    final a = schema.cloneTyped(name: 'a')
+    final a = schema.cloneTyped(name: 'operandA')
       ..gets(addInput('a', Logic(width: schema.width), width: schema.width));
-    final b = schema.cloneTyped(name: 'b')
+    final b = schema.cloneTyped(name: 'operandB')
       ..gets(addInput('b', Logic(width: schema.width), width: schema.width));
     swapped = swap(addInput('select', Logic()), (a, b));
     addTypedOutput('first', schema.cloneTyped) <= swapped.$1;
@@ -103,10 +114,10 @@ class _MetadataSwap<T extends Logic> extends Module {
       ..gets(addInput('a', Logic(width: 32), width: 32));
     final b = FloatingPoint32()
       ..gets(addInput('b', Logic(width: 32), width: 32));
-    final metaA = schema.cloneTyped()
+    final metaA = schema.cloneTyped(name: 'metadataA')
       ..gets(
           addInput('metaA', Logic(width: schema.width), width: schema.width));
-    final metaB = schema.cloneTyped()
+    final metaB = schema.cloneTyped(name: 'metadataB')
       ..gets(
           addInput('metaB', Logic(width: schema.width), width: schema.width));
     final select = addInput('select', Logic());
@@ -261,11 +272,11 @@ void _checkMetadata<T extends Logic>(String label, T schema,
         first,
         dut.sorter.outMetaB!,
       ]) {
-        expect(sameHclPayloadShape(schema, port), isTrue);
+        expect(sameRohdPayloadShape(schema, port), isTrue);
       }
       final metadataMuxes = dut.sorter.subModules
           .whereType<Mux<T>>()
-          .where((mux) => sameHclPayloadShape(schema, mux.out));
+          .where((mux) => sameRohdPayloadShape(schema, mux.out));
       expect(metadataMuxes, hasLength(2));
       final mask = (1 << schema.width) - 1;
       final a = 0x102030a1 & mask;
@@ -368,6 +379,40 @@ void main() {
   });
 
   _checkPayload('plain', Logic(width: 8));
+  _checkPayload('parent-renamed payload', _ParentNamedPacket());
+
+  test('floating-point swaps accept parent-renamed metadata', () async {
+    final dut =
+        _MetadataSwap<_ParentNamedPacket>('conditional', _ParentNamedPacket());
+    await dut.build();
+    await _compare(dut, [
+      Vector({
+        'select': 0,
+        'a': 0x3f800000,
+        'b': 0x40000000,
+        'metaA': 0x12,
+        'metaB': 0x34,
+      }, {
+        'firstMeta': 0x12,
+        'secondMeta': 0x34,
+      }),
+      Vector({'select': 1}, {'firstMeta': 0x34, 'secondMeta': 0x12}),
+    ]);
+  });
+
+  test('renamed payload checks still reject incompatible flop and swap data',
+      () {
+    final data = _ParentNamedPacket(name: 'sourcePayload');
+    final resetData = _ParentNamedPacket(name: 'resetPayload');
+    final incompatible =
+        _ParentNamedPacket(name: 'otherPayload', suffix: 'other');
+    expect(() => condFlop(Logic(), data, reset: Logic(), resetValue: resetData),
+        returnsNormally);
+    expect(
+        () => condFlop(Logic(), data, reset: Logic(), resetValue: incompatible),
+        throwsArgumentError);
+    expect(() => swap(Logic(), (data, incompatible)), throwsArgumentError);
+  });
   _checkPayload('floating-point subtype', FloatingPoint32(), systemC: true);
   _checkPayload('fixed-point format',
       FixedPoint(integerWidth: 3, fractionWidth: 4, signed: false));
@@ -444,9 +489,30 @@ void main() {
         () => condFlop(Logic(), signed, reset: Logic(), resetValue: unsigned),
         throwsArgumentError);
     expect(
+        () => condFlop<Logic>(Logic(), signed,
+            reset: Logic(),
+            resetValue: unsigned,
+            outputGenerator: ({name}) =>
+                Logic(name: name, width: signed.width)),
+        throwsArgumentError);
+    expect(
         condFlop(Logic(), signed,
             reset: Logic(), resetValue: Logic(width: signed.width)),
         isA<FixedPoint>());
+    expect(
+        condFlop<Logic>(Logic(), signed,
+            reset: Logic(),
+            resetValue: signed.clone(),
+            outputGenerator: ({name}) =>
+                Logic(name: name, width: signed.width)),
+        isA<Logic>());
+    expect(
+        condFlop<Logic>(Logic(), signed,
+            reset: Logic(),
+            resetValue: Logic(width: signed.width),
+            outputGenerator: ({name}) =>
+                Logic(name: name, width: signed.width)),
+        isA<Logic>());
     expect(
         condFlop(null, signed,
             reset: Logic(),

@@ -17,6 +17,10 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+LogicValue _alternateCodecValue(LogicValue value) => value;
+const _alternateCodec = LogicValueCodec<LogicValue>(
+    decode: _alternateCodecValue, encode: _alternateCodecValue);
+
 class _Harness extends Module {
   late final BehavioralCacheBackingStore backing;
   late final BehavioralCache<Logic, Logic, Logic, Logic> cache;
@@ -27,6 +31,7 @@ class _Harness extends Module {
       int operationLatency = 1,
       int waysPerSet = 1,
       int addressWidth = 8,
+      Logic? dataSchema,
       BehavioralCacheReplacement? replacement}) {
     backing = BehavioralCacheBackingStore(
         addressWidth: addressWidth, dataWidth: 8, metadataWidth: 2);
@@ -36,7 +41,7 @@ class _Harness extends Module {
           addressWidth: addressWidth,
           tokenWidth: 2,
           operationWidth: 3,
-          dataSchema: Logic(width: 8),
+          dataSchema: dataSchema ?? Logic(width: 8),
           writeMaskWidth: 2,
           lineMetadataSchema: Logic(width: 2),
           contextSchema: Logic(width: 2),
@@ -1078,5 +1083,24 @@ void main() {
     expect(custom.cache.snapshot, throwsUnsupportedError);
     expect(
         custom.cache.stateTransactions.capabilities.supportsSnapshot, isFalse);
+  });
+
+  test('cache snapshot rejects a nested array codec mismatch atomically', () {
+    Logic schema(LogicValueCodec<LogicValue> codec) =>
+        TypedLogicArray<Logic, LogicValue>(
+            [2], ({name}) => Logic(width: 4, name: name),
+            valueCodec: codec);
+    final original = _Harness(dataSchema: schema(LogicValueCodec.logicValue));
+    final incompatible = _Harness(dataSchema: schema(_alternateCodec));
+    final compatible = _Harness(dataSchema: schema(LogicValueCodec.logicValue));
+    original.cache.poke(BigInt.zero,
+        data: LogicValue.ofInt(0x55, 8), metadata: LogicValue.ofInt(1, 2));
+    incompatible.cache.poke(BigInt.zero,
+        data: LogicValue.ofInt(0x77, 8), metadata: LogicValue.ofInt(2, 2));
+    final image = original.cache.snapshot();
+    expect(() => incompatible.cache.restore(image), throwsArgumentError);
+    expect(incompatible.cache.peek(BigInt.zero)!.data.toInt(), 0x77);
+    compatible.cache.restore(image);
+    expect(compatible.cache.peek(BigInt.zero)!.data.toInt(), 0x55);
   });
 }

@@ -159,7 +159,7 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
   static L cloneSignal<L extends Logic>(L source, {String? name}) {
     final cloned = source is Const
         ? Logic(width: source.width, name: name)
-        : source.cloneTyped(name: name);
+        : cloneTypedPayload(source, name: name);
     if (cloned is! L) {
       throw RohdHclException(
           'Reduction signals require driveable clones. Use Logic for scalar '
@@ -222,8 +222,8 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
       }
       final value =
           operation(_sequence, depth: 0, control: _control, name: 'leaf');
-      out = addTypedOutput(
-          'out', ({name = 'out'}) => cloneSignal(value, name: name))
+      out = addTypedPayloadOutput(this, 'out', value,
+          generator: ({name}) => cloneSignal(value, name: name))
         ..gets(value);
       _computed = (
         value: out,
@@ -276,8 +276,8 @@ class ReductionTree<T extends Logic, C extends Logic> extends Module {
       final value = operation(resultsExtend.toList(),
           control: controlOut, depth: depth + 1, name: 'reduce_d$depth');
 
-      out = addTypedOutput(
-          'out', ({name = 'out'}) => cloneSignal(value, name: name))
+      out = addTypedPayloadOutput(this, 'out', value,
+          generator: ({name}) => cloneSignal(value, name: name))
         ..gets(value);
       _computed = (
         value: out,

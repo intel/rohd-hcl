@@ -10,6 +10,7 @@
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// [Deserializer] aggregates data from a serialized stream.
 class Deserializer<T extends Logic, V> extends Module {
@@ -37,7 +38,8 @@ class Deserializer<T extends Logic, V> extends Module {
   /// A scalar or structured [T] input produces a one-dimensional array.
   /// [valueCodec] describes the semantic value of each leaf [T], not a whole
   /// array slice. Use [LogicValueCodec.logicValue] for packed values.
-  /// Array inputs must have matching declared formats for all leaves.
+  /// Array inputs must have matching declared formats for all leaves and use
+  /// the same [valueCodec] as the input array.
   ///
   /// If [last] is connected, it is used as a potential early indicator for
   /// completion of the deserialization.
@@ -58,10 +60,15 @@ class Deserializer<T extends Logic, V> extends Module {
       throw ArgumentError.value(length, 'length', 'Must be positive.');
     }
     if (serialized is TypedLogicArray<T, V>) {
+      if (!identical(serialized.valueCodec, valueCodec)) {
+        throw ArgumentError.value(valueCodec, 'valueCodec',
+            'Deserialization requires the input array codec.');
+      }
       final leaves = serialized.arrayElements;
       if (leaves.isNotEmpty &&
-          leaves.skip(1).any(
-              (element) => !sameDeclaredPayloadShape(leaves.first, element))) {
+          leaves
+              .skip(1)
+              .any((element) => !sameRohdPayloadShape(leaves.first, element))) {
         throw ArgumentError.value(serialized, 'serialized',
             'Deserialization requires matching leaf payload formats.');
       }
@@ -116,7 +123,7 @@ class Deserializer<T extends Logic, V> extends Module {
         'deserialized',
         ({name = 'deserialized'}) => TypedLogicArray<T, V>(
               dimensions,
-              prototype.cloneTyped,
+              ({name}) => cloneTypedPayload(prototype, name: name),
               valueCodec: valueCodec,
               name: name,
               numUnpackedDimensions: numUnpackedDimensions,
@@ -128,6 +135,7 @@ class Deserializer<T extends Logic, V> extends Module {
             reset: reset,
             en: (enable ?? Const(1)) & count.eq(i),
             serialized,
-            outputGenerator: ({name}) => serialized.cloneTyped(name: name)));
+            outputGenerator: ({name}) =>
+                cloneTypedPayload(serialized, name: name)));
   }
 }

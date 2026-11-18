@@ -132,7 +132,7 @@ void main() {
           ]),
         );
     expect(
-        sameDeclaredPayloadShape(
+        sameRohdPayloadShape(
             Csr(legalConfig([0, 1])), Csr(legalConfig([0, 2]))),
         isFalse);
 
@@ -194,8 +194,8 @@ void main() {
     final original = array(config);
     final equivalent = array(config.clone());
     final different = array(config.clone(addr: 4));
-    expect(sameDeclaredPayloadShape(original, equivalent), isTrue);
-    expect(sameDeclaredPayloadShape(original, different), isFalse);
+    expect(sameRohdPayloadShape(original, equivalent), isTrue);
+    expect(sameRohdPayloadShape(original, different), isFalse);
     expect(payloadShapeIdentity(original), payloadShapeIdentity(equivalent));
     expect(
         payloadShapeIdentity(original), isNot(payloadShapeIdentity(different)));

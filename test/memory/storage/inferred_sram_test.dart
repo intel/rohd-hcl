@@ -18,6 +18,10 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+LogicValue _alternateCodecValue(LogicValue value) => value;
+const _alternateCodec = LogicValueCodec<LogicValue>(
+    decode: _alternateCodecValue, encode: _alternateCodecValue);
+
 class _Harness extends Module {
   late final InferredSram<Logic> sram;
 
@@ -391,6 +395,33 @@ int sc_main(int, char**) {
       expect(() => dut.sram.peek(3), throwsRangeError);
     });
     await Simulator.run();
+  });
+
+  test('snapshots require matching read and write payload codecs', () {
+    Logic schema(LogicValueCodec<LogicValue> codec) =>
+        TypedLogicArray<Logic, LogicValue>(
+            [2], ({name}) => Logic(width: 4, name: name),
+            valueCodec: codec);
+    InferredSram<Logic> sram(Logic write, Logic read) => InferredSram<Logic>(
+        Logic(),
+        Logic(),
+        [DataPortInterface<Logic>.typed(write, 2)],
+        [DataPortInterface<Logic>.typed(read, 2)],
+        entryCount: 4);
+    final packed = Logic(width: 8);
+    final standard = schema(LogicValueCodec.logicValue);
+    final alternate = schema(_alternateCodec);
+    final source = sram(packed, standard)..poke(1, LogicValue.ofInt(0xa5, 8));
+    final target = sram(packed, alternate)..poke(1, LogicValue.ofInt(0x33, 8));
+    final image = source.snapshot();
+    expect(() => target.restore(image), throwsArgumentError);
+    expect(target.peek(1)!.toInt(), 0x33);
+    expect(
+        () =>
+            sram(standard, packed).restore(sram(alternate, packed).snapshot()),
+        throwsArgumentError);
+    final compatible = sram(packed, standard)..restore(image);
+    expect(compatible.peek(1)!.toInt(), 0xa5);
   });
 
   test('two-state SystemC reports unknown read outputs',

@@ -98,6 +98,38 @@ void main() {
     );
   });
 
+  test('array factories allow packed bridges but compare declared schemas', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    DataPortInterface<Logic> typed(BinaryExtensionField field) =>
+        DataPortInterface<Logic>.typed(GfLogic(field), 2);
+    Memory<Logic> build(List<DataPortInterface<Logic>> writes,
+            List<DataPortInterface<Logic>> reads) =>
+        _factory()(
+          clk: Logic(),
+          reset: Logic(),
+          writePorts: writes,
+          readPorts: reads,
+          entryCount: 4,
+          readLatency: 0,
+          maxConcurrentReads: reads.length,
+          maxConcurrentWrites: writes.length,
+          name: 'typed_array',
+        );
+
+    expect(
+        build([DataPortInterface<Logic>(3, 2)], [typed(first), typed(first)]),
+        isA<MemoryModel<Logic>>());
+    expect(build([typed(first)], [DataPortInterface<Logic>(3, 2)]),
+        isA<MemoryModel<Logic>>());
+    expect(
+        () => build(
+            [DataPortInterface<Logic>(3, 2)], [typed(first), typed(second)]),
+        throwsArgumentError);
+  });
+
   test('accepts a caller-enforced shared read/write access limit', () {
     final factory = _factory(maxConcurrentAccesses: 1);
     Memory<Logic> build(int combined) => factory(

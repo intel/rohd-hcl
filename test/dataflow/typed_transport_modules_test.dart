@@ -26,6 +26,17 @@ class _Record extends LogicStructure {
   _Record clone({String? name}) => _Record(name: name ?? this.name);
 }
 
+class _ConstantCloneResult extends LogicStructure {
+  _ConstantCloneResult({bool constant = false, super.name})
+      : super([
+          if (constant) Const(0, width: 4) else Logic(name: 'bits', width: 4)
+        ]);
+
+  @override
+  _ConstantCloneResult clone({String? name}) =>
+      _ConstantCloneResult(constant: true, name: name ?? this.name);
+}
+
 class _FieldRecord extends LogicStructure {
   final BinaryExtensionField field;
 
@@ -182,7 +193,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
 
 void _expectPayload<T extends Logic>(T schema, T result) {
   expect(result.runtimeType, schema.runtimeType);
-  expect(sameHclPayloadShape(schema, result), isTrue);
+  expect(sameRohdPayloadShape(schema, result), isTrue);
 }
 
 void _checkTransport<T extends Logic>(String label, T schema,
@@ -196,7 +207,7 @@ void _checkTransport<T extends Logic>(String label, T schema,
       expect(dut.shift.input('data_in').runtimeType, schema.runtimeType);
       expect(dut.shift.input('resetValue').runtimeType, schema.runtimeType);
       for (final stage in dut.shift.stages) {
-        expect(sameHclPayloadShape(schema, stage), isTrue);
+        expect(sameRohdPayloadShape(schema, stage), isTrue);
       }
       await _compare(
           dut,
@@ -319,6 +330,18 @@ void _checkTransport<T extends Logic>(String label, T schema,
 void main() {
   tearDown(() async {
     await Simulator.reset();
+  });
+
+  test('reduction tree rejects a flattened typed output clone', () {
+    for (final length in [1, 3]) {
+      Logic operation(List<Logic> inputs,
+              {int depth = 0, Logic? control, String name = ''}) =>
+          length == 1 || depth > 0 ? _ConstantCloneResult() : inputs.first;
+      expect(
+          () => ReductionTree<Logic, Logic>(
+              List.generate(length, (_) => Logic(width: 4)), operation),
+          throwsA(isA<RohdHclException>()));
+    }
   });
 
   test('shift register preserves widened structured constant inputs', () async {

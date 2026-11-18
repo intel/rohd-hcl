@@ -33,6 +33,8 @@ Pass the source array's `valueCodec` when reconstructing a transfer, or
 `LogicValueCodec.logicValue` when using packed `LogicValue` semantics. Existing
 plain-logic deserializer calls must add `valueCodec:
 LogicValueCodec.logicValue`; transfer timing is unchanged.
+For array inputs, the supplied codec must be identical to the input array's
+codec; deserialization does not convert between codecs.
 
 For example, with `clk` and `reset` supplied by the surrounding design:
 

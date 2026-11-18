@@ -87,6 +87,25 @@ class _Packet extends LogicStructure {
   _Packet clone({String? name}) => _Packet(name: name ?? this.name);
 }
 
+class _BadIdClone extends Logic {
+  _BadIdClone({super.name, super.width = 4});
+
+  @override
+  _BadIdClone clone({String? name}) => _BadIdClone(
+      name: name ?? this.name, width: name == 'id' ? width + 1 : width);
+}
+
+class _ParentNamedPacket extends LogicStructure {
+  final String suffix;
+
+  _ParentNamedPacket({String name = 'packet', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 8)], name: name);
+
+  @override
+  _ParentNamedPacket clone({String? name}) =>
+      _ParentNamedPacket(name: name ?? this.name, suffix: suffix);
+}
+
 class _Tag extends LogicStructure {
   Logic get lane => elements[0];
   Logic get group => elements[1];
@@ -350,6 +369,26 @@ typedef _Transaction = ({int data, int id});
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('result queue rejects an ID clone that changes width', () {
+    expect(
+        () => ReadyValidFixedLatency<Logic, Logic, Logic>(
+              clk: Logic(),
+              reset: Logic(),
+              upstream: ReadyValidInterface(Logic(width: 8)),
+              downstream: ReadyValidInterface(Logic(width: 8)),
+              coreGenerator: (
+                      {required clk,
+                      required reset,
+                      required start,
+                      required data}) =>
+                  data,
+              coreIdentity: 'identity',
+              latency: 0,
+              requestId: _BadIdClone(),
+            ),
+        throwsA(isA<RohdHclException>()));
+  });
 
   test('result queue preserves structured payloads with and without IDs',
       () async {
@@ -927,5 +966,30 @@ void main() {
                       signed: false)),
             ),
         throwsArgumentError);
+  });
+
+  test('wrapper accepts parent-renamed core result clones', () async {
+    ReadyValidFixedLatency<Logic, _ParentNamedPacket, Logic> create(
+            {String suffix = 'bits'}) =>
+        ReadyValidFixedLatency<Logic, _ParentNamedPacket, Logic>(
+          clk: Logic(),
+          reset: Logic(),
+          upstream: ReadyValidInterface(Logic(width: 8)),
+          downstream: ReadyValidInterface(_ParentNamedPacket()),
+          latency: 0,
+          coreIdentity: 'RenamedCore',
+          coreGenerator: ({
+            required clk,
+            required reset,
+            required start,
+            required data,
+          }) =>
+              _ParentNamedPacket(name: 'core_result', suffix: suffix)
+                ..gets(data),
+        );
+    final wrapper = create();
+    await wrapper.build();
+    expect(wrapper.dumpSystemVerilog(), contains('module ReadyValid'));
+    expect(() => create(suffix: 'other'), throwsArgumentError);
   });
 }

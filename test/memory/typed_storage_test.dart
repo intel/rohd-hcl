@@ -28,6 +28,23 @@ class _Word extends LogicStructure {
   _Word clone({String? name}) => _Word(name: name ?? this.name);
 }
 
+class _WrongWidthClone extends Logic {
+  _WrongWidthClone({super.name, super.width = 8});
+
+  @override
+  _WrongWidthClone clone({String? name}) =>
+      _WrongWidthClone(name: name ?? this.name, width: width + 1);
+}
+
+class _WrongEvictionWidth extends Logic {
+  _WrongEvictionWidth({super.name, super.width = 8});
+
+  @override
+  _WrongEvictionWidth clone({String? name}) => _WrongEvictionWidth(
+      name: name ?? this.name,
+      width: name == 'evictionData' ? width + 1 : width);
+}
+
 class _MisclonedField extends GfLogic {
   final BinaryExtensionField cloneField;
   final int clonesBeforeChange;
@@ -230,8 +247,8 @@ void _checkStorage<T extends Logic>(String label, T schema,
   // simultaneous writes to the same entry (the later port wins).
   test('$label register file functional and $backend', () async {
     final dut = _RegisterHarness<T>(schema);
-    expect(sameHclPayloadShape(dut.rf.rdData(0), schema), isTrue);
-    expect(sameHclPayloadShape(dut.rf.input('wr_data_0'), schema), isTrue);
+    expect(sameRohdPayloadShape(dut.rf.rdData(0), schema), isTrue);
+    expect(sameRohdPayloadShape(dut.rf.input('wr_data_0'), schema), isTrue);
     await _compare(
         dut,
         [
@@ -268,7 +285,7 @@ void _checkStorage<T extends Logic>(String label, T schema,
     // Fill, replace while full, drain in order, then bypass while empty.
     test('$label FIFO depth $depth functional and $backend', () async {
       final dut = _FifoHarness<T>(schema, depth);
-      expect(sameHclPayloadShape(dut.binding.output, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.binding.output, schema), isTrue);
       final vectors = [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'empty': 1}),
@@ -295,6 +312,52 @@ void _checkStorage<T extends Logic>(String label, T schema,
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('memory and cache schemas reject width-changing scalar clones', () {
+    final bad = _WrongWidthClone();
+    final good = Logic(width: 8);
+    final constructors = <void Function()>[
+      () => DataPortInterface<_WrongWidthClone>.typed(bad, 2),
+      () => MaskedDataPortInterface<_WrongWidthClone>.typed(bad, 2),
+      () => TypedAssociativeUpdatePortInterface(bad, indexWidth: 2),
+      () => TypedAssociativeLookupPortInterface(bad, indexWidth: 2),
+      () => TypedSynchronousAssociativeLookupPortInterface(bad, indexWidth: 2),
+      () => TypedAssociativeIndexedSideReadResponse(bad),
+      () => TagInterface<_WrongWidthClone>.typed(2, bad),
+      () => CacheLookupPort(addressWidth: 8, dataSchema: bad),
+      () => CacheFillPort(addressWidth: 8, dataSchema: bad),
+      () => CacheFillPort(addressWidth: 8, dataSchema: _WrongEvictionWidth()),
+      for (var position = 0; position < 3; position++)
+        () => CacheTransactionRequest<Logic, Logic, Logic>(
+              addressWidth: 8,
+              tokenWidth: 2,
+              dataSchema: position == 0 ? bad : good,
+              writeMaskWidth: 1,
+              lineMetadataSchema: position == 1 ? bad : good,
+              contextSchema: position == 2 ? bad : good,
+            ),
+      for (var position = 0; position < 4; position++)
+        () => CacheTransactionResponse<Logic, Logic, Logic, Logic>(
+              tokenWidth: 2,
+              dataSchema: position == 0 ? bad : good,
+              lineMetadataSchema: position == 1 ? bad : good,
+              contextSchema: position == 2 ? bad : good,
+              resultSchema: position == 3 ? bad : good,
+            ),
+      for (var position = 0; position < 3; position++)
+        () => CacheTransactionEviction<Logic, Logic, Logic>(
+              addressWidth: 8,
+              tokenWidth: 2,
+              dataSchema: position == 0 ? bad : good,
+              lineMetadataSchema: position == 1 ? bad : good,
+              contextSchema: position == 2 ? bad : good,
+            ),
+    ];
+    for (final (index, construct) in constructors.indexed) {
+      expect(construct, throwsA(isA<RohdHclException>()),
+          reason: 'schema constructor $index must reject a changed width');
+    }
+  });
 
   final firstField =
       BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(0x11b)));
@@ -478,8 +541,8 @@ void main() {
     // A full FIFO cannot replace an entry on the same cycle it dequeues.
     test('ready/valid ${schema.runtimeType} full backpressure', () async {
       final dut = _ReadyValidHarness(schema);
-      expect(sameHclPayloadShape(dut.fifo.upstream.data, schema), isTrue);
-      expect(sameHclPayloadShape(dut.fifo.downstream.data, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.fifo.upstream.data, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.fifo.downstream.data, schema), isTrue);
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'valid': 0}),
@@ -528,7 +591,7 @@ void main() {
     // Hold the consumer stalled across several cycles before draining.
     test('ready/valid typed $dimensions functional and Icarus', () async {
       final dut = _ReadyValidHarness(schema);
-      expect(sameHclPayloadShape(dut.fifo.downstream.data, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.fifo.downstream.data, schema), isTrue);
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'valid': 0}),
@@ -547,8 +610,8 @@ void main() {
       final schema = TypedLogicArray<_Word, _WordValue>([2], _Word.new,
           valueCodec: _wordCodec);
       final dut = _ReadyValidQueueHarness(schema, storage);
-      expect(sameHclPayloadShape(dut.queue.upstream.data, schema), isTrue);
-      expect(sameHclPayloadShape(dut.queue.downstream.data, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.queue.upstream.data, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.queue.downstream.data, schema), isTrue);
       expect(dut.queue.downstream.data.valueCodec, same(_wordCodec));
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
@@ -696,7 +759,7 @@ void main() {
     final renamed = TypedLogicArray<_Word, LogicValue>([2, 2], _Word.new,
         dimensionNames: ['x', 'y']);
     final reshaped = TypedLogicArray<_Word, LogicValue>([4], _Word.new);
-    expect(sameHclPayloadShape(first, renamed), isTrue);
+    expect(sameRohdPayloadShape(first, renamed), isTrue);
     expect(payloadShapeIdentity(first), payloadShapeIdentity(renamed));
     expect(
         () => ReadyValidFifo(

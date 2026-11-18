@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 void _requireMatchingFloatingPointFormats(FloatingPoint a, FloatingPoint b) {
-  if (!sameDeclaredPayloadShape(a, b, ignoreConstantNames: true)) {
+  if (!sameRohdPayloadShape(a, b, ignoreConstantNames: true)) {
     throw RohdHclException(
         'Floating-point operands must have matching formats.');
   }
@@ -120,7 +120,7 @@ abstract class FloatingPointSwap<FpType extends FloatingPoint,
           'both null or both non-null.');
     }
     if (metaA != null && metaB != null) {
-      if (!sameDeclaredPayloadShape(metaA, metaB, ignoreConstantNames: true)) {
+      if (!samePayloadShapeAllowingRenamedClone(metaA, metaB)) {
         throw RohdHclException('FloatingPointSwap requires metaA and metaB to '
             'have matching layouts and value codecs.');
       }

@@ -108,9 +108,9 @@ class SerializedCache<T extends Logic, M extends Logic, C extends Logic,
     final setBits = (setCount - 1).bitLength;
     if (addressWidth < max(1, setBits) ||
         ports.any((port) =>
-            !sameHclPayloadShape(requestSchema, port.requests.data) ||
-            !sameHclPayloadShape(responseSchema, port.responses.data) ||
-            !sameHclPayloadShape(evictionSchema, port.evictions.data))) {
+            !sameRohdPayloadShape(requestSchema, port.requests.data) ||
+            !sameRohdPayloadShape(responseSchema, port.responses.data) ||
+            !sameRohdPayloadShape(evictionSchema, port.evictions.data))) {
       throw ArgumentError('Cache transaction ports must have matching shapes '
           'and addresses must represent every set.');
     }

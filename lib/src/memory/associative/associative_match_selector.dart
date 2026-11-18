@@ -149,9 +149,8 @@ class TypedAssociativeMatchSelector<T extends Logic> extends Module {
     }
     if (!flatPorts &&
         selectionValues != null &&
-        selectionValues.any((value) => !sameDeclaredPayloadShape(
-            selectionValues.first, value,
-            ignoreConstantNames: true))) {
+        selectionValues.any((value) => !samePayloadShapeAllowingRenamedClone(
+            selectionValues.first, value))) {
       throw ArgumentError(
           'Selection values must have matching payload shapes.');
     }

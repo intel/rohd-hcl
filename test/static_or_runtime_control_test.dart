@@ -56,8 +56,53 @@ class _ControlStructure extends LogicStructure {
   _ControlStructure clone({String? name}) => _ControlStructure();
 }
 
+class _NamedControl extends LogicStructure {
+  final String suffix;
+
+  _NamedControl({String name = 'source', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 2)], name: name);
+
+  @override
+  _NamedControl clone({String? name}) =>
+      _NamedControl(name: name ?? this.name, suffix: suffix);
+}
+
 void main() {
   tearDown(Simulator.reset);
+
+  test('typed runtime input accepts renamed payload clones and reuses them',
+      () {
+    final control = StaticOrRuntimeControl<int>(
+        name: 'registered', staticConfig: 0, runtimeConfig: _NamedControl());
+    final module = _TestModule();
+    final input = control.getTypedRuntimeInput(module);
+    expect(input, isA<_NamedControl>());
+    expect(input!.name, 'registered');
+    expect(control.getTypedRuntimeInput(module), same(input));
+  });
+
+  test('selection accepts parent-renamed clones without changing mux behavior',
+      () async {
+    final dut = _TypedSelectHarness(_NamedControl());
+    expect(dut.selected, isA<_NamedControl>());
+    await dut.build();
+    final vectors = [
+      Vector({'sel': 0, 'data0': 3, 'data1': 1}, {'out': 1}),
+      Vector({'sel': 1}, {'out': 3}),
+      Vector({'sel': LogicValue.x}, {'out': LogicValue.ofString('x1')}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+
+    final control = StaticOrRuntimeParameter.staticValue(value: true);
+    final input = _NamedControl(name: 'first');
+    final matching = _NamedControl(name: 'second');
+    expect(control.select(input, matching), same(input));
+    expect(
+        () => control.select(
+            input, _NamedControl(name: 'second', suffix: 'other')),
+        throwsArgumentError);
+  });
 
   test('runtime selection retains widened structured constants', () async {
     final dut = _ConstantSelectHarness();
@@ -223,7 +268,7 @@ void main() {
       FixedPoint(integerWidth: 3, fractionWidth: 4),
     ]) {
       final dut = _TypedSelectHarness(schema);
-      expect(sameDeclaredPayloadShape(dut.selected, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.selected, schema), isTrue);
       expect(dut.selected.runtimeType, schema.runtimeType);
       final vectors = [
         Vector({'sel': 0, 'data0': 0xa5, 'data1': 0x35}, {'out': 0x35}),
