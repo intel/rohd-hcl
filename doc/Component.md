@@ -34,20 +34,27 @@ be appropriate for output geometry or storage capacity. Use `addInput` and
 `addOutput` for scalar ports.
 
 `LogicStructure` groups named fields, as in `FloatingPoint` and `FixedPoint`.
-Use generic `LogicType extends Logic` ports and `addTypedInput` or
-`addTypedOutput` with the appropriate clone factory when the component should
-preserve the caller's payload type. `TypedLogicArray<T, V>` additionally
+Use generic `LogicType extends Logic` ports and `addTypedInput` when the
+component should preserve the caller's payload type. For an output that must
+match an existing payload, HCL components use `addTypedPayloadOutput` to
+register the output and check its width and declared shape against that
+schema. Use `addTypedOutput` with an appropriate generator for an independent
+output schema, such as a status structure; it does not by itself check the
+output against a separate source schema. `TypedLogicArray<T, V>` additionally
 preserves array dimensions, leaf types, and its value codec. See the typed
 examples in [FIFO](./components/fifo.md),
 [serialization](./components/serialization.md), and
-[memory](./components/memory.md).
+[memory](./components/memory.md), and the [payload schema guide](./components/payload_schemas.md#component-implementation)
+for helper usage and examples.
 
 Do not assume equal bit width means compatible typed payloads. Validate the
 declared structure, array shape and codec, enum mapping, and any domain-specific
 format metadata as appropriate for the component. Use the existing payload shape
-helpers where they apply, and document additional constraints. For scalar
-constants passed into generic constructors, explicitly select `Logic` when a
-mutable port is required, for example `Fifo<Logic>`.
+helpers where they apply, compare shared or selected schemas pairwise, and
+document additional constraints. These internal helpers are for HCL component
+implementation, not public application imports. For scalar constants passed
+into generic constructors, explicitly select `Logic` when a mutable port is
+required, for example `Fifo<Logic>`.
 
 Signals with semantic formats beyond their layout can implement ROHD's
 `PayloadShapeMetadata`. Its identifier must be stable, domain-specific, and

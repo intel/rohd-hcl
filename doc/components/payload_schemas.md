@@ -29,28 +29,71 @@ constant when a component must create a driveable scalar port.
 
 ## Component implementation
 
-HCL's internal `payload_shape.dart` provides `compatiblePayloadConnection`
-for a connection and `compatiblePayloadSet` for pairwise checks across
-multiple sources. Both run during construction and add no checking hardware.
-For clone-aware pairwise checks, use `compatiblePayloadSet` with
-`allowRenamedClones: true`.
-`connectTypedPayloadPorts` shares port registration after the caller validates
-the payload and determines its direction. `addTypedPayloadOutput` also checks
-the registered output's width and declared shape against its source schema,
-including when a custom generator is needed.
-When comparing an operation result with a typed source,
-`samePayloadShapeAllowingRenamedClone` also recognizes a valid clone whose
-field names change with its parent name; unrelated field or format changes
-remain incompatible.
-`compatiblePayloadConnectionAllowingRenamedClone` also permits packed bridges.
-`cloneTypedPayload` checks that a typed schema clone preserves its packed
-width as well as its declared shape, including for scalar `Logic` subclasses.
-Use the registered local payload and `cloneTypedPayload`
-when creating retained typed state; `cloneInterfacePayload` additionally
-handles a widened scalar constant. `addTypedInput` and typed outputs preserve
-the port's declared shape, while ready/valid interface registration handles
-typed ports and packed bridges. Reject incompatible declared shapes rather
-than silently reinterpreting them.
+HCL component implementations share helpers from
+[`payload_shape.dart`](../../lib/src/interfaces/payload_shape.dart). This is
+an internal implementation library, not a public application import. The
+checks run during construction and add no checking hardware. Reject
+incompatible declared shapes rather than silently reinterpreting them.
+
+### Choosing a compatibility check
+
+| Requirement | HCL helper |
+| --- | --- |
+| Connect two payloads, allowing an equal-width packed bridge | `compatiblePayloadConnection` |
+| Check all payloads sharing storage or selection | `compatiblePayloadSet` |
+| Compare declared shapes without allowing a packed bridge | `samePayloadShape` |
+| Compare an operation result with a valid parent-renamed typed clone | `samePayloadShapeAllowingRenamedClone` |
+| Allow either a packed bridge or a valid parent-renamed typed clone | `compatiblePayloadConnectionAllowingRenamedClone` |
+| Compare corresponding lists of declared schemas | `samePayloadSchemas` |
+
+`compatiblePayloadSet` checks every pair, including pairs of declared
+schemas separated by a packed bridge. Set `allowRenamedClones: true` only
+when the component permits parent-renamed typed clones; this mode also ignores
+generated constant names. The strict comparison can independently ignore
+constant names with `ignoreConstantNames: true`. Renamed-clone checks do not
+permit unrelated field or semantic format changes.
+
+### Registering outputs and cloning schemas
+
+Register inputs with `addTypedInput` and use the registered local input as the
+schema for any output that must retain its payload. Within an HCL module
+constructor, for example:
+
+```dart
+_writeData = addTypedInput<LogicType>('writeData', writeData);
+readData = addTypedPayloadOutput<LogicType>(this, 'readData', _writeData);
+```
+
+This is the pattern used by [`Fifo`](../../lib/src/flow_control/storage/fifo.dart).
+`addTypedPayloadOutput` delegates to ROHD's `addTypedOutput`, then validates
+the registered output's width and declared clone shape against the supplied
+schema. By default it clones that schema. If a custom `generator` is needed
+to produce a driveable representation, its registered output must still
+match the schema. A malformed clone or generator fails during construction.
+
+Use ROHD's `addTypedOutput` with an appropriate generator when an output has
+an independently defined schema rather than a requirement to match another
+payload. For example, a floating-point adder registers its result against the
+result schema and separately creates a status output; see
+[`FloatingPointAdder`](../../lib/src/arithmetic/floating_point/floating_point_adder.dart).
+`addTypedOutput` alone does not compare the generated output with a separate
+source schema.
+
+Use `cloneTypedPayload` with the registered local payload for retained state
+or detached schema copies; it checks clone width, type and declared shape.
+`cloneInterfacePayload` additionally converts a scalar `Const` widened to
+`Logic` into a driveable scalar port. A typed output or clone of a
+constant-containing structure still needs a suitable driveable representation.
+
+For custom interface registration, `connectTypedPayloadPorts` shares typed
+port registration and connection after the caller has checked compatibility
+and determined the selected port group and direction. Existing ready/valid
+interface registration already handles typed ports and packed bridges.
+
+Test incompatible same-width formats and intentional packed bridges, as well
+as malformed clones or custom output generators. Where applicable, cover
+pairwise selection, nested schemas and array codecs, constants, parent-renamed
+clones, and module hierarchy or generated RTL.
 
 These HCL helpers work with hosted ROHD 0.7.3 and 0.7.4. The
 `samePayloadShape` compatibility helper uses ROHD 0.7.3's

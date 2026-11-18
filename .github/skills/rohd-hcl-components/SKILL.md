@@ -40,8 +40,19 @@ component documentation are authoritative.
   storage. Equal width alone is insufficient for two declared schemas; a packed
   `Logic` bridge is intentional and does not convert formats. When multiple
   declared sources share storage or selection, check them pairwise.
-  Follow the [payload schema guide](../../../doc/components/payload_schemas.md)
-  and reuse existing helpers.
+  In HCL implementation code, use `compatiblePayloadConnection` for a single
+  connection and `compatiblePayloadSet` for shared or selected payloads;
+  permit renamed clones only where the contract allows them.
+- Use `addTypedPayloadOutput` when an output must retain an existing payload's
+  width and declared shape. Use ROHD's `addTypedOutput` with an appropriate
+  generator for an independently defined output, not as a substitute for
+  checking against an existing schema. Use `cloneTypedPayload` for checked
+  retained or detached clones and `cloneInterfacePayload` for interface
+  schemas that may be widened scalar constants.
+- Reuse HCL's internal payload helpers only inside HCL, and follow the
+  [payload schema guide](../../../doc/components/payload_schemas.md) for
+  strict comparisons, constants, port directions, and upstream migration.
+  Validate at construction time without adding checking hardware.
 - Register inputs and interfaces with the module and use the registered
   internal copies. Compose children through parent-owned signals and
   interfaces; expose child state through actual output ports.
@@ -57,6 +68,9 @@ component documentation are authoritative.
 - Add focused behavioral and nested parent-hierarchy tests for new behavior.
   Exercise motivating configurations and edge cases, and validate generated
   hardware or additional simulation backends where relevant and available.
+  For typed boundaries, cover incompatible same-width schemas, intentional
+  packed bridges, malformed clones or output generators, and relevant
+  constants and renamed clones.
   Follow the [component authoring guide](../../../doc/Component.md) and
   [contribution checklist](../../../CONTRIBUTING.md#adding-a-new-component).
 - Keep user-facing usage in the linked component documentation and update the
