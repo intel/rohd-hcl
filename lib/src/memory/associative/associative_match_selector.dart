@@ -84,7 +84,7 @@ LogicValue _initialSelectionValue(Logic template) {
 /// match has been found. Initially the selected index and value bits are zero,
 /// except enum leaves without a zero encoding use their lowest encoding.
 /// {@category Memory}
-class TypedAssociativeMatchSelector<T extends Logic> extends Module {
+class AssociativeMatchSelectorImplementation<T extends Logic> extends Module {
   /// Number of selectable entries.
   final int entryCount;
 
@@ -101,7 +101,7 @@ class TypedAssociativeMatchSelector<T extends Logic> extends Module {
   Logic get selectedOneHot => output('selectedOneHot');
 
   /// Creates a selector with matching typed selection value ports.
-  TypedAssociativeMatchSelector({
+  AssociativeMatchSelectorImplementation({
     required Logic matchVector,
     required List<T> selectionValues,
     TypedAssociativeMatchPreference<T> preference =
@@ -117,7 +117,7 @@ class TypedAssociativeMatchSelector<T extends Logic> extends Module {
           flatPorts: false,
         );
 
-  TypedAssociativeMatchSelector._({
+  AssociativeMatchSelectorImplementation._({
     required Logic matchVector,
     required List<T>? selectionValues,
     required TypedAssociativeMatchPreference<T> preference,
@@ -214,10 +214,15 @@ class TypedAssociativeMatchSelector<T extends Logic> extends Module {
 }
 
 /// Compatibility selector with flattened selection value ports.
-@Deprecated('Use TypedAssociativeMatchSelector to preserve selection types.')
-class AssociativeMatchSelector extends TypedAssociativeMatchSelector<Logic> {
+@Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
+    'AssociativeMatchSelector; and import '
+    "'package:rohd_hcl/associative_match_selector.dart';")
+class AssociativeMatchSelector
+    extends AssociativeMatchSelectorImplementation<Logic> {
   /// Creates a selector using packed values or entry indices.
-  @Deprecated('Use TypedAssociativeMatchSelector to preserve selection types.')
+  @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
+      'AssociativeMatchSelector; and import '
+      "'package:rohd_hcl/associative_match_selector.dart';")
   AssociativeMatchSelector({
     required super.matchVector,
     super.selectionValues,

@@ -14,6 +14,7 @@ import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
+import 'package:rohd_hcl/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 import 'package:test/test.dart';
@@ -341,7 +342,7 @@ void main() {
           type: switch (implementation) {
             MuxImplementation.bitwise => BitwiseMux,
             MuxImplementation.oneHot => OneHotMux,
-            MuxImplementation.priority => TypedPriorityMux<Logic>,
+            MuxImplementation.priority => general.PriorityMux<Logic>,
           },
         ),
       for (final operation in BitwisePopcountOperation.values)

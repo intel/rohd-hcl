@@ -13,6 +13,7 @@ import 'package:rohd_hcl/src/exceptions.dart';
 export 'package:rohd/rohd.dart' show PayloadShapeMetadata;
 
 /// Whether two interface payloads can connect, allowing a packed bridge.
+// TODO(rohd): Replace with rohdPayloadsCompatible when it is released.
 bool compatiblePayloadConnection(Logic target, Logic source,
     {bool ignoreConstantNames = false}) {
   if (target.width != source.width) {
@@ -28,6 +29,8 @@ bool compatiblePayloadConnection(Logic target, Logic source,
 ///
 /// [allowRenamedClones] also permits parent-renamed typed clones and ignores
 /// generated constant names.
+// TODO(rohd): Replace with rohdPayloadsCompatible once the released API also
+// supports allowRenamedClones, or retain that behavior separately.
 bool compatiblePayloadSet(Iterable<Logic> payloads,
     {bool ignoreConstantNames = false, bool allowRenamedClones = false}) {
   final values = payloads.toList();
@@ -53,6 +56,7 @@ bool samePayloadSchemas(List<Logic> expected, List<Logic> actual) =>
         .every((entry) => sameRohdPayloadShape(entry.$2, actual[entry.$1]));
 
 /// Whether payload formats match, allowing renamed fields in typed clones.
+// TODO(rohd): Remove when ROHD provides an equivalent renamed-clone check.
 bool samePayloadShapeAllowingRenamedClone(Logic source, Logic other) =>
     sameRohdPayloadShape(source, other, ignoreConstantNames: true) ||
     (source.width == other.width &&
@@ -61,12 +65,14 @@ bool samePayloadShapeAllowingRenamedClone(Logic source, Logic other) =>
         sameTypedCloneShape(source, other));
 
 /// Whether payloads connect through a packed bridge or a renamed typed clone.
+// TODO(rohd): Remove when ROHD supports packed bridges and renamed clones.
 bool compatiblePayloadConnectionAllowingRenamedClone(
         Logic target, Logic source) =>
     compatiblePayloadConnection(target, source, ignoreConstantNames: true) ||
     samePayloadShapeAllowingRenamedClone(target, source);
 
 /// Clones a payload and checks its width and declared shape.
+// TODO(rohd): Remove when ROHD validates width and shape for every typed clone.
 T cloneTypedPayload<T extends Logic>(T source, {String? name}) {
   final clone = source.cloneTyped(name: name);
   _validatePayloadClone(source, clone, name ?? source.name);
@@ -74,6 +80,8 @@ T cloneTypedPayload<T extends Logic>(T source, {String? name}) {
 }
 
 /// Clones an interface payload, making a widened scalar constant driveable.
+// TODO(rohd): Remove when ROHD interface registration handles this constant
+// normalization and enforces the same clone checks.
 T cloneInterfacePayload<T extends Logic>(T source) {
   if (T == Logic && source is Const) {
     return Logic(name: source.name, width: source.width) as T;
@@ -85,6 +93,8 @@ T cloneInterfacePayload<T extends Logic>(T source) {
 /// [schema].
 ///
 /// [generator] may provide a driveable representation of [schema].
+// TODO(rohd): Remove when ROHD validates outputs against a supplied schema,
+// including custom generators and constant-containing structures.
 T addTypedPayloadOutput<T extends Logic>(Module module, String name, T schema,
     {T Function({String? name})? generator}) {
   T clone({String? name}) => schema.cloneTyped(name: name);
@@ -94,6 +104,8 @@ T addTypedPayloadOutput<T extends Logic>(Module module, String name, T schema,
 }
 
 /// Registers and connects a payload whose compatibility was already checked.
+// TODO(rohd): Replace with ROHD schema-aware interface registration when
+// released and it covers HCL's renamed clones, width checks, and directions.
 void connectTypedPayloadPorts<T extends Logic>(
   Module module, {
   required String name,

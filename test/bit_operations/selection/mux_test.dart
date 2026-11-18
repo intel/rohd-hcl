@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
+import 'package:rohd_hcl/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
@@ -87,10 +88,10 @@ FixedPoint _fixedConstant(int value) =>
         fraction: LogicValue.ofInt(value & 0xf, 4)));
 
 class _ConstantPriorityHarness extends Module {
-  late final TypedPriorityMux<Logic> mux;
+  late final general.PriorityMux<Logic> mux;
 
   _ConstantPriorityHarness() {
-    mux = TypedPriorityMux<Logic>(
+    mux = general.PriorityMux<Logic>(
       addInput('sel', Logic(width: 2), width: 2),
       [_fixedConstant(0x12), _fixedConstant(0x34)],
       _fixedConstant(0x56),
@@ -105,7 +106,7 @@ void main() {
   });
 
   test('typed priority mux accepts parent-renamed payloads', () async {
-    final dut = TypedPriorityMux<_NamedPayload>(
+    final dut = general.PriorityMux<_NamedPayload>(
         Logic(width: 2),
         [_NamedPayload(name: 'firstInput'), _NamedPayload(name: 'secondInput')],
         _NamedPayload(name: 'defaultInput'));
@@ -119,7 +120,7 @@ void main() {
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
     expect(
-        () => TypedPriorityMux<_NamedPayload>(
+        () => general.PriorityMux<_NamedPayload>(
             Logic(),
             [_NamedPayload(name: 'firstInput', suffix: 'other')],
             _NamedPayload(name: 'defaultInput')),
@@ -208,7 +209,7 @@ void main() {
 
   test('typed priority mux preserves structured cases and result', () async {
     final selector = Logic(width: 2);
-    final dut = TypedPriorityMux<_Payload>(
+    final dut = general.PriorityMux<_Payload>(
         selector, [_Payload(), _Payload()], _Payload());
     expect(dut.input('case0'), isA<_Payload>());
     expect(dut.input('defaultValue'), isA<_Payload>());
@@ -228,12 +229,12 @@ void main() {
 
   test('typed priority mux rejects incompatible payload layouts', () {
     expect(
-      () => TypedPriorityMux<_Payload>(
+      () => general.PriorityMux<_Payload>(
           Logic(), [_Payload(tagName: 'other')], _Payload()),
       throwsArgumentError,
     );
     expect(
-      () => TypedPriorityMux<Logic>(Logic(), [_fixedConstant(0x12)],
+      () => general.PriorityMux<Logic>(Logic(), [_fixedConstant(0x12)],
           FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false)),
       throwsArgumentError,
     );
@@ -241,7 +242,7 @@ void main() {
 
   test('typed priority mux accepts matching constant and driveable payloads',
       () {
-    final dut = TypedPriorityMux<FixedPoint>(Logic(), [_fixedConstant(0x12)],
+    final dut = general.PriorityMux<FixedPoint>(Logic(), [_fixedConstant(0x12)],
         FixedPoint(integerWidth: 3, fractionWidth: 4));
     expect(dut.input('case0'), isA<FixedPoint>());
     expect(dut.input('defaultValue'), isA<FixedPoint>());
@@ -254,7 +255,7 @@ void main() {
     final second =
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
     final scalar = _MisclonedField(first, second);
-    expect(() => TypedPriorityMux<Logic>(Logic(), [scalar], scalar),
+    expect(() => general.PriorityMux<Logic>(Logic(), [scalar], scalar),
         throwsA(isA<PortTypeException>()));
   });
 
@@ -264,7 +265,7 @@ void main() {
     final second =
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
     expect(
-        () => TypedPriorityMux<Logic>(
+        () => general.PriorityMux<Logic>(
             Logic(), [GfLogic(first)], _SecondCloneField(first, second)),
         throwsA(isA<LogicConstructionException>()));
   });
@@ -276,13 +277,13 @@ void main() {
     final second =
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
     final structured = _MisclonedRecord(first, second);
-    expect(() => TypedPriorityMux<Logic>(Logic(), [structured], structured),
+    expect(() => general.PriorityMux<Logic>(Logic(), [structured], structured),
         throwsA(isA<PortTypeException>()));
   });
 
   test('typed input registration rejects a clone that erases its type', () {
     final record = _ErasedRecord();
-    expect(() => TypedPriorityMux<Logic>(Logic(), [record], record),
+    expect(() => general.PriorityMux<Logic>(Logic(), [record], record),
         throwsA(isA<PortTypeException>()));
   });
 

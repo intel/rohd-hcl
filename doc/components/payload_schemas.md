@@ -54,12 +54,29 @@ than silently reinterpreting them.
 
 These HCL helpers work with hosted ROHD 0.7.4. They remain in HCL until an
 appropriate additive ROHD API is released and a later HCL release can migrate
-and deprecate the redundant helpers. Existing ROHD typed operators do not
+and deprecate the redundant helpers. The proposed ROHD pairwise compatibility
+and schema-aware interface registration APIs cover part of this work, but the
+HCL helpers also handle parent-renamed clones and explicit clone-width checks.
+Do not remove those checks until equivalent upstream behavior is available.
+Existing ROHD typed operators do not
 uniformly check semantic metadata, so components must validate their own
 declared payloads before invoking those operators.
 For example, `condFlop` compares declared data, reset, and output formats
 directly even when one of them is a packed bridge. Single-entry buffer
 configuration likewise checks its input, output, and retained payload together.
+
+The generic `PriorityMux`, `AssociativeMatcher`, `AssociativeMatchSelector`,
+`SpiMain`, and `SpiSub` have separate public entry points while the main barrel
+retains their deprecated flat-port predecessors. Hide each legacy name from the
+barrel and import its corresponding entry point, for example:
+
+```dart
+import 'package:rohd_hcl/rohd_hcl.dart' hide PriorityMux;
+import 'package:rohd_hcl/priority_mux.dart';
+```
+
+In a future breaking release, the generic versions can replace the legacy
+barrel exports.
 
 ROHD 0.7.4 can reject a valid parent-renamed clone if the original parent name
 occurs more than once in a field name (for example, `b` and `b_bits`). Avoid

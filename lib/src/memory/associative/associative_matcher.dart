@@ -35,7 +35,7 @@ Logic exactAssociativeKeyComparator(
 /// One output bit corresponds to each candidate. Zero, one, and multiple
 /// matches remain explicit so the selection policy can be composed separately.
 /// {@category Memory}
-class TypedAssociativeMatcher<T extends Logic> extends Module {
+class AssociativeMatcherImplementation<T extends Logic> extends Module {
   /// Number of associatively compared candidates.
   final int entryCount;
 
@@ -52,7 +52,7 @@ class TypedAssociativeMatcher<T extends Logic> extends Module {
   Logic get multipleMatches => output('multipleMatches');
 
   /// Creates storage-independent matching with typed query and key ports.
-  TypedAssociativeMatcher({
+  AssociativeMatcherImplementation({
     required T query,
     required List<T> storedKeys,
     required Logic validMask,
@@ -69,7 +69,7 @@ class TypedAssociativeMatcher<T extends Logic> extends Module {
           flatPorts: false,
         );
 
-  TypedAssociativeMatcher._({
+  AssociativeMatcherImplementation._({
     required T query,
     required List<T> storedKeys,
     required Logic validMask,
@@ -142,11 +142,14 @@ class TypedAssociativeMatcher<T extends Logic> extends Module {
 
 /// Compatibility matcher with flattened query and stored-key module ports.
 ///
-/// Use [TypedAssociativeMatcher] to retain structured key types.
-@Deprecated('Use TypedAssociativeMatcher to preserve key types.')
-class AssociativeMatcher extends TypedAssociativeMatcher<Logic> {
+/// Import `package:rohd_hcl/associative_matcher.dart` to retain key types.
+@Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
+    "AssociativeMatcher; and import 'package:rohd_hcl/associative_matcher.dart';")
+class AssociativeMatcher extends AssociativeMatcherImplementation<Logic> {
   /// Creates storage-independent associative matching with flat ports.
-  @Deprecated('Use TypedAssociativeMatcher to preserve key types.')
+  @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
+      'AssociativeMatcher; and import '
+      "'package:rohd_hcl/associative_matcher.dart';")
   AssociativeMatcher({
     required super.query,
     required super.storedKeys,

@@ -14,12 +14,12 @@ import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 ///
 /// Bit 0 of `selector` has the highest priority. When no bit is set,
 /// `defaultValue` is produced.
-class TypedPriorityMux<T extends Logic> extends Module {
+class PriorityMuxImplementation<T extends Logic> extends Module {
   /// The selected [result].
   T get result => output('result') as T;
 
   /// Constructs a typed priority mux whose cases match [defaultValue]'s layout.
-  TypedPriorityMux(Logic selector, List<T> cases, T defaultValue,
+  PriorityMuxImplementation(Logic selector, List<T> cases, T defaultValue,
       {String name = 'priorityMux',
       bool reserveName = false,
       bool reserveDefinitionName = false,
@@ -31,7 +31,7 @@ class TypedPriorityMux<T extends Logic> extends Module {
             definitionName: definitionName,
             flatPorts: false);
 
-  TypedPriorityMux._(Logic selector, List<T> cases, T defaultValue,
+  PriorityMuxImplementation._(Logic selector, List<T> cases, T defaultValue,
       {required bool flatPorts,
       required super.name,
       super.reserveName,
@@ -84,10 +84,12 @@ class TypedPriorityMux<T extends Logic> extends Module {
 }
 
 /// Compatibility priority mux with flat case and result ports.
-@Deprecated('Use TypedPriorityMux to preserve payload types.')
-class PriorityMux extends TypedPriorityMux<Logic> {
+@Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide PriorityMux; "
+    "and import 'package:rohd_hcl/priority_mux.dart';")
+class PriorityMux extends PriorityMuxImplementation<Logic> {
   /// Constructs a priority mux with flat ports.
-  @Deprecated('Use TypedPriorityMux to preserve payload types.')
+  @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide PriorityMux; "
+      "and import 'package:rohd_hcl/priority_mux.dart';")
   PriorityMux(super.selector, super.cases, super.defaultValue,
       {super.name = 'priorityMux',
       super.reserveName,

@@ -11,6 +11,8 @@ import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/spi_main.dart' as general;
+import 'package:rohd_hcl/spi_sub.dart' as general;
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 import 'package:test/test.dart';
 
@@ -156,11 +158,11 @@ void main() {
 
   test('SPI configurator builds typed endpoints for both roles', () {
     final spi = SpiConfigurator();
-    expect(spi.createModule(), isA<TypedSpiMain<Logic, Logic>>());
+    expect(spi.createModule(), isA<general.SpiMain<Logic, Logic>>());
     spi.roleKnob.value = SpiRole.sub;
-    expect(spi.createModule(), isA<TypedSpiSub<Logic, Logic>>());
+    expect(spi.createModule(), isA<general.SpiSub<Logic, Logic>>());
     spi.subBusInKnob.value = false;
-    expect((spi.createModule() as TypedSpiSub<Logic, Logic>).busIn, isNull);
+    expect((spi.createModule() as general.SpiSub<Logic, Logic>).busIn, isNull);
   });
 
   test('loads conditional floating-point adder knobs from JSON', () {

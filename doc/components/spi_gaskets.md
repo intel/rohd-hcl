@@ -1,6 +1,6 @@
 # SPI Gaskets
 
-ROHD-HCL provides `TypedSpiMain` and `TypedSpiSub` endpoints for communication
+ROHD-HCL provides generic `SpiMain` and `SpiSub` endpoints for communication
 via a Serial Peripheral Interface. Their transmit (`busIn`) and receive
 (`busOut`) payloads can use different `Logic` types or structures. Specify
 `busOutSchema` to describe the received data, including for a receive-only
@@ -10,10 +10,17 @@ semantic conversion.
 Structured constant transmit inputs with driveable clones retain their type
 even when widened to `Logic`.
 
-`SpiMain` and `SpiSub` remain available as deprecated compatibility wrappers
-with their original flat parallel ports and generated definition names.
+The main barrel retains deprecated `SpiMain` and `SpiSub` compatibility
+wrappers with their original flat parallel ports and generated definition
+names. Import the generic endpoints instead:
 
-## TypedSpiMain
+```dart
+import 'package:rohd_hcl/rohd_hcl.dart' hide SpiMain, SpiSub;
+import 'package:rohd_hcl/spi_main.dart';
+import 'package:rohd_hcl/spi_sub.dart';
+```
+
+## SpiMain
 
 Interacts as the provider on the `SpiInterface`.
 
@@ -38,7 +45,7 @@ remaining bits are captured on that rising edge. Pulsing `start` makes
 out on `mosi` and in from `miso`; received data is available on `busOut`. The
 `done` signal indicates when the transfer is complete.
 
-## TypedSpiSub
+## SpiSub
 
 Interacts as the consumer on the `SpiInterface`.
 

@@ -14,6 +14,8 @@ import 'package:logging/logging.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/spi_main.dart' as general;
+import 'package:rohd_hcl/spi_sub.dart' as general;
 import 'package:rohd_hcl/src/interfaces/spi/endpoints/spi_shift_register.dart';
 import 'package:test/test.dart';
 
@@ -106,8 +108,8 @@ class _Response extends LogicStructure {
 }
 
 class _TypedPairHarness extends Module {
-  late final TypedSpiMain<_Command, _Response> main;
-  late final TypedSpiSub<_Response, _Command> sub;
+  late final general.SpiMain<_Command, _Response> main;
+  late final general.SpiSub<_Response, _Command> sub;
 
   _TypedPairHarness() {
     final intf = SpiInterface(dataLength: 8);
@@ -115,13 +117,13 @@ class _TypedPairHarness extends Module {
       ..gets(addInput('mainIn', Logic(width: 8), width: 8));
     final subData = _Response()
       ..gets(addInput('subIn', Logic(width: 8), width: 8));
-    main = TypedSpiMain<_Command, _Response>(intf,
+    main = general.SpiMain<_Command, _Response>(intf,
         clk: addInput('clock', Logic()),
         reset: addInput('mainReset', Logic()),
         start: addInput('start', Logic()),
         busIn: mainData,
         busOutSchema: _Response());
-    sub = TypedSpiSub<_Response, _Command>(
+    sub = general.SpiSub<_Response, _Command>(
         intf: intf,
         reset: addInput('subReset', Logic()),
         busIn: subData,
@@ -139,18 +141,18 @@ FixedPoint _constantFixed(int value) =>
         fraction: LogicValue.ofInt(value & 0xf, 4)));
 
 class _ConstantPairHarness extends Module {
-  late final TypedSpiMain<Logic, Logic> main;
-  late final TypedSpiSub<Logic, Logic> sub;
+  late final general.SpiMain<Logic, Logic> main;
+  late final general.SpiSub<Logic, Logic> sub;
 
   _ConstantPairHarness() {
     final intf = SpiInterface(dataLength: 8);
-    main = TypedSpiMain<Logic, Logic>(intf,
+    main = general.SpiMain<Logic, Logic>(intf,
         clk: addInput('clock', Logic()),
         reset: addInput('mainReset', Logic()),
         start: addInput('start', Logic()),
         busIn: _constantFixed(0xa6),
         busOutSchema: Logic(width: 8));
-    sub = TypedSpiSub<Logic, Logic>(
+    sub = general.SpiSub<Logic, Logic>(
         intf: intf,
         reset: addInput('subReset', Logic()),
         busIn: _constantFixed(0x69),
@@ -161,14 +163,14 @@ class _ConstantPairHarness extends Module {
 }
 
 class _TypedReceiveHarness extends Module {
-  late final TypedSpiSub<Logic, _Command> sub;
+  late final general.SpiSub<Logic, _Command> sub;
 
   _TypedReceiveHarness() {
     final intf = SpiInterface(dataLength: 8);
     intf.sclk <= addInput('clock', Logic());
     intf.csb <= addInput('csb', Logic());
     intf.mosi <= addInput('mosi', Logic());
-    sub = TypedSpiSub<Logic, _Command>(intf: intf, busOutSchema: _Command());
+    sub = general.SpiSub<Logic, _Command>(intf: intf, busOutSchema: _Command());
     addOutput('received', width: 8) <= sub.busOut;
     addOutput('low', width: 4) <= sub.busOut.low;
   }
@@ -181,19 +183,19 @@ _Nibbles _nibbles() =>
         numUnpackedDimensions: 1);
 
 class _ArrayPairHarness extends Module {
-  late final TypedSpiMain<_Nibbles, _Nibbles> main;
-  late final TypedSpiSub<Logic, _Nibbles> sub;
+  late final general.SpiMain<_Nibbles, _Nibbles> main;
+  late final general.SpiSub<Logic, _Nibbles> sub;
 
   _ArrayPairHarness() {
     final intf = SpiInterface(dataLength: 8);
     final data = _nibbles()..gets(addInput('data', Logic(width: 8), width: 8));
-    main = TypedSpiMain<_Nibbles, _Nibbles>(intf,
+    main = general.SpiMain<_Nibbles, _Nibbles>(intf,
         clk: addInput('clock', Logic()),
         reset: addInput('reset', Logic()),
         start: addInput('start', Logic()),
         busIn: data,
         busOutSchema: _nibbles());
-    sub = TypedSpiSub<Logic, _Nibbles>(
+    sub = general.SpiSub<Logic, _Nibbles>(
         intf: intf,
         reset: addInput('subReset', Logic()),
         busOutSchema: _nibbles());
@@ -209,7 +211,7 @@ void main() {
     final second =
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
     expect(
-        () => TypedSpiMain<Logic, Logic>(SpiInterface(dataLength: 3),
+        () => general.SpiMain<Logic, Logic>(SpiInterface(dataLength: 3),
             clk: Logic(),
             reset: Logic(),
             start: Logic(),
@@ -217,7 +219,7 @@ void main() {
             busOutSchema: _MisclonedField(first, second)),
         throwsA(isA<LogicConstructionException>()));
     expect(
-        () => TypedSpiSub<Logic, Logic>(
+        () => general.SpiSub<Logic, Logic>(
             intf: SpiInterface(dataLength: 3),
             busOutSchema: _MisclonedField(first, second)),
         throwsA(isA<LogicConstructionException>()));
@@ -345,15 +347,16 @@ void main() {
   });
 
   test('typed SPI definition names distinguish payload layouts', () {
-    TypedSpiMain<Logic, Logic> main(Logic input, Logic output) =>
-        TypedSpiMain<Logic, Logic>(SpiInterface(dataLength: 8),
+    general.SpiMain<Logic, Logic> main(Logic input, Logic output) =>
+        general.SpiMain<Logic, Logic>(SpiInterface(dataLength: 8),
             clk: Logic(),
             reset: Logic(),
             start: Logic(),
             busIn: input,
             busOutSchema: output);
-    TypedSpiSub<Logic, Logic> sub(Logic output) => TypedSpiSub<Logic, Logic>(
-        intf: SpiInterface(dataLength: 8), busOutSchema: output);
+    general.SpiSub<Logic, Logic> sub(Logic output) =>
+        general.SpiSub<Logic, Logic>(
+            intf: SpiInterface(dataLength: 8), busOutSchema: output);
     expect(main(_Command(), _Response()).definitionName,
         isNot(main(_Response(), _Response()).definitionName));
     expect(main(_Command(), _Response()).definitionName,
@@ -365,7 +368,7 @@ void main() {
   test('typed SPI endpoints validate both payload widths', () {
     final intf = SpiInterface(dataLength: 8);
     expect(
-        () => TypedSpiMain<Logic, Logic>(intf,
+        () => general.SpiMain<Logic, Logic>(intf,
             clk: Logic(),
             reset: Logic(),
             start: Logic(),
@@ -373,7 +376,7 @@ void main() {
             busOutSchema: Logic(width: 8)),
         throwsArgumentError);
     expect(
-        () => TypedSpiMain<Logic, Logic>(intf,
+        () => general.SpiMain<Logic, Logic>(intf,
             clk: Logic(),
             reset: Logic(),
             start: Logic(),
@@ -381,11 +384,11 @@ void main() {
             busOutSchema: Logic(width: 7)),
         throwsArgumentError);
     expect(
-        () => TypedSpiSub<Logic, Logic>(
+        () => general.SpiSub<Logic, Logic>(
             intf: intf, busIn: Logic(width: 7), busOutSchema: Logic(width: 8)),
         throwsArgumentError);
     expect(
-        () => TypedSpiSub<Logic, Logic>(
+        () => general.SpiSub<Logic, Logic>(
             intf: intf, busOutSchema: Logic(width: 7)),
         throwsArgumentError);
   });

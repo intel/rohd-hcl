@@ -29,10 +29,11 @@ models can be used as cache components. This does **not** yet provide a
 port-compatible behavioral replacement for every complete cache controller or
 for the legacy `Cam`; their limitations are described below.
 
-`TypedAssociativeMatcher<T>` retains structured query and stored-key ports and
+`AssociativeMatcher<T>` retains structured query and stored-key ports and
 passes `T` to custom comparators. Its default comparison is four-state exact
-matching. The older `AssociativeMatcher` retains flat ports for compatibility
-and is deprecated.
+matching. The older flat-port `AssociativeMatcher` remains in the main barrel
+for compatibility and is deprecated. See the imports in
+[Matching and Selection Without Storage](#matching-and-selection-without-storage).
 
 Typed associative and cache port schemas must clone with the same declared
 payload type and semantic format.
@@ -990,11 +991,11 @@ committing its replacement.
 
 ## Matching and Selection Without Storage
 
-`TypedAssociativeMatcher` compares a query with a list of keys under a valid
+`AssociativeMatcher<T>` compares a query with a list of keys under a valid
 mask, returning `matchVector`, `hit`, and `multipleMatches`. Its default
 comparator uses logical equality; a custom comparator must return one bit per
 entry. The flat `AssociativeMatcher` is deprecated.
-`TypedAssociativeMatchSelector` selects a match, exposing `valid`,
+`AssociativeMatchSelector<T>` selects a match, exposing `valid`,
 `selectedIndex`, and `selectedOneHot`. It retains the selection value type for
 the default lower-value comparison and custom preference callbacks. All values
 must have the same declared payload shape. Both typed components accept
@@ -1009,9 +1010,14 @@ The deprecated `AssociativeMatchSelector` retains flattened value ports and,
 without selection values, selects the lowest matching index by default.
 
 ```dart
-final matcher = TypedAssociativeMatcher(
+import 'package:rohd_hcl/rohd_hcl.dart'
+    hide AssociativeMatcher, AssociativeMatchSelector;
+import 'package:rohd_hcl/associative_matcher.dart';
+import 'package:rohd_hcl/associative_match_selector.dart';
+
+final matcher = AssociativeMatcher(
     query: query, storedKeys: keys, validMask: validMask);
-final selector = TypedAssociativeMatchSelector(
+final selector = AssociativeMatchSelector(
     matchVector: matcher.matchVector, selectionValues: priorities);
 final selected = selector.selectedIndex;
 ```

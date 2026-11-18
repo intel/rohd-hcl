@@ -11,7 +11,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/spi_main.dart' as general;
+import 'package:rohd_hcl/spi_sub.dart' as general;
 
 /// Maps configurable module runtime types to bundled ROHD source assets.
 const moduleSourceAssets = <String, String>{
@@ -304,7 +307,9 @@ String? moduleSourceAsset(Module module) => switch (module) {
       ParityTransmitter() => moduleSourceAssets['ParityTransmitter'],
       Pad() => moduleSourceAssets['Pad'],
       PriorityArbiter() => moduleSourceAssets['PriorityArbiter'],
-      TypedPriorityMux() => moduleSourceAssets['PriorityMux'],
+      general.PriorityMux() ||
+      PriorityMux() =>
+        moduleSourceAssets['PriorityMux'],
       ReadyValidFifo() => moduleSourceAssets['ReadyValidFifo'],
       ReadyValidFixedLatency() => moduleSourceAssets['ReadyValidFixedLatency'],
       ReadyValidIterativeDivider() =>
@@ -339,8 +344,8 @@ String? moduleSourceAsset(Module module) => switch (module) {
       SignMagnitudeDualAdder() => moduleSourceAssets['SignMagnitudeDualAdder'],
       SignedShifter() => moduleSourceAssets['SignedShifter'],
       SparseToDense() => moduleSourceAssets['SparseToDense'],
-      TypedSpiMain() => moduleSourceAssets['SpiMain'],
-      TypedSpiSub() => moduleSourceAssets['SpiSub'],
+      general.SpiMain() || SpiMain() => moduleSourceAssets['SpiMain'],
+      general.SpiSub() || SpiSub() => moduleSourceAssets['SpiSub'],
       Sum() => moduleSourceAssets['Sum'],
       ToggleGate() => moduleSourceAssets['ToggleGate'],
       TreeOneHotToBinary() => moduleSourceAssets['TreeOneHotToBinary'],

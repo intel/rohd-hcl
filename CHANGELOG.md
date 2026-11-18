@@ -2,9 +2,9 @@
 
 ### New components and APIs
 
-- Added `TypedAssociativeMatchSelector` for typed selection values and preference callbacks; the flat `AssociativeMatchSelector` remains available but is deprecated.
+- Added a generic `AssociativeMatchSelector<T>` for typed selection values and preference callbacks; the flat `AssociativeMatchSelector` remains available but is deprecated.
 - Added typed associative indexed side-read response views for RTL, behavioral, and compatible custom providers, and `TypedSynchronousAssociativeLookupPortInterface` for fixed-latency memories. The existing packed response and packed-key constructor remain available but are deprecated.
-- Added `TypedSpiMain` and `TypedSpiSub` with independently typed transmit and receive payloads. The original flat `SpiMain` and `SpiSub` remain available but are deprecated.
+- Added generic `SpiMain<TIn, TOut>` and `SpiSub<TIn, TOut>` with independently typed transmit and receive payloads. The original flat `SpiMain` and `SpiSub` remain available but are deprecated.
 - Added an opt-in ACE4 signal layout with independently configured channel widths, snoop and acknowledgement support, and shared signal-level BFM checks; the legacy layout remains the default.
 - Added an opt-in serializer timing mode that bypasses the first element while capturing the rest, making flopped-input output timing match unflopped timing (addressing [intel/rohd-hcl#149](https://github.com/intel/rohd-hcl/issues/149)) without changing the default.
 - Extended `StaticOrRuntimeControl` with typed runtime input resolution and reused it for resettable entries while preserving reset input shapes and existing behavior.
@@ -17,8 +17,9 @@
 - Added protocol-neutral `FixedLatencyTracker` and `ReadyValidFixedLatency` for in-order, continuously advancing fixed-latency cores, with initiation-interval scheduling, reserved result buffering, backpressure, and optional request IDs (addressing [intel/rohd-hcl#146](https://github.com/intel/rohd-hcl/issues/146)).
 - Added binary-field arithmetic and combinational constant multiplication, inversion, and polynomial evaluation. Added binary matrix and polynomial utilities, linear and affine transforms, serial and parallel LFSRs, a zero-based tap-list `Lfsr` API, signature analysis, and configurable PRBS generation and checking. The PRBS checker requires seed and enable alignment; it does not acquire phase. The LFSRs and tap-list API address [intel/rohd-hcl#8](https://github.com/intel/rohd-hcl/issues/8). The recurrence and signature primitives provide groundwork for [intel/rohd-hcl#46](https://github.com/intel/rohd-hcl/issues/46), but are not a configurable CRC generator and checker.
 - Added field-typed constructors and outputs for finite-field modules; their bit-vector constructors and result views remain available but are deprecated.
-- Added `TypedAssociativeMatcher` for typed query ports and comparators; the flat `AssociativeMatcher` remains available but is deprecated.
-- Added `TypedPriorityMux` for structured case and result ports; the flat-port `PriorityMux` remains available but is deprecated.
+- Added `AssociativeMatcher<T>` for typed query ports and comparators; the flat `AssociativeMatcher` remains available but is deprecated.
+- Added `PriorityMux<T>` for structured case and result ports; the flat-port `PriorityMux` remains available but is deprecated.
+- The generic `PriorityMux`, `AssociativeMatcher`, `AssociativeMatchSelector`, `SpiMain`, and `SpiSub` have separate public import paths; hide their legacy names from the main barrel when using them. A future breaking release can replace the legacy barrel exports.
 - Added `FloatingPointClassifier` and `FloatingPointComparator`. Explicit-J inputs require opt-in `alignExplicitJBit`; the comparator requires matching formats and applies subnormal-as-zero after alignment. The classifier reports subnormals independently of that arithmetic setting.
 - Added opt-in explicit-J alignment to `FloatingPointConverter` for unnormalized inputs and noncanonical zeros. The default conversion path is unchanged. Aligned explicit-J sources require at least two exponent bits and IEEE infinity and signaling-NaN encodings; an explicit-J destination also requires IEEE special values and at least one fraction bit.
 - Added configurable inclusive `ParallelPrefixScan` for AND, OR, and XOR in either bit direction. `GrayToBinaryConverter` can optionally use a selected prefix topology; its default linear implementation is unchanged.

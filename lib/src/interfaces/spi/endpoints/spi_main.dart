@@ -13,7 +13,8 @@ import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/interfaces/spi/endpoints/spi_shift_register.dart';
 
 /// SPI main endpoint with independently typed transmit and receive payloads.
-class TypedSpiMain<TIn extends Logic, TOut extends Logic> extends Module {
+class SpiMainImplementation<TIn extends Logic, TOut extends Logic>
+    extends Module {
   /// Input bus carrying the transmit payload.
   TIn get busIn => input('busIn') as TIn;
 
@@ -38,7 +39,7 @@ class TypedSpiMain<TIn extends Logic, TOut extends Logic> extends Module {
   /// [busIn] and [busOutSchema] can have different layouts, but both must
   /// match the interface data length. Bits are transmitted most significant
   /// first without converting either payload's semantic format.
-  TypedSpiMain(SpiInterface intf,
+  SpiMainImplementation(SpiInterface intf,
       {required Logic clk,
       required Logic reset,
       required Logic start,
@@ -60,7 +61,7 @@ class TypedSpiMain<TIn extends Logic, TOut extends Logic> extends Module {
             reserveDefinitionName: reserveDefinitionName,
             definitionName: definitionName);
 
-  TypedSpiMain._(SpiInterface intf,
+  SpiMainImplementation._(SpiInterface intf,
       {required Logic clk,
       required Logic reset,
       required Logic start,
@@ -148,10 +149,12 @@ class TypedSpiMain<TIn extends Logic, TOut extends Logic> extends Module {
 }
 
 /// Compatibility SPI main endpoint with flat parallel ports.
-@Deprecated('Use TypedSpiMain to preserve payload types.')
-class SpiMain extends TypedSpiMain<Logic, Logic> {
+@Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiMain; "
+    "and import 'package:rohd_hcl/spi_main.dart';")
+class SpiMain extends SpiMainImplementation<Logic, Logic> {
   /// Creates an SPI main endpoint with flat parallel ports.
-  @Deprecated('Use TypedSpiMain to preserve payload types.')
+  @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiMain; "
+      "and import 'package:rohd_hcl/spi_main.dart';")
   // The compatibility output schema depends on the input width.
   // ignore: use_super_parameters
   SpiMain(SpiInterface intf,

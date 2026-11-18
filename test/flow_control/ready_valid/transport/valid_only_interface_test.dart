@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
+import 'package:rohd_hcl/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
@@ -246,8 +247,8 @@ class _FieldMuxHarness extends Module {
     final input = addInput('inputData', Logic(width: 3), width: 3);
     final a = GfLogic.of(input, field: first);
     final b = GfLogic.of(input, field: second);
-    final firstMux = TypedPriorityMux<GfLogic>(selector, [a], a);
-    final secondMux = TypedPriorityMux<GfLogic>(selector, [b], b);
+    final firstMux = general.PriorityMux<GfLogic>(selector, [a], a);
+    final secondMux = general.PriorityMux<GfLogic>(selector, [b], b);
     addOutput('first', width: 3) <= firstMux.result;
     addOutput('second', width: 3) <= secondMux.result;
   }
@@ -562,8 +563,8 @@ void main() {
     final second =
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
     expect(
-      () =>
-          TypedPriorityMux<GfLogic>(Logic(), [GfLogic(second)], GfLogic(first)),
+      () => general.PriorityMux<GfLogic>(
+          Logic(), [GfLogic(second)], GfLogic(first)),
       throwsArgumentError,
     );
     expect(
@@ -589,7 +590,7 @@ void main() {
     expect(sameRohdPayloadShape(uniform, mixed), isFalse);
     expect(payloadShapeIdentity(uniform), isNot(payloadShapeIdentity(mixed)));
     expect(
-      () => TypedPriorityMux<TypedLogicArray<GfLogic, LogicValue>>(
+      () => general.PriorityMux<TypedLogicArray<GfLogic, LogicValue>>(
           Logic(), [mixed], uniform),
       throwsArgumentError,
     );

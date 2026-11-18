@@ -14,6 +14,8 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
+import 'package:rohd_hcl/associative_match_selector.dart' as general;
+import 'package:rohd_hcl/associative_matcher.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
@@ -103,9 +105,9 @@ class _EnumSelectorHarness extends Module {
         (index) => addInput('value$index', Logic(width: nested ? 3 : 2),
             width: nested ? 3 : 2));
     final matches = addInput('matchMask', Logic(width: 2), width: 2);
-    final TypedAssociativeMatchSelector selector;
+    final general.AssociativeMatchSelector selector;
     if (nested) {
-      selector = TypedAssociativeMatchSelector<_EnumKey>(
+      selector = general.AssociativeMatchSelector<_EnumKey>(
         matchVector: matches,
         selectionValues: [
           _EnumKey()..gets(inputs[0]),
@@ -120,7 +122,7 @@ class _EnumSelectorHarness extends Module {
             candidateValue.priority.lt(selectedValue.priority),
       );
     } else {
-      selector = TypedAssociativeMatchSelector<LogicEnum<_Priority>>(
+      selector = general.AssociativeMatchSelector<LogicEnum<_Priority>>(
         matchVector: matches,
         selectionValues: [
           _priority()..gets(inputs[0]),
@@ -140,7 +142,7 @@ class _SignedSelectorHarness extends Module {
       final bits = addInput('value$index', Logic(width: 4), width: 4);
       return FixedPoint(integerWidth: 2, fractionWidth: 1)..gets(bits);
     });
-    final selector = TypedAssociativeMatchSelector<FixedPoint>(
+    final selector = general.AssociativeMatchSelector<FixedPoint>(
       matchVector: addInput('matchMask', Logic(width: 2), width: 2),
       selectionValues: values,
     );
@@ -156,13 +158,13 @@ FixedPoint _constantPriority(int integer) =>
         fraction: LogicValue.ofInt(0, 1)));
 
 class _ConstantAssociativeHarness extends Module {
-  late final TypedAssociativeMatcher<Logic> matcher;
-  late final TypedAssociativeMatchSelector<Logic> selector;
+  late final general.AssociativeMatcher<Logic> matcher;
+  late final general.AssociativeMatchSelector<Logic> selector;
 
   _ConstantAssociativeHarness() {
     final mask = addInput('mask', Logic(width: 2), width: 2);
     final values = [_constantPriority(1), _constantPriority(7)];
-    matcher = TypedAssociativeMatcher<Logic>(
+    matcher = general.AssociativeMatcher<Logic>(
       query: _constantPriority(7),
       storedKeys: values,
       validMask: mask,
@@ -173,7 +175,7 @@ class _ConstantAssociativeHarness extends Module {
         return query.eq(stored);
       },
     );
-    selector = TypedAssociativeMatchSelector<Logic>(
+    selector = general.AssociativeMatchSelector<Logic>(
       matchVector: mask,
       selectionValues: values,
       preference: (
@@ -200,7 +202,7 @@ void main() {
   test('typed associative paths accept parent-renamed payloads', () async {
     final first = _NamedKey(name: 'firstKey');
     final second = _NamedKey(name: 'secondKey');
-    final matcher = TypedAssociativeMatcher<_NamedKey>(
+    final matcher = general.AssociativeMatcher<_NamedKey>(
         query: first, storedKeys: [second], validMask: Logic());
     await matcher.build();
     final matchVectors = [
@@ -212,7 +214,7 @@ void main() {
     SimCompare.checkIverilogVector(matcher, matchVectors);
     await Simulator.reset();
 
-    final selector = TypedAssociativeMatchSelector<_NamedKey>(
+    final selector = general.AssociativeMatchSelector<_NamedKey>(
         matchVector: Logic(width: 2), selectionValues: [first, second]);
     await selector.build();
     final selectionVectors = [
@@ -226,11 +228,11 @@ void main() {
 
     final incompatible = _NamedKey(name: 'otherKey', suffix: 'other');
     expect(
-        () => TypedAssociativeMatcher<_NamedKey>(
+        () => general.AssociativeMatcher<_NamedKey>(
             query: first, storedKeys: [incompatible], validMask: Logic()),
         throwsArgumentError);
     expect(
-        () => TypedAssociativeMatchSelector<_NamedKey>(
+        () => general.AssociativeMatchSelector<_NamedKey>(
             matchVector: Logic(width: 2),
             selectionValues: [first, incompatible]),
         throwsArgumentError);
@@ -270,18 +272,18 @@ void main() {
     final matching = FixedPoint(integerWidth: 2, fractionWidth: 1);
     final incompatible =
         FixedPoint(integerWidth: 3, fractionWidth: 1, signed: false);
-    final matcher = TypedAssociativeMatcher<Logic>(
+    final matcher = general.AssociativeMatcher<Logic>(
         query: constant, storedKeys: [matching], validMask: Logic());
-    final selector = TypedAssociativeMatchSelector<Logic>(
+    final selector = general.AssociativeMatchSelector<Logic>(
         matchVector: Logic(width: 2), selectionValues: [constant, matching]);
     expect(matcher.input('query'), isA<FixedPoint>());
     expect(selector.input('selectionValue_0'), isA<FixedPoint>());
     expect(
-        () => TypedAssociativeMatcher<Logic>(
+        () => general.AssociativeMatcher<Logic>(
             query: constant, storedKeys: [incompatible], validMask: Logic()),
         throwsArgumentError);
     expect(
-        () => TypedAssociativeMatchSelector<Logic>(
+        () => general.AssociativeMatchSelector<Logic>(
             matchVector: Logic(width: 2),
             selectionValues: [constant, incompatible]),
         throwsArgumentError);
@@ -291,7 +293,7 @@ void main() {
       () async {
     final values = List.generate(3, (_) => _Key());
     final matches = Logic(width: 3)..put(7);
-    final selector = TypedAssociativeMatchSelector<_Key>(
+    final selector = general.AssociativeMatchSelector<_Key>(
       matchVector: matches,
       selectionValues: values,
       selectionName: 'first',
@@ -324,7 +326,7 @@ void main() {
       () {
     final values =
         List.generate(2, (_) => FixedPoint(integerWidth: 2, fractionWidth: 1));
-    final selector = TypedAssociativeMatchSelector<FixedPoint>(
+    final selector = general.AssociativeMatchSelector<FixedPoint>(
       matchVector: Logic(width: 2)..put(3),
       selectionValues: values,
     );
@@ -336,7 +338,7 @@ void main() {
     expect(selector.input('selectionValue_0'), isA<FixedPoint>());
     expect(selector.selectedIndex.value, LogicValue.one);
     expect(
-      () => TypedAssociativeMatchSelector<FixedPoint>(
+      () => general.AssociativeMatchSelector<FixedPoint>(
         matchVector: Logic(width: 2),
         selectionValues: [
           values[0],
@@ -346,7 +348,7 @@ void main() {
       throwsArgumentError,
     );
     expect(
-      () => TypedAssociativeMatchSelector<_Key>(
+      () => general.AssociativeMatchSelector<_Key>(
         matchVector: Logic(width: 2),
         selectionValues: [_Key(), _Key(secondName: 'other')],
       ),
@@ -400,7 +402,7 @@ void main() {
     TypedLogicArray<LogicEnum<_Priority>, LogicValue> schema() =>
         TypedLogicArray<LogicEnum<_Priority>, LogicValue>([2], _priority);
     TypedLogicArray<LogicEnum<_Priority>, LogicValue>? initial;
-    final selector = TypedAssociativeMatchSelector(
+    final selector = general.AssociativeMatchSelector(
       matchVector: Logic(width: 2)..put(0),
       selectionValues: [schema(), schema()],
       preference: (
@@ -425,7 +427,7 @@ void main() {
   test('typed scalar selector retains flat selector four-state behavior', () {
     final matches = Logic(width: 2);
     final values = List.generate(2, (_) => Logic(width: 2));
-    final typed = TypedAssociativeMatchSelector<Logic>(
+    final typed = general.AssociativeMatchSelector<Logic>(
         matchVector: matches, selectionValues: values);
     final flat =
         // Exercise the compatibility selector's original packed behavior.
@@ -452,7 +454,7 @@ void main() {
     final query = _Key();
     final stored = [_Key(), _Key()];
     final valid = Logic(width: 2)..put(3);
-    final matcher = TypedAssociativeMatcher<_Key>(
+    final matcher = general.AssociativeMatcher<_Key>(
       query: query,
       storedKeys: stored,
       validMask: valid,
@@ -478,7 +480,7 @@ void main() {
       () {
     final query = _Key();
     expect(
-      () => TypedAssociativeMatcher<_Key>(
+      () => general.AssociativeMatcher<_Key>(
         query: query,
         storedKeys: [_Key(secondName: 'other')],
         validMask: Logic(),
@@ -486,7 +488,7 @@ void main() {
       throwsArgumentError,
     );
     final stored = _Key();
-    final matcher = TypedAssociativeMatcher<_Key>(
+    final matcher = general.AssociativeMatcher<_Key>(
       query: query,
       storedKeys: [stored],
       validMask: Logic()..put(1),

@@ -14,7 +14,8 @@ import 'package:rohd_hcl/src/interfaces/spi/endpoints/spi_shift_register.dart';
 
 /// SPI subordinate endpoint with independently typed transmit and receive
 /// payloads.
-class TypedSpiSub<TIn extends Logic, TOut extends Logic> extends Module {
+class SpiSubImplementation<TIn extends Logic, TOut extends Logic>
+    extends Module {
   /// Optional input bus carrying the transmit payload.
   TIn? get busIn => tryInput('busIn') as TIn?;
 
@@ -40,7 +41,7 @@ class TypedSpiSub<TIn extends Logic, TOut extends Logic> extends Module {
   /// [busOutSchema] describes the receive payload even when [busIn] is
   /// omitted. Both payloads must match the interface data length; their
   /// layouts may differ. Bits are shifted without semantic conversion.
-  TypedSpiSub(
+  SpiSubImplementation(
       {required SpiInterface intf,
       required TOut busOutSchema,
       TIn? busIn,
@@ -60,7 +61,7 @@ class TypedSpiSub<TIn extends Logic, TOut extends Logic> extends Module {
             reserveDefinitionName: reserveDefinitionName,
             definitionName: definitionName);
 
-  TypedSpiSub._(
+  SpiSubImplementation._(
       {required SpiInterface intf,
       required TOut busOutSchema,
       required bool flatPorts,
@@ -137,10 +138,12 @@ class TypedSpiSub<TIn extends Logic, TOut extends Logic> extends Module {
 }
 
 /// Compatibility SPI subordinate endpoint with flat parallel ports.
-@Deprecated('Use TypedSpiSub to preserve payload types.')
-class SpiSub extends TypedSpiSub<Logic, Logic> {
+@Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiSub; "
+    "and import 'package:rohd_hcl/spi_sub.dart';")
+class SpiSub extends SpiSubImplementation<Logic, Logic> {
   /// Creates an SPI subordinate endpoint with flat parallel ports.
-  @Deprecated('Use TypedSpiSub to preserve payload types.')
+  @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiSub; "
+      "and import 'package:rohd_hcl/spi_sub.dart';")
   // The compatibility output schema depends on the interface width.
   // ignore: use_super_parameters
   SpiSub(
