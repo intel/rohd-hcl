@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the condFlop function from the rohd_hcl library, for the Dart programming language.">
+  <title>condFlop function - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">condFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt; function</li>
+  </ol>
+  <div class="self-name">condFlop</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">condFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype">LogicType</span>
+<span class="name ">condFlop</span>&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-d"><span class="type-annotation">LogicType</span> <span class="parameter-name">d</span>, {</span></li>
+<li><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-outputGenerator"><span class="type-annotation">LogicType</span> <span class="parameter-name">outputGenerator</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
+</ol>})?, </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Conditionally constructs a positive edge triggered flip condFlop on <code>clk</code>.</p>
+<p>It returns either <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/FlipFlop/q.html">FlipFlop.q</a> if <code>clk</code> is non-null or <code>d</code> if not.</p>
+<p>When the optional <code>en</code> is provided, an additional input will be created for
+condFlop. If optional <code>en</code> is high or not provided, output will vary as per
+input<code>d</code>. For low <code>en</code>, output remains frozen irrespective of input <code>d</code>.</p>
+<ul>
+<li>When the optional <code>reset</code> is provided, the condFlop will be reset
+(active-high).</li>
+<li>If no <code>resetValue</code> is provided, the reset value is always <code>0</code>. Otherwise,
+it will reset to the provided <code>resetValue</code>.</li>
+<li>If <code>asyncReset</code> is <code>true</code>, the <code>reset</code> signal (if provided) will be
+treated as an async reset. If <code>asyncReset</code> is <code>false</code>, the reset signal
+will be treated as synchronous.</li>
+</ul>
+<p>Preserves <code>LogicType</code> and runtime structured layouts. <code>outputGenerator</code> can
+supply an explicit registered output schema. A null <code>clk</code> returns <code>d</code>
+unchanged. Use <code>condFlop&lt;Logic&gt;</code> for scalar constants or nets that need a
+driveable registered result. The output must be compatible with the input
+and any signal reset value; packed values remain valid bridges.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">LogicType condFlop&lt;LogicType extends Logic&gt;(
+  Logic? clk,
+  LogicType d, {
+  Logic? en,
+  Logic? reset,
+  dynamic resetValue,
+  bool asyncReset = false,
+  LogicType Function({String? name})? outputGenerator,
+}) {
+  if (clk == null) {
+    return d;
+  }
+  if (reset != null &amp;&amp;
+      resetValue is Logic &amp;&amp;
+      d.width == resetValue.width &amp;&amp;
+      !compatiblePayloadConnectionAllowingRenamedClone(d, resetValue)) {
+    throw ArgumentError(
+        &#39;Register input and reset payloads must be compatible.&#39;);
+  }
+  final generator = outputGenerator ??
+      (hasDeclaredPayloadShape(d)
+          ? ({name}) =&gt; d.cloneTyped(name: name)
+          : null);
+  LogicType checkedOutput({String? name}) {
+    final output = generator!(name: name);
+    if (output.width == d.width &amp;&amp;
+        !compatiblePayloadConnectionAllowingRenamedClone(output, d)) {
+      throw ArgumentError(&#39;Register output and input payloads must be &#39;
+          &#39;compatible.&#39;);
+    }
+    if (reset != null &amp;&amp;
+        resetValue is Logic &amp;&amp;
+        output.width == resetValue.width &amp;&amp;
+        !compatiblePayloadConnectionAllowingRenamedClone(output, resetValue)) {
+      throw ArgumentError(&#39;Register output and reset payloads must be &#39;
+          &#39;compatible.&#39;);
+    }
+    return output;
+  }
+
+  final registered = flop&lt;LogicType&gt;(clk, d,
+      en: en,
+      reset: reset,
+      resetValue: resetValue,
+      asyncReset: asyncReset,
+      outputGenerator: generator == null ? null : checkedOutput);
+  return registered.cloneTyped(name: &#39;${d.name}_flopped&#39;)..gets(registered);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">condFlop&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt; function</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

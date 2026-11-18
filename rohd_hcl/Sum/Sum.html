@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the Sum.new constructor from Class Sum from the rohd_hcl library, for the Dart programming language.">
+  <title>Sum.new constructor - Sum - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/Sum-class.html">Sum</a></li>
+    <li class="self-crumb">Sum.new constructor</li>
+  </ol>
+  <div class="self-name">Sum.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;Sum-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">Sum</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">Sum</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-interfaces"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/SumInterface-class.html">SumInterface</a></span>&gt;</span></span> <span class="parameter-name">interfaces</span>, {</span></li>
+<li><span class="parameter" id="param-initialValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">initialValue</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="param-maxValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">maxValue</span>, </span></li>
+<li><span class="parameter" id="param-minValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">minValue</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="param-width"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">width</span>, </span></li>
+<li><span class="parameter" id="param-saturates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">saturates</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;sum&#39;</span>, </span></li>
+<li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Computes a <a href="../../rohd_hcl/Sum/sum.html">sum</a> across the provided <code>interfaces</code>.</p>
+<p>The <code>width</code> can be either explicitly provided or inferred from other
+values such as a <code>maxValue</code>, <code>minValue</code>, or <code>initialValue</code> that contain
+width information (e.g. a <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/LogicValue-class.html">LogicValue</a>), or by making it large enough to
+fit <code>maxValue</code>, or by inspecting widths of <code>interfaces</code>. There must be
+enough information provided to determine the <code>width</code>.</p>
+<p>If no <code>maxValue</code> is provided, one will be inferred by the maximum that can
+fit inside of the <code>width</code>.</p>
+<p>It is expected that <code>maxValue</code> is at least <code>minValue</code>, or else results may
+be unpredictable.</p>
+<p>If <code>saturates</code> is <code>true</code>, then it will saturate at the <code>maxValue</code> and
+<code>minValue</code>. If <code>false</code>, will wrap around (overflow/underflow) at the
+<code>maxValue</code> and <code>minValue</code>.  The <a href="../../rohd_hcl/SummationBase/equalsMax.html">equalsMax</a>, <a href="../../rohd_hcl/SummationBase/equalsMin.html">equalsMin</a>, <a href="../../rohd_hcl/Sum/overflowed.html">overflowed</a>,
+and <a href="../../rohd_hcl/Sum/underflowed.html">underflowed</a> outputs can be used to determine if the sum is at the
+maximum, minimum, (would have) overflowed, or  (would have) underflowed,
+respectively. <code>initialValue</code>, <code>maxValue</code>, and <code>minValue</code> can be provided
+as <a href="../../rohd_hcl/StaticOrRuntimeControl-class.html">StaticOrRuntimeControl</a>s when a named runtime input or explicit
+static/runtime configuration is useful.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Sum(super.interfaces,
+    {dynamic initialValue = 0,
+    super.maxValue,
+    super.minValue,
+    super.width,
+    super.saturates,
+    super.name = &#39;sum&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super(
+          definitionName:
+              definitionName ?? &#39;Sum_${interfaces.length}_W$width&#39;,
+          initialValue: initialValue) {
+  addOutput(&#39;sum&#39;, width: width);
+  final configuredInitialValue = SummationBase.configuredValue(initialValue);
+
+  var maxPosMagnitude = SummationBase.biggestVal(width);
+  var maxNegMagnitude = BigInt.zero;
+  for (final intf in interfaces) {
+    final maxMagnitude = intf.fixedAmount != null
+        ? intf.amount.value.toBigInt()
+        : SummationBase.biggestVal(intf.width);
+
+    if (intf.increments) {
+      maxPosMagnitude += maxMagnitude;
+    } else {
+      maxNegMagnitude += maxMagnitude;
+    }
+  }
+
+  &#47;&#47; also consider that initialValue may be less than min or more than max
+  final initialValueMagnitude = configuredInitialValue == null
+      ? BigInt.zero
+      : configuredInitialValue is Logic
+          ? SummationBase.biggestVal(configuredInitialValue.width)
+          : LogicValue.ofInferWidth(configuredInitialValue).toBigInt().abs();
+  final maxInitialValueMagnitude = initialValueMagnitude;
+  maxPosMagnitude += maxInitialValueMagnitude;
+  maxNegMagnitude += maxInitialValueMagnitude;
+
+  &#47;&#47; calculate the largest number that we could have in intermediate
+  final internalWidth = max(
+      (maxPosMagnitude + maxNegMagnitude + BigInt.one).bitLength, width + 1);
+
+  final initialValueLogicExt = initialValueLogic.zeroExtend(internalWidth);
+  final minValueLogicExt =
+      minValueLogic.zeroExtend(internalWidth).named(&#39;minValueExt&#39;);
+  final maxValueLogicExt =
+      maxValueLogic.zeroExtend(internalWidth).named(&#39;maxValueExt&#39;);
+
+  final possibleRange =
+      _possibleSumRange(configuredInitialValue, interfaces, width);
+  canOverflow = constantMaxValue == null ||
+      constantMaxValue!.isNegative ||
+      possibleRange.maximum &gt; constantMaxValue!;
+  canUnderflow = constantMinValue == null ||
+      constantMinValue!.isNegative ||
+      possibleRange.minimum &lt; constantMinValue!;
+
+  &#47;&#47; lazy range so that it&#39;s not generated if not necessary
+  late final range = Logic(name: &#39;range&#39;, width: internalWidth)
+    ..gets(maxValueLogicExt - minValueLogicExt + 1);
+
+  final zeroPoint = Logic(name: &#39;zeroPoint&#39;, width: internalWidth)
+    ..gets(Const(maxNegMagnitude, width: internalWidth));
+
+  final upperSaturation = Logic(name: &#39;upperSaturation&#39;, width: internalWidth)
+    ..gets(maxValueLogicExt + zeroPoint);
+  final lowerSaturation = Logic(name: &#39;lowerSaturation&#39;, width: internalWidth)
+    ..gets(minValueLogicExt + zeroPoint);
+
+  final internalValue = Logic(name: &#39;internalValue&#39;, width: internalWidth);
+  sum &lt;=
+      (internalValue - zeroPoint)
+          .named(&#39;internalValueOverZeroPoint&#39;)
+          .getRange(0, width);
+
+  final preAdjustmentValue =
+      Logic(name: &#39;preAdjustmentValue&#39;, width: internalWidth);
+
+  var rawValue = initialValueLogicExt + zeroPoint;
+  for (final (index, intf) in interfaces.indexed) {
+    final amount = intf.amount.zeroExtend(internalWidth);
+    final adjusted = intf.increments ? rawValue + amount : rawValue - amount;
+    if (intf.hasEnable) {
+      final next = Logic(name: &#39;adjusted_$index&#39;, width: internalWidth);
+      Combinational([
+        next &lt; rawValue,
+        If(intf.enable!, then: [next &lt; adjusted]),
+      ]);
+      rawValue = next;
+    } else {
+      rawValue = adjusted;
+    }
+  }
+  preAdjustmentValue &lt;= rawValue;
+
+  overflowed &lt;=
+      (canOverflow ? preAdjustmentValue.gt(upperSaturation) : Const(0));
+  underflowed &lt;=
+      (canUnderflow ? preAdjustmentValue.lt(lowerSaturation) : Const(0));
+
+  final overflowUnderflowAdjustments = &lt;Iff&gt;[];
+  if (canOverflow) {
+    overflowUnderflowAdjustments.add(Iff.s(
+        overflowed,
+        internalValue &lt;
+            (saturates
+                ? upperSaturation
+                : ((preAdjustmentValue - upperSaturation - 1) % range +
+                    lowerSaturation))));
+  }
+  if (canUnderflow) {
+    final underflowAdjustment = internalValue &lt;
+        (saturates
+            ? lowerSaturation
+            : (upperSaturation -
+                ((lowerSaturation - preAdjustmentValue - 1) % range)));
+    overflowUnderflowAdjustments.add(canOverflow
+        ? ElseIf.s(underflowed, underflowAdjustment)
+        : Iff.s(underflowed, underflowAdjustment));
+  }
+  Combinational([
+    internalValue &lt; preAdjustmentValue,
+    if (overflowUnderflowAdjustments.isNotEmpty)
+      If.block(overflowUnderflowAdjustments),
+  ]);
+
+  equalsMax &lt;= internalValue.eq(upperSaturation);
+  equalsMin &lt;= internalValue.eq(lowerSaturation);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/Sum-class.html">Sum</a></li>
+    <li class="self-crumb">Sum.new constructor</li>
+</ol>
+
+    <h5>Sum class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

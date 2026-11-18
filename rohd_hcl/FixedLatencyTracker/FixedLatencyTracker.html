@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FixedLatencyTracker.new constructor from Class FixedLatencyTracker from the rohd_hcl library, for the Dart programming language.">
+  <title>FixedLatencyTracker.new constructor - FixedLatencyTracker - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FixedLatencyTracker-class.html">FixedLatencyTracker</a></li>
+    <li class="self-crumb">FixedLatencyTracker.new constructor</li>
+  </ol>
+  <div class="self-name">FixedLatencyTracker.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;FixedLatencyTracker-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FixedLatencyTracker</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">FixedLatencyTracker</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-request"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">request</span>, </span></li>
+<li><span class="parameter" id="param-retire"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">retire</span>, </span></li>
+<li><span class="parameter" id="param-latency"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">latency</span>, </span></li>
+<li><span class="parameter" id="param-initiationInterval"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">initiationInterval</span>, </span></li>
+<li><span class="parameter" id="param-capacity"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">capacity</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fixed_latency_tracker&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates direct fixed-latency scheduling logic.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FixedLatencyTracker({
+  required Logic clk,
+  required Logic reset,
+  required Logic request,
+  required Logic retire,
+  required this.latency,
+  required this.initiationInterval,
+  required this.capacity,
+  super.name = &#39;fixed_latency_tracker&#39;,
+}) : super(
+        definitionName: &#39;FixedLatencyTracker_L${latency}_&#39;
+            &#39;I${initiationInterval}_C$capacity&#39;,
+      ) {
+  if (latency &lt; 0 || initiationInterval &lt; 1 || capacity &lt; 1) {
+    throw ArgumentError(
+        &#39;Latency must be nonnegative; initiation interval and capacity &#39;
+        &#39;must be positive.&#39;);
+  }
+  clk = addInput(&#39;clk&#39;, clk);
+  reset = addInput(&#39;reset&#39;, reset);
+  request = addInput(&#39;request&#39;, request);
+  retire = addInput(&#39;retire&#39;, retire);
+
+  final countWidth = max(1, (capacity + 1).log2Ceil);
+  addOutput(&#39;outstanding&#39;, width: countWidth);
+  addOutput(&#39;can_accept&#39;);
+  addOutput(&#39;accepted&#39;);
+  addOutput(&#39;completed&#39;);
+  addOutput(&#39;error&#39;);
+
+  final completedPending =
+      Logic(name: &#39;completed_pending&#39;, width: countWidth);
+  final retireStored = retire &amp; completedPending.or() &amp; ~reset;
+  final Logic intervalReady;
+  Logic? cooldown;
+  if (initiationInterval == 1) {
+    intervalReady = Const(1);
+  } else {
+    cooldown =
+        Logic(name: &#39;cooldown&#39;, width: max(1, initiationInterval.log2Ceil));
+    intervalReady = ~cooldown.or();
+  }
+  canAccept &lt;=
+      ~reset &amp;
+          intervalReady &amp;
+          (outstanding.lt(Const(capacity, width: countWidth)) | retireStored);
+  accepted &lt;= request &amp; canAccept;
+
+  var valid = accepted;
+  for (var stage = 0; stage &lt; latency; stage++) {
+    valid = flop(clk, valid, reset: reset);
+  }
+  completed &lt;= valid &amp; ~reset;
+  final actualRetire = retire &amp; (completedPending.or() | completed) &amp; ~reset;
+  error &lt;= retire &amp; ~(completedPending.or() | completed) &amp; ~reset;
+
+  Sequential(clk, reset: reset, resetValues: {
+    outstanding: 0,
+    completedPending: 0,
+    if (cooldown != null) cooldown: 0,
+  }, [
+    If(accepted &amp; ~actualRetire,
+        then: [outstanding &lt; outstanding + Const(1, width: countWidth)]),
+    If(actualRetire &amp; ~accepted,
+        then: [outstanding &lt; outstanding - Const(1, width: countWidth)]),
+    If(completed &amp; ~actualRetire, then: [
+      completedPending &lt; completedPending + Const(1, width: countWidth)
+    ]),
+    If(actualRetire &amp; ~completed, then: [
+      completedPending &lt; completedPending - Const(1, width: countWidth)
+    ]),
+    if (cooldown != null)
+      If(accepted, then: [
+        cooldown &lt; initiationInterval - 1
+      ], orElse: [
+        If(cooldown.or(), then: [cooldown &lt; cooldown - 1])
+      ]),
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FixedLatencyTracker-class.html">FixedLatencyTracker</a></li>
+    <li class="self-crumb">FixedLatencyTracker.new constructor</li>
+</ol>
+
+    <h5>FixedLatencyTracker class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

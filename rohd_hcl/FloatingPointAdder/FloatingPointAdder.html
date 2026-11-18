@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FloatingPointAdder.new constructor from Class FloatingPointAdder from the rohd_hcl library, for the Dart programming language.">
+  <title>FloatingPointAdder.new constructor - FloatingPointAdder - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointAdder.new constructor</li>
+  </ol>
+  <div class="self-name">FloatingPointAdder.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;FloatingPointAdder-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FloatingPointAdder&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">FloatingPointAdder&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-a"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-b"><span class="type-annotation">FpTypeIn</span> <span class="parameter-name">b</span>, {</span></li>
+<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-outSum"><span class="type-annotation">FpTypeOut?</span> <span class="parameter-name">outSum</span>, </span></li>
+<li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/FloatingPointRoundingMode.html">FloatingPointRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">FloatingPointRoundingMode.roundNearestEven</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;floating_point_adder&#39;</span>, </span></li>
+<li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Add two floating point numbers <code>a</code> and <code>b</code>, returning result in <a href="../../rohd_hcl/FloatingPointAdder/sum.html">sum</a>. If
+a different output type is needed, you can provide that in <code>outSum</code>.</p>
+<ul>
+<li><code>clk</code>, <code>reset</code>, <code>enable</code> are optional inputs to control a pipestage
+(only inserted if <code>clk</code> is provided).</li>
+</ul>
+<p>If <code>outSum</code> is provided, it will be used as the output type, otherwise the
+output type will be the same as the input type <code>a</code> expect: if <code>a</code> and <code>b</code>
+don't match on explicit j-bit type then the output is the type of the
+input that does NOT have explicit j-bit set.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FloatingPointAdder(FpTypeIn a, FpTypeIn b,
+    {Logic? clk,
+    Logic? reset,
+    Logic? enable,
+    FpTypeOut? outSum,
+    this.roundingMode = FloatingPointRoundingMode.roundNearestEven,
+    super.name = &#39;floating_point_adder&#39;,
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName})
+    : super(
+          definitionName: definitionName ??
+              &#39;FloatingPointAdder_E${a.exponent.width}&#39;
+                  &#39;M${a.mantissa.width}&#39;) {
+  if (b.exponent.width != a.exponent.width ||
+      b.mantissa.width != a.mantissa.width) {
+    throw RohdHclException(&#39;FloatingPoint input widths must match&#39;);
+  }
+  this.clk = (clk != null) ? addInput(&#39;clk&#39;, clk) : null;
+  this.reset = (reset != null) ? addInput(&#39;reset&#39;, reset) : null;
+  this.enable = (enable != null) ? addInput(&#39;enable&#39;, enable) : null;
+  this.a = addTypedInput(&#39;a&#39;, a);
+  this.b = addTypedInput(&#39;b&#39;, b);
+
+  internalSum = (outSum ?? (a.explicitJBit ? b : a))
+      .cloneTyped(name: &#39;outSum&#39;) as FpTypeOut;
+
+  exponentWidth = (outSum == null) ? a.exponent.width : outSum.exponent.width;
+  mantissaWidth = (outSum == null) ? a.mantissa.width : outSum.mantissa.width;
+
+  &#47;&#47; expose typed output and drive it from internalSum
+  sum = addTypedPayloadOutput(this, &#39;sum&#39;, internalSum);
+  sum &lt;= internalSum;
+  internalStatus = FloatingPointStatus(name: &#39;internalStatus&#39;);
+  status = addTypedOutput(&#39;status&#39;, internalStatus.clone);
+  status &lt;= internalStatus;
+
+  if (outSum != null) {
+    outSum &lt;= sum;
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FloatingPointAdder-class.html">FloatingPointAdder<span class="signature">&lt;<wbr><span class="type-parameter">FpTypeIn extends FloatingPoint</span>, <span class="type-parameter">FpTypeOut extends FloatingPoint</span>&gt;</span></a></li>
+    <li class="self-crumb">FloatingPointAdder.new constructor</li>
+</ol>
+
+    <h5>FloatingPointAdder class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

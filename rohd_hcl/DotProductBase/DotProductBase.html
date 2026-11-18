@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the DotProductBase.new constructor from Class DotProductBase from the rohd_hcl library, for the Dart programming language.">
+  <title>DotProductBase.new constructor - DotProductBase - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/DotProductBase-class.html">DotProductBase</a></li>
+    <li class="self-crumb">DotProductBase.new constructor</li>
+  </ol>
+  <div class="self-name">DotProductBase.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;DotProductBase-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">DotProductBase</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">DotProductBase</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-multiplicands"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multiplicands</span>, </span></li>
+<li><span class="parameter" id="param-multipliers"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">multipliers</span>, {</span></li>
+<li><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span></li>
+<li><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;dotproduct&#39;</span>, </span></li>
+<li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a new <a href="../../rohd_hcl/DotProductBase-class.html">DotProductBase</a> instance given a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a> of
+<code>multiplicands</code> and a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List&lt;Logic&gt;</a> of <code>multipliers</code>.</p>
+<p>Every multiplicand must have one common width and every multiplier must
+have one common width. The multiplicand and multiplier widths may differ.</p>
+<p><code>signedMultiplicand</code> and <code>signedMultiplier</code> configure operand signedness
+with <a href="../../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>. Omitted controls default to unsigned.</p>
+<p>The output <a href="../../rohd_hcl/DotProductBase/product.html">product</a> will be <code>multiplicands.length.log2Ceil</code> wider than
+the sum of one multiplicand width and one multiplier width to accommodate
+the increasing accumulation value.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">DotProductBase(List&lt;Logic&gt; multiplicands, List&lt;Logic&gt; multipliers,
+    {StaticOrRuntimeParameter? signedMultiplicand,
+    StaticOrRuntimeParameter? signedMultiplier,
+    super.name = &#39;dotproduct&#39;,
+    super.reserveName = false,
+    super.reserveDefinitionName = false,
+    String? definitionName})
+    : super(
+          definitionName: definitionName ??
+              &#39;DotProduct_L${multipliers.length}_&#39;
+                  &#39;A${multiplicands[0].width}_B${multipliers[0].width}_&#39;
+                  &#39;${Multiplier.signedMD(signedMultiplicand)}_&#39;
+                  &#39;${Multiplier.signedML(signedMultiplier)}&#39;) {
+  if (multipliers.length != multiplicands.length) {
+    throw RohdHclException(
+        &#39;Number of multipliers and multiplicands must be equal.&#39;);
+  }
+
+  final candWidthMiss = multiplicands
+      .mapIndexed((i, m) =&gt; m.width == multiplicands[i &gt; 0 ? i - 1 : 0].width)
+      .where((w) =&gt; w)
+      .length;
+  if (candWidthMiss &lt; multiplicands.length) {
+    throw RohdHclException(&#39;Multiplicands must all have the same width: &#39;
+        &#39;${multiplicands.length - candWidthMiss} &#39;
+        &quot;don&#39;t match preceding width.&quot;);
+  }
+  final multiplierWidthMatches = multipliers
+      .mapIndexed((i, m) =&gt; m.width == multipliers[i &gt; 0 ? i - 1 : 0].width)
+      .where((w) =&gt; w)
+      .length;
+  if (multiplierWidthMatches &lt; multipliers.length) {
+    throw RohdHclException(&#39;Multipliers must all have the same width: &#39;
+        &#39;${multipliers.length - multiplierWidthMatches} &#39;
+        &quot;don&#39;t match preceding width.&quot;);
+  }
+
+  signedMultiplicandParameter = signedMultiplicand ??
+      StaticOrRuntimeParameter.staticValue(value: false);
+  signedMultiplierParameter =
+      signedMultiplier ?? StaticOrRuntimeParameter.staticValue(value: false);
+
+  this.multiplicands = multiplicands
+      .mapIndexed((i, multiplicand) =&gt; addInput(
+          &#39;multiplicand_$i&#39;, multiplicand,
+          width: multiplicand.width))
+      .toList();
+  this.multipliers = multipliers
+      .mapIndexed((i, multiplier) =&gt;
+          addInput(&#39;multiplier_$i&#39;, multiplier, width: multiplier.width))
+      .toList();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/DotProductBase-class.html">DotProductBase</a></li>
+    <li class="self-crumb">DotProductBase.new constructor</li>
+</ol>
+
+    <h5>DotProductBase class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

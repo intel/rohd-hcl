@@ -1,0 +1,766 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "BinaryToThermometer_I4_O8": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "binary": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "encoded": {
+          "direction": "output",
+          "bits": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "overflow": {
+          "direction": "output",
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "concat": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1,
+            "IN4_WIDTH": 1,
+            "IN5_WIDTH": 1,
+            "IN6_WIDTH": 1,
+            "IN7_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "[4]": "input",
+            "[5]": "input",
+            "[6]": "input",
+            "[7]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              15
+            ],
+            "[1]": [
+              16
+            ],
+            "[2]": [
+              17
+            ],
+            "[3]": [
+              18
+            ],
+            "[4]": [
+              19
+            ],
+            "[5]": [
+              20
+            ],
+            "[6]": [
+              21
+            ],
+            "[7]": [
+              22
+            ],
+            "Y": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ]
+          }
+        },
+        "greaterThan": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              23,
+              24,
+              25,
+              26
+            ],
+            "Y": [
+              15
+            ]
+          }
+        },
+        "greaterThan_0": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              27,
+              28,
+              29,
+              30
+            ],
+            "Y": [
+              16
+            ]
+          }
+        },
+        "greaterThan_1": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              31,
+              32,
+              33,
+              34
+            ],
+            "Y": [
+              17
+            ]
+          }
+        },
+        "greaterThan_2": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              35,
+              36,
+              37,
+              38
+            ],
+            "Y": [
+              18
+            ]
+          }
+        },
+        "greaterThan_3": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              39,
+              40,
+              41,
+              42
+            ],
+            "Y": [
+              19
+            ]
+          }
+        },
+        "greaterThan_4": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              43,
+              44,
+              45,
+              46
+            ],
+            "Y": [
+              20
+            ]
+          }
+        },
+        "greaterThan_5": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              47,
+              48,
+              49,
+              50
+            ],
+            "Y": [
+              21
+            ]
+          }
+        },
+        "greaterThan_6": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              51,
+              52,
+              53,
+              54
+            ],
+            "Y": [
+              22
+            ]
+          }
+        },
+        "greaterThan_7": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "B": [
+              55,
+              56,
+              57,
+              58
+            ],
+            "Y": [
+              14
+            ]
+          }
+        },
+        "const_0_4_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h0": "output"
+          },
+          "connections": {
+            "4'h0": [
+              23,
+              24,
+              25,
+              26
+            ]
+          }
+        },
+        "const_1_4_h1": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h1": "output"
+          },
+          "connections": {
+            "4'h1": [
+              27,
+              28,
+              29,
+              30
+            ]
+          }
+        },
+        "const_2_4_h2": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h2": "output"
+          },
+          "connections": {
+            "4'h2": [
+              31,
+              32,
+              33,
+              34
+            ]
+          }
+        },
+        "const_3_4_h3": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h3": "output"
+          },
+          "connections": {
+            "4'h3": [
+              35,
+              36,
+              37,
+              38
+            ]
+          }
+        },
+        "const_4_4_h4": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h4": "output"
+          },
+          "connections": {
+            "4'h4": [
+              39,
+              40,
+              41,
+              42
+            ]
+          }
+        },
+        "const_5_4_h5": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h5": "output"
+          },
+          "connections": {
+            "4'h5": [
+              43,
+              44,
+              45,
+              46
+            ]
+          }
+        },
+        "const_6_4_h6": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h6": "output"
+          },
+          "connections": {
+            "4'h6": [
+              47,
+              48,
+              49,
+              50
+            ]
+          }
+        },
+        "const_7_4_h7": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h7": "output"
+          },
+          "connections": {
+            "4'h7": [
+              51,
+              52,
+              53,
+              54
+            ]
+          }
+        },
+        "const_8_4_h8": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h8": "output"
+          },
+          "connections": {
+            "4'h8": [
+              55,
+              56,
+              57,
+              58
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "binary": {
+          "bits": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "encoded": {
+          "bits": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "overflow": {
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_0": {
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_1": {
+          "bits": [
+            16
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_2": {
+          "bits": [
+            17
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_3": {
+          "bits": [
+            18
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_4": {
+          "bits": [
+            19
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_5": {
+          "bits": [
+            20
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_6": {
+          "bits": [
+            21
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_binary_greaterThan_const_7": {
+          "bits": [
+            22
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "const_0_4_h0": {
+          "bits": [
+            23,
+            24,
+            25,
+            26
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_4_h1": {
+          "bits": [
+            27,
+            28,
+            29,
+            30
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_4_h2": {
+          "bits": [
+            31,
+            32,
+            33,
+            34
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_4_h3": {
+          "bits": [
+            35,
+            36,
+            37,
+            38
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_4_h4": {
+          "bits": [
+            39,
+            40,
+            41,
+            42
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_4_h5": {
+          "bits": [
+            43,
+            44,
+            45,
+            46
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_6_4_h6": {
+          "bits": [
+            47,
+            48,
+            49,
+            50
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_7_4_h7": {
+          "bits": [
+            51,
+            52,
+            53,
+            54
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_8_4_h8": {
+          "bits": [
+            55,
+            56,
+            57,
+            58
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2527 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "ThermometerToBinary_W8": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "thermometer": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "binary": {
+          "direction": "output",
+          "bits": [
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "valid": {
+          "direction": "output",
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "add": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              15,
+              16,
+              17,
+              18
+            ],
+            "B": [
+              19,
+              20,
+              21,
+              22
+            ],
+            "Y": [
+              10,
+              11,
+              12,
+              13,
+              23
+            ]
+          }
+        },
+        "add_0": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              24,
+              25,
+              26,
+              27
+            ],
+            "B": [
+              28,
+              29,
+              30,
+              31
+            ],
+            "Y": [
+              15,
+              16,
+              17,
+              18,
+              32
+            ]
+          }
+        },
+        "add_1": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              33,
+              34,
+              35,
+              36
+            ],
+            "B": [
+              37,
+              38,
+              39,
+              40
+            ],
+            "Y": [
+              24,
+              25,
+              26,
+              27,
+              41
+            ]
+          }
+        },
+        "add_2": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              42,
+              43,
+              44,
+              45
+            ],
+            "B": [
+              46,
+              47,
+              48,
+              49
+            ],
+            "Y": [
+              33,
+              34,
+              35,
+              36,
+              50
+            ]
+          }
+        },
+        "add_3": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              51,
+              52,
+              53,
+              54
+            ],
+            "B": [
+              55,
+              56,
+              57,
+              58
+            ],
+            "Y": [
+              42,
+              43,
+              44,
+              45,
+              59
+            ]
+          }
+        },
+        "add_4": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              60,
+              61,
+              62,
+              63
+            ],
+            "B": [
+              64,
+              65,
+              66,
+              67
+            ],
+            "Y": [
+              51,
+              52,
+              53,
+              54,
+              68
+            ]
+          }
+        },
+        "add_5": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              69,
+              70,
+              71,
+              72
+            ],
+            "B": [
+              73,
+              74,
+              75,
+              76
+            ],
+            "Y": [
+              60,
+              61,
+              62,
+              63,
+              77
+            ]
+          }
+        },
+        "add_6": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 4,
+            "B_WIDTH": 4,
+            "Y_WIDTH": 5
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              78,
+              79,
+              80,
+              81
+            ],
+            "B": [
+              82,
+              83,
+              84,
+              85
+            ],
+            "Y": [
+              69,
+              70,
+              71,
+              72,
+              86
+            ]
+          }
+        },
+        "concat": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              87
+            ],
+            "B": [
+              88,
+              89,
+              90
+            ],
+            "Y": [
+              82,
+              83,
+              84,
+              85
+            ]
+          }
+        },
+        "bussubset": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              87
+            ]
+          }
+        },
+        "concat_0": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              91
+            ],
+            "B": [
+              92,
+              93,
+              94
+            ],
+            "Y": [
+              73,
+              74,
+              75,
+              76
+            ]
+          }
+        },
+        "bussubset_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              91
+            ]
+          }
+        },
+        "concat_1": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              95
+            ],
+            "B": [
+              96,
+              97,
+              98
+            ],
+            "Y": [
+              64,
+              65,
+              66,
+              67
+            ]
+          }
+        },
+        "bussubset_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              95
+            ]
+          }
+        },
+        "concat_2": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              99
+            ],
+            "B": [
+              100,
+              101,
+              102
+            ],
+            "Y": [
+              55,
+              56,
+              57,
+              58
+            ]
+          }
+        },
+        "bussubset_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              99
+            ]
+          }
+        },
+        "concat_3": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              103
+            ],
+            "B": [
+              104,
+              105,
+              106
+            ],
+            "Y": [
+              46,
+              47,
+              48,
+              49
+            ]
+          }
+        },
+        "bussubset_3": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 4,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              103
+            ]
+          }
+        },
+        "concat_4": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              107
+            ],
+            "B": [
+              108,
+              109,
+              110
+            ],
+            "Y": [
+              37,
+              38,
+              39,
+              40
+            ]
+          }
+        },
+        "bussubset_4": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 5,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              107
+            ]
+          }
+        },
+        "concat_5": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              111
+            ],
+            "B": [
+              112,
+              113,
+              114
+            ],
+            "Y": [
+              28,
+              29,
+              30,
+              31
+            ]
+          }
+        },
+        "bussubset_5": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 6,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              111
+            ]
+          }
+        },
+        "concat_6": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              115
+            ],
+            "B": [
+              116,
+              117,
+              118
+            ],
+            "Y": [
+              19,
+              20,
+              21,
+              22
+            ]
+          }
+        },
+        "bussubset_6": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 7,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              115
+            ]
+          }
+        },
+        "not_": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              119
+            ],
+            "Y": [
+              14
+            ]
+          }
+        },
+        "uor": {
+          "hide_name": 0,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_WIDTH": 7,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126
+            ],
+            "Y": [
+              119
+            ]
+          }
+        },
+        "concat_7": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1,
+            "IN4_WIDTH": 1,
+            "IN5_WIDTH": 1,
+            "IN6_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "[4]": "input",
+            "[5]": "input",
+            "[6]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              127
+            ],
+            "[1]": [
+              128
+            ],
+            "[2]": [
+              129
+            ],
+            "[3]": [
+              130
+            ],
+            "[4]": [
+              131
+            ],
+            "[5]": [
+              132
+            ],
+            "[6]": [
+              133
+            ],
+            "Y": [
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126
+            ]
+          }
+        },
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              134
+            ],
+            "B": [
+              135
+            ],
+            "Y": [
+              127
+            ]
+          }
+        },
+        "bussubset_7": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 7,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              134
+            ]
+          }
+        },
+        "not__0": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              136
+            ],
+            "Y": [
+              135
+            ]
+          }
+        },
+        "bussubset_8": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 6,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              136
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              137
+            ],
+            "B": [
+              138
+            ],
+            "Y": [
+              128
+            ]
+          }
+        },
+        "bussubset_9": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 6,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              137
+            ]
+          }
+        },
+        "not__1": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              139
+            ],
+            "Y": [
+              138
+            ]
+          }
+        },
+        "bussubset_10": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 5,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              139
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              140
+            ],
+            "B": [
+              141
+            ],
+            "Y": [
+              129
+            ]
+          }
+        },
+        "bussubset_11": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 5,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              140
+            ]
+          }
+        },
+        "not__2": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              142
+            ],
+            "Y": [
+              141
+            ]
+          }
+        },
+        "bussubset_12": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 4,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              142
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              143
+            ],
+            "B": [
+              144
+            ],
+            "Y": [
+              130
+            ]
+          }
+        },
+        "bussubset_13": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 4,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              143
+            ]
+          }
+        },
+        "not__3": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              145
+            ],
+            "Y": [
+              144
+            ]
+          }
+        },
+        "bussubset_14": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              145
+            ]
+          }
+        },
+        "and__3": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              146
+            ],
+            "B": [
+              147
+            ],
+            "Y": [
+              131
+            ]
+          }
+        },
+        "bussubset_15": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 3,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              146
+            ]
+          }
+        },
+        "not__4": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              148
+            ],
+            "Y": [
+              147
+            ]
+          }
+        },
+        "bussubset_16": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              148
+            ]
+          }
+        },
+        "and__4": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              149
+            ],
+            "B": [
+              150
+            ],
+            "Y": [
+              132
+            ]
+          }
+        },
+        "bussubset_17": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 2,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              149
+            ]
+          }
+        },
+        "not__5": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              151
+            ],
+            "Y": [
+              150
+            ]
+          }
+        },
+        "bussubset_18": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              151
+            ]
+          }
+        },
+        "and__5": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              152
+            ],
+            "B": [
+              153
+            ],
+            "Y": [
+              133
+            ]
+          }
+        },
+        "bussubset_19": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              152
+            ]
+          }
+        },
+        "not__6": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              154
+            ],
+            "Y": [
+              153
+            ]
+          }
+        },
+        "bussubset_20": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "Y": [
+              154
+            ]
+          }
+        },
+        "const_0_4_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "4'h0": "output"
+          },
+          "connections": {
+            "4'h0": [
+              78,
+              79,
+              80,
+              81
+            ]
+          }
+        },
+        "const_1_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              88,
+              89,
+              90
+            ]
+          }
+        },
+        "const_2_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              92,
+              93,
+              94
+            ]
+          }
+        },
+        "const_3_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              96,
+              97,
+              98
+            ]
+          }
+        },
+        "const_4_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              100,
+              101,
+              102
+            ]
+          }
+        },
+        "const_5_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              104,
+              105,
+              106
+            ]
+          }
+        },
+        "const_6_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              108,
+              109,
+              110
+            ]
+          }
+        },
+        "const_7_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              112,
+              113,
+              114
+            ]
+          }
+        },
+        "const_8_3_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              116,
+              117,
+              118
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "thermometer": {
+          "bits": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "binary": {
+          "bits": [
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "valid": {
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
+          "bits": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_concatd": {
+          "bits": [
+            19,
+            20,
+            21,
+            22
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
+          "bits": [
+            23
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
+          "bits": [
+            24,
+            25,
+            26,
+            27
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_in1__concatd": {
+          "bits": [
+            28,
+            29,
+            30,
+            31
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
+          "bits": [
+            32
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd": {
+          "bits": [
+            33,
+            34,
+            35,
+            36
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_concatd_0": {
+          "bits": [
+            37,
+            38,
+            39,
+            40
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
+          "bits": [
+            41
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd": {
+          "bits": [
+            42,
+            43,
+            44,
+            45
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_concatd_1": {
+          "bits": [
+            46,
+            47,
+            48,
+            49
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
+          "bits": [
+            50
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd": {
+          "bits": [
+            51,
+            52,
+            53,
+            54
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_concatd_2": {
+          "bits": [
+            55,
+            56,
+            57,
+            58
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_add__concatd_carry": {
+          "bits": [
+            59
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd": {
+          "bits": [
+            60,
+            61,
+            62,
+            63
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_concatd_3": {
+          "bits": [
+            64,
+            65,
+            66,
+            67
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_add__concatd_carry": {
+          "bits": [
+            68
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd": {
+          "bits": [
+            69,
+            70,
+            71,
+            72
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_concatd_4": {
+          "bits": [
+            73,
+            74,
+            75,
+            76
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_add__concatd_carry": {
+          "bits": [
+            77
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_concatd_5": {
+          "bits": [
+            82,
+            83,
+            84,
+            85
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "_const_0_add__concatd_carry": {
+          "bits": [
+            86
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_0_0_thermometer": {
+          "bits": [
+            87
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_1_1_thermometer": {
+          "bits": [
+            91
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_2_2_thermometer": {
+          "bits": [
+            95
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_3_3_thermometer": {
+          "bits": [
+            99
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_4_4_thermometer": {
+          "bits": [
+            103
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_5_5_thermometer": {
+          "bits": [
+            107
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_6_6_thermometer": {
+          "bits": [
+            111
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_7_7_thermometer": {
+          "bits": [
+            115
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_uor__concatd": {
+          "bits": [
+            119
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_concatd_6": {
+          "bits": [
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126
+          ],
+          "logic_type": {
+            "width": 7
+          },
+          "attributes": {}
+        },
+        "_subset_7_7_thermometer_and__subset_6_6_thermometer_b": {
+          "bits": [
+            127
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_6_6_thermometer_and__subset_5_5_thermometer_b": {
+          "bits": [
+            128
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_5_5_thermometer_and__subset_4_4_thermometer_b": {
+          "bits": [
+            129
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_4_4_thermometer_and__subset_3_3_thermometer_b": {
+          "bits": [
+            130
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_3_3_thermometer_and__subset_2_2_thermometer_b": {
+          "bits": [
+            131
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_2_2_thermometer_and__subset_1_1_thermometer_b": {
+          "bits": [
+            132
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_1_1_thermometer_and__subset_0_0_thermometer_b": {
+          "bits": [
+            133
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_7_7_thermometer": {
+          "bits": [
+            134
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_6_6_thermometer_b": {
+          "bits": [
+            135
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_6_6_thermometer_0": {
+          "bits": [
+            136
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_6_6_thermometer": {
+          "bits": [
+            137
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_5_5_thermometer_b": {
+          "bits": [
+            138
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_5_5_thermometer_0": {
+          "bits": [
+            139
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_5_5_thermometer": {
+          "bits": [
+            140
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_4_4_thermometer_b": {
+          "bits": [
+            141
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_4_4_thermometer_0": {
+          "bits": [
+            142
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_4_4_thermometer": {
+          "bits": [
+            143
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_3_3_thermometer_b": {
+          "bits": [
+            144
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_3_3_thermometer_0": {
+          "bits": [
+            145
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_3_3_thermometer": {
+          "bits": [
+            146
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_2_2_thermometer_b": {
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_2_2_thermometer_0": {
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_2_2_thermometer": {
+          "bits": [
+            149
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_1_1_thermometer_b": {
+          "bits": [
+            150
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_1_1_thermometer_0": {
+          "bits": [
+            151
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__subset_1_1_thermometer": {
+          "bits": [
+            152
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_0_0_thermometer_b": {
+          "bits": [
+            153
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_0_0_thermometer_0": {
+          "bits": [
+            154
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "const_0_4_h0": {
+          "bits": [
+            78,
+            79,
+            80,
+            81
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_3_h0": {
+          "bits": [
+            88,
+            89,
+            90
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_3_h0": {
+          "bits": [
+            92,
+            93,
+            94
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_3_h0": {
+          "bits": [
+            96,
+            97,
+            98
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_3_h0": {
+          "bits": [
+            100,
+            101,
+            102
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_3_h0": {
+          "bits": [
+            104,
+            105,
+            106
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_6_3_h0": {
+          "bits": [
+            108,
+            109,
+            110
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_7_3_h0": {
+          "bits": [
+            112,
+            113,
+            114
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_8_3_h0": {
+          "bits": [
+            116,
+            117,
+            118
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,252 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "Synchronizer_S2_W1": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "synchronizer_in": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "clk": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "synchronizer_out": {
+          "direction": "output",
+          "bits": [
+            6
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "synchronizer_stage_0": {
+          "direction": "output",
+          "bits": [
+            5
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "synchronizer_stage_1": {
+          "direction": "output",
+          "bits": [
+            6
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "_synchronizer_in_xor_const_0": "input",
+            "_synchronizer_stage_0_xor_const_0": "input",
+            "clk": "input",
+            "synchronizer_stage_0": "output",
+            "synchronizer_stage_1": "output"
+          },
+          "connections": {
+            "_synchronizer_in_xor_const_0": [
+              7
+            ],
+            "_synchronizer_stage_0_xor_const_0": [
+              8
+            ],
+            "clk": [
+              3
+            ],
+            "synchronizer_stage_0": [
+              5
+            ],
+            "synchronizer_stage_1": [
+              6
+            ]
+          }
+        },
+        "xor_": {
+          "hide_name": 0,
+          "type": "$xor",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              2
+            ],
+            "B": [
+              9
+            ],
+            "Y": [
+              7
+            ]
+          }
+        },
+        "xor__0": {
+          "hide_name": 0,
+          "type": "$xor",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              5
+            ],
+            "B": [
+              10
+            ],
+            "Y": [
+              8
+            ]
+          }
+        },
+        "const_0_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              9
+            ]
+          }
+        },
+        "const_1_1_h0": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              10
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "synchronizer_in": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "clk": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "synchronizer_out": {
+          "bits": [
+            6
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "synchronizer_stage_0": {
+          "bits": [
+            5
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "synchronizer_stage_1": {
+          "bits": [
+            6
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_synchronizer_in_xor_const_0": {
+          "bits": [
+            7
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_synchronizer_stage_0_xor_const_0": {
+          "bits": [
+            8
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "const_0_1_h0": {
+          "bits": [
+            9
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_1_h0": {
+          "bits": [
+            10
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    }
+  }
+}

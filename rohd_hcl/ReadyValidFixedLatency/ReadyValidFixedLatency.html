@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ReadyValidFixedLatency.new constructor from Class ReadyValidFixedLatency from the rohd_hcl library, for the Dart programming language.">
+  <title>ReadyValidFixedLatency.new constructor - ReadyValidFixedLatency - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/ReadyValidFixedLatency-class.html">ReadyValidFixedLatency<span class="signature">&lt;<wbr><span class="type-parameter">Input extends Logic</span>, <span class="type-parameter">Output extends Logic</span>, <span class="type-parameter">Id extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">ReadyValidFixedLatency.new constructor</li>
+  </ol>
+  <div class="self-name">ReadyValidFixedLatency.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;ReadyValidFixedLatency-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">ReadyValidFixedLatency&lt;<wbr><span class="type-parameter">Input extends Logic</span>, <span class="type-parameter">Output extends Logic</span>, <span class="type-parameter">Id extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">ReadyValidFixedLatency&lt;<wbr><span class="type-parameter">Input extends Logic</span>, <span class="type-parameter">Output extends Logic</span>, <span class="type-parameter">Id extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-upstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">Input</span>&gt;</span></span> <span class="parameter-name">upstream</span>, </span></li>
+<li><span class="parameter" id="param-downstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">Output</span>&gt;</span></span> <span class="parameter-name">downstream</span>, </span></li>
+<li><span class="parameter" id="param-coreGenerator"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/FixedLatencyCoreGenerator.html">FixedLatencyCoreGenerator</a><span class="signature">&lt;<wbr><span class="type-parameter">Input</span>, <span class="type-parameter">Output</span>&gt;</span></span> <span class="parameter-name">coreGenerator</span>, </span></li>
+<li><span class="parameter" id="param-coreIdentity"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">coreIdentity</span>, </span></li>
+<li><span class="parameter" id="param-latency"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">latency</span>, </span></li>
+<li><span class="parameter" id="param-initiationInterval"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">initiationInterval</span> = <span class="default-value">1</span>, </span></li>
+<li><span class="parameter" id="param-capacity"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">capacity</span>, </span></li>
+<li><span class="parameter" id="param-requestId"><span class="type-annotation">Id?</span> <span class="parameter-name">requestId</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ready_valid_fixed_latency&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Wraps a core constructed by <code>coreGenerator</code>.</p>
+<p><code>coreIdentity</code> must uniquely identify the generated core configuration
+and be a valid SystemVerilog identifier fragment. <code>requestId</code>, when
+supplied, retains its declared schema even when <code>Id</code> is <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> and
+must remain stable alongside a stalled input payload. Use <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> as
+<code>Id</code> when IDs are omitted.
+<code>capacity</code> defaults to <code>latency + 1</code> and may be reduced at the cost of
+throughput. Reset discards all outstanding requests and results.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ReadyValidFixedLatency({
+  required Logic clk,
+  required Logic reset,
+  required ReadyValidInterface&lt;Input&gt; upstream,
+  required ReadyValidInterface&lt;Output&gt; downstream,
+  required FixedLatencyCoreGenerator&lt;Input, Output&gt; coreGenerator,
+  required String coreIdentity,
+  required this.latency,
+  this.initiationInterval = 1,
+  int? capacity,
+  Id? requestId,
+  String name = &#39;ready_valid_fixed_latency&#39;,
+})  : capacity = capacity ?? latency + 1,
+      _hasId = requestId != null,
+      super(
+        name: name,
+        definitionName: &#39;ReadyValidFixedLatency_${coreIdentity}_&#39;
+            &#39;L${latency}_I${initiationInterval}_C${capacity ?? latency + 1}_&#39;
+            &#39;Id${requestId?.width ?? 0}_&#39;
+            &#39;${requestId == null ? &#39;none&#39; : payloadShapeIdentity(requestId)}_&#39;
+            &#39;${payloadShapeIdentity(upstream.data)}_&#39;
+            &#39;${payloadShapeIdentity(downstream.data)}&#39;,
+      ) {
+  if (latency &lt; 0 || initiationInterval &lt; 1 || this.capacity &lt; 1) {
+    throw ArgumentError(
+        &#39;Latency must be nonnegative; initiation interval and capacity &#39;
+        &#39;must be positive.&#39;);
+  }
+  if (!RegExp(r&#39;^[A-Za-z][A-Za-z0-9_]*$&#39;).hasMatch(coreIdentity)) {
+    throw ArgumentError.value(coreIdentity, &#39;coreIdentity&#39;,
+        &#39;Must be a valid SystemVerilog identifier fragment.&#39;);
+  }
+  final minimumInFlight =
+      (latency + initiationInterval - 1) ~&#47; initiationInterval;
+  timing = PipelineTimingContract(
+    latency: latency,
+    initiationInterval: initiationInterval,
+    stallability: PipelineStallability.none,
+    acceptsBubbles: true,
+    supportsFlush: false,
+    maximumInFlight: minimumInFlight &lt; 1 ? 1 : minimumInFlight,
+  );
+  upstream.requireProviderComposableWith(ReadyValidContract.readyAndValid,
+      consumerName: name);
+  downstream.requireConsumerComposableWith(ReadyValidContract.irrevocable,
+      providerName: name);
+
+  clk = addInput(&#39;clk&#39;, clk);
+  reset = addInput(&#39;reset&#39;, reset);
+  final input = addPairInterfacePorts(upstream, PairRole.consumer,
+      uniquify: (original) =&gt; &#39;upstream_$original&#39;);
+  final output = addPairInterfaceFrom(
+    IrrevocableReadyValidInterface&lt;Output&gt;(
+        cloneTypedPayload(downstream.data)),
+    downstream,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;downstream_$original&#39;,
+  );
+  final localId =
+      requestId == null ? null : addTypedInput&lt;Id&gt;(&#39;request_id&#39;, requestId);
+  if (localId != null) {
+    addTypedPayloadOutput&lt;Id&gt;(this, &#39;result_id&#39;, localId);
+  }
+
+  final retire = Logic(name: &#39;retire&#39;);
+  final tracker = FixedLatencyTracker(
+    clk: clk,
+    reset: reset,
+    request: input.valid,
+    retire: retire,
+    latency: latency,
+    initiationInterval: initiationInterval,
+    capacity: this.capacity,
+    name: &#39;${name}_tracker&#39;,
+  );
+  input.ready &lt;= tracker.canAccept;
+  final result = coreGenerator(
+    clk: clk,
+    reset: reset,
+    start: tracker.accepted,
+    data: input.data,
+  );
+  if (!samePayloadShapeAllowingRenamedClone(downstream.data, result)) {
+    throw ArgumentError(
+        &#39;Core result must match the downstream payload shape.&#39;);
+  }
+
+  Id? delayedId;
+  if (localId != null) {
+    var id = localId;
+    for (var stage = 0; stage &lt; latency; stage++) {
+      id = flop&lt;Id&gt;(clk, id,
+          outputGenerator:
+              hasDeclaredPayloadShape(id) ? id.cloneTyped : null);
+    }
+    delayedId = id;
+  }
+  final queueInput = ReadyValidInterface(
+      _FixedLatencyResult&lt;Output, Id&gt;(output.data, delayedId));
+  final queueOutput = ReadyValidInterface(
+      _FixedLatencyResult&lt;Output, Id&gt;(output.data, delayedId));
+  queueInput.data.payload &lt;= result;
+  if (delayedId != null) {
+    queueInput.data.id! &lt;= delayedId;
+  }
+  queueInput.valid &lt;= tracker.completed;
+  ReadyValidQueue&lt;_FixedLatencyResult&lt;Output, Id&gt;&gt;(
+    clk: clk,
+    reset: reset,
+    upstream: queueInput,
+    downstream: queueOutput,
+    depth: this.capacity,
+    storage: ReadyValidQueueStorage.ring,
+    name: &#39;${name}_results&#39;,
+  );
+  queueOutput.ready &lt;= output.ready &amp; ~reset;
+  output.valid &lt;= queueOutput.valid &amp; ~reset;
+  output.data &lt;= queueOutput.data.payload;
+  if (delayedId != null) {
+    resultId! &lt;= queueOutput.data.id!;
+  }
+  retire &lt;= queueOutput.accepted;
+  addOutput(&#39;error&#39;) &lt;=
+      tracker.error | (queueInput.valid &amp; ~queueInput.ready);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/ReadyValidFixedLatency-class.html">ReadyValidFixedLatency<span class="signature">&lt;<wbr><span class="type-parameter">Input extends Logic</span>, <span class="type-parameter">Output extends Logic</span>, <span class="type-parameter">Id extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">ReadyValidFixedLatency.new constructor</li>
+</ol>
+
+    <h5>ReadyValidFixedLatency class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

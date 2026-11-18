@@ -1,0 +1,270 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "InferredSramExample_E4_A2_D8": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "wr_en_0": {
+          "direction": "input",
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "wr_addr_0": {
+          "direction": "input",
+          "bits": [
+            5,
+            6
+          ],
+          "logic_type": {
+            "width": 2
+          }
+        },
+        "wr_data_0": {
+          "direction": "input",
+          "bits": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "rd_en_0": {
+          "direction": "input",
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "rd_addr_0": {
+          "direction": "input",
+          "bits": [
+            16,
+            17
+          ],
+          "logic_type": {
+            "width": 2
+          }
+        },
+        "rd_data_0": {
+          "direction": "output",
+          "bits": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        }
+      },
+      "cells": {
+        "inferred_sram": {
+          "hide_name": 0,
+          "type": "InferredSram_E4_A2_D8_L8",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "rd_en_0": "input",
+            "rd_addr_0": "input",
+            "wr_data_0": "input",
+            "wr_en_0": "input",
+            "wr_addr_0": "input",
+            "rd_data_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "rd_en_0": [
+              15
+            ],
+            "rd_addr_0": [
+              16,
+              17
+            ],
+            "wr_data_0": [
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "wr_en_0": [
+              4
+            ],
+            "wr_addr_0": [
+              5,
+              6
+            ],
+            "rd_data_0": [
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "wr_en_0": {
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "wr_addr_0": {
+          "bits": [
+            5,
+            6
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "wr_data_0": {
+          "bits": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "rd_en_0": {
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "rd_addr_0": {
+          "bits": [
+            16,
+            17
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "rd_data_0": {
+          "bits": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data_input_bridge": {
+          "bits": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        }
+      }
+    }
+  }
+}

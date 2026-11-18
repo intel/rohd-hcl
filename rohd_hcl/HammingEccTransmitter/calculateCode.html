@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the calculateCode method from the HammingEccTransmitter class, for the Dart programming language.">
+  <title>calculateCode method - HammingEccTransmitter class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">calculateCode method</li>
+  </ol>
+  <div class="self-name">calculateCode</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;HammingEccTransmitter-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">calculateCode</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+        <li>@<a href="https://pub.dev/documentation/meta/1.19.0/meta/protected-constant.html">protected</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span>
+<span class="name ">calculateCode</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates the code to be provided by the transmitter, to be implemented by
+implementations.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+@protected
+Logic calculateCode() {
+  final parityBits = List&lt;Logic?&gt;.generate(code.width, (index) =&gt; null);
+  &#47;&#47; Materialize the bit-oriented encoding boundary so structured leaves do
+  &#47;&#47; not produce chained part-selects when individual bits are indexed.
+  final payloadBits =
+      data.packed.named(&#39;payloadBits&#39;, naming: Naming.reserved);
+  final dataBits = List&lt;Logic&gt;.generate(data.width,
+      (index) =&gt; Logic(name: &#39;d${index + 1}&#39;)..gets(payloadBits[index]));
+
+  final hammingCodeWidth = code.width - hammingType._extraParityBits;
+
+  var dataIdx = 0;
+  for (var i = 1;
+      i &lt;= transmission.width - hammingType._extraParityBits;
+      i++) {
+    if (!i.isPowerOfTwo) {
+      final ilv = LogicValue.ofInt(i, hammingCodeWidth);
+
+      for (var p = 0; p &lt; hammingCodeWidth; p++) {
+        if (ilv[p].toBool()) {
+          if (parityBits[p] == null) {
+            parityBits[p] = dataBits[dataIdx];
+          } else {
+            parityBits[p] = parityBits[p]! ^ dataBits[dataIdx];
+          }
+        }
+      }
+      dataIdx++;
+    }
+  }
+
+  var calculatedCode = [
+    for (var i = 0; i &lt; hammingCodeWidth; i++)
+      Logic(name: &#39;p${1 &lt;&lt; i}&#39;)..gets(parityBits[i]!),
+  ].rconcat();
+
+  if (hammingType.hasExtraParityBit) {
+    &#47;&#47; extra parity bit is calculated by calculating parity across entire rest
+    &#47;&#47; of the transmission
+    final pExtra = Logic(name: &#39;pExtra&#39;)
+      ..gets(ParityTransmitter([calculatedCode, data].concat()).code);
+    calculatedCode = [pExtra, calculatedCode].concat();
+  }
+
+  return calculatedCode;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/HammingEccTransmitter-class.html">HammingEccTransmitter<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">calculateCode method</li>
+</ol>
+
+    <h5>HammingEccTransmitter class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

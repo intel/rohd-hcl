@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the NumericNarrowing.new constructor from Class NumericNarrowing from the rohd_hcl library, for the Dart programming language.">
+  <title>NumericNarrowing.new constructor - NumericNarrowing - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/NumericNarrowing-class.html">NumericNarrowing</a></li>
+    <li class="self-crumb">NumericNarrowing.new constructor</li>
+  </ol>
+  <div class="self-name">NumericNarrowing.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;NumericNarrowing-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">NumericNarrowing</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">NumericNarrowing</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-value"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">value</span>, {</span></li>
+<li><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputWidth</span>, </span></li>
+<li><span class="parameter" id="param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-shiftRight"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">shiftRight</span> = <span class="default-value">0</span>, </span></li>
+<li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericRoundingMode.html">NumericRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">NumericRoundingMode.truncate</span>, </span></li>
+<li><span class="parameter" id="param-overflowMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericOverflowMode.html">NumericOverflowMode</a></span> <span class="parameter-name">overflowMode</span> = <span class="default-value">NumericOverflowMode.wrap</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;numeric_narrowing&#39;</span>, </span></li>
+<li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates combinational numeric narrowing hardware.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">NumericNarrowing(
+  Logic value, {
+  required this.outputWidth,
+  this.signed = false,
+  this.shiftRight = 0,
+  this.roundingMode = NumericRoundingMode.truncate,
+  this.overflowMode = NumericOverflowMode.wrap,
+  super.name = &#39;numeric_narrowing&#39;,
+  super.reserveName,
+  super.reserveDefinitionName,
+  String? definitionName,
+}) : super(
+        definitionName: definitionName ??
+            &#39;NumericNarrowing_I${value.width}_O${outputWidth}_&#39;
+                &#39;S${signed ? 1 : 0}_R${shiftRight}_&#39;
+                &#39;${roundingMode.name}_${overflowMode.name}&#39;,
+      ) {
+  if (outputWidth &lt;= 0) {
+    throw RohdHclException(
+        &#39;Numeric narrowing output width must be positive.&#39;);
+  }
+  if (shiftRight &lt; 0 || shiftRight &gt; value.width) {
+    throw RohdHclException(
+      &#39;Numeric narrowing right shift must be between zero and &#39;
+      &#39;the ${value.width}-bit input width.&#39;,
+    );
+  }
+
+  value = addInput(&#39;value&#39;, value, width: value.width);
+  final result = addOutput(&#39;result&#39;, width: outputWidth);
+  final overflowed = addOutput(&#39;overflowed&#39;);
+  final underflowed = addOutput(&#39;underflowed&#39;);
+  final inexact = addOutput(&#39;inexact&#39;);
+
+  final calculationWidth =
+      (value.width &gt; outputWidth ? value.width : outputWidth) + 2;
+  final sign = signed ? value[-1] : Const(0);
+  final unsignedValue = value.zeroExtend(calculationWidth);
+  final magnitude = Logic(name: &#39;magnitude&#39;, width: calculationWidth)
+    ..gets(mux(
+      sign,
+      (~value).zeroExtend(calculationWidth) + 1,
+      unsignedValue,
+    ));
+  final truncatedMagnitude =
+      (magnitude &gt;&gt; shiftRight).named(&#39;truncatedMagnitude&#39;);
+
+  final discarded =
+      shiftRight == 0 ? Const(0) : magnitude.getRange(0, shiftRight).or();
+  final guard = shiftRight == 0 ? Const(0) : magnitude[shiftRight - 1];
+  final sticky =
+      shiftRight &lt;= 1 ? Const(0) : magnitude.getRange(0, shiftRight - 1).or();
+  inexact &lt;= discarded;
+
+  final increment = switch (roundingMode) {
+    NumericRoundingMode.truncate ||
+    NumericRoundingMode.towardZero =&gt;
+      Const(0),
+    NumericRoundingMode.nearestEven =&gt;
+      guard &amp; (sticky | truncatedMagnitude[0]),
+    NumericRoundingMode.nearestTiesAway =&gt; guard,
+    NumericRoundingMode.towardPositiveInfinity =&gt; ~sign &amp; discarded,
+    NumericRoundingMode.towardNegativeInfinity =&gt; sign &amp; discarded,
+  };
+  final roundedMagnitude =
+      (truncatedMagnitude + increment.zeroExtend(calculationWidth))
+          .named(&#39;roundedMagnitude&#39;);
+
+  final positiveMaximum = signed
+      ? (BigInt.one &lt;&lt; (outputWidth - 1)) - BigInt.one
+      : (BigInt.one &lt;&lt; outputWidth) - BigInt.one;
+  final negativeMagnitudeMaximum =
+      signed ? BigInt.one &lt;&lt; (outputWidth - 1) : BigInt.zero;
+  overflowed &lt;=
+      ~sign &amp;
+          roundedMagnitude.gt(
+            Const(positiveMaximum, width: calculationWidth),
+          );
+  underflowed &lt;=
+      (signed
+          ? sign &amp;
+              roundedMagnitude.gt(
+                Const(negativeMagnitudeMaximum, width: calculationWidth),
+              )
+          : Const(0));
+
+  final wrapped = mux(
+    sign,
+    (~roundedMagnitude + 1).getRange(0, outputWidth),
+    roundedMagnitude.getRange(0, outputWidth),
+  );
+  if (overflowMode == NumericOverflowMode.saturate) {
+    final maximum = Const(positiveMaximum, width: outputWidth);
+    final minimum = Const(
+      signed ? BigInt.one &lt;&lt; (outputWidth - 1) : BigInt.zero,
+      width: outputWidth,
+    );
+    result &lt;= mux(overflowed, maximum, mux(underflowed, minimum, wrapped));
+  } else {
+    result &lt;= wrapped;
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/NumericNarrowing-class.html">NumericNarrowing</a></li>
+    <li class="self-crumb">NumericNarrowing.new constructor</li>
+</ol>
+
+    <h5>NumericNarrowing class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
