@@ -111,6 +111,11 @@ server merely to reuse its port.
 Use **ROHD-HCL Confapp: Web Release** to build and serve the supported
 JavaScript release target. It uses the same port setting.
 
+For static profile or release builds, pass `--source-maps` and deploy the
+generated JavaScript and, for Wasm, WebAssembly source maps alongside the
+application. Source navigation loads them on demand to translate optimized
+stack traces.
+
 Use **ROHD-HCL Confapp: Web Release WASM** to build and serve the experimental
 WASM target on port `8081`. Set `CONFAPP_WASM_WEB_PORT` to override that port.
 

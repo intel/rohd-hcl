@@ -115,10 +115,13 @@ It creates an ignored Confapp build project under `build/confapp`, with its own
 generated source mirror and asset-directory list. It does not modify the
 workspace manifest.
 
-Source cross-probing requires Dart source locations in the recorded stack
-traces, as supplied by Flutter's debug web compiler (DDC). Optimized `dart2js`
-builds can report JavaScript locations instead; the explicit package map does
-not translate those back to Dart without source-map support.
+Source cross-probing uses Dart locations directly in debug builds. For
+optimized JavaScript and experimental Wasm builds, Confapp loads the compiler's
+source map to translate stack frames to bundled ROHD sources. Build with
+`--source-maps` and deploy `main.dart.js.map` and, for Wasm,
+`main.dart.wasm.map` alongside their compiled files; otherwise generation
+reports the missing map. Unmapped frames are not presented as Dart source.
+Wasm stack translation currently supports Chromium-style stack frames.
 
 ### 4. Verify all generated views
 

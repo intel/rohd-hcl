@@ -14,6 +14,32 @@ import 'dart:js_interop';
 import 'package:confapp/hcl/view/screen/serialized_worker_request_queue.dart';
 import 'package:web/web.dart' as web;
 
+/// Loads a compiler source map relative to the generated binary or script.
+Future<String> loadCompiledSourceMap(String file) async {
+  final uri = Uri.base.resolve(file);
+  if (uri.origin != Uri.base.origin) {
+    throw FormatException(
+      'Cannot load a source map from a different origin: $uri',
+    );
+  }
+  final mapUri = uri.replace(path: '${uri.path}.map', query: '', fragment: '');
+  final web.Response response;
+  try {
+    response = await web.window.fetch(mapUri.toString().toJS).toDart;
+  } on Object catch (error) {
+    throw Exception('Failed to load source map $mapUri: $error');
+  }
+  if (!response.ok) {
+    throw FormatException(
+        'Failed to load source map $mapUri: HTTP ${response.status}');
+  }
+  try {
+    return (await response.text().toDart).toDart;
+  } on Object catch (error) {
+    throw Exception('Failed to read source map $mapUri: $error');
+  }
+}
+
 /// Wraps the browser worker used to synthesize generated RTL with Yosys.
 class YosysWorker {
   /// Creates a worker from the JavaScript file at `scriptPath`.

@@ -9,6 +9,10 @@
 
 import 'package:flutter/widgets.dart';
 
+/// Reports that compiled source maps require a browser.
+Future<String> loadCompiledSourceMap(String file) =>
+    Future.error(UnsupportedError('Compiled source maps require a browser.'));
+
 /// VM placeholder for the web worker used to synthesize generated RTL.
 class YosysWorker {
   /// Creates a placeholder for the worker at `scriptPath`.

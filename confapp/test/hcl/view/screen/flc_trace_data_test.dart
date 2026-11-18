@@ -41,7 +41,8 @@ void main() {
       await module.build();
       final svService = SystemVerilogService(module, register: false);
       final svText = svService.output;
-      final flcData = bundledSourceFlcData(svService);
+      final flcData =
+          await decodeBundledSourceTrace(bundledSourceTrace(svService));
       final netlistJson = NetlistSynthesizer().synthesizeToJson(module);
 
       expect(embeddedFlcDataFromNetlistJson(netlistJson), isNull);
@@ -77,7 +78,9 @@ void main() {
     final module = NativeAdder(Logic(), Logic());
     await module.build();
     expect(
-      bundledSourceFlcData(SystemVerilogService(module, register: false)),
+      await decodeBundledSourceTrace(
+        bundledSourceTrace(SystemVerilogService(module, register: false)),
+      ),
       isNull,
     );
   });
@@ -90,7 +93,8 @@ void main() {
       await module.build();
       final svService = SystemVerilogService(module, register: false);
       final svLines = svService.output.split('\n');
-      final flcData = bundledSourceFlcData(svService)!;
+      final flcData =
+          (await decodeBundledSourceTrace(bundledSourceTrace(svService)))!;
 
       expect(
         flcData.files,
@@ -106,6 +110,209 @@ void main() {
     } finally {
       SourceTracer.clearIfCurrent(tracer);
     }
+  });
+
+  test('maps JavaScript frames to bundled Dart while preserving SV', () async {
+    final trace = <String, Object>{
+      'version': 5,
+      'files': ['https://example.test/app/main.dart.js', 'lib/src/other.dart'],
+      'modules': {
+        'Example': {
+          'svFile': 'Example.sv',
+          'tree': [
+            [
+              '1:8:2',
+              ['0:1:1', 'result@sv:8:3'],
+              ['0:2:1', 'unmapped@sv:9:1'],
+            ],
+          ],
+        },
+      },
+    };
+    final flc = (await decodeBundledSourceTrace(
+      trace,
+      loadSourceMap: (file) async => jsonEncode({
+        'version': 3,
+        'sources': ['../../../../../lib/src/arithmetic/addition/adder.dart'],
+        'names': <String>[],
+        'mappings': 'AAUE;A',
+      }),
+    ))!;
+    final result = flc.lookupSignalEntry('Example', 'result')!;
+    expect(result.frames.first.file, 'lib/src/arithmetic/addition/adder.dart');
+    expect(result.frames.first.line, 11);
+    expect(result.frames.first.column, 3);
+    expect(result.frames.last.file, 'lib/src/other.dart');
+    expect(result.svFrame!.line, 8);
+    final unmapped = flc.lookupSignalEntry('Example', 'unmapped')!;
+    expect(unmapped.frames.map((frame) => frame.file), ['lib/src/other.dart']);
+    expect(unmapped.svFrame!.line, 9);
+  });
+
+  test('extracts Wasm offsets after parenthesized function names', () {
+    expect(
+      parseWasmStackFrames('''
+    at M (http://localhost/main.dart.wasm:wasm-function[12]:0x3fb21)
+    at constructor body (http://localhost/main.dart.wasm:wasm-function[9]:0xab)
+    at Foo (constructor body) (http://localhost/main.dart.wasm:wasm-function[5]:0x10)
+    at helper (http://localhost/main.dart.mjs:5:4)
+'''),
+      [
+        ('http://localhost/main.dart.wasm', 0x3fb21),
+        ('http://localhost/main.dart.wasm', 0xab),
+        ('http://localhost/main.dart.wasm', 0x10),
+      ],
+    );
+  });
+
+  test('maps Wasm byte offsets to bundled Dart and preserves SV', () async {
+    final trace = <String, Object>{
+      'version': 6,
+      'files': ['https://example.test/main.dart.wasm'],
+      'modules': {
+        'Rotate': {
+          'outputFiles': {
+            'sv': ['Rotate.sv'],
+          },
+          'tree': [
+            ['0:1:6', 'rotated@sv:8:3'],
+            ['0:1:1', 'original@sv:9:3'],
+          ],
+        },
+      },
+    };
+    final flc = (await decodeBundledSourceTrace(
+      trace,
+      loadSourceMap: (_) async => jsonEncode({
+        'version': 3,
+        'sources': [
+          'file:///other/lib/src/bit_operations/shifting/rotate.dart',
+          'file:///build/hcl/lib/src/bit_operations/shifting/rotate.dart',
+          'file:///build/hcl/lib/src/component_config/components/component_registry.dart',
+        ],
+        'names': <String>[],
+        'mappings': 'AAAA,KCUE',
+      }),
+    ))!;
+    final entry = flc.lookupSignalEntry('Rotate', 'rotated')!;
+    expect(entry.frames.single.file,
+        'lib/src/bit_operations/shifting/rotate.dart');
+    expect(entry.frames.single.line, 11);
+    expect(entry.frames.single.column, 3);
+    expect(entry.svFrame!.line, 8);
+    final other = flc.lookupSignalEntry('Rotate', 'original')!;
+    expect(other.frames, isEmpty);
+    expect(other.svFrame!.line, 9);
+    expect(
+      EmbeddedFlcSourceNavigation(flc).formatsForModule('Rotate'),
+      {'rohd', 'sv'},
+    );
+  });
+
+  test('reports a Wasm source map without the HCL source root', () async {
+    await expectLater(
+      decodeBundledSourceTrace(
+        <String, Object>{
+          'version': 6,
+          'files': ['main.dart.wasm'],
+          'modules': <String, Object>{},
+        },
+        loadSourceMap: (_) async => jsonEncode({
+          'version': 3,
+          'sources': ['file:///other/lib/src/example.dart'],
+          'names': <String>[],
+          'mappings': 'AAAA',
+        }),
+      ),
+      throwsA(isA<FormatException>().having(
+        (error) => error.message,
+        'message',
+        contains('ROHD-HCL source root'),
+      )),
+    );
+  });
+
+  test('recovers frames truncated at an inherited method in dart2js', () async {
+    final trace = <String, Object>{
+      'version': 6,
+      'files': <String>['main.dart.js'],
+      'modules': <String, Object>{
+        'Adder': <String, Object>{
+          'outputFiles': <String, Object>{
+            'sv': ['Adder.sv'],
+          },
+          'tree': <Object>[
+            <Object>['0:1:1', 'sum@sv:8:3'],
+          ],
+        },
+      },
+    };
+    restoreCompiledTraceFrames(trace, {
+      'Adder': {
+        'sum': '''
+    at NativeAdder.addOutput (main.dart.js:1:1)
+    at main.dart.js:2:1
+''',
+      },
+    });
+    final flc = (await decodeBundledSourceTrace(
+      trace,
+      loadSourceMap: (_) async => jsonEncode({
+        'version': 3,
+        'sources': [
+          'package:rohd/src/module.dart',
+          '../../../../../lib/src/arithmetic/addition/adder.dart',
+        ],
+        'names': <String>[],
+        'mappings': 'AAAA;ACUE',
+      }),
+    ))!;
+    final entry = flc.lookupSignalEntry('Adder', 'sum')!;
+    expect(entry.frames.single.file, 'lib/src/arithmetic/addition/adder.dart');
+    expect(entry.frames.single.line, 11);
+    expect(entry.frames.single.column, 3);
+    expect(entry.svFrame!.line, 8);
+    expect(
+      EmbeddedFlcSourceNavigation(flc).lookupSignalFrames(
+        signals: const [
+          {'module': 'Adder', 'name': 'sum'},
+        ],
+        format: 'rohd',
+      ),
+      [
+        {
+          'file': 'lib/src/arithmetic/addition/adder.dart',
+          'line': 11,
+          'col': 3,
+          'desc': 'sum',
+          'type': 'rohd',
+        },
+      ],
+    );
+  });
+
+  test('reports missing JavaScript source maps', () async {
+    final trace = <String, Object>{
+      'version': 5,
+      'files': ['main.dart.js'],
+      'modules': <String, Object>{},
+    };
+    await expectLater(
+      decodeBundledSourceTrace(
+        trace,
+        loadSourceMap: (_) async =>
+            throw const FormatException('map unavailable'),
+      ),
+      throwsA(isA<FormatException>()),
+    );
+    await expectLater(
+      decodeBundledSourceTrace(trace, loadSourceMap: (_) async => '<html>'),
+      throwsA(isA<FormatException>().having(
+        (error) => error.message,
+        'message',
+        contains('Invalid source map for main.dart.js'),
+      )),
+    );
   });
 
   test('returns source trace data embedded in a netlist', () {
