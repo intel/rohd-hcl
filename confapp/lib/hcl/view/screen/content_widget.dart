@@ -2804,29 +2804,35 @@ class _SVGeneratorState extends State<SVGenerator>
     }
     final sourceTracer = SourceTracer.activate();
     _sourceTracer = sourceTracer;
+    late final Module mod;
+    late final String rtlRes;
+    Map<String, Object>? trace;
     try {
-      final mod = component.createModule();
+      mod = component.createModule();
       await mod.build();
       if (!_isCurrentGeneration(generationRequestId)) {
         return false;
       }
-      final moduleName = mod.definitionName;
       final svService = SystemVerilogService(mod, register: false);
-      final rtlRes = svService.output;
-      final flcData = bundledSourceFlcData(svService);
-
-      _rohdNetlistJson = null;
-      _hierarchyService = null;
-      _flcData = flcData;
-      _flcModuleName = moduleName;
-      _lastBuiltModule = mod;
-      _lastRtlRes = rtlRes;
-      _lastScRes = 'SystemC generation is unavailable with this ROHD version.';
-      _lastModuleName = moduleName;
-      return true;
+      rtlRes = svService.output;
+      trace = bundledSourceTrace(svService);
     } finally {
       _clearSourceTracer(sourceTracer);
     }
+    final flcData = await decodeBundledSourceTrace(trace);
+    if (!_isCurrentGeneration(generationRequestId)) {
+      return false;
+    }
+    final moduleName = mod.definitionName;
+    _rohdNetlistJson = null;
+    _hierarchyService = null;
+    _flcData = flcData;
+    _flcModuleName = moduleName;
+    _lastBuiltModule = mod;
+    _lastRtlRes = rtlRes;
+    _lastScRes = 'SystemC generation is unavailable with this ROHD version.';
+    _lastModuleName = moduleName;
+    return true;
   }
 
   /// Step: Generate ROHD netlist JSON → Tab 0 (ROHD Schematic).

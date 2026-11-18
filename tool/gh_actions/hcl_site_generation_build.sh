@@ -21,4 +21,4 @@ cd "$repo_root/build/confapp"
 
 # Use profile instead of release to avoid certain module names being replaced.
 # JavaScript is required by the confapp's browser integrations.
-flutter build web --no-pub --profile --base-href /rohd-hcl/confapp/
+flutter build web --no-pub --profile --source-maps --base-href /rohd-hcl/confapp/

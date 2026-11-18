@@ -1,3 +1,8 @@
+
+## Unreleased
+
+- Fixed Confapp source cross-probing in optimized JavaScript and experimental Wasm builds by mapping stack frames back to bundled Dart sources and retaining generated SystemVerilog positions.
+
 ## 0.3.2
 
 - Fixed compilation with ROHD 0.7.3 while retaining compatibility with ROHD 0.7.2.

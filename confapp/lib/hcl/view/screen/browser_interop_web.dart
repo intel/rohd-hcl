@@ -10,7 +10,8 @@
 import 'package:confapp/hcl/view/screen/browser_interop_web_core.dart';
 import 'package:flutter/widgets.dart';
 
-export 'browser_interop_web_core.dart' show YosysWorker, downloadFile;
+export 'browser_interop_web_core.dart'
+    show YosysWorker, downloadFile, loadCompiledSourceMap;
 
 /// Prevents the browser context menu from appearing over [child].
 Widget browserContextMenuSuppressor({required Widget child}) =>
