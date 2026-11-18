@@ -722,9 +722,16 @@ enabled lookup port accepts a request every cycle. A positive-latency
 implementation uses `SynchronousAssociativeLookupPortInterface`, whose `valid`
 marks the response cycle. That interface is a contract for other
 implementations, not a pipelined mode of `ParallelAssociativeMemory`.
-Use `TypedSynchronousAssociativeLookupPortInterface<T>(schema, indexWidth: ...)`
-to retain a typed key across this boundary. The original constructor taking
-`keyWidth` remains available for packed keys but is deprecated.
+Use `SynchronousAssociativeLookupPortInterface<T>(schema, indexWidth: ...)`
+to retain a typed key across this boundary. The published constructor taking
+`keyWidth` remains available from the main barrel for packed keys but is
+deprecated. Import the generic interface with:
+
+```dart
+import 'package:rohd_hcl/rohd_hcl.dart'
+    hide SynchronousAssociativeLookupPortInterface;
+import 'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart';
+```
 
 ## Port-Compatible Associative Behavioral Model
 
@@ -819,7 +826,8 @@ is not yet available.
 - `TypedAssociativeUpdatePortInterface<T>` and
   `TypedAssociativeLookupPortInterface<T>` retain a key schema through clones
   and module ports. The corresponding positive-latency lookup is
-  `TypedSynchronousAssociativeLookupPortInterface<T>`. Drive the port's cloned
+  `SynchronousAssociativeLookupPortInterface<T>` from its direct import above.
+  Drive the port's cloned
   key, not the schema object.
 
 All ports must have matching key and index widths; the index must represent

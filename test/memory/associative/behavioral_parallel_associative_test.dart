@@ -17,6 +17,7 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 LogicValue _alternateCodecValue(LogicValue value) => value;
@@ -663,10 +664,8 @@ void main() {
       name: 'typed_model',
     );
     final model = binding.memory!;
-    expect(
-        sameRohdPayloadShape(model.input('update_key_0'), update.key), isTrue);
-    expect(
-        sameRohdPayloadShape(model.input('lookup_key_0'), lookup.key), isTrue);
+    expect(samePayloadShape(model.input('update_key_0'), update.key), isTrue);
+    expect(samePayloadShape(model.input('lookup_key_0'), lookup.key), isTrue);
     await model.build();
     Simulator.registerAction(1, () {
       clk.put(0);

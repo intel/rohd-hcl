@@ -14,6 +14,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
+import 'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart'
+    as general;
 import 'package:test/test.dart';
 
 class _Word extends LogicStructure {
@@ -247,8 +249,8 @@ void _checkStorage<T extends Logic>(String label, T schema,
   // simultaneous writes to the same entry (the later port wins).
   test('$label register file functional and $backend', () async {
     final dut = _RegisterHarness<T>(schema);
-    expect(sameRohdPayloadShape(dut.rf.rdData(0), schema), isTrue);
-    expect(sameRohdPayloadShape(dut.rf.input('wr_data_0'), schema), isTrue);
+    expect(samePayloadShape(dut.rf.rdData(0), schema), isTrue);
+    expect(samePayloadShape(dut.rf.input('wr_data_0'), schema), isTrue);
     await _compare(
         dut,
         [
@@ -285,7 +287,7 @@ void _checkStorage<T extends Logic>(String label, T schema,
     // Fill, replace while full, drain in order, then bypass while empty.
     test('$label FIFO depth $depth functional and $backend', () async {
       final dut = _FifoHarness<T>(schema, depth);
-      expect(sameRohdPayloadShape(dut.binding.output, schema), isTrue);
+      expect(samePayloadShape(dut.binding.output, schema), isTrue);
       final vectors = [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'empty': 1}),
@@ -321,7 +323,8 @@ void main() {
       () => MaskedDataPortInterface<_WrongWidthClone>.typed(bad, 2),
       () => TypedAssociativeUpdatePortInterface(bad, indexWidth: 2),
       () => TypedAssociativeLookupPortInterface(bad, indexWidth: 2),
-      () => TypedSynchronousAssociativeLookupPortInterface(bad, indexWidth: 2),
+      () =>
+          general.SynchronousAssociativeLookupPortInterface(bad, indexWidth: 2),
       () => TypedAssociativeIndexedSideReadResponse(bad),
       () => TagInterface<_WrongWidthClone>.typed(2, bad),
       () => CacheLookupPort(addressWidth: 8, dataSchema: bad),
@@ -376,7 +379,8 @@ void main() {
         malformedSchema,
         indexWidth: 2),
     'synchronous lookup': () =>
-        TypedSynchronousAssociativeLookupPortInterface<Logic>(malformedSchema,
+        general.SynchronousAssociativeLookupPortInterface<Logic>(
+            malformedSchema,
             indexWidth: 2),
     'associative side read': () =>
         TypedAssociativeIndexedSideReadResponse<Logic>(malformedSchema),
@@ -541,8 +545,8 @@ void main() {
     // A full FIFO cannot replace an entry on the same cycle it dequeues.
     test('ready/valid ${schema.runtimeType} full backpressure', () async {
       final dut = _ReadyValidHarness(schema);
-      expect(sameRohdPayloadShape(dut.fifo.upstream.data, schema), isTrue);
-      expect(sameRohdPayloadShape(dut.fifo.downstream.data, schema), isTrue);
+      expect(samePayloadShape(dut.fifo.upstream.data, schema), isTrue);
+      expect(samePayloadShape(dut.fifo.downstream.data, schema), isTrue);
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'valid': 0}),
@@ -591,7 +595,7 @@ void main() {
     // Hold the consumer stalled across several cycles before draining.
     test('ready/valid typed $dimensions functional and Icarus', () async {
       final dut = _ReadyValidHarness(schema);
-      expect(sameRohdPayloadShape(dut.fifo.downstream.data, schema), isTrue);
+      expect(samePayloadShape(dut.fifo.downstream.data, schema), isTrue);
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
         Vector({'clk': 1}, {'valid': 0}),
@@ -610,8 +614,8 @@ void main() {
       final schema = TypedLogicArray<_Word, _WordValue>([2], _Word.new,
           valueCodec: _wordCodec);
       final dut = _ReadyValidQueueHarness(schema, storage);
-      expect(sameRohdPayloadShape(dut.queue.upstream.data, schema), isTrue);
-      expect(sameRohdPayloadShape(dut.queue.downstream.data, schema), isTrue);
+      expect(samePayloadShape(dut.queue.upstream.data, schema), isTrue);
+      expect(samePayloadShape(dut.queue.downstream.data, schema), isTrue);
       expect(dut.queue.downstream.data.valueCodec, same(_wordCodec));
       await _compare(dut, [
         Vector({'clk': 0, 'reset': 1, 'data': 1, 'write': 0, 'read': 0}, {}),
@@ -759,7 +763,7 @@ void main() {
     final renamed = TypedLogicArray<_Word, LogicValue>([2, 2], _Word.new,
         dimensionNames: ['x', 'y']);
     final reshaped = TypedLogicArray<_Word, LogicValue>([4], _Word.new);
-    expect(sameRohdPayloadShape(first, renamed), isTrue);
+    expect(samePayloadShape(first, renamed), isTrue);
     expect(payloadShapeIdentity(first), payloadShapeIdentity(renamed));
     expect(
         () => ReadyValidFifo(

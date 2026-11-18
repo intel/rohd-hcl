@@ -3,7 +3,8 @@
 ### New components and APIs
 
 - Added a generic `AssociativeMatchSelector<T>` for typed selection values and preference callbacks; the flat `AssociativeMatchSelector` remains available but is deprecated.
-- Added typed associative indexed side-read response views for RTL, behavioral, and compatible custom providers, and `TypedSynchronousAssociativeLookupPortInterface` for fixed-latency memories. The existing packed response and packed-key constructor remain available but are deprecated.
+- Added typed associative indexed side-read response views for RTL, behavioral, and compatible custom providers. The existing packed response remains available but is deprecated.
+- Added a generic `SynchronousAssociativeLookupPortInterface<T>` for fixed-latency memories through a separate public import. The published packed-key constructor remains available through the main barrel but is deprecated.
 - Added generic `SpiMain<TIn, TOut>` and `SpiSub<TIn, TOut>` with independently typed transmit and receive payloads. The original flat `SpiMain` and `SpiSub` remain available but are deprecated.
 - Added an opt-in ACE4 signal layout with independently configured channel widths, snoop and acknowledgement support, and shared signal-level BFM checks; the legacy layout remains the default.
 - Added an opt-in serializer timing mode that bypasses the first element while capturing the rest, making flopped-input output timing match unflopped timing (addressing [intel/rohd-hcl#149](https://github.com/intel/rohd-hcl/issues/149)) without changing the default.
@@ -55,7 +56,7 @@
 
 ### Dependencies
 
-- Require hosted ROHD 0.7.4 or later in the 0.7.x series for typed payload support.
+- Require hosted ROHD 0.7.3 or later in the 0.7.x series for typed payload support.
 
 ## 0.3.2
 

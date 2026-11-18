@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Record extends LogicStructure {
@@ -193,7 +194,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
 
 void _expectPayload<T extends Logic>(T schema, T result) {
   expect(result.runtimeType, schema.runtimeType);
-  expect(sameRohdPayloadShape(schema, result), isTrue);
+  expect(samePayloadShape(schema, result), isTrue);
 }
 
 void _checkTransport<T extends Logic>(String label, T schema,
@@ -207,7 +208,7 @@ void _checkTransport<T extends Logic>(String label, T schema,
       expect(dut.shift.input('data_in').runtimeType, schema.runtimeType);
       expect(dut.shift.input('resetValue').runtimeType, schema.runtimeType);
       for (final stage in dut.shift.stages) {
-        expect(sameRohdPayloadShape(schema, stage), isTrue);
+        expect(samePayloadShape(schema, stage), isTrue);
       }
       await _compare(
           dut,

@@ -52,12 +52,18 @@ the port's declared shape, while ready/valid interface registration handles
 typed ports and packed bridges. Reject incompatible declared shapes rather
 than silently reinterpreting them.
 
-These HCL helpers work with hosted ROHD 0.7.4. They remain in HCL until an
+These HCL helpers work with hosted ROHD 0.7.3 and 0.7.4. The
+`samePayloadShape` compatibility helper uses ROHD 0.7.3's
+`sameDeclaredPayloadShape` name through its 0.7.4 compatibility alias; it can
+be replaced with the public `sameRohdPayloadShape` when HCL requires 0.7.4.
+The helpers remain in HCL until an
 appropriate additive ROHD API is released and a later HCL release can migrate
 and deprecate the redundant helpers. The proposed ROHD pairwise compatibility
 and schema-aware interface registration APIs cover part of this work, but the
 HCL helpers also handle parent-renamed clones and explicit clone-width checks.
 Do not remove those checks until equivalent upstream behavior is available.
+The [deprecation plan](../../DEPRECATION_PLAN.md) tracks the conditions for
+each migration.
 Existing ROHD typed operators do not
 uniformly check semantic metadata, so components must validate their own
 declared payloads before invoking those operators.
@@ -77,6 +83,8 @@ import 'package:rohd_hcl/priority_mux.dart';
 
 In a future breaking release, the generic versions can replace the legacy
 barrel exports.
+The generic `SynchronousAssociativeLookupPortInterface` uses the same import
+pattern; see [Associative Memory](associative_memory.md#choosing-an-implementation).
 
 ROHD 0.7.4 can reject a valid parent-renamed clone if the original parent name
 occurs more than once in a field name (for example, `b` and `b_bits`). Avoid

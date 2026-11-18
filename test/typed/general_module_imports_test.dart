@@ -20,10 +20,12 @@ import 'package:rohd_hcl/rohd_hcl.dart'
         AssociativeMatcher,
         PriorityMux,
         SpiMain,
-        SpiSub;
+        SpiSub,
+        SynchronousAssociativeLookupPortInterface;
 import 'package:rohd_hcl/rohd_hcl.dart' as legacy;
 import 'package:rohd_hcl/spi_main.dart';
 import 'package:rohd_hcl/spi_sub.dart';
+import 'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart';
 import 'package:test/test.dart';
 
 class _Payload extends LogicStructure {
@@ -35,6 +37,19 @@ class _Payload extends LogicStructure {
 }
 
 void main() {
+  test('generic synchronous port coexists with the published packed port', () {
+    final port = SynchronousAssociativeLookupPortInterface<_Payload>(_Payload(),
+        indexWidth: 3, matchEntryCount: 4);
+    final clone = port.clone();
+    expect(clone, isA<SynchronousAssociativeLookupPortInterface<_Payload>>());
+    expect(clone.key, isA<_Payload>());
+    expect(clone.matchEntryCount, 4);
+    final old = legacy.SynchronousAssociativeLookupPortInterface(
+        keyWidth: 8, indexWidth: 3);
+    expect(old.clone().key, isNot(isA<LogicStructure>()));
+    expect(port, isA<legacy.SynchronousAssociativeLookupPortInterface>());
+  });
+
   test('generic selection imports coexist with legacy barrel classes', () {
     final payload = _Payload();
     final mux = PriorityMux<_Payload>(Logic(), [payload], payload);

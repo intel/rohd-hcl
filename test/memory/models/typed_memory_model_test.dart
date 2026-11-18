@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Word extends LogicStructure {
@@ -94,9 +95,9 @@ void _check<T extends Logic>(String label, T schema) {
         // ignore: omit_local_variable_types, verifies static payload type
         final T payload = model.reads.single.data;
         expect(payload.runtimeType, schema.runtimeType);
-        expect(sameRohdPayloadShape(payload, schema), isTrue);
-        expect(sameRohdPayloadShape(model.input('wr_data_0'), schema), isTrue);
-        expect(sameRohdPayloadShape(model.output('rd_data_0'), schema), isTrue);
+        expect(samePayloadShape(payload, schema), isTrue);
+        expect(samePayloadShape(model.input('wr_data_0'), schema), isTrue);
+        expect(samePayloadShape(model.output('rd_data_0'), schema), isTrue);
         await model.build();
         final known = LogicValue.ofBigInt(
             (BigInt.one << (schema.width - 1)) | BigInt.from(0x96a5),

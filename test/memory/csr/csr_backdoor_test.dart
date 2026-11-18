@@ -131,9 +131,7 @@ void main() {
                 access: CsrFieldAccess.readWriteLegal, legalValues: values)
           ]),
         );
-    expect(
-        sameRohdPayloadShape(
-            Csr(legalConfig([0, 1])), Csr(legalConfig([0, 2]))),
+    expect(samePayloadShape(Csr(legalConfig([0, 1])), Csr(legalConfig([0, 2]))),
         isFalse);
 
     for (final candidate in [equivalent, ...different]) {
@@ -194,8 +192,8 @@ void main() {
     final original = array(config);
     final equivalent = array(config.clone());
     final different = array(config.clone(addr: 4));
-    expect(sameRohdPayloadShape(original, equivalent), isTrue);
-    expect(sameRohdPayloadShape(original, different), isFalse);
+    expect(samePayloadShape(original, equivalent), isTrue);
+    expect(samePayloadShape(original, different), isFalse);
     expect(payloadShapeIdentity(original), payloadShapeIdentity(equivalent));
     expect(
         payloadShapeIdentity(original), isNot(payloadShapeIdentity(different)));

@@ -13,7 +13,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 void _requireMatchingFloatingPointFormats(FloatingPoint a, FloatingPoint b) {
-  if (!sameRohdPayloadShape(a, b, ignoreConstantNames: true)) {
+  if (!samePayloadShape(a, b, ignoreConstantNames: true)) {
     throw RohdHclException(
         'Floating-point operands must have matching formats.');
   }

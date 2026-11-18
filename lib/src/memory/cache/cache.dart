@@ -410,7 +410,7 @@ class Cache<T extends Logic> extends Module {
     if (clk.width != 1 || reset.width != 1) {
       throw ArgumentError('Clock and reset must be bits.');
     }
-    if (!sameRohdPayloadShape(fill.data, lookup.data)) {
+    if (!samePayloadShape(fill.data, lookup.data)) {
       throw ArgumentError('Cache port payload shapes must match.');
     }
 
@@ -739,10 +739,10 @@ class MultiPortCache<T extends Logic> extends Module {
         reset.width != 1 ||
         lookups.any((port) =>
             port.address.width != addressWidth ||
-            !sameRohdPayloadShape(fills.first.data, port.data)) ||
+            !samePayloadShape(fills.first.data, port.data)) ||
         fills.any((port) =>
             port.address.width != addressWidth ||
-            !sameRohdPayloadShape(fills.first.data, port.data))) {
+            !samePayloadShape(fills.first.data, port.data))) {
       throw ArgumentError('Cache port widths, payload shapes, or control '
           'signals do not match.');
     }

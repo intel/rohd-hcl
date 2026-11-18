@@ -254,7 +254,9 @@ class SynchronousAssociativeLookupPortInterface
   Logic get valid => port('valid');
 
   /// Creates a synchronous associative-memory lookup port with a packed key.
-  @Deprecated('Use TypedSynchronousAssociativeLookupPortInterface instead.')
+  @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
+      'SynchronousAssociativeLookupPortInterface; and import '
+      "'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart';")
   SynchronousAssociativeLookupPortInterface(
       {required super.keyWidth,
       required super.indexWidth,
@@ -289,10 +291,10 @@ class SynchronousAssociativeLookupPortInterface
 
 /// A synchronous associative lookup port preserving a typed key schema.
 /// {@category Memory}
-class TypedSynchronousAssociativeLookupPortInterface<T extends Logic>
+class SynchronousAssociativeLookupPortInterfaceImplementation<T extends Logic>
     extends SynchronousAssociativeLookupPortInterface {
   /// Creates a synchronous lookup port with the shape and type of [key].
-  TypedSynchronousAssociativeLookupPortInterface(T super.key,
+  SynchronousAssociativeLookupPortInterfaceImplementation(T super.key,
       {required super.indexWidth, super.matchEntryCount})
       : super._typed();
 
@@ -300,8 +302,8 @@ class TypedSynchronousAssociativeLookupPortInterface<T extends Logic>
   T get key => super.key as T;
 
   @override
-  TypedSynchronousAssociativeLookupPortInterface<T> clone() =>
-      TypedSynchronousAssociativeLookupPortInterface<T>(key,
+  SynchronousAssociativeLookupPortInterfaceImplementation<T> clone() =>
+      SynchronousAssociativeLookupPortInterfaceImplementation<T>(key,
           indexWidth: indexWidth, matchEntryCount: matchEntryCount);
 }
 

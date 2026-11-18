@@ -238,7 +238,7 @@ class Cam<T extends Logic> extends Module {
     }
     final schema = lookupPorts.first.tag;
     for (final port in [...writePorts, ...lookupPorts]) {
-      if (!sameRohdPayloadShape(schema, port.tag)) {
+      if (!samePayloadShape(schema, port.tag)) {
         throw RohdHclException('CAM ports must have matching tag layouts.');
       }
       if (port.idWidth < widthFor(numEntries)) {

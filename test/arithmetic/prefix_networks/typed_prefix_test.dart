@@ -15,6 +15,7 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 enum _Topology { ripple, sklansky, koggeStone, brentKung }
@@ -123,7 +124,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
 
 void _expectPayload<T extends Logic>(T schema, T signal) {
   expect(signal.runtimeType, schema.runtimeType);
-  expect(sameRohdPayloadShape(schema, signal), isTrue);
+  expect(samePayloadShape(schema, signal), isTrue);
 }
 
 void _checkPayload<T extends Logic>(String label, T schema,
@@ -134,7 +135,7 @@ void _checkPayload<T extends Logic>(String label, T schema,
       final dut = _Harness<T>(topology, schema);
       for (var i = 0; i < 5; i++) {
         _expectPayload<T>(schema, dut.tree.val[i]);
-        expect(sameRohdPayloadShape(schema, dut.tree.input('i$i')), isTrue);
+        expect(samePayloadShape(schema, dut.tree.input('i$i')), isTrue);
       }
       expect(() => dut.tree.val.clear(), throwsUnsupportedError);
       final vectors = <Vector>[];

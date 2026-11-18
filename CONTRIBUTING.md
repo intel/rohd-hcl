@@ -329,6 +329,9 @@ components as examples.
    introducing a new category.
 1. Add user-visible changes and compatibility notes to the Unreleased section
    of [CHANGELOG.md](CHANGELOG.md).
+1. Track planned typed-payload and compatibility removals in
+   [DEPRECATION_PLAN.md](DEPRECATION_PLAN.md); deprecate APIs only when their
+   replacement and migration guidance are available.
 
 After registering a `Configurator`, run `dart run gen/generate.dart` to generate
 native ROHD netlists for the registered components in `build/*.rohd.json`.

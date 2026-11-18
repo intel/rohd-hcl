@@ -16,7 +16,8 @@ export 'src/interfaces/interfaces.dart'
 export 'src/memory/memories.dart'
     hide
         AssociativeMatchSelectorImplementation,
-        AssociativeMatcherImplementation;
+        AssociativeMatcherImplementation,
+        SynchronousAssociativeLookupPortInterfaceImplementation;
 export 'src/models/models.dart';
 export 'src/pipeline_timing_contract.dart';
 export 'src/static_or_runtime_control.dart';

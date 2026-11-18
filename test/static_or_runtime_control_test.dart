@@ -10,6 +10,7 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _TestModule extends Module {}
@@ -268,7 +269,7 @@ void main() {
       FixedPoint(integerWidth: 3, fractionWidth: 4),
     ]) {
       final dut = _TypedSelectHarness(schema);
-      expect(sameRohdPayloadShape(dut.selected, schema), isTrue);
+      expect(samePayloadShape(dut.selected, schema), isTrue);
       expect(dut.selected.runtimeType, schema.runtimeType);
       final vectors = [
         Vector({'sel': 0, 'data0': 0xa5, 'data1': 0x35}, {'out': 0x35}),

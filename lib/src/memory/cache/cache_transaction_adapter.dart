@@ -70,9 +70,9 @@ class CacheTransactionAdapter<T extends Logic, M extends Logic, C extends Logic,
     if (!requests.contract.satisfies(ReadyValidContract.irrevocable) ||
         !responses.contract.satisfies(ReadyValidContract.irrevocable) ||
         !evictions.contract.satisfies(ReadyValidContract.irrevocable) ||
-        !sameRohdPayloadShape(requests.data, cache.requests.data) ||
-        !sameRohdPayloadShape(responses.data, cache.responses.data) ||
-        !sameRohdPayloadShape(evictions.data, cache.evictions.data)) {
+        !samePayloadShape(requests.data, cache.requests.data) ||
+        !samePayloadShape(responses.data, cache.responses.data) ||
+        !samePayloadShape(evictions.data, cache.evictions.data)) {
       throw ArgumentError('Adapter channels must have matching payloads and '
           'irrevocable contracts.');
     }

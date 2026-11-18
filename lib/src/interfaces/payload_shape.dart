@@ -8,9 +8,23 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+// ROHD 0.7.4 retains this 0.7.3 name as an internal compatibility alias.
+// ignore: implementation_imports
+import 'package:rohd/src/signals/signals.dart' as rohd_signals;
 import 'package:rohd_hcl/src/exceptions.dart';
 
 export 'package:rohd/rohd.dart' show PayloadShapeMetadata;
+
+// See DEPRECATION_PLAN.md for the prerequisites for replacing these helpers.
+
+/// Whether two payloads have identical declared shapes.
+// TODO(rohd): Replace with sameRohdPayloadShape after requiring ROHD 0.7.4.
+bool samePayloadShape(Logic first, Logic second,
+        {bool ignoreConstantNames = false}) =>
+    // The compatibility alias is deprecated in ROHD 0.7.4.
+    // ignore: deprecated_member_use
+    rohd_signals.sameDeclaredPayloadShape(first, second,
+        ignoreConstantNames: ignoreConstantNames);
 
 /// Whether two interface payloads can connect, allowing a packed bridge.
 // TODO(rohd): Replace with rohdPayloadsCompatible when it is released.
@@ -21,7 +35,7 @@ bool compatiblePayloadConnection(Logic target, Logic source,
   }
   return !hasDeclaredPayloadShape(target) ||
       !hasDeclaredPayloadShape(source) ||
-      sameRohdPayloadShape(target, source,
+      samePayloadShape(target, source,
           ignoreConstantNames: ignoreConstantNames);
 }
 
@@ -53,12 +67,12 @@ bool compatiblePayloadSet(Iterable<Logic> payloads,
 bool samePayloadSchemas(List<Logic> expected, List<Logic> actual) =>
     expected.length == actual.length &&
     expected.indexed
-        .every((entry) => sameRohdPayloadShape(entry.$2, actual[entry.$1]));
+        .every((entry) => samePayloadShape(entry.$2, actual[entry.$1]));
 
 /// Whether payload formats match, allowing renamed fields in typed clones.
 // TODO(rohd): Remove when ROHD provides an equivalent renamed-clone check.
 bool samePayloadShapeAllowingRenamedClone(Logic source, Logic other) =>
-    sameRohdPayloadShape(source, other, ignoreConstantNames: true) ||
+    samePayloadShape(source, other, ignoreConstantNames: true) ||
     (source.width == other.width &&
         hasDeclaredPayloadShape(source) &&
         hasDeclaredPayloadShape(other) &&

@@ -13,6 +13,9 @@ library;
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
+import 'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart'
+    as general;
 import 'package:test/test.dart';
 
 class _Key extends LogicStructure {
@@ -102,11 +105,11 @@ class _SynchronousMemory extends SynchronousAssociativeMemory {
 }
 
 class _SynchronousHarness extends Module {
-  late final TypedSynchronousAssociativeLookupPortInterface<_Key> lookup;
+  late final general.SynchronousAssociativeLookupPortInterface<_Key> lookup;
   late final _SynchronousMemory memory;
 
   _SynchronousHarness() {
-    lookup = TypedSynchronousAssociativeLookupPortInterface<_Key>(_Key(),
+    lookup = general.SynchronousAssociativeLookupPortInterface<_Key>(_Key(),
         indexWidth: 4, matchEntryCount: 4);
     lookup.en <= addInput('en', Logic());
     lookup.key <= addInput('key', Logic(width: 8), width: 8);
@@ -398,6 +401,8 @@ void main() {
       () async {
     final dut = _SynchronousHarness();
     final clone = dut.lookup.clone();
+    expect(
+        clone, isA<general.SynchronousAssociativeLookupPortInterface<_Key>>());
     expect(clone.key, isA<_Key>());
     expect(clone.matchEntryCount, 4);
     expect(clone.valid.width, 1);
@@ -406,7 +411,7 @@ void main() {
         () => _SynchronousMemory(
               clock: Logic(),
               resetSignal: Logic(),
-              lookup: TypedSynchronousAssociativeLookupPortInterface<_Key>(
+              lookup: general.SynchronousAssociativeLookupPortInterface<_Key>(
                   _Key(),
                   indexWidth: 4,
                   matchEntryCount: 4),
@@ -432,8 +437,8 @@ void main() {
       () async {
     final schema = TypedLogicArray<_Key, _KeyValue>([2], _Key.new,
         valueCodec: _codec, numUnpackedDimensions: 1);
-    final typed =
-        TypedSynchronousAssociativeLookupPortInterface(schema, indexWidth: 4);
+    final typed = general.SynchronousAssociativeLookupPortInterface(schema,
+        indexWidth: 4);
     final clone = typed.clone();
     expect(clone.matchVector, isNull);
     expect(clone.key.dimensions, [2]);
@@ -906,10 +911,10 @@ void main() {
       final dut = _Harness(schema, selection);
       expect(dut.update.clone().key, isA<_Key>());
       expect(dut.lookup.clone().key, isA<_Key>());
-      expect(sameRohdPayloadShape(dut.memory.input('update_key_0'), schema),
-          isTrue);
-      expect(sameRohdPayloadShape(dut.memory.input('lookup_key_0'), schema),
-          isTrue);
+      expect(
+          samePayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
+      expect(
+          samePayloadShape(dut.memory.input('lookup_key_0'), schema), isTrue);
       final vectors = [
         Vector({
           'clk': 0,
@@ -950,8 +955,7 @@ void main() {
     final dut = _Harness(schema, AssociativeMatchSelection.lowestIndex);
     expect(dut.update.key.valueCodec, same(_codec));
     expect(dut.lookup.clone().key.valueCodec, same(_codec));
-    expect(
-        sameRohdPayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
+    expect(samePayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
     await dut.build();
     final vectors = [
       Vector({
@@ -982,12 +986,12 @@ void main() {
     test('preserves ${schema.runtimeType} associative keys', () async {
       final dut =
           _Harness<Logic>(schema, AssociativeMatchSelection.lowestIndex);
-      expect(sameRohdPayloadShape(dut.update.clone().key, schema), isTrue);
-      expect(sameRohdPayloadShape(dut.lookup.clone().key, schema), isTrue);
-      expect(sameRohdPayloadShape(dut.memory.input('update_key_0'), schema),
-          isTrue);
-      expect(sameRohdPayloadShape(dut.memory.input('lookup_key_0'), schema),
-          isTrue);
+      expect(samePayloadShape(dut.update.clone().key, schema), isTrue);
+      expect(samePayloadShape(dut.lookup.clone().key, schema), isTrue);
+      expect(
+          samePayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
+      expect(
+          samePayloadShape(dut.memory.input('lookup_key_0'), schema), isTrue);
       await dut.build();
     });
   }
