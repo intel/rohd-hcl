@@ -97,6 +97,25 @@ await waitCycles(csm.latency).then(
 Simulator.endSimulation();
 ```
 
+## Valid-Only Carry-Save Multiplier
+
+Use `ValidOnlyCarrySaveMultiplier` when a pipeline can accept a result at a
+fixed physical-cycle latency and does not need backpressure. It wraps the
+existing `CarrySaveMultiplier` with two `ValidOnlyInterface<Logic>` operand
+channels and one product channel.
+`ValidOnlyInterface<T>` also supports typed payloads in other compositions;
+module registration preserves structured and typed-array payload schemas.
+
+Operand widths must match; the product width is their sum. The conjunction of
+the operand valid signals is delayed by `timing.latency`, so bubbles propagate
+without stalling the multiplier. `timing` also describes an initiation interval
+of one, no stallability, and no flush support. Align the operand channels
+before this boundary; they are not independently queued or paired later.
+
+Only consume results when the product channel is valid. If the consumer may
+stall, provide sufficient storage and admission control. See
+[protocol composition](protocol_composition.md#choosing-a-boundary).
+
 ## Compression Tree Multiplier
 
 A compression tree multiplier is a digital circuit used for performing
@@ -112,6 +131,8 @@ are:
 
 - Two input terms `a` and `b` which can be different widths.
 - The radix used for Booth encoding (2, 4, 8, and 16 are currently supported).
+- `use42Compressors` opts into 4:2 compressors in the compression tree; it
+  defaults to `false` to preserve the existing tree.
 - `seGen` parameter: the type of `PartialProductSignExtension` functor to use
   which has derived classes for different styles of sign extension. In some
   cases this adds an extra row to hold a sign bit (default
@@ -168,6 +189,11 @@ over the [CompressionTreeMultiplier](#compression-tree-multiplier) are:
 
 The default output width is the sum of the operand widths plus one to
 accommodate the additional accumulate term.
+
+`CompressionTreeMultiplyAccumulate` and `CompressionTreeDotProduct` also accept
+`use42Compressors`. All three compression-tree arithmetic units accept
+`delayConfig` for technology-specific input-to-output delay estimates. See
+[Compression Tree](multiplier_components.md#compression-tree) for details.
 
 Here is an example of using the `CompressionTreeMultiplyAccumulate` with all
 inputs as signed:

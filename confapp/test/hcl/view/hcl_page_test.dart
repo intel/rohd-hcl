@@ -7,6 +7,8 @@
 // 2023 December
 // Author: Max Korbel <max.korbel@intel.com>
 
+import 'dart:convert';
+
 import 'package:confapp/hcl/cubit/component_cubit.dart';
 import 'package:confapp/hcl/hcl.dart';
 import 'package:confapp/hcl/view/screen/sidebar_widget.dart';
@@ -42,6 +44,17 @@ class _MissingSourceAssetBundle extends CachingAssetBundle {
       return Future<ByteData>.error(
         FlutterError('Unable to load asset: "$key".'),
       );
+    }
+    return rootBundle.load(key);
+  }
+}
+
+class _StubSourceAssetBundle extends CachingAssetBundle {
+  @override
+  Future<ByteData> load(String key) {
+    if (key.startsWith('assets/rohd_src/')) {
+      return Future.value(
+          ByteData.sublistView(Uint8List.fromList(utf8.encode('// source'))));
     }
     return rootBundle.load(key);
   }
@@ -162,6 +175,46 @@ void main() {
       find.text('Click "Generate" to see the ROHD schematic'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('edits binary and nested compressor configuration controls',
+      (tester) async {
+    final prbs = components.whereType<PrbsCheckerConfigurator>().single;
+    final mac = components.whereType<MultiplyAccumulateConfigurator>().single;
+    addTearDown(() {
+      prbs.customPolynomialKnob.value = false;
+      prbs.polynomialKnob.value = 'c1';
+      mac.customDelayKnob.value = false;
+      (mac.compressionDelayKnob.subKnobs['3:2 Sum']! as StringConfigKnob)
+          .value = '1, 1, 1';
+    });
+
+    await pumpHclPage(tester, assetBundle: _StubSourceAssetBundle());
+    await showOnlyGeneratedSv(tester);
+    await tapSidebarComponent(tester, 'PRBS Checker');
+    await tester.pump();
+    await tester.tap(find.descendant(
+      of: find.byKey(const Key('Custom Polynomial')),
+      matching: find.byType(Checkbox),
+    ));
+    await tester.pump();
+    await tester.enterText(find.byKey(const Key('Polynomial (hex)')), '13');
+    expect(prbs.polynomialKnob.value, '13');
+
+    await tapSidebarComponent(tester, 'Compression Tree Multiply-Accumulate');
+    await tester.pump();
+    final customDelay = find.byKey(const Key('Custom Delay Tables'));
+    await tester.ensureVisible(customDelay);
+    await tester.tap(find.descendant(
+      of: customDelay,
+      matching: find.byType(Checkbox),
+    ));
+    await tester.pump();
+    final sum = find.byKey(const Key('3:2 Sum'));
+    await tester.ensureVisible(sum);
+    await tester.enterText(sum, '2, 3, 4');
+    expect(mac.compressionDelayKnob.resolve().compressor3.sum, [2, 3, 4]);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('shows a popup when a ROHD source asset is missing',

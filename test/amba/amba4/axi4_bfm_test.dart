@@ -25,6 +25,8 @@ class Axi4BfmTest extends Test {
 
   final Type axiType;
 
+  final bool aceLegacyMode;
+
   final int numLanes;
   final List<Axi4BaseCluster> lanes = [];
 
@@ -114,7 +116,7 @@ class Axi4BfmTest extends Test {
         data: pData.rconcat(),
         strb: pStrobes.rconcat(),
         user: LogicValue.ofInt(0, wIntfC.userWidth), // not supported
-        id: LogicValue.ofInt(laneId, wIntfC.idWidth),
+        id: wIntfC.id == null ? null : LogicValue.ofInt(laneId, wIntfC.idWidth),
       )
     );
   }
@@ -171,6 +173,7 @@ class Axi4BfmTest extends Test {
     this.supportLocking = false,
     this.ranges = const [],
     this.axiType = Axi4Cluster,
+    this.aceLegacyMode = true,
   })  : assert(numLanes > 0, 'Every test must have at least one channel.'),
         super(randomSeed: 123) {
     // using default parameter values for all interfaces
@@ -184,9 +187,14 @@ class Axi4BfmTest extends Test {
       } else if (axiType == Ace4LiteCluster) {
         lanes.add(Ace4LiteCluster(
             addrWidth: addrWidth, lenWidth: lenWidth, dataWidth: dataWidth));
+      } else if (axiType == Ace4Cluster) {
+        lanes.add(Ace4Cluster(
+            addrWidth: addrWidth,
+            lenWidth: lenWidth,
+            dataWidth: dataWidth,
+            legacyMode: aceLegacyMode));
       } else {
-        // lanes.add(Ace4Cluster(
-        //     addrWidth: addrWidth, lenWidth: lenWidth, dataWidth: dataWidth));
+        throw ArgumentError.value(axiType, 'axiType', 'Unsupported interface');
       }
       Axi4ReadComplianceChecker(
           sIntf, lanes.last.read.arIntf, lanes.last.read.rIntf,
@@ -393,6 +401,8 @@ class Axi4BfmSimpleWriteReadTest extends Axi4BfmTest {
     super.lenWidth,
     super.supportLocking,
     super.ranges,
+    super.axiType,
+    super.aceLegacyMode,
   });
 
   @override
@@ -1377,6 +1387,344 @@ class Axi4BfmMultiBeatDataIntegrityTest extends Axi4BfmTest {
   }
 }
 
+class _Ace4BehaviorTest extends Test {
+  final bool legacyMode;
+  final bool breakStability;
+  final bool badAck;
+  final bool badSnoopResponse;
+  final bool badSnoopOpcode;
+  final bool badSnoopAddress;
+  final bool badDirtyResponse;
+  late final Axi4SystemInterface system;
+  late final Ace4Cluster ace;
+  late final Sequencer<Axi4RequestPacket> arSequencer;
+  late final Sequencer<Axi4RequestPacket> awSequencer;
+  late final Sequencer<Axi4RequestPacket> acSequencer;
+  late final Sequencer<Axi4ResponsePacket> crSequencer;
+  late final Sequencer<Axi4DataPacket> cdSequencer;
+  final requests = <Axi4RequestPacket>[];
+  final snoopRequests = <Axi4RequestPacket>[];
+  final snoopResponses = <Axi4ResponsePacket>[];
+  final snoopData = <Axi4DataPacket>[];
+  int readAcks = 0;
+  int writeAcks = 0;
+
+  _Ace4BehaviorTest(
+    super.name, {
+    required this.legacyMode,
+    this.breakStability = false,
+    this.badAck = false,
+    this.badSnoopResponse = false,
+    this.badSnoopOpcode = false,
+    this.badSnoopAddress = false,
+    this.badDirtyResponse = false,
+  }) : super(
+            randomSeed: 123,
+            printLevel: Level.OFF,
+            failLevel: breakStability ||
+                    badAck ||
+                    badSnoopResponse ||
+                    badSnoopOpcode ||
+                    badSnoopAddress ||
+                    badDirtyResponse
+                ? Level.SHOUT
+                : Level.SEVERE) {
+    system = Axi4SystemInterface();
+    ace = Ace4Cluster(legacyMode: legacyMode);
+    system.clk <= SimpleClockGenerator(10).clk;
+    Ace4ComplianceChecker(system, ace, parent: this);
+    if (!legacyMode &&
+        !breakStability &&
+        !badAck &&
+        !badSnoopResponse &&
+        !badSnoopOpcode &&
+        !badSnoopAddress &&
+        !badDirtyResponse) {
+      Ace4AcknowledgementDriver(system, ace, parent: this);
+      system.clk.posedge.listen((_) {
+        final rack = ace.rack!.previousValue;
+        final wack = ace.wack!.previousValue;
+        if (rack != null && rack.isValid && rack.toBool()) {
+          readAcks++;
+        }
+        if (wack != null && wack.isValid && wack.toBool()) {
+          writeAcks++;
+        }
+      });
+    }
+
+    arSequencer = Sequencer<Axi4RequestPacket>('arSequencer', this);
+    awSequencer = Sequencer<Axi4RequestPacket>('awSequencer', this);
+    acSequencer = Sequencer<Axi4RequestPacket>('acSequencer', this);
+    crSequencer = Sequencer<Axi4ResponsePacket>('crSequencer', this);
+    cdSequencer = Sequencer<Axi4DataPacket>('cdSequencer', this);
+    Axi4RequestChannelDriver(
+        parent: this,
+        sIntf: system,
+        rIntf: ace.read.arIntf,
+        sequencer: arSequencer);
+    Axi4RequestChannelDriver(
+        parent: this,
+        sIntf: system,
+        rIntf: ace.write.awIntf,
+        sequencer: awSequencer);
+    Axi4RequestChannelDriver(
+        parent: this,
+        sIntf: system,
+        rIntf: ace.snoop.acIntf,
+        sequencer: acSequencer);
+    Axi4RequestChannelMonitor(
+            parent: this, sIntf: system, rIntf: ace.read.arIntf)
+        .stream
+        .listen(requests.add);
+    Axi4RequestChannelMonitor(
+            parent: this, sIntf: system, rIntf: ace.write.awIntf)
+        .stream
+        .listen(requests.add);
+    Axi4RequestChannelMonitor(
+            parent: this, sIntf: system, rIntf: ace.snoop.acIntf)
+        .stream
+        .listen(snoopRequests.add);
+    Ace4SnoopResponseChannelDriver(
+        parent: this,
+        sIntf: system,
+        rIntf: ace.snoop.crIntf,
+        sequencer: crSequencer);
+    Ace4SnoopResponseChannelMonitor(
+            parent: this, sIntf: system, rIntf: ace.snoop.crIntf)
+        .stream
+        .listen(snoopResponses.add);
+    Axi4DataChannelDriver(
+        parent: this,
+        sIntf: system,
+        rIntf: ace.snoop.cdIntf,
+        sequencer: cdSequencer);
+    Axi4DataChannelMonitor(parent: this, sIntf: system, rIntf: ace.snoop.cdIntf)
+        .stream
+        .listen(snoopData.add);
+  }
+
+  Axi4RequestPacket request(Axi4RequestChannelInterface channel,
+      {int? snoop, bool? unique}) {
+    final aceRequest = channel as Ace4RequestChannel;
+    return Axi4RequestPacket(
+      addr: LogicValue.ofInt(12, channel.addrWidth),
+      prot: LogicValue.ofInt(0, channel.protWidth),
+      id: LogicValue.ofInt(0, channel.idWidth),
+      len: LogicValue.ofInt(0, channel.lenWidth),
+      size: LogicValue.ofInt(2, channel.sizeWidth),
+      burst: LogicValue.ofInt(1, channel.burstWidth),
+      cache: LogicValue.ofInt(0, channel.cacheWidth),
+      qos: LogicValue.ofInt(0, channel.qosWidth),
+      region: LogicValue.ofInt(0, channel.regionWidth),
+      user: LogicValue.ofInt(0, channel.userWidth),
+      domain: LogicValue.ofInt(1, aceRequest.domain!.width),
+      bar: LogicValue.ofInt(0, aceRequest.bar!.width),
+      snoop: snoop == null
+          ? null
+          : LogicValue.ofInt(
+              snoop, channel.port('${channel.prefix}SNOOP').width),
+      unique: unique == null ? null : LogicValue.ofInt(unique ? 1 : 0, 1),
+    );
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+    final objection = phase.raiseObjection('aceBehavior');
+    system.resetN.inject(0);
+    if (breakStability ||
+        badAck ||
+        badSnoopResponse ||
+        badSnoopOpcode ||
+        badSnoopAddress ||
+        badDirtyResponse) {
+      ace.rack?.inject(0);
+      ace.wack?.inject(0);
+    }
+    ace.read.arIntf.ready.inject(0);
+    ace.write.awIntf.ready.inject(0);
+    ace.read.rIntf.valid.inject(0);
+    ace.write.wIntf.valid.inject(0);
+    ace.write.bIntf.valid.inject(0);
+    ace.snoop.acIntf.valid.inject(0);
+    ace.snoop.crIntf.valid.inject(0);
+    ace.snoop.cdIntf.valid.inject(0);
+    await system.clk.waitCycles(3);
+    system.resetN.inject(1);
+    await system.clk.waitCycles(2);
+
+    if (breakStability) {
+      ace.snoop.acIntf.ready.inject(0);
+      ace.snoop.acIntf.addr.inject(1);
+      ace.snoop.acIntf.valid.inject(1);
+      await system.clk.waitCycles(2);
+      ace.snoop.acIntf.addr.inject(2);
+      await system.clk.waitCycles(2);
+    } else if (badAck) {
+      ace.rack!.inject(1);
+      await system.clk.waitCycles(2);
+      ace.rack!.inject(0);
+    } else if (badSnoopResponse) {
+      ace.snoop.crIntf.ready.inject(1);
+      ace.snoop.crIntf.resp!.inject(0);
+      ace.snoop.crIntf.valid.inject(1);
+      await system.clk.waitCycles(1);
+      ace.snoop.crIntf.valid.inject(0);
+      await system.clk.waitCycles(2);
+    } else if (badSnoopOpcode || badSnoopAddress || badDirtyResponse) {
+      ace.snoop.acIntf.ready.inject(1);
+      ace.snoop.acIntf.addr.inject(badSnoopAddress ? 1 : 0);
+      ace.snoop.acIntf.snoop?.inject(badSnoopOpcode ? 6 : 0);
+      ace.snoop.acIntf.valid.inject(1);
+      await system.clk.waitCycles(1);
+      ace.snoop.acIntf.valid.inject(0);
+      if (badDirtyResponse) {
+        ace.snoop.crIntf.ready.inject(1);
+        ace.snoop.crIntf.resp!.inject(4);
+        ace.snoop.crIntf.valid.inject(1);
+        await system.clk.waitCycles(1);
+        ace.snoop.crIntf.valid.inject(0);
+      }
+      await system.clk.waitCycles(2);
+    } else {
+      final ar = request(ace.read.arIntf, snoop: legacyMode ? null : 3);
+      final aw = request(ace.write.awIntf,
+          snoop: legacyMode ? null : 2, unique: legacyMode ? null : true);
+      arSequencer.add(ar);
+      awSequencer.add(aw);
+      await system.clk.waitCycles(4);
+      ace.read.arIntf.ready.inject(1);
+      ace.write.awIntf.ready.inject(1);
+      await ar.completed;
+      await aw.completed;
+      await system.clk.waitCycles(2);
+      if (!legacyMode) {
+        final defaultAr = request(ace.read.arIntf);
+        arSequencer.add(defaultAr);
+        await defaultAr.completed;
+        await system.clk.waitCycles(2);
+      }
+
+      ace.snoop.acIntf.ready.inject(1);
+      final ac = ace.snoop.acIntf;
+      final snoopRequest = Axi4RequestPacket(
+        addr: LogicValue.ofInt(0, ac.addrWidth),
+        prot: LogicValue.ofInt(0, ac.protWidth),
+        id: ac.id == null ? null : LogicValue.ofInt(0, ac.idWidth),
+        user: ac.user == null ? null : LogicValue.ofInt(0, ac.userWidth),
+        size: ac.size == null ? null : LogicValue.ofInt(0, ac.sizeWidth),
+        burst: ac.burst == null ? null : LogicValue.ofInt(0, ac.burstWidth),
+        cache: ac.cache == null ? null : LogicValue.ofInt(0, ac.cacheWidth),
+        domain: ac.domain == null ? null : LogicValue.ofInt(0, ac.domainWidth),
+        bar: ac.bar == null ? null : LogicValue.ofInt(0, ac.bar!.width),
+        snoop: ac.snoop == null ? null : LogicValue.ofInt(0, ac.snoop!.width),
+      );
+      acSequencer.add(snoopRequest);
+      await snoopRequest.completed;
+      ace.snoop.crIntf.ready.inject(1);
+      final response = Axi4ResponsePacket(
+        resp: LogicValue.ofInt(1, ace.snoop.crIntf.respWidth),
+        id: ace.snoop.crIntf.id == null
+            ? null
+            : LogicValue.ofInt(0, ace.snoop.crIntf.idWidth),
+        user: ace.snoop.crIntf.user == null
+            ? null
+            : LogicValue.ofInt(0, ace.snoop.crIntf.userWidth),
+      );
+      crSequencer.add(response);
+      await response.completed;
+      ace.snoop.cdIntf.ready.inject(1);
+      final cd = ace.snoop.cdIntf;
+      final data = Axi4DataPacket(
+        data: [
+          LogicValue.ofInt(17, cd.dataWidth),
+          LogicValue.ofInt(42, cd.dataWidth)
+        ].rconcat(),
+        id: cd.id == null ? null : LogicValue.ofInt(0, cd.idWidth),
+        user: cd.user == null ? null : LogicValue.ofInt(0, cd.userWidth),
+      );
+      cdSequencer.add(data);
+      await data.completed;
+      await system.clk.waitCycles(2);
+
+      if (!legacyMode) {
+        ace.read.rIntf.ready.inject(1);
+        ace.read.rIntf.last!.inject(0);
+        ace.read.rIntf.valid.inject(1);
+        await system.clk.waitCycles(1);
+        ace.read.rIntf.valid.inject(0);
+        await system.clk.waitCycles(2);
+        expect(readAcks, 0);
+
+        ace.read.rIntf.ready.inject(0);
+        ace.read.rIntf.last!.inject(1);
+        ace.read.rIntf.valid.inject(1);
+        await system.clk.waitCycles(3);
+        expect(readAcks, 0);
+        ace.read.rIntf.ready.inject(1);
+        await system.clk.waitCycles(1);
+        ace.read.rIntf.valid.inject(0);
+        await system.clk.waitCycles(3);
+        ace.read.rIntf.valid.inject(1);
+        await system.clk.waitCycles(2);
+        ace.read.rIntf.valid.inject(0);
+        await system.clk.waitCycles(3);
+        ace.write.bIntf.ready.inject(0);
+        ace.write.bIntf.valid.inject(1);
+        await system.clk.waitCycles(3);
+        expect(writeAcks, 0);
+        ace.write.bIntf.ready.inject(1);
+        await system.clk.waitCycles(1);
+        ace.write.bIntf.valid.inject(0);
+        await system.clk.waitCycles(3);
+      }
+    }
+    objection.drop();
+  }
+
+  @override
+  void check() {
+    if (breakStability ||
+        badAck ||
+        badSnoopResponse ||
+        badSnoopOpcode ||
+        badSnoopAddress ||
+        badDirtyResponse) {
+      return;
+    }
+    expect(requests, hasLength(legacyMode ? 2 : 3));
+    expect(snoopRequests, hasLength(1));
+    expect(snoopRequests.single.addr.toInt(), 0);
+    expect(snoopResponses, hasLength(1));
+    expect(snoopResponses.single.resp!.toInt(), 1);
+    expect(snoopData, hasLength(1));
+    expect(
+        snoopData.single.data,
+        [
+          LogicValue.ofInt(17, ace.snoop.cdIntf.dataWidth),
+          LogicValue.ofInt(42, ace.snoop.cdIntf.dataWidth)
+        ].rconcat());
+    if (legacyMode) {
+      expect(requests.every((packet) => packet.snoop == null), isTrue);
+    } else {
+      final ar = requests.singleWhere(
+          (packet) => packet.unique == null && packet.snoop!.toInt() == 3);
+      expect(ar.snoop!.toInt(), 3);
+      expect(
+          requests.any(
+              (packet) => packet.unique == null && packet.snoop!.toInt() == 0),
+          isTrue);
+      final aw = requests.singleWhere((packet) => packet.unique != null);
+      expect(aw.snoop!.toInt(), 2);
+      expect(aw.unique!.toInt(), 1);
+      expect(readAcks, 3);
+      expect(writeAcks, 1);
+    }
+    expect(requests.every((packet) => packet.domain!.toInt() == 1), isTrue);
+  }
+}
+
 void main() {
   tearDown(() async {
     await Test.reset();
@@ -1493,5 +1841,75 @@ void main() {
 
   test('multi-beat write burst stores each beat at its own address', () async {
     await runTest(Axi4BfmMultiBeatDataIntegrityTest('multiBeatDataIntegrity'));
+  });
+
+  Future<void> expectAceViolation(
+      _Ace4BehaviorTest scenario, String message) async {
+    Simulator.setMaxSimTime(10000);
+    final records = <LogRecord>[];
+    final subscription = Logger.root.onRecord.listen(records.add);
+    try {
+      await scenario.start();
+      expect(
+          records.any((record) =>
+              record.level == Level.SEVERE && record.message.contains(message)),
+          isTrue);
+    } finally {
+      await subscription.cancel();
+    }
+  }
+
+  for (final legacyMode in [true, false]) {
+    final mode = legacyMode ? 'legacy' : 'ACE4 signal';
+    test('$mode read/write BFM transaction', () async {
+      await runTest(Axi4BfmSimpleWriteReadTest('aceReadWrite',
+          axiType: Ace4Cluster, aceLegacyMode: legacyMode, lenWidth: 8));
+    });
+
+    test('$mode requests and stalled handshakes', () async {
+      Simulator.setMaxSimTime(10000);
+      await _Ace4BehaviorTest('aceRequests', legacyMode: legacyMode).start();
+    });
+
+    test('$mode checker rejects changed stalled snoop addresses', () async {
+      await expectAceViolation(
+          _Ace4BehaviorTest('badStability',
+              legacyMode: legacyMode, breakStability: true),
+          'ACADDR changed while stalled');
+    });
+
+    test('$mode checker rejects an unmatched snoop response', () async {
+      await expectAceViolation(
+          _Ace4BehaviorTest('badSnoopResponse',
+              legacyMode: legacyMode, badSnoopResponse: true),
+          'CR response has no accepted snoop');
+    });
+
+    test('$mode checker rejects unaligned snoop addresses', () async {
+      await expectAceViolation(
+          _Ace4BehaviorTest('badSnoopAddress',
+              legacyMode: legacyMode, badSnoopAddress: true),
+          'ACADDR is not aligned');
+    });
+  }
+
+  test('ACE4 checker rejects a reserved snoop opcode', () async {
+    await expectAceViolation(
+        _Ace4BehaviorTest('badSnoopOpcode',
+            legacyMode: false, badSnoopOpcode: true),
+        'ACSNOOP is unknown or reserved');
+  });
+
+  test('ACE4 checker rejects PassDirty without data', () async {
+    await expectAceViolation(
+        _Ace4BehaviorTest('badDirtyResponse',
+            legacyMode: false, badDirtyResponse: true),
+        'CRRESP PassDirty requires DataTransfer');
+  });
+
+  test('ACE4 checker rejects an acknowledgement before a response', () async {
+    await expectAceViolation(
+        _Ace4BehaviorTest('badAck', legacyMode: false, badAck: true),
+        'RACK has no previously completed');
   });
 }

@@ -4,3 +4,4 @@
 export 'gray/gray.dart';
 export 'one_hot/one_hot.dart';
 export 'priority/priority.dart';
+export 'thermometer/thermometer.dart';

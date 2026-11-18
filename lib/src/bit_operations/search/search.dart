@@ -4,3 +4,4 @@
 export 'count_leading_trailing_zeros.dart';
 export 'find.dart';
 export 'find_pattern.dart';
+export 'first_match_prefix.dart';

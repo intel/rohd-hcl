@@ -10,6 +10,7 @@
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/memory/associative/associative_memory.dart';
 import 'package:rohd_hcl/src/memory/associative/associative_memory_contract.dart';
 import 'package:rohd_hcl/src/memory/associative/associative_software_systemc.dart';
@@ -108,14 +109,19 @@ class _PendingLookup {
 class AssociativeSoftwareExecutionImage {
   final AssociativeMemoryRequest _configuration;
   final AssociativeSoftwareMatcher? _matcher;
+  final List<Logic>? _portSchemas;
   final AssociativeSoftwareState _state;
   final int _cycle;
   final List<_PendingUpdate> _updates;
   final List<_PendingLookup> _lookups;
 
-  AssociativeSoftwareExecutionImage._(AssociativeSoftwareModel model)
+  AssociativeSoftwareExecutionImage._(AssociativeSoftwareModel model,
+      {List<Logic>? portSchemas})
       : _configuration = model.configuration,
         _matcher = model.matcher,
+        _portSchemas = portSchemas == null
+            ? null
+            : List.unmodifiable(portSchemas.map(cloneTypedPayload)),
         _state = model.snapshot(),
         _cycle = model._cycle,
         _updates = List.unmodifiable(model._updates),
@@ -534,10 +540,17 @@ class AssociativeSoftwareModel
       AssociativeSoftwareExecutionImage._(this);
 
   /// Atomically restores an execution image from a compatible configuration.
-  void restoreExecution(AssociativeSoftwareExecutionImage image) {
+  void restoreExecution(AssociativeSoftwareExecutionImage image) =>
+      _restoreExecution(image);
+
+  void _restoreExecution(AssociativeSoftwareExecutionImage image,
+      {List<Logic>? portSchemas}) {
     final other = image._configuration;
     final current = configuration;
-    if (other.keyWidth != current.keyWidth ||
+    if ((image._portSchemas == null) != (portSchemas == null) ||
+        (image._portSchemas != null &&
+            !samePayloadSchemas(image._portSchemas!, portSchemas!)) ||
+        other.keyWidth != current.keyWidth ||
         other.indexWidth != current.indexWidth ||
         other.entryCount != current.entryCount ||
         other.updatePortCount != current.updatePortCount ||
@@ -601,9 +614,13 @@ class BehavioralParallelAssociativeMemory extends AssociativeMemory
       description.generateSystemC(className: className, options: options);
 
   @override
+  // Retain the packed provider interface for existing consumers.
+  // ignore: deprecated_member_use_from_same_package
   final List<AssociativeIndexedSideReadResponse> sideReadResponses;
 
   @override
+  // Retain the packed provider interface for existing consumers.
+  // ignore: deprecated_member_use_from_same_package
   AssociativeIndexedSideReadResponse? get sideReadResponse =>
       sideReadResponses.isEmpty ? null : sideReadResponses.first;
 
@@ -642,6 +659,8 @@ class BehavioralParallelAssociativeMemory extends AssociativeMemory
   })  : _sideReads = List.unmodifiable(sideReadRequests),
         sideReadResponses = List.unmodifiable([
           for (final _ in sideReadRequests)
+            // Retain packed responses on the compatibility provider.
+            // ignore: deprecated_member_use_from_same_package
             AssociativeIndexedSideReadResponse(keyWidth: lookups.first.keyWidth)
         ]),
         super(definitionName: 'BehavioralParallelAssociativeMemory') {
@@ -825,12 +844,21 @@ class BehavioralParallelAssociativeMemory extends AssociativeMemory
     Simulator.injectAction(refresh);
   }
 
-  /// Captures the resident entries for replay.
-  AssociativeSoftwareExecutionImage snapshot() => _model.snapshotExecution();
+  List<Logic>? get _portSchemas {
+    final schemas = [
+      for (final port in localUpdates) port.key,
+      for (final port in localLookups) port.key,
+    ];
+    return schemas.any(hasDeclaredPayloadShape) ? schemas : null;
+  }
+
+  /// Captures the resident entries and declared key schemas for replay.
+  AssociativeSoftwareExecutionImage snapshot() =>
+      AssociativeSoftwareExecutionImage._(_model, portSchemas: _portSchemas);
 
   /// Restores a compatible image and refreshes combinational outputs.
   void restore(AssociativeSoftwareExecutionImage image) {
-    _model.restoreExecution(image);
+    _model._restoreExecution(image, portSchemas: _portSchemas);
     _refresh();
   }
 

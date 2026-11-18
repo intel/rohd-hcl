@@ -8,6 +8,7 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Selection behavior for a configurable multiplexer.
@@ -68,7 +69,7 @@ class MuxConfigurator extends Configurator {
         ),
       MuxImplementation.oneHot =>
         OneHotMux(Logic(name: 'selector', width: inputCountKnob.value), inputs),
-      MuxImplementation.priority => PriorityMux(
+      MuxImplementation.priority => general.PriorityMux<Logic>(
           Logic(name: 'selector', width: inputCountKnob.value),
           inputs,
           Logic(name: 'defaultValue', width: widthKnob.value),

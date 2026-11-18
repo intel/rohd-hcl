@@ -31,6 +31,21 @@ class _SpecialValueHarness extends Module {
   }
 }
 
+class _MixedSubnormalHarness extends Module {
+  _MixedSubnormalHarness({required bool dualPath}) {
+    final a =
+        FloatingPoint(exponentWidth: 3, mantissaWidth: 3, subNormalAsZero: true)
+          ..gets(addInput('a', Logic(width: 7), width: 7));
+    final b = FloatingPoint(exponentWidth: 3, mantissaWidth: 3)
+      ..gets(addInput('b', Logic(width: 7), width: 7));
+    final output = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);
+    final adder = dualPath
+        ? FloatingPointAdderDualPath(a, b, outSum: output)
+        : FloatingPointAdderSinglePath(a, b, outSum: output);
+    addOutput('sum', width: 7) <= adder.sum;
+  }
+}
+
 void main() {
   tearDown(Simulator.reset);
 
@@ -86,6 +101,20 @@ void main() {
       expect(adder.status.overflow.value, LogicValue.zero);
     }
   });
+
+  for (final dualPath in [false, true]) {
+    test('mixed subnormal modes in RTL, dualPath=$dualPath', () async {
+      final dut = _MixedSubnormalHarness(dualPath: dualPath);
+      await dut.build();
+      final vectors = [
+        Vector({'a': 1, 'b': 8}, {'sum': 8}),
+        Vector({'a': 8, 'b': 1}, {'sum': 9}),
+        Vector({'a': 1, 'b': 1}, {'sum': 1}),
+      ];
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      SimCompare.checkIverilogVector(dut, vectors);
+    });
+  }
 
   test('mixed J-bit special values preserve operand formats and infinity sign',
       () {

@@ -23,6 +23,14 @@ class _Word extends LogicStructure {
   _Word clone({String? name}) => _Word(name: name ?? this.name);
 }
 
+class _BadSnapshotClone extends Logic {
+  _BadSnapshotClone({super.name, super.width = 8});
+
+  @override
+  _BadSnapshotClone clone({String? name}) => _BadSnapshotClone(
+      name: name ?? this.name, width: name == null ? width + 1 : width);
+}
+
 enum _Phase { idle, busy, done }
 
 typedef _WordValue = ({LogicValue bits});
@@ -30,6 +38,9 @@ typedef _WordValue = ({LogicValue bits});
 const _codec = LogicValueCodec<_WordValue>(decode: _decode, encode: _encode);
 _WordValue _decode(LogicValue bits) => (bits: bits);
 LogicValue _encode(_WordValue value) => value.bits;
+LogicValue _alternateValue(LogicValue value) => value;
+const _alternateCodec = LogicValueCodec<LogicValue>(
+    decode: _alternateValue, encode: _alternateValue);
 
 class _Fixture<T extends Logic> {
   final clk = Logic()..put(0);
@@ -84,9 +95,9 @@ void _check<T extends Logic>(String label, T schema) {
         // ignore: omit_local_variable_types, verifies static payload type
         final T payload = model.reads.single.data;
         expect(payload.runtimeType, schema.runtimeType);
-        expect(sameHclPayloadShape(payload, schema), isTrue);
-        expect(sameHclPayloadShape(model.input('wr_data_0'), schema), isTrue);
-        expect(sameHclPayloadShape(model.output('rd_data_0'), schema), isTrue);
+        expect(samePayloadShape(payload, schema), isTrue);
+        expect(samePayloadShape(model.input('wr_data_0'), schema), isTrue);
+        expect(samePayloadShape(model.output('rd_data_0'), schema), isTrue);
         await model.build();
         final known = LogicValue.ofBigInt(
             (BigInt.one << (schema.width - 1)) | BigInt.from(0x96a5),
@@ -158,6 +169,30 @@ void _check<T extends Logic>(String label, T schema) {
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('memory snapshots reject schema clones that change width', () {
+    final fixture = _Fixture<Logic>(_BadSnapshotClone(), 0, asyncReset: false);
+    expect(fixture.model.snapshot, throwsA(isA<RohdHclException>()));
+  });
+  test('snapshot restore rejects incompatible array codecs atomically', () {
+    Logic schema(LogicValueCodec<LogicValue> codec) =>
+        TypedLogicArray<Logic, LogicValue>(
+            [2], ({name}) => Logic(width: 4, name: name),
+            valueCodec: codec);
+    final source = _Fixture<Logic>(schema(LogicValueCodec.logicValue), 0,
+        asyncReset: false);
+    final target =
+        _Fixture<Logic>(schema(_alternateCodec), 0, asyncReset: false);
+    final address = LogicValue.ofInt(1, 3);
+    source.model.storage.writeData(address, LogicValue.ofInt(0xa5, 8));
+    target.model.storage.writeData(address, LogicValue.ofInt(0x33, 8));
+    final image = source.model.snapshot();
+    expect(() => target.model.restore(image), throwsArgumentError);
+    expect(target.model.storage.readData(address).toInt(), 0x33);
+    source.model.restore(image);
+    expect(source.model.storage.readData(address).toInt(), 0xa5);
+  });
+
   _check('scalar', Logic(width: 16));
   _check('nested fixed-point structure', _Word());
   _check('fixed-point', FixedPoint(integerWidth: 7, fractionWidth: 8));

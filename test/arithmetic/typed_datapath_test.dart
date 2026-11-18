@@ -22,6 +22,17 @@ class _Packet extends LogicStructure {
   _Packet clone({String? name}) => _Packet(name: name ?? this.name);
 }
 
+class _ParentNamedPacket extends LogicStructure {
+  final String suffix;
+
+  _ParentNamedPacket({String name = 'packet', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 8)], name: name);
+
+  @override
+  _ParentNamedPacket clone({String? name}) =>
+      _ParentNamedPacket(name: name ?? this.name, suffix: suffix);
+}
+
 class _DazFloat extends FloatingPoint {
   _DazFloat({super.name})
       : super(
@@ -40,6 +51,20 @@ class _DazFloat extends FloatingPoint {
           mantissaWidth: 5,
           explicitJBit: true,
           subNormalAsZero: true);
+}
+
+class _MisclonedFloat extends FloatingPoint {
+  _MisclonedFloat({bool daz = false, super.name})
+      : super(exponentWidth: 4, mantissaWidth: 3, subNormalAsZero: daz);
+
+  @override
+  _MisclonedFloat clone({String? name}) =>
+      _MisclonedFloat(daz: true, name: name ?? this.name);
+
+  @override
+  FloatingPointValuePopulator<FloatingPointValue> valuePopulator() =>
+      FloatingPointValue.populator(
+          exponentWidth: 4, mantissaWidth: 3, subNormalAsZero: subNormalAsZero);
 }
 
 enum _State { first, second, third }
@@ -65,9 +90,9 @@ class _TypedSwap<T extends Logic> extends Module {
   late final (T, T) swapped;
 
   _TypedSwap(T schema) {
-    final a = schema.cloneTyped(name: 'a')
+    final a = schema.cloneTyped(name: 'operandA')
       ..gets(addInput('a', Logic(width: schema.width), width: schema.width));
-    final b = schema.cloneTyped(name: 'b')
+    final b = schema.cloneTyped(name: 'operandB')
       ..gets(addInput('b', Logic(width: schema.width), width: schema.width));
     swapped = swap(addInput('select', Logic()), (a, b));
     addTypedOutput('first', schema.cloneTyped) <= swapped.$1;
@@ -90,10 +115,10 @@ class _MetadataSwap<T extends Logic> extends Module {
       ..gets(addInput('a', Logic(width: 32), width: 32));
     final b = FloatingPoint32()
       ..gets(addInput('b', Logic(width: 32), width: 32));
-    final metaA = schema.cloneTyped()
+    final metaA = schema.cloneTyped(name: 'metadataA')
       ..gets(
           addInput('metaA', Logic(width: schema.width), width: schema.width));
-    final metaB = schema.cloneTyped()
+    final metaB = schema.cloneTyped(name: 'metadataB')
       ..gets(
           addInput('metaB', Logic(width: schema.width), width: schema.width));
     final select = addInput('select', Logic());
@@ -108,6 +133,58 @@ class _MetadataSwap<T extends Logic> extends Module {
     addOutput('second', width: 32) <= sorter.outB;
     addOutput('firstMeta', width: schema.width) <= sorter.outMetaA!;
     addOutput('secondMeta', width: schema.width) <= sorter.outMetaB!;
+  }
+}
+
+FixedPoint _constantFixed(int value) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(value >> 4, 4),
+        fraction: LogicValue.ofInt(value & 0xf, 4)));
+
+class _ConstantMetadataSwap extends Module {
+  late final FloatingPointConditionalSwap<FloatingPoint32, Logic> sorter;
+
+  _ConstantMetadataSwap() {
+    final a = FloatingPoint32()
+      ..gets(addInput('a', Logic(width: 32), width: 32));
+    final b = FloatingPoint32()
+      ..gets(addInput('b', Logic(width: 32), width: 32));
+    sorter = FloatingPointConditionalSwap<FloatingPoint32, Logic>(
+        a, b, addInput('select', Logic()),
+        metaA: _constantFixed(0x12), metaB: _constantFixed(0x34));
+    addOutput('firstMeta', width: 8) <= sorter.outMetaA!;
+    addOutput('secondMeta', width: 8) <= sorter.outMetaB!;
+  }
+}
+
+class _ConstantUtilityHarness extends Module {
+  late final (Logic, Logic) swapped;
+  late final Logic registered;
+
+  _ConstantUtilityHarness() {
+    final first = _constantFixed(0x12);
+    final second = _constantFixed(0x34);
+    swapped = swap<Logic>(addInput('select', Logic()), (first, second));
+    registered = condFlop<Logic>(addInput('clk', Logic()), first,
+        reset: addInput('reset', Logic()), resetValue: second);
+    addOutput('first', width: 8) <= swapped.$1;
+    addOutput('second', width: 8) <= swapped.$2;
+    addOutput('registered', width: 8) <= registered;
+  }
+}
+
+class _ConstantFloatSort extends Module {
+  _ConstantFloatSort() {
+    final first =
+        FloatingPoint32.constant(FloatingPoint32Value.populator().ofDouble(1));
+    final second =
+        FloatingPoint32.constant(FloatingPoint32Value.populator().ofDouble(2));
+    final sorted = FloatingPointUtilities.sort((first, second));
+    final swapped = FloatingPointConditionalSwap<FloatingPoint32, Logic>(
+        first, second, addInput('select', Logic()));
+    addOutput('larger', width: 32) <= sorted.sorted.$1;
+    addOutput('smaller', width: 32) <= sorted.sorted.$2;
+    addOutput('swapped', width: 32) <= swapped.outA;
   }
 }
 
@@ -196,11 +273,11 @@ void _checkMetadata<T extends Logic>(String label, T schema,
         first,
         dut.sorter.outMetaB!,
       ]) {
-        expect(sameHclPayloadShape(schema, port), isTrue);
+        expect(samePayloadShape(schema, port), isTrue);
       }
       final metadataMuxes = dut.sorter.subModules
           .whereType<Mux<T>>()
-          .where((mux) => sameHclPayloadShape(schema, mux.out));
+          .where((mux) => samePayloadShape(schema, mux.out));
       expect(metadataMuxes, hasLength(2));
       final mask = (1 << schema.width) - 1;
       final a = 0x102030a1 & mask;
@@ -233,9 +310,110 @@ void _checkMetadata<T extends Logic>(String label, T schema,
 }
 
 void main() {
+  test('floating-point boundaries reject changed clone formats', () {
+    final bad = _MisclonedFloat();
+    expect(
+        () => FloatingPointClassifier(bad), throwsA(isA<PortTypeException>()));
+    expect(() => FloatingPointComparator(bad, _MisclonedFloat()),
+        throwsA(isA<PortTypeException>()));
+    expect(
+        () => FloatingPointConditionalSwap<FloatingPoint, Logic>(
+            bad, _MisclonedFloat(), Logic()),
+        throwsA(isA<PortTypeException>()));
+    expect(
+        () => FloatingPointConverter<FloatingPoint, FloatingPoint>(
+            bad, FloatingPoint(exponentWidth: 4, mantissaWidth: 3)),
+        throwsA(isA<PortTypeException>()));
+  });
+
   tearDown(Simulator.reset);
 
+  test('floating-point swap preserves widened structured constant metadata',
+      () async {
+    final dut = _ConstantMetadataSwap();
+    expect(dut.sorter.input('inMetaA'), isA<FixedPoint>());
+    expect(dut.sorter.outMetaA, isA<FixedPoint>());
+    await dut.build();
+    await _compare(dut, [
+      Vector({'a': 0, 'b': 0, 'select': 0},
+          {'firstMeta': 0x12, 'secondMeta': 0x34}),
+      Vector({'select': 1}, {'firstMeta': 0x34, 'secondMeta': 0x12}),
+      Vector({
+        'select': LogicValue.x
+      }, {
+        'firstMeta': LogicValue.ofString('00x10xx0'),
+        'secondMeta': LogicValue.ofString('00x10xx0'),
+      }),
+    ]);
+  });
+
+  test('shared swap and flop preserve widened structured constants', () async {
+    final dut = _ConstantUtilityHarness();
+    expect(dut.swapped.$1, isA<FixedPoint>());
+    expect(dut.swapped.$2, isA<FixedPoint>());
+    expect(dut.registered, isA<FixedPoint>());
+    await dut.build();
+    await _compare(dut, [
+      Vector(
+          {'clk': 0, 'reset': 1, 'select': 0}, {'first': 0x12, 'second': 0x34}),
+      Vector({'clk': 1}, {'registered': 0x34}),
+      Vector(
+          {'clk': 0, 'reset': 0, 'select': 1}, {'first': 0x34, 'second': 0x12}),
+      Vector({'clk': 1}, {'registered': 0x12}),
+      Vector({
+        'select': LogicValue.x
+      }, {
+        'first': LogicValue.ofString('00x10xx0'),
+        'second': LogicValue.ofString('00x10xx0'),
+      }),
+    ]);
+  });
+
+  test('floating-point sorting accepts compatible constant operands', () async {
+    final dut = _ConstantFloatSort();
+    await dut.build();
+    await _compare(dut, [
+      Vector({'select': 0},
+          {'larger': 0x40000000, 'smaller': 0x3f800000, 'swapped': 0x3f800000}),
+      Vector({'select': 1}, {'swapped': 0x40000000}),
+    ]);
+  });
+
   _checkPayload('plain', Logic(width: 8));
+  _checkPayload('parent-renamed payload', _ParentNamedPacket());
+
+  test('floating-point swaps accept parent-renamed metadata', () async {
+    final dut =
+        _MetadataSwap<_ParentNamedPacket>('conditional', _ParentNamedPacket());
+    await dut.build();
+    await _compare(dut, [
+      Vector({
+        'select': 0,
+        'a': 0x3f800000,
+        'b': 0x40000000,
+        'metaA': 0x12,
+        'metaB': 0x34,
+      }, {
+        'firstMeta': 0x12,
+        'secondMeta': 0x34,
+      }),
+      Vector({'select': 1}, {'firstMeta': 0x34, 'secondMeta': 0x12}),
+    ]);
+  });
+
+  test('renamed payload checks still reject incompatible flop and swap data',
+      () {
+    final data = _ParentNamedPacket(name: 'sourcePayload');
+    final resetData = _ParentNamedPacket(name: 'resetPayload');
+    final incompatible =
+        _ParentNamedPacket(name: 'otherPayload', suffix: 'other');
+    expect(() => condFlop(Logic(), data, reset: Logic(), resetValue: resetData),
+        returnsNormally);
+    expect(
+        () => condFlop(Logic(), data, reset: Logic(), resetValue: incompatible),
+        throwsArgumentError);
+    expect(() => swap(Logic(), (data, incompatible)), throwsArgumentError);
+  });
   _checkPayload('floating-point subtype', FloatingPoint32(), systemC: true);
   _checkPayload('fixed-point format',
       FixedPoint(integerWidth: 3, fractionWidth: 4, signed: false));
@@ -249,6 +427,10 @@ void main() {
   _checkPayload('structure widened to Logic', _Packet() as Logic);
   _checkPayload('fixed point widened to Logic',
       FixedPoint(integerWidth: 3, fractionWidth: 4) as Logic);
+  _checkPayload(
+      'finite field widened to Logic',
+      GfLogic(BinaryExtensionField(
+          modulus: BinaryPolynomial(BigInt.from(0x11b)))) as Logic);
   _checkPayload(
       'enum',
       LogicEnum<_State>.withMapping({
@@ -272,6 +454,81 @@ void main() {
         (Logic(width: 8)..put(5), Logic(width: 8)..put(5)));
     expect(first.value, LogicValue.ofInt(5, 8));
     expect(second.value, LogicValue.ofInt(5, 8));
+  });
+
+  test('swap rejects incompatible typed formats but permits packed bridges',
+      () {
+    final signed = FixedPoint(integerWidth: 3, fractionWidth: 4);
+    final unsigned =
+        FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    expect(() => swap(Logic(), (signed, unsigned)), throwsArgumentError);
+
+    signed.fraction.put(1);
+    signed.integer.put(2);
+    final packed = Logic(width: 8)..put(0xa6);
+    final (first, second) = swap<Logic>(Logic()..put(1), (signed, packed));
+    expect(first, isA<FixedPoint>());
+    expect(first.value, LogicValue.ofInt(0xa6, 8));
+    expect(second.value, LogicValue.ofInt(0x21, 8));
+
+    final firstField =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final secondField =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    expect(
+        () => swap<Logic>(Logic(), (GfLogic(firstField), GfLogic(secondField))),
+        throwsArgumentError);
+  });
+
+  test('condFlop rejects incompatible output and reset formats', () {
+    final signed = FixedPoint(integerWidth: 3, fractionWidth: 4);
+    final unsigned =
+        FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false);
+    expect(() => condFlop(Logic(), signed, outputGenerator: unsigned.clone),
+        throwsArgumentError);
+    expect(
+        () => condFlop(Logic(), signed, reset: Logic(), resetValue: unsigned),
+        throwsArgumentError);
+    expect(
+        () => condFlop<Logic>(Logic(), signed,
+            reset: Logic(),
+            resetValue: unsigned,
+            outputGenerator: ({name}) =>
+                Logic(name: name, width: signed.width)),
+        throwsArgumentError);
+    expect(
+        condFlop(Logic(), signed,
+            reset: Logic(), resetValue: Logic(width: signed.width)),
+        isA<FixedPoint>());
+    expect(
+        condFlop<Logic>(Logic(), signed,
+            reset: Logic(),
+            resetValue: signed.clone(),
+            outputGenerator: ({name}) =>
+                Logic(name: name, width: signed.width)),
+        isA<Logic>());
+    expect(
+        condFlop<Logic>(Logic(), signed,
+            reset: Logic(),
+            resetValue: Logic(width: signed.width),
+            outputGenerator: ({name}) =>
+                Logic(name: name, width: signed.width)),
+        isA<Logic>());
+    expect(
+        condFlop(null, signed,
+            reset: Logic(),
+            resetValue: unsigned,
+            outputGenerator: unsigned.clone),
+        same(signed));
+
+    final firstField =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final secondField =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    expect(
+        () => condFlop(Logic(), GfLogic(firstField),
+            reset: Logic(), resetValue: GfLogic(secondField)),
+        throwsArgumentError);
   });
 
   test('condFlop honors an explicit output schema only when clocked', () {
@@ -454,6 +711,26 @@ void main() {
     expect(sorter.outMetaA, isNull);
     expect(sorter.outMetaB, isNull);
     expect(sorter.outputs, isNot(contains('outMetaA')));
+  });
+
+  test('floating-point swaps reject incompatible formats of the same width',
+      () {
+    final a = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);
+    final differentLayout = FloatingPoint(exponentWidth: 2, mantissaWidth: 4);
+    final differentSemantics = FloatingPoint(
+        exponentWidth: 3, mantissaWidth: 3, subNormalAsZero: true);
+    expect(() => FloatingPointConditionalSwap(a, differentLayout, Logic()),
+        throwsA(isA<RohdHclException>()));
+    expect(() => FloatingPointSort(a, differentSemantics),
+        throwsA(isA<RohdHclException>()));
+    expect(() => FloatingPointSortByExp(a, differentSemantics),
+        throwsA(isA<RohdHclException>()));
+    expect(() => FloatingPointUtilities.sort((a, differentSemantics)),
+        throwsA(isA<RohdHclException>()));
+    expect(() => FloatingPointUtilities.sortByExp((a, differentSemantics)),
+        throwsA(isA<RohdHclException>()));
+    expect(() => FloatingPointUtilities.sort((a, differentLayout)),
+        throwsA(isA<RohdHclException>()));
   });
 
   test('floating-point sort utility retains its static subtype', () {

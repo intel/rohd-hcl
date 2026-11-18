@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_packet.dart
@@ -48,11 +48,21 @@ class Axi4RequestPacket extends SequenceItem implements Trackable {
   /// User (optional).
   final LogicValue? user;
 
-  /// Domain (optional).
+  /// Domain (optional). The request driver uses zero when omitted.
   final LogicValue? domain;
 
-  /// Bar (optional).
+  /// Bar (optional). The request driver uses zero when omitted.
   final LogicValue? bar;
+
+  /// ACE snoop transaction type, when the channel has a SNOOP signal.
+  ///
+  /// When omitted, the request driver drives zero on a present SNOOP signal.
+  final LogicValue? snoop;
+
+  /// ACE write unique indication, when the channel has AWUNIQUE.
+  ///
+  /// When omitted, the request driver drives zero on a present AWUNIQUE.
+  final LogicValue? unique;
 
   /// Creates a new packet.
   // TODO(kimmeljo): how to capture the type (AR vs. AW)??
@@ -69,7 +79,9 @@ class Axi4RequestPacket extends SequenceItem implements Trackable {
       this.region,
       this.user,
       this.domain,
-      this.bar});
+      this.bar,
+      this.snoop,
+      this.unique});
 
   /// A [Future] that completes once the the read has been completed.
   Future<void> get completed => _completer.future;
@@ -126,6 +138,10 @@ class Axi4RequestPacket extends SequenceItem implements Trackable {
         return domain.toString();
       case Axi4RequestTracker.barField:
         return bar.toString();
+      case Axi4RequestTracker.snoopField:
+        return snoop.toString();
+      case Axi4RequestTracker.uniqueField:
+        return unique.toString();
     }
 
     return null;

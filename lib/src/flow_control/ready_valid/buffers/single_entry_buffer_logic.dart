@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Selects the one-entry buffer's ready and capture timing.
 enum SingleEntryBufferMode {
@@ -23,6 +24,9 @@ enum SingleEntryBufferMode {
 }
 
 /// Configures the shared state machine used by both one-entry buffer wrappers.
+///
+/// The upstream, downstream, and stored payloads must be pairwise compatible;
+/// an equal-width plain [Logic] may serve as a packed bridge.
 void configureSingleEntryBuffer<LogicType extends Logic>({
   required Logic clk,
   required Logic reset,
@@ -34,6 +38,11 @@ void configureSingleEntryBuffer<LogicType extends Logic>({
   required String name,
   Logic? admission,
 }) {
+  if (!compatiblePayloadSet([upstream.data, downstream.data, storedData],
+      allowRenamedClones: true)) {
+    throw PortTypeException.forIntendedName(
+        name, 'Single-entry buffer payload layouts must match.');
+  }
   final admissionEnabled = admission ?? Const(1);
   final readAccepted =
       (downstream.ready & downstream.valid).named('${name}_read_accepted');

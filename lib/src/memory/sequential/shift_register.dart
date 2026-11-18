@@ -45,7 +45,8 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
   /// aynchronously if [asyncReset] is `true`. The [reset] will reset all stages
   /// to a default of `0` or to the provided [resetValue]. If [resetValue] is a
   /// [List] the stages will reset to the corresponding value in the list.
-  /// When both reset and payload are structured, their layouts must match.
+  /// Declared reset and payload formats must match; a plain packed reset
+  /// signal supplies raw bits.
   /// Scalar constants used as [dataIn] require `ShiftRegister<Logic>` for
   /// driveable ports.
   ShiftRegister(
@@ -70,9 +71,7 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
     dataIn = addTypedInput<T>('${dataName}_in', dataIn);
     clk = addInput('clk', clk);
 
-    T outputClone({String? name}) => dataIn.cloneTyped(name: name);
-
-    dataOut = addTypedOutput<T>('${dataName}_out', outputClone);
+    dataOut = addTypedPayloadOutput<T>(this, '${dataName}_out', dataIn);
 
     final Map<Logic, dynamic>? resetValues;
     final List<Logic>? resetValueList;
@@ -91,7 +90,7 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
     var conds = <Conditional>[];
 
     for (var i = 0; i < depth; i++) {
-      final stageI = addTypedOutput<T>(_stageName(i), outputClone);
+      final stageI = addTypedPayloadOutput<T>(this, _stageName(i), dataIn);
       stageSignals.add(stageI);
       conds.add(stageI < normalizeStoredLogic(dataStage));
 
@@ -171,13 +170,15 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
           'Entry $resetValue does not have expected width $width.',
         );
       }
-      if (_requiresPayloadShape(schema)) {
-        if (!sameHclPayloadShape(schema, resetValue)) {
-          throw RohdHclException(
-            'ShiftRegister reset signal layout must match the payload.',
-          );
-        }
-        return addTypedInput<T>(name, resetValue as T);
+      if (!compatiblePayloadConnectionAllowingRenamedClone(
+          schema, resetValue)) {
+        throw RohdHclException(
+          'ShiftRegister reset signal layout must match the payload.',
+        );
+      }
+      if (hasDeclaredPayloadShape(schema) &&
+          hasDeclaredPayloadShape(resetValue)) {
+        return addTypedInput<Logic>(name, resetValue);
       }
       return addInput(name, resetValue, width: width);
     }
@@ -190,9 +191,4 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
 
     return Const(resetValue ?? 0, width: width);
   }
-
-  static bool _requiresPayloadShape(Logic payload) =>
-      payload is LogicStructure ||
-      payload is LogicEnum ||
-      payload is TypedLogicArray;
 }

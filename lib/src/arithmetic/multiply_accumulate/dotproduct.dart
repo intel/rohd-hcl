@@ -105,10 +105,15 @@ class CompressionTreeDotProduct extends DotProductBase {
   /// [adderIdentity] must stably identify the generated adder configuration so
   /// automatic definition names remain unique when a custom [adderGen] is
   /// used.
+  ///
+  /// [use42Compressors] enables 4:2 compressors in the compression tree.
+  /// [delayConfig] overrides the tree's input-to-output delay estimates.
   CompressionTreeDotProduct(super.multiplicands, super.multipliers,
       {super.signedMultiplicand,
       super.signedMultiplier,
       int productRadix = 4,
+      bool use42Compressors = false,
+      CompressionTreeDelayConfig? delayConfig,
       Adder Function(Logic a, Logic b, {Logic? carryIn}) adderGen =
           NativeAdder.new,
       String adderIdentity = 'native',
@@ -122,7 +127,9 @@ class CompressionTreeDotProduct extends DotProductBase {
                     'A${multiplicands[0].width}_B${multipliers[0].width}_'
                     'R${productRadix}_Add${adderIdentity}_'
                     '${Multiplier.signedMD(signedMultiplicand)}_'
-                    '${Multiplier.signedML(signedMultiplier)}') {
+                    '${Multiplier.signedML(signedMultiplier)}'
+                    '${use42Compressors ? '_C42' : ''}'
+                    '${delayConfig?.definitionNameSuffix ?? ''}') {
     if (multiplicands.first.width != multipliers.first.width) {
       throw RohdHclException(
         'CompressionTreeDotProduct requires equal multiplicand and '
@@ -149,7 +156,8 @@ class CompressionTreeDotProduct extends DotProductBase {
       for (var row = 0; row < ppg.rows; row++)
         ppg.partialProducts[row].rconcat()
     ];
-    final columnCompressor = ColumnCompressor(vec, ppg.rowShift);
+    final columnCompressor = ColumnCompressor(vec, ppg.rowShift,
+        use42Compressors: use42Compressors, delayConfig: delayConfig);
     final adder = adderGen(columnCompressor.add0, columnCompressor.add1);
     // An artifact of sign extension creates 2 extra bits in the sum.
     final sum = adder.sum.slice(adder.sum.width - 3, 0);

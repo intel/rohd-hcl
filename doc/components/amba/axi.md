@@ -39,6 +39,44 @@ definitions for link layer signals like ready/valid. For AXI5, there is also an
 For code examples of how to work with both individual channel interfaces and
 clusters, see `test/amba/amba<x>/axi<x>_test.dart`.
 
+### ACE4 signal layout
+
+`Ace4Cluster` and its ACE4 channel and cluster interfaces retain their
+historical port layout by default. Set `legacyMode: false` to select the ACE4
+signal layout: this adds the ACE snoop and acknowledgement signals, uses the
+specified response and control widths, and removes non-ACE snoop and WID ports.
+The cluster accepts separate read and write ID widths, per-channel USER widths,
+and a snoop data width; omitted overrides retain the shared width settings.
+For example:
+
+```dart
+final ace = Ace4Cluster(
+  legacyMode: false,
+  arUserWidth: 4,
+  rUserWidth: 8,
+  snoopDataWidth: 64,
+);
+```
+
+The signal layout follows the ACE and AXI4 signal descriptions in Arm IHI
+0022E sections A8.3, C2.1, C2.2, and C2.3.
+
+Both layouts support request and snoop-data drivers and monitors, as well as
+`Ace4SnoopResponseChannelDriver` and `Ace4SnoopResponseChannelMonitor`.
+`Axi4RequestPacket` carries SNOOP and AWUNIQUE where present; omitted values
+drive zero, as do omitted DOMAIN and BAR values. Specifying SNOOP or AWUNIQUE
+on a channel without that signal is an error. For the signal layout,
+`Ace4AcknowledgementDriver` can acknowledge
+accepted responses on the next cycle when the manager can complete them
+immediately. The historical layout has no RACK or WACK signals.
+
+`Ace4ComplianceChecker` checks stalled payload stability on all channels,
+snoop address alignment, and responses without an accepted snoop in both
+layouts. It additionally checks ACSNOOP encodings, CRRESP PassDirty, and
+acknowledgements without a prior completed response when those signals exist.
+It does not cover the full ACE protocol, including missing acknowledgements,
+all data, transaction ordering, and coherency rules.
+
 ### Typed protocol field views
 
 AXI4 and AXI5 address channels expose optional `sizeEnum` and `burstEnum` views,

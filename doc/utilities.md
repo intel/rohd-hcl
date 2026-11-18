@@ -15,7 +15,9 @@ or reset. With a clock, optional `en`, `reset`, `resetValue`, and `asyncReset`
 control the register. A reset without an explicit value uses zero.
 
 The registered result preserves the payload type and structured layout. An
-`outputGenerator` can supply the registered output schema. When a scalar
+`outputGenerator` can supply the registered output schema. The output must be
+compatible with the input and any signal reset value; plain packed signals can
+bridge formats. When a scalar
 constant or net needs a driveable registered result, request `Logic` explicitly
 instead of inferring the constant's or net's type:
 
@@ -28,7 +30,9 @@ final bypassed = condFlop(null, data); // Identical to data.
 
 `swap<T>(select, (a, b))` returns a pair in the original order when `select` is
 zero and in reverse order when it is one. It preserves compatible typed
-payloads, including structured layouts.
+payloads, including structured layouts and finite-field metadata. Declared
+payload formats must match; plain packed signals can bridge formats.
+Both utilities accept structured constants with driveable clones.
 
 ```dart
 final (first, second) = swap<Logic>(select, (a, b));

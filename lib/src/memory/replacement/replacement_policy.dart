@@ -198,23 +198,20 @@ abstract class ReplacementPolicy extends Module {
     addOutput('invalidCommit');
 
     for (final (index, port) in accesses.indexed) {
-      localAccesses.add(port.clone()
-        ..connectIO(this, port,
-            inputTags: {DataPortGroup.control},
-            uniquify: (signal) => 'access_${index}_$signal'));
+      localAccesses.add(addInterfacePorts(port,
+          inputTags: {DataPortGroup.control},
+          uniquify: (signal) => 'access_${index}_$signal'));
     }
     for (final (index, port) in commits.indexed) {
-      localCommits.add(port.clone()
-        ..connectIO(this, port,
-            inputTags: {DataPortGroup.control},
-            uniquify: (signal) => 'commit_${index}_$signal'));
+      localCommits.add(addInterfacePorts(port,
+          inputTags: {DataPortGroup.control},
+          uniquify: (signal) => 'commit_${index}_$signal'));
     }
     for (final (index, port) in allocations.indexed) {
-      localAllocations.add(port.clone()
-        ..connectIO(this, port,
-            inputTags: {DataPortGroup.control},
-            outputTags: {DataPortGroup.data},
-            uniquify: (signal) => 'allocation_${index}_$signal'));
+      localAllocations.add(addInterfacePorts(port,
+          inputTags: {DataPortGroup.control},
+          outputTags: {DataPortGroup.data},
+          uniquify: (signal) => 'allocation_${index}_$signal'));
     }
   }
 

@@ -7,8 +7,10 @@
 //
 // 2023 October 5
 // Author: Yao Jing Quek <yao.jing.quek@intel.com>
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/arithmetic/prefix_networks/parallel_prefix_operations.dart';
 
 /// A module for converting binary values to Gray code representation.
 ///
@@ -72,7 +74,7 @@ class BinaryToGrayConverter extends Module {
 ///
 /// The [GrayToBinaryConverter] class represents a module that takes a Gray
 /// code value as input and produces the equivalent binary representation as
-/// output using a linear prefix-XOR network.
+/// output using a linear prefix-XOR network by default.
 class GrayToBinaryConverter extends Module {
   /// The binary representation output of the converter.
   ///
@@ -87,21 +89,38 @@ class GrayToBinaryConverter extends Module {
   /// The [gray] parameter is the Gray code input that you want to convert to
   /// binary. The width of the input [gray] determines the width of the binary
   /// output.
+  ///
+  /// Set [ppGen] to opt into a parallel-prefix XOR network with the selected
+  /// topology. If omitted, the original linear circuit is used.
   GrayToBinaryConverter(Logic gray,
-      {super.reserveName, super.reserveDefinitionName, String? definitionName})
+      {ParallelPrefixGenerator<Logic>? ppGen,
+      super.reserveName,
+      super.reserveDefinitionName,
+      String? definitionName})
       : super(
-            definitionName:
-                definitionName ?? 'GrayToBinaryConverter_W${gray.width}') {
+            definitionName: definitionName ??
+                (ppGen == null
+                    ? 'GrayToBinaryConverter_W${gray.width}'
+                    : 'GrayToBinaryConverter_Prefix_W${gray.width}')) {
     final inputWidth = gray.width;
     gray = addInput('gray', gray, width: inputWidth);
     final binaryVal = addOutput('binary', width: inputWidth);
 
-    final binaryBits = List<Logic>.filled(inputWidth, Const(0));
-    binaryBits[inputWidth - 1] = gray[inputWidth - 1];
-    for (var bit = inputWidth - 2; bit >= 0; bit--) {
-      binaryBits[bit] = binaryBits[bit + 1] ^ gray[bit];
+    if (ppGen == null) {
+      final binaryBits = List<Logic>.filled(inputWidth, Const(0));
+      binaryBits[inputWidth - 1] = gray[inputWidth - 1];
+      for (var bit = inputWidth - 2; bit >= 0; bit--) {
+        binaryBits[bit] = binaryBits[bit + 1] ^ gray[bit];
+      }
+      binaryVal <= binaryBits.rconcat();
+    } else {
+      binaryVal <=
+          ParallelPrefixScan(gray,
+                  operation: PrefixScanOperation.xor,
+                  direction: PrefixScanDirection.highToLow,
+                  ppGen: ppGen)
+              .out;
     }
-    binaryVal <= binaryBits.rconcat();
   }
 
   /// Converts a Gray code value represented by [gray] to binary.

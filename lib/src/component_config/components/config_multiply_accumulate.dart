@@ -39,6 +39,15 @@ class MultiplyAccumulateConfigurator extends Configurator {
     value: 4,
   );
 
+  /// Enables 4:2 compressors.
+  final ToggleConfigKnob use42CompressorsKnob = ToggleConfigKnob(value: false);
+
+  /// Enables custom compressor timing estimates.
+  final ToggleConfigKnob customDelayKnob = ToggleConfigKnob(value: false);
+
+  /// Per-input compressor timing estimates.
+  final CompressionDelayKnob compressionDelayKnob = CompressionDelayKnob();
+
   /// Whether to generate pipeline clock, reset, and enable inputs.
   final ToggleConfigKnob pipelinedKnob = ToggleConfigKnob(value: false);
 
@@ -57,18 +66,21 @@ class MultiplyAccumulateConfigurator extends Configurator {
   final AdderSelectKnob adderSelectKnob = AdderSelectKnob();
 
   @override
-  late final Map<String, ConfigKnob<dynamic>> knobs = UnmodifiableMapView({
-    'Multiplicand Width': multiplicandWidthKnob,
-    'Multiplier Width': multiplierWidthKnob,
-    'Addend Width': addendWidthKnob,
-    'Output Width': outputWidthKnob,
-    'Radix': radixKnob,
-    'Pipelined': pipelinedKnob,
-    'Multiplicand Signedness': signedMultiplicandKnob,
-    'Multiplier Signedness': signedMultiplierKnob,
-    'Addend Signedness': signedAddendKnob,
-    'Final Adder': adderSelectKnob,
-  });
+  Map<String, ConfigKnob<dynamic>> get knobs => UnmodifiableMapView({
+        'Multiplicand Width': multiplicandWidthKnob,
+        'Multiplier Width': multiplierWidthKnob,
+        'Addend Width': addendWidthKnob,
+        'Output Width': outputWidthKnob,
+        'Radix': radixKnob,
+        'Use 4:2 Compressors': use42CompressorsKnob,
+        'Custom Delay Tables': customDelayKnob,
+        if (customDelayKnob.value) 'Delay Tables': compressionDelayKnob,
+        'Pipelined': pipelinedKnob,
+        'Multiplicand Signedness': signedMultiplicandKnob,
+        'Multiplier Signedness': signedMultiplierKnob,
+        'Addend Signedness': signedAddendKnob,
+        'Final Adder': adderSelectKnob,
+      });
 
   @override
   Module createModule() => CompressionTreeMultiplyAccumulate(
@@ -76,6 +88,9 @@ class MultiplyAccumulateConfigurator extends Configurator {
         Logic(width: multiplierWidthKnob.value),
         Logic(width: addendWidthKnob.value),
         radix: radixKnob.value,
+        use42Compressors: use42CompressorsKnob.value,
+        delayConfig:
+            customDelayKnob.value ? compressionDelayKnob.resolve() : null,
         clk: pipelinedKnob.value ? Logic() : null,
         reset: pipelinedKnob.value ? Logic() : null,
         enable: pipelinedKnob.value ? Logic() : null,

@@ -21,6 +21,15 @@ class MultiplierSelectKnob extends GroupOfKnobs {
   /// Controls the Booth encoding radix of the multiplier.
   final radixKnob = ChoiceConfigKnob<int>([2, 4, 8, 16], value: 4);
 
+  /// Enables 4:2 compressors in a compression-tree multiplier.
+  final use42CompressorsKnob = ToggleConfigKnob(value: false);
+
+  /// Whether to use custom per-input delay estimates.
+  final customDelayKnob = ToggleConfigKnob(value: false);
+
+  /// Per-input compressor timing estimates.
+  final compressionDelayKnob = CompressionDelayKnob();
+
   /// Adder selection control.
   final adderSelectionKnob = AdderSelectKnob(name: 'Final Adder Type');
 
@@ -65,6 +74,12 @@ class MultiplierSelectKnob extends GroupOfKnobs {
   Map<String, ConfigKnob<dynamic>> get subKnobs => {
         'Compression Tree Multiplier': compressionTreeMultiplierKnob,
         if (compressionTreeMultiplierKnob.value) 'Radix': radixKnob,
+        if (compressionTreeMultiplierKnob.value)
+          'Use 4:2 Compressors': use42CompressorsKnob,
+        if (compressionTreeMultiplierKnob.value)
+          'Custom Delay Tables': customDelayKnob,
+        if (compressionTreeMultiplierKnob.value && customDelayKnob.value)
+          'Delay Tables': compressionDelayKnob,
         'Multiplicand width': multiplicandWidthKnob,
         if (allowSigned) 'Multiplicand sign': signMultiplicandValueKnob,
         'Multiplier width': multiplierWidthKnob,
@@ -123,6 +138,9 @@ class MultiplierSelectKnob extends GroupOfKnobs {
             term1,
             term2,
             radix: radixKnob.value,
+            use42Compressors: use42CompressorsKnob.value,
+            delayConfig:
+                customDelayKnob.value ? compressionDelayKnob.resolve() : null,
             adderGen: adderSelectionKnob.selectedAdder(),
             clk: clk,
             reset: reset,

@@ -29,8 +29,16 @@ final resultByte = rf.rdData(0).at([1, 2]);
 ```
 
 Drive the write port's `en`, `addr`, and payload, and the read port's `en` and
-`addr`, as usual. Declared structured layouts and array codecs must match across
-ports. Plain packed bridges remain supported.
+`addr`, as usual. Declared payload layouts, semantic formats, and array codecs
+must match across ports, even when another port is a plain packed bridge. Plain
+packed bridges remain supported.
+Typed schema, storage, and snapshot clones must preserve their packed width,
+declared payload type, and semantic format.
+In-memory SRAM, memory-model, behavioral-cache, and behavioral associative
+snapshots can only be restored when corresponding declared port schemas match,
+including array value codecs.
+When registering an interface with selected direction tags, payload
+compatibility is checked only if the `data` group is selected.
 
 The existing `DataPortInterface(dataWidth, addrWidth)` constructor still creates
 plain `Logic` data ports. When a register file has an empty read or write list,
@@ -65,9 +73,10 @@ payload retains its own dimensions, leaf types, and codec. Rank-zero array
 payloads remain wrappers whose typed leaf is accessible via `.scalar`.
 `rdData(index)` returns the typed module output.
 
-Reset values and masked writes still operate on packed entry bits. For enum
-payloads (including enum fields), choose reset encodings present in their
-mappings; an unmapped encoding is not a valid enum value.
+Reset values and masked writes still operate on packed entry bits. Reset signals
+are checked for width, not payload format, even when they have a declared
+schema. For enum payloads (including enum fields), choose reset encodings
+present in their mappings; an unmapped encoding is not a valid enum value.
 
 Packed and mixed packed/unpacked payloads are checked with Icarus, with
 additional Verilator coverage for unpacked payloads. SystemC checks cover both
@@ -133,7 +142,9 @@ another enabled read or reset. `DataPortInterface` names the address signal
 `addr`. In the configurator, this SRAM is shown as a cell in a small structural
 wrapper: its hand-written Verilog array is not expanded into ROHD logic in the
 ROHD schematic. The generated SystemVerilog contains the SRAM definition; actual
-macro inference depends on the synthesis flow.
+macro inference depends on the synthesis flow. Typed payloads with unpacked
+dimensions retain their external shape and use a packed bridge to the inferred
+array cell.
 
 `InferredSram` provides `peek`, `poke`, `snapshot`, `restore`, and
 `stateTransactions` for simulation. Its execution image includes the stored

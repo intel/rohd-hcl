@@ -4,3 +4,4 @@
 export 'cdc/cdc.dart';
 export 'event_detection/event_detection.dart';
 export 'gating/gating.dart';
+export 'generation/generation.dart';

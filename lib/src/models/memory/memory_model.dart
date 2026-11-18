@@ -54,6 +54,7 @@ class MemoryModelImage {
   final bool _asyncReset;
   final RegisterFileModelConfiguration? _registerFile;
   final List<String> _portShapes;
+  final List<Logic> _portSchemas;
   final List<LogicValue> _readOutputs;
   final List<_PendingMemoryRead> _pending;
 
@@ -69,6 +70,7 @@ class MemoryModelImage {
     required bool asyncReset,
     required RegisterFileModelConfiguration? registerFile,
     required List<String> portShapes,
+    required List<Logic> portSchemas,
     required List<LogicValue> readOutputs,
     required List<_PendingMemoryRead> pending,
   })  : _addressWidth = addressWidth,
@@ -78,6 +80,7 @@ class MemoryModelImage {
         _asyncReset = asyncReset,
         _registerFile = registerFile,
         _portShapes = List.unmodifiable(portShapes),
+        _portSchemas = List.unmodifiable(portSchemas),
         _readOutputs = List.unmodifiable(readOutputs),
         _pending = List.unmodifiable(pending.map((read) => read.copy()));
 }
@@ -474,6 +477,11 @@ class MemoryModel<T extends Logic> extends Memory<T>
         for (final port in wrPorts) _writePortShape(port),
       ];
 
+  List<Logic> get _portSchemas => [
+        for (final port in rdPorts) port.data,
+        for (final port in wrPorts) port.data,
+      ];
+
   /// Captures storage, read outputs and all outstanding delayed reads.
   MemoryModelImage snapshot() => MemoryModelImage._(
         storage: MemoryStorageState(storage).snapshot(),
@@ -484,11 +492,14 @@ class MemoryModel<T extends Logic> extends Memory<T>
         asyncReset: asyncReset,
         registerFile: registerFile,
         portShapes: _portShapes,
+        portSchemas: [
+          for (final schema in _portSchemas) cloneTypedPayload(schema)
+        ],
         readOutputs: [for (final port in rdPorts) _rawValue(port.data)],
         pending: _pendingReads,
       );
 
-  /// Restores a compatible image; external clock and port inputs are not saved.
+  /// Restores an image with matching schemas; external inputs are not saved.
   void restore(MemoryModelImage image) {
     if (image._addressWidth != addrWidth ||
         image._dataWidth != dataWidth ||
@@ -497,7 +508,8 @@ class MemoryModel<T extends Logic> extends Memory<T>
         image._asyncReset != asyncReset ||
         !_sameRegisterFile(image._registerFile) ||
         image._readOutputs.length != rdPorts.length ||
-        !_samePortShapes(image._portShapes)) {
+        !_samePortShapes(image._portShapes) ||
+        !samePayloadSchemas(image._portSchemas, _portSchemas)) {
       throw ArgumentError('Memory model image configuration does not match.');
     }
     MemoryStorageState(storage).load(image.storage, replace: true);

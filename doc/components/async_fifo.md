@@ -78,6 +78,8 @@ final FloatingPoint32 received = fifo.readData;
 The pointer arithmetic, synchronizers, flag latency, and combinational read
 timing are unchanged; only the payload path is typed. Use
 `AsyncFifo<Logic>(...)` when supplying a scalar `Const` payload.
+Structured constants with driveable clones also retain their payload type when
+widened to `Logic`.
 
 ### Write Domain
 

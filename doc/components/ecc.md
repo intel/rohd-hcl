@@ -37,6 +37,9 @@ final Packet received = rx.originalData;
 final Packet? corrected = rx.correctedData;
 ```
 
+Structured constant transmitter inputs with driveable clones retain their type
+when widened to `Logic`.
+
 The schema provides layout only: it is cloned, not driven, and its width must
 match the decoded payload. Structures, fixed/floating-point formats, enums, and
 typed arrays (including rank-zero arrays and custom codecs) are preserved.
@@ -47,3 +50,7 @@ Codewords and syndromes remain bit-oriented with unchanged encoding. Correction
 operates on raw received bits before applying the output schema, so an invalid
 enum encoding caused by a bit flip can still be corrected. `correctedData` is
 null for SEDDED and SEDDEDTED, as before.
+
+Custom `ErrorCheckingReceiver` implementations must return corrected data with
+the output width and a compatible declared payload format. Plain packed results
+remain supported as raw bits.

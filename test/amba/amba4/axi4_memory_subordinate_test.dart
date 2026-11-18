@@ -25,6 +25,44 @@ enum _Scenario {
   queuedWrites,
 }
 
+class _ResponseMonitorTest extends Test {
+  final sys = Axi4SystemInterface();
+  final response = Axi4BChannelInterface(userWidth: 0);
+  final captured = <LogicValue?>[];
+
+  _ResponseMonitorTest() : super('responseMonitor', randomSeed: 123) {
+    sys.clk <= SimpleClockGenerator(10).clk;
+    sys.resetN.put(0);
+    response.valid.put(0);
+    response.ready.put(1);
+    response.id!.put(0);
+    Sequential(sys.clk, [
+      If(~sys.resetN, then: [
+        response.resp! < 0,
+      ], orElse: [
+        If(response.valid & response.ready, then: [response.resp! < 2]),
+      ]),
+    ]);
+    Axi4ResponseChannelMonitor(sIntf: sys, rIntf: response, parent: this)
+        .stream
+        .listen((packet) => captured.add(packet.resp));
+  }
+
+  @override
+  Future<void> run(Phase phase) async {
+    unawaited(super.run(phase));
+    final objection = phase.raiseObjection('response handshake');
+    await sys.clk.waitCycles(2);
+    sys.resetN.inject(1);
+    await sys.clk.nextNegedge;
+    response.valid.inject(1);
+    await sys.clk.nextPosedge;
+    response.valid.inject(0);
+    await sys.clk.waitCycles(2);
+    objection.drop();
+  }
+}
+
 class _MemoryTest extends Test {
   final _Scenario scenario;
   final sys = Axi4SystemInterface();
@@ -199,6 +237,15 @@ class _MemoryTest extends Test {
 
 void main() {
   tearDown(Test.reset);
+
+  test('response monitor captures BRESP before it changes at the edge',
+      () async {
+    Simulator.setMaxSimTime(300);
+    final tb = _ResponseMonitorTest();
+    await tb.start();
+    expect(tb.captured, [LogicValue.ofInt(0, 2)]);
+    expect(tb.response.resp!.value, LogicValue.ofInt(2, 2));
+  });
 
   Future<_MemoryTest> run(_Scenario scenario) async {
     Simulator.setMaxSimTime(1000);

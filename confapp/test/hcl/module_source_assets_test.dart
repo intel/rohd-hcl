@@ -11,6 +11,7 @@ import 'package:confapp/hcl/module_source_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 // The test verifies every registry entry, which requires the internal registry.
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
@@ -29,6 +30,119 @@ void main() {
             'ROHD source asset',
       );
     }
+  });
+
+  test('new compute and binary modules use their specific sources', () {
+    final configs = <String, Configurator>{
+      'Accumulator': AccumulatorConfigurator(),
+      'NumericNarrowing': NumericNarrowingConfigurator(),
+      'Majority': MajorityConfigurator(),
+      'FirstMatchPrefix': FirstMatchPrefixConfigurator(),
+      'IterativeDividerEngine': IterativeDividerEngineConfigurator(),
+      'ReadyValidIterativeDivider': ReadyValidIterativeDividerConfigurator(),
+      'ValidOnlyCarrySaveMultiplier':
+          ValidOnlyCarrySaveMultiplierConfigurator(),
+      'FixedLatencyTracker': FixedLatencyTrackerConfigurator(),
+      'ReadyValidFixedLatency': ReadyValidFixedLatencyConfigurator(),
+      'Compressor4': Compressor4Configurator(),
+      'BinaryLinearTransform': BinaryLinearTransformConfigurator(),
+      'BinaryLinearRecurrence': BinaryLinearRecurrenceConfigurator(),
+      'GfConstantMultiplier': GfConstantMultiplierConfigurator(),
+      'GfInverse': GfInverseConfigurator(),
+      'GfPolynomialEvaluator': GfPolynomialEvaluatorConfigurator(),
+      'SerialLfsr': SerialLfsrConfigurator(),
+      'ParallelLfsr': ParallelLfsrConfigurator(),
+      'Lfsr': LfsrConfigurator(),
+      'SignatureAnalyzer': SignatureAnalyzerConfigurator(),
+      'PrbsGenerator': PrbsGeneratorConfigurator(),
+      'PrbsChecker': PrbsCheckerConfigurator(),
+    };
+    for (final entry in configs.entries) {
+      expect(moduleSourceAssets[entry.key], isNotNull, reason: entry.key);
+      expect(moduleSourceAsset(entry.value.createModule()),
+          moduleSourceAssets[entry.key],
+          reason: entry.value.name);
+    }
+  });
+
+  test('typed priority mux uses its source asset', () {
+    final mux =
+        general.PriorityMux<Logic>(Logic(), [Logic(width: 4)], Logic(width: 4));
+    expect(moduleSourceAsset(mux), moduleSourceAssets['PriorityMux']);
+  });
+
+  test('typed and legacy SPI endpoints use their source assets', () {
+    final main = SpiConfigurator().createModule();
+    final sub =
+        (SpiConfigurator()..roleKnob.value = SpiRole.sub).createModule();
+    // The deprecated flat endpoint remains supported.
+    // ignore: deprecated_member_use
+    final legacyMain = SpiMain(
+      SpiInterface(dataLength: 8),
+      clk: Logic(),
+      reset: Logic(),
+      start: Logic(),
+      busIn: Logic(width: 8),
+    );
+    // The deprecated flat endpoint remains supported.
+    // ignore: deprecated_member_use
+    final legacySub = SpiSub(intf: SpiInterface(dataLength: 8));
+
+    for (final module in [main, legacyMain]) {
+      expect(moduleSourceAsset(module), moduleSourceAssets['SpiMain']);
+    }
+    for (final module in [sub, legacySub]) {
+      expect(moduleSourceAsset(module), moduleSourceAssets['SpiSub']);
+    }
+  });
+
+  test('compute component sources are bundled', () async {
+    final cases = <({Configurator config, String asset, String declaration})>[
+      (
+        config: ClockDividerConfigurator(),
+        asset: 'rohd_src/clocking/generation/clock_divider.dart',
+        declaration: 'class ClockDivider',
+      ),
+      (
+        config: ParallelPrefixScanConfigurator(),
+        asset:
+            'rohd_src/arithmetic/prefix_networks/parallel_prefix_operations.dart',
+        declaration: 'class ParallelPrefixScan',
+      ),
+      (
+        config: SparseToDenseConfigurator(),
+        asset: 'rohd_src/bit_operations/selection/sparse_to_dense.dart',
+        declaration: 'class SparseToDense',
+      ),
+      for (final config in [
+        BinaryToThermometerConfigurator(),
+        ThermometerToBinaryConfigurator(),
+      ])
+        (
+          config: config,
+          asset: 'rohd_src/encodings/thermometer/thermometer_code.dart',
+          declaration: 'class ${config.createModule().runtimeType}',
+        ),
+      for (final config in [
+        FloatingPointClassifierConfigurator(),
+        FloatingPointComparatorConfigurator(),
+      ])
+        (
+          config: config,
+          asset:
+              'rohd_src/arithmetic/floating_point/floating_point_classification.dart',
+          declaration: 'class ${config.createModule().runtimeType}',
+        ),
+    ];
+    for (final item in cases) {
+      expect(moduleSourceAsset(item.config.createModule()), item.asset);
+      final source = await rootBundle.loadString('assets/${item.asset}');
+      expect(source, contains(item.declaration), reason: item.config.name);
+    }
+    final canonicalizer =
+        await rootBundle.loadString('assets/rohd_src/arithmetic/floating_point/'
+            'explicit_j_bit_canonicalization.dart');
+    expect(canonicalizer, contains('canonicalizeExplicitJBit'));
   });
 
   test('carry-save multiplier uses its implementation source asset', () {

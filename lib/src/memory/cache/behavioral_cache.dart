@@ -424,6 +424,7 @@ class _PendingCommit {
 @experimental
 class BehavioralCacheImage {
   final String _configuration;
+  final List<Logic> _portSchemas;
   final Type _replacementType;
   final Object _replacementState;
   final List<List<_Line?>> _lines;
@@ -439,6 +440,7 @@ class BehavioralCacheImage {
 
   BehavioralCacheImage._({
     required String configuration,
+    required List<Logic> portSchemas,
     required Type replacementType,
     required Object replacementState,
     required List<List<_Line?>> lines,
@@ -447,6 +449,7 @@ class BehavioralCacheImage {
     required int cycle,
     required this.backing,
   })  : _configuration = configuration,
+        _portSchemas = List.unmodifiable(portSchemas),
         _replacementType = replacementType,
         _replacementState = replacementState,
         _lines = List.unmodifiable(lines.map(List<_Line?>.unmodifiable)),
@@ -526,6 +529,14 @@ class BehavioralCache<T extends Logic, M extends Logic, C extends Logic,
   late final void Function() _refresh;
   int _cycle = 0;
 
+  List<Logic> get _portSchemas => [
+        for (final port in ports) ...[
+          port.requests.data,
+          port.responses.data,
+          port.evictions.data,
+        ],
+      ];
+
   /// Creates the model. The port operation width must encode the extensions.
   BehavioralCache({
     required Logic clk,
@@ -577,9 +588,9 @@ class BehavioralCache<T extends Logic, M extends Logic, C extends Logic,
         backingStore.dataWidth != request.data.width ||
         backingStore.metadataWidth != request.lineMetadata.width ||
         ports.any((port) =>
-            !sameHclPayloadShape(request, port.requests.data) ||
-            !sameHclPayloadShape(response, port.responses.data) ||
-            !sameHclPayloadShape(eviction, port.evictions.data))) {
+            !samePayloadShape(request, port.requests.data) ||
+            !samePayloadShape(response, port.responses.data) ||
+            !samePayloadShape(eviction, port.evictions.data))) {
       throw ArgumentError('Cache ports and backing store must have matching '
           'geometry and payload shapes.');
     }
@@ -1016,6 +1027,9 @@ class BehavioralCache<T extends Logic, M extends Logic, C extends Logic,
     };
     return BehavioralCacheImage._(
       configuration: _configuration,
+      portSchemas: [
+        for (final schema in _portSchemas) cloneTypedPayload(schema)
+      ],
       replacementType: policy.runtimeType,
       replacementState: (policy as SnapshotableBehavioralCacheReplacement)
           .snapshotReplacement(),
@@ -1042,6 +1056,7 @@ class BehavioralCache<T extends Logic, M extends Logic, C extends Logic,
       throw UnsupportedError('Custom backing stores cannot be restored.');
     }
     if (image._configuration != _configuration ||
+        !samePayloadSchemas(image._portSchemas, _portSchemas) ||
         image._replacementType != policy.runtimeType) {
       throw ArgumentError('Cache image configuration does not match.');
     }

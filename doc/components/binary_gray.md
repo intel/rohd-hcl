@@ -36,7 +36,9 @@ bit with the more-significant decoded bits, starting at the most significant
 end.
 
 The `GrayToBinaryConverter` module accepts a `Logic` input and exposes the
-result through `binary`.
+result through `binary`. By default it uses the original linear XOR chain.
+Pass `ppGen`, such as `BrentKung.new`, to opt into a parallel-prefix XOR
+network; topology cost and timing depend on the target technology.
 
 An example is shown below to convert gray code to binary value.
 
@@ -47,3 +49,11 @@ await grayToBin.build();
 
 print(grayToBin.binary.value.toString(includeWidth: false)); // output: 111
 ```
+
+## Thermometer conversion
+
+`BinaryToThermometer` converts an unsigned count to contiguous low-order ones,
+saturating at the output width and asserting `overflow` for larger inputs.
+`ThermometerToBinary` counts set bits and reports `valid` only when those bits
+are contiguous from bit zero. For an invalid input its binary output is still
+the population count.

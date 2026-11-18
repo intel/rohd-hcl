@@ -247,10 +247,66 @@ Here is an example of a recommended file header template:
 // Author: Max Korbel <max.korbel@intel.com>
 ```
 
+### Component design and ownership
+
+Organize components by their public responsibility and dependency contract,
+not by the branch or PR that introduced them. Start with the
+[component guide and index](doc/README.md) and reuse, extend, or compose an
+existing component when it already supplies the needed behavior.
+
+* Keep synthesizable hardware, simulation-only models, and verification
+  helpers clearly identified. Components should be reusable and configurable
+  where useful, with tests and documentation for timing and restrictions.
+* Keep domain algorithms and state in their functional category. Separate
+  protocol-neutral cores from transport handshakes, buffering, and accounting;
+  see [protocol composition](doc/components/protocol_composition.md).
+* ROHD owns fundamental signal/value operations, simulation, and backend
+  generation. HCL owns configurable components and their behavioral models;
+  ROHD-VF owns reusable verification infrastructure.
+* Preserve existing arithmetic and interface behavior when adopting upstream
+  primitives. Define width, signedness, X/Z, reset, and compatibility semantics
+  and test relevant reference and generated-RTL behavior. Moving an HCL
+  operation upstream requires a compatibility review and migration plan.
+
 #### Adding a New Component
 
-To add a new component to the library, you can follow the steps below,
-referencing other components as examples.
+Check existing components and open issues first. The
+[component authoring guide](doc/Component.md) covers construction, testing,
+and integration requirements.
+
+You can generate a schematic netlist from a module while developing it; a
+`Configurator` is not required. Create a small runner such as
+`tool/generate_my_component_netlist.dart`:
+
+```dart
+import 'dart:io';
+
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+
+Future<void> main() async {
+  final module = MyComponent(/* constructor arguments */);
+  await module.build();
+
+  final output = File('build/my_component.rohd.json');
+  output.parent.createSync(recursive: true);
+  await output.writeAsString(module.generateNetlist());
+}
+```
+
+Replace `MyComponent` and its arguments with the module you want to inspect,
+then run:
+
+```shell
+dart run tool/generate_my_component_netlist.dart
+```
+
+This writes a native ROHD netlist to `build/my_component.rohd.json`. The
+standalone [ROHD schematic viewer](doc/schematic_viewer/README.md) loads a
+netlist through its `json` query parameter.
+
+To add the component to the library, follow the steps below, referencing other
+components as examples.
 
 1. Create the dart code for constructing the module in the matching
    `lib/src/<category>/<subcategory>/` directory (see the source layout in
@@ -259,8 +315,8 @@ referencing other components as examples.
    `lib/src/<category>/` family. When a category grows beyond roughly six direct
    test files, split them into `test/<category>/<subcategory>/` directories
    matching the source subcategories.
-1. Create a `Configurator` for the component (enabling things like schematic
-   generation, web-app generation, etc.).
+1. To expose the component in the configuration app and include it in the
+   registry-wide netlist generation:
    1. Create a new config in `lib/src/component_config/components`, overriding
       `category` and `subcategory` to match the source directory.
    1. Update the component registry in
@@ -268,14 +324,20 @@ referencing other components as examples.
    1. Add the module's source path to
       `confapp/lib/hcl/module_source_assets.dart` and run `bash
       tool/generate_confapp_assets.sh`.
-1. Add documentation to `doc/components/name.md`.
+1. Add or update the permanent topic documentation under `doc/components/` and
+   link it from [doc/README.md](doc/README.md). Update the root README when
+   introducing a new category.
+1. Add user-visible changes and compatibility notes to the Unreleased section
+   of [CHANGELOG.md](CHANGELOG.md).
+1. Track planned typed-payload and compatibility removals in
+   [DEPRECATION_PLAN.md](DEPRECATION_PLAN.md); deprecate APIs only when their
+   replacement and migration guidance are available.
 
-Run `dart run gen/generate.dart` to generate native ROHD netlists in
-`build/*.rohd.json`. The ROHD schematic viewer loads these netlists directly;
-there is no HTML conversion step. The configuration app also offers a
-synthesized schematic by running Yosys in a web worker. For equivalent
-command-line conversion, install OSS CAD Suite with
-`tool/gh_actions/install_opencadsuite.sh` and run
+After registering a `Configurator`, run `dart run gen/generate.dart` to generate
+native ROHD netlists for the registered components in `build/*.rohd.json`.
+The configuration app also offers a synthesized schematic by running Yosys in
+a web worker. For equivalent command-line conversion, install OSS CAD Suite
+with `tool/gh_actions/install_opencadsuite.sh` and run
 `tool/converters/verilog_json.sh <module.sv>`.
 
 The `confapp/` directory contains the source code for the Flutter configuration

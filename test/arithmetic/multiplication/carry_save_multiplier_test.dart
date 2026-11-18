@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
@@ -129,5 +130,65 @@ void main() {
         reason: 'product must appear after exactly latency enabled cycles');
 
     await Simulator.endSimulation();
+  });
+
+  test('valid-only wrapper propagates bubbles and clears in-flight work',
+      () async {
+    const width = 3;
+    final dut = ValidOnlyCarrySaveMultiplier(
+      clk: Logic(),
+      reset: Logic(),
+      multiplicand: ValidOnlyInterface(Logic(name: 'data', width: width)),
+      multiplier: ValidOnlyInterface(Logic(name: 'data', width: width)),
+      product: ValidOnlyInterface(Logic(name: 'data', width: width * 2)),
+    );
+    expect(dut.timing.stallability, PipelineStallability.none);
+    await dut.build();
+
+    final pending =
+        List<int?>.filled(dut.timing.latency - 1, null, growable: true);
+    final vectors = <Vector>[];
+    void cycle(int a, int b,
+        {bool validA = false, bool validB = false, bool reset = false}) {
+      final inputs = {
+        'reset': reset ? 1 : 0,
+        'multiplicand_data': a,
+        'multiplicand_valid': validA ? 1 : 0,
+        'multiplier_data': b,
+        'multiplier_valid': validB ? 1 : 0,
+      };
+      vectors
+        ..add(Vector({'clk': 0, ...inputs}, {}))
+        ..add(Vector({'clk': 1, ...inputs}, {}));
+      if (reset) {
+        pending.fillRange(0, pending.length, null);
+      } else {
+        pending.add(validA && validB ? a * b : null);
+      }
+      final result = reset ? null : pending.removeAt(0);
+      vectors.add(Vector({
+        'clk': 0,
+        ...inputs
+      }, {
+        'product_valid': result == null ? 0 : 1,
+        if (result != null) 'product_data': result,
+      }));
+    }
+
+    cycle(0, 0, reset: true);
+    cycle(3, 5, validA: true, validB: true);
+    cycle(7, 2, validA: true);
+    cycle(4, 6, validA: true, validB: true);
+    cycle(1, 7, validB: true);
+    cycle(2, 3, validA: true, validB: true);
+    cycle(0, 0);
+    cycle(0, 0, reset: true);
+    cycle(7, 7, validA: true, validB: true);
+    for (var i = 0; i < dut.timing.latency; i++) {
+      cycle(0, 0);
+    }
+
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
   });
 }

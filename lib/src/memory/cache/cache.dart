@@ -155,9 +155,87 @@ enum CacheEvictionConcurrency {
   oneAtATime,
 }
 
+mixin _TypedCachePayloadPorts<T extends Logic> on PairInterface {
+  Iterable<T> get _payloads;
+
+  Set<String> _handledPayloads = {};
+
+  @override
+  Map<String, Logic> getPorts([Iterable<PairDirection>? tags]) {
+    final ports = super.getPorts(tags);
+    if (_handledPayloads.isEmpty) {
+      return ports;
+    }
+    return Map<String, Logic>.of(ports)
+      ..removeWhere((name, _) => _handledPayloads.contains(name));
+  }
+
+  @override
+  void connectIO(
+    Module module,
+    Interface<dynamic> srcInterface, {
+    Iterable<PairDirection>? inputTags,
+    Iterable<PairDirection>? outputTags,
+    Iterable<PairDirection>? inOutTags,
+    String Function(String original)? uniquify,
+  }) {
+    final selectedInputs = inputTags?.toSet();
+    final selectedOutputs = outputTags?.toSet();
+    final selectedInOuts = inOutTags?.toSet();
+    final inputs = selectedInputs == null
+        ? <String>{}
+        : getPorts(selectedInputs).keys.toSet();
+    final outputs = selectedOutputs == null
+        ? <String>{}
+        : getPorts(selectedOutputs).keys.toSet();
+    final inOuts = selectedInOuts == null
+        ? <String>{}
+        : getPorts(selectedInOuts).keys.toSet();
+    for (final payload in _payloads) {
+      if (inOuts.contains(payload.name) &&
+          (inputs.contains(payload.name) || outputs.contains(payload.name))) {
+        throw PortTypeException.forIntendedName(payload.name,
+            'Cache payload cannot be both directional and an inOut port.');
+      }
+    }
+    final handled = <String>{};
+    for (final payload in _payloads) {
+      final isInput = inputs.contains(payload.name);
+      final isOutput = outputs.contains(payload.name);
+      if (!isInput && !isOutput) {
+        continue;
+      }
+      final source = srcInterface.port(payload.name);
+      if (!compatiblePayloadConnection(payload, source)) {
+        throw PortTypeException.forIntendedName(
+            payload.name, 'Cache payload shape does not match.');
+      }
+      final name = uniquify?.call(payload.name) ?? payload.name;
+      connectTypedPayloadPorts<T>(module,
+          name: name,
+          local: payload,
+          source: source,
+          input: isInput,
+          output: isOutput);
+      handled.add(payload.name);
+    }
+    _handledPayloads = handled;
+    try {
+      super.connectIO(module, srcInterface,
+          inputTags: selectedInputs,
+          outputTags: selectedOutputs,
+          inOutTags: selectedInOuts,
+          uniquify: uniquify);
+    } finally {
+      _handledPayloads = {};
+    }
+  }
+}
+
 /// One caller-owned cache lookup interface.
 @experimental
-class CacheLookupPort<T extends Logic> extends PairInterface {
+class CacheLookupPort<T extends Logic> extends PairInterface
+    with _TypedCachePayloadPorts<T> {
   /// Lookup request valid.
   Logic get valid => port('valid');
 
@@ -173,6 +251,9 @@ class CacheLookupPort<T extends Logic> extends PairInterface {
   /// Lookup data.
   T get data => port('data') as T;
 
+  @override
+  Iterable<T> get _payloads => [data];
+
   /// Creates a lookup port with a typed data schema.
   CacheLookupPort({required int addressWidth, required T dataSchema})
       : super(
@@ -183,7 +264,7 @@ class CacheLookupPort<T extends Logic> extends PairInterface {
           portsFromConsumer: [
             Logic.port('ready'),
             Logic.port('hit'),
-            dataSchema.cloneTyped(name: 'data'),
+            cloneTypedPayload(dataSchema, name: 'data'),
           ],
         );
 
@@ -194,7 +275,8 @@ class CacheLookupPort<T extends Logic> extends PairInterface {
 
 /// One caller-owned fill port and its associated eviction response.
 @experimental
-class CacheFillPort<T extends Logic> extends PairInterface {
+class CacheFillPort<T extends Logic> extends PairInterface
+    with _TypedCachePayloadPorts<T> {
   /// Fill request valid.
   Logic get valid => port('valid');
 
@@ -219,20 +301,23 @@ class CacheFillPort<T extends Logic> extends PairInterface {
   /// Data of the evicted block.
   T get evictionData => port('evictionData') as T;
 
+  @override
+  Iterable<T> get _payloads => [data, evictionData];
+
   /// Creates a fill port with a typed data schema.
   CacheFillPort({required int addressWidth, required T dataSchema})
       : super(
           portsFromProvider: [
             Logic.port('valid'),
             Logic.port('address', addressWidth),
-            dataSchema.cloneTyped(name: 'data'),
+            cloneTypedPayload(dataSchema, name: 'data'),
             Logic.port('evictionReady'),
           ],
           portsFromConsumer: [
             Logic.port('ready'),
             Logic.port('evictionValid'),
             Logic.port('evictionAddress', addressWidth),
-            dataSchema.cloneTyped(name: 'evictionData'),
+            cloneTypedPayload(dataSchema, name: 'evictionData'),
           ],
         );
 
@@ -325,7 +410,7 @@ class Cache<T extends Logic> extends Module {
     if (clk.width != 1 || reset.width != 1) {
       throw ArgumentError('Clock and reset must be bits.');
     }
-    if (!sameHclPayloadShape(fill.data, lookup.data)) {
+    if (!samePayloadShape(fill.data, lookup.data)) {
       throw ArgumentError('Cache port payload shapes must match.');
     }
 
@@ -654,10 +739,10 @@ class MultiPortCache<T extends Logic> extends Module {
         reset.width != 1 ||
         lookups.any((port) =>
             port.address.width != addressWidth ||
-            !sameHclPayloadShape(fills.first.data, port.data)) ||
+            !samePayloadShape(fills.first.data, port.data)) ||
         fills.any((port) =>
             port.address.width != addressWidth ||
-            !sameHclPayloadShape(fills.first.data, port.data))) {
+            !samePayloadShape(fills.first.data, port.data))) {
       throw ArgumentError('Cache port widths, payload shapes, or control '
           'signals do not match.');
     }
@@ -692,7 +777,7 @@ class MultiPortCache<T extends Logic> extends Module {
     ];
     final pendingData = [
       for (var i = 0; i < fills.length; i++)
-        Logic(name: 'pending_data_$i', width: dataWidth)
+        fillData[i].cloneTyped(name: 'pending_data_$i')
     ];
     final pendingWay = [
       for (var i = 0; i < fills.length; i++)
@@ -704,7 +789,7 @@ class MultiPortCache<T extends Logic> extends Module {
     ];
     final victimData = [
       for (var i = 0; i < fills.length; i++)
-        Logic(name: 'victim_data_$i', width: dataWidth)
+        fillData[i].cloneTyped(name: 'victim_data_$i')
     ];
     final capture = [
       for (var i = 0; i < fills.length; i++) Logic(name: 'capture_$i')
@@ -719,7 +804,7 @@ class MultiPortCache<T extends Logic> extends Module {
     ];
     final capturedVictimData = [
       for (var i = 0; i < fills.length; i++)
-        Logic(name: 'capture_victim_data_$i', width: dataWidth)
+        fillData[i].cloneTyped(name: 'capture_victim_data_$i')
     ];
     Logic combine(List<Logic> values) =>
         values.reduce((left, right) => left | right);
@@ -924,7 +1009,7 @@ class MultiPortCache<T extends Logic> extends Module {
           updates[i].entryValid <= Const(1);
           writes[i].en <= updates[i].en;
           writes[i].addr <= updates[i].index;
-          writes[i].data <= mux(completed, pendingData[i], fillData[i]);
+          writes[i].data <= mux<T>(completed, pendingData[i], fillData[i]);
           victims[i].en <= allocations[i].evict;
           victims[i].addr <= allocations[i].index;
           readyParts[i].add(accepted);
@@ -1116,11 +1201,10 @@ class MultiPortCache<T extends Logic> extends Module {
               mux(capture[i], normalizeStoredLogic(fillAddress[i]),
                   pendingAddress[i]),
               reset: localReset);
+      final normalizedFill = (fillData[i]).cloneTyped()
+        ..gets(normalizeStoredLogic(fillData[i]));
       pendingData[i] <=
-          flop(
-              localClk,
-              mux(capture[i], normalizeStoredLogic(fillData[i]),
-                  pendingData[i]),
+          flop<T>(localClk, mux<T>(capture[i], normalizedFill, pendingData[i]),
               reset: localReset);
       pendingWay[i] <=
           flop(localClk, mux(capture[i], capturedWay[i], pendingWay[i]),
@@ -1130,7 +1214,8 @@ class MultiPortCache<T extends Logic> extends Module {
               mux(capture[i], capturedVictimAddress[i], victimAddress[i]),
               reset: localReset);
       victimData[i] <=
-          flop(localClk, mux(capture[i], capturedVictimData[i], victimData[i]),
+          flop<T>(localClk,
+              mux<T>(capture[i], capturedVictimData[i], victimData[i]),
               reset: localReset);
     }
     for (var i = 0; i < lookups.length; i++) {

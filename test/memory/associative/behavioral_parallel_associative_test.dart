@@ -20,6 +20,10 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
+LogicValue _alternateCodecValue(LogicValue value) => value;
+const _alternateCodec = LogicValueCodec<LogicValue>(
+    decode: _alternateCodecValue, encode: _alternateCodecValue);
+
 class _Key extends LogicStructure {
   _Key({String name = 'key'})
       : super([Logic(name: 'low', width: 4), Logic(name: 'high', width: 4)],
@@ -660,10 +664,8 @@ void main() {
       name: 'typed_model',
     );
     final model = binding.memory!;
-    expect(
-        sameHclPayloadShape(model.input('update_key_0'), update.key), isTrue);
-    expect(
-        sameHclPayloadShape(model.input('lookup_key_0'), lookup.key), isTrue);
+    expect(samePayloadShape(model.input('update_key_0'), update.key), isTrue);
+    expect(samePayloadShape(model.input('lookup_key_0'), lookup.key), isTrue);
     await model.build();
     Simulator.registerAction(1, () {
       clk.put(0);
@@ -688,6 +690,40 @@ void main() {
       expect(lookup.matchVector!.value, LogicValue.ofInt(2, 2));
     });
     await Simulator.run();
+  });
+
+  test('behavioral associative snapshots require matching key codecs', () {
+    Logic schema(LogicValueCodec<LogicValue> codec) =>
+        TypedLogicArray<Logic, LogicValue>(
+            [2], ({name}) => Logic(width: 4, name: name),
+            valueCodec: codec);
+    BehavioralParallelAssociativeMemory memory(Logic key) =>
+        behavioralParallelAssociativeMemoryFunctor(
+          clk: Logic(),
+          reset: Logic(),
+          updatePorts: [
+            AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 1)
+          ],
+          lookupPorts: [
+            TypedAssociativeLookupPortInterface<Logic>(key,
+                indexWidth: 1, matchEntryCount: 2)
+          ],
+          entryCount: 2,
+          lookupLatency: 0,
+          duplicateKeyPolicy: AssociativeDuplicateKeyPolicy.allow,
+          matchSelection: AssociativeMatchSelection.lowestIndex,
+          resultShape: AssociativeResultShape.matchVectorAndSelectedIndex,
+          lookupUpdatePolicy: AssociativeLookupUpdatePolicy.lookupAfterUpdate,
+          updateCollisionPolicy:
+              AssociativeUpdateCollisionPolicy.highestPortWins,
+          name: 'typed_model',
+        ).memory! as BehavioralParallelAssociativeMemory;
+    final source = memory(schema(LogicValueCodec.logicValue));
+    final compatible = memory(schema(LogicValueCodec.logicValue));
+    final incompatible = memory(schema(_alternateCodec));
+    final image = source.snapshot();
+    expect(() => incompatible.restore(image), throwsArgumentError);
+    compatible.restore(image);
   });
 
   test('SystemC snapshots restore combinational output and replay writes',

@@ -11,6 +11,8 @@ import 'dart:collection';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/spi_main.dart' as general;
+import 'package:rohd_hcl/spi_sub.dart' as general;
 
 /// Available SPI gasket roles.
 enum SpiRole {
@@ -21,7 +23,7 @@ enum SpiRole {
   sub,
 }
 
-/// A [Configurator] for [SpiMain] and [SpiSub].
+/// A [Configurator] for [general.SpiMain] and [general.SpiSub].
 class SpiConfigurator extends Configurator {
   @override
   ComponentCategory get category => ComponentCategory.interfaces;
@@ -61,17 +63,19 @@ class SpiConfigurator extends Configurator {
   Module createModule() {
     final intf = SpiInterface(dataLength: dataLengthKnob.value);
     return roleKnob.value == SpiRole.main
-        ? SpiMain(
+        ? general.SpiMain<Logic, Logic>(
             intf,
             clk: Logic(),
             reset: Logic(),
             start: Logic(),
             busIn: Logic(width: dataLengthKnob.value),
+            busOutSchema: Logic(width: dataLengthKnob.value),
           )
-        : SpiSub(
+        : general.SpiSub<Logic, Logic>(
             intf: intf,
             busIn:
                 subBusInKnob.value ? Logic(width: dataLengthKnob.value) : null,
+            busOutSchema: Logic(width: dataLengthKnob.value),
             reset: subResetKnob.value ? Logic() : null,
           );
   }

@@ -63,6 +63,16 @@ class _Payload extends LogicStructure {
   _Payload clone({String? name}) => _Payload(name: name ?? this.name);
 }
 
+class _OtherPayload extends LogicStructure {
+  _OtherPayload({String name = 'payload'})
+      : super([Logic(name: 'other', width: 8)], name: name);
+
+  @override
+  _OtherPayload clone({String? name}) => _OtherPayload(name: name ?? this.name);
+}
+
+class _PortTestModule extends Module {}
+
 class _ArrayPortHarness extends Module {
   late final Cache<TypedLogicArray<_Payload, LogicValue>> cache;
 
@@ -286,6 +296,26 @@ void main() {
     );
   });
 
+  test('cache construction rejects incompatible finite-field payloads', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    expect(
+      () => Cache<GfLogic>(
+        clk: Logic(),
+        reset: Logic(),
+        lookup: CacheLookupPort<GfLogic>(
+            addressWidth: 8, dataSchema: GfLogic(first)),
+        fill: CacheFillPort<GfLogic>(
+            addressWidth: 8, dataSchema: GfLogic(second)),
+        setCount: 1,
+        waysPerSet: 1,
+      ),
+      throwsArgumentError,
+    );
+  });
+
   test('cache port registration preserves typed array data', () async {
     final dut = _ArrayPortHarness();
     expect(dut.cache.input('lookup_valid').width, 1);
@@ -316,6 +346,89 @@ void main() {
     await dut.build();
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('cache ports preserve structures in both interface directions', () {
+    final dut = _TypedHarness();
+    expect(dut.cache.input('fill_data'), isA<_Payload>());
+    expect(dut.cache.output('lookup_data'), isA<_Payload>());
+    expect(dut.cache.output('eviction_data'), isA<_Payload>());
+
+    final provider = _ProviderPortModule(
+      CacheLookupPort<_Payload>(addressWidth: 8, dataSchema: _Payload()),
+      CacheFillPort<_Payload>(addressWidth: 8, dataSchema: _Payload()),
+      Logic(),
+      Logic(width: 8),
+      Logic(),
+      Logic(width: 8),
+      Logic(width: 8),
+      Logic(),
+    );
+    expect(provider.input('lookup_data'), isA<_Payload>());
+    expect(provider.input('fill_evictionData'), isA<_Payload>());
+    expect(provider.output('fill_data'), isA<_Payload>());
+  });
+
+  test('cache port registration rejects incompatible structured layouts', () {
+    final local =
+        CacheLookupPort<Logic>(addressWidth: 8, dataSchema: _Payload());
+    final source =
+        CacheLookupPort<Logic>(addressWidth: 8, dataSchema: _OtherPayload());
+    expect(
+      () => local.connectIO(_PortTestModule(), source,
+          inputTags: [PairDirection.fromConsumer]),
+      throwsA(isA<PortTypeException>()),
+    );
+    expect(
+      () => local.connectIO(_PortTestModule(), source,
+          outputTags: [PairDirection.fromConsumer]),
+      throwsA(isA<PortTypeException>()),
+    );
+  });
+
+  test('cache ports reject directional and inout overlap before registration',
+      () {
+    for (final isLookup in [true, false]) {
+      for (final direction in PairDirection.values) {
+        for (final asInput in [true, false]) {
+          final local = isLookup
+              ? CacheLookupPort<_Payload>(
+                  addressWidth: 8, dataSchema: _Payload())
+              : CacheFillPort<_Payload>(
+                  addressWidth: 8, dataSchema: _Payload());
+          final selected = local.getPorts([direction]);
+          if (!selected.values.any((port) => port is _Payload)) {
+            continue;
+          }
+          final module = _PortTestModule();
+          expect(
+            () => local.connectIO(
+              module,
+              local.clone(),
+              inputTags: asInput ? [direction] : null,
+              outputTags: asInput ? null : [direction],
+              inOutTags: [direction],
+            ),
+            throwsA(isA<PortTypeException>()),
+          );
+          expect(module.inputs, isEmpty);
+          expect(module.outputs, isEmpty);
+        }
+      }
+    }
+  });
+
+  test('cache inout-only registration retains net validation', () {
+    for (final isLookup in [true, false]) {
+      final local = isLookup
+          ? CacheLookupPort<_Payload>(addressWidth: 8, dataSchema: _Payload())
+          : CacheFillPort<_Payload>(addressWidth: 8, dataSchema: _Payload());
+      expect(
+        () => local.connectIO(_PortTestModule(), local.clone(),
+            inOutTags: [PairDirection.fromConsumer]),
+        throwsA(isA<PortTypeException>()),
+      );
+    }
   });
 
   test('cache ports register typed provider endpoints', () async {

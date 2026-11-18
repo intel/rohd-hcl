@@ -10,6 +10,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A transmitter for data which includes a [code] for checking and possibly
 /// correcting data at the receiving end.
@@ -41,7 +42,7 @@ abstract class ErrorCheckingTransmitter<T extends Logic> extends Module {
       : super(
             definitionName:
                 definitionName ?? 'ErrorCheckingTransmitter_W${data.width}') {
-    this.data = addTypedInput('data', data);
+    this.data = addTypedInput<T>('data', data);
 
     addOutput('code', width: codeWidth);
     addOutput('transmission', width: codeWidth + data.width) <=
@@ -95,6 +96,8 @@ abstract class ErrorCheckingReceiver<T extends Logic> extends Module {
   /// Implementation to calculate corrected data, if supported.
   ///
   /// Returns null if not [supportsErrorCorrection].
+  /// Declared result and payload formats must match; a plain packed result
+  /// supplies raw bits.
   @protected
   T? calculateCorrectedData();
 
@@ -146,10 +149,10 @@ abstract class ErrorCheckingReceiver<T extends Logic> extends Module {
     rawData = this.transmission.slice(-1 - codeWidth, 0);
     // Keep schema constraints off the raw slice used for error calculations:
     // directly connected signals share their wire's value constraints.
-    originalData = addTypedOutput('original_data', schema.cloneTyped)
+    originalData = addTypedPayloadOutput(this, 'original_data', schema)
       ..gets(this.transmission.slice(-1 - codeWidth, 0));
     correctedData = supportsErrorCorrection
-        ? addTypedOutput('corrected_data', schema.cloneTyped)
+        ? addTypedPayloadOutput(this, 'corrected_data', schema)
         : null;
 
     addOutput('correctable_error');
@@ -161,7 +164,14 @@ abstract class ErrorCheckingReceiver<T extends Logic> extends Module {
     error <= correctableError | uncorrectableError;
 
     if (supportsErrorCorrection) {
-      correctedData! <= calculateCorrectedData()!;
+      final corrected = calculateCorrectedData();
+      if (corrected == null ||
+          !compatiblePayloadConnectionAllowingRenamedClone(
+              correctedData!, corrected)) {
+        throw RohdHclException(
+            'Corrected data must match the payload width and format.');
+      }
+      correctedData! <= corrected;
     }
   }
 }

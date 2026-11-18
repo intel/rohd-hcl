@@ -25,12 +25,16 @@ Multidimensional inputs produce array slices, with no cast required. Specify the
 deserializer's leaf type explicitly for custom or enum leaves; its input can be
 either that leaf or an array slice, including a rank-zero array. Deserializing a
 rank-zero input produces shape `[length]`.
+Structured constant inputs with driveable clones retain their leaf type.
+Array and leaf clones must retain their declared payload types and formats.
 
 Deserialization requires a `valueCodec` for each leaf, not for an entire slice.
 Pass the source array's `valueCodec` when reconstructing a transfer, or
 `LogicValueCodec.logicValue` when using packed `LogicValue` semantics. Existing
 plain-logic deserializer calls must add `valueCodec:
 LogicValueCodec.logicValue`; transfer timing is unchanged.
+For array inputs, the supplied codec must be identical to the input array's
+codec; deserialization does not convert between codecs.
 
 For example, with `clk` and `reset` supplied by the surrounding design:
 
@@ -56,8 +60,24 @@ final LogicEnum<Phase> first = deserializer.deserialized.at([0, 0]);
 Ports, buffered inputs, and selected slices retain their hardware structure.
 Dimension sizes and the deserializer length must be positive. The serializer
 requires at least one input axis to remove; the deserializer accepts rank zero.
+Serializer slices must have matching declared formats, although different
+positions within each slice may have different formats. The deserializer
+currently requires every input leaf to have the same declared format, because
+its output array is constructed from one leaf prototype. Incompatible formats
+are rejected rather than silently reinterpreted.
 
 ## Serializer
+
+By default, enabling `flopInput` captures the input and delays the serialized
+output, count, and done by one cycle. Set `alignOutputLatency: true` together
+with `flopInput: true` to match the timing without input flops: the first
+element passes through directly, and the remaining elements come from the
+input captured on the enabled clock edge at count zero. Keep the first element
+stable until that edge, including while stalled. The option has no effect when
+`flopInput` is false.
+
+`endCount` can assert `done` before the final element, but does not restart the
+counter; the counter continues to the final element unless reset.
 
 The `Serializer` is a module that accepts a wider `LogicArray` `deserialized`
 for input data and optionally a `Logic` `enable` to allow for pausing

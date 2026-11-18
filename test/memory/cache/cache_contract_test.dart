@@ -25,6 +25,16 @@ class _Metadata extends LogicStructure {
   _Metadata clone({String? name}) => _Metadata(name: name ?? this.name);
 }
 
+class _MisclonedField extends GfLogic {
+  final BinaryExtensionField replacement;
+
+  _MisclonedField(super.field, this.replacement, {super.name});
+
+  @override
+  _MisclonedField clone({String? name}) =>
+      _MisclonedField(replacement, replacement, name: name ?? this.name);
+}
+
 class _QueueHarness extends Module {
   _QueueHarness() {
     final port = CacheTransactionPort<Logic, _Metadata, Logic, Logic>(
@@ -174,6 +184,40 @@ class _EmptyModule extends Module {
 }
 
 void main() {
+  test('cache transaction schemas reject changed payload clone metadata', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    _MisclonedField bad() => _MisclonedField(first, second);
+
+    expect(
+        () => CacheTransactionRequest<Logic, Logic, Logic>(
+            addressWidth: 4,
+            tokenWidth: 1,
+            dataSchema: bad(),
+            writeMaskWidth: 1,
+            lineMetadataSchema: Logic(),
+            contextSchema: Logic()),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => CacheTransactionResponse<Logic, Logic, Logic, Logic>(
+            tokenWidth: 1,
+            dataSchema: Logic(width: 3),
+            lineMetadataSchema: bad(),
+            contextSchema: Logic(),
+            resultSchema: Logic()),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => CacheTransactionEviction<Logic, Logic, Logic>(
+            addressWidth: 4,
+            tokenWidth: 1,
+            dataSchema: Logic(width: 3),
+            lineMetadataSchema: Logic(),
+            contextSchema: bad()),
+        throwsA(isA<LogicConstructionException>()));
+  });
+
   tearDown(Simulator.reset);
 
   test('scheduler ports preserve resource geometry and isolate input lists',
@@ -345,13 +389,11 @@ void main() {
     expect(port.requests.contract, ReadyValidContract.irrevocable);
     expect(port.responses.contract, ReadyValidContract.irrevocable);
     expect(port.evictions.contract, ReadyValidContract.irrevocable);
-    expect(sameHclPayloadShape(port.requests.data, port.requests.data.clone()),
+    expect(samePayloadShape(port.requests.data, port.requests.data.clone()),
         isTrue);
-    expect(
-        sameHclPayloadShape(port.responses.data, port.responses.data.clone()),
+    expect(samePayloadShape(port.responses.data, port.responses.data.clone()),
         isTrue);
-    expect(
-        sameHclPayloadShape(port.evictions.data, port.evictions.data.clone()),
+    expect(samePayloadShape(port.evictions.data, port.evictions.data.clone()),
         isTrue);
     expect(port.requests.data.clone().operation.width, 4);
     expect(port.evictions.data.clone().cause.width, 2);

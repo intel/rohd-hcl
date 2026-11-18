@@ -11,6 +11,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// [FixedToFloat] converts a fixed point input to floating point with
 /// rouding to nearest even. If the input exceeds the floating point range,
@@ -59,7 +60,7 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
     _convertedFloat = outFloat.cloneTyped();
     final mantissaWidth =
         outFloat.mantissa.width - (outFloat.explicitJBit ? 1 : 0);
-    float = addTypedOutput('float', _convertedFloat.cloneTyped)
+    float = addTypedPayloadOutput(this, 'float', _convertedFloat)
       ..gets(_convertedFloat);
 
     leadingDigitPredict = (leadingDigitPredict != null)

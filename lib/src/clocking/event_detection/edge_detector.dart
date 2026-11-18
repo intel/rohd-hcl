@@ -7,6 +7,8 @@
 // 2024 January 29
 // Author: Max Korbel <max.korbel@intel.com>
 
+// Deprecated compatibility APIs remain available for this release.
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_vf/rohd_vf.dart';

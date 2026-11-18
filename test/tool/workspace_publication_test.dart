@@ -190,7 +190,7 @@ dependency_overrides:
     expect(resetRoot['dependency_overrides'], isEmpty);
   });
 
-  test('a consumer resolves and tests without the Confapp directory', () async {
+  test('a consumer without Confapp resolves hosted ROHD', () async {
     final package = Directory('${fixture.path}/package');
     final consumer = Directory('${fixture.path}/consumer');
     await Directory('${package.path}/lib').create(recursive: true);
@@ -225,7 +225,7 @@ void main() {
 
     for (final args in [
       ['pub', 'get', '--offline'],
-      ['pub', 'deps'],
+      ['pub', 'deps', '--json'],
       ['test'],
     ]) {
       final result = await Process.run(
@@ -235,6 +235,15 @@ void main() {
       );
       expect(result.exitCode, 0,
           reason: '${args.join(' ')}: ${result.stdout}\n${result.stderr}');
+      if (args.contains('deps')) {
+        final graph =
+            jsonDecode(result.stdout as String) as Map<String, dynamic>;
+        final packages = graph['packages'] as List<dynamic>;
+        final rohd = packages.cast<Map<String, dynamic>>().singleWhere(
+              (package) => package['name'] == 'rohd',
+            );
+        expect(rohd['source'], 'hosted');
+      }
     }
   }, timeout: const Timeout(Duration(minutes: 2)));
 }

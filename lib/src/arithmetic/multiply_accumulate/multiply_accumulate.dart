@@ -213,13 +213,18 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
   /// inputs to control these flops when [clk] is provided. If [clk] is null,
   /// the Column Compressor is built as a combinational tree of compressors.
   ///
+  /// [use42Compressors] enables 4:2 compressors in the compression tree.
+  /// [delayConfig] overrides the tree's input-to-output delay estimates.
+  ///
   /// The optional [outputWidth] parameter configures the width of
   /// [accumulate], as described in [MultiplyAccumulate].
   CompressionTreeMultiplyAccumulate(super.a, super.b, super.c,
       {int radix = 4,
-      Logic? clk,
-      Logic? reset,
-      Logic? enable,
+      bool use42Compressors = false,
+      CompressionTreeDelayConfig? delayConfig,
+      super.clk,
+      super.reset,
+      super.enable,
       super.signedMultiplicand,
       super.signedMultiplier,
       super.signedAddend,
@@ -237,7 +242,9 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
             definitionName: definitionName ??
                 'CompressionTreeMAC_W${a.width}x${b.width}_Acc${c.width}_'
                     'Out${outputWidth ?? (a.width + b.width + 1)}_'
-                    '${MultiplyAccumulate.signedAD(signedAddend)}') {
+                    '${MultiplyAccumulate.signedAD(signedAddend)}'
+                    '${use42Compressors ? '_C42' : ''}'
+                    '${delayConfig?.definitionNameSuffix ?? ''}') {
     final ppg = PartialProductGenerator(
       a,
       b,
@@ -278,7 +285,11 @@ class CompressionTreeMultiplyAccumulate extends MultiplyAccumulate {
     ];
 
     final compressor = ColumnCompressor(ppgRows, ppg.rowShift,
-        clk: clk, reset: reset, enable: enable);
+        clk: clk,
+        reset: reset,
+        enable: enable,
+        use42Compressors: use42Compressors,
+        delayConfig: delayConfig);
     final adder = adderGen(compressor.add0, compressor.add1);
     accumulate <=
         fitAccumulateWidth(adder.sum.slice(a.width + b.width - 1 + 1, 0));

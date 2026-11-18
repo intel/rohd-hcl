@@ -10,6 +10,7 @@
 import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/arithmetic/floating_point/floating_point_sort_fields.dart';
 
 /// A fast adder module for variable width [FloatingPoint] logic signals.
 // This is a Seidel/Even adder, dual-path implementation.
@@ -88,12 +89,11 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     final inputIsNaN = (a.isNaN | b.isNaN).named('inputIsNaN');
     final propagatedNaN = internalSum.propagateNaN(a, b);
     // Seidel: (sl, el, fl) = larger; (ss, es, fs) = smaller.
-    final swapper = FloatingPointConditionalSwap(fa, fb, signDelta);
-    final larger = swapper.outA;
-    final smaller = swapper.outB;
+    final (larger, smaller) = swap(
+        signDelta, (FloatingPointSortFields(fa), FloatingPointSortFields(fb)));
 
     final fl = mux(
-            ~larger.isNormal ^ Const(larger.explicitJBit),
+            ~larger.isNormal ^ larger.explicitJBit,
             [larger.mantissa, Const(0)].concat(),
             mux(
                 larger.isNormal,
@@ -104,7 +104,7 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
                 ].concat()))
         .named('fullLarger');
     final fs = mux(
-            ~smaller.isNormal ^ Const(smaller.explicitJBit),
+            ~smaller.isNormal ^ smaller.explicitJBit,
             [smaller.mantissa, Const(0)].concat(),
             mux(
                 smaller.isNormal,

@@ -28,17 +28,81 @@ String _sramDefinition<T extends Logic>(
       '${payloadShapeIdentity(port.data)}';
 }
 
+bool _hasUnpackedPayload(Logic signal) {
+  if (signal is TypedLogicArray && signal.numUnpackedDimensions > 0) {
+    return true;
+  }
+  return signal is LogicStructure && signal.elements.any(_hasUnpackedPayload);
+}
+
+String _sramVerilog(
+        String definitionType, int addrWidth, int dataWidth, int entryCount) =>
+    '''
+module $definitionType (
+  input logic clk, input logic reset,
+  input logic wr_en_0, input logic [${addrWidth - 1}:0] wr_addr_0,
+  input logic [${dataWidth - 1}:0] wr_data_0,
+  input logic rd_en_0, input logic [${addrWidth - 1}:0] rd_addr_0,
+  output logic [${dataWidth - 1}:0] rd_data_0
+);
+  logic [${dataWidth - 1}:0] memory [0:${entryCount - 1}];
+  always @(posedge clk) begin
+    if (reset)
+      rd_data_0 <= '0;
+    else if (wr_en_0)
+      memory[wr_addr_0] <= wr_data_0 ^ {$dataWidth{1'b0}};
+    else if (rd_en_0)
+      rd_data_0 <= memory[rd_addr_0];
+  end
+endmodule
+''';
+
+class _PackedSramCell extends Module with SystemVerilog {
+  final int addrWidth;
+  final int dataWidth;
+  final int entryCount;
+
+  Logic get readData => output('rd_data_0');
+
+  _PackedSramCell(
+    Logic clk,
+    Logic reset,
+    DataPortInterface<Logic> write,
+    DataPortInterface<Logic> read, {
+    required this.entryCount,
+  })  : addrWidth = write.addrWidth,
+        dataWidth = write.dataWidth,
+        super(
+            name: 'sram_cell',
+            definitionName: 'InferredSramCell_E${entryCount}_'
+                'A${write.addrWidth}_D${write.dataWidth}') {
+    addInput('clk', clk);
+    addInput('reset', reset);
+    addInput('wr_en_0', write.en);
+    addInput('wr_addr_0', write.addr, width: addrWidth);
+    addInput('wr_data_0', write.data.packed, width: dataWidth);
+    addInput('rd_en_0', read.en);
+    addInput('rd_addr_0', read.addr, width: addrWidth);
+    addOutput('rd_data_0', width: dataWidth);
+  }
+
+  @override
+  String definitionVerilog(String definitionType) =>
+      _sramVerilog(definitionType, addrWidth, dataWidth, entryCount);
+}
+
 /// A detached SRAM execution image, including the registered read output.
 class InferredSramImage {
   final int _entryCount;
   final int _addressWidth;
   final int _dataWidth;
-  final String _shape;
+  final List<Logic> _schemas;
   final MemoryStorageImage _storage;
   final LogicValue _output;
 
-  const InferredSramImage._(this._entryCount, this._addressWidth,
-      this._dataWidth, this._shape, this._storage, this._output);
+  InferredSramImage._(this._entryCount, this._addressWidth, this._dataWidth,
+      List<Logic> schemas, this._storage, this._output)
+      : _schemas = List.unmodifiable(schemas);
 }
 
 /// A synchronous, single-port SRAM described as an inferable Verilog array.
@@ -62,7 +126,8 @@ class InferredSram<T extends Logic> extends Memory<T>
 
   late final SparseMemoryStorage _storage;
   late final MemoryStorageState _raw;
-  late final String _shape;
+  late final Logic _readValue;
+  late final bool _usesPackedCell;
 
   @override
   late final InferredSramDescription description = InferredSramDescription(
@@ -102,15 +167,23 @@ class InferredSram<T extends Logic> extends Memory<T>
       throw ArgumentError('An inferred SRAM needs one unmasked read and write '
           'port with valid geometry.');
     }
-    _shape = payloadShapeIdentity(wrPorts.single.data);
     _storage = SparseMemoryStorage(addrWidth: addrWidth, dataWidth: dataWidth);
     _raw = MemoryStorageState(_storage);
-    putPackedLogicValue(
-        rdPorts.single.data, LogicValue.filled(dataWidth, LogicValue.x));
+    _usesPackedCell = _hasUnpackedPayload(wrPorts.single.data) ||
+        _hasUnpackedPayload(rdPorts.single.data);
+    if (_usesPackedCell) {
+      final cell = _PackedSramCell(clk, reset, wrPorts.single, rdPorts.single,
+          entryCount: entryCount);
+      _readValue = cell.readData;
+      rdPorts.single.data <= _readValue;
+    } else {
+      _readValue = rdPorts.single.data;
+    }
+    putPackedLogicValue(_readValue, LogicValue.filled(dataWidth, LogicValue.x));
     clk.posedge.listen((_) {
       if (reset.previousValue == LogicValue.one) {
         putPackedLogicValue(
-            rdPorts.single.data, LogicValue.filled(dataWidth, LogicValue.zero));
+            _readValue, LogicValue.filled(dataWidth, LogicValue.zero));
         return;
       }
       final write = wrPorts.single;
@@ -129,7 +202,7 @@ class InferredSram<T extends Logic> extends Memory<T>
                   ? _storage.getData(address)
                   : null;
           putPackedLogicValue(
-              read.data, value ?? LogicValue.filled(dataWidth, LogicValue.x));
+              _readValue, value ?? LogicValue.filled(dataWidth, LogicValue.x));
         }
       }
     });
@@ -170,15 +243,24 @@ class InferredSram<T extends Logic> extends Memory<T>
   }
 
   /// Captures the array contents and registered read result.
-  InferredSramImage snapshot() => InferredSramImage._(entryCount, addrWidth,
-      dataWidth, _shape, _raw.snapshot(), rdPorts.single.data.value);
+  InferredSramImage snapshot() => InferredSramImage._(
+      entryCount,
+      addrWidth,
+      dataWidth,
+      [
+        cloneTypedPayload(wrPorts.single.data),
+        cloneTypedPayload(rdPorts.single.data)
+      ],
+      _raw.snapshot(),
+      rdPorts.single.data.value);
 
-  /// Atomically restores a compatible array and registered read result.
+  /// Atomically restores an array and read result with matching port schemas.
   void restore(InferredSramImage image) {
     if (image._entryCount != entryCount ||
         image._addressWidth != addrWidth ||
         image._dataWidth != dataWidth ||
-        image._shape != _shape ||
+        !samePayloadSchemas(
+            image._schemas, [wrPorts.single.data, rdPorts.single.data]) ||
         image._output.width != dataWidth ||
         image._storage.uncertainWrites.isNotEmpty ||
         image._storage.entries.keys
@@ -186,29 +268,18 @@ class InferredSram<T extends Logic> extends Memory<T>
       throw ArgumentError.value(image, 'image', 'Incompatible SRAM state.');
     }
     _raw.load(image._storage, replace: true);
-    putPackedLogicValue(rdPorts.single.data, image._output);
+    putPackedLogicValue(_readValue, image._output);
   }
 
   @override
-  String definitionVerilog(String definitionType) => '''
-module $definitionType (
-  input logic clk, input logic reset,
-  input logic wr_en_0, input logic [${addrWidth - 1}:0] wr_addr_0,
-  input logic [${dataWidth - 1}:0] wr_data_0,
-  input logic rd_en_0, input logic [${addrWidth - 1}:0] rd_addr_0,
-  output logic [${dataWidth - 1}:0] rd_data_0
-);
-  logic [${dataWidth - 1}:0] memory [0:${entryCount - 1}];
-  always @(posedge clk) begin
-    if (reset)
-      rd_data_0 <= '0;
-    else if (wr_en_0)
-      memory[wr_addr_0] <= wr_data_0 ^ {$dataWidth{1'b0}};
-    else if (rd_en_0)
-      rd_data_0 <= memory[rd_addr_0];
-  end
-endmodule
-''';
+  // Unpacked payloads need a structural bridge to the packed SRAM cell.
+  DefinitionGenerationType get generatedDefinitionType => _usesPackedCell
+      ? DefinitionGenerationType.standard
+      : DefinitionGenerationType.custom;
+
+  @override
+  String definitionVerilog(String definitionType) =>
+      _sramVerilog(definitionType, addrWidth, dataWidth, entryCount);
 }
 
 /// Creates a single-port, one-cycle inferred SRAM factory.

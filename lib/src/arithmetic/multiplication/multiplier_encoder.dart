@@ -39,7 +39,8 @@ class RadixEncode extends LogicStructure {
 
   @override
   RadixEncode clone({String? name}) =>
-      RadixEncode(row, numMultiples: multiples.width);
+      RadixEncode._(multiples.clone(), sign.clone(), row,
+          name: name ?? this.name);
 }
 
 /// Base interface for radix radixEncoder

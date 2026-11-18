@@ -10,6 +10,7 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Operation encoded in a [CacheTransactionRequest].
 ///
@@ -229,10 +230,10 @@ class CacheTransactionRequest<T extends Logic, M extends Logic, C extends Logic>
           Logic(name: 'operation', width: operationWidth),
           Logic(name: 'address', width: addressWidth),
           Logic(name: 'token', width: tokenWidth),
-          dataSchema.cloneTyped(name: 'data'),
+          cloneTypedPayload(dataSchema, name: 'data'),
           Logic(name: 'writeMask', width: writeMaskWidth),
-          lineMetadataSchema.cloneTyped(name: 'lineMetadata'),
-          contextSchema.cloneTyped(name: 'requestContext'),
+          cloneTypedPayload(lineMetadataSchema, name: 'lineMetadata'),
+          cloneTypedPayload(contextSchema, name: 'requestContext'),
         ], name: name) {
     if (operationWidth < 2 ||
         addressWidth < 1 ||
@@ -290,10 +291,10 @@ class CacheTransactionResponse<T extends Logic, M extends Logic,
   }) : super([
           Logic(name: 'token', width: tokenWidth),
           Logic(name: 'status', width: 2),
-          dataSchema.cloneTyped(name: 'data'),
-          lineMetadataSchema.cloneTyped(name: 'lineMetadata'),
-          contextSchema.cloneTyped(name: 'requestContext'),
-          resultSchema.cloneTyped(name: 'result'),
+          cloneTypedPayload(dataSchema, name: 'data'),
+          cloneTypedPayload(lineMetadataSchema, name: 'lineMetadata'),
+          cloneTypedPayload(contextSchema, name: 'requestContext'),
+          cloneTypedPayload(resultSchema, name: 'result'),
         ], name: name) {
     if (tokenWidth < 1) {
       throw ArgumentError.value(tokenWidth, 'tokenWidth', 'Must be positive.');
@@ -347,9 +348,9 @@ class CacheTransactionEviction<T extends Logic, M extends Logic,
           Logic(name: 'token', width: tokenWidth),
           Logic(name: 'cause', width: causeWidth),
           Logic(name: 'address', width: addressWidth),
-          dataSchema.cloneTyped(name: 'data'),
-          lineMetadataSchema.cloneTyped(name: 'lineMetadata'),
-          contextSchema.cloneTyped(name: 'requestContext'),
+          cloneTypedPayload(dataSchema, name: 'data'),
+          cloneTypedPayload(lineMetadataSchema, name: 'lineMetadata'),
+          cloneTypedPayload(contextSchema, name: 'requestContext'),
         ], name: name) {
     if (addressWidth < 1 || tokenWidth < 1 || causeWidth < 1) {
       throw ArgumentError('Invalid cache eviction geometry.');

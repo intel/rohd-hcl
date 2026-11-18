@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/memory/associative/associative_memory.dart';
 import 'package:rohd_hcl/src/memory/state/state_transactions.dart';
 
@@ -312,43 +313,61 @@ class AssociativeIndexedSideReadRequest extends LogicStructure {
       AssociativeIndexedSideReadRequest._clone(this, name: name);
 }
 
-/// Indexed side-read response containing key and validity state.
-class AssociativeIndexedSideReadResponse extends LogicStructure {
+/// Indexed side-read response retaining the declared key type and shape.
+class TypedAssociativeIndexedSideReadResponse<T extends Logic>
+    extends LogicStructure {
   /// Stored key at the requested index.
-  Logic get key => elements[0];
+  T get key => elements[0] as T;
 
   /// Whether the requested entry is valid.
   Logic get entryValid => elements[1];
 
-  /// Creates an indexed side-read response.
-  AssociativeIndexedSideReadResponse({
-    required int keyWidth,
+  /// Creates an indexed side-read response using [key] as its schema.
+  TypedAssociativeIndexedSideReadResponse(
+    T key, {
     String name = 'associativeIndexedSideReadResponse',
-  }) : super([
-          Logic(name: 'key', width: keyWidth),
-          Logic(name: 'entryValid'),
-        ], name: name);
-
-  AssociativeIndexedSideReadResponse._clone(LogicStructure original,
-      {String? name})
-      : super(original.elements.map((element) => element.clone()).toList(),
-            name: name ?? original.name);
+  }) : super([cloneTypedPayload(key, name: 'key'), Logic(name: 'entryValid')],
+            name: name);
 
   /// Makes a copy with the same shape.
   @override
+  TypedAssociativeIndexedSideReadResponse<T> clone({String? name}) =>
+      TypedAssociativeIndexedSideReadResponse<T>(key, name: name ?? this.name);
+}
+
+/// Compatibility response with a flat packed key.
+@Deprecated(
+    'Use TypedAssociativeIndexedSideReadResponse to preserve key types.')
+class AssociativeIndexedSideReadResponse
+    extends TypedAssociativeIndexedSideReadResponse<Logic> {
+  /// Creates an indexed side-read response with a packed key.
+  @Deprecated(
+      'Use TypedAssociativeIndexedSideReadResponse to preserve key types.')
+  AssociativeIndexedSideReadResponse({
+    required int keyWidth,
+    super.name = 'associativeIndexedSideReadResponse',
+  }) : super(Logic(name: 'key', width: keyWidth));
+
+  /// Makes a flat copy with the same shape.
+  @override
   AssociativeIndexedSideReadResponse clone({String? name}) =>
-      AssociativeIndexedSideReadResponse._clone(this, name: name);
+      AssociativeIndexedSideReadResponse(
+          keyWidth: key.width, name: name ?? this.name);
 }
 
 /// Optional combinational indexed access to stored key and validity.
 abstract interface class AssociativeIndexedSideReadProvider {
   /// Response to the supplied side-read request, or null when not enabled.
+  // This provider retains its established packed response contract.
+  // ignore: deprecated_member_use_from_same_package
   AssociativeIndexedSideReadResponse? get sideReadResponse;
 }
 
 /// Optional combinational access through multiple indexed side-read ports.
 abstract interface class AssociativeMultiIndexedSideReadProvider {
   /// Responses corresponding to the indexed side-read requests, in order.
+  // This provider retains its established packed response contract.
+  // ignore: deprecated_member_use_from_same_package
   List<AssociativeIndexedSideReadResponse> get sideReadResponses;
 }
 

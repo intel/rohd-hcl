@@ -11,6 +11,7 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Compares two's-complement signed [a] against a compile-time constant
 /// [threshold] (which may itself be negative), returning whether `a >=
@@ -295,7 +296,7 @@ class FloatToFixed<T extends FixedPoint> extends Module {
         roundedNumber.slice(unroundedNumber.width - 1, 0).named('number');
 
     _fixed <= mux(float.sign, ~number + 1, number).named('signedNumber');
-    final typedFixedOut = addTypedOutput('fixed', _fixed.cloneTyped);
+    final typedFixedOut = addTypedPayloadOutput(this, 'fixed', _fixed);
     typedFixedOut <= _fixed;
     fixed = typedFixedOut;
     if (outFixed != null) {

@@ -4,17 +4,20 @@
 // float_to_fixed_test.dart
 // Test floating point to fixed point conversion.
 //
-// 2024 November 1
-// Author: Soner Yaldiz <soner.yaldiz@intel.com>
+// 2024 November 5
+// Author: soneryaldiz <56893713+soneryaldiz@users.noreply.github.com>
 
 import 'dart:math';
+
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
   FixedPointValue exactFixedValue(
-      FloatingPointValue source, FixedPoint destination) {
+    FloatingPointValue source,
+    FixedPoint destination,
+  ) {
     final fractionBits = source.mantissaWidth - (source.explicitJBit ? 1 : 0);
     final normal = !source.exponent.isZero;
     final significand = source.mantissa.toBigInt() |
@@ -26,9 +29,9 @@ void main() {
     final shift = unbiasedExponent - fractionBits + destination.fractionWidth;
     final magnitude = shift >= 0 ? significand << shift : significand >> -shift;
     final scaled = source.sign.toBool() ? -magnitude : magnitude;
-    return destination
-        .valuePopulator()
-        .ofLogicValue(LogicValue.ofBigInt(scaled, destination.width));
+    return destination.valuePopulator().ofLogicValue(
+          LogicValue.ofBigInt(scaled, destination.width),
+        );
   }
 
   // Rounds [significand] right-shifted by [-shift] bits (for `shift < 0`)
@@ -36,8 +39,11 @@ void main() {
   // significand rounding so tests can independently check FloatToFixed's
   // rounding logic.
   BigInt roundedMagnitude(
-      BigInt significand, int shift, FloatingPointRoundingMode mode,
-      {required bool negative}) {
+    BigInt significand,
+    int shift,
+    FloatingPointRoundingMode mode, {
+    required bool negative,
+  }) {
     if (shift >= 0) {
       return significand << shift;
     }
@@ -62,8 +68,11 @@ void main() {
     return increment ? quotient + BigInt.one : quotient;
   }
 
-  FixedPointValue roundedFixedValue(FloatingPointValue source,
-      FixedPoint destination, FloatingPointRoundingMode mode) {
+  FixedPointValue roundedFixedValue(
+    FloatingPointValue source,
+    FixedPoint destination,
+    FloatingPointRoundingMode mode,
+  ) {
     final fractionBits = source.mantissaWidth - (source.explicitJBit ? 1 : 0);
     final normal = !source.exponent.isZero;
     final significand = source.mantissa.toBigInt() |
@@ -74,29 +83,42 @@ void main() {
         normal ? source.exponent.toInt() - source.bias : source.minExponent;
     final shift = unbiasedExponent - fractionBits + destination.fractionWidth;
     final negative = source.sign.toBool();
-    final magnitude =
-        roundedMagnitude(significand, shift, mode, negative: negative);
+    final magnitude = roundedMagnitude(
+      significand,
+      shift,
+      mode,
+      negative: negative,
+    );
     final scaled = negative ? -magnitude : magnitude;
-    return destination.valuePopulator().ofLogicValue(LogicValue.ofBigInt(
-        scaled.toUnsigned(destination.width), destination.width));
+    return destination.valuePopulator().ofLogicValue(
+          LogicValue.ofBigInt(
+            scaled.toUnsigned(destination.width),
+            destination.width,
+          ),
+        );
   }
 
   test('FloatToFixed definition names include every static configuration', () {
-    String definitionName(
-        {bool explicitJBit = false,
-        int integerWidth = 4,
-        int fractionWidth = 2,
-        bool checkOverflow = false,
-        FloatingPointRoundingMode roundingMode =
-            FloatingPointRoundingMode.truncate}) {
+    String definitionName({
+      bool explicitJBit = false,
+      int integerWidth = 4,
+      int fractionWidth = 2,
+      bool checkOverflow = false,
+      FloatingPointRoundingMode roundingMode =
+          FloatingPointRoundingMode.truncate,
+    }) {
       final input = FloatingPoint(
-          exponentWidth: 4, mantissaWidth: 4, explicitJBit: explicitJBit);
-      return FloatToFixed(input,
-              integerWidth: integerWidth,
-              fractionWidth: fractionWidth,
-              checkOverflow: checkOverflow,
-              roundingMode: roundingMode)
-          .definitionName;
+        exponentWidth: 4,
+        mantissaWidth: 4,
+        explicitJBit: explicitJBit,
+      );
+      return FloatToFixed(
+        input,
+        integerWidth: integerWidth,
+        fractionWidth: fractionWidth,
+        checkOverflow: checkOverflow,
+        roundingMode: roundingMode,
+      ).definitionName;
     }
 
     final variants = [
@@ -110,14 +132,14 @@ void main() {
 
     expect(variants.toSet(), hasLength(variants.length));
 
-    final inferred =
-        FloatToFixed(FloatingPoint(exponentWidth: 4, mantissaWidth: 4))
-            .definitionName;
+    final inferred = FloatToFixed(
+      FloatingPoint(exponentWidth: 4, mantissaWidth: 4),
+    ).definitionName;
     final explicitEffective = FloatToFixed(
-            FloatingPoint(exponentWidth: 4, mantissaWidth: 4),
-            integerWidth: 8,
-            fractionWidth: 10)
-        .definitionName;
+      FloatingPoint(exponentWidth: 4, mantissaWidth: 4),
+      integerWidth: 8,
+      fractionWidth: 10,
+    ).definitionName;
     expect(inferred, explicitEffective);
   });
 
@@ -128,23 +150,31 @@ void main() {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final float = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-      ..put(0);
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+    )..put(0);
 
     for (final mode in FloatingPointRoundingMode.values) {
-      final dut = FloatToFixed(float,
-          integerWidth: 4, fractionWidth: 2, roundingMode: mode);
+      final dut = FloatToFixed(
+        float,
+        integerWidth: 4,
+        fractionWidth: 2,
+        roundingMode: mode,
+      );
       for (var raw = 0; raw < 1 << float.width; raw++) {
-        final source = float
-            .valuePopulator()
-            .ofLogicValue(LogicValue.ofInt(raw, float.width));
+        final source = float.valuePopulator().ofLogicValue(
+              LogicValue.ofInt(raw, float.width),
+            );
         if (source.isNaN || source.isAnInfinity) {
           continue;
         }
         float.put(source);
         final expected = roundedFixedValue(source, dut.fixed, mode);
-        expect(dut.fixed.value.bitString, expected.value.bitString,
-            reason: 'mode=$mode raw=0x${raw.toRadixString(16)}');
+        expect(
+          dut.fixed.value.bitString,
+          expected.value.bitString,
+          reason: 'mode=$mode raw=0x${raw.toRadixString(16)}',
+        );
       }
     }
   });
@@ -158,24 +188,30 @@ void main() {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final float = FloatingPoint(
-        exponentWidth: exponentWidth,
-        mantissaWidth: mantissaWidth,
-        explicitJBit: true)
-      ..put(0);
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+      explicitJBit: true,
+    )..put(0);
     final dut = FloatToFixed(float, integerWidth: 4, fractionWidth: 4);
 
     for (var raw = 0; raw < 1 << float.width; raw++) {
-      final source = float
-          .valuePopulator()
-          .ofLogicValue(LogicValue.ofInt(raw, float.width));
+      final source = float.valuePopulator().ofLogicValue(
+            LogicValue.ofInt(raw, float.width),
+          );
       if (!source.isLegalValue() || source.isNaN || source.isAnInfinity) {
         continue;
       }
       float.put(source);
       final expected = roundedFixedValue(
-          source, dut.fixed, FloatingPointRoundingMode.truncate);
-      expect(dut.fixed.value.bitString, expected.value.bitString,
-          reason: 'raw=0x${raw.toRadixString(16)}');
+        source,
+        dut.fixed,
+        FloatingPointRoundingMode.truncate,
+      );
+      expect(
+        dut.fixed.value.bitString,
+        expected.value.bitString,
+        reason: 'raw=0x${raw.toRadixString(16)}',
+      );
     }
   });
 
@@ -204,23 +240,32 @@ void main() {
     const exponentWidth = 4;
     const mantissaWidth = 4;
     final float = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-      ..put(0);
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+    )..put(0);
 
     for (final targetSpec in [(2, 1), (1, 2), (3, 0), (0, 3)]) {
-      final dut = FloatToFixed(float,
-          integerWidth: targetSpec.$1,
-          fractionWidth: targetSpec.$2,
-          checkOverflow: true);
+      final dut = FloatToFixed(
+        float,
+        integerWidth: targetSpec.$1,
+        fractionWidth: targetSpec.$2,
+        checkOverflow: true,
+      );
       for (final signVal in [false, true]) {
         for (var e = 0; e < 15; e++) {
           for (var m = 0; m < 16; m++) {
             final fv = float.valuePopulator().ofInts(e, m, sign: signVal);
             float.put(fv);
             final expectedOverflow = !expectedNoOverflow(
-                fv.toDouble(), targetSpec.$1, targetSpec.$2);
-            expect(dut.overflow!.value.toBool(), expectedOverflow,
-                reason: 'target=$targetSpec fv=$fv (${fv.toDouble()})');
+              fv.toDouble(),
+              targetSpec.$1,
+              targetSpec.$2,
+            );
+            expect(
+              dut.overflow!.value.toBool(),
+              expectedOverflow,
+              reason: 'target=$targetSpec fv=$fv (${fv.toDouble()})',
+            );
           }
         }
       }
@@ -229,11 +274,13 @@ void main() {
 
   test('FloatToFixed: detects overflow caused by rounding carry', () {
     final float = FloatingPoint(exponentWidth: 4, mantissaWidth: 4)..put(0);
-    final dut = FloatToFixed(float,
-        integerWidth: 2,
-        fractionWidth: 0,
-        checkOverflow: true,
-        roundingMode: FloatingPointRoundingMode.roundTowardsInfinity);
+    final dut = FloatToFixed(
+      float,
+      integerWidth: 2,
+      fractionWidth: 0,
+      checkOverflow: true,
+      roundingMode: FloatingPointRoundingMode.roundTowardsInfinity,
+    );
 
     float.put(float.valuePopulator().ofDouble(3.5));
 
@@ -258,10 +305,14 @@ void main() {
     const fractionWidth = 2; // outputWidth = 5 (< 11)
 
     final float = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-      ..put(0);
-    final dut = FloatToFixed(float,
-        integerWidth: integerWidth, fractionWidth: fractionWidth);
+      exponentWidth: exponentWidth,
+      mantissaWidth: mantissaWidth,
+    )..put(0);
+    final dut = FloatToFixed(
+      float,
+      integerWidth: integerWidth,
+      fractionWidth: fractionWidth,
+    );
 
     for (final negate in [false, true]) {
       for (var e = 0; e < pow(2, exponentWidth) - 1; e++) {
@@ -269,70 +320,88 @@ void main() {
           final fv = float.valuePopulator().ofInts(e, m, sign: negate);
           float.put(fv);
           final val = fv.toDouble();
-          if (!FixedPointValuePopulator.canStore(val,
-              signed: true,
-              integerWidth: integerWidth,
-              fractionWidth: fractionWidth)) {
+          if (!FixedPointValuePopulator.canStore(
+            val,
+            signed: true,
+            integerWidth: integerWidth,
+            fractionWidth: fractionWidth,
+          )) {
             continue;
           }
           final expected = dut.fixed.valuePopulator().ofDouble(val);
           final computed = dut.fixed.fixedPointValue;
-          expect(computed, equals(expected),
-              reason: 'fv=$fv (${fv.toDouble()}) computed=$computed '
-                  '(${computed.toDouble()}) expected=$expected '
-                  '(${expected.toDouble()})');
+          expect(
+            computed,
+            equals(expected),
+            reason: 'fv=$fv (${fv.toDouble()}) computed=$computed '
+                '(${computed.toDouble()}) expected=$expected '
+                '(${expected.toDouble()})',
+          );
         }
       }
     }
   });
 
-  test('FloatToFixed: rounding preserves sticky bits discarded before shifting',
-      () {
-    // The source significand has one more bit than the output plus its guard
-    // bit. This exercises cases where that pre-truncated bit is the only
-    // sticky contribution, which must affect non-truncating rounding modes.
-    const exponentWidth = 4;
-    const mantissaWidth = 6;
-    final float = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-      ..put(0);
+  test(
+    'FloatToFixed: rounding preserves sticky bits discarded before shifting',
+    () {
+      // The source significand has one more bit than the output plus its guard
+      // bit. This exercises cases where that pre-truncated bit is the only
+      // sticky contribution, which must affect non-truncating rounding modes.
+      const exponentWidth = 4;
+      const mantissaWidth = 6;
+      final float = FloatingPoint(
+        exponentWidth: exponentWidth,
+        mantissaWidth: mantissaWidth,
+      )..put(0);
 
-    for (final mode in FloatingPointRoundingMode.values) {
-      final dut = FloatToFixed(float,
-          integerWidth: 2, fractionWidth: 2, roundingMode: mode);
-      for (var raw = 0; raw < 1 << float.width; raw++) {
-        final source = float
-            .valuePopulator()
-            .ofLogicValue(LogicValue.ofInt(raw, float.width));
-        if (source.isNaN || source.isAnInfinity) {
-          continue;
+      for (final mode in FloatingPointRoundingMode.values) {
+        final dut = FloatToFixed(
+          float,
+          integerWidth: 2,
+          fractionWidth: 2,
+          roundingMode: mode,
+        );
+        for (var raw = 0; raw < 1 << float.width; raw++) {
+          final source = float.valuePopulator().ofLogicValue(
+                LogicValue.ofInt(raw, float.width),
+              );
+          if (source.isNaN || source.isAnInfinity) {
+            continue;
+          }
+          if (source.toDouble().abs() >= 2) {
+            continue;
+          }
+          float.put(source);
+          final expected = roundedFixedValue(source, dut.fixed, mode);
+          expect(
+            dut.fixed.value.bitString,
+            expected.value.bitString,
+            reason: 'mode=$mode raw=0x${raw.toRadixString(16)}',
+          );
         }
-        if (source.toDouble().abs() >= 2) {
-          continue;
-        }
-        float.put(source);
-        final expected = roundedFixedValue(source, dut.fixed, mode);
-        expect(dut.fixed.value.bitString, expected.value.bitString,
-            reason: 'mode=$mode raw=0x${raw.toRadixString(16)}');
       }
-    }
-  });
+    },
+  );
 
   test('FloatToFixed: exact exhaustive reduced-width conversion', () {
     final float = FloatingPoint(exponentWidth: 5, mantissaWidth: 4);
     final dut = FloatToFixed(float);
 
     for (var raw = 0; raw < 1 << float.width; raw++) {
-      final source = float
-          .valuePopulator()
-          .ofLogicValue(LogicValue.ofInt(raw, float.width));
+      final source = float.valuePopulator().ofLogicValue(
+            LogicValue.ofInt(raw, float.width),
+          );
       if (source.isNaN || source.isAnInfinity) {
         continue;
       }
       float.put(source);
       final expected = exactFixedValue(source, dut.fixed);
-      expect(dut.fixed.value.bitString, expected.value.bitString,
-          reason: 'raw=0x${raw.toRadixString(16)}');
+      expect(
+        dut.fixed.value.bitString,
+        expected.value.bitString,
+        reason: 'raw=0x${raw.toRadixString(16)}',
+      );
     }
   });
 
@@ -341,9 +410,11 @@ void main() {
     final dut = FloatToFixed(float);
     final cases = [
       float.valuePopulator().ofBigInts(BigInt.from(127), BigInt.zero),
-      float
-          .valuePopulator()
-          .ofBigInts(BigInt.from(128), BigInt.one << 79, sign: true),
+      float.valuePopulator().ofBigInts(
+            BigInt.from(128),
+            BigInt.one << 79,
+            sign: true,
+          ),
       float.valuePopulator().ofBigInts(BigInt.one, BigInt.one),
       float.valuePopulator().ofBigInts(BigInt.zero, BigInt.one),
     ];
@@ -351,8 +422,11 @@ void main() {
     for (final source in cases) {
       float.put(source);
       final expected = exactFixedValue(source, dut.fixed);
-      expect(dut.fixed.value.bitString, expected.value.bitString,
-          reason: 'source=$source');
+      expect(
+        dut.fixed.value.bitString,
+        expected.value.bitString,
+        reason: 'source=$source',
+      );
     }
   });
 
@@ -361,9 +435,9 @@ void main() {
     final dut = FloatToFixed(float);
     await dut.build();
     for (var val = 0; val < pow(2, 8); val++) {
-      final fpv = float
-          .valuePopulator()
-          .ofLogicValue(LogicValue.ofInt(val, float.width));
+      final fpv = float.valuePopulator().ofLogicValue(
+            LogicValue.ofInt(val, float.width),
+          );
       if (!fpv.isAnInfinity & !fpv.isNaN) {
         float.put(fpv);
         final fxp = dut.fixed;
@@ -409,8 +483,11 @@ void main() {
           final tN = nominal.fractionWidth - i;
           for (var j = 0; j < nominal.integerWidth - 2; j++) {
             final tM = nominal.integerWidth - j;
-            final convert =
-                FloatToFixed(fp1, integerWidth: tM, fractionWidth: tN);
+            final convert = FloatToFixed(
+              fp1,
+              integerWidth: tM,
+              fractionWidth: tN,
+            );
             final fxc = convert.fixed;
             for (final negate in [false, true]) {
               for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
@@ -418,11 +495,18 @@ void main() {
                   final fv1 = fp1.valuePopulator().ofInts(e1, m1, sign: negate);
                   fp1.put(fv1.value);
                   final val = fv1.toDouble();
-                  if (FixedPointValuePopulator.canStore(val,
-                      signed: true, integerWidth: tM, fractionWidth: tN)) {
+                  if (FixedPointValuePopulator.canStore(
+                    val,
+                    signed: true,
+                    integerWidth: tM,
+                    fractionWidth: tN,
+                  )) {
                     final fx = fxc.valuePopulator().ofDouble(fv1.toDouble());
 
-                    expect(fxc.fixedPointValue, equals(fx), reason: '''
+                    expect(
+                      fxc.fixedPointValue,
+                      equals(fx),
+                      reason: '''
                     $fx (${fx.toDouble()})
                     ${fxc.fixedPointValue} (${fxc.fixedPointValue.toDouble()})
                     $fv1 (${fv1.toDouble()})
@@ -433,7 +517,8 @@ void main() {
                     m=$tM
                     n=$tN
                     negate=$negate
-''');
+''',
+                    );
                   } else {
                     continue;
                   }
@@ -458,8 +543,11 @@ void main() {
         for (var i = 0; i < nominal.fractionWidth - 2; i++) {
           final tN = nominal.fractionWidth - i;
           final tM = nominal.integerWidth;
-          final convert =
-              FloatToFixed(fp1, integerWidth: tM, fractionWidth: tN);
+          final convert = FloatToFixed(
+            fp1,
+            integerWidth: tM,
+            fractionWidth: tN,
+          );
           for (final negate in [false, true]) {
             for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
               for (var m1 = 0; m1 < pow(2, sMW); m1++) {
@@ -468,7 +556,10 @@ void main() {
                 final fxc = convert.fixed;
                 final fx = fxc.valuePopulator().ofDouble(fv1.toDouble());
 
-                expect(fxc.fixedPointValue, equals(fx), reason: '''
+                expect(
+                  fxc.fixedPointValue,
+                  equals(fx),
+                  reason: '''
                     $fx (${fx.toDouble()})
                     ${fxc.fixedPointValue} (${fxc.fixedPointValue.toDouble()})
                     $fv1 (${fv1.toDouble()})
@@ -479,7 +570,8 @@ void main() {
                     m=$tM
                     n=$tN
                     negate=$negate
-''');
+''',
+                );
               }
             }
           }
@@ -496,10 +588,12 @@ void main() {
         final nominal = FloatToFixed(fp1);
         for (var i = 0; i < nominal.integerWidth - 2; i++) {
           final tM = nominal.integerWidth - i;
-          final convert = FloatToFixed(fp1,
-              integerWidth: tM,
-              fractionWidth: nominal.fractionWidth,
-              checkOverflow: true);
+          final convert = FloatToFixed(
+            fp1,
+            integerWidth: tM,
+            fractionWidth: nominal.fractionWidth,
+            checkOverflow: true,
+          );
           for (final negate in [false, true]) {
             for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
               for (var m1 = 0; m1 < pow(2, sMW); m1++) {
@@ -526,9 +620,11 @@ void main() {
         final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
           ..put(0);
         final nominal = FloatToFixed(fp1);
-        final convert = FloatToFixed(fp1,
-            integerWidth: nominal.integerWidth + 4,
-            fractionWidth: nominal.fractionWidth + 2);
+        final convert = FloatToFixed(
+          fp1,
+          integerWidth: nominal.integerWidth + 4,
+          fractionWidth: nominal.fractionWidth + 2,
+        );
         for (final negate in [false, true]) {
           for (var e1 = 0; e1 < pow(2, sEW) - 1; e1++) {
             for (var m1 = 0; m1 < pow(2, sMW); m1++) {
@@ -554,9 +650,10 @@ void main() {
     // E4M3
     mode.put(1);
     for (var val = 0; val < pow(2, 8); val++) {
-      final fp8 =
-          FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 3)
-              .ofLogicValue(LogicValue.ofInt(val, float.width));
+      final fp8 = FloatingPointValue.populator(
+        exponentWidth: 4,
+        mantissaWidth: 3,
+      ).ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 = dut.q23p9.valuePopulator().ofDouble(fp8.toDouble());
@@ -568,9 +665,10 @@ void main() {
     // E5M2
     mode.put(0);
     for (var val = 0; val < pow(2, 8); val++) {
-      final fp8 =
-          FloatingPointValue.populator(exponentWidth: 5, mantissaWidth: 2)
-              .ofLogicValue(LogicValue.ofInt(val, float.width));
+      final fp8 = FloatingPointValue.populator(
+        exponentWidth: 5,
+        mantissaWidth: 2,
+      ).ofLogicValue(LogicValue.ofInt(val, float.width));
       if (!fp8.isNaN & !fp8.isAnInfinity) {
         float.put(fp8.value);
         final fx8 = dut.q16p16.valuePopulator().ofDouble(fp8.toDouble());
@@ -582,26 +680,35 @@ void main() {
 
   test('FloatToFixed: BF16 singleton', () {
     final bf16 = FloatingPointBF16();
-    final bf16Val = FloatingPointBF16Value.populator()
-        .ofBinaryStrings('0', '00000000', '0000010');
+    final bf16Val = FloatingPointBF16Value.populator().ofBinaryStrings(
+      '0',
+      '00000000',
+      '0000010',
+    );
     bf16.put(bf16Val);
     const m = 18;
     const n = 16;
     final convert = FloatToFixed(bf16, integerWidth: m, fractionWidth: n);
     final expectedDbl = bf16Val.toDouble();
 
-    if (FixedPointValuePopulator.canStore(expectedDbl,
-        signed: true,
-        integerWidth: convert.integerWidth,
-        fractionWidth: convert.fractionWidth)) {
+    if (FixedPointValuePopulator.canStore(
+      expectedDbl,
+      signed: true,
+      integerWidth: convert.integerWidth,
+      fractionWidth: convert.fractionWidth,
+    )) {
       final fixedVal = convert.fixed;
       final expected = fixedVal.valuePopulator().ofDouble(expectedDbl);
       final computedDbl = fixedVal.fixedPointValue.toDouble();
       final computed = fixedVal.valuePopulator().ofDouble(computedDbl);
-      expect(expected, equals(computed), reason: '''
+      expect(
+        expected,
+        equals(computed),
+        reason: '''
           expected=$expected ($expectedDbl)
           computed=$computed ($computedDbl)
-''');
+''',
+      );
     }
   });
 
@@ -616,18 +723,24 @@ void main() {
       bf16.put(bf16Val);
       final expectedDbl = bf16Val.toDouble();
 
-      if (FixedPointValuePopulator.canStore(expectedDbl,
-          signed: true,
-          integerWidth: convert.integerWidth,
-          fractionWidth: convert.fractionWidth)) {
+      if (FixedPointValuePopulator.canStore(
+        expectedDbl,
+        signed: true,
+        integerWidth: convert.integerWidth,
+        fractionWidth: convert.fractionWidth,
+      )) {
         final fixedVal = convert.fixed;
         final expected = fixedVal.valuePopulator().ofDouble(expectedDbl);
         final computedDbl = fixedVal.fixedPointValue.toDouble();
         final computed = fixedVal.valuePopulator().ofDouble(computedDbl);
-        expect(expected, equals(computed), reason: '''
+        expect(
+          expected,
+          equals(computed),
+          reason: '''
           expected=$expected ($expectedDbl)
           computed=$computed ($computedDbl)
-''');
+''',
+        );
       }
     }
   });

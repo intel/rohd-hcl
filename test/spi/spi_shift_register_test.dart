@@ -7,10 +7,15 @@
 // 2026 November 4
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+// Exercise the original SPI wrappers for compatibility.
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:logging/logging.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/spi_main.dart' as general;
+import 'package:rohd_hcl/spi_sub.dart' as general;
 import 'package:rohd_hcl/src/interfaces/spi/endpoints/spi_shift_register.dart';
 import 'package:test/test.dart';
 
@@ -68,8 +73,338 @@ class _SubHarness extends Module {
   }
 }
 
+class _Command extends LogicStructure {
+  Logic get low => elements[0];
+  Logic get high => elements[1];
+
+  _Command({String name = 'command'})
+      : super([Logic(name: 'low', width: 4), Logic(name: 'high', width: 4)],
+            name: name);
+
+  @override
+  _Command clone({String? name}) => _Command(name: name ?? this.name);
+}
+
+class _MisclonedField extends GfLogic {
+  final BinaryExtensionField replacement;
+
+  _MisclonedField(super.field, this.replacement, {super.name});
+
+  @override
+  _MisclonedField clone({String? name}) =>
+      _MisclonedField(replacement, replacement, name: name ?? this.name);
+}
+
+class _Response extends LogicStructure {
+  Logic get status => elements[0];
+  Logic get data => elements[1];
+
+  _Response({String name = 'response'})
+      : super([Logic(name: 'status', width: 3), Logic(name: 'value', width: 5)],
+            name: name);
+
+  @override
+  _Response clone({String? name}) => _Response(name: name ?? this.name);
+}
+
+class _TypedPairHarness extends Module {
+  late final general.SpiMain<_Command, _Response> main;
+  late final general.SpiSub<_Response, _Command> sub;
+
+  _TypedPairHarness() {
+    final intf = SpiInterface(dataLength: 8);
+    final mainData = _Command()
+      ..gets(addInput('mainIn', Logic(width: 8), width: 8));
+    final subData = _Response()
+      ..gets(addInput('subIn', Logic(width: 8), width: 8));
+    main = general.SpiMain<_Command, _Response>(intf,
+        clk: addInput('clock', Logic()),
+        reset: addInput('mainReset', Logic()),
+        start: addInput('start', Logic()),
+        busIn: mainData,
+        busOutSchema: _Response());
+    sub = general.SpiSub<_Response, _Command>(
+        intf: intf,
+        reset: addInput('subReset', Logic()),
+        busIn: subData,
+        busOutSchema: _Command());
+    addOutput('mainOut', width: 8) <= main.busOut;
+    addOutput('subOut', width: 8) <= sub.busOut;
+    addOutput('status', width: 3) <= main.busOut.status;
+    addOutput('commandHigh', width: 4) <= sub.busOut.high;
+  }
+}
+
+FixedPoint _constantFixed(int value) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(value >> 4, 4),
+        fraction: LogicValue.ofInt(value & 0xf, 4)));
+
+class _ConstantPairHarness extends Module {
+  late final general.SpiMain<Logic, Logic> main;
+  late final general.SpiSub<Logic, Logic> sub;
+
+  _ConstantPairHarness() {
+    final intf = SpiInterface(dataLength: 8);
+    main = general.SpiMain<Logic, Logic>(intf,
+        clk: addInput('clock', Logic()),
+        reset: addInput('mainReset', Logic()),
+        start: addInput('start', Logic()),
+        busIn: _constantFixed(0xa6),
+        busOutSchema: Logic(width: 8));
+    sub = general.SpiSub<Logic, Logic>(
+        intf: intf,
+        reset: addInput('subReset', Logic()),
+        busIn: _constantFixed(0x69),
+        busOutSchema: Logic(width: 8));
+    addOutput('mainOut', width: 8) <= main.busOut;
+    addOutput('subOut', width: 8) <= sub.busOut;
+  }
+}
+
+class _TypedReceiveHarness extends Module {
+  late final general.SpiSub<Logic, _Command> sub;
+
+  _TypedReceiveHarness() {
+    final intf = SpiInterface(dataLength: 8);
+    intf.sclk <= addInput('clock', Logic());
+    intf.csb <= addInput('csb', Logic());
+    intf.mosi <= addInput('mosi', Logic());
+    sub = general.SpiSub<Logic, _Command>(intf: intf, busOutSchema: _Command());
+    addOutput('received', width: 8) <= sub.busOut;
+    addOutput('low', width: 4) <= sub.busOut.low;
+  }
+}
+
+typedef _Nibbles = TypedLogicArray<Logic, LogicValue>;
+
+_Nibbles _nibbles() =>
+    _Nibbles([2], ({name}) => Logic(name: name ?? 'nibble', width: 4),
+        numUnpackedDimensions: 1);
+
+class _ArrayPairHarness extends Module {
+  late final general.SpiMain<_Nibbles, _Nibbles> main;
+  late final general.SpiSub<Logic, _Nibbles> sub;
+
+  _ArrayPairHarness() {
+    final intf = SpiInterface(dataLength: 8);
+    final data = _nibbles()..gets(addInput('data', Logic(width: 8), width: 8));
+    main = general.SpiMain<_Nibbles, _Nibbles>(intf,
+        clk: addInput('clock', Logic()),
+        reset: addInput('reset', Logic()),
+        start: addInput('start', Logic()),
+        busIn: data,
+        busOutSchema: _nibbles());
+    sub = general.SpiSub<Logic, _Nibbles>(
+        intf: intf,
+        reset: addInput('subReset', Logic()),
+        busOutSchema: _nibbles());
+    addOutput('received', width: 8) <= sub.busOut.packed;
+    addOutput('first', width: 4) <= sub.busOut.arrayElements[0];
+  }
+}
+
 void main() {
+  test('typed SPI receive schemas reject changed clone metadata', () {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    expect(
+        () => general.SpiMain<Logic, Logic>(SpiInterface(dataLength: 3),
+            clk: Logic(),
+            reset: Logic(),
+            start: Logic(),
+            busIn: Logic(width: 3),
+            busOutSchema: _MisclonedField(first, second)),
+        throwsA(isA<LogicConstructionException>()));
+    expect(
+        () => general.SpiSub<Logic, Logic>(
+            intf: SpiInterface(dataLength: 3),
+            busOutSchema: _MisclonedField(first, second)),
+        throwsA(isA<LogicConstructionException>()));
+  });
+
   tearDown(Simulator.reset);
+
+  test('typed SPI retains widened structured constant transmit inputs',
+      () async {
+    final dut = _ConstantPairHarness();
+    expect(dut.main.busIn, isA<FixedPoint>());
+    expect(dut.sub.busIn, isA<FixedPoint>());
+    final vectors = <Vector>[
+      Vector({'clock': 1, 'mainReset': 0, 'subReset': 0, 'start': 0}, {}),
+      Vector({'mainReset': 1, 'subReset': 1}, {}),
+      Vector({'mainReset': 0, 'subReset': 0, 'start': 1}, {}),
+    ];
+    for (var bit = 0; bit < 8; bit++) {
+      vectors
+        ..add(Vector({'clock': 0}, {}))
+        ..add(Vector({'clock': 1}, {}));
+      if (bit == 0) {
+        vectors.add(Vector({'start': 0}, {}));
+      }
+    }
+    vectors.add(Vector({}, {'mainOut': 0x69, 'subOut': 0xa6}));
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('typed SPI ports retain independent schemas and transfer bits',
+      () async {
+    final dut = _TypedPairHarness();
+    expect(dut.main.busIn, isA<_Command>());
+    expect(dut.main.busOut, isA<_Response>());
+    expect(dut.sub.busIn, isA<_Response>());
+    expect(dut.sub.busOut, isA<_Command>());
+
+    final vectors = <Vector>[
+      Vector({
+        'clock': 1,
+        'mainReset': 0,
+        'subReset': 0,
+        'start': 0,
+        'mainIn': 0,
+        'subIn': 0,
+      }, {}),
+      Vector({'mainReset': 1, 'subReset': 1}, {}),
+      Vector({
+        'mainReset': 0,
+        'subReset': 0,
+        'mainIn': 0xa6,
+        'subIn': 0x69,
+        'start': 1,
+      }, {}),
+    ];
+    for (var bit = 0; bit < 8; bit++) {
+      vectors
+        ..add(Vector({'clock': 0}, {}))
+        ..add(Vector({'clock': 1}, {}));
+      if (bit == 0) {
+        vectors.add(Vector({'start': 0, 'mainIn': 0, 'subIn': 0}, {}));
+      }
+    }
+    vectors.add(Vector({}, {
+      'mainOut': 0x69,
+      'subOut': 0xa6,
+      'status': 1,
+      'commandHigh': 0xa,
+    }));
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+    expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+  });
+
+  test('typed receive-only SPI subordinate preserves output fields', () async {
+    final dut = _TypedReceiveHarness();
+    expect(dut.sub.busIn, isNull);
+    expect(dut.sub.busOut, isA<_Command>());
+    final vectors = <Vector>[
+      Vector({'clock': 0, 'csb': 1, 'mosi': 0}, {}),
+      Vector({'csb': 0}, {}),
+    ];
+    for (final bit in [1, 0, 1, 0, 0, 1, 1, 0]) {
+      vectors
+        ..add(Vector({'clock': 0, 'mosi': bit}, {}))
+        ..add(Vector({'clock': 1}, {}));
+    }
+    vectors.add(Vector({'clock': 0}, {'received': 0xa6, 'low': 6}));
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('typed SPI preserves unpacked array ports in generated HDL', () async {
+    final dut = _ArrayPairHarness();
+    expect(dut.main.input('busIn'), isA<_Nibbles>());
+    expect(dut.main.busOut.numUnpackedDimensions, 1);
+    expect(dut.sub.busOut.numUnpackedDimensions, 1);
+    final vectors = <Vector>[
+      Vector({
+        'clock': 1,
+        'reset': 0,
+        'subReset': 0,
+        'start': 0,
+        'data': 0,
+      }, {}),
+      Vector({'reset': 1, 'subReset': 1}, {}),
+      Vector({'reset': 0, 'subReset': 0, 'data': 0xa6, 'start': 1}, {}),
+    ];
+    for (var bit = 0; bit < 8; bit++) {
+      vectors
+        ..add(Vector({'clock': 0}, {}))
+        ..add(Vector({'clock': 1}, {}));
+      if (bit == 0) {
+        vectors.add(Vector({'start': 0, 'data': 0}, {}));
+      }
+    }
+    vectors.add(Vector({}, {'received': 0xa6, 'first': 6}));
+    await dut.build();
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+  });
+
+  test('typed SPI definition names distinguish payload layouts', () {
+    general.SpiMain<Logic, Logic> main(Logic input, Logic output) =>
+        general.SpiMain<Logic, Logic>(SpiInterface(dataLength: 8),
+            clk: Logic(),
+            reset: Logic(),
+            start: Logic(),
+            busIn: input,
+            busOutSchema: output);
+    general.SpiSub<Logic, Logic> sub(Logic output) =>
+        general.SpiSub<Logic, Logic>(
+            intf: SpiInterface(dataLength: 8), busOutSchema: output);
+    expect(main(_Command(), _Response()).definitionName,
+        isNot(main(_Response(), _Response()).definitionName));
+    expect(main(_Command(), _Response()).definitionName,
+        isNot(main(_Command(), _Command()).definitionName));
+    expect(
+        sub(_Response()).definitionName, isNot(sub(_Command()).definitionName));
+  });
+
+  test('typed SPI endpoints validate both payload widths', () {
+    final intf = SpiInterface(dataLength: 8);
+    expect(
+        () => general.SpiMain<Logic, Logic>(intf,
+            clk: Logic(),
+            reset: Logic(),
+            start: Logic(),
+            busIn: Logic(width: 7),
+            busOutSchema: Logic(width: 8)),
+        throwsArgumentError);
+    expect(
+        () => general.SpiMain<Logic, Logic>(intf,
+            clk: Logic(),
+            reset: Logic(),
+            start: Logic(),
+            busIn: Logic(width: 8),
+            busOutSchema: Logic(width: 7)),
+        throwsArgumentError);
+    expect(
+        () => general.SpiSub<Logic, Logic>(
+            intf: intf, busIn: Logic(width: 7), busOutSchema: Logic(width: 8)),
+        throwsArgumentError);
+    expect(
+        () => general.SpiSub<Logic, Logic>(
+            intf: intf, busOutSchema: Logic(width: 7)),
+        throwsArgumentError);
+  });
+
+  test('legacy SPI wrappers retain flat ports and definition names', () {
+    final intf = SpiInterface(dataLength: 8);
+    final main = SpiMain(intf,
+        clk: Logic(), reset: Logic(), start: Logic(), busIn: _Command());
+    final sub = SpiSub(intf: intf, busIn: _Response());
+    expect(main.input('busIn'), isNot(isA<LogicStructure>()));
+    expect(main.busOut, isNot(isA<LogicStructure>()));
+    expect(sub.input('busIn'), isNot(isA<LogicStructure>()));
+    expect(sub.busOut, isNot(isA<LogicStructure>()));
+    expect(main.definitionName, 'SpiMain_W8_8_1');
+    expect(sub.definitionName, 'SpiSub_W8_8_1');
+  });
 
   test('SPI endpoints do not use dynamic asynchronous reset values', () async {
     final warnings = <LogRecord>[];

@@ -24,6 +24,25 @@ class _Record extends LogicStructure {
   _Record clone({String? name}) => _Record(name: name ?? this.name);
 }
 
+class _BadCandidateClone extends Logic {
+  _BadCandidateClone({super.name, super.width = 8});
+
+  @override
+  _BadCandidateClone clone({String? name}) => _BadCandidateClone(
+      name: name ?? this.name, width: name == 'payload' ? width + 1 : width);
+}
+
+class _NamedRecord extends LogicStructure {
+  final String suffix;
+
+  _NamedRecord({String name = 'record', this.suffix = 'bits'})
+      : super([Logic(name: '${name}_$suffix', width: 4)], name: name);
+
+  @override
+  _NamedRecord clone({String? name}) =>
+      _NamedRecord(name: name ?? this.name, suffix: suffix);
+}
+
 class _GrowingWord extends LogicStructure {
   Logic get data => elements[0];
   Logic get valid => elements[1];
@@ -35,6 +54,64 @@ class _GrowingWord extends LogicStructure {
   @override
   _GrowingWord clone({String? name}) =>
       _GrowingWord(data.width, name: name ?? this.name);
+}
+
+FixedPoint _constantFixed(int integer) =>
+    FixedPoint.constant(FixedPointValue.withSignedness(
+        integer: LogicValue.ofInt(integer, 3),
+        fraction: LogicValue.ofInt(0, 1)));
+
+class _ConstantExtremaHarness extends Module {
+  late final Extrema<Logic> extrema;
+
+  _ConstantExtremaHarness() {
+    extrema = Extrema<Logic>([_constantFixed(1), _constantFixed(7)], max: false,
+        isLessThan: (a, b) {
+      expect(a, isA<FixedPoint>());
+      expect(b, isA<FixedPoint>());
+      return a.lt(b);
+    });
+    addOutput('value', width: 4) <= extrema.val;
+    addOutput('index') <= extrema.index;
+  }
+}
+
+class _ConstantSortHarness extends Module {
+  late final BitonicSort<Logic> sorter;
+
+  _ConstantSortHarness() {
+    sorter = BitonicSort<Logic>(addInput('clk', Logic()), Const(0), toSort: [
+      _constantFixed(1),
+      _constantFixed(7),
+      _constantFixed(2),
+      _constantFixed(0),
+    ], isLessThan: (a, b) {
+      expect(a, isA<FixedPoint>());
+      expect(b, isA<FixedPoint>());
+      return a.lt(b);
+    });
+    for (var i = 0; i < 4; i++) {
+      addOutput('result$i', width: 4) <= sorter.sorted[i];
+    }
+  }
+}
+
+class _ConstantReductionHarness extends Module {
+  late final ReductionTree<Logic, Logic> tree;
+
+  _ConstantReductionHarness() {
+    tree = ReductionTree<Logic, Logic>(
+      [_constantFixed(1), _constantFixed(7), _constantFixed(2)],
+      (inputs, {depth = 0, control, name = 'select'}) {
+        expect(inputs.every((input) => input is FixedPoint), isTrue);
+        expect(control, isA<FixedPoint>());
+        return inputs.first;
+      },
+      control: _constantFixed(0),
+    );
+    addOutput('value', width: 4) <= tree.out;
+    addOutput('controlValue', width: 4) <= tree.controlOut!;
+  }
 }
 
 class _GrowingReduction extends Module {
@@ -309,6 +386,187 @@ void _checkStorage<T extends Logic>(String name, T schema,
 
 void main() {
   tearDown(Simulator.reset);
+
+  test('extrema rejects a candidate clone that changes payload width', () {
+    expect(() => Extrema<Logic>([_BadCandidateClone(), _BadCandidateClone()]),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('extrema and sorting accept parent-renamed payloads', () async {
+    final inputs = [
+      _NamedRecord(name: 'firstInput'),
+      _NamedRecord(name: 'secondInput'),
+    ];
+    final extrema = Extrema<_NamedRecord>(inputs);
+    await extrema.build();
+    await _compare(extrema, [
+      Vector({'signal0': 3, 'signal1': 12}, {'val': 12, 'index': 1}),
+      Vector({'signal0': 7, 'signal1': 2}, {'val': 7, 'index': 0}),
+    ]);
+    await Simulator.reset();
+
+    final sort = _SortHarness(_NamedRecord());
+    await sort.build();
+    await _compare(sort, [
+      Vector({
+        'clk': 0,
+        'reset': 0,
+        'data0': 9,
+        'data1': 1,
+        'data2': 7,
+        'data3': 3
+      }, {}),
+      for (var cycle = 0; cycle < sort.sorter.latency; cycle++) ...[
+        Vector({
+          'clk': 1
+        }, {
+          if (cycle == sort.sorter.latency - 1) ...{
+            'result0': 1,
+            'result1': 3,
+            'result2': 7,
+            'result3': 9,
+          }
+        }),
+        Vector({'clk': 0}, {}),
+      ],
+    ]);
+    final incompatible = _NamedRecord(name: 'secondInput', suffix: 'other');
+    expect(() => Extrema<_NamedRecord>([inputs.first, incompatible]),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => BitonicSort<_NamedRecord>(Logic(), Logic(),
+            toSort: [inputs.first, incompatible]),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('extrema retains widened structured constants', () async {
+    final dut = _ConstantExtremaHarness();
+    expect(dut.extrema.input('signal0'), isA<FixedPoint>());
+    expect(dut.extrema.val, isA<FixedPoint>());
+    await dut.build();
+    await _compare(dut, [
+      Vector({}, {'value': 14, 'index': 1})
+    ]);
+  });
+
+  test('sort retains widened structured constants', () async {
+    final dut = _ConstantSortHarness();
+    expect(dut.sorter.input('toSort0'), isA<FixedPoint>());
+    expect(dut.sorter.sorted.every((value) => value is FixedPoint), isTrue);
+    await dut.build();
+    await _compare(dut, [
+      Vector({'clk': 0}, {}),
+      for (var cycle = 0; cycle < dut.sorter.latency; cycle++) ...[
+        Vector({
+          'clk': 1
+        }, {
+          if (cycle == dut.sorter.latency - 1) ...{
+            'result0': 14,
+            'result1': 0,
+            'result2': 2,
+            'result3': 4,
+          }
+        }),
+        Vector({'clk': 0}, {}),
+      ],
+    ]);
+  });
+
+  test('reduction retains widened structured constant data and control',
+      () async {
+    final dut = _ConstantReductionHarness();
+    expect(dut.tree.input('seq0'), isA<FixedPoint>());
+    expect(dut.tree.input('control'), isA<FixedPoint>());
+    expect(dut.tree.out, isA<FixedPoint>());
+    expect(dut.tree.controlOut, isA<FixedPoint>());
+    await dut.build();
+    await _compare(dut, [
+      Vector({}, {'value': 2, 'controlValue': 0})
+    ]);
+  });
+
+  test('constant extrema and sort still reject incompatible formats', () {
+    final inputs = <Logic>[
+      _constantFixed(1),
+      FixedPoint(integerWidth: 3, fractionWidth: 1, signed: false),
+    ];
+    expect(() => Extrema<Logic>(inputs), throwsA(isA<RohdHclException>()));
+    expect(() => BitonicSort<Logic>(Logic(), Logic(), toSort: inputs),
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('toggle gate validates field reset domains', () async {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    expect(
+        () => ToggleGate<GfLogic>(
+            enable: Logic(),
+            data: GfLogic(first),
+            clk: Logic(),
+            reset: Logic(),
+            resetValue: GfLogic(second)),
+        throwsArgumentError);
+    TypedLogicArray<GfLogic, LogicValue> array(BinaryExtensionField field) =>
+        TypedLogicArray<GfLogic, LogicValue>(
+            [2], ({name}) => GfLogic(field, name: name));
+    expect(
+        () => ToggleGate<TypedLogicArray<GfLogic, LogicValue>>(
+            enable: Logic(),
+            data: array(first),
+            clk: Logic(),
+            reset: Logic(),
+            resetValue: array(second)),
+        throwsArgumentError);
+    for (final packed in [false, true]) {
+      final gate = ToggleGate<GfLogic>(
+          enable: Logic(),
+          data: GfLogic(first),
+          clk: Logic(),
+          reset: Logic(),
+          resetValue: packed ? Logic(width: 3) : GfLogic(first),
+          clockGateControlIntf: ClockGateControlInterface(isPresent: false));
+      expect(gate.input('resetValue'),
+          packed ? isNot(isA<GfLogic>()) : isA<GfLogic>());
+      await gate.build();
+      await _compare(gate, [
+        Vector({'clk': 0, 'reset': 1, 'enable': 0, 'data': 1, 'resetValue': 5},
+            {}),
+        Vector({'clk': 1}, {'gatedData': 5}),
+        Vector(
+            {'clk': 0, 'reset': 0, 'enable': 1, 'data': 2}, {'gatedData': 2}),
+        Vector({'clk': 1}, {'gatedData': 2}),
+        Vector({'clk': 0, 'enable': 0, 'data': 3}, {'gatedData': 2}),
+      ]);
+      await Simulator.reset();
+    }
+  });
+
+  for (final inline in [false, true]) {
+    test(
+        'field reductions preserve semantics with runtime sign control, '
+        'inline=$inline', () {
+      final field =
+          BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+      final values = [
+        for (final value in [1, 2, 3, 5]) GfLogic(field)..put(value)
+      ];
+      final sign = Logic()..put(1);
+      GfLogic add(List<GfLogic> inputs,
+              {int depth = 0, Logic? control, String name = 'add'}) =>
+          inputs.reduce((a, b) => a + b);
+      final result = inline
+          ? ReductionTreeGenerator<GfLogic, Logic>(values, add,
+                  signExtend: sign)
+              .out
+          : ReductionTree<GfLogic, Logic>(values, add, signExtend: sign).out;
+      expect(result.field, field);
+      expect(result.value.toInt(), 1 ^ 2 ^ 3 ^ 5);
+      sign.put(0);
+      expect(result.value.toInt(), 1 ^ 2 ^ 3 ^ 5);
+    });
+  }
 
   _checkSort('record key', _Record(), (a, b) => a.key.lt(b.key),
       [0x93, 0xf1, 0x24, 0x62], [0xf1, 0x62, 0x93, 0x24],

@@ -10,6 +10,7 @@
 import 'package:collection/collection.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 
 /// A module [Fifo] implementing a simple FIFO (First In, First Out) buffer.
@@ -131,9 +132,9 @@ class Fifo<LogicType extends Logic> extends Module {
 
     // set up read/write ports
     addInput('writeEnable', writeEnable);
-    _writeData = addTypedInput('writeData', writeData);
+    _writeData = addTypedInput<LogicType>('writeData', writeData);
     addInput('readEnable', readEnable);
-    readData = addTypedOutput('readData', _writeData.cloneTyped);
+    readData = addTypedPayloadOutput(this, 'readData', _writeData);
 
     // set up info ports
     addOutput('full');

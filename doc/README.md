@@ -1,10 +1,12 @@
 
-# ROHD-HCL Component List
+# ROHD-HCL Component Guide and Index
 
 This index groups the library's components by category and links to their
 documentation. Some APIs are experimental, simulation-only, or retained for
 compatibility; the linked documentation describes their status and limitations.
-Ideas for further development are listed separately below.
+This is the lasting usage entry point, organized by functionality rather than
+PR numbers or merge order. Ideas for further development are listed separately
+below; contribution workflow is in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 Some in-development items will have opened issues, as well. Feel free to create
 a pull request or file issues to add more ideas to this list. If you plan to
@@ -20,6 +22,28 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 
 - [Static or Runtime Parameters](./static_or_runtime_parameters.md)
 - [Utilities and Building Blocks](./utilities.md)
+- [Payload Schemas and Typed Boundaries](./components/payload_schemas.md)
+
+## Choosing and composing components
+
+Choose the operation first, then its timing, storage, and transport boundary.
+The same arithmetic or storage core can serve different interfaces without
+duplicating its algorithm.
+
+| Need | Start with |
+| --- | --- |
+| Arithmetic, rounding, saturation, or representation conversion | [Arithmetic](#arithmetic) |
+| Binary transforms, field operations, recurrence, or test sequences | [Binary math](#binary-math) |
+| Bit selection, population count, encoding, or routing | [Bit operations](#bit-operations) and [encodings](#encodings) |
+| Direct actions or an independently paced stream | [Protocol composition](./components/protocol_composition.md#choosing-a-boundary) |
+| Storage with a particular latency, mask, collision, or reset contract | [Memory](#memory) |
+| Clock enables or a genuine clock-domain crossing | [Clocking](#clocking) |
+
+Choose a [ready/valid contract](./components/ready_valid.md#interfaces-and-handshaking)
+that describes both endpoints. Keep caller-owned signals at component
+boundaries, and distinguish synthesizable implementations from simulation-only
+models. Capability metadata does not by itself prove timing closure, freedom
+from handshake loops, or CDC safety.
 
 ## Source Layout
 
@@ -29,11 +53,12 @@ subcategory barrels. The package barrel exports every category barrel.
 
 | Category | Barrel | Subcategories |
 | --- | --- | --- |
-| [Arithmetic](#arithmetic) | [`arithmetic.dart`](../lib/src/arithmetic/arithmetic.dart) | `accumulation`, `addition`, `conversion`, `division_and_roots`, `floating_point`, `multiplication`, `multiply_accumulate`, `normalization`, `prefix_networks`, `signals`, `values` |
+| [Arithmetic](#arithmetic) | [`arithmetic.dart`](../lib/src/arithmetic/arithmetic.dart) | `accumulation`, `addition`, `conversion`, `division_and_roots`, `finite_field`, `floating_point`, `multiplication`, `multiply_accumulate`, `normalization`, `prefix_networks`, `signals`, `values` |
+| [Binary math](#binary-math) | [`binary_math.dart`](../lib/src/binary_math/binary_math.dart) | `algebra`, `prbs`, `recurrence` |
 | [Bit operations](#bit-operations) | [`bit_operations.dart`](../lib/src/bit_operations/bit_operations.dart) | `population_count`, `search`, `selection`, `shifting` |
-| [Clocking](#clocking) | [`clocking.dart`](../lib/src/clocking/clocking.dart) | `cdc`, `event_detection`, `gating` |
+| [Clocking](#clocking) | [`clocking.dart`](../lib/src/clocking/clocking.dart) | `cdc`, `event_detection`, `gating`, `generation` |
 | [Dataflow](#dataflow) | [`dataflow.dart`](../lib/src/dataflow/dataflow.dart) | `ordering`, `reduction`, `selection`, `serialization` |
-| [Encodings](#encodings) | [`encodings.dart`](../lib/src/encodings/encodings.dart) | `gray`, `one_hot`, `priority` |
+| [Encodings](#encodings) | [`encodings.dart`](../lib/src/encodings/encodings.dart) | `gray`, `one_hot`, `priority`, `thermometer` |
 | [Error control](#error-control) | [`error_control.dart`](../lib/src/error_control/error_control.dart) | `protection` |
 | [Flow control](#flow-control) | [`flow_control.dart`](../lib/src/flow_control/flow_control.dart) | `arbitration`, `attachments`, `control`, `ready_valid`, `storage` |
 | [Interfaces](#interfaces) | [`interfaces.dart`](../lib/src/interfaces/interfaces.dart) | `amba` (`amba4`, `amba5`, `endpoints`), `spi` (`endpoints`) |
@@ -43,11 +68,26 @@ subcategory barrels. The package barrel exports every category barrel.
 The configurator tags each configurable component with the same category and
 subcategory, and the confapp sidebar groups components accordingly.
 
+Confapp includes compute, binary-math, recurrence, and fixed-latency
+configurators as well as the existing catalog. Its generic ready/valid
+fixed-latency entry wraps a delay-line example, not an arbitrary user-supplied
+core. In binary-math controls, matrix rows are comma-separated binary strings
+with output or state bit zero first; polynomials, field constants, offsets,
+and seeds are hexadecimal, and tap indices are zero-based decimal integers.
+PRBS configurations can use a standard or a custom polynomial.
+
+Compression-tree multiplier, MAC, and dot-product controls optionally accept
+custom delay tables. Enter comma-separated nonnegative delays in input order,
+one entry per input for each output; use `x` for disconnected 4:2 `cout`
+paths. The default 4:2 table in the editor is derived from two 3:2 stages.
+Leave custom tables disabled to retain the built-in timing heuristics.
+
 ## Components
 
 ### Arithmetic
 
-- **Accumulation:** [sums](./components/summation.md#sum),
+- **Accumulation:** [unsigned accumulator](./components/arithmetic_primitives.md#accumulator),
+  [sums](./components/summation.md#sum),
   [counters](./components/summation.md#counter), and
   [gated counters](./components/summation.md#gated-counter).
 - **Addition and subtraction:**
@@ -60,30 +100,40 @@ subcategory, and the confapp sidebar groups components accordingly.
     and [sign-magnitude adder](./components/adder.md#sign-magnitude-adder).
 - **Multiplication and accumulation:**
   - [Carry-save multiplier](./components/multiplier.md#carry-save-multiplier).
+  - [Valid-only multiplication](./components/multiplier.md#valid-only-carry-save-multiplier).
   - [Compression-tree multiplier](./components/multiplier.md#compression-tree-multiplier).
   - [Compression-tree multiply-accumulate](./components/multiplier.md#compression-tree-multiply-accumulate)
     and [generic multiply-accumulate](./components/multiplier.md#generic-multiply-accumulate).
   - [Dot product](./components/multiplier.md#dot-product).
   - [Booth encoding and compression building blocks](./components/multiplier_components.md).
 - **Division and roots:** [integer divider](./components/divider.md),
+  [direct and ready/valid divider wrappers](./components/divider.md#choosing-a-control-interface),
   [ceil division and logarithm](./components/arithmetic_primitives.md#division-and-logarithms),
   [fixed-point square root](./components/fixed_point.md#fixedpointsqrt), and
   [floating-point square root](./components/floating_point.md#floatingpointsqrt).
-- **Normalization:** [absolute value](./components/arithmetic_primitives.md#absolute-value)
+- **Rounding and normalization:** [numeric narrowing](./components/arithmetic_primitives.md#numeric-narrowing),
+  [absolute value](./components/arithmetic_primitives.md#absolute-value)
   and [leading digit and zero anticipation](./components/leading_digit_anticipate.md).
 - **Prefix networks:** [prefix operations and typed networks](./components/parallel_prefix_operations.md)
-  for operations such as priority finding, OR scans, incrementing, and
+  for operations such as priority finding, bitwise scans, incrementing, and
   decrementing.
 - **Floating point:** [values and formats](./components/floating_point.md#floatingpointvalue),
   [adders](./components/floating_point.md#floatingpointadder),
   [multiplier](./components/floating_point.md#floatingpointmultiplier),
   [converter](./components/floating_point.md#floatingpointconverter), and
+  [classification and comparison](./components/floating_point.md#floating-point-classification-and-comparison),
   [status](./components/floating_point.md#floating-point-status).
 - **Fixed point:** [values, signals and arithmetic](./components/fixed_point.md),
   [fixed-to-float](./components/fixed_point.md#fixedtofloat), and
   [float-to-fixed](./components/fixed_point.md#floattofixed).
 - **Other primitives:** [unsigned arithmetic with overflow](./components/arithmetic_primitives.md#arithmetic-with-overflow)
   and [circular pointer](./components/arithmetic_primitives.md#circular-pointer).
+
+### Binary math
+
+- [Binary algebra and finite fields](./components/binary_math.md#algebra-and-finite-fields).
+- [Recurrences, LFSRs, and signatures](./components/binary_math.md#recurrences-and-signatures).
+- [PRBS generation and checking](./components/binary_math.md#prbs-generation-and-checking).
 
 ### Bit operations
 
@@ -92,7 +142,10 @@ subcategory, and the confapp sidebar groups components accordingly.
 - **Search:** [find bits](./components/find.md),
   [find patterns](./components/find_pattern.md), and
   [leading and trailing zeros](./components/bit_operations.md#leading-and-trailing-zeros).
-- **Selection:** [one-hot, priority, and bitwise multiplexers](./components/bit_operations.md#multiplexers).
+- **Prefix selection:** [first-match prefix](./components/bit_operations.md#first-match-prefix).
+- **Selection:** [one-hot, priority, and bitwise multiplexers](./components/bit_operations.md#multiplexers)
+  and sparse-to-dense boolean scatter, illustrated with
+  [reduction trees](./components/reduction_tree.md).
 - **Shifting and bit manipulation:** [rotate](./components/rotate.md),
   [signed shifter](./components/shifter.md), and
   [padding and bit replacement](./components/bit_operations.md#padding-and-bit-replacement).
@@ -102,6 +155,7 @@ subcategory, and the confapp sidebar groups components accordingly.
 - [Clock gating](./components/clock_gating.md) and [toggle gating](./components/toggle_gate.md).
 - [Edge detection](./components/edge_detector.md).
 - [Clock-domain synchronizer](./components/async_fifo.md#synchronizer-module).
+- [Divided-rate clock enable](./components/clock_gating.md#clock-enable-divider).
 
 ### Dataflow
 
@@ -115,6 +169,7 @@ subcategory, and the confapp sidebar groups components accordingly.
 
 - [One-hot codecs](./components/onehot.md).
 - [Binary/Gray conversion](./components/binary_gray.md).
+- [Thermometer conversion](./components/binary_gray.md#thermometer-conversion).
 - [Parallel-prefix and recursive priority encoders](./components/priority_encoder.md).
 
 ### Error control
@@ -179,8 +234,8 @@ blocks may already support parts of these use cases:
 - Bit operations: a component exposing the total number of pattern occurrences.
   [FindPattern](./components/find_pattern.md) already finds the first or nth
   occurrence, but does not expose its internal count.
-- Encodings: programmable logic arrays (PLAs).
-- Error control: CRC, interleaving, and pseudorandom generators such as LFSRs.
+- Encodings: programmable logic arrays (PLAs) and 8b/10b line coding.
+- Error control: configurable CRC generation and checking, and interleaving.
 - Flow control: general-purpose credit-based hardware attachments.
 - Interconnect: coherent and non-coherent networks on chip.
 - Interfaces: AHB, SFI, PCIe, UCIe, JTAG, UART, DDR, and HBM.
@@ -188,8 +243,9 @@ blocks may already support parts of these use cases:
 
 ## Adding a New Component
 
-Please refer to [Component](./Component.md) for the best practices for creating
-new components.
+Follow the [contribution checklist](../CONTRIBUTING.md#adding-a-new-component)
+and [component authoring guide](./Component.md). Keep usage documentation in
+the topic guides linked above.
 
 ----------------
 

@@ -78,7 +78,7 @@ class _CompareSwap<T extends Logic> extends Module {
     reset = addInput('reset', reset);
 
     for (var i = 0; i < toSort.length; i++) {
-      _inputs.add(addTypedInput('toSort$i', toSort[i]));
+      _inputs.add(addTypedInput<T>('toSort$i', toSort[i]));
     }
 
     final newValA = _inputs[i].cloneTyped(name: 'newValA');
@@ -104,7 +104,7 @@ class _CompareSwap<T extends Logic> extends Module {
     _inputs[j] = newValB;
 
     for (var k = 0; k < _inputs.length; k++) {
-      _outputs.add(addTypedOutput('swapped$k', _inputs[k].cloneTyped));
+      _outputs.add(addTypedPayloadOutput(this, 'swapped$k', _inputs[k]));
       _outputs[k] <= _inputs[k];
     }
   }
@@ -147,7 +147,7 @@ class _BitonicMerge<T extends Logic> extends Module {
 
     for (var i = 0; i < bitonicSequence.length; i++) {
       inputs.add(
-          addTypedInput('bitonicSequence$i', bitonicSequence.elementAt(i)));
+          addTypedInput<T>('bitonicSequence$i', bitonicSequence.elementAt(i)));
     }
 
     if (inputs.length > 1) {
@@ -186,11 +186,11 @@ class _BitonicMerge<T extends Logic> extends Module {
       final mergeRes = mergeLeft.sorted + mergeRight.sorted;
 
       for (var i = 0; i < mergeRes.length; i++) {
-        _outputs.add(addTypedOutput('sorted_$i', mergeRes[i].cloneTyped));
+        _outputs.add(addTypedPayloadOutput(this, 'sorted_$i', mergeRes[i]));
         _outputs[i] <= mergeRes[i];
       }
     } else if (inputs.length == 1) {
-      _outputs.add(addTypedOutput('sorted_0', inputs[0].cloneTyped));
+      _outputs.add(addTypedPayloadOutput(this, 'sorted_0', inputs[0]));
       _outputs[0] <= inputs[0];
     }
   }
@@ -275,14 +275,14 @@ class BitonicSort<T extends Logic> extends Sort<T> {
     }
 
     for (final signal in toSort.skip(1)) {
-      if (!sameHclPayloadShape(toSort.first, signal)) {
+      if (!samePayloadShapeAllowingRenamedClone(toSort.first, signal)) {
         throw RohdHclException(
             'Bitonic sort requires matching payload layouts.');
       }
     }
 
     for (var i = 0; i < toSort.length; i++) {
-      _inputs.add(addTypedInput('toSort$i', super.toSort.elementAt(i)));
+      _inputs.add(addTypedInput<T>('toSort$i', super.toSort.elementAt(i)));
     }
 
     if (_inputs.length > 1) {
@@ -310,11 +310,11 @@ class BitonicSort<T extends Logic> extends Sort<T> {
               reserveDefinitionName: reserveDefinitionName)
           .sorted;
       for (var i = 0; i < mergeResult.length; i++) {
-        _outputs.add(addTypedOutput('sorted_$i', _inputs[i].cloneTyped));
+        _outputs.add(addTypedPayloadOutput(this, 'sorted_$i', _inputs[i]));
         _outputs[i] <= mergeResult[i];
       }
     } else {
-      _outputs.add(addTypedOutput('sorted_0', _inputs[0].cloneTyped));
+      _outputs.add(addTypedPayloadOutput(this, 'sorted_0', _inputs[0]));
       _outputs[0] <= _inputs[0];
     }
   }

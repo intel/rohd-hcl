@@ -23,6 +23,16 @@ Check out the [generator web app](https://intel.github.io/rohd-hcl/confapp/),
 which lets you explore some of the available components, configure them, and
 generate SystemVerilog.
 
+The public library can be compiled to WebAssembly. A browser smoke test covers
+component simulation, typed interfaces, and SystemVerilog generation:
+
+```shell
+dart test -p chrome -c dart2wasm test/wasm_compatibility_test.dart
+```
+
+Individual APIs and tests that require native tools or file access may still
+require the Dart VM.
+
 This project is always improving and growing! In a given category, initial
 components are primarily focused on correctness with room for optimization from
 there. Please feel free to contribute or provide feedback. Check out
@@ -53,6 +63,7 @@ The library is organized into the same component families used by the
 configurator. Examples include:
 
 - **Arithmetic:** adders, multipliers, counters, and floating-point operations.
+- **Binary Math:** binary transforms, finite fields, recurrences, and PRBS.
 - **Bit Operations:** searching, population counts, multiplexers, and shifting.
 - **Clocking:** clock gating, event detection, and clock-domain crossing.
 - **Dataflow:** sorting, selection, reduction, and serialization.

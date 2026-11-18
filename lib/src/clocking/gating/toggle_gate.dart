@@ -9,6 +9,7 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/clocking/gating/clock_gating.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A gate for signals to avoid toggling when not needed.
 class ToggleGate<T extends Logic> extends Module {
@@ -24,7 +25,8 @@ class ToggleGate<T extends Logic> extends Module {
   /// same as the last value of [data] when [enable] was high.
   ///
   /// If [resetValue] is provided, then the [gatedData] signal will be set to
-  /// that when [reset].
+  /// that when [reset]. Declared reset and payload formats must match; a plain
+  /// packed reset signal supplies raw bits.
   ///
   /// If no [clockGateControlIntf] is provided (left `null`), then a default
   /// clock gating implementation will be included for the internal sequential
@@ -41,8 +43,14 @@ class ToggleGate<T extends Logic> extends Module {
       super.reserveDefinitionName,
       String? definitionName})
       : super(definitionName: definitionName ?? 'ToggleGate_W${data.width}') {
+    if (resetValue is Logic &&
+        resetValue.width == data.width &&
+        !compatiblePayloadConnectionAllowingRenamedClone(data, resetValue)) {
+      throw ArgumentError.value(
+          resetValue, 'resetValue', 'Payload formats must match.');
+    }
     enable = addInput('enable', enable);
-    data = addTypedInput('data', data);
+    data = addTypedInput<T>('data', data);
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
 
@@ -55,9 +63,9 @@ class ToggleGate<T extends Logic> extends Module {
           addPairInterfacePorts(clockGateControlIntf, PairRole.consumer);
     }
 
-    gatedData = addTypedOutput('gatedData', data.cloneTyped);
+    gatedData = addTypedPayloadOutput(this, 'gatedData', data);
 
-    final lastData = data.cloneTyped(name: 'lastData');
+    final lastData = cloneTypedPayload(data, name: 'lastData');
 
     final gateEnable = enable & (lastData.neq(data));
 
@@ -74,7 +82,7 @@ class ToggleGate<T extends Logic> extends Module {
             en: clkGate.isPresent ? null : gateEnable,
             reset: reset,
             resetValue: resetValue,
-            outputGenerator: data.cloneTyped,
+            outputGenerator: ({name}) => cloneTypedPayload(data, name: name),
             data);
 
     gatedData <=
@@ -82,7 +90,7 @@ class ToggleGate<T extends Logic> extends Module {
           enable,
           data,
           lastData,
-          outputGenerator: data.cloneTyped,
+          outputGenerator: ({name}) => cloneTypedPayload(data, name: name),
         );
   }
 }

@@ -60,6 +60,7 @@ class ReadyValidRegister<LogicType extends Logic> extends Module
       : super(
             definitionName: 'ReadyValidRegister_${upstream.data.name}',
             name: name) {
+    downstream.validatePayloadCompatibility(upstream.data);
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);
     addOutput('occupied');

@@ -130,7 +130,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
 
 void _expectTag<T extends Logic>(T schema, T signal) {
   expect(signal.runtimeType, schema.runtimeType);
-  expect(sameHclPayloadShape(schema, signal), isTrue);
+  expect(samePayloadShape(schema, signal), isTrue);
 }
 
 List<Vector> _exercise(int first, int second, int third) => [
@@ -237,9 +237,8 @@ void _checkTags<T extends Logic>(String label, T schema,
       expect(identical(port.tag, clone.tag), isFalse);
     }
     for (var i = 0; i < 2; i++) {
-      expect(sameHclPayloadShape(schema, dut.cam.input('wr_tag_$i')), isTrue);
-      expect(
-          sameHclPayloadShape(schema, dut.cam.input('lookup_tag_$i')), isTrue);
+      expect(samePayloadShape(schema, dut.cam.input('wr_tag_$i')), isTrue);
+      expect(samePayloadShape(schema, dut.cam.input('lookup_tag_$i')), isTrue);
     }
     final mask = (1 << schema.width) - 1;
     await _compare(
@@ -251,8 +250,8 @@ void _checkTags<T extends Logic>(String label, T schema,
     final dut = _PortHarness<T>(schema);
     _expectTag<T>(schema, dut.child.internalInput.tag);
     _expectTag<T>(schema, dut.child.internalOutput.tag);
-    expect(sameHclPayloadShape(schema, dut.child.input('input_tag')), isTrue);
-    expect(sameHclPayloadShape(schema, dut.child.output('output_tag')), isTrue);
+    expect(samePayloadShape(schema, dut.child.input('input_tag')), isTrue);
+    expect(samePayloadShape(schema, dut.child.output('output_tag')), isTrue);
     final mask = (1 << schema.width) - 1;
     await _compare(
         dut,

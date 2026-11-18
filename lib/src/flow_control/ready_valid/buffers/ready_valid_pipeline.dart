@@ -73,6 +73,7 @@ class ReadyValidElasticPipeline<LogicType extends Logic> extends Module
     if (depth < 1) {
       throw ArgumentError.value(depth, 'depth', 'Must be at least one.');
     }
+    downstream.validatePayloadCompatibility(upstream.data);
 
     this.clk = addInput('clk', clk);
     this.reset = addInput('reset', reset);

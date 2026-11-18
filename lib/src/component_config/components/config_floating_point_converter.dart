@@ -31,6 +31,9 @@ class FloatingPointConverterConfigurator extends Configurator {
   final ToggleConfigKnob sourceExplicitJBitKnob =
       ToggleConfigKnob(value: false);
 
+  /// Whether to canonicalize explicit-J-bit inputs before conversion.
+  final ToggleConfigKnob alignExplicitJBitKnob = ToggleConfigKnob(value: false);
+
   /// Width of the destination exponent.
   final IntConfigKnob destinationExponentWidthKnob =
       PositiveIntConfigKnob(value: 5);
@@ -59,6 +62,7 @@ class FloatingPointConverterConfigurator extends Configurator {
     'Source Exponent Width': sourceExponentWidthKnob,
     'Source Mantissa Width': sourceMantissaWidthKnob,
     'Source Explicit J Bit': sourceExplicitJBitKnob,
+    'Align Explicit J Bit': alignExplicitJBitKnob,
     'Destination Exponent Width': destinationExponentWidthKnob,
     'Destination Mantissa Width': destinationMantissaWidthKnob,
     'Destination Explicit J Bit': destinationExplicitJBitKnob,
@@ -78,6 +82,7 @@ class FloatingPointConverterConfigurator extends Configurator {
             mantissaWidth: destinationMantissaWidthKnob.value,
             explicitJBit: destinationExplicitJBitKnob.value),
         roundingMode: roundingModeKnob.value,
+        alignExplicitJBit: alignExplicitJBitKnob.value,
         priorityGen: priorityEncoderSelectKnob.selectedPriorityEncoder(),
         adderGen: (a, b, {carryIn}) => adderSelectKnob.selectedAdder()(a, b,
             carryIn: carryIn, name: 'exponent_adder'),

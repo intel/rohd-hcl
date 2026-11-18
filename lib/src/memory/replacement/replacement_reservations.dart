@@ -53,10 +53,9 @@ class ReplacementReservations extends Module {
             List<ReplacementAccessInterface> ports, String prefix) =>
         [
           for (final (index, port) in ports.indexed)
-            port.clone()
-              ..connectIO(this, port,
-                  inputTags: {DataPortGroup.control},
-                  uniquify: (signal) => '${prefix}_${index}_$signal')
+            addInterfacePorts(port,
+                inputTags: {DataPortGroup.control},
+                uniquify: (signal) => '${prefix}_${index}_$signal')
         ];
     final localReleases = connect(releases, 'release');
     final localReserves = connect(reserves, 'reserve');

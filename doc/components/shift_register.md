@@ -22,10 +22,13 @@ final FloatingPoint32 firstStage = delay.stages.first;
 
 A zero-depth register remains combinational. Enable stalls, reset priority, and
 synchronous/asynchronous reset timing are unchanged. Constant and live reset
-values, including per-stage lists/maps, remain supported. When both the reset
-signal and payload are structured, their layouts must match.
+values, including per-stage lists/maps, remain supported. Declared reset and
+payload layouts and semantic formats must match. A plain packed reset signal is
+also accepted as raw bits; matching declared reset signals retain typed ports.
 
 For scalar constant data, use `ShiftRegister<Logic>(Const(...), ...)` to request
 driveable ports and stages rather than infer the immutable `Const` type. Making
 the delay line typed does not make arbitrary buses safe for CDC; `Synchronizer`
 retains its existing control-signal API.
+Structured constants with driveable clones retain their types, including reset
+values and payloads widened to `Logic`.

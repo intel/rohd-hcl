@@ -6,6 +6,8 @@
 `T` and optional control type `C`, including structures, enum mappings, and
 typed-array shapes/codecs. Their `out` and `controlOut` handles are typed, and
 pipelined payloads retain their schemas across enable stalls and resets.
+The module form also preserves structured constant data and control with
+driveable clones when widened to `Logic`.
 
 Operations have this signature:
 
@@ -14,10 +16,11 @@ T operation(List<T> inputs, {int depth, C? control, String name});
 ```
 
 `T` describes a signal family, not a fixed bit width. A typed operation may
-produce a wider format and align its own fields at the next node. Structures and
-enums are never automatically flattened or bit-extended. Plain `Logic`
-reductions retain their existing sign/zero-extension behavior. An operation must
-also handle a singleton on an unbalanced branch.
+produce a wider format and align its own fields at the next node. Structures,
+enums, and signals declaring semantic payload metadata are never automatically
+flattened or bit-extended. Plain `Logic` reductions retain their existing
+sign/zero-extension behavior. An operation must also handle a singleton on an
+unbalanced branch.
 
 For bit-oriented callbacks and scalar constants, explicitly use
 `ReductionTree<Logic, Logic>(...)` or `ReductionTreeGenerator<Logic,
@@ -99,6 +102,38 @@ Logic addReduceAdders(List<Logic> inputs, {int depth, Logic? control, String nam
     final reductionTree = ReductionTree(
         vec, radix: 4, addReduceWithAdders, clk: clk, depthBetweenFlops; 2, signExtend: true);
   ```
+
+## Boolean sparse-to-dense scatter
+
+The following combinational composition scatters valid unsigned indices into
+a five-bit vector. Duplicate indices combine with OR; indices at least five
+are ignored. The shift result is bounded to five bits even when the indices
+are much wider. An unknown index yields an all-X shifted word; a zero valid
+masks it, while a known 1 from another contribution wins through the OR.
+
+```dart
+import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/rohd_hcl.dart';
+
+Logic scatter(List<Logic> indices, List<Logic> valids, int width) {
+  final terms = [
+    for (var i = 0; i < indices.length; i++)
+      (Const(1, width: width) << indices[i]) & valids[i].replicate(width),
+  ];
+  return ReductionTree<Logic, Logic>(
+    terms,
+    (inputs, {depth = 0, control, name = ''}) =>
+        inputs.reduce((a, b) => a | b),
+  ).out;
+}
+
+final indices = [Logic(width: 3), Logic(width: 3), Logic(width: 3)];
+final valids = [Logic(), Logic(), Logic()];
+final dense = scatter(indices, valids, 5);
+```
+
+The inputs must be nonempty, indices equally wide and positive-width, valids
+single-bit with one per index, and `width` positive.
 
 ## ReductionTree with control  
 

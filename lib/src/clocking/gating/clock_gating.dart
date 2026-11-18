@@ -11,6 +11,7 @@ import 'package:rohd/rohd.dart';
 // ROHD does not expose the uniquifier required by this interface publicly.
 // ignore: implementation_imports
 import 'package:rohd/src/utilities/uniquifier.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// An [Interface] for controlling [ClockGate]s.
 class ClockGateControlInterface extends PairInterface {
@@ -77,6 +78,70 @@ class ClockGateControlInterface extends PairInterface {
           ...?additionalPorts,
         ]);
 
+  final Set<String> _suppressedPorts = {};
+
+  @override
+  Map<String, Logic> getPorts([Iterable<PairDirection>? tags]) {
+    final ports = super.getPorts(tags);
+    if (_suppressedPorts.isEmpty) {
+      return ports;
+    }
+    return Map<String, Logic>.of(ports)
+      ..removeWhere((name, _) => _suppressedPorts.contains(name));
+  }
+
+  @override
+  void connectIO(Module module, Interface<dynamic> srcInterface,
+      {Iterable<PairDirection>? inputTags,
+      Iterable<PairDirection>? outputTags,
+      Iterable<PairDirection>? inOutTags,
+      String Function(String original)? uniquify}) {
+    final inputs = inputTags?.toSet();
+    final outputs = outputTags?.toSet();
+    final inOuts = inOutTags?.toSet();
+    final isInput = inputs?.contains(PairDirection.fromProvider) ?? false;
+    final isOutput = outputs?.contains(PairDirection.fromProvider) ?? false;
+    final isInOut = inOuts?.contains(PairDirection.fromProvider) ?? false;
+    if ((isInput || isOutput) && isInOut) {
+      throw PortTypeException.forIntendedName('clock_gate_control',
+          'Clock-gate provider ports cannot also be inOut ports.');
+    }
+    try {
+      if (isInput || isOutput) {
+        for (final extra in additionalPorts ?? <Logic>[]) {
+          if (!hasDeclaredPayloadShape(extra)) {
+            continue;
+          }
+          final local = port(extra.name);
+          final source = srcInterface.port(extra.name);
+          if (!compatiblePayloadConnection(local, source,
+              ignoreConstantNames: true)) {
+            throw PortTypeException.forIntendedName(
+                extra.name, 'Clock-gate control payload shape does not match.');
+          }
+          // PairInterface applies modify before uniquify.
+          // ignore: deprecated_member_use
+          final modifiedName = modify?.call(extra.name) ?? extra.name;
+          final name = uniquify?.call(modifiedName) ?? modifiedName;
+          connectTypedPayloadPorts(module,
+              name: name,
+              local: local,
+              source: source,
+              input: isInput,
+              output: isOutput);
+          _suppressedPorts.add(extra.name);
+        }
+      }
+      super.connectIO(module, srcInterface,
+          inputTags: inputs,
+          outputTags: outputs,
+          inOutTags: inOuts,
+          uniquify: uniquify);
+    } finally {
+      _suppressedPorts.clear();
+    }
+  }
+
   /// Creates a clone of with the same configuration, including any
   /// `additionalPorts` and `gatedClockGenerator` function. This should be used
   /// to replicate interface configuration through hierarchies to carry
@@ -86,7 +151,10 @@ class ClockGateControlInterface extends PairInterface {
       isPresent: isPresent,
       hasEnableOverride: hasEnableOverride,
       additionalPorts: (additionalPorts != null)
-          ? [for (final p in additionalPorts!) p.clone(name: p.name)]
+          ? [
+              for (final p in additionalPorts!)
+                cloneTypedPayload(p, name: p.name)
+            ]
           : null,
       gatedClockGenerator: gatedClockGenerator);
 }
@@ -102,7 +170,8 @@ class ClockGate extends Module {
   /// [gatedClk].
   ///
   /// If a [resetValue] is provided, then the signal will be reset to that value
-  /// when the clock gating is reset.
+  /// when the clock gating is reset. Declared reset and payload formats must
+  /// match; a plain packed reset signal supplies raw bits.
   ///
   /// Preserves payload type [T] and its width. Use [Logic] for scalar constants
   /// when a driveable delayed output is required.
@@ -119,11 +188,27 @@ class ClockGate extends Module {
       }
       return cached;
     }
-    final input = super.addTypedInput<T>(
+    if (_reset != null &&
+        resetValue is Logic &&
+        resetValue.width == original.width &&
+        !compatiblePayloadConnectionAllowingRenamedClone(
+            original, resetValue)) {
+      throw ArgumentError.value(
+          resetValue, 'resetValue', 'Payload formats must match.');
+    }
+    final input = addTypedInput<T>(
         _uniquifier.getUniqueName(initialName: original.name), original);
-    final result = super.addTypedOutput<T>(
+    final result = addTypedPayloadOutput<T>(
+        this,
         _uniquifier.getUniqueName(initialName: '${original.name}_delayed'),
-        input.cloneTyped);
+        input);
+    if (_reset != null && resetValue is Logic) {
+      final resetName =
+          _uniquifier.getUniqueName(initialName: '${original.name}_resetValue');
+      resetValue = hasDeclaredPayloadShape(resetValue)
+          ? addTypedInput<Logic>(resetName, resetValue)
+          : super.addInput(resetName, resetValue, width: original.width);
+    }
     result <= flop(_freeClk, input, reset: _reset, resetValue: resetValue);
     _controlledCache[original] = result;
     return result;

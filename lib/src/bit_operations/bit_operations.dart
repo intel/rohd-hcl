@@ -3,6 +3,7 @@
 
 export 'population_count/bitwise_popcount.dart';
 export 'population_count/count.dart';
+export 'population_count/majority.dart';
 export 'population_count/xnor_popcount.dart';
 export 'population_count/xor_popcount.dart';
 export 'search/search.dart';

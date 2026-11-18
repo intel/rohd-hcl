@@ -28,6 +28,44 @@ class _Packet extends LogicStructure {
 void main() {
   tearDown(Simulator.reset);
 
+  test('single-entry buffer checks all declared payloads across packed storage',
+      () {
+    for (final mode in SingleEntryBufferMode.values) {
+      for (var packedIndex = 0; packedIndex < 3; packedIndex++) {
+        final payloads = <Logic>[
+          FixedPoint(integerWidth: 3, fractionWidth: 4),
+          FixedPoint(integerWidth: 4, fractionWidth: 4, signed: false),
+        ]..insert(packedIndex, Logic(width: 8));
+        expect(
+            () => configureSingleEntryBuffer<Logic>(
+                  clk: Logic(),
+                  reset: Logic(),
+                  occupied: Logic(),
+                  upstream: ReadyValidInterface(payloads[0]),
+                  downstream: IrrevocableReadyValidInterface(payloads[1]),
+                  storedData: payloads[2],
+                  mode: mode,
+                  name: 'buffer',
+                ),
+            throwsA(isA<PortTypeException>()));
+      }
+      expect(
+          () => configureSingleEntryBuffer<Logic>(
+                clk: Logic(),
+                reset: Logic(),
+                occupied: Logic(),
+                upstream: ReadyValidInterface(
+                    FixedPoint(integerWidth: 3, fractionWidth: 4)),
+                downstream: IrrevocableReadyValidInterface(
+                    FixedPoint(integerWidth: 3, fractionWidth: 4)),
+                storedData: Logic(width: 8),
+                mode: mode,
+                name: 'buffer',
+              ),
+          returnsNormally);
+    }
+  });
+
   for (final storage in ReadyValidQueueStorage.values) {
     for (final policy in ReadyValidQueuePolicy.values) {
       for (final depth in [1, 3]) {
@@ -190,5 +228,57 @@ void main() {
 
     expect(() => makeQueue(0), throwsArgumentError);
     expect(() => makeQueue(1, almostFullThreshold: 2), throwsArgumentError);
+  });
+
+  test('ready-valid storage rejects incompatible payload domains', () async {
+    final first =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(11)));
+    final second =
+        BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
+    final constructors = <Module Function(
+        ReadyValidInterface<Logic>, ReadyValidInterface<Logic>)>[
+      (up, down) => ReadyValidRegister<Logic>(
+          clk: Logic(), reset: Logic(), upstream: up, downstream: down),
+      (up, down) => ReadyValidFallThroughBuffer<Logic>(
+          clk: Logic(), reset: Logic(), upstream: up, downstream: down),
+      (up, down) => ReadyValidElasticPipeline<Logic>(
+          clk: Logic(),
+          reset: Logic(),
+          upstream: up,
+          downstream: down,
+          depth: 2),
+      for (final storage in ReadyValidQueueStorage.values)
+        (up, down) => ReadyValidQueue<Logic>(
+            clk: Logic(),
+            reset: Logic(),
+            upstream: up,
+            downstream: down,
+            depth: 2,
+            storage: storage),
+    ];
+    for (final construct in constructors) {
+      expect(
+        () => construct(
+          ReadyValidInterface<Logic>(GfLogic(first, name: 'data')),
+          ReadyValidInterface<Logic>(GfLogic(second, name: 'data')),
+        ),
+        throwsA(isA<PortTypeException>()),
+      );
+      final packed = construct(
+        ReadyValidInterface<Logic>(GfLogic(first, name: 'data')),
+        ReadyValidInterface<Logic>(Logic(name: 'data', width: 3)),
+      );
+      await packed.build();
+      final reversePacked = construct(
+        ReadyValidInterface<Logic>(Logic(name: 'data', width: 3)),
+        ReadyValidInterface<Logic>(GfLogic(first, name: 'data')),
+      );
+      await reversePacked.build();
+      final matching = construct(
+        ReadyValidInterface<Logic>(GfLogic(first, name: 'data')),
+        ReadyValidInterface<Logic>(GfLogic(first, name: 'data')),
+      );
+      await matching.build();
+    }
   });
 }

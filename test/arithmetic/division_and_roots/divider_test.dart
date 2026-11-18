@@ -609,6 +609,58 @@ void main() {
   });
 
   group('divider tests', () {
+    test('narrow divider corner cases agree across simulation backends',
+        () async {
+      final intf = MultiCycleDividerInterface(dataWidth: 4);
+      final dut = MultiCycleDivider(intf);
+      await dut.build();
+
+      final vectors = <Vector>[];
+      void cycle({
+        int reset = 0,
+        int valid = 0,
+        int dividend = 0,
+        int divisor = 1,
+        int signed = 0,
+        Map<String, int> outputs = const {},
+      }) {
+        final inputs = {
+          'multi_cycle_divider_reset': reset,
+          'multi_cycle_divider_validIn': valid,
+          'multi_cycle_divider_readyOut': 0,
+          'multi_cycle_divider_dividend': dividend,
+          'multi_cycle_divider_divisor': divisor,
+          'multi_cycle_divider_isSigned': signed,
+        };
+        vectors
+          ..add(Vector({...inputs, 'multi_cycle_divider_clk': 0}, {}))
+          ..add(Vector({...inputs, 'multi_cycle_divider_clk': 1}, outputs));
+      }
+
+      for (final (dividend, divisor, signed, quotient, remainder) in [
+        (9, 1, 0, 9, 0),
+        (8, 8, 1, 1, 0),
+      ]) {
+        cycle(reset: 1);
+        cycle(valid: 1, dividend: dividend, divisor: divisor, signed: signed);
+        for (var i = 0; i < 50; i++) {
+          cycle();
+        }
+        cycle(outputs: {
+          'multi_cycle_divider_readyIn': 0,
+          'multi_cycle_divider_validOut': 1,
+          'multi_cycle_divider_quotient': quotient,
+          'multi_cycle_divider_remainder': remainder,
+          'multi_cycle_divider_divZero': 0,
+        });
+      }
+
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      SimCompare.checkIverilogVector(dut, vectors);
+      expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+      expectNoVerilatorWarnings(dut, ['WIDTHEXPAND', 'CASEINCOMPLETE']);
+    });
+
     test('reset and handshakes agree across simulation backends', () async {
       final intf = MultiCycleDividerInterface(dataWidth: 8);
       final dut = MultiCycleDivider(intf);

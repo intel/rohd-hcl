@@ -68,3 +68,28 @@ abstract class OneHotToBinary extends Module {
     }
   }
 }
+
+/// Converts one-hot [Logic] signals to binary signals.
+extension OneHotToBinaryLogic on Logic {
+  /// Decodes this one-hot signal using the default [OneHotToBinary] codec.
+  ///
+  /// The output width is `widthFor(width)`. The input should have exactly one
+  /// set bit; invalid and unknown inputs follow the selected codec's behavior,
+  /// which depends on input width.
+  ///
+  /// For unknown inputs, the case codec can produce different results in ROHD
+  /// simulation and generated RTL.
+  ///
+  /// Use [OneHotToBinary] directly if an error output is needed.
+  Logic oneHotToBinary() => OneHotToBinary(this).binary;
+}
+
+/// Converts one-hot [LogicValue]s to binary values.
+extension OneHotToBinaryLogicValue on LogicValue {
+  /// Evaluates the default [OneHotToBinary] codec in ROHD simulation.
+  ///
+  /// The input should have exactly one set bit. Invalid and unknown inputs
+  /// follow the selected codec's behavior, which depends on input width.
+  /// For unknown inputs, the case codec can differ in generated RTL.
+  LogicValue oneHotToBinary() => OneHotToBinary(Const(this)).binary.value;
+}

@@ -13,8 +13,6 @@ import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
-import 'package:rohd_hcl/src/arithmetic/accumulation/summation_base.dart';
-
 BigInt _biggestUnsignedValue(int width) => (BigInt.one << width) - BigInt.one;
 
 // Computes conservative bounds before the sum is wrapped or saturated.

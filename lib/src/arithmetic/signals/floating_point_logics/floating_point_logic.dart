@@ -16,7 +16,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Flexible floating point logic representation.
-class FloatingPoint extends LogicStructure {
+class FloatingPoint extends LogicStructure implements PayloadShapeMetadata {
   /// unsigned, biased binary [exponent].
   final Logic exponent;
 
@@ -113,6 +113,11 @@ class FloatingPoint extends LogicStructure {
   /// Return `true` if subnormal numbers are represented as zero.
   final bool subNormalAsZero;
 
+  @override
+  String get payloadShapeMetadata =>
+      'FloatingPoint_${explicitJBit ? 1 : 0}_${subNormalAsZero ? 1 : 0}_'
+      '${supportsInfinities ? 1 : 0}_${supportsSignalingNaNs ? 1 : 0}';
+
   /// Whether this format represents positive and negative infinity.
   bool get supportsInfinities =>
       valuePopulator().positiveZero.supportsInfinities;
@@ -125,8 +130,10 @@ class FloatingPoint extends LogicStructure {
   /// mantissa resolved if not [isNormal] and [subNormalAsZero] is `true`.
   FloatingPoint resolveSubNormalAsZero() {
     if (subNormalAsZero) {
-      final zero = clone(name: 'subnormalZero')..gets(Const(0, width: width));
-      return mux<FloatingPoint>(isNormal, this, zero, outputGenerator: clone);
+      final zero = cloneTyped(name: 'subnormalZero')
+        ..gets(Const(0, width: width));
+      return mux<FloatingPoint>(isNormal, this, zero,
+          outputGenerator: cloneTyped);
     } else {
       return this;
     }
@@ -260,7 +267,7 @@ class FloatingPoint extends LogicStructure {
         payload,
       ].concat();
     }
-    final quiet = clone(name: 'quietNaN');
+    final quiet = cloneTyped(name: 'quietNaN');
     quiet.sign <= source.sign;
     quiet.exponent <= Const(valuePopulator().nan.exponent);
     quiet.mantissa <= quietMantissa;
@@ -279,7 +286,7 @@ class FloatingPoint extends LogicStructure {
   }
 
   FloatingPoint _constant(FloatingPointValue value, {Logic? sign}) {
-    final constant = clone(name: 'specialConstant');
+    final constant = cloneTyped(name: 'specialConstant');
     constant.sign <= (sign ?? Const(value.sign));
     constant.exponent <= Const(value.exponent);
     constant.mantissa <= Const(value.mantissa);
@@ -354,7 +361,7 @@ class FloatingPoint extends LogicStructure {
   /// [FloatingPoint32]) so that it can be combined with this value using
   /// type-preserving operations such as `mux`.
   FloatingPoint negate() {
-    final result = clone(name: name)
+    final result = cloneTyped(name: name)
       ..sign.gets(~sign)
       ..exponent.gets(exponent)
       ..mantissa.gets(mantissa);

@@ -11,6 +11,8 @@ import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/spi_main.dart' as general;
+import 'package:rohd_hcl/spi_sub.dart' as general;
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 import 'package:test/test.dart';
 
@@ -154,6 +156,15 @@ void main() {
     );
   });
 
+  test('SPI configurator builds typed endpoints for both roles', () {
+    final spi = SpiConfigurator();
+    expect(spi.createModule(), isA<general.SpiMain<Logic, Logic>>());
+    spi.roleKnob.value = SpiRole.sub;
+    expect(spi.createModule(), isA<general.SpiSub<Logic, Logic>>());
+    spi.subBusInKnob.value = false;
+    expect((spi.createModule() as general.SpiSub<Logic, Logic>).busIn, isNull);
+  });
+
   test('loads conditional floating-point adder knobs from JSON', () {
     final configured = FloatingPointAdderConfigurator()
       ..dualPathAdderKnob.value = true
@@ -188,6 +199,7 @@ void main() {
     )
       ..compressionTreeMultiplierKnob.value = true
       ..radixKnob.value = 8
+      ..use42CompressorsKnob.value = true
       ..multiplicandWidthKnob.value = 7
       ..multiplierWidthKnob.value = 9
       ..signMultiplicandValueKnob.value = 'selected'
@@ -203,6 +215,13 @@ void main() {
     expect(loadedMultiplier.toJson(), multiplier.toJson());
     expect(loadedMultiplier.subKnobs.containsKey('Pipelined'), isTrue);
     expect(loadedMultiplier.pipelinedKnob.value, isTrue);
+    expect(loadedMultiplier.use42CompressorsKnob.value, isTrue);
+    final selected = loadedMultiplier.selectedMultiplier()(
+      Logic(width: 7),
+      Logic(width: 9),
+    );
+    expect(selected, isA<CompressionTreeMultiplier>());
+    expect(selected.definitionName, endsWith('_C42'));
     expect(
       loadedMultiplier.adderSelectionKnob.parallelPrefixTypeKnob.value,
       Ripple,

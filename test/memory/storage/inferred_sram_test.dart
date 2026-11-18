@@ -18,6 +18,10 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+LogicValue _alternateCodecValue(LogicValue value) => value;
+const _alternateCodec = LogicValueCodec<LogicValue>(
+    decode: _alternateCodecValue, encode: _alternateCodecValue);
+
 class _Harness extends Module {
   late final InferredSram<Logic> sram;
 
@@ -30,6 +34,38 @@ class _Harness extends Module {
     read.en <= addInput('re', Logic());
     read.addr <= addInput('ra', Logic(width: 2), width: 2);
     sram = InferredSram<Logic>(
+        addInput('clk', Logic()), addInput('reset', Logic()), [write], [read],
+        entryCount: 3);
+    addOutput('out', width: 8) <= read.data;
+  }
+}
+
+class _NestedPayload extends LogicStructure {
+  _NestedPayload({super.name})
+      : super([
+          Logic(name: 'tag', width: 2),
+          TypedLogicArray<Logic, LogicValue>(
+              [2], ({name}) => Logic(width: 3, name: name),
+              name: 'items', numUnpackedDimensions: 1),
+        ]);
+
+  @override
+  _NestedPayload clone({String? name}) =>
+      _NestedPayload(name: name ?? this.name);
+}
+
+class _UnpackedHarness<T extends Logic> extends Module {
+  late final InferredSram<T> sram;
+
+  _UnpackedHarness(T schema) {
+    final write = DataPortInterface.typed(schema, 2);
+    final read = DataPortInterface.typed(schema, 2);
+    write.en <= addInput('we', Logic());
+    write.addr <= addInput('wa', Logic(width: 2), width: 2);
+    write.data <= addInput('wd', Logic(width: 8), width: 8);
+    read.en <= addInput('re', Logic());
+    read.addr <= addInput('ra', Logic(width: 2), width: 2);
+    sram = InferredSram<T>(
         addInput('clk', Logic()), addInput('reset', Logic()), [write], [read],
         entryCount: 3);
     addOutput('out', width: 8) <= read.data;
@@ -149,6 +185,134 @@ int sc_main(int, char**) {
 void main() {
   tearDown(Simulator.reset);
 
+  for (final (label, schema) in <(String, Logic)>[
+    (
+      'array',
+      TypedLogicArray<Logic, LogicValue>(
+          [2], ({name}) => Logic(width: 4, name: name),
+          numUnpackedDimensions: 1)
+    ),
+    ('nested array', _NestedPayload()),
+  ]) {
+    test('$label SRAM payload matches generated Verilog', () async {
+      final dut = _UnpackedHarness(schema);
+      expect(dut.sram.input('wr_data_0').runtimeType, schema.runtimeType);
+      final vectors = [
+        Vector({
+          'clk': 0,
+          'reset': 1,
+          'we': 0,
+          'wa': 1,
+          'wd': 0xab,
+          're': 0,
+          'ra': 1
+        }, {}),
+        Vector({'clk': 1}, {'out': 0}),
+        Vector({'clk': 0, 'reset': 0, 'we': 1}, {}),
+        Vector({'clk': 1}, {'out': 0}),
+        Vector({'clk': 0, 'we': 0, 're': 1}, {}),
+        Vector({'clk': 1}, {'out': 0xab}),
+        Vector({
+          'clk': 0,
+          're': 0,
+          'we': 1,
+          'wa': 2,
+          'wd': LogicValue.ofString('10zz0011')
+        }, {}),
+        Vector({'clk': 1}, {}),
+        Vector({'clk': 0, 're': 1, 'we': 0, 'ra': 2}, {}),
+        Vector({'clk': 1}, {'out': LogicValue.ofString('10xx0011')}),
+      ];
+      await dut.build();
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      SimCompare.checkIverilogVector(dut, vectors);
+      expect(SimCompare.checkVerilatorVector(dut, vectors.take(6).toList()),
+          isTrue);
+    });
+  }
+
+  test('unpacked SRAM restores stored data and the registered output',
+      () async {
+    final dut = _UnpackedHarness(TypedLogicArray<Logic, LogicValue>(
+        [2], ({name}) => Logic(width: 4, name: name),
+        numUnpackedDimensions: 1));
+    await dut.build();
+    late InferredSramImage image;
+    Simulator.registerAction(1, () {
+      dut.sram.poke(1, LogicValue.ofInt(0xa5, 8));
+      dut.input('clk').put(0);
+      dut.input('reset').put(0);
+      dut.input('we').put(0);
+      dut.input('re').put(1);
+      dut.input('ra').put(1);
+      dut.input('wa').put(0);
+      dut.input('wd').put(0);
+    });
+    Simulator.registerAction(2, () => dut.input('clk').put(1));
+    Simulator.registerAction(3, () {
+      expect(dut.output('out').value.toInt(), 0xa5);
+      image = dut.sram.snapshot();
+      dut.sram.poke(1, LogicValue.ofInt(0x33, 8));
+      dut.input('clk').put(0);
+    });
+    Simulator.registerAction(4, () => dut.input('clk').put(1));
+    Simulator.registerAction(5, () {
+      expect(dut.output('out').value.toInt(), 0x33);
+      dut.sram.restore(image);
+      expect(dut.sram.peek(1)!.toInt(), 0xa5);
+      expect(dut.output('out').value.toInt(), 0xa5);
+    });
+    await Simulator.run();
+  });
+
+  test('unpacked SRAM supports behavioral SystemC hierarchy', () async {
+    final dut = _UnpackedHarness(TypedLogicArray<Logic, LogicValue>(
+        [2], ({name}) => Logic(width: 4, name: name),
+        numUnpackedDimensions: 1));
+    await dut.build();
+    final hierarchy = generateBehavioralSystemCHierarchy(
+      dut,
+      select: (module) => module is InferredSram,
+      unknownOutputs: SystemCUnknownOutputPolicy.zeroUntilReset,
+    );
+    final dir = await Directory.systemTemp.createTemp('typed_sram_systemc_');
+    try {
+      await File('${dir.path}/test.cpp').writeAsString('''
+${hierarchy.source}
+int sc_main(int, char**) {
+  sc_signal<bool> clk, reset, we, re;
+  sc_signal<sc_uint<2>> wa, ra;
+  sc_signal<sc_uint<8>> wd, out;
+  ${hierarchy.topClassName} dut("dut");
+  dut.clk(clk); dut.reset(reset); dut.we(we); dut.re(re);
+  dut.wa(wa); dut.ra(ra); dut.wd(wd); dut.out(out);
+  clk=0; reset=1; we=0; re=0; wa=1; ra=1; wd=0xab;
+  sc_start(1, SC_NS);
+  clk=1; sc_start(1, SC_NS);
+  if (out.read() != 0) return 1;
+  clk=0; reset=0; we=1; sc_start(1, SC_NS);
+  clk=1; sc_start(1, SC_NS);
+  clk=0; we=0; re=1; sc_start(1, SC_NS);
+  clk=1; sc_start(1, SC_NS);
+  return out.read() == 0xab ? 0 : 2;
+}
+''');
+      final compile = await Process.run('g++', [
+        '-std=c++17',
+        '${dir.path}/test.cpp',
+        '-lsystemc',
+        '-o',
+        '${dir.path}/test'
+      ]);
+      expect(compile.exitCode, 0,
+          reason: '${compile.stdout}\n${compile.stderr}');
+      final run = await Process.run('${dir.path}/test', []);
+      expect(run.exitCode, 0, reason: '${run.stdout}\n${run.stderr}');
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
   test('matches inferred Verilog timing, reset and four-state values',
       () async {
     final dut = _Harness();
@@ -231,6 +395,33 @@ void main() {
       expect(() => dut.sram.peek(3), throwsRangeError);
     });
     await Simulator.run();
+  });
+
+  test('snapshots require matching read and write payload codecs', () {
+    Logic schema(LogicValueCodec<LogicValue> codec) =>
+        TypedLogicArray<Logic, LogicValue>(
+            [2], ({name}) => Logic(width: 4, name: name),
+            valueCodec: codec);
+    InferredSram<Logic> sram(Logic write, Logic read) => InferredSram<Logic>(
+        Logic(),
+        Logic(),
+        [DataPortInterface<Logic>.typed(write, 2)],
+        [DataPortInterface<Logic>.typed(read, 2)],
+        entryCount: 4);
+    final packed = Logic(width: 8);
+    final standard = schema(LogicValueCodec.logicValue);
+    final alternate = schema(_alternateCodec);
+    final source = sram(packed, standard)..poke(1, LogicValue.ofInt(0xa5, 8));
+    final target = sram(packed, alternate)..poke(1, LogicValue.ofInt(0x33, 8));
+    final image = source.snapshot();
+    expect(() => target.restore(image), throwsArgumentError);
+    expect(target.peek(1)!.toInt(), 0x33);
+    expect(
+        () =>
+            sram(standard, packed).restore(sram(alternate, packed).snapshot()),
+        throwsArgumentError);
+    final compatible = sram(packed, standard)..restore(image);
+    expect(compatible.peek(1)!.toInt(), 0xa5);
   });
 
   test('two-state SystemC reports unknown read outputs',

@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_request_driver.dart
@@ -10,6 +10,7 @@
 import 'dart:async';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/src/exceptions.dart';
 import 'package:rohd_hcl/src/interfaces/interfaces.dart';
 import 'package:rohd_hcl/src/models/amba/amba4_bfm/axi4_bfm.dart';
 import 'package:rohd_vf/rohd_vf.dart';
@@ -56,6 +57,8 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
       rIntf.qos?.put(0);
       rIntf.region?.put(0);
       rIntf.user?.put(0);
+      rIntf.tryPort('${rIntf.prefix}SNOOP')?.put(0);
+      rIntf.tryPort('AWUNIQUE')?.put(0);
       if (rIntf is Ace4RequestChannel) {
         (rIntf as Ace4RequestChannel).domain?.put(0);
         (rIntf as Ace4RequestChannel).bar?.put(0);
@@ -81,6 +84,11 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
   }
 
   Future<void> _driveRequestPacket(Axi4RequestPacket packet) async {
+    final snoop = rIntf.tryPort('${rIntf.prefix}SNOOP');
+    final unique = rIntf.tryPort('AWUNIQUE');
+    _validateSideband('SNOOP', snoop, packet.snoop);
+    _validateSideband('AWUNIQUE', unique, packet.unique);
+
     await sIntf.clk.nextPosedge;
     Simulator.injectAction(() {
       rIntf.valid.put(1);
@@ -95,9 +103,11 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
       rIntf.qos?.put(packet.qos);
       rIntf.region?.put(packet.region);
       rIntf.user?.put(packet.user);
+      snoop?.put(packet.snoop ?? 0);
+      unique?.put(packet.unique ?? 0);
       if (rIntf is Ace4RequestChannel) {
-        (rIntf as Ace4RequestChannel).domain?.put(packet.domain);
-        (rIntf as Ace4RequestChannel).bar?.put(packet.bar);
+        (rIntf as Ace4RequestChannel).domain?.put(packet.domain ?? 0);
+        (rIntf as Ace4RequestChannel).bar?.put(packet.bar ?? 0);
       }
     });
 
@@ -113,6 +123,18 @@ class Axi4RequestChannelDriver extends PendingClockedDriver<Axi4RequestPacket> {
       rIntf.valid.put(0);
       packet.complete();
     });
+  }
+
+  void _validateSideband(String name, Logic? port, LogicValue? value) {
+    if (value == null) {
+      return;
+    }
+    if (port == null) {
+      throw RohdHclException('$name is not present on ${rIntf.prefix}.');
+    }
+    if (value.width != port.width) {
+      throw RohdHclException('$name must have width ${port.width}.');
+    }
   }
 }
 

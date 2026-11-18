@@ -10,6 +10,38 @@ needs a ready/valid queue, prefer
 [`ReadyValidQueue`](ready_valid.md#readyvalidqueue). The APIs described here are
 available from `package:rohd_hcl/rohd_hcl.dart`.
 
+## Choosing a Boundary
+
+| Boundary | Use when | Parent responsibility |
+| --- | --- | --- |
+| Direct actions | The parent owns scheduling and legal state transitions | Drive actions only when the core can accept them and retain results if necessary |
+| Valid-only | A fixed-latency pipeline can always consume its valid results | Align operands, propagate bubbles, and provide any required external buffering |
+| Ready/valid | A producer must wait for consumer capacity | Select compatible dependency/stability contracts and honor stalled offers |
+
+The payload's algorithm stays in the domain core. An ingress attachment
+translates acceptance into core actions; an egress attachment translates core
+offers and consumption into the output protocol. Reuse existing storage,
+arbitration, and arithmetic rather than duplicating an algorithm for each
+protocol pair.
+
+Use caller-owned interfaces to connect neighboring modules. Internally
+registered clones belong to the child and do not replace the caller's
+connection points. Capabilities describe a particular implementation, not a
+universal protocol or a proof that the composition is loop-free.
+
+See [ready/valid](ready_valid.md), [divider wrappers](divider.md#choosing-a-control-interface),
+[valid-only multiplication](multiplier.md#valid-only-carry-save-multiplier),
+and [serialization](serialization.md) for concrete contracts.
+
+For fixed-latency in-order compute, `FixedLatencyTracker` provides
+protocol-neutral admission, completion, and retirement scheduling. It enforces
+the initiation interval and limits accepted but unretired work; the caller
+must retain completed results and retire each exactly once. Its `error`
+signals a premature retirement. The
+[`ReadyValidFixedLatency`](ready_valid.md#fixed-latency-compute) wrapper uses
+this tracker and a result queue to add ready/valid transport and optional IDs.
+Neither component stalls the compute core.
+
 ## Core, Request, and Binding
 
 `HardwareCoreFunctor<Request, Binding>` is a typed construction seam:

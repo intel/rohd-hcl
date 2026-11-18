@@ -1,4 +1,4 @@
-// Copyright (C) 2024-2025 Intel Corporation
+// Copyright (C) 2024-2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
 // axi4_request_monitor.dart
@@ -58,6 +58,8 @@ class Axi4RequestChannelMonitor extends Monitor<Axi4RequestPacket> {
             bar: (isAce
                 ? (rIntf as Ace4RequestChannel).bar?.previousValue
                 : null),
+            snoop: rIntf.tryPort('${rIntf.prefix}SNOOP')?.previousValue,
+            unique: rIntf.tryPort('AWUNIQUE')?.previousValue,
           ),
         );
       }

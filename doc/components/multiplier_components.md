@@ -170,6 +170,8 @@ An argument to the `PartialProductGenerator` is the `RadixEncoder` to be used.
 The
 [RadixEncoder](https://intel.github.io/rohd-hcl/rohd_hcl/RadixEncoder-class.html)
 takes a single argument which is the radix (power of 2) to be used.
+The resulting `RadixEncode` record preserves its row and field names when
+cloned, including when registered as a typed module port.
 
 Instead of using the 1's in the multiplier to select shifted versions of the
 multiplicand to add in a partial product matrix, radix-encoding will encode
@@ -268,13 +270,55 @@ The final two addends are often added with an efficient final adder.
 
 Our
 [ColumnCompressor](https://intel.github.io/rohd-hcl/rohd_hcl/ColumnCompressor-class.html)
-class uses a delay-driven approach to efficiently compress the rows of the
-partial product matrix.  Its only argument is a `PartialProductArray` (base
-class of `PartialProductGenerator`), and it creates a list of `ColumnQueue`s
-containing the final two addends stored by column after compression. An
-`extractRow`routine can be used to extract the columns.  `ColumnCompressor`
-currently has an extension `EvaluateLiveColumnCompressor` which can be used to
-print out the compression progress. Here is the legend for these printouts.
+class uses a delay-driven approach to compress input rows and their column
+shifts into the two output addends `add0` and `add1`. Set
+`use42Compressors: true` to use `Compressor4` alongside 3:2 compressors; the
+default retains the existing 2:1 and 3:2 tree. A 4:2 compressor has four
+same-column inputs and a horizontal carry input, with two carry outputs for
+the next column. Its horizontal carry output does not depend on the carry
+input. The selected tree uses relative path-delay estimates for ordering;
+these are heuristics, not technology-specific timing guarantees.
+The 3:2 compressor's carry uses the shared three-input
+[majority function](bit_operations.md#majority); its sum is parity. The 4:2
+compressor composes two such 3:2 compressors.
+
+Pass `delayConfig` to `ColumnCompressor`, `CompressionTreeMultiplier`,
+`CompressionTreeMultiplyAccumulate`, or `CompressionTreeDotProduct` to select
+technology-specific estimates. Each `CompressorDelayTable` supplies separate
+input-to-sum and input-to-carry delays, indexed by input bit starting at bit
+zero. The 4:2 table has five inputs: bits 0 through 3 of `compressBits`, then
+`carryIn`. Its `cout` list has delays for bits 0 through 2 and `null` for bit 3
+and `carryIn`, which do not affect that output. Delays must be finite and
+nonnegative; use a consistent unit throughout a configuration.
+
+```dart
+final fullAdder = CompressorDelayTable(
+  sum: [1.0, 1.1, 0.9],
+  carry: [0.8, 0.7, 0.6],
+);
+final delays = CompressionTreeDelayConfig(
+  compressor2: CompressorDelayTable(sum: [1.0, 1.1], carry: [0.7, 0.8]),
+  compressor3: fullAdder,
+);
+final tree = ColumnCompressor(rows, rowShifts, delayConfig: delays);
+```
+
+By default, the regular tree retains its previous 2:1 and 3:2 estimates.
+The opt-in 4:2 tree retains its previous estimates, including distinct
+estimates for its two full-adder stages. Those defaults are available as
+`CompressionTreeDelayConfig.standard` and `.with42`. A custom configuration
+uses the standard 2:1 and 3:2 tables for omitted fields and derives its 4:2
+table from two copies of its 3:2 table unless `compressor4` is supplied.
+Use `CompressorDelayTable.fromFullAdderStages` to derive a 4:2 table from
+different stage tables, or supply all five input paths explicitly. Passing a
+custom configuration changes generated definition names unless an explicit
+`definitionName` is supplied. Custom-configured trees preserve column positions
+in their output rows, so the individual addends may differ from the default
+tree even when their sum agrees. The estimates guide elaboration only; they do
+not add RTL delays or guarantee post-synthesis timing.
+
+The `EvaluateLiveColumnCompressor` extension can print the compression
+progress. Here is the legend for these printouts.
 
 - `ppR,C` = partial product entry at row R, column C
 - `sR,C` = sum term coming last from row R, column C

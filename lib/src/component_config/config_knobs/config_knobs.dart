@@ -3,6 +3,7 @@
 
 export 'adder_select_knob.dart';
 export 'choice_config_knob.dart';
+export 'compression_delay_knob.dart';
 export 'config_knob.dart';
 export 'floating_point_rounding_mode_knob.dart';
 export 'group_of_knobs_knob.dart';

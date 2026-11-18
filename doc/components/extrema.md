@@ -55,6 +55,8 @@ concatenating and slicing it. Equal keys retain the earliest original index.
 Pass `.packed` representations when unsigned packed-bit ordering is desired for
 domain-specific signals. For scalar constants, explicitly request
 `Extrema<Logic>(...)` so mutable ports are not inferred as `Const`.
+Structured constants with driveable clones also retain their payload type when
+widened to `Logic`.
 
 ## Example Usage
 

@@ -14,6 +14,39 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_vf/rohd_vf.dart';
 import 'package:test/test.dart';
 
+class _ConstantClonePayload extends LogicStructure {
+  final int clonesBeforeConstant;
+
+  _ConstantClonePayload(this.clonesBeforeConstant,
+      {bool constant = false, super.name})
+      : super([
+          if (constant) Const(0, width: 4) else Logic(name: 'bits', width: 4)
+        ]);
+
+  @override
+  _ConstantClonePayload clone({String? name}) => _ConstantClonePayload(
+      clonesBeforeConstant > 0 ? clonesBeforeConstant - 1 : 0,
+      constant: clonesBeforeConstant == 0,
+      name: name ?? this.name);
+}
+
+class _LateConstantClonePayload extends LogicStructure {
+  final List<int> cloneCount;
+
+  _LateConstantClonePayload(this.cloneCount,
+      {bool constant = false, super.name})
+      : super([
+          if (constant) Const(0, width: 4) else Logic(name: 'bits', width: 4)
+        ]);
+
+  @override
+  _LateConstantClonePayload clone({String? name}) {
+    cloneCount[0]++;
+    return _LateConstantClonePayload(cloneCount,
+        constant: cloneCount[0] == 3, name: name ?? this.name);
+  }
+}
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -73,6 +106,17 @@ void main() {
 
     dataIn.put(0x23);
     expect(dataOut.value.toInt(), 0x23);
+  });
+
+  test('shift register rejects a flattened typed output clone', () {
+    expect(
+        () => ShiftRegister<Logic>(_ConstantClonePayload(1),
+            clk: Logic(), depth: 0),
+        throwsA(isA<RohdHclException>()));
+    expect(
+        () => ShiftRegister<Logic>(_LateConstantClonePayload([0]),
+            clk: Logic(), depth: 1),
+        throwsA(isA<RohdHclException>()));
   });
 
   test('width 0 constructs properly', () {
