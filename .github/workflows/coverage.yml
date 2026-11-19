@@ -1,0 +1,53 @@
+name: Coverage
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-main
+  cancel-in-progress: false
+
+jobs:
+  coverage:
+    name: Code Coverage
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    timeout-minutes: 120
+    runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.47.2
+
+      - name: Install project dependencies
+        run: tool/gh_actions/install_dependencies.sh
+
+      - name: Install native test dependencies
+        run: sudo apt-get update && sudo apt-get install -y iverilog verilator g++ libsystemc-dev lcov
+
+      - name: Generate coverage and badge
+        run: |
+          tool/generate_coverage.sh --generate-svg
+          mkdir -p build/coverage-badge
+          cp build/coverage/main.svg build/coverage-badge/main.svg
+
+      - name: Publish coverage badge
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/coverage-badge
+          target-folder: coverage
+          branch: badges
+          clean: false
+          force: false
