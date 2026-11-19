@@ -33,6 +33,28 @@ void main() {
     expect(converter.status.inexact.value.toBool(), isTrue);
   });
 
+  test('FP: converter overflow does not also report underflow', () {
+    final fp16 = FloatingPoint16()..put(0);
+    final e4m3 = FloatingPoint8E4M3();
+    final toE4M3 = FloatingPointConverter(fp16, e4m3);
+    for (final value in [500.0, -500.0, 511.0]) {
+      fp16.put(FloatingPoint16Value.populator().ofDouble(value));
+      final largest = FloatingPoint8E4M3Value.populator()
+          .ofConstant(FloatingPointConstants.largestNormal);
+      expectEncoding(e4m3, value < 0 ? largest.negate() : largest);
+      expect(toE4M3.status.overflow.value.toBool(), isTrue, reason: '$value');
+      expect(toE4M3.status.underflow.value.toBool(), isFalse, reason: '$value');
+    }
+
+    // 2^17 * (1 + 2^-20) overflows FP16 and its rebiased exponent has zero
+    // low bits at the FP16 exponent width.
+    final fp32 = FloatingPoint32()..put(0);
+    final toFp16 = FloatingPointConverter(fp32, FloatingPoint16());
+    fp32.put(FloatingPoint32Value.populator().ofDouble(131072.125));
+    expect(toFp16.status.overflow.value.toBool(), isTrue);
+    expect(toFp16.status.underflow.value.toBool(), isFalse);
+  });
+
   test('FP: adders report invalid and overflow status', () {
     final a = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);
     final b = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);

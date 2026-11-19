@@ -721,4 +721,67 @@ expected: $fpv
       }
     }
   });
+
+  test('FP: E4M3 to narrower mantissa rounds out of the top exponent', () {
+    for (final mantissaWidth in [1, 2]) {
+      for (final mode in FloatingPointRoundingMode.values) {
+        final source = FloatingPoint8E4M3();
+        final destination =
+            FloatingPoint(exponentWidth: 4, mantissaWidth: mantissaWidth);
+        final converter =
+            FloatingPointConverter(source, destination, roundingMode: mode);
+
+        for (var raw = 0; raw < 256; raw++) {
+          final input = FloatingPoint8E4M3Value.populator()
+              .ofLogicValue(LogicValue.ofInt(raw, 8));
+          final expected = destination
+              .valuePopulator()
+              .ofFloatingPointValueRounded(input, roundingMode: mode);
+          source.put(input);
+          final computed = converter.destination.floatingPointValue;
+          if (expected.isNaN) {
+            expect(computed.isNaN, isTrue,
+                reason: 'mode=$mode, raw=0x${raw.toRadixString(16)}');
+          } else {
+            expect(computed.value.bitString, expected.value.bitString,
+                reason: 'E4M$mantissaWidth mode=$mode, '
+                    'raw=0x${raw.toRadixString(16).padLeft(2, '0')}');
+          }
+        }
+      }
+    }
+  });
+
+  test('FP: wide formats to E4M3 near the largest finite value', () {
+    final sources =
+        <FloatingPoint Function(), FloatingPointValuePopulator Function()>{
+      FloatingPoint16.new: FloatingPoint16Value.populator,
+      FloatingPointBF16.new: FloatingPointBF16Value.populator,
+      FloatingPoint32.new: FloatingPoint32Value.populator,
+    };
+    for (final entry in sources.entries) {
+      for (final mode in FloatingPointRoundingMode.values) {
+        final source = entry.key()..put(0);
+        final destination = FloatingPoint8E4M3();
+        final converter =
+            FloatingPointConverter(source, destination, roundingMode: mode);
+
+        for (var x = 432.0; x <= 528.0; x += 0.5) {
+          for (final v in [x, -x]) {
+            final input = entry
+                .value()
+                .ofDouble(v, roundingMode: FloatingPointRoundingMode.truncate);
+            final expected = destination
+                .valuePopulator()
+                .ofFloatingPointValueRounded(input, roundingMode: mode);
+            source.put(input);
+            expect(
+                converter.destination.value.bitString, expected.value.bitString,
+                reason: '${source.runtimeType} mode=$mode, '
+                    '${input.toDouble()}');
+          }
+        }
+      }
+    }
+  });
 }
