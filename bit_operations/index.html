@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="bit_operations library API docs, for the Dart programming language.">
+  <title>bit_operations library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li class="self-crumb">bit_operations.dart</li>
+  </ol>
+  <div class="self-name">bit_operations</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar=""
+    data-below-sidebar="bit_operations&#47;bit_operations-library-sidebar.html">
+  
+    <div>
+      
+
+      <h1>
+        <span class="kind-library">bit_operations</span>
+        library 
+ 
+
+      </h1>
+    </div>
+
+    
+<section class="desc markdown">
+  <p>Documentation-only family index. Import <code>package:rohd_hcl/rohd_hcl.dart</code>.</p>
+</section>
+
+
+    <section class="summary offset-anchor" id="classes">
+      <h2>Classes</h2>
+      <dl>
+          <dt id="BitwiseMux">
+  <span class="name "><a href="../rohd_hcl/BitwiseMux-class.html">BitwiseMux</a></span> 
+
+</dt>
+<dd>
+  Selects each output bit independently among N inputs.
+</dd>
+
+          <dt id="BitwisePopcount">
+  <span class="name "><a href="../rohd_hcl/BitwisePopcount-class.html">BitwisePopcount</a></span> 
+
+</dt>
+<dd>
+  Base hardware for counting equal or unequal corresponding bits.
+</dd>
+
+          <dt id="Count">
+  <span class="name "><a href="../rohd_hcl/Count-class.html">Count</a></span> 
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/Count-class.html">Count</a> <code>1</code> or <code>0</code>.
+</dd>
+
+          <dt id="CountLeadingZeros">
+  <span class="name "><a href="../rohd_hcl/CountLeadingZeros-class.html">CountLeadingZeros</a></span> 
+
+</dt>
+<dd>
+  Counts the zeros above the most significant set bit of a <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>.
+</dd>
+
+          <dt id="CountTrailingZeros">
+  <span class="name "><a href="../rohd_hcl/CountTrailingZeros-class.html">CountTrailingZeros</a></span> 
+
+</dt>
+<dd>
+  Counts the zeros below the least significant set bit of a <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>.
+</dd>
+
+          <dt id="Find">
+  <span class="name "><a href="../rohd_hcl/Find-class.html">Find</a></span> 
+
+</dt>
+<dd>
+  Find functionality
+</dd>
+
+          <dt id="FindPattern">
+  <span class="name "><a href="../rohd_hcl/FindPattern-class.html">FindPattern</a></span> 
+
+</dt>
+<dd>
+  <a href="../rohd_hcl/FindPattern-class.html">FindPattern</a> functionality
+</dd>
+
+          <dt id="FirstMatchPrefix">
+  <span class="name "><a href="../rohd_hcl/FirstMatchPrefix-class.html">FirstMatchPrefix</a></span> 
+
+</dt>
+<dd>
+  Selects the eligible prefix through its first matching lane.
+</dd>
+
+          <dt id="Majority">
+  <span class="name "><a href="../rohd_hcl/Majority-class.html">Majority</a></span> 
+
+</dt>
+<dd>
+  A combinational strict-majority function on an input vector.
+</dd>
+
+          <dt id="OneHotMux">
+  <span class="name "><a href="../rohd_hcl/OneHotMux-class.html">OneHotMux</a></span> 
+
+</dt>
+<dd>
+  Selects the OR of every case whose bit in <code>selector</code> is set.
+</dd>
+
+          <dt id="Pad">
+  <span class="name "><a href="../rohd_hcl/Pad-class.html">Pad</a></span> 
+
+</dt>
+<dd>
+  Widens <code>inp</code> to at least <code>atLeast</code> bits by inserting bits equal to <code>fill</code>
+at the least significant end (<code>lsbs</code> true) or the most significant end
+(<code>lsbs</code> false).
+</dd>
+
+          <dt id="PriorityMux">
+  <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/PriorityMux-class.html">PriorityMux</a></span> 
+
+</dt>
+<dd>
+  Compatibility priority mux with flat case and result ports.
+</dd>
+
+          <dt id="RotateLeft">
+  <span class="name "><a href="../rohd_hcl/RotateLeft-class.html">RotateLeft</a></span> 
+
+</dt>
+<dd>
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> to the left.
+</dd>
+
+          <dt id="RotateLeftFixed">
+  <span class="name "><a href="../rohd_hcl/RotateLeftFixed-class.html">RotateLeftFixed</a></span> 
+
+</dt>
+<dd>
+  Rotates left by a fixed amount.
+</dd>
+
+          <dt id="RotateRight">
+  <span class="name "><a href="../rohd_hcl/RotateRight-class.html">RotateRight</a></span> 
+
+</dt>
+<dd>
+  Rotates a <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> to the right.
+</dd>
+
+          <dt id="RotateRightFixed">
+  <span class="name "><a href="../rohd_hcl/RotateRightFixed-class.html">RotateRightFixed</a></span> 
+
+</dt>
+<dd>
+  Rotates right by a fixed amount.
+</dd>
+
+          <dt id="SetBits">
+  <span class="name "><a href="../rohd_hcl/SetBits-class.html">SetBits</a></span> 
+
+</dt>
+<dd>
+  Sets the <code>count</code> least significant bits (<code>lsbs</code> true) or most significant
+bits (<code>lsbs</code> false) of <code>inp</code> to <code>fill</code>.
+</dd>
+
+          <dt id="SignedShifter">
+  <span class="name "><a href="../rohd_hcl/SignedShifter-class.html">SignedShifter</a></span> 
+
+</dt>
+<dd>
+  A bit shifter that takes a positive or negative shift amount
+</dd>
+
+          <dt id="SparseToDense">
+  <span class="name "><a href="../rohd_hcl/SparseToDense-class.html">SparseToDense</a></span> 
+
+</dt>
+<dd>
+  Scatters valid unsigned binary indices into a boolean bit vector.
+</dd>
+
+          <dt id="WithSet">
+  <span class="name "><a href="../rohd_hcl/WithSet-class.html">WithSet</a></span> 
+
+</dt>
+<dd>
+  Overwrites the bits of <code>subject</code> starting at <code>start</code> with <code>value</code>.
+</dd>
+
+          <dt id="XnorPopcount">
+  <span class="name "><a href="../rohd_hcl/XnorPopcount-class.html">XnorPopcount</a></span> 
+
+</dt>
+<dd>
+  Counts equal corresponding bits, producing a binary similarity score.
+</dd>
+
+          <dt id="XorPopcount">
+  <span class="name "><a href="../rohd_hcl/XorPopcount-class.html">XorPopcount</a></span> 
+
+</dt>
+<dd>
+  Counts unequal corresponding bits, producing the Hamming distance.
+</dd>
+
+      </dl>
+    </section>
+
+    <section class="summary offset-anchor" id="enums">
+      <h2>Enums</h2>
+      <dl>
+          <dt id="RotateDirection">
+  <span class="name "><a href="../rohd_hcl/RotateDirection.html">RotateDirection</a></span> 
+
+</dt>
+<dd>
+  A direction for something to rotate.
+</dd>
+
+      </dl>
+    </section>
+
+
+
+    <section class="summary offset-anchor" id="extensions">
+      <h2>Extensions</h2>
+      <dl>
+          <dt id="LogicMajority">
+  <span class="name "><a href="../rohd_hcl/LogicMajority.html">LogicMajority</a></span>
+  on <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>
+  
+
+</dt>
+<dd>
+  Hardware operations for a strict majority of bits.
+</dd>
+
+          <dt id="RotateLogic">
+  <span class="name "><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></span>
+  on <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>
+  
+
+</dt>
+<dd>
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>.
+</dd>
+
+          <dt id="RotateLogicValue">
+  <span class="name "><a href="../rohd_hcl/RotateLogicValue.html">RotateLogicValue</a></span>
+  on <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/LogicValue-class.html">LogicValue</a>
+  
+
+</dt>
+<dd>
+  Adds rotation functions to <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/LogicValue-class.html">LogicValue</a>.
+</dd>
+
+      </dl>
+    </section>
+
+
+
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li class="self-crumb">bit_operations.dart</li>
+</ol>
+
+    <h5><span class="package-name">rohd_hcl</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="../arithmetic/">arithmetic</a></li>
+      <li><a href="../binary_math/">binary_math</a></li>
+      <li><a href="../bit_operations/">bit_operations</a></li>
+      <li><a href="../clocking/">clocking</a></li>
+      <li><a href="../component_config/">component_config</a></li>
+      <li><a href="../dataflow/">dataflow</a></li>
+      <li><a href="../encodings/">encodings</a></li>
+      <li><a href="../error_control/">error_control</a></li>
+      <li><a href="../flow_control/">flow_control</a></li>
+      <li><a href="../interfaces/">interfaces</a></li>
+      <li><a href="../memories/">memories</a></li>
+      <li><a href="../models/">models</a></li>
+      <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+      <li class="section-subtitle">Generic migration entry points</li>
+        <li class="section-subitem"><a href="../bit_operations_selection_priority_mux/">bit_operations/selection/priority_mux</a></li>
+        <li class="section-subitem"><a href="../interfaces_spi_endpoints_spi_main/">interfaces/spi/endpoints/spi_main</a></li>
+        <li class="section-subitem"><a href="../interfaces_spi_endpoints_spi_sub/">interfaces/spi/endpoints/spi_sub</a></li>
+        <li class="section-subitem"><a href="../memory_associative_associative_match_selector/">memory/associative/associative_match_selector</a></li>
+        <li class="section-subitem"><a href="../memory_associative_associative_matcher/">memory/associative/associative_matcher</a></li>
+        <li class="section-subitem"><a href="../memory_associative_synchronous_associative_lookup_port_interface/">memory/associative/synchronous_associative_lookup_port_interface</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+    <h5>bit_operations library</h5>
+  </div><!--/sidebar-offcanvas-right-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
