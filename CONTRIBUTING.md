@@ -167,6 +167,14 @@ bash tool/generate_confapp_assets.sh
 (cd build/confapp && flutter test --no-pub --platform chrome)
 ```
 
+The coverage workflow runs the root test suite with Dart line coverage and
+publishes a badge for `main` after successful collection. With `lcov` installed,
+produce a local HTML report and badge using:
+
+```shell
+tool/generate_coverage.sh --generate-svg
+```
+
 ## How to Contribute
 
 ### Reporting Vulnerabilities

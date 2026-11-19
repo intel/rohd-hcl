@@ -4,6 +4,7 @@ Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespa
 [![Generator Web
 App](https://img.shields.io/badge/Generator_Web_App-live-brightgreen)](https://intel.github.io/rohd-hcl/confapp/)
 [![Tests](https://github.com/intel/rohd-hcl/actions/workflows/general.yml/badge.svg?event=push)](https://github.com/intel/rohd-hcl/actions/workflows/general.yml)
+[![Coverage](https://raw.githubusercontent.com/intel/rohd-hcl/badges/coverage/main.svg)](https://github.com/intel/rohd-hcl/actions/workflows/coverage.yml)
 [![API
 Docs](https://img.shields.io/badge/API%20Docs-generated-success)](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html)
 [![Chat](https://img.shields.io/discord/1001179329411166267?label=Chat)](https://discord.gg/jubxF84yGw)
