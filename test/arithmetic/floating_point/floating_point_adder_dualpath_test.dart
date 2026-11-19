@@ -157,6 +157,53 @@ void main() {
         descendants(adder).whereType<FloatingPointAdderSinglePath>(), isEmpty);
   });
 
+  test('FP: dual-path far subtraction from a power of two', () {
+    // With the smallest exponents the smaller operand lies entirely below
+    // the R-path extension once the larger exponent is far enough away, so
+    // the exact difference is just below the larger operand; in nearest
+    // modes it rounds back to the larger operand.
+    for (final (exponentWidth, mantissaWidth) in [(4, 3), (5, 2)]) {
+      FloatingPointValuePopulator populator() => FloatingPointValue.populator(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final largestExponent = (1 << exponentWidth) - 2;
+      for (final mode in FloatingPointRoundingMode.values) {
+        final a = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final b = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final adder = FloatingPointAdderDualPath(a, b, roundingMode: mode);
+        for (var largeExponent = 1;
+            largeExponent <= largestExponent;
+            largeExponent++) {
+          for (final largeSign in [false, true]) {
+            final large = populator().ofInts(largeExponent, 0, sign: largeSign);
+            for (var smallExponent = 0;
+                smallExponent < min(2, largeExponent);
+                smallExponent++) {
+              for (var smallMantissa = 0;
+                  smallMantissa < 1 << mantissaWidth;
+                  smallMantissa++) {
+                if (smallExponent == 0 && smallMantissa == 0) {
+                  continue;
+                }
+                final small = populator()
+                    .ofInts(smallExponent, smallMantissa, sign: !largeSign);
+                for (final (x, y) in [(large, small), (small, large)]) {
+                  a.put(x);
+                  b.put(y);
+                  final expected = populator().add(x, y, roundingMode: mode);
+                  expect(adder.sum.floatingPointValue, equals(expected),
+                      reason: 'E$exponentWidth M$mantissaWidth mode=$mode '
+                          '$x + $y');
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  });
+
   group('FP: dual-path adder N path tests', () {
     const exponentWidth = 3;
     const mantissaWidth = 3;
