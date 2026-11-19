@@ -142,14 +142,14 @@ class AssociativeMatcherImplementation<T extends Logic> extends Module {
 
 /// Compatibility matcher with flattened query and stored-key module ports.
 ///
-/// Import `package:rohd_hcl/associative_matcher.dart` to retain key types.
+/// Import `package:rohd_hcl/memory/associative/associative_matcher.dart` to retain key types.
 @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
-    "AssociativeMatcher; and import 'package:rohd_hcl/associative_matcher.dart';")
+    "AssociativeMatcher; and import 'package:rohd_hcl/memory/associative/associative_matcher.dart';")
 class AssociativeMatcher extends AssociativeMatcherImplementation<Logic> {
   /// Creates storage-independent associative matching with flat ports.
   @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
       'AssociativeMatcher; and import '
-      "'package:rohd_hcl/associative_matcher.dart';")
+      "'package:rohd_hcl/memory/associative/associative_matcher.dart';")
   AssociativeMatcher({
     required super.query,
     required super.storedKeys,

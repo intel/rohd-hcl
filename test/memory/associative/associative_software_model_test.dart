@@ -14,8 +14,10 @@ import 'dart:math';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
-import 'package:rohd_hcl/associative_match_selector.dart' as general;
-import 'package:rohd_hcl/associative_matcher.dart' as general;
+import 'package:rohd_hcl/memory/associative/associative_match_selector.dart'
+    as general;
+import 'package:rohd_hcl/memory/associative/associative_matcher.dart'
+    as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 

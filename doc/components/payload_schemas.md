@@ -121,7 +121,7 @@ barrel and import its corresponding entry point, for example:
 
 ```dart
 import 'package:rohd_hcl/rohd_hcl.dart' hide PriorityMux;
-import 'package:rohd_hcl/priority_mux.dart';
+import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart';
 ```
 
 In a future breaking release, the generic versions can replace the legacy

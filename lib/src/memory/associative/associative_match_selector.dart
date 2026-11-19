@@ -216,13 +216,13 @@ class AssociativeMatchSelectorImplementation<T extends Logic> extends Module {
 /// Compatibility selector with flattened selection value ports.
 @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
     'AssociativeMatchSelector; and import '
-    "'package:rohd_hcl/associative_match_selector.dart';")
+    "'package:rohd_hcl/memory/associative/associative_match_selector.dart';")
 class AssociativeMatchSelector
     extends AssociativeMatchSelectorImplementation<Logic> {
   /// Creates a selector using packed values or entry indices.
   @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
       'AssociativeMatchSelector; and import '
-      "'package:rohd_hcl/associative_match_selector.dart';")
+      "'package:rohd_hcl/memory/associative/associative_match_selector.dart';")
   AssociativeMatchSelector({
     required super.matchVector,
     super.selectionValues,

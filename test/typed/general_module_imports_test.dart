@@ -11,9 +11,12 @@
 // ignore_for_file: deprecated_member_use_from_same_package
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/associative_match_selector.dart';
-import 'package:rohd_hcl/associative_matcher.dart';
-import 'package:rohd_hcl/priority_mux.dart';
+import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart';
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart';
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart';
+import 'package:rohd_hcl/memory/associative/associative_match_selector.dart';
+import 'package:rohd_hcl/memory/associative/associative_matcher.dart';
+import 'package:rohd_hcl/memory/associative/synchronous_associative_lookup_port_interface.dart';
 import 'package:rohd_hcl/rohd_hcl.dart'
     hide
         AssociativeMatchSelector,
@@ -23,9 +26,6 @@ import 'package:rohd_hcl/rohd_hcl.dart'
         SpiSub,
         SynchronousAssociativeLookupPortInterface;
 import 'package:rohd_hcl/rohd_hcl.dart' as legacy;
-import 'package:rohd_hcl/spi_main.dart';
-import 'package:rohd_hcl/spi_sub.dart';
-import 'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart';
 import 'package:test/test.dart';
 
 class _Payload extends LogicStructure {

@@ -42,7 +42,7 @@ the generalized module with:
 
 ```dart
 import 'package:rohd_hcl/rohd_hcl.dart' hide PriorityMux;
-import 'package:rohd_hcl/priority_mux.dart';
+import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart';
 ```
 
 `BitwiseMux(selects, inputs)` makes an independent selection for each bit

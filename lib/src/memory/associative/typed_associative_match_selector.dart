@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// associative_match_selector.dart
+// typed_associative_match_selector.dart
 // Public typed associative match selector.
 //
 // 2026 November 18

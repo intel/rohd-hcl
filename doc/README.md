@@ -50,6 +50,12 @@ from handshake loops, or CDC safety.
 Sources under `lib/src` are organized by the component's primary function. Each
 category has a barrel file that exports its components directly or through
 subcategory barrels. The package barrel exports every category barrel.
+The website's API documentation groups these barrels into documentation-only
+family indexes and lists the separate generic migration entry points together.
+Family index pages are not public import paths; applications should continue
+to use the package barrel and the documented migration imports. The website
+build uses `tool/gh_actions/generate_documentation.sh`; plain `dart doc` does
+not generate the family indexes.
 
 | Category | Barrel | Subcategories |
 | --- | --- | --- |

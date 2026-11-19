@@ -16,8 +16,8 @@ names. Import the generic endpoints instead:
 
 ```dart
 import 'package:rohd_hcl/rohd_hcl.dart' hide SpiMain, SpiSub;
-import 'package:rohd_hcl/spi_main.dart';
-import 'package:rohd_hcl/spi_sub.dart';
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart';
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart';
 ```
 
 ## SpiMain

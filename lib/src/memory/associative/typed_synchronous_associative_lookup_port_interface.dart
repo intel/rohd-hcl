@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// synchronous_associative_lookup_port_interface.dart
+// typed_synchronous_associative_lookup_port_interface.dart
 // Public typed synchronous associative lookup port.
 //
 // 2026 November 18

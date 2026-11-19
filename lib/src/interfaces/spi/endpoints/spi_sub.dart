@@ -139,11 +139,11 @@ class SpiSubImplementation<TIn extends Logic, TOut extends Logic>
 
 /// Compatibility SPI subordinate endpoint with flat parallel ports.
 @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiSub; "
-    "and import 'package:rohd_hcl/spi_sub.dart';")
+    "and import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart';")
 class SpiSub extends SpiSubImplementation<Logic, Logic> {
   /// Creates an SPI subordinate endpoint with flat parallel ports.
   @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiSub; "
-      "and import 'package:rohd_hcl/spi_sub.dart';")
+      "and import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart';")
   // The compatibility output schema depends on the interface width.
   // ignore: use_super_parameters
   SpiSub(

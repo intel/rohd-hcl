@@ -12,12 +12,12 @@ replacements currently have the same names in separate public entry points:
 
 | Legacy barrel name | Generic entry point |
 | --- | --- |
-| `PriorityMux` | `package:rohd_hcl/priority_mux.dart` |
-| `AssociativeMatcher` | `package:rohd_hcl/associative_matcher.dart` |
-| `AssociativeMatchSelector` | `package:rohd_hcl/associative_match_selector.dart` |
-| `SpiMain` | `package:rohd_hcl/spi_main.dart` |
-| `SpiSub` | `package:rohd_hcl/spi_sub.dart` |
-| `SynchronousAssociativeLookupPortInterface` | `package:rohd_hcl/synchronous_associative_lookup_port_interface.dart` |
+| `PriorityMux` | `package:rohd_hcl/bit_operations/selection/priority_mux.dart` |
+| `AssociativeMatcher` | `package:rohd_hcl/memory/associative/associative_matcher.dart` |
+| `AssociativeMatchSelector` | `package:rohd_hcl/memory/associative/associative_match_selector.dart` |
+| `SpiMain` | `package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart` |
+| `SpiSub` | `package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart` |
+| `SynchronousAssociativeLookupPortInterface` | `package:rohd_hcl/memory/associative/synchronous_associative_lookup_port_interface.dart` |
 
 Today, consumers hide the legacy name from `rohd_hcl.dart` and import the
 corresponding entry point. The synchronous interface's packed constructor is

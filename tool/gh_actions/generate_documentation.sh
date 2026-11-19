@@ -20,8 +20,8 @@ set -euo pipefail
 # Disabling --validate-links due to
 #   https://github.com/dart-lang/dartdoc/issues/3584
 #   https://github.com/dart-lang/dartdoc/issues/3939
-# output=$(dart doc --validate-links 2>&1 | tee)
-output=$(dart doc 2>&1 | tee)
+# The helper generates temporary documentation-only family indexes.
+output=$(dart tool/generate_family_documentation.dart 2>&1 | tee)
 
 # In case of problems, the searched substring will not be found.
 if echo "${output}" | grep --silent -e 'no issues found' -e 'Success!'; then

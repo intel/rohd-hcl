@@ -8,7 +8,7 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/priority_mux.dart' as general;
+import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 
 /// Selection behavior for a configurable multiplexer.

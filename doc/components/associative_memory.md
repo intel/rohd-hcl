@@ -730,7 +730,7 @@ deprecated. Import the generic interface with:
 ```dart
 import 'package:rohd_hcl/rohd_hcl.dart'
     hide SynchronousAssociativeLookupPortInterface;
-import 'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart';
+import 'package:rohd_hcl/memory/associative/synchronous_associative_lookup_port_interface.dart';
 ```
 
 ## Port-Compatible Associative Behavioral Model
@@ -1020,8 +1020,8 @@ without selection values, selects the lowest matching index by default.
 ```dart
 import 'package:rohd_hcl/rohd_hcl.dart'
     hide AssociativeMatcher, AssociativeMatchSelector;
-import 'package:rohd_hcl/associative_matcher.dart';
-import 'package:rohd_hcl/associative_match_selector.dart';
+import 'package:rohd_hcl/memory/associative/associative_matcher.dart';
+import 'package:rohd_hcl/memory/associative/associative_match_selector.dart';
 
 final matcher = AssociativeMatcher(
     query: query, storedKeys: keys, validMask: validMask);

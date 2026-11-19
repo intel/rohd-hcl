@@ -150,11 +150,11 @@ class SpiMainImplementation<TIn extends Logic, TOut extends Logic>
 
 /// Compatibility SPI main endpoint with flat parallel ports.
 @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiMain; "
-    "and import 'package:rohd_hcl/spi_main.dart';")
+    "and import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart';")
 class SpiMain extends SpiMainImplementation<Logic, Logic> {
   /// Creates an SPI main endpoint with flat parallel ports.
   @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide SpiMain; "
-      "and import 'package:rohd_hcl/spi_main.dart';")
+      "and import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart';")
   // The compatibility output schema depends on the input width.
   // ignore: use_super_parameters
   SpiMain(SpiInterface intf,
