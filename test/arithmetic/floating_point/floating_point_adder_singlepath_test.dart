@@ -893,6 +893,94 @@ void main() {
     expect(computed, equals(expected));
   });
 
+  test('FP: single-path adder E2M3 exhaustive in every rounding mode', () {
+    // With a 2-bit exponent and a 3-bit mantissa the small significand is
+    // 4 bits wide. That width is a power of two and the exponent difference
+    // is only 2 bits wide, so the sticky-bit window needs one more bit than
+    // log2Ceil(4) to hold it.
+    const exponentWidth = 2;
+    const mantissaWidth = 3;
+    FloatingPointValuePopulator fpvPopulator() => FloatingPointValue.populator(
+        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+    String bits(FloatingPointValue v) =>
+        '${v.sign.bitString}${v.exponent.bitString}${v.mantissa.bitString}';
+    const limit = 1 << (1 + exponentWidth + mantissaWidth);
+
+    for (final mode in FloatingPointRoundingMode.values) {
+      final fp1 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final fp2 = FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      fp1.put(0);
+      fp2.put(0);
+      final adder = FloatingPointAdderSinglePath(fp1, fp2, roundingMode: mode);
+      for (var i = 0; i < limit; i++) {
+        final fv1 = fpvPopulator().ofLogicValue(LogicValue.ofInt(i, 6));
+        for (var j = 0; j < limit; j++) {
+          final fv2 = fpvPopulator().ofLogicValue(LogicValue.ofInt(j, 6));
+          fp1.put(fv1.value);
+          fp2.put(fv2.value);
+          final computed = adder.sum.floatingPointValue;
+          final expected = fpvPopulator().add(fv1, fv2, roundingMode: mode);
+          final reason = 'mode=${mode.name} '
+              '$fv1 (${fv1.toDouble()}) + $fv2 (${fv2.toDouble()}): '
+              '$computed (${computed.toDouble()}) computed, '
+              '$expected (${expected.toDouble()}) expected';
+          expect(computed.isNaN, equals(expected.isNaN), reason: reason);
+          if (!expected.isNaN) {
+            expect(bits(computed), equals(bits(expected)), reason: reason);
+          }
+        }
+      }
+    }
+  });
+
+  test('FP: single-path adder exact cancellation zero sign', () {
+    // x + -x and +0 + -0 give +0 in every rounding mode except
+    // roundTowardsNegativeInfinity, where they give -0 (IEEE 754 6.3).
+    // FloatingPointValue equality treats the two zeros as equal, so the
+    // sign is checked directly.
+    for (final (exponentWidth, mantissaWidth) in [(3, 3), (4, 4), (5, 6)]) {
+      FloatingPointValuePopulator fpvPopulator() =>
+          FloatingPointValue.populator(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      final magnitudes = [
+        fpvPopulator().ofConstant(FloatingPointConstants.positiveZero),
+        fpvPopulator()
+            .ofConstant(FloatingPointConstants.smallestPositiveSubnormal),
+        fpvPopulator()
+            .ofConstant(FloatingPointConstants.smallestPositiveNormal),
+        fpvPopulator().one,
+        fpvPopulator().ofConstant(FloatingPointConstants.largestNormal),
+      ];
+      for (final mode in FloatingPointRoundingMode.values) {
+        final fp1 = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final fp2 = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        fp1.put(0);
+        fp2.put(0);
+        final adder =
+            FloatingPointAdderSinglePath(fp1, fp2, roundingMode: mode);
+        final expectedSign =
+            mode == FloatingPointRoundingMode.roundTowardsNegativeInfinity
+                ? 1
+                : 0;
+        for (final x in magnitudes) {
+          for (final (fv1, fv2) in [(x, x.negate()), (x.negate(), x)]) {
+            fp1.put(fv1.value);
+            fp2.put(fv2.value);
+            final computed = adder.sum.floatingPointValue;
+            final reason = 'E${exponentWidth}M$mantissaWidth '
+                'mode=${mode.name} $fv1 + $fv2 = $computed';
+            expect(computed.isAZero, isTrue, reason: reason);
+            expect(computed.sign.toInt(), equals(expectedSign), reason: reason);
+          }
+        }
+      }
+    }
+  });
+
   group('FP: explicit-jbit addition', () {
     const exponentWidth = 3;
     const mantissaWidth = 3;

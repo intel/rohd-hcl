@@ -127,7 +127,10 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
         (smallExtendedMantissa >>> expDiff).named('smallShiftedMantissa');
 
     // Compute sticky bits past extendedWidth: expDiff - extendedWidth
-    final int posWidth = max(expDiff.width, smallMantissa.width.log2Ceil);
+    // Wide enough to hold smallMantissa.width itself, which is compared
+    // against `rem` below. log2Ceil is one bit short when that width is a
+    // power of two and expDiff is not wider (E2M3, E3M7, E4M15).
+    final int posWidth = max(expDiff.width, smallMantissa.width.bitLength);
     final eD = expDiff.zeroExtend(posWidth).named('eD');
     final eW = Const(extendedWidth, width: posWidth).named('eW');
     final rem =
@@ -270,6 +273,18 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
                 (internalSum.explicitJBit ? 1 : 0));
 
     final lead1Valid = leadingZerosPredictionValidFlopped;
+
+    // An exact zero from an effective subtraction (x + -x, +0 + -0) is +0
+    // in every rounding mode except roundTowardsNegativeInfinity, where it
+    // is -0 (IEEE 754-2019 6.3).
+    final exactZero = (effectiveSubtractionFlopped & ~fullSumWithIncrement.or())
+        .named('exactZero');
+    final resultSign = mux(
+            exactZero,
+            Const(roundingMode ==
+                FloatingPointRoundingMode.roundTowardsNegativeInfinity),
+            trueSignFlopped)
+        .named('resultSign');
 
     final infExponent =
         internalSum.inf(sign: trueSignFlopped).exponent.named('infExponent');
@@ -441,12 +456,12 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
           internalSum < internalSum.inf(sign: trueSignFlopped),
         ]),
         ElseIf(lead1Dominates, [
-          internalSum.sign < trueSignFlopped,
+          internalSum.sign < resultSign,
           internalSum.exponent < internalSum.zeroExponent,
           internalSum.mantissa < mantissaRound,
         ]),
         Else([
-          internalSum.sign < trueSignFlopped,
+          internalSum.sign < resultSign,
           internalSum.exponent < exponentRound,
           internalSum.mantissa < mantissaRound,
         ])
