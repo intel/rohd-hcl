@@ -507,18 +507,23 @@ class FloatingPointValue implements Comparable<FloatingPointValue> {
   /// Divide operation for [FloatingPointValue].
   FloatingPointValue operator /(FloatingPointValue divisor) {
     _validateArithmeticFormat(divisor);
-    if (isAnInfinity) {
-      if (divisor.isAnInfinity | divisor.isAZero) {
-        return clonePopulator().nan;
-      } else {
-        return this;
-      }
-    } else {
-      if (divisor.isAZero) {
-        return sign != divisor.sign
-            ? clonePopulator().negativeInfinity
-            : clonePopulator().positiveInfinity;
-      }
+    if (isNaN | divisor.isNaN) {
+      // `divide` propagates NaN operands.
+      return clonePopulator().divide(this, divisor);
+    }
+    if ((isAnInfinity & divisor.isAnInfinity) | (isAZero & divisor.isAZero)) {
+      return clonePopulator().nan;
+    }
+    final negative = sign != divisor.sign;
+    if (isAnInfinity | divisor.isAZero) {
+      return negative
+          ? clonePopulator().negativeInfinity
+          : clonePopulator().positiveInfinity;
+    }
+    if (divisor.isAnInfinity) {
+      return negative
+          ? clonePopulator().negativeZero
+          : clonePopulator().positiveZero;
     }
     return clonePopulator().divide(this, divisor);
   }

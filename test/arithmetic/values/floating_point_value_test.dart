@@ -731,15 +731,40 @@ void main() {
           expect((f * s).toDouble(), equals(f.toDouble()));
         }
         // Division
-        if (s == zero) {
-          expect((f / s).toDouble().isNaN,
-              equals((f.toDouble() * s.toDouble()).isNaN));
+        expect((f / s).toDouble(), equals(f.toDouble() / s.toDouble()));
+        expect((s / f).toDouble(), equals(s.toDouble() / f.toDouble()));
+      }
+    }
+  });
+  test('FPV: division with zero, infinity and NaN operands', () {
+    FloatingPointValuePopulator populator() =>
+        FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4);
+    const operands = [
+      0.0,
+      -0.0,
+      1.0,
+      -1.0,
+      double.infinity,
+      double.negativeInfinity,
+      double.nan,
+    ];
+    for (final a in operands) {
+      for (final b in operands) {
+        final expected = a / b;
+        final result =
+            (populator().ofDouble(a) / populator().ofDouble(b)).toDouble();
+        final reason = '$a / $b';
+        if (expected.isNaN) {
+          expect(result.isNaN, isTrue, reason: reason);
         } else {
-          expect((f / s).toDouble(), equals(f.toDouble()));
+          expect(result, equals(expected), reason: reason);
+          expect(result.isNegative, equals(expected.isNegative),
+              reason: reason);
         }
       }
     }
   });
+
   test('FPV: rounding check', () {
     final fpv1 = FloatingPoint32Value.populator().ofDouble(1);
     final fpv2 = FloatingPoint32Value.populator().ofDouble(0.5);
