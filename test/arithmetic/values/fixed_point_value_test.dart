@@ -127,8 +127,9 @@ void main() {
       ('0111', false, 2, 2, '0000110', true, 3, 3, greaterThan(0)),
       ('0111', false, 2, 2, '0010110', true, 3, 3, lessThan(0)),
       ('01111', true, 2, 2, '1000000', true, 3, 3, greaterThan(0)),
-      ('11000', true, 2, 2, '1111000', true, 3, 3, greaterThan(0)),
-      ('11110', true, 2, 2, '1111000', true, 3, 3, lessThan(0)),
+      // neg neg: -2.0 < -1.0, -0.5 > -1.0
+      ('11000', true, 2, 2, '1111000', true, 3, 3, lessThan(0)),
+      ('11110', true, 2, 2, '1111000', true, 3, 3, greaterThan(0)),
       ('10000', true, 2, 2, '0111000', true, 3, 3, lessThan(0)),
     ];
     for (var c = 0; c < corners.length; c++) {
@@ -436,6 +437,37 @@ void main() {
     expect(fromDouble, largest);
   });
 
+  test('compareTo matches toDouble for every pair of small values', () {
+    for (final (m1, n1, s1) in [(2, 1, true), (1, 2, false), (0, 3, true)]) {
+      for (final (m2, n2, s2) in [(2, 1, true), (1, 2, true), (2, 2, false)]) {
+        final w1 = m1 + n1 + (s1 ? 1 : 0);
+        final w2 = m2 + n2 + (s2 ? 1 : 0);
+        for (var i = 0; i < (1 << w1); i++) {
+          for (var j = 0; j < (1 << w2); j++) {
+            final a = FixedPointValue.populatorWithSignedness(
+                    integerWidth: m1, fractionWidth: n1, signed: s1)
+                .ofLogicValue(LogicValue.ofInt(i, w1));
+            final b = FixedPointValue.populatorWithSignedness(
+                    integerWidth: m2, fractionWidth: n2, signed: s2)
+                .ofLogicValue(LogicValue.ofInt(j, w2));
+            expect(a.compareTo(b).sign, a.toDouble().compareTo(b.toDouble()),
+                reason: '${a.toDouble()} vs ${b.toDouble()}');
+          }
+        }
+      }
+    }
+  });
+
+  test('sorting negative values', () {
+    FixedPointValue fxv(double d) => FixedPointValue.populatorWithSignedness(
+            integerWidth: 3, fractionWidth: 2)
+        .ofDouble(d);
+    final values = [-1.0, -3.0, 0.5, -2.25, -8.0].map(fxv).toList()..sort();
+    expect(values.map((v) => v.toDouble()), [-8.0, -3.0, -2.25, -1.0, 0.5]);
+    expect(fxv(-1.5) < fxv(-1), isTrue);
+    expect(fxv(-1.5) > fxv(-1), isFalse);
+  });
+
   test('Comparison operators', () {
     FixedPointValuePopulator populator({bool signed = false}) =>
         FixedPointValue.populatorWithSignedness(
@@ -504,6 +536,48 @@ void main() {
             .random(rv, gte: lowerBound, lte: upperBound);
         expect(fxv.gteBool(lowerBound), isTrue);
         expect(fxv.lteBool(upperBound), isTrue);
+      }
+    }
+  });
+
+  test('random stays within every range', () {
+    final rv = Random(11);
+    for (final (m, n, signed) in [(2, 1, true), (0, 3, true), (2, 2, false)]) {
+      FixedPointValuePopulator populator() =>
+          FixedPointValue.populatorWithSignedness(
+              integerWidth: m, fractionWidth: n, signed: signed);
+      final width = m + n + (signed ? 1 : 0);
+      final values = [
+        for (var i = 0; i < (1 << width); i++)
+          populator().ofLogicValue(LogicValue.ofInt(i, width)).toDouble()
+      ]..sort();
+      FixedPointValue fxv(double d) => populator().ofDouble(d);
+
+      for (final lo in values) {
+        for (final hi in values.where((v) => v >= lo)) {
+          final seen = <double>{};
+          for (var i = 0; i < 40; i++) {
+            final d =
+                populator().random(rv, gte: fxv(lo), lte: fxv(hi)).toDouble();
+            expect(d >= lo && d <= hi, isTrue, reason: '$d not in [$lo, $hi]');
+            seen.add(d);
+          }
+          if (values.where((v) => v >= lo && v <= hi).length <= 2) {
+            expect(seen, {lo, hi}, reason: '[$lo, $hi]');
+          }
+        }
+        final above = <double>{};
+        final below = <double>{};
+        for (var i = 0; i < 20 * values.length; i++) {
+          if (lo != values.last) {
+            above.add(populator().random(rv, gt: fxv(lo)).toDouble());
+          }
+          if (lo != values.first) {
+            below.add(populator().random(rv, lt: fxv(lo)).toDouble());
+          }
+        }
+        expect(above, values.where((v) => v > lo).toSet(), reason: 'gt $lo');
+        expect(below, values.where((v) => v < lo).toSet(), reason: 'lt $lo');
       }
     }
   });
