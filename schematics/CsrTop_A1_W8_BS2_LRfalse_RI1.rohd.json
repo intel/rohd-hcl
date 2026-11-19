@@ -1942,47 +1942,7 @@
             ]
           }
         },
-        "struct_unpack_0_control_reg1_backdoor_reg1": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "control_reg1_backdoor_reg1",
-            "FIELD_COUNT": 1,
-            "FIELD_0_NAME": "data",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "data": "output"
-          },
-          "connections": {
-            "A": [
-              135,
-              136,
-              137,
-              138,
-              139,
-              140,
-              141,
-              142
-            ],
-            "data": [
-              74,
-              75,
-              76,
-              77,
-              78,
-              79,
-              80,
-              81
-            ]
-          }
-        },
-        "struct_unpack_1_control_reg0_backdoor_reg0": {
+        "struct_unpack_0_control_reg0_backdoor_reg0": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -2019,6 +1979,46 @@
               71,
               72,
               73
+            ]
+          }
+        },
+        "struct_unpack_1_control_reg1_backdoor_reg1": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "control_reg1_backdoor_reg1",
+            "FIELD_COUNT": 1,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output"
+          },
+          "connections": {
+            "A": [
+              135,
+              136,
+              137,
+              138,
+              139,
+              140,
+              141,
+              142
+            ],
+            "data": [
+              74,
+              75,
+              76,
+              77,
+              78,
+              79,
+              80,
+              81
             ]
           }
         },

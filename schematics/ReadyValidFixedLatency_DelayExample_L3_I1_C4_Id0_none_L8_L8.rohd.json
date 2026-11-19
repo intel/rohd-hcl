@@ -3980,47 +3980,7 @@
             ]
           }
         },
-        "struct_unpack_0_writeData": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "writeData",
-            "FIELD_COUNT": 1,
-            "FIELD_0_NAME": "payload",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "payload": "output"
-          },
-          "connections": {
-            "A": [
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12
-            ],
-            "payload": [
-              63,
-              64,
-              65,
-              66,
-              67,
-              68,
-              69,
-              70
-            ]
-          }
-        },
-        "struct_unpack_1_rd_data_0": {
+        "struct_unpack_0_rd_data_0": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -4057,6 +4017,46 @@
               32,
               33,
               34
+            ]
+          }
+        },
+        "struct_unpack_1_writeData": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "writeData",
+            "FIELD_COUNT": 1,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "payload": "output"
+          },
+          "connections": {
+            "A": [
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "payload": [
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70
             ]
           }
         },
@@ -6006,47 +6006,7 @@
             ]
           }
         },
-        "struct_unpack_0_readData": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "readData",
-            "FIELD_COUNT": 1,
-            "FIELD_0_NAME": "payload",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "payload": "output"
-          },
-          "connections": {
-            "A": [
-              68,
-              69,
-              70,
-              71,
-              72,
-              73,
-              74,
-              75
-            ],
-            "payload": [
-              32,
-              33,
-              34,
-              35,
-              36,
-              37,
-              38,
-              39
-            ]
-          }
-        },
-        "struct_unpack_1_upstream_result": {
+        "struct_unpack_0_upstream_result": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -6083,6 +6043,46 @@
               57,
               58,
               59
+            ]
+          }
+        },
+        "struct_unpack_1_readData": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "readData",
+            "FIELD_COUNT": 1,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "payload": "output"
+          },
+          "connections": {
+            "A": [
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75
+            ],
+            "payload": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39
             ]
           }
         },
