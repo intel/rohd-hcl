@@ -11,7 +11,7 @@ import 'package:confapp/hcl/module_source_assets.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/priority_mux.dart' as general;
+import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 // The test verifies every registry entry, which requires the internal registry.
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';

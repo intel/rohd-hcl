@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// priority_mux.dart
+// typed_priority_mux.dart
 // Public typed priority multiplexer.
 //
 // 2026 November 18

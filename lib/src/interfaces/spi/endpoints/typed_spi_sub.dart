@@ -1,7 +1,7 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
 //
-// spi_sub.dart
+// typed_spi_sub.dart
 // Public typed SPI subordinate endpoint.
 //
 // 2026 November 18

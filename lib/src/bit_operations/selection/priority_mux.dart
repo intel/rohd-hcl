@@ -85,11 +85,11 @@ class PriorityMuxImplementation<T extends Logic> extends Module {
 
 /// Compatibility priority mux with flat case and result ports.
 @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide PriorityMux; "
-    "and import 'package:rohd_hcl/priority_mux.dart';")
+    "and import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart';")
 class PriorityMux extends PriorityMuxImplementation<Logic> {
   /// Constructs a priority mux with flat ports.
   @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide PriorityMux; "
-      "and import 'package:rohd_hcl/priority_mux.dart';")
+      "and import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart';")
   PriorityMux(super.selector, super.cases, super.defaultValue,
       {super.name = 'priorityMux',
       super.reserveName,

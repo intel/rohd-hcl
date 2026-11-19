@@ -10,9 +10,9 @@
 import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart' as general;
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/spi_main.dart' as general;
-import 'package:rohd_hcl/spi_sub.dart' as general;
 import 'package:rohd_hcl/src/component_config/components/component_registry.dart';
 import 'package:test/test.dart';
 

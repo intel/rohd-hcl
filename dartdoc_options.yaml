@@ -1,0 +1,5 @@
+dartdoc:
+  categories:
+    Migration:
+      displayName: Generic migration entry points
+  categoryOrder: [Migration]

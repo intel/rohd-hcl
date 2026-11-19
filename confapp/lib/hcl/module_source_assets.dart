@@ -11,10 +11,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/priority_mux.dart' as general;
+import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart' as general;
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart' as general;
+import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/spi_main.dart' as general;
-import 'package:rohd_hcl/spi_sub.dart' as general;
 
 /// Maps configurable module runtime types to bundled ROHD source assets.
 const moduleSourceAssets = <String, String>{

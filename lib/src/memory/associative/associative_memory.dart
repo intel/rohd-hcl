@@ -256,7 +256,7 @@ class SynchronousAssociativeLookupPortInterface
   /// Creates a synchronous associative-memory lookup port with a packed key.
   @Deprecated("Use import 'package:rohd_hcl/rohd_hcl.dart' hide "
       'SynchronousAssociativeLookupPortInterface; and import '
-      "'package:rohd_hcl/synchronous_associative_lookup_port_interface.dart';")
+      "'package:rohd_hcl/memory/associative/synchronous_associative_lookup_port_interface.dart';")
   SynchronousAssociativeLookupPortInterface(
       {required super.keyWidth,
       required super.indexWidth,
