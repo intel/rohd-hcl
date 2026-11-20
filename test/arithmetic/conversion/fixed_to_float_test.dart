@@ -472,5 +472,49 @@ void main() {
       expect(fpv.mantissa.bitString, fpvExpected.mantissa.bitString,
           reason: 'mantissa mismatch');
     }
-  }, skip: true);
+  });
+
+  test('FixedToFloat: small formats match the value model in every mode', () {
+    final outputs = <String, FloatingPoint Function()>{
+      'E2M1': () => FloatingPoint(exponentWidth: 2, mantissaWidth: 1),
+      'E2M2': () => FloatingPoint(exponentWidth: 2, mantissaWidth: 2),
+      'E3M1': () => FloatingPoint(exponentWidth: 3, mantissaWidth: 1),
+      'E3M2': () => FloatingPoint(exponentWidth: 3, mantissaWidth: 2),
+      'E4M2': () => FloatingPoint(exponentWidth: 4, mantissaWidth: 2),
+      'OFP8 E4M3': FloatingPoint8E4M3.new,
+    };
+    for (final signed in [false, true]) {
+      for (var integerWidth = 0; integerWidth <= 5; integerWidth++) {
+        for (var fractionWidth = 0; fractionWidth <= 3; fractionWidth++) {
+          if (integerWidth + fractionWidth + (signed ? 1 : 0) < 2) {
+            continue;
+          }
+          for (final output in outputs.entries) {
+            for (final mode in FloatingPointRoundingMode.values) {
+              final fixed = FixedPoint(
+                  signed: signed,
+                  integerWidth: integerWidth,
+                  fractionWidth: fractionWidth);
+              final float = output.value();
+              final dut = FixedToFloat(fixed, float,
+                  signed: signed, roundingMode: mode);
+              for (var raw = 0; raw < 1 << fixed.width; raw++) {
+                final fixedValue = fixed
+                    .valuePopulator()
+                    .ofLogicValue(LogicValue.ofInt(raw, fixed.width));
+                fixed.put(fixedValue);
+                final expected = float
+                    .valuePopulator()
+                    .ofFixedPointValue(fixedValue, roundingMode: mode);
+                expect(dut.float.value.bitString, expected.value.bitString,
+                    reason: '${signed ? 's' : 'u'}Q$integerWidth.'
+                        '$fractionWidth ${fixedValue.toDouble()} to '
+                        '${output.key} ${mode.name}');
+              }
+            }
+          }
+        }
+      }
+    }
+  });
 }

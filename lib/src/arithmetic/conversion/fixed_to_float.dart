@@ -69,10 +69,23 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
         : null;
 
     final bias = float.floatingPointValue.bias;
-    final iWidth = (1 +
-            max(max(1, fixed.fractionWidth).log2Ceil,
-                max(fixed.width.log2Ceil, float.exponent.width)))
-        .toInt();
+    // Leading zeros added above the fixed-point value when it has too few
+    // integer bits for the smallest normal exponent to be reached with a left
+    // shift (for example uQ0.2 to a 2-bit exponent).
+    final extraLeading = (leadingDigitPredict == null)
+        ? max(0, 2 - bias - (fixed.width - fixed.fractionWidth))
+        : 0;
+    final alignedWidth = fixed.width + extraLeading;
+    // Biased exponent of the most significant bit of the aligned value.
+    final topExponent = bias + alignedWidth - fixed.fractionWidth - 1;
+    // Wide enough for the shift count and for the rounded biased exponent (up
+    // to topExponent + 1) to stay non-negative as a signed value.
+    final iWidth = max(
+        (1 +
+                max(max(1, fixed.fractionWidth).log2Ceil,
+                    max(fixed.width.log2Ceil, float.exponent.width)))
+            .toInt(),
+        max(topExponent + 1, alignedWidth).bitLength + 1);
 
     // Special handling needed for E4M3 as it does not support inf
     if ((exponentWidth == 4) && (mantissaWidth == 3)) {
@@ -91,7 +104,11 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
       absValue = fixedAsLogic;
     }
 
-    final maxShift = fixed.width - fixed.fractionWidth + bias - 2;
+    final absAligned = (extraLeading > 0)
+        ? absValue.zeroExtend(alignedWidth).named('absAligned')
+        : absValue;
+
+    final maxShift = topExponent - 1;
 
     final jBit = Logic(name: 'jBit', width: iWidth);
     Logic estimatedJBit;
@@ -137,28 +154,25 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
               .named('absValueShifted');
     } else {
       // No prediction given:  go find the leading digit
-      final exactJBit = RecursiveModulePriorityEncoder(absValue.reversed)
+      final exactJBit = RecursiveModulePriorityEncoder(absAligned.reversed)
           .out
           .zeroExtend(iWidth)
           .named('predictedjBit');
-      // Limit to minimum exponent
-      if (maxShift > 0) {
-        jBit <=
-            mux(exactJBit.gt(maxShift), Const(maxShift, width: iWidth),
-                exactJBit);
-      } else {
-        jBit <= exactJBit;
-      }
+      // Limit to minimum exponent (maxShift is at least 0 because of
+      // extraLeading).
+      jBit <=
+          mux(exactJBit.gt(maxShift), Const(maxShift, width: iWidth),
+              exactJBit);
       // Align mantissa
-      if (absValue.width < mantissaWidth + 2) {
+      if (absAligned.width < mantissaWidth + 2) {
         absValueShifted = ([
-                  absValue,
-                  Const(0, width: mantissaWidth + 2 - absValue.width)
+                  absAligned,
+                  Const(0, width: mantissaWidth + 2 - absAligned.width)
                 ].concat() <<
                 jBit)
             .named('absValueShifted');
       } else {
-        absValueShifted = (absValue << jBit).named('absValueShiftedJ');
+        absValueShifted = (absAligned << jBit).named('absValueShiftedJ');
       }
     }
     // Extract mantissa
@@ -167,7 +181,13 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
     final sticky = Logic(name: 'stickyBit');
     mantissa <= absValueShifted.getRange(-mantissaWidth - 1, -1);
     guard <= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
-    sticky <= absValueShifted.getRange(0, -mantissaWidth - 2).or();
+    // Bits below the guard bit; there are none when the aligned value is
+    // exactly mantissaWidth + 2 bits wide.
+    final stickyWidth = absValueShifted.width - mantissaWidth - 2;
+    sticky <=
+        ((stickyWidth > 0)
+            ? absValueShifted.getRange(0, stickyWidth).or()
+            : Const(0));
 
     final rounder = FloatingPointRounder.fromGRS(
         retainedLsb: mantissa[0],
@@ -186,11 +206,8 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
         .named('normalMantissa');
 
     // Calculate biased exponent
-    final eRaw = mux(
-            absValueShifted[-1],
-            Const(bias + fixed.width - fixed.fractionWidth - 1, width: iWidth) -
-                jBit,
-            Const(0, width: iWidth))
+    final eRaw = mux(absValueShifted[-1],
+            Const(topExponent, width: iWidth) - jBit, Const(0, width: iWidth))
         .named('eRaw');
 
     // TODO(desmonddak): potential optimization --
