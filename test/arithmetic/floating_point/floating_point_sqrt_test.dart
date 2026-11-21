@@ -251,6 +251,17 @@ ${expError.value} expected''');
     }
   });
 
+  test('FP: square root truncates the largest FP32 subnormal', () {
+    // sqrt(0x007fffff) lies strictly between 0x1ffffffe and 0x1fffffff, so
+    // truncation must return the lower value.
+    final fp = FloatingPoint32();
+    final sqrtDut = FloatingPointSqrtSimple(fp,
+        roundingMode: FloatingPointRoundingMode.truncate);
+    fp.put(FloatingPoint32Value.populator()
+        .ofLogicValue(LogicValue.ofInt(0x007fffff, 32)));
+    expect(sqrtDut.sqrt.value.toInt(), 0x1ffffffe);
+  });
+
   test('FP: square root preserves E3M5 subnormal output exponent', () {
     const exponentWidth = 3;
     const mantissaWidth = 5;
