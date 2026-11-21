@@ -90,9 +90,9 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
         mux<FixedPoint>(isExpOdd, shiftedFixed, aFixed).namedTyped('aFixedAdj');
 
     final fixedSqrt = FixedPointSqrt(aFixedAdj).sqrt;
-    final retainedSignificand = fixedSqrt
+    final sqrtSignificand = fixedSqrt
         .getRange(extraPrecision, extraPrecision + a.mantissa.width + 1)
-        .named('retainedSignificand');
+        .named('sqrtSignificand');
     final adjustedSignificand = mux(
             isExpOdd,
             normalizedSignificand.zeroExtend(normalizedSignificand.width + 1) <<
@@ -103,6 +103,15 @@ class FloatingPointSqrtSimple<FpType extends FloatingPoint>
     final exactScaled =
         (adjustedSignificand.zeroExtend(comparisonWidth) << a.mantissa.width)
             .named('exactScaled');
+    // FixedPointSqrt rounds its result, so the truncated significand can be
+    // one above the floor of the square root. The rounding below needs the
+    // floor, so step back by one when its square is above the exact value.
+    final sqrtForSquare = sqrtSignificand.zeroExtend(comparisonWidth);
+    final sqrtSquared = (sqrtForSquare * sqrtForSquare).named('sqrtSquared');
+    final sqrtAbove = sqrtSquared.gt(exactScaled).named('sqrtAbove');
+    final retainedSignificand =
+        (sqrtSignificand - sqrtAbove.zeroExtend(sqrtSignificand.width))
+            .named('retainedSignificand');
     final retainedForSquare = retainedSignificand.zeroExtend(comparisonWidth);
     final retainedSquared =
         (retainedForSquare * retainedForSquare).named('retainedSquared');

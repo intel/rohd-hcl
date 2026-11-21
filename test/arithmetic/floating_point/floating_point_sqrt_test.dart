@@ -205,6 +205,63 @@ ${expError.value} expected''');
     }
   });
 
+  test('FP: square root matches the value model for 5-bit mantissas', () {
+    for (final (exponentWidth, mantissaWidth) in [(2, 5), (3, 5), (4, 5)]) {
+      final width = 1 + exponentWidth + mantissaWidth;
+      for (final mode in FloatingPointRoundingMode.values) {
+        final fp = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+        final sqrtDut = FloatingPointSqrtSimple(fp, roundingMode: mode);
+        for (var encoding = 0; encoding < 1 << (width - 1); encoding++) {
+          final value = fp
+              .valuePopulator()
+              .ofLogicValue(LogicValue.ofInt(encoding, width));
+          fp.put(value);
+          final expected =
+              fp.valuePopulator().squareRoot(value, roundingMode: mode);
+          final actual = sqrtDut.sqrt.floatingPointValue;
+          final reason =
+              'E${exponentWidth}M$mantissaWidth mode=$mode value=$value';
+          expect(actual.isNaN, expected.isNaN, reason: reason);
+          if (!expected.isNaN) {
+            expect(actual, expected, reason: reason);
+          }
+        }
+      }
+    }
+  });
+
+  test('FP: square root rounds FP16 and BF16 values near a boundary', () {
+    for (final (fp, values) in [
+      (FloatingPoint16(), [6.2890625, 1287.0, 486.75, 0.09417724609375]),
+      (FloatingPointBF16(), [2.3447910280083306e-13, 1.890791267555229e+21]),
+    ]) {
+      for (final mode in FloatingPointRoundingMode.values) {
+        final input = fp.clone();
+        final sqrtDut = FloatingPointSqrtSimple(input, roundingMode: mode);
+        for (final v in values) {
+          final value = input.valuePopulator().ofDouble(v);
+          input.put(value);
+          final expected =
+              input.valuePopulator().squareRoot(value, roundingMode: mode);
+          expect(sqrtDut.sqrt.floatingPointValue, expected,
+              reason: 'mode=$mode value=$v');
+        }
+      }
+    }
+  });
+
+  test('FP: square root truncates the largest FP32 subnormal', () {
+    // sqrt(0x007fffff) lies strictly between 0x1ffffffe and 0x1fffffff, so
+    // truncation must return the lower value.
+    final fp = FloatingPoint32();
+    final sqrtDut = FloatingPointSqrtSimple(fp,
+        roundingMode: FloatingPointRoundingMode.truncate);
+    fp.put(FloatingPoint32Value.populator()
+        .ofLogicValue(LogicValue.ofInt(0x007fffff, 32)));
+    expect(sqrtDut.sqrt.value.toInt(), 0x1ffffffe);
+  });
+
   test('FP: square root preserves E3M5 subnormal output exponent', () {
     const exponentWidth = 3;
     const mantissaWidth = 5;
