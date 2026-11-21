@@ -204,6 +204,22 @@ void main() {
     }
   });
 
+  test('FP: dual-path FP16 far subtraction rounds back to a power of two', () {
+    // 32768 - 2^-24 lies just below 32768, so nearest-even rounds it back to
+    // 32768 (0x7800) rather than to the next value below (0x77ff).
+    final a = FloatingPoint16();
+    final b = FloatingPoint16();
+    // The default rounding mode is nearest-even.
+    final adder = FloatingPointAdderDualPath(a, b);
+    final large = FloatingPoint16Value.populator().ofInts(30, 0);
+    final small = FloatingPoint16Value.populator().ofInts(0, 1, sign: true);
+    for (final (x, y) in [(large, small), (small, large)]) {
+      a.put(x);
+      b.put(y);
+      expect(adder.sum.value.toInt(), 0x7800, reason: '$x + $y');
+    }
+  });
+
   group('FP: dual-path adder N path tests', () {
     const exponentWidth = 3;
     const mantissaWidth = 3;
