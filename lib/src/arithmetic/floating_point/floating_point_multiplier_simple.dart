@@ -100,6 +100,12 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
         (a.isSignalingNaN | b.isSignalingNaN | invalidArithmetic)
             .named('invalidOperation');
     final isNaN = (a.isNaN | b.isNaN | invalidArithmetic).named('isNaN');
+    // A zero operand gives an exact zero. The zero-mantissa fallback for
+    // the leading-one position below only reaches a zero exponent while the
+    // other operand's exponent is at most twice the bias, which does not
+    // hold for formats that use the all-ones exponent for finite values
+    // (E4M3: 0 * 256 gave 2^-6).
+    final isZero = (a.isAZero | b.isAZero).named('isZero');
     final inputIsNaN = (a.isNaN | b.isNaN).named('inputIsNaN');
     final propagatedNaN = internalProduct.propagateNaN(a, b);
 
@@ -110,6 +116,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
         localFlop(b.sign).named('b_sign', naming: Naming.renameable);
     final isInfLatch = localFlop(isInf);
     final isNaNLatch = localFlop(isNaN);
+    final isZeroLatch = localFlop(isZero);
     final invalidOperationLatch = localFlop(invalidOperation);
     final inputIsNaNLatch = localFlop(inputIsNaN);
     final nanLatch = localFlop(propagatedNaN);
@@ -237,7 +244,7 @@ class FloatingPointMultiplierSimple<FpTypeIn extends FloatingPoint,
               internalProduct < internalProduct.largestFinite(sign: resultSign),
             ], orElse: [
               internalProduct.sign < resultSign,
-              If(roundedExp[-1], then: [
+              If(roundedExp[-1] | isZeroLatch, then: [
                 internalProduct.exponent < Const(0, width: exponentWidth)
               ], orElse: [
                 internalProduct.exponent <
