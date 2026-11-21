@@ -17,6 +17,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../systemc_test_utils.dart';
+
 class _Device extends Module {
   _Device({required bool behavioralCsr, required bool behavioralCam}) {
     final clk = addInput('clk', Logic());
@@ -58,9 +60,10 @@ class _Device extends Module {
       addOutput('${name}rd', width: 8) <= read.data;
     }
 
-    final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
-    final lookup = AssociativeLookupPortInterface(
-        keyWidth: 8, indexWidth: 2, matchEntryCount: 3);
+    final update =
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2);
+    final lookup = TypedAssociativeLookupPortInterface(Logic(width: 8),
+        indexWidth: 2, matchEntryCount: 3);
     update.en <= addInput('camwe', Logic());
     update.index <= addInput('camwi', Logic(width: 2), width: 2);
     update.entryValid <= addInput('camvalid', Logic());
@@ -130,6 +133,9 @@ int sc_main(int, char**) {
   try {
     await File('${dir.path}/model.h').writeAsString(hierarchy.source);
     await File('${dir.path}/test.cpp').writeAsString(cpp.toString());
+    if (!canRunSystemC()) {
+      return;
+    }
     final compile = await Process.run('g++', [
       '-std=c++17',
       '${dir.path}/test.cpp',

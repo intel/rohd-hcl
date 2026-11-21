@@ -18,6 +18,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 class _Harness extends Module {
   _Harness(int count, BehavioralReplacementKind kind,
       {required bool software}) {
@@ -205,6 +207,9 @@ int sc_main(int, char**) {
     }
     cpp.writeln('  return 0;\n}');
     await File('${directory.path}/test.cpp').writeAsString(cpp.toString());
+    if (!canRunSystemC()) {
+      return;
+    }
     final compile = await Process.run('g++', [
       '-std=c++17',
       '${directory.path}/test.cpp',
@@ -280,6 +285,9 @@ int sc_main(int, char**) {
 }
 ''';
         await File('${directory.path}/test.cpp').writeAsString(cpp);
+        if (!canRunSystemC()) {
+          return;
+        }
         final compile = await Process.run('g++', [
           '-std=c++17',
           '${directory.path}/test.cpp',
@@ -346,6 +354,9 @@ int sc_main(int, char**) {
 }
 ''';
         await File('${directory.path}/test.cpp').writeAsString(cpp);
+        if (!canRunSystemC()) {
+          return;
+        }
         final compile = await Process.run('g++', [
           '-std=c++17',
           '${directory.path}/test.cpp',

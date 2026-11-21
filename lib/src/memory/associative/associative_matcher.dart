@@ -19,6 +19,7 @@ typedef TypedAssociativeKeyComparator<T extends Logic> = Logic Function(
     required String name});
 
 /// Compares flattened associative keys.
+@Deprecated('Use TypedAssociativeKeyComparator<Logic> for packed keys.')
 typedef AssociativeKeyComparator = TypedAssociativeKeyComparator<Logic>;
 
 /// Creates an exact-key comparison.

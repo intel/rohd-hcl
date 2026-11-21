@@ -995,12 +995,8 @@ class _SVGeneratorState extends State<SVGenerator>
       final modulePath = moduleSegments.join('/');
       final defName =
           _hierarchyService?.occurrenceByPathname(modulePath)?.definition;
-      if (defName != null) {
-        final entry = flcData.lookupSignalEntry(defName, signalName) ??
-            flcData.lookupInstanceEntry(defName, signalName);
-        if (entry != null) {
-          return entry;
-        }
+      if (defName != null && flcData.moduleNames.contains(defName)) {
+        return _flcSourceNavigation.lookupEntry(defName, signalName);
       }
     }
 
@@ -1008,8 +1004,7 @@ class _SVGeneratorState extends State<SVGenerator>
     //    the definition name captured at build time.
     final modName = _flcModuleName;
     if (modName != null) {
-      final entry = flcData.lookupSignalEntry(modName, signalName) ??
-          flcData.lookupInstanceEntry(modName, signalName);
+      final entry = _flcSourceNavigation.lookupEntry(modName, signalName);
       if (entry != null) {
         return entry;
       }
@@ -1020,8 +1015,7 @@ class _SVGeneratorState extends State<SVGenerator>
       if (mod == modName) {
         continue;
       }
-      final entry = flcData.lookupSignalEntry(mod, signalName) ??
-          flcData.lookupInstanceEntry(mod, signalName);
+      final entry = _flcSourceNavigation.lookupEntry(mod, signalName);
       if (entry != null) {
         return entry;
       }
@@ -1815,8 +1809,8 @@ class _SVGeneratorState extends State<SVGenerator>
   /// Handle cross-probe events arriving on the shared bus.
   ///
   /// Signal paths are hierarchical strings like `"top/counter/clk"`.
-  /// We strip each to its leaf name and look it up in the [FlcData]
-  /// to find SV and ROHD source line numbers.  For "Send Signals" we
+  /// The owning module is used to find SV and ROHD source line numbers.
+  /// For "Send Signals" we
   /// navigate automatically to the first/best frame without a popup.
   void _onCrossProbeSignals() {
     if (_suppressCrossProbeNav) {
@@ -1832,7 +1826,7 @@ class _SVGeneratorState extends State<SVGenerator>
     // Extract leaf signal name: "top/counter/clk" → "clk"
     final leaf = path.contains('/') ? path.split('/').last : path;
 
-    final entry = _lookupFlcEntry(leaf);
+    final entry = _lookupFlcEntry(path);
     if (entry == null) {
       debugPrint('[CrossProbe] signal "$leaf" not found in FlcData');
       return;

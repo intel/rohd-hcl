@@ -17,11 +17,14 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 class _Harness extends Module {
   _Harness(AssociativeMatchSelection selection) {
-    final update = AssociativeUpdatePortInterface(keyWidth: 4, indexWidth: 2);
-    final lookup = AssociativeLookupPortInterface(
-        keyWidth: 4, indexWidth: 2, matchEntryCount: 3);
+    final update =
+        TypedAssociativeUpdatePortInterface(Logic(width: 4), indexWidth: 2);
+    final lookup = TypedAssociativeLookupPortInterface(Logic(width: 4),
+        indexWidth: 2, matchEntryCount: 3);
     update.en <= addInput('we', Logic());
     update.index <= addInput('wa', Logic(width: 2), width: 2);
     update.key <= addInput('wd', Logic(width: 4), width: 4);
@@ -125,6 +128,9 @@ int sc_main(int, char**) {
     }
     source.writeln('return 0;\n}');
     await File('${dir.path}/test.cpp').writeAsString(source.toString());
+    if (!canRunSystemC()) {
+      return;
+    }
     final compile = await Process.run('g++', [
       '-std=c++17',
       '${dir.path}/test.cpp',

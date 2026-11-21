@@ -52,13 +52,13 @@ class ParallelAssociativeMemoryConfigurator extends Configurator {
       reset: Logic(name: 'reset'),
       updates: [
         for (var i = 0; i < updateCountKnob.value; i++)
-          AssociativeUpdatePortInterface(
-              keyWidth: keyWidthKnob.value, indexWidth: indexWidth),
+          TypedAssociativeUpdatePortInterface(Logic(width: keyWidthKnob.value),
+              indexWidth: indexWidth),
       ],
       lookups: [
         for (var i = 0; i < lookupCountKnob.value; i++)
-          AssociativeLookupPortInterface(
-              keyWidth: keyWidthKnob.value, indexWidth: indexWidth),
+          TypedAssociativeLookupPortInterface(Logic(width: keyWidthKnob.value),
+              indexWidth: indexWidth),
       ],
       entryCount: entryCountKnob.value,
       contract: const AssociativeMemoryContract(

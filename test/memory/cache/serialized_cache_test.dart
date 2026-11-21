@@ -19,6 +19,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 class _SynchronousArray<T extends Logic> extends Memory<T> {
   @override
   final int readLatency;
@@ -511,6 +513,9 @@ int sc_main(int, char**) {
     }
     cpp.writeln('return 0;\n}');
     await File('${dir.path}/test.cpp').writeAsString(cpp.toString());
+    if (!canRunSystemC()) {
+      return;
+    }
     final compile = await Process.run('g++', [
       '-std=c++17',
       '${dir.path}/test.cpp',
@@ -900,7 +905,7 @@ void main() {
       await SimCompare.checkFunctionalVector(dut, vectors);
       if (!behavioral) {
         SimCompare.checkIverilogVector(dut, vectors);
-        expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+        SimCompare.checkSystemCVector(dut, vectors);
       }
     });
   }
@@ -1073,7 +1078,7 @@ void main() {
         if (!behavioral) {
           SimCompare.checkIverilogVector(dut, vectors);
           if (latency == 1) {
-            expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+            SimCompare.checkSystemCVector(dut, vectors);
           }
         }
       });

@@ -657,7 +657,7 @@ void main() {
 
       await SimCompare.checkFunctionalVector(dut, vectors);
       SimCompare.checkIverilogVector(dut, vectors);
-      expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+      SimCompare.checkVerilatorVector(dut, vectors);
       expectNoVerilatorWarnings(dut, ['WIDTHEXPAND', 'CASEINCOMPLETE']);
     });
 
@@ -728,7 +728,7 @@ void main() {
 
       await SimCompare.checkFunctionalVector(dut, vectors);
       SimCompare.checkIverilogVector(dut, vectors);
-      expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+      SimCompare.checkVerilatorVector(dut, vectors);
       expectNoVerilatorWarnings(dut, ['WIDTHEXPAND', 'CASEINCOMPLETE']);
     });
 

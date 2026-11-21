@@ -17,6 +17,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 typedef _Write = ({bool enable, int address, int data, int mask});
 typedef _Step = ({
   bool reset,
@@ -317,6 +319,9 @@ int sc_main(int, char**) {
         '${directory.path}/tb.sv',
         '${directory.path}/dut.sv'
       ]);
+      if (!canRunSystemC()) {
+        return;
+      }
       await _run('g++', [
         '-std=c++17',
         '-O0',

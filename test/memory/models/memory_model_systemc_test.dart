@@ -17,11 +17,16 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 Future<void> _compileAndRun(String header, String source) async {
   final directory = await Directory.systemTemp.createTemp('hcl_ram_systemc_');
   try {
     await File('${directory.path}/model.h').writeAsString(header);
     await File('${directory.path}/test.cpp').writeAsString(source);
+    if (!canRunSystemC()) {
+      return;
+    }
     final compile = await Process.run('g++', [
       '-std=c++17',
       '-O0',

@@ -452,6 +452,16 @@ class EmbeddedFlcSourceNavigation {
   /// Whether this trace can receive schematic cross-probe selections.
   bool get isAvailable => flcData != null && !flcData!.isEmpty;
 
+  /// Looks up a signal or instance in its owning module.
+  FlcEntry? lookupEntry(String module, String name) {
+    final data = flcData;
+    if (data == null) {
+      return null;
+    }
+    return data.lookupSignalEntry(module, name) ??
+        data.lookupInstanceEntry(module, name);
+  }
+
   /// Returns source format identifiers available for [module].
   Set<String> formatsForModule(
     String module, {
@@ -504,13 +514,15 @@ class EmbeddedFlcSourceNavigation {
 
       FlcEntry? entry;
       if (requestedModule != null && requestedModule.isNotEmpty) {
-        entry = data.lookupSignalEntry(requestedModule, name) ??
-            data.lookupInstanceEntry(requestedModule, name);
+        entry = lookupEntry(requestedModule, name);
       }
       final fallbackModule = primaryModule;
-      if (entry == null && fallbackModule != null) {
-        entry = data.lookupSignalEntry(fallbackModule, name) ??
-            data.lookupInstanceEntry(fallbackModule, name);
+      if (entry == null &&
+          fallbackModule != null &&
+          (requestedModule == null ||
+              requestedModule.isEmpty ||
+              !data.moduleNames.contains(requestedModule))) {
+        entry = lookupEntry(fallbackModule, name);
       }
       if (entry == null) {
         continue;

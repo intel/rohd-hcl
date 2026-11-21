@@ -109,6 +109,8 @@ class AssociativeUpdatePortInterface extends AssociativePortInterface {
   Logic get entryValid => port('entryValid');
 
   /// Creates an associative-memory update port.
+  @Deprecated('Use TypedAssociativeUpdatePortInterface with a key schema '
+      '(Logic(width: keyWidth) for packed keys).')
   AssociativeUpdatePortInterface(
       {required super.keyWidth, required super.indexWidth}) {
     _setPorts(Logic.port('key', keyWidth));
@@ -136,6 +138,8 @@ class AssociativeUpdatePortInterface extends AssociativePortInterface {
 
   /// Makes a copy of this interface with matching configuration.
   @override
+  // Preserve the packed constructor for legacy clones.
+  // ignore: deprecated_member_use_from_same_package
   AssociativeUpdatePortInterface clone() => AssociativeUpdatePortInterface(
       keyWidth: keyWidth, indexWidth: indexWidth);
 }
@@ -185,6 +189,8 @@ class AssociativeLookupPortInterface extends AssociativePortInterface {
       matchEntryCount == null ? null : port('matchVector');
 
   /// Creates an associative-memory lookup port.
+  @Deprecated('Use TypedAssociativeLookupPortInterface with a key schema '
+      '(Logic(width: keyWidth) for packed keys).')
   AssociativeLookupPortInterface(
       {required super.keyWidth,
       required super.indexWidth,
@@ -220,6 +226,8 @@ class AssociativeLookupPortInterface extends AssociativePortInterface {
 
   /// Makes a copy of this interface with matching configuration.
   @override
+  // Preserve the packed constructor for legacy clones.
+  // ignore: deprecated_member_use_from_same_package
   AssociativeLookupPortInterface clone() => AssociativeLookupPortInterface(
       keyWidth: keyWidth,
       indexWidth: indexWidth,

@@ -15,6 +15,7 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
 import 'csr_software_model_test.dart' show csrSoftwareTestConfig;
 
 class _PortableFallbackField extends CsrFieldConfig {
@@ -82,6 +83,9 @@ Future<void> _compileAndRun(String header, String source) async {
   try {
     await File('${directory.path}/csr.h').writeAsString(header);
     await File('${directory.path}/test.cpp').writeAsString(source);
+    if (!canRunSystemC()) {
+      return;
+    }
     final compile = await Process.run('g++', [
       '-std=c++17',
       '-O0',

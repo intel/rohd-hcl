@@ -20,6 +20,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 LogicValue _alternateCodecValue(LogicValue value) => value;
 const _alternateCodec = LogicValueCodec<LogicValue>(
     decode: _alternateCodecValue, encode: _alternateCodecValue);
@@ -45,14 +47,12 @@ class _Harness extends Module {
       int indexWidth = 2}) {
     final updates = List.generate(
         2,
-        (_) => AssociativeUpdatePortInterface(
-            keyWidth: keyWidth, indexWidth: indexWidth));
+        (_) => TypedAssociativeUpdatePortInterface(Logic(width: keyWidth),
+            indexWidth: indexWidth));
     final lookups = List.generate(
         2,
-        (_) => AssociativeLookupPortInterface(
-            keyWidth: keyWidth,
-            indexWidth: indexWidth,
-            matchEntryCount: entries));
+        (_) => TypedAssociativeLookupPortInterface(Logic(width: keyWidth),
+            indexWidth: indexWidth, matchEntryCount: entries));
     final sides = List.generate(
         2, (_) => AssociativeIndexedSideReadRequest(indexWidth: indexWidth));
     for (var i = 0; i < 2; i++) {
@@ -190,6 +190,9 @@ int sc_main(int, char**) {
     await File('${dir.path}/model.h')
         .writeAsString(model.generateSystemC(className: 'Cam'));
     await File('${dir.path}/test.cpp').writeAsString(cpp.toString());
+    if (!canRunSystemC()) {
+      return;
+    }
     final compile = await Process.run('g++', [
       '-std=c++17',
       '${dir.path}/test.cpp',
@@ -702,7 +705,7 @@ void main() {
           clk: Logic(),
           reset: Logic(),
           updatePorts: [
-            AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 1)
+            TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 1)
           ],
           lookupPorts: [
             TypedAssociativeLookupPortInterface<Logic>(key,
@@ -795,6 +798,9 @@ int sc_main(int, char**) {
 }
 ''');
         await File('${dir.path}/test.cpp').writeAsString(cpp.toString());
+        if (!canRunSystemC()) {
+          return;
+        }
         final compile = await Process.run('g++', [
           '-std=c++17',
           '${dir.path}/test.cpp',
@@ -867,6 +873,9 @@ int sc_main(int, char**) {
 }
 ''';
         await File('${dir.path}/test.cpp').writeAsString(source);
+        if (!canRunSystemC()) {
+          return;
+        }
         final compile = await Process.run('g++', [
           '-std=c++17',
           '${dir.path}/test.cpp',
@@ -968,6 +977,9 @@ int sc_main(int, char**) {
 }
 ''';
           await File('${dir.path}/test.cpp').writeAsString(source);
+          if (!canRunSystemC()) {
+            return;
+          }
           final compile = await Process.run('g++', [
             '-std=c++17',
             '${dir.path}/test.cpp',

@@ -220,10 +220,12 @@ class SerializedCache<T extends Logic, M extends Logic, C extends Logic,
 
     for (var set = 0; set < setCount; set++) {
       final selected = selects(set);
-      final tagUpdate = AssociativeUpdatePortInterface(
-          keyWidth: addressWidth, indexWidth: wayWidth);
-      final tagLookup = AssociativeLookupPortInterface(
-          keyWidth: addressWidth, indexWidth: wayWidth);
+      final tagUpdate = TypedAssociativeUpdatePortInterface(
+          Logic(width: addressWidth),
+          indexWidth: wayWidth);
+      final tagLookup = TypedAssociativeLookupPortInterface(
+          Logic(width: addressWidth),
+          indexWidth: wayWidth);
       final side = AssociativeIndexedSideReadRequest(indexWidth: wayWidth);
       final access = ReplacementAccessInterface(waysPerSet);
       final allocation = ReplacementAllocationInterface(waysPerSet);

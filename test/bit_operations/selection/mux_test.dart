@@ -155,7 +155,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+    SimCompare.checkVerilatorVector(dut, vectors);
   });
 
   test('OneHotMux rejects invalid case and selector widths', () {
@@ -204,7 +204,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+    SimCompare.checkVerilatorVector(dut, vectors);
   });
 
   test('typed priority mux preserves structured cases and result', () async {

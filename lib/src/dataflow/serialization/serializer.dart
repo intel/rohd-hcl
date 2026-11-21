@@ -121,8 +121,9 @@ class Serializer<T extends Logic, V> extends Module {
       earlyEnd = null;
     }
 
-    final latchTheInput =
-        ((enable ?? Const(1)) & ~cnt.count.or()).named('latchTheInput');
+    final latchTheInput = flopInput
+        ? ((enable ?? Const(1)) & ~cnt.count.or()).named('latchTheInput')
+        : null;
     count <=
         (flopInput && !alignOutputLatency
             ? flop(clk, reset: reset, en: enable, cnt.count)
