@@ -765,6 +765,56 @@ void main() {
     }
   });
 
+  test('FPV: divide matches / for special operands', () {
+    const operands = [
+      0.0,
+      -0.0,
+      1.0,
+      -1.0,
+      double.infinity,
+      double.negativeInfinity,
+      double.nan,
+    ];
+    for (final populator in [
+      FloatingPoint32Value.populator,
+      () => FloatingPointValue.populator(exponentWidth: 4, mantissaWidth: 4),
+    ]) {
+      for (final a in operands) {
+        for (final b in operands) {
+          final x = populator().ofDouble(a);
+          final y = populator().ofDouble(b);
+          expect(
+              populator().divide(x, y).value.bitString, (x / y).value.bitString,
+              reason: '$a / $b');
+        }
+      }
+    }
+    final minusOne = FloatingPoint32Value.populator().ofDouble(-1);
+    final infinity = FloatingPoint32Value.populator().positiveInfinity;
+    expect(FloatingPoint32Value.populator().divide(minusOne, infinity),
+        FloatingPoint32Value.populator().negativeZero);
+  });
+
+  test('FPV: E4M3 division by zero', () {
+    // E4M3 has no infinity, so a nonzero value divided by zero has no
+    // representable result and throws; 0 / 0 is NaN.
+    FloatingPointValuePopulator<FloatingPoint8E4M3Value> populator() =>
+        FloatingPoint8E4M3Value.populator();
+    for (final a in [1.0, -1.0]) {
+      for (final zero in [populator().positiveZero, populator().negativeZero]) {
+        final x = populator().ofDouble(a);
+        expect(() => x / zero, throwsA(isA<InfinityNotSupportedException>()),
+            reason: '$a / $zero');
+        expect(() => populator().divide(x, zero),
+            throwsA(isA<InfinityNotSupportedException>()),
+            reason: '$a / $zero');
+      }
+    }
+    final zero = populator().positiveZero;
+    expect((zero / zero).isNaN, isTrue);
+    expect(populator().divide(zero, zero).isNaN, isTrue);
+  });
+
   test('FPV: rounding check', () {
     final fpv1 = FloatingPoint32Value.populator().ofDouble(1);
     final fpv2 = FloatingPoint32Value.populator().ofDouble(0.5);
