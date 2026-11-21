@@ -765,7 +765,7 @@ void main() {
     }
   });
 
-  test('FPV: divide matches / for special operands', () {
+  test('FPV: divide handles special operands', () {
     const operands = [
       0.0,
       -0.0,
@@ -781,11 +781,18 @@ void main() {
     ]) {
       for (final a in operands) {
         for (final b in operands) {
-          final x = populator().ofDouble(a);
-          final y = populator().ofDouble(b);
-          expect(
-              populator().divide(x, y).value.bitString, (x / y).value.bitString,
-              reason: '$a / $b');
+          final expected = a / b;
+          final result = populator()
+              .divide(populator().ofDouble(a), populator().ofDouble(b))
+              .toDouble();
+          final reason = '$a / $b';
+          if (expected.isNaN) {
+            expect(result.isNaN, isTrue, reason: reason);
+          } else {
+            expect(result, equals(expected), reason: reason);
+            expect(result.isNegative, equals(expected.isNegative),
+                reason: reason);
+          }
         }
       }
     }
@@ -813,6 +820,21 @@ void main() {
     final zero = populator().positiveZero;
     expect((zero / zero).isNaN, isTrue);
     expect(populator().divide(zero, zero).isNaN, isTrue);
+
+    // An infinite operand from a wider format follows multiply and gives
+    // the largest finite value.
+    final two = FloatingPoint32Value.populator().ofDouble(2);
+    final largest =
+        populator().ofConstant(FloatingPointConstants.largestNormal);
+    for (final infinity in [
+      FloatingPoint32Value.populator().positiveInfinity,
+      FloatingPoint32Value.populator().negativeInfinity,
+    ]) {
+      final expected = infinity.sign.toBool() ? largest.negate() : largest;
+      expect(populator().divide(infinity, two), expected, reason: '$infinity');
+      expect(populator().multiply(infinity, two), expected,
+          reason: '$infinity');
+    }
   });
 
   test('FPV: rounding check', () {
