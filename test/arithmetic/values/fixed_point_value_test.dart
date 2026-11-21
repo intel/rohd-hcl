@@ -582,6 +582,50 @@ void main() {
     }
   });
 
+  test('random endpoints are exact in wide formats', () {
+    // Wider than a double's 53-bit significand, so the vectors are built
+    // from BigInt encodings. The open interval (b, b + 2 ulp) holds only
+    // b + 1 ulp, and the adjacent (b + 1 ulp, b + 2 ulp) holds no value.
+    final rv = Random(5);
+    for (final (m, n, signed) in [
+      (40, 30, true),
+      (30, 40, false),
+      (0, 60, true)
+    ]) {
+      final width = m + n + (signed ? 1 : 0);
+      final modulus = BigInt.one << width;
+      final minValue = signed ? -(modulus >> 1) : BigInt.zero;
+      final maxValue = (signed ? modulus >> 1 : modulus) - BigInt.one;
+      FixedPointValuePopulator populator() =>
+          FixedPointValue.populatorWithSignedness(
+              integerWidth: m, fractionWidth: n, signed: signed);
+      FixedPointValue fxv(BigInt ulps) =>
+          populator().ofLogicValue(LogicValue.ofBigInt(ulps % modulus, width));
+      final bases = [
+        minValue,
+        minValue + BigInt.one,
+        -BigInt.two,
+        -BigInt.one,
+        BigInt.zero,
+        BigInt.parse('12345678901'),
+        maxValue - BigInt.two,
+      ].where((b) => b >= minValue && b + BigInt.two <= maxValue);
+      for (final b in bases) {
+        final reason = 'Q($m, $n, signed: $signed) base $b ulp';
+        for (var i = 0; i < 8; i++) {
+          final value =
+              populator().random(rv, gt: fxv(b), lt: fxv(b + BigInt.two));
+          expect(value.value, fxv(b + BigInt.one).value, reason: reason);
+        }
+        expect(
+            () => populator()
+                .random(rv, gt: fxv(b + BigInt.one), lt: fxv(b + BigInt.two)),
+            throwsA(isA<RohdHclException>()),
+            reason: reason);
+      }
+    }
+  });
+
   test('Math', () {
     const w = 4;
     FixedPointValue fxp;
