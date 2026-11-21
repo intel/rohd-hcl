@@ -137,18 +137,12 @@ class FixedPointValue implements Comparable<FixedPointValue> {
             integerWidth: m, fractionWidth: n, signed: s)
         .widen(other)
         .value;
-    final comp = val1.compareTo(val2);
-    if (comp == 0) {
-      return comp;
-    } else if (!isNegative() & !other.isNegative()) {
-      return comp;
-    } else if (!isNegative() & other.isNegative()) {
-      return 1;
-    } else if (isNegative() & !other.isNegative()) {
-      return -1;
-    } else {
-      return -comp;
+    if (isNegative() != other.isNegative()) {
+      return isNegative() ? -1 : 1;
     }
+    // Both values are now two's complement in the same format, so when the
+    // signs match the unsigned bit order is also the numeric order.
+    return val1.compareTo(val2);
   }
 
   /// Equal-to operation that returns a [LogicValue].

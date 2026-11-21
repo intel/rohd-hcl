@@ -272,10 +272,32 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
     final ltSign =
         signed ? (lt ?? lte)?.value[-1] ?? LogicValue.zero : LogicValue.zero;
 
-    final gtMagnitude = gt?.value.abs();
-    final gteMagnitude = gte?.value.abs();
-    final ltMagnitude = lt?.value.abs();
-    final lteMagnitude = lte?.value.abs();
+    // `abs` assumes two's complement, so only apply it to signed values.
+    LogicValue? magnitudeOf(FxvType? fxv) =>
+        signed ? fxv?.value.abs() : fxv?.value;
+    final gtMagnitude = magnitudeOf(gt);
+    final gteMagnitude = magnitudeOf(gte);
+    final ltMagnitude = magnitudeOf(lt);
+    final lteMagnitude = magnitudeOf(lte);
+
+    // The sign-magnitude defaults for a missing bound do not match this
+    // format: they allow negative values for unsigned formats, and the most
+    // negative signed value has magnitude 2^(integerWidth + fractionWidth),
+    // which needs one extra magnitude bit. Give missing bounds explicitly.
+    final magnitudeWidth = integerWidth + fractionWidth + (signed ? 1 : 0);
+    final maxMagnitude = BigInt.two.pow(integerWidth + fractionWidth);
+    final defaultGte = ((gt == null) && (gte == null))
+        ? SignMagnitudeValue(
+            sign: signed ? LogicValue.one : LogicValue.zero,
+            magnitude: LogicValue.ofBigInt(
+                signed ? maxMagnitude : BigInt.zero, magnitudeWidth))
+        : null;
+    final defaultLte = ((lt == null) && (lte == null))
+        ? SignMagnitudeValue(
+            sign: LogicValue.zero,
+            magnitude:
+                LogicValue.ofBigInt(maxMagnitude - BigInt.one, magnitudeWidth))
+        : null;
 
     final tgt = (gtMagnitude == null)
         ? null
@@ -290,11 +312,12 @@ class FixedPointValuePopulator<FxvType extends FixedPointValue> {
         ? null
         : SignMagnitudeValue(sign: ltSign, magnitude: lteMagnitude);
 
-    final smv =
-        SignMagnitudeValue.populator(width: integerWidth + fractionWidth)
-            .random(rv, gt: tgt, gte: tgte, lt: tlt, lte: tlte);
+    final smv = SignMagnitudeValue.populator(width: magnitudeWidth).random(rv,
+        gt: tgt, gte: tgte ?? defaultGte, lt: tlt, lte: tlte ?? defaultLte);
+    // Convert the sign-magnitude result to two's complement.
+    final magnitude = smv.magnitude;
     final newValue =
-        signed ? [smv.sign, smv.magnitude].concat() : smv.magnitude;
+        signed & (smv.sign == LogicValue.one) ? (~magnitude) + 1 : magnitude;
     return ofLogicValue(newValue);
   }
 }
