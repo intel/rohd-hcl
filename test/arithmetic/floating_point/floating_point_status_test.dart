@@ -55,6 +55,22 @@ void main() {
     expect(toFp16.status.underflow.value.toBool(), isFalse);
   });
 
+  test('FP: custom-format converter overflow flags under truncation', () {
+    // 8.5 in E3M4 is above the largest E2M2 normal (3.5); truncation clamps
+    // to it and reports only overflow and inexact.
+    final source = FloatingPoint(exponentWidth: 3, mantissaWidth: 4);
+    final destination = FloatingPoint(exponentWidth: 2, mantissaWidth: 2);
+    final converter = FloatingPointConverter(source, destination,
+        roundingMode: FloatingPointRoundingMode.truncate);
+    source.put(source.valuePopulator().ofDouble(8.5));
+    expect(destination.value.bitString, '01011');
+    expect(converter.status.overflow.value.toBool(), isTrue);
+    expect(converter.status.underflow.value.toBool(), isFalse);
+    expect(converter.status.inexact.value.toBool(), isTrue);
+    expect(converter.status.invalid.value.toBool(), isFalse);
+    expect(converter.status.divideByZero.value.toBool(), isFalse);
+  });
+
   test('FP: adders report invalid and overflow status', () {
     final a = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);
     final b = FloatingPoint(exponentWidth: 3, mantissaWidth: 3);
