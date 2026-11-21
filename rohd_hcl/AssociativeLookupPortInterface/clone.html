@@ -75,6 +75,8 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
+&#47;&#47; Preserve the packed constructor for legacy clones.
+&#47;&#47; ignore: deprecated_member_use_from_same_package
 AssociativeLookupPortInterface clone() =&gt; AssociativeLookupPortInterface(
     keyWidth: keyWidth,
     indexWidth: indexWidth,
@@ -106,7 +108,7 @@ AssociativeLookupPortInterface clone() =&gt; AssociativeLookupPortInterface(
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.2
+      0.3.3
   </span>
   
 </footer>

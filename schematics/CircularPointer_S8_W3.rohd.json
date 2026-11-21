@@ -134,7 +134,9 @@
           "hide_name": 0,
           "type": "$ge",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 5,
+            "B_SIGNED": 0,
             "B_WIDTH": 5,
             "Y_WIDTH": 1
           },
@@ -266,7 +268,9 @@
           "hide_name": 0,
           "type": "$sub",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 5,
+            "B_SIGNED": 0,
             "B_WIDTH": 5,
             "Y_WIDTH": 5
           },
@@ -332,7 +336,7 @@
             ]
           }
         },
-        "const_0_2_h0": {
+        "const_0_2_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -347,7 +351,7 @@
             ]
           }
         },
-        "const_1_5_h8": {
+        "const_1_5_h8_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -365,7 +369,7 @@
             ]
           }
         },
-        "const_2_5_h8": {
+        "const_2_5_h8_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -383,7 +387,7 @@
             ]
           }
         },
-        "const_3_2_h0": {
+        "const_3_2_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},

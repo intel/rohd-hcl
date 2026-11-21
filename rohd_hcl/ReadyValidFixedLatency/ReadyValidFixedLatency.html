@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ReadyValidFixedLatency&lt;<wbr><span class="type-parameter">Input extends Logic</span>, <span class="type-parameter">Output extends Logic</span>, <span class="type-parameter">Id extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+      <span class="name ">ReadyValidFixedLatency&lt;<wbr><span class="type-parameter">Input extends Logic</span>, <span class="type-parameter">Output extends Logic</span>, <span class="type-parameter">Id extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="param-upstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">Input</span>&gt;</span></span> <span class="parameter-name">upstream</span>, </span></li>
 <li><span class="parameter" id="param-downstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">Output</span>&gt;</span></span> <span class="parameter-name">downstream</span>, </span></li>
 <li><span class="parameter" id="param-coreGenerator"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/FixedLatencyCoreGenerator.html">FixedLatencyCoreGenerator</a><span class="signature">&lt;<wbr><span class="type-parameter">Input</span>, <span class="type-parameter">Output</span>&gt;</span></span> <span class="parameter-name">coreGenerator</span>, </span></li>
@@ -72,8 +72,8 @@
   <p>Wraps a core constructed by <code>coreGenerator</code>.</p>
 <p><code>coreIdentity</code> must uniquely identify the generated core configuration
 and be a valid SystemVerilog identifier fragment. <code>requestId</code>, when
-supplied, retains its declared schema even when <code>Id</code> is <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> and
-must remain stable alongside a stalled input payload. Use <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> as
+supplied, retains its declared schema even when <code>Id</code> is <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> and
+must remain stable alongside a stalled input payload. Use <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> as
 <code>Id</code> when IDs are omitted.
 <code>capacity</code> defaults to <code>latency + 1</code> and may be reduced at the cost of
 throughput. Reset discards all outstanding requests and results.</p>
@@ -235,7 +235,7 @@ throughput. Reset discards all outstanding requests and results.</p>
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.2
+      0.3.3
   </span>
   
 </footer>

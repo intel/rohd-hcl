@@ -31,6 +31,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -225,7 +226,7 @@
             ]
           }
         },
-        "const_0_1_h1": {
+        "const_0_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -239,7 +240,7 @@
             ]
           }
         },
-        "const_1_1_h0": {
+        "const_1_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -253,7 +254,7 @@
             ]
           }
         },
-        "const_2_1_h0": {
+        "const_2_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -267,7 +268,7 @@
             ]
           }
         },
-        "const_3_1_h1": {
+        "const_3_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -454,7 +455,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -480,6 +483,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -767,7 +771,7 @@
             ]
           }
         },
-        "const_0_1_h0": {
+        "const_0_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -781,7 +785,7 @@
             ]
           }
         },
-        "const_1_1_h0": {
+        "const_1_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -795,7 +799,7 @@
             ]
           }
         },
-        "const_2_1_h1": {
+        "const_2_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -809,7 +813,7 @@
             ]
           }
         },
-        "const_3_1_h0": {
+        "const_3_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -823,7 +827,7 @@
             ]
           }
         },
-        "const_4_2_h0": {
+        "const_4_2_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -838,7 +842,7 @@
             ]
           }
         },
-        "const_5_1_h1": {
+        "const_5_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1152,7 +1156,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1178,6 +1184,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1444,7 +1451,7 @@
             ]
           }
         },
-        "const_0_1_h0": {
+        "const_0_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1458,7 +1465,7 @@
             ]
           }
         },
-        "const_1_1_h1": {
+        "const_1_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1472,7 +1479,7 @@
             ]
           }
         },
-        "const_2_1_h0": {
+        "const_2_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1486,7 +1493,7 @@
             ]
           }
         },
-        "const_3_2_h0": {
+        "const_3_2_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1501,7 +1508,7 @@
             ]
           }
         },
-        "const_4_1_h1": {
+        "const_4_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1808,7 +1815,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1834,6 +1843,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2124,7 +2134,7 @@
             ]
           }
         },
-        "const_0_1_h0": {
+        "const_0_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2138,7 +2148,7 @@
             ]
           }
         },
-        "const_1_1_h1": {
+        "const_1_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2152,7 +2162,7 @@
             ]
           }
         },
-        "const_2_1_h0": {
+        "const_2_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2166,7 +2176,7 @@
             ]
           }
         },
-        "const_3_3_h0": {
+        "const_3_3_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2182,7 +2192,7 @@
             ]
           }
         },
-        "const_4_1_h1": {
+        "const_4_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2466,7 +2476,9 @@
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 4,
+            "B_SIGNED": 0,
             "B_WIDTH": 4,
             "Y_WIDTH": 1
           },
@@ -2548,7 +2560,7 @@
             ]
           }
         },
-        "const_0_4_h7": {
+        "const_0_4_h7_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2757,7 +2769,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2783,6 +2797,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2882,7 +2897,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -2929,7 +2946,9 @@
           "hide_name": 0,
           "type": "$or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3010,7 +3029,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3106,6 +3127,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3141,7 +3163,9 @@
           "hide_name": 0,
           "type": "$or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3188,7 +3212,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3235,6 +3261,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3312,7 +3339,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3359,7 +3388,9 @@
           "hide_name": 0,
           "type": "$or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3406,7 +3437,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3453,7 +3486,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3500,6 +3535,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3577,7 +3613,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3624,7 +3662,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3671,6 +3711,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3706,7 +3747,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3753,6 +3796,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3788,7 +3832,7 @@
           "hide_name": 0,
           "type": "$slice",
           "parameters": {
-            "OFFSET": 7,
+            "OFFSET": 0,
             "A_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3799,14 +3843,14 @@
           },
           "connections": {
             "A": [
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
+              17,
               16,
-              17
+              15,
+              14,
+              13,
+              12,
+              11,
+              10
             ],
             "Y": [
               101,
@@ -3824,7 +3868,7 @@
           "hide_name": 0,
           "type": "$slice",
           "parameters": {
-            "OFFSET": 7,
+            "OFFSET": 0,
             "A_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -3835,14 +3879,14 @@
           },
           "connections": {
             "A": [
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
+              9,
               8,
-              9
+              7,
+              6,
+              5,
+              4,
+              3,
+              2
             ],
             "Y": [
               93,
@@ -3885,7 +3929,7 @@
             ]
           }
         },
-        "const_0_8_h1": {
+        "const_0_8_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -3906,7 +3950,7 @@
             ]
           }
         },
-        "const_1_8_h1": {
+        "const_1_8_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -3927,7 +3971,7 @@
             ]
           }
         },
-        "const_2_1_h1": {
+        "const_2_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -3941,7 +3985,7 @@
             ]
           }
         },
-        "const_3_1_h1": {
+        "const_3_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},

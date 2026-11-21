@@ -27,7 +27,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
     <li><a href="../../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></li>
-    <li class="self-crumb">AssociativeLookupPortInterface.new constructor</li>
+    <li class="self-crumb"><span class="deprecated">AssociativeLookupPortInterface.new</span> constructor</li>
   </ol>
   <div class="self-name">AssociativeLookupPortInterface.new</div>
   <form class="search navbar-right" role="search">
@@ -54,7 +54,12 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">AssociativeLookupPortInterface</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-keyWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">keyWidth</span>, </span></li>
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use TypedAssociativeLookupPortInterface with a key schema &#39; &#39;(Logic(width: keyWidth) for packed keys).&#39;)</li>
+    </ol>
+  </div>
+      <span class="name deprecated">AssociativeLookupPortInterface</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-keyWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">keyWidth</span>, </span></li>
 <li><span class="parameter" id="param-indexWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">indexWidth</span>, </span></li>
 <li><span class="parameter" id="param-matchEntryCount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">matchEntryCount</span>, </span></li>
 </ol>})
@@ -68,7 +73,9 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">AssociativeLookupPortInterface(
+  <pre class="language-dart"><code class="language-dart">@Deprecated(&#39;Use TypedAssociativeLookupPortInterface with a key schema &#39;
+    &#39;(Logic(width: keyWidth) for packed keys).&#39;)
+AssociativeLookupPortInterface(
     {required super.keyWidth,
     required super.indexWidth,
     this.matchEntryCount}) {
@@ -89,7 +96,7 @@
     <li><a href="../../index.html">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
     <li><a href="../../rohd_hcl/AssociativeLookupPortInterface-class.html">AssociativeLookupPortInterface</a></li>
-    <li class="self-crumb">AssociativeLookupPortInterface.new constructor</li>
+    <li class="self-crumb"><span class="deprecated">AssociativeLookupPortInterface.new</span> constructor</li>
 </ol>
 
     <h5>AssociativeLookupPortInterface class</h5>
@@ -101,7 +108,7 @@
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.2
+      0.3.3
   </span>
   
 </footer>

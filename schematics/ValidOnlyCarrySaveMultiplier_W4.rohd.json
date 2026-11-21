@@ -76,7 +76,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -102,7 +104,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -128,7 +132,9 @@
           "hide_name": 0,
           "type": "$or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -154,7 +160,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -180,7 +188,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -206,7 +216,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -903,7 +915,7 @@
             ]
           }
         },
-        "const_0_1_h0": {
+        "const_0_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1371,10 +1383,10 @@
           },
           "connections": {
             "productWide": [
-              21,
-              22,
-              23,
-              24
+              30,
+              600,
+              596,
+              592
             ],
             "a_stage5_i": [
               32,
@@ -1615,7 +1627,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1872,7 +1886,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1975,7 +1991,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2078,7 +2096,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2439,7 +2459,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2542,7 +2564,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2645,7 +2669,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -2748,7 +2774,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -3070,7 +3098,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -3173,7 +3203,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -3276,7 +3308,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -3379,7 +3413,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -3717,7 +3753,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -3820,7 +3858,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -3923,7 +3963,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -4026,7 +4068,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -4176,15 +4220,15 @@
           },
           "connections": {
             "_in38__concatd": [
-              824,
-              825,
-              826,
-              827
+              129,
+              130,
+              147,
+              164
             ],
             "_concatd": [
-              820,
-              821,
-              822
+              261,
+              262,
+              279
             ],
             "a_stage4_i": [
               456,
@@ -5406,7 +5450,7 @@
             ]
           }
         },
-        "const_0_1_h0": {
+        "const_0_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5420,7 +5464,7 @@
             ]
           }
         },
-        "const_1_1_h0": {
+        "const_1_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5434,7 +5478,7 @@
             ]
           }
         },
-        "const_2_1_h0": {
+        "const_2_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5448,7 +5492,7 @@
             ]
           }
         },
-        "const_3_1_h0": {
+        "const_3_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5462,7 +5506,7 @@
             ]
           }
         },
-        "const_4_1_h0": {
+        "const_4_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5476,7 +5520,7 @@
             ]
           }
         },
-        "const_5_1_h0": {
+        "const_5_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5490,7 +5534,7 @@
             ]
           }
         },
-        "const_6_1_h0": {
+        "const_6_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5504,7 +5548,7 @@
             ]
           }
         },
-        "const_7_1_h0": {
+        "const_7_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5518,7 +5562,7 @@
             ]
           }
         },
-        "const_8_1_h0": {
+        "const_8_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5532,7 +5576,7 @@
             ]
           }
         },
-        "const_9_1_h0": {
+        "const_9_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5546,7 +5590,7 @@
             ]
           }
         },
-        "const_10_1_h0": {
+        "const_10_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5560,7 +5604,7 @@
             ]
           }
         },
-        "const_11_1_h0": {
+        "const_11_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5574,7 +5618,7 @@
             ]
           }
         },
-        "const_12_1_h0": {
+        "const_12_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -5671,6 +5715,28 @@
           ],
           "logic_type": {
             "width": 9
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_0_stage5": {
+          "bits": [
+            30
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_0_stage5_o": {
+          "bits": [
+            30
+          ],
+          "logic_type": {
+            "width": 1
           },
           "attributes": {
             "preserved_name": 1
@@ -6227,6 +6293,39 @@
             "preserved_name": 1
           }
         },
+        "carry_3_stage4": {
+          "bits": [
+            129
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "carry_4_stage4": {
+          "bits": [
+            130
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "carry_4_stage4_o": {
+          "bits": [
+            130
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
         "carry_4_stage1_i": {
           "bits": [
             132
@@ -6340,6 +6439,28 @@
         "carry_4_stage3": {
           "bits": [
             146
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "carry_5_stage4": {
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "carry_5_stage4_o": {
+          "bits": [
+            147
           ],
           "logic_type": {
             "width": 1
@@ -6469,6 +6590,28 @@
             "preserved_name": 1
           }
         },
+        "carry_6_stage4": {
+          "bits": [
+            164
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "carry_6_stage4_o": {
+          "bits": [
+            164
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
         "carry_6_stage1_i": {
           "bits": [
             166
@@ -6582,6 +6725,17 @@
         "carry_6_stage3": {
           "bits": [
             180
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "carry_3_stage4_o": {
+          "bits": [
+            129
           ],
           "logic_type": {
             "width": 1
@@ -7459,6 +7613,39 @@
             "preserved_name": 1
           }
         },
+        "sum_4_stage4": {
+          "bits": [
+            261
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_5_stage4": {
+          "bits": [
+            262
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_5_stage4_o": {
+          "bits": [
+            262
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
         "sum_5_stage1_i": {
           "bits": [
             264
@@ -7580,6 +7767,28 @@
             "preserved_name": 1
           }
         },
+        "sum_6_stage4": {
+          "bits": [
+            279
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_6_stage4_o": {
+          "bits": [
+            279
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
         "sum_6_stage1_i": {
           "bits": [
             281
@@ -7693,6 +7902,17 @@
         "sum_6_stage3": {
           "bits": [
             295
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_4_stage4_o": {
+          "bits": [
+            261
           ],
           "logic_type": {
             "width": 1
@@ -8902,6 +9122,28 @@
             "preserved_name": 1
           }
         },
+        "sum_3_stage5": {
+          "bits": [
+            592
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_3_stage5_o": {
+          "bits": [
+            592
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
         "carry_2_stage5": {
           "bits": [
             594
@@ -8924,6 +9166,28 @@
             "preserved_name": 1
           }
         },
+        "sum_2_stage5": {
+          "bits": [
+            596
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_2_stage5_o": {
+          "bits": [
+            596
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
         "carry_1_stage5": {
           "bits": [
             598
@@ -8938,6 +9202,28 @@
         "carry_1_stage5_o": {
           "bits": [
             598
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_1_stage5": {
+          "bits": [
+            600
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "sum_1_stage5_o": {
+          "bits": [
+            600
           ],
           "logic_type": {
             "width": 1
@@ -9805,18 +10091,6 @@
           },
           "attributes": {}
         },
-        "_in38__concatd": {
-          "bits": [
-            824,
-            825,
-            826,
-            827
-          ],
-          "logic_type": {
-            "width": 4
-          },
-          "attributes": {}
-        },
         "sum_22": {
           "bits": [
             937,
@@ -10235,7 +10509,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },

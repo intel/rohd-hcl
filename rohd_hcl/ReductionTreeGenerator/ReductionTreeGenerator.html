@@ -64,9 +64,9 @@
 <li><span class="parameter" id="param-signExtend"><span class="type-annotation">dynamic</span> <span class="parameter-name">signExtend</span>, </span></li>
 <li><span class="parameter" id="param-depthBetweenFlops"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">depthBetweenFlops</span>, </span></li>
 <li><span class="parameter" id="param-control"><span class="type-annotation">C?</span> <span class="parameter-name">control</span>, </span></li>
-<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 </ol>})
     </section>
     
@@ -78,13 +78,13 @@ segment.</p>
 <li><code>sequence</code> is the input sequence to be reduced using the tree of
 operations.</li>
 <li><code>operation</code> is the <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> to be performed at each node. Note that
-<code>operation</code> can widen the output. The <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> must support
+<code>operation</code> can widen the output. The <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> <a href="https://api.flutter.dev/flutter/dart-core/Function-class.html">Function</a> must support
 the operation for singleton branches and up to <code>radix</code> inputs.</li>
 <li><code>radix</code> is the width of reduction at each node in the tree (e.g.,
 binary: radix=2).</li>
-<li><code>signExtend</code> if <code>true</code>, use sign-extension to widen <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> values as
+<li><code>signExtend</code> if <code>true</code>, use sign-extension to widen <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> values as
 needed. in the tree, otherwise use zero-extension (default).</li>
-<li><code>control</code> is an optional <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Logic-class.html">Logic</a> input that is passed along with the
+<li><code>control</code> is an optional <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> input that is passed along with the
 data being reduced and passed into the operation. Optional parameters to
 be used for creating a pipelined computation tree:</li>
 <li><code>clk</code>, <code>reset</code>, <code>enable</code> are optionally provided to allow for flopping.</li>
@@ -155,7 +155,7 @@ be used for creating a pipelined computation tree:</li>
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.2
+      0.3.3
   </span>
   
 </footer>

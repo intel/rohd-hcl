@@ -42,6 +42,7 @@
           "hide_name": 0,
           "type": "$reduce_xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 3,
             "Y_WIDTH": 1
           },
@@ -117,6 +118,7 @@
           "hide_name": 0,
           "type": "$reduce_and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 2,
             "Y_WIDTH": 1
           },
@@ -164,6 +166,7 @@
           "hide_name": 0,
           "type": "$reduce_or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 2,
             "Y_WIDTH": 1
           },

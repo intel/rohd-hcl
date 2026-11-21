@@ -123,10 +123,10 @@
           },
           "connections": {
             "_concatd": [
-              36,
-              37,
-              38,
-              39
+              16,
+              17,
+              18,
+              19
             ],
             "_requestMask0_and_request_0": [
               32
@@ -176,7 +176,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -281,7 +283,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -307,7 +311,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -333,7 +339,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -355,11 +363,51 @@
             ]
           }
         },
+        "concat_0": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              16
+            ],
+            "[1]": [
+              17
+            ],
+            "[2]": [
+              18
+            ],
+            "[3]": [
+              19
+            ],
+            "Y": [
+              36,
+              37,
+              38,
+              39
+            ]
+          }
+        },
         "and__3": {
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -385,6 +433,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -406,6 +455,7 @@
           "hide_name": 0,
           "type": "$reduce_or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -490,7 +540,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -516,6 +568,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -537,6 +590,7 @@
           "hide_name": 0,
           "type": "$reduce_or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 2,
             "Y_WIDTH": 1
           },
@@ -623,7 +677,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -649,6 +705,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -670,6 +727,7 @@
           "hide_name": 0,
           "type": "$reduce_or",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 3,
             "Y_WIDTH": 1
           },
@@ -882,6 +940,50 @@
         "requestMask3": {
           "bits": [
             15
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "grantMask0": {
+          "bits": [
+            16
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "grantMask1": {
+          "bits": [
+            17
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "grantMask2": {
+          "bits": [
+            18
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "grantMask3": {
+          "bits": [
+            19
           ],
           "logic_type": {
             "width": 1

@@ -155,81 +155,13 @@
             ]
           }
         },
-        "struct_slice": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 0,
-            "A_WIDTH": 10,
-            "Y_WIDTH": 8
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              115,
-              116,
-              117,
-              118,
-              119,
-              120,
-              121,
-              122,
-              123,
-              124
-            ],
-            "Y": [
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53
-            ]
-          }
-        },
-        "struct_slice_0": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 8,
-            "A_WIDTH": 10,
-            "Y_WIDTH": 2
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              115,
-              116,
-              117,
-              118,
-              119,
-              120,
-              121,
-              122,
-              123,
-              124
-            ],
-            "Y": [
-              44,
-              45
-            ]
-          }
-        },
         "lessthan": {
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 1
           },
@@ -320,49 +252,13 @@
             ]
           }
         },
-        "struct_slice_1": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 0,
-            "A_WIDTH": 10,
-            "Y_WIDTH": 8
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              162,
-              163,
-              164,
-              165,
-              166,
-              167,
-              168,
-              169,
-              170,
-              171
-            ],
-            "Y": [
-              125,
-              126,
-              127,
-              128,
-              129,
-              130,
-              131,
-              132
-            ]
-          }
-        },
         "lessthan_0": {
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 1
           },
@@ -453,49 +349,13 @@
             ]
           }
         },
-        "struct_slice_3": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 0,
-            "A_WIDTH": 10,
-            "Y_WIDTH": 8
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              195,
-              196,
-              197,
-              198,
-              199,
-              200,
-              201,
-              202,
-              203,
-              204
-            ],
-            "Y": [
-              133,
-              134,
-              135,
-              136,
-              137,
-              138,
-              139,
-              140
-            ]
-          }
-        },
         "lessthan_1": {
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 1
           },
@@ -554,30 +414,30 @@
           },
           "connections": {
             "A": [
-              115,
-              116,
-              117,
-              118,
-              119,
-              120,
-              121,
-              122,
-              123,
-              124
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204
             ],
             "payload": [
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53
+              133,
+              134,
+              135,
+              136,
+              137,
+              138,
+              139,
+              140
             ],
             "index": [
-              44,
-              45
+              205,
+              206
             ]
           }
         },
@@ -654,17 +514,105 @@
           },
           "connections": {
             "A": [
-              195,
-              196,
-              197,
-              198,
-              199,
-              200,
-              201,
-              202,
-              203,
-              204
+              115,
+              116,
+              117,
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124
             ],
+            "payload": [
+              46,
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53
+            ],
+            "index": [
+              44,
+              45
+            ]
+          }
+        },
+        "struct_concat_1_d0": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d0",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "index",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "payload": "input",
+            "index": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "payload": [
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132
+            ],
+            "index": [
+              172,
+              173
+            ],
+            "Y": [
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104
+            ]
+          }
+        },
+        "struct_concat_2_d1": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d1",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "index",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "payload": "input",
+            "index": "input",
+            "Y": "output"
+          },
+          "connections": {
             "payload": [
               133,
               134,
@@ -678,10 +626,122 @@
             "index": [
               205,
               206
+            ],
+            "Y": [
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114
             ]
           }
         },
-        "struct_concat_1_d0": {
+        "struct_concat_1_d0_0": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d0",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "index",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "payload": "input",
+            "index": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "payload": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "index": [
+              207,
+              208
+            ],
+            "Y": [
+              142,
+              143,
+              144,
+              145,
+              146,
+              147,
+              148,
+              149,
+              150,
+              151
+            ]
+          }
+        },
+        "struct_concat_2_d1_0": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d1",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "index",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "payload": "input",
+            "index": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "payload": [
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "index": [
+              209,
+              210
+            ],
+            "Y": [
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159,
+              160,
+              161
+            ]
+          }
+        },
+        "struct_concat_1_d0_1": {
           "hide_name": 0,
           "type": "$struct_pack",
           "parameters": {
@@ -731,7 +791,7 @@
             ]
           }
         },
-        "struct_concat_2_d1": {
+        "struct_concat_2_d1_1": {
           "hide_name": 0,
           "type": "$struct_pack",
           "parameters": {
@@ -781,7 +841,7 @@
             ]
           }
         },
-        "const_0_2_h0": {
+        "const_0_2_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -796,7 +856,7 @@
             ]
           }
         },
-        "const_1_2_h1": {
+        "const_1_2_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -811,7 +871,7 @@
             ]
           }
         },
-        "const_2_2_h2": {
+        "const_2_2_h2_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -826,7 +886,7 @@
             ]
           }
         },
-        "const_3_2_h3": {
+        "const_3_2_h3_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1092,6 +1152,90 @@
           },
           "attributes": {}
         },
+        "d0": {
+          "bits": [
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "logic_type": {
+            "typeName": "_IndexedCandidate<Logic>",
+            "fields": [
+              {
+                "name": "payload",
+                "width": 8,
+                "bits": [
+                  95,
+                  96,
+                  97,
+                  98,
+                  99,
+                  100,
+                  101,
+                  102
+                ]
+              },
+              {
+                "name": "index",
+                "width": 2,
+                "bits": [
+                  103,
+                  104
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "d1": {
+          "bits": [
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114
+          ],
+          "logic_type": {
+            "typeName": "_IndexedCandidate<Logic>",
+            "fields": [
+              {
+                "name": "payload",
+                "width": 8,
+                "bits": [
+                  105,
+                  106,
+                  107,
+                  108,
+                  109,
+                  110,
+                  111,
+                  112
+                ]
+              },
+              {
+                "name": "index",
+                "width": 2,
+                "bits": [
+                  113,
+                  114
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
         "out": {
           "bits": [
             115,
@@ -1172,6 +1316,90 @@
           ],
           "logic_type": {
             "width": 1
+          },
+          "attributes": {}
+        },
+        "d0_0": {
+          "bits": [
+            142,
+            143,
+            144,
+            145,
+            146,
+            147,
+            148,
+            149,
+            150,
+            151
+          ],
+          "logic_type": {
+            "typeName": "_IndexedCandidate<Logic>",
+            "fields": [
+              {
+                "name": "payload",
+                "width": 8,
+                "bits": [
+                  142,
+                  143,
+                  144,
+                  145,
+                  146,
+                  147,
+                  148,
+                  149
+                ]
+              },
+              {
+                "name": "index",
+                "width": 2,
+                "bits": [
+                  150,
+                  151
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "d1_0": {
+          "bits": [
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            160,
+            161
+          ],
+          "logic_type": {
+            "typeName": "_IndexedCandidate<Logic>",
+            "fields": [
+              {
+                "name": "payload",
+                "width": 8,
+                "bits": [
+                  152,
+                  153,
+                  154,
+                  155,
+                  156,
+                  157,
+                  158,
+                  159
+                ]
+              },
+              {
+                "name": "index",
+                "width": 2,
+                "bits": [
+                  160,
+                  161
+                ]
+              }
+            ]
           },
           "attributes": {}
         },

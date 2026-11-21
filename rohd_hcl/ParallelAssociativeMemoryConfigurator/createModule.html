@@ -59,7 +59,7 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
     </ol>
   </div>
-<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Module-class.html">Module</a></span>
+<span class="returntype"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a></span>
 <span class="name ">createModule</span>(<wbr>)
 
       <div class="features"><span class="feature">override</span></div>
@@ -67,7 +67,7 @@
     </section>
     
 <section class="desc markdown">
-  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Module-class.html">Module</a> instance as configured.</p>
+  <p>Creates a <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a> instance as configured.</p>
 </section>
 
 
@@ -82,13 +82,13 @@ Module createModule() {
     reset: Logic(name: &#39;reset&#39;),
     updates: [
       for (var i = 0; i &lt; updateCountKnob.value; i++)
-        AssociativeUpdatePortInterface(
-            keyWidth: keyWidthKnob.value, indexWidth: indexWidth),
+        TypedAssociativeUpdatePortInterface(Logic(width: keyWidthKnob.value),
+            indexWidth: indexWidth),
     ],
     lookups: [
       for (var i = 0; i &lt; lookupCountKnob.value; i++)
-        AssociativeLookupPortInterface(
-            keyWidth: keyWidthKnob.value, indexWidth: indexWidth),
+        TypedAssociativeLookupPortInterface(Logic(width: keyWidthKnob.value),
+            indexWidth: indexWidth),
     ],
     entryCount: entryCountKnob.value,
     contract: const AssociativeMemoryContract(
@@ -132,7 +132,7 @@ Module createModule() {
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.2
+      0.3.3
   </span>
   
 </footer>

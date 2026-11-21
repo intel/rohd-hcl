@@ -197,6 +197,7 @@
           "hide_name": 0,
           "type": "$not",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 9,
             "Y_WIDTH": 9
           },
@@ -281,7 +282,7 @@
             ]
           }
         },
-        "const_0_9_h1": {
+        "const_0_9_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},

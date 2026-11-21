@@ -265,7 +265,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -291,7 +293,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -372,7 +376,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -419,7 +425,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -466,7 +474,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -513,7 +523,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -560,7 +572,9 @@
           "hide_name": 0,
           "type": "$eq",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -586,7 +600,9 @@
           "hide_name": 0,
           "type": "$eq",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -688,7 +704,7 @@
             ]
           }
         },
-        "const_0_8_h0": {
+        "const_0_8_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -709,7 +725,7 @@
             ]
           }
         },
-        "const_1_8_h0": {
+        "const_1_8_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -730,7 +746,7 @@
             ]
           }
         },
-        "const_2_8_h0": {
+        "const_2_8_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -751,7 +767,7 @@
             ]
           }
         },
-        "const_3_8_h0": {
+        "const_3_8_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -772,7 +788,7 @@
             ]
           }
         },
-        "const_4_1_h1": {
+        "const_4_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -786,7 +802,7 @@
             ]
           }
         },
-        "const_5_1_h0": {
+        "const_5_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -1450,7 +1466,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1502,7 +1520,9 @@
           "hide_name": 0,
           "type": "$ge",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 2,
+            "B_SIGNED": 0,
             "B_WIDTH": 2,
             "Y_WIDTH": 1
           },
@@ -1530,7 +1550,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1556,7 +1578,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1656,83 +1680,13 @@
             ]
           }
         },
-        "struct_slice": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 0,
-            "A_WIDTH": 8,
-            "Y_WIDTH": 8
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              127,
-              128,
-              129,
-              130,
-              131,
-              132,
-              133,
-              134
-            ],
-            "Y": [
-              66,
-              67,
-              68,
-              69,
-              70,
-              71,
-              72,
-              73
-            ]
-          }
-        },
-        "struct_slice_0": {
-          "hide_name": 0,
-          "type": "$slice",
-          "parameters": {
-            "OFFSET": 0,
-            "A_WIDTH": 8,
-            "Y_WIDTH": 8
-          },
-          "attributes": {},
-          "port_directions": {
-            "A": "input",
-            "Y": "output"
-          },
-          "connections": {
-            "A": [
-              135,
-              136,
-              137,
-              138,
-              139,
-              140,
-              141,
-              142
-            ],
-            "Y": [
-              74,
-              75,
-              76,
-              77,
-              78,
-              79,
-              80,
-              81
-            ]
-          }
-        },
         "and__1": {
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1758,7 +1712,9 @@
           "hide_name": 0,
           "type": "$and",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1784,7 +1740,9 @@
           "hide_name": 0,
           "type": "$ge",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 2,
+            "B_SIGNED": 0,
             "B_WIDTH": 2,
             "Y_WIDTH": 1
           },
@@ -1838,7 +1796,9 @@
           "hide_name": 0,
           "type": "$sub",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1864,7 +1824,9 @@
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 2,
+            "B_SIGNED": 0,
             "B_WIDTH": 2,
             "Y_WIDTH": 1
           },
@@ -1892,7 +1854,9 @@
           "hide_name": 0,
           "type": "$sub",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 1,
+            "B_SIGNED": 0,
             "B_WIDTH": 1,
             "Y_WIDTH": 1
           },
@@ -1918,7 +1882,9 @@
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 2,
+            "B_SIGNED": 0,
             "B_WIDTH": 2,
             "Y_WIDTH": 1
           },
@@ -1942,47 +1908,7 @@
             ]
           }
         },
-        "struct_unpack_0_control_reg0_backdoor_reg0": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "control_reg0_backdoor_reg0",
-            "FIELD_COUNT": 1,
-            "FIELD_0_NAME": "data",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "data": "output"
-          },
-          "connections": {
-            "A": [
-              127,
-              128,
-              129,
-              130,
-              131,
-              132,
-              133,
-              134
-            ],
-            "data": [
-              66,
-              67,
-              68,
-              69,
-              70,
-              71,
-              72,
-              73
-            ]
-          }
-        },
-        "struct_unpack_1_control_reg1_backdoor_reg1": {
+        "struct_unpack_0_control_reg1_backdoor_reg1": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -2019,6 +1945,46 @@
               79,
               80,
               81
+            ]
+          }
+        },
+        "struct_unpack_1_control_reg0_backdoor_reg0": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "control_reg0_backdoor_reg0",
+            "FIELD_COUNT": 1,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output"
+          },
+          "connections": {
+            "A": [
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134
+            ],
+            "data": [
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73
             ]
           }
         },
@@ -2102,7 +2068,7 @@
             ]
           }
         },
-        "const_0_1_h0": {
+        "const_0_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2116,7 +2082,7 @@
             ]
           }
         },
-        "const_1_2_h0": {
+        "const_1_2_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2131,7 +2097,7 @@
             ]
           }
         },
-        "const_2_2_h0": {
+        "const_2_2_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2146,7 +2112,7 @@
             ]
           }
         },
-        "const_3_1_h0": {
+        "const_3_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2160,7 +2126,7 @@
             ]
           }
         },
-        "const_4_1_h0": {
+        "const_4_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2174,7 +2140,7 @@
             ]
           }
         },
-        "const_5_2_h2": {
+        "const_5_2_h2_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2189,7 +2155,7 @@
             ]
           }
         },
-        "const_6_1_h0": {
+        "const_6_1_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2203,7 +2169,7 @@
             ]
           }
         },
-        "const_7_2_h2": {
+        "const_7_2_h2_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
@@ -2747,21 +2713,7 @@
             "computed": 1
           }
         },
-        "struct_slice_Y": {
-          "bits": [
-            66,
-            67,
-            68,
-            69,
-            70,
-            71,
-            72,
-            73
-          ],
-          "hide_name": 1,
-          "attributes": {}
-        },
-        "struct_slice_0_Y": {
+        "struct_unpack_0_control_reg1_backdoor_reg1_data": {
           "bits": [
             74,
             75,
@@ -2771,6 +2723,20 @@
             79,
             80,
             81
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "struct_unpack_1_control_reg0_backdoor_reg0_data": {
+          "bits": [
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73
           ],
           "hide_name": 1,
           "attributes": {}

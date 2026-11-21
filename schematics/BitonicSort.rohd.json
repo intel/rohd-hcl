@@ -139,7 +139,9 @@
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 4,
+            "B_SIGNED": 0,
             "B_WIDTH": 4,
             "Y_WIDTH": 1
           },
@@ -411,7 +413,9 @@
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 4,
+            "B_SIGNED": 0,
             "B_WIDTH": 4,
             "Y_WIDTH": 1
           },
@@ -1285,7 +1289,9 @@
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 4,
+            "B_SIGNED": 0,
             "B_WIDTH": 4,
             "Y_WIDTH": 1
           },
@@ -1705,7 +1711,9 @@
           "hide_name": 0,
           "type": "$lt",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 4,
+            "B_SIGNED": 0,
             "B_WIDTH": 4,
             "Y_WIDTH": 1
           },

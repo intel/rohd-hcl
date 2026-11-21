@@ -104,7 +104,7 @@
             ]
           }
         },
-        "const_0_8_h0": {
+        "const_0_8_h0_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},

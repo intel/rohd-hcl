@@ -60,8 +60,8 @@
     </ol>
   </div>
 <span class="returntype">void</span>
-<span class="name ">connectIO</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="connectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span></li>
-<li><span class="parameter" id="connectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Interface-class.html">Interface</a></span> <span class="parameter-name">srcInterface</span>, {</span></li>
+<span class="name ">connectIO</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="connectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span></li>
+<li><span class="parameter" id="connectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a></span> <span class="parameter-name">srcInterface</span>, {</span></li>
 <li><span class="parameter" id="connectIO-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span></li>
 <li><span class="parameter" id="connectIO-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span></li>
 <li><span class="parameter" id="connectIO-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/DataPortGroup.html">DataPortGroup</a></span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span></li>
@@ -75,18 +75,18 @@
     
 <section class="desc markdown">
   <p>Connects <code>module</code>'s inputs, outputs, and inOuts up to <code>srcInterface</code> and
-this <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Interface-class.html">Interface</a>.</p>
-<p>The <code>srcInterface</code> should be an external instance of the <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Interface-class.html">Interface</a>
+this <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a>.</p>
+<p>The <code>srcInterface</code> should be an external instance of the <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a>
 passed in from outside the <code>module</code>, and <a href="../../rohd_hcl/TagInterface/connectIO.html">connectIO</a> should be called on a
-new instance of the <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Interface-class.html">Interface</a> to be used by <code>module</code> for all input and
+new instance of the <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a> to be used by <code>module</code> for all input and
 output connectivity.  For example:</p>
 <pre class="language-dart"><code class="language-dart">MyMod(MyIntf srcIntf) {
   srcIntf = MyIntf(args)..connectIO(this, srcIntf, inputTags: ... );
 }
 </code></pre>
 <p>All signals in the interface with specified <code>TagType</code> will be connected
-to the <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Module-class.html">Module</a> via <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Module/addInput.html">Module.addInput</a>, <a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Module/addOutput.html">Module.addOutput</a>, or
-<a href="https://pub.dev/documentation/rohd/0.7.4/rohd/Module/addInOut.html">Module.addInOut</a> based on <code>inputTags</code>, <code>outputTags</code>, and <code>inOutTags</code>,
+to the <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a> via <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module/addInput.html">Module.addInput</a>, <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module/addOutput.html">Module.addOutput</a>, or
+<a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module/addInOut.html">Module.addInOut</a> based on <code>inputTags</code>, <code>outputTags</code>, and <code>inOutTags</code>,
 respectively. <code>uniquify</code> can be used to uniquifiy port names by
 manipulating the original name of the port.</p>
 <p>If <code>inputTags</code>, <code>outputTags</code>, or <code>inOutTags</code> is not specified, then,
@@ -162,7 +162,7 @@ void connectIO(Module module, Interface&lt;dynamic&gt; srcInterface,
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.2
+      0.3.3
   </span>
   
 </footer>

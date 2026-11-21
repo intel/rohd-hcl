@@ -46,7 +46,9 @@
           "hide_name": 0,
           "type": "$xor",
           "parameters": {
+            "A_SIGNED": 0,
             "A_WIDTH": 8,
+            "B_SIGNED": 0,
             "B_WIDTH": 8,
             "Y_WIDTH": 8
           },
@@ -131,7 +133,7 @@
             ]
           }
         },
-        "const_0_1_h1": {
+        "const_0_1_h1_driver": {
           "hide_name": 0,
           "type": "$const",
           "parameters": {},
