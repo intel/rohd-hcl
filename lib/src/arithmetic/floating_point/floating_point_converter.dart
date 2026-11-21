@@ -226,6 +226,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
 
     final nan = source.isNaN;
     final Logic overflow;
+    final Logic roundedExponent;
     final Logic destExponent;
     final Logic destMantissa;
     final Logic biasDiff;
@@ -343,6 +344,8 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               : roundedMantissa)
           .named('destMantissa');
 
+      // One extra bit so that a rounding carry out of the all-ones exponent
+      // is still seen by the overflow check below.
       final Logic preExponent;
       if (destExponentWidth > source.exponent.width) {
         final predictExp = (se + biasDiff).named('predictExp');
@@ -351,23 +354,25 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
                 fullDiff - (leadOne - Const(1, width: leadOne.width)),
                 fullDiff - shift)
             .named('predictSubExp');
-        preExponent = mux(shift.gt(Const(0, width: shift.width)), predictSub,
-                predictExp) +
-            roundIncExp.zeroExtend(predictSub.width);
+        preExponent =
+            mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
+                    .zeroExtend(maxExpWidth + 1) +
+                roundIncExp.zeroExtend(maxExpWidth + 1);
       } else {
-        preExponent = se + roundIncExp.zeroExtend(se.width).named('rndIncExp');
+        preExponent = se.zeroExtend(maxExpWidth + 1) +
+            roundIncExp.zeroExtend(maxExpWidth + 1).named('rndIncExp');
       }
+      roundedExponent = preExponent.named('roundedExponent');
       destExponent =
           preExponent.getRange(0, destExponentWidth).named('destExponent');
 
       final largestFinite = destination
           .valuePopulator()
           .ofConstant(FloatingPointConstants.largestNormal);
-      final maxDestExp = Const(largestFinite.exponent, width: maxExpWidth);
+      final maxDestExp = Const(largestFinite.exponent, width: maxExpWidth + 1);
       final maxDestMantissa = Const(largestFinite.mantissa);
-      overflow = destExponent.zeroExtend(maxExpWidth).gt(maxDestExp) |
-          (destExponent.zeroExtend(maxExpWidth).eq(maxDestExp) &
-              destMantissa.gt(maxDestMantissa));
+      overflow = roundedExponent.gt(maxDestExp) |
+          (roundedExponent.eq(maxDestExp) & destMantissa.gt(maxDestMantissa));
     } else {
       // Wide to Narrow exponent
       final biasDiff = (sBias - dBias).named('biasDiff');
@@ -447,23 +452,27 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
               newSe - biasDiff)
           .named('predictExponent');
 
-      destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
-          .getRange(0, destExponentWidth)
-          .named('destExponent');
+      // Keep the rounding carry: with an exponent that reaches all ones for
+      // finite values (OFP8 E4M3), truncating first wraps it to zero.
+      roundedExponent = (predictEN.zeroExtend(maxExpWidth + 1) +
+              roundIncExp.zeroExtend(maxExpWidth + 1))
+          .named('roundedExponent');
+      destExponent =
+          roundedExponent.getRange(0, destExponentWidth).named('destExponent');
 
       final maxDestExp = Const(
           destination.floatingPointValue.maxExponent +
               destination.floatingPointValue.bias,
-          width: maxExpWidth);
+          width: maxExpWidth + 1);
       final largestFinite = destination
           .valuePopulator()
           .ofConstant(FloatingPointConstants.largestNormal);
       final maxDestMantissa = Const(largestFinite.mantissa);
 
-      overflow = (newSe.gt(biasDiff) & (newSe - biasDiff).gt(maxDestExp)) |
-          destExponent.zeroExtend(maxDestExp.width).gt(maxDestExp) |
-          (destExponent.zeroExtend(maxDestExp.width).eq(maxDestExp) &
-              destMantissa.gt(maxDestMantissa));
+      overflow = (newSe.gt(biasDiff) &
+              (newSe - biasDiff).zeroExtend(maxDestExp.width).gt(maxDestExp)) |
+          roundedExponent.gt(maxDestExp) |
+          (roundedExponent.eq(maxDestExp) & destMantissa.gt(maxDestMantissa));
     }
     final overflowToInfinity = switch (roundingMode) {
       FloatingPointRoundingMode.roundNearestEven ||
@@ -483,7 +492,7 @@ class FloatingPointConverter<FpTypeIn extends FloatingPoint,
     _status.invalid <= source.isSignalingNaN;
     _status.divideByZero <= Const(0);
     _status.overflow <= finiteOverflow;
-    _status.underflow <= ~destExponent.or() & finiteRoundingInexact;
+    _status.underflow <= ~roundedExponent.or() & finiteRoundingInexact;
     _status.inexact <= finiteOverflow | finiteRoundingInexact;
     Combinational([
       If.block([
