@@ -11,6 +11,9 @@
 
 set -euo pipefail
 
+export ROHD_REQUIRE_VERILATOR=1
+export ROHD_REQUIRE_SYSTEMC=1
+
 # Match the Dart SDK used by Flutter to resolve this workspace, while invoking
 # package:test directly for this package's pure-Dart tests.
 flutter_bin_dir="$(dirname "$(readlink -f "$(command -v flutter)")")"

@@ -56,7 +56,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(arbiter, vectors);
     SimCompare.checkIverilogVector(arbiter, vectors);
-    expect(SimCompare.checkVerilatorVector(arbiter, vectors), isTrue);
+    SimCompare.checkVerilatorVector(arbiter, vectors);
   });
 
   group('round robin', () {

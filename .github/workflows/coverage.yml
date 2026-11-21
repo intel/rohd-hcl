@@ -38,6 +38,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y iverilog verilator g++ libsystemc-dev lcov
 
       - name: Generate coverage and badge
+        env:
+          ROHD_REQUIRE_VERILATOR: '1'
+          ROHD_REQUIRE_SYSTEMC: '1'
         run: |
           tool/generate_coverage.sh --generate-svg
           mkdir -p build/coverage-badge

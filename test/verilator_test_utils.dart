@@ -13,6 +13,19 @@ import 'package:rohd/rohd.dart';
 import 'package:test/test.dart';
 
 void expectNoVerilatorWarnings(Module dut, List<String> warningNames) {
+  try {
+    Process.runSync('verilator', ['--version']);
+  } on ProcessException catch (error) {
+    if (error.errorCode != 2) {
+      rethrow;
+    }
+    const reason = 'Verilator executable not found.';
+    if (Platform.environment['ROHD_REQUIRE_VERILATOR'] == '1') {
+      fail(reason);
+    }
+    markTestSkipped(reason);
+    return;
+  }
   final dir = Directory.systemTemp.createTempSync('rohd_hcl_verilator_');
   try {
     final source = File('${dir.path}/design.sv')

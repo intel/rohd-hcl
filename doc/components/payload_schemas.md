@@ -95,10 +95,9 @@ as malformed clones or custom output generators. Where applicable, cover
 pairwise selection, nested schemas and array codecs, constants, parent-renamed
 clones, and module hierarchy or generated RTL.
 
-These HCL helpers work with hosted ROHD 0.7.3 and 0.7.4. The
-`samePayloadShape` compatibility helper uses ROHD 0.7.3's
-`sameDeclaredPayloadShape` name through its 0.7.4 compatibility alias; it can
-be replaced with the public `sameRohdPayloadShape` when HCL requires 0.7.4.
+HCL requires ROHD 0.7.5 or later in the 0.7.x series. The
+`samePayloadShape` helper still uses the compatibility alias for
+`sameDeclaredPayloadShape`; it can migrate to the public `sameRohdPayloadShape`.
 The helpers remain in HCL until an
 appropriate additive ROHD API is released and a later HCL release can migrate
 and deprecate the redundant helpers. The proposed ROHD pairwise compatibility

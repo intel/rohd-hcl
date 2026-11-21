@@ -827,8 +827,13 @@ is not yet available.
   `TypedAssociativeLookupPortInterface<T>` retain a key schema through clones
   and module ports. The corresponding positive-latency lookup is
   `SynchronousAssociativeLookupPortInterface<T>` from its direct import above.
-  Drive the port's cloned
-  key, not the schema object.
+  Drive the port's cloned key, not the schema object.
+
+The old `keyWidth:` update and lookup constructors are deprecated. Pass
+`Logic(width: keyWidth)` to the corresponding typed constructor to keep a
+packed key. The base interface types remain supported. For packed callbacks,
+replace `AssociativeKeyComparator` with `TypedAssociativeKeyComparator<Logic>`
+and `AssociativeMatchPreference` with `TypedAssociativeMatchPreference<Logic>`.
 
 All ports must have matching key and index widths; the index must represent
 every entry, and at least one lookup port is required. Declared structured
@@ -845,9 +850,10 @@ all matches, and makes the highest-numbered update port win if multiple ports
 update the same entry.
 
 ```dart
-final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
-final lookup = AssociativeLookupPortInterface(
-    keyWidth: 8, indexWidth: 2, matchEntryCount: 4);
+final update =
+    TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2);
+final lookup = TypedAssociativeLookupPortInterface(
+    Logic(width: 8), indexWidth: 2, matchEntryCount: 4);
 
 final memory = ParallelAssociativeMemory(
   clk: clk,
@@ -877,7 +883,7 @@ to search. When lookup is disabled, `hit`, `index`, and the match vector are
 zero. `memory.validCount`, `memory.full`, and `memory.empty` are available only
 when `enableValidTracking` is true.
 
-For typed keys, replace the scalar ports with
+For structured keys, replace the packed schemas with
 `TypedAssociativeUpdatePortInterface<YourKey>(schema, indexWidth: 2)` and
 `TypedAssociativeLookupPortInterface<YourKey>(schema, indexWidth: 2,
 matchEntryCount: 4)`. Both ports clone the schema; wire or drive their `key`

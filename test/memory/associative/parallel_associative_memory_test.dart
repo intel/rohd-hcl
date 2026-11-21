@@ -277,9 +277,12 @@ class _Harness<T extends Logic> extends Module {
 
 class _CollisionHarness extends Module {
   _CollisionHarness(AssociativeUpdateCollisionPolicy collision) {
-    final update0 = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 1);
-    final update1 = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 1);
-    final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 1);
+    final update0 =
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 1);
+    final update1 =
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 1);
+    final lookup =
+        TypedAssociativeLookupPortInterface(Logic(width: 8), indexWidth: 1);
     final write = addInput('write', Logic());
     final index = addInput('address', Logic());
     for (final update in [update0, update1]) {
@@ -354,9 +357,10 @@ class _MultiSideReadHarness extends Module {
   _MultiSideReadHarness() {
     final updates = [
       for (var i = 0; i < 2; i++)
-        AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2)
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2)
     ];
-    final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2);
+    final lookup =
+        TypedAssociativeLookupPortInterface(Logic(width: 8), indexWidth: 2);
     final sides = [
       for (var i = 0; i < 2; i++)
         AssociativeIndexedSideReadRequest(indexWidth: 2)
@@ -666,8 +670,10 @@ void main() {
   });
 
   test('side-read binding requires a matching request and index width', () {
-    final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
-    final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2);
+    final update =
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2);
+    final lookup =
+        TypedAssociativeLookupPortInterface(Logic(width: 8), indexWidth: 2);
     AssociativeMemoryRequest request({required bool sideRead}) =>
         AssociativeMemoryRequest.fromPorts(
           updatePorts: [update],
@@ -733,8 +739,10 @@ void main() {
   });
 
   test('multiple indexed side reads require matching ports and builder', () {
-    final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
-    final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2);
+    final update =
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2);
+    final lookup =
+        TypedAssociativeLookupPortInterface(Logic(width: 8), indexWidth: 2);
     AssociativeMemoryRequest request(int count) =>
         AssociativeMemoryRequest.fromPorts(
           updatePorts: [update],
@@ -818,8 +826,12 @@ void main() {
     final binding = functor(
       clk: Logic(),
       reset: Logic(),
-      updatePorts: [AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2)],
-      lookupPorts: [AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2)],
+      updatePorts: [
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2),
+      ],
+      lookupPorts: [
+        TypedAssociativeLookupPortInterface(Logic(width: 8), indexWidth: 2),
+      ],
       entryCount: 3,
       lookupLatency: 0,
       duplicateKeyPolicy: AssociativeDuplicateKeyPolicy.allow,
@@ -833,7 +845,11 @@ void main() {
     expect(binding.memory, isA<ParallelAssociativeMemory>());
     expect(binding.memory!.typedSideReadResponses(Logic(width: 8)), isEmpty);
     expect(binding.memory!.typedSideReadResponse(Logic(width: 8)), isNull);
+    // Exercise the published packed constructors on the legacy provider path.
+    // ignore: deprecated_member_use_from_same_package
     final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
+    // Keep the lookup on the published packed path as well.
+    // ignore: deprecated_member_use_from_same_package
     final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2);
     final legacyRequest = AssociativeMemoryRequest.fromPorts(
       updatePorts: [update],
@@ -861,8 +877,10 @@ void main() {
   });
 
   test('validity-only binding validates the built mask', () {
-    final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
-    final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2);
+    final update =
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2);
+    final lookup =
+        TypedAssociativeLookupPortInterface(Logic(width: 8), indexWidth: 2);
     final functor = AssociativeMemoryFunctor(
       identity: 'missingMask',
       capabilities: parallelAssociativeMemoryFunctor.capabilities,

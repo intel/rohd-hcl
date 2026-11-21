@@ -248,7 +248,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
   await dut.build();
   await SimCompare.checkFunctionalVector(dut, vectors);
   if (systemC) {
-    expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+    SimCompare.checkSystemCVector(dut, vectors);
   } else {
     SimCompare.checkIverilogVector(dut, vectors);
   }

@@ -451,12 +451,15 @@ class Cache<T extends Logic> extends Module {
     for (var set = 0; set < setCount; set++) {
       final lookupSelected = selects(localLookupAddress, set);
       final fillSelected = selects(localFillAddress, set);
-      final update = AssociativeUpdatePortInterface(
-          keyWidth: fillAddress.width, indexWidth: wayWidth);
-      final lookup = AssociativeLookupPortInterface(
-          keyWidth: fillAddress.width, indexWidth: wayWidth);
-      final fillLookup = AssociativeLookupPortInterface(
-          keyWidth: fillAddress.width, indexWidth: wayWidth);
+      final update = TypedAssociativeUpdatePortInterface(
+          Logic(width: fillAddress.width),
+          indexWidth: wayWidth);
+      final lookup = TypedAssociativeLookupPortInterface(
+          Logic(width: fillAddress.width),
+          indexWidth: wayWidth);
+      final fillLookup = TypedAssociativeLookupPortInterface(
+          Logic(width: fillAddress.width),
+          indexWidth: wayWidth);
       final sideRead = AssociativeIndexedSideReadRequest(indexWidth: wayWidth);
       final lookupAccess = ReplacementAccessInterface(waysPerSet);
       final fillAccess = ReplacementAccessInterface(waysPerSet);
@@ -865,18 +868,18 @@ class MultiPortCache<T extends Logic> extends Module {
         }
         final probes = [
           for (var i = 0; i < lookups.length; i++)
-            AssociativeLookupPortInterface(
-                keyWidth: addressWidth, indexWidth: wayWidth)
+            TypedAssociativeLookupPortInterface(Logic(width: addressWidth),
+                indexWidth: wayWidth)
         ];
         final fillProbes = [
           for (var i = 0; i < fills.length; i++)
-            AssociativeLookupPortInterface(
-                keyWidth: addressWidth, indexWidth: wayWidth)
+            TypedAssociativeLookupPortInterface(Logic(width: addressWidth),
+                indexWidth: wayWidth)
         ];
         final updates = [
           for (var i = 0; i < fills.length; i++)
-            AssociativeUpdatePortInterface(
-                keyWidth: addressWidth, indexWidth: wayWidth)
+            TypedAssociativeUpdatePortInterface(Logic(width: addressWidth),
+                indexWidth: wayWidth)
         ];
         final sides = [
           for (var i = 0; i < fills.length; i++)
@@ -1050,15 +1053,17 @@ class MultiPortCache<T extends Logic> extends Module {
         for (var i = 0; i < fills.length; i++)
           mux(selected[i], fillData[i], Const(0, width: dataWidth))
       ]);
-      final update = AssociativeUpdatePortInterface(
-          keyWidth: addressWidth, indexWidth: wayWidth);
+      final update = TypedAssociativeUpdatePortInterface(
+          Logic(width: addressWidth),
+          indexWidth: wayWidth);
       final probes = [
         for (var i = 0; i < lookups.length; i++)
-          AssociativeLookupPortInterface(
-              keyWidth: addressWidth, indexWidth: wayWidth)
+          TypedAssociativeLookupPortInterface(Logic(width: addressWidth),
+              indexWidth: wayWidth)
       ];
-      final fillProbe = AssociativeLookupPortInterface(
-          keyWidth: addressWidth, indexWidth: wayWidth);
+      final fillProbe = TypedAssociativeLookupPortInterface(
+          Logic(width: addressWidth),
+          indexWidth: wayWidth);
       final side = AssociativeIndexedSideReadRequest(indexWidth: wayWidth);
       final accesses = [
         for (var i = 0; i < lookups.length + 1; i++)

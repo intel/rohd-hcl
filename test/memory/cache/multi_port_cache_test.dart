@@ -490,7 +490,7 @@ void main() {
           if (storage == CacheDataStorage.registerFile) {
             SimCompare.checkIverilogVector(dut, vectors);
             if (parallel && replacement == CacheReplacement.roundRobin) {
-              expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+              SimCompare.checkSystemCVector(dut, vectors);
             }
           }
         });
@@ -921,7 +921,7 @@ void main() {
         if (storage == CacheDataStorage.registerFile) {
           SimCompare.checkIverilogVector(dut, vectors);
           if (parallel) {
-            expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+            SimCompare.checkSystemCVector(dut, vectors);
           }
         }
       });

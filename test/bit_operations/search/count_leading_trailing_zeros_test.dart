@@ -49,7 +49,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+    SimCompare.checkVerilatorVector(dut, vectors);
   });
 
   test('ctz matches reference for every input', () async {
@@ -62,6 +62,6 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+    SimCompare.checkVerilatorVector(dut, vectors);
   });
 }

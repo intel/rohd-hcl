@@ -70,17 +70,19 @@ to develop ROHD-HCL. Flutter provides the Dart SDK and is required because the
 pub workspace contains both the Dart `rohd_hcl` package and the Flutter
 `confapp` package.
 
-The root test suite also requires Icarus Verilog, Verilator, a C++17-capable
-`g++`, and SystemC headers and libraries. On Ubuntu, install these with:
+The root test suite uses Icarus Verilog. Verilator and SystemC checks are
+optional locally and skip when their toolchains are unavailable. On Ubuntu,
+install the native dependencies for full coverage with:
 
 ```shell
 sudo apt-get update
 sudo apt-get install -y iverilog verilator g++ libsystemc-dev
 ```
 
-CI and the development-container setup install these dependencies. The CSR
-SystemC tests compile and execute generated models; missing native dependencies
-are test failures, not skipped coverage.
+CI and the development-container setup install these dependencies. Set
+`ROHD_REQUIRE_VERILATOR=1` and `ROHD_REQUIRE_SYSTEMC=1` to require both optional
+backends, as CI does. A failure compiling or running a generated design with
+an available tool is still a test failure.
 
 ROHD caches a precompiled SystemC header in `tmp_test/pch`. If SystemC is
 upgraded or replaced, linker errors mentioning a different `sc_api_version` can
@@ -140,6 +142,15 @@ cd rohd-hcl
 flutter pub get
 dart test
 ```
+
+The optional `test/netlist_yosys_components_test.dart` compares selected
+combinational components' ROHD JSON and SystemVerilog using Yosys. It requires
+a local ROHD checkout with `omitRohdMetadata` and
+`tool/yosys_netlist_miter.dart`, plus `yosys` on `PATH` (or `ROHD_YOSYS` set to
+its executable). The test skips when the local ROHD support or Yosys is absent;
+when ROHD support is present, an explicitly configured but invalid `ROHD_YOSYS`
+fails. These are two-state combinational checks, and their techmaps are
+specific to the tested configurations, not general models for every design.
 
 The checked-in root `pubspec_overrides.yaml` defines the local Pub workspace
 containing `confapp`, so dependency resolution is shared and should be run from

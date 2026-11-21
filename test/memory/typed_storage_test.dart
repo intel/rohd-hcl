@@ -232,10 +232,10 @@ Future<void> _compare(Module dut, List<Vector> vectors,
   await dut.build();
   await SimCompare.checkFunctionalVector(dut, vectors);
   if (systemC) {
-    expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+    SimCompare.checkSystemCVector(dut, vectors);
   } else if (verilator) {
     SimCompare.checkIverilogVector(dut, vectors);
-    expect(SimCompare.checkVerilatorVector(dut, vectors), isTrue);
+    SimCompare.checkVerilatorVector(dut, vectors);
   } else {
     SimCompare.checkIverilogVector(dut, vectors);
   }

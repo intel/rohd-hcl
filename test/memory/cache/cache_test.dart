@@ -644,7 +644,7 @@ void main() {
         SimCompare.checkIverilogVector(dut, vectors);
       }
       if (label == 'set associative') {
-        expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+        SimCompare.checkSystemCVector(dut, vectors);
       }
     });
   }

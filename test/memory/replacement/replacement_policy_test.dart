@@ -198,8 +198,10 @@ class _AssociativeHarness extends Module {
     final allocate = addInput('allocate', Logic());
     final invalidate = addInput('invalidate', Logic());
     final invalidIndex = addInput('invalidIndex', Logic(width: 2), width: 2);
-    final update = AssociativeUpdatePortInterface(keyWidth: 8, indexWidth: 2);
-    final lookup = AssociativeLookupPortInterface(keyWidth: 8, indexWidth: 2);
+    final update =
+        TypedAssociativeUpdatePortInterface(Logic(width: 8), indexWidth: 2);
+    final lookup =
+        TypedAssociativeLookupPortInterface(Logic(width: 8), indexWidth: 2);
     lookup.en <= addInput('lookupEn', Logic());
     lookup.key <= addInput('lookupKey', Logic(width: 8), width: 8);
     final memory = ParallelAssociativeMemory(
@@ -376,7 +378,7 @@ void main() {
         if (!behavioral) {
           SimCompare.checkIverilogVector(dut, vectors);
           if ((!tree && count == 3) || (tree && count == 4)) {
-            expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+            SimCompare.checkSystemCVector(dut, vectors);
           }
         }
       });

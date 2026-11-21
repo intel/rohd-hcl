@@ -21,6 +21,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 const int _dataWidth = 32;
 const int _addrWidth = 8;
 
@@ -621,7 +623,7 @@ Future<Map<bool, _ModeLegs>>? _matrixFuture;
 Future<Map<bool, _ModeLegs>> _matrix() => _matrixFuture ??= _runMatrix();
 
 Future<Map<bool, _ModeLegs>> _runMatrix() async {
-  final haveGpp = _hasTool('g++');
+  final haveSystemC = systemCUnavailable == null;
   final haveIverilog = _hasTool('iverilog');
   final pending = <bool, _Pending>{};
   for (final asyncReset in [false, true]) {
@@ -633,11 +635,11 @@ Future<Map<bool, _ModeLegs>> _runMatrix() async {
     await software.build();
     pending[asyncReset] = _Pending(
       systemVerilog: haveIverilog ? _runSystemVerilog(rtl, _allOps) : null,
-      systemCRtl: haveGpp ? _runSystemCRtl(rtl, _commonOps) : null,
-      systemCFourState: haveGpp
+      systemCRtl: haveSystemC ? _runSystemCRtl(rtl, _commonOps) : null,
+      systemCFourState: haveSystemC
           ? _runSystemCSoftware(software, fourState: true, ops: _allOps)
           : null,
-      systemCTwoState: haveGpp
+      systemCTwoState: haveSystemC
           ? _runSystemCSoftware(software, fourState: false, ops: _commonOps)
           : null,
     );
@@ -680,7 +682,6 @@ void main() {
 
   const matrixTimeout = Timeout(Duration(minutes: 3));
   final skipIverilog = _hasTool('iverilog') ? null : 'iverilog not on PATH';
-  final skipGpp = _hasTool('g++') ? null : 'g++ not on PATH';
 
   group('CSR implementation matrix', () {
     for (final asyncReset in [false, true]) {
@@ -734,7 +735,10 @@ void main() {
       });
 
       test('[$mode] SystemC RTL matches golden trace on the two-state prefix',
-          timeout: matrixTimeout, skip: skipGpp, () async {
+          timeout: matrixTimeout, () async {
+        if (!canRunSystemC()) {
+          return;
+        }
         final legs = (await _matrix())[asyncReset]!;
         final outcome = await legs.systemCRtl!;
         expect(outcome.trace, legs.golden.take(_commonOps.length).toList(),
@@ -742,14 +746,20 @@ void main() {
       });
 
       test('[$mode] SystemC software four-state matches golden trace',
-          timeout: matrixTimeout, skip: skipGpp, () async {
+          timeout: matrixTimeout, () async {
+        if (!canRunSystemC()) {
+          return;
+        }
         final legs = (await _matrix())[asyncReset]!;
         final outcome = await legs.systemCFourState!;
         expect(outcome.trace, legs.golden, reason: outcome.log);
       });
 
       test('[$mode] SystemC software two-state matches golden trace prefix',
-          timeout: matrixTimeout, skip: skipGpp, () async {
+          timeout: matrixTimeout, () async {
+        if (!canRunSystemC()) {
+          return;
+        }
         final legs = (await _matrix())[asyncReset]!;
         final outcome = await legs.systemCTwoState!;
         expect(outcome.trace, legs.golden.take(_commonOps.length).toList(),

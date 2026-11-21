@@ -637,11 +637,13 @@ void main() {
     final clk = Logic()..put(0);
     final reset = Logic()..put(0);
     final updates = List.generate(
-        2, (_) => AssociativeUpdatePortInterface(keyWidth: 4, indexWidth: 2));
+        2,
+        (_) => TypedAssociativeUpdatePortInterface(Logic(width: 4),
+            indexWidth: 2));
     final lookups = List.generate(
         2,
-        (_) => AssociativeLookupPortInterface(
-            keyWidth: 4, indexWidth: 2, matchEntryCount: 3));
+        (_) => TypedAssociativeLookupPortInterface(Logic(width: 4),
+            indexWidth: 2, matchEntryCount: 3));
     for (final update in updates) {
       update
         ..en.put(0)

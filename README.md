@@ -4,19 +4,19 @@ Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespa
 [![Generator Web
 App](https://img.shields.io/badge/Generator_Web_App-live-brightgreen)](https://intel.github.io/rohd-hcl/confapp/)
 [![Tests](https://github.com/intel/rohd-hcl/actions/workflows/general.yml/badge.svg?event=push)](https://github.com/intel/rohd-hcl/actions/workflows/general.yml)
-[![Coverage](https://raw.githubusercontent.com/intel/rohd-hcl/badges/coverage/main.svg)](https://github.com/intel/rohd-hcl/actions/workflows/coverage.yml)
 [![API
 Docs](https://img.shields.io/badge/API%20Docs-generated-success)](https://intel.github.io/rohd-hcl/rohd_hcl/rohd_hcl-library.html)
 [![Chat](https://img.shields.io/discord/1001179329411166267?label=Chat)](https://discord.gg/jubxF84yGw)
 [![License](https://img.shields.io/badge/License-BSD--3-blue)](https://github.com/intel/rohd-hcl/blob/main/LICENSE)
 [![Contributor
 Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](https://github.com/intel/rohd-hcl/blob/main/CODE_OF_CONDUCT.md)
+[![Coverage](https://raw.githubusercontent.com/intel/rohd-hcl/badges/coverage/main.svg)](https://github.com/intel/rohd-hcl/actions/workflows/coverage.yml)
 
 # ROHD Hardware Component Library
 
 A hardware component library developed with
 [ROHD](https://intel.github.io/rohd-website/). This library aims to collect a
-set of reusable, configurable components that can be leveraged in other designs.
+set of reusable, configurable components t//hat can be leveraged in other designs.
 These components are also intended as good examples of ROHD hardware
 implementations.
 

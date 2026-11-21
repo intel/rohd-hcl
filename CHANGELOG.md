@@ -1,4 +1,11 @@
-## Unreleased
+## 0.3.3
+
+- Confapp preserves hierarchical signal paths when cross-probing and avoids resolving a known module's signals in another module.
+- Avoid generating unused input-latch enable logic in unflopped serializers.
+
+### Deprecations
+
+- Deprecated the packed constructors of `AssociativeUpdatePortInterface` and `AssociativeLookupPortInterface` in favor of their `Typed` counterparts, and the flat `AssociativeKeyComparator` and `AssociativeMatchPreference` typedefs in favor of their generic `Typed` counterparts. Use `Logic` as the payload type for packed keys or values; see the [migration guide](doc/components/associative_memory.md#ports-and-typed-keys).
 
 ### New components and APIs
 
@@ -56,7 +63,7 @@
 
 ### Dependencies
 
-- Require hosted ROHD 0.7.3 or later in the 0.7.x series for typed payload support.
+- Require ROHD 0.7.5 or later in the 0.7.x series; Confapp also requires ROHD Hierarchy 0.1.2 or later in the 0.1.x series.
 
 ## 0.3.2
 

@@ -35,6 +35,7 @@ typedef TypedAssociativeMatchPreference<T extends Logic> = Logic Function(
     required String name});
 
 /// Determines preference between flattened selection values.
+@Deprecated('Use TypedAssociativeMatchPreference<Logic> for packed values.')
 typedef AssociativeMatchPreference = TypedAssociativeMatchPreference<Logic>;
 
 /// Prefers a candidate with a lower selection value.

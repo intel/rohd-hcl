@@ -135,6 +135,17 @@ flutter test --no-pub test/hcl/view/hcl_page_test.dart
 flutter build web --debug --no-pub
 ```
 
+To check netlist connectivity and source navigation, and audit canonical
+netlist names and SV FLC positions across default configurators, use hosted
+ROHD 0.7.5 or a compatible local checkout. The opt-in flag also works with
+hosted dependencies:
+
+```bash
+flutter test --no-pub --dart-define=ROHD_LOCAL_NETLIST_TEST=true \
+  test/hcl/view/screen/flc_trace_data_test.dart \
+  test/hcl/view/screen/netlist_connectivity_test.dart
+```
+
 Confapp's browser implementation uses `dart:js_interop` and `package:web`.
 JavaScript remains the supported target; the separately documented Wasm
 launcher is experimental.

@@ -17,6 +17,8 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 AssociativeMemoryRequest _config({
   AssociativeMatchMode mode = AssociativeMatchMode.exact,
   AssociativeDuplicateKeyPolicy duplicates =
@@ -145,6 +147,9 @@ int sc_main(int, char**) {
       await File('${dir.path}/model.h')
           .writeAsString(model.generateSystemC(className: 'Cam'));
       await File('${dir.path}/test.cpp').writeAsString(cpp.toString());
+      if (!canRunSystemC()) {
+        return;
+      }
       final compile = await Process.run('g++', [
         '-std=c++17',
         '${dir.path}/test.cpp',
@@ -244,6 +249,9 @@ int sc_main(int, char**) {
   return 0;
 }
 ''');
+      if (!canRunSystemC()) {
+        return;
+      }
       final compile = await Process.run('g++', [
         '-std=c++17',
         '-O0',
@@ -350,6 +358,9 @@ int sc_main(int, char**) {
       await File('${directory.path}/model.h')
           .writeAsString(model.generateSystemC(className: 'Cam'));
       await File('${directory.path}/test.cpp').writeAsString(source);
+      if (!canRunSystemC()) {
+        return;
+      }
       final compile = await Process.run('g++', [
         '-std=c++17',
         '-O0',
@@ -503,6 +514,9 @@ int sc_main(int, char**) {
       await File('${directory.path}/model.h')
           .writeAsString(model.generateSystemC(className: 'Cam'));
       await File('${directory.path}/test.cpp').writeAsString(source.toString());
+      if (!canRunSystemC()) {
+        return;
+      }
       final compile = await Process.run('g++', [
         '-std=c++17',
         '-O0',

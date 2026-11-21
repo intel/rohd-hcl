@@ -554,7 +554,7 @@ void main() {
     await dut.build();
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    expect(SimCompare.checkSystemCVector(dut, vectors), isTrue);
+    SimCompare.checkSystemCVector(dut, vectors);
   });
 
   test('differently shaped request queues coexist in generated RTL', () async {

@@ -107,8 +107,10 @@ class _MemoryModelFixture {
 
 class _AssociativeFixture extends Module {
   _AssociativeFixture() {
-    final update = AssociativeUpdatePortInterface(keyWidth: 4, indexWidth: 2);
-    final lookup = AssociativeLookupPortInterface(keyWidth: 4, indexWidth: 2);
+    final update =
+        TypedAssociativeUpdatePortInterface(Logic(width: 4), indexWidth: 2);
+    final lookup =
+        TypedAssociativeLookupPortInterface(Logic(width: 4), indexWidth: 2);
     update.en <= addInput('writeEnable', Logic());
     update.index <= addInput('writeIndex', Logic(width: 2), width: 2);
     update.key <= addInput('writeKey', Logic(width: 4), width: 4);

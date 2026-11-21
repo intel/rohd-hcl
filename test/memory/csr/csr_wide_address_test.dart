@@ -17,6 +17,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/memory/csr/csr_container.dart';
 import 'package:test/test.dart';
 
+import '../../systemc_test_utils.dart';
+
 CsrInstanceConfig _register(String name, BigInt offset, int width) =>
     CsrInstanceConfig.wide(
         arch: CsrConfig(
@@ -466,6 +468,9 @@ int sc_main(int, char**) {
           '${directory.path}/dut.sv'
         ]);
         await _run('vvp', ['${directory.path}/sv']);
+        if (!canRunSystemC()) {
+          return;
+        }
         await _run('g++', [
           '-std=c++17',
           '${directory.path}/test.cpp',
