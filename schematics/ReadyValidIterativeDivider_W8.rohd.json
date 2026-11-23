@@ -7777,77 +7777,7 @@
             ]
           }
         },
-        "struct_unpack_0_downstream_divisionResult": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "downstream_divisionResult",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "quotient",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8,
-            "FIELD_1_NAME": "remainder",
-            "FIELD_1_OFFSET": 8,
-            "FIELD_1_WIDTH": 8,
-            "FIELD_2_NAME": "divZero",
-            "FIELD_2_OFFSET": 16,
-            "FIELD_2_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "quotient": "output",
-            "remainder": "output",
-            "divZero": "output"
-          },
-          "connections": {
-            "A": [
-              152,
-              153,
-              154,
-              155,
-              156,
-              157,
-              158,
-              159,
-              160,
-              161,
-              162,
-              163,
-              164,
-              165,
-              166,
-              167,
-              168
-            ],
-            "quotient": [
-              76,
-              77,
-              78,
-              79,
-              80,
-              81,
-              82,
-              83
-            ],
-            "remainder": [
-              84,
-              85,
-              86,
-              87,
-              88,
-              89,
-              90,
-              91
-            ],
-            "divZero": [
-              92
-            ]
-          }
-        },
-        "struct_unpack_1_upstream_divisionRequest": {
+        "struct_unpack_0_upstream_divisionRequest": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -7914,6 +7844,76 @@
             ],
             "isSigned": [
               129
+            ]
+          }
+        },
+        "struct_unpack_1_downstream_divisionResult": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "downstream_divisionResult",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "quotient",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "remainder",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 8,
+            "FIELD_2_NAME": "divZero",
+            "FIELD_2_OFFSET": 16,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "quotient": "output",
+            "remainder": "output",
+            "divZero": "output"
+          },
+          "connections": {
+            "A": [
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159,
+              160,
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168
+            ],
+            "quotient": [
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82,
+              83
+            ],
+            "remainder": [
+              84,
+              85,
+              86,
+              87,
+              88,
+              89,
+              90,
+              91
+            ],
+            "divZero": [
+              92
             ]
           }
         },

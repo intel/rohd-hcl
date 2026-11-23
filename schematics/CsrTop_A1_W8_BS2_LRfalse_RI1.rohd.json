@@ -1908,47 +1908,7 @@
             ]
           }
         },
-        "struct_unpack_0_control_reg0_backdoor_reg0": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "control_reg0_backdoor_reg0",
-            "FIELD_COUNT": 1,
-            "FIELD_0_NAME": "data",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "data": "output"
-          },
-          "connections": {
-            "A": [
-              127,
-              128,
-              129,
-              130,
-              131,
-              132,
-              133,
-              134
-            ],
-            "data": [
-              66,
-              67,
-              68,
-              69,
-              70,
-              71,
-              72,
-              73
-            ]
-          }
-        },
-        "struct_unpack_1_control_reg1_backdoor_reg1": {
+        "struct_unpack_0_control_reg1_backdoor_reg1": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -1985,6 +1945,46 @@
               79,
               80,
               81
+            ]
+          }
+        },
+        "struct_unpack_1_control_reg0_backdoor_reg0": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "control_reg0_backdoor_reg0",
+            "FIELD_COUNT": 1,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output"
+          },
+          "connections": {
+            "A": [
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134
+            ],
+            "data": [
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73
             ]
           }
         },
@@ -2713,21 +2713,7 @@
             "computed": 1
           }
         },
-        "struct_unpack_0_control_reg0_backdoor_reg0_data": {
-          "bits": [
-            66,
-            67,
-            68,
-            69,
-            70,
-            71,
-            72,
-            73
-          ],
-          "hide_name": 1,
-          "attributes": {}
-        },
-        "struct_unpack_1_control_reg1_backdoor_reg1_data": {
+        "struct_unpack_0_control_reg1_backdoor_reg1_data": {
           "bits": [
             74,
             75,
@@ -2737,6 +2723,20 @@
             79,
             80,
             81
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "struct_unpack_1_control_reg0_backdoor_reg0_data": {
+          "bits": [
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73
           ],
           "hide_name": 1,
           "attributes": {}

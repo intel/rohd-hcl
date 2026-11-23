@@ -148,9 +148,9 @@
       mux&lt;FixedPoint&gt;(isExpOdd, shiftedFixed, aFixed).namedTyped(&#39;aFixedAdj&#39;);
 
   final fixedSqrt = FixedPointSqrt(aFixedAdj).sqrt;
-  final retainedSignificand = fixedSqrt
+  final sqrtSignificand = fixedSqrt
       .getRange(extraPrecision, extraPrecision + a.mantissa.width + 1)
-      .named(&#39;retainedSignificand&#39;);
+      .named(&#39;sqrtSignificand&#39;);
   final adjustedSignificand = mux(
           isExpOdd,
           normalizedSignificand.zeroExtend(normalizedSignificand.width + 1) &lt;&lt;
@@ -161,6 +161,15 @@
   final exactScaled =
       (adjustedSignificand.zeroExtend(comparisonWidth) &lt;&lt; a.mantissa.width)
           .named(&#39;exactScaled&#39;);
+  &#47;&#47; FixedPointSqrt rounds its result, so the truncated significand can be
+  &#47;&#47; one above the floor of the square root. The rounding below needs the
+  &#47;&#47; floor, so step back by one when its square is above the exact value.
+  final sqrtForSquare = sqrtSignificand.zeroExtend(comparisonWidth);
+  final sqrtSquared = (sqrtForSquare * sqrtForSquare).named(&#39;sqrtSquared&#39;);
+  final sqrtAbove = sqrtSquared.gt(exactScaled).named(&#39;sqrtAbove&#39;);
+  final retainedSignificand =
+      (sqrtSignificand - sqrtAbove.zeroExtend(sqrtSignificand.width))
+          .named(&#39;retainedSignificand&#39;);
   final retainedForSquare = retainedSignificand.zeroExtend(comparisonWidth);
   final retainedSquared =
       (retainedForSquare * retainedForSquare).named(&#39;retainedSquared&#39;);
