@@ -114,10 +114,21 @@ fixed-point value input to this converter.
       : null;
 
   final bias = float.floatingPointValue.bias;
-  final iWidth = (1 +
-          max(max(1, fixed.fractionWidth).log2Ceil,
-              max(fixed.width.log2Ceil, float.exponent.width)))
-      .toInt();
+  &#47;&#47; Leading zeros added above the fixed-point value when it has too few
+  &#47;&#47; integer bits for the smallest normal exponent to be reached with a left
+  &#47;&#47; shift (for example uQ0.2 to a 2-bit exponent).
+  final extraLeading = max(0, 2 - bias - (fixed.width - fixed.fractionWidth));
+  final alignedWidth = fixed.width + extraLeading;
+  &#47;&#47; Biased exponent of the most significant bit of the aligned value.
+  final topExponent = bias + alignedWidth - fixed.fractionWidth - 1;
+  &#47;&#47; Wide enough for the shift count and for the rounded biased exponent (up
+  &#47;&#47; to topExponent + 1) to stay non-negative as a signed value.
+  final iWidth = max(
+      (1 +
+              max(max(1, fixed.fractionWidth).log2Ceil,
+                  max(fixed.width.log2Ceil, float.exponent.width)))
+          .toInt(),
+      max(topExponent + 1, alignedWidth).bitLength + 1);
 
   &#47;&#47; Special handling needed for E4M3 as it does not support inf
   if ((exponentWidth == 4) &amp;&amp; (mantissaWidth == 3)) {
@@ -136,7 +147,11 @@ fixed-point value input to this converter.
     absValue = fixedAsLogic;
   }
 
-  final maxShift = fixed.width - fixed.fractionWidth + bias - 2;
+  final absAligned = (extraLeading &gt; 0)
+      ? absValue.zeroExtend(alignedWidth).named(&#39;absAligned&#39;)
+      : absValue;
+
+  final maxShift = topExponent - 1;
 
   final jBit = Logic(name: &#39;jBit&#39;, width: iWidth);
   Logic estimatedJBit;
@@ -148,62 +163,74 @@ fixed-point value input to this converter.
         .zeroExtend(leadingDigitPredict.width)
         .named(&#39;fixedSign&#39;);
 
+    &#47;&#47; Width for the shift count: wide enough for the prediction plus
+    &#47;&#47; extraLeading and for maxShift.
+    final shiftWidth = max(iWidth, leadingDigitPredict.width + 1);
+    final maxShiftConst = Const(maxShift, width: shiftWidth);
+
     &#47;&#47; If the lead is 1 for a negative, start at leadingDigitPredict - 1
     estimatedJBit = mux(
             _convertedFloat.sign.eq(fixedAsLogic[-1]),
             mux(leadingDigitPredict.gte(fSign), leadingDigitPredict - fSign,
                 leadingDigitPredict),
             Const(0, width: leadingDigitPredict.width))
-        .named(&#39;estimatedJBit&#39;);
+        .zeroExtend(shiftWidth);
+    if (extraLeading &gt; 0) {
+      estimatedJBit = estimatedJBit + Const(extraLeading, width: shiftWidth);
+    }
+    &#47;&#47; Limit to minimum exponent, as in the path without a prediction.
+    estimatedJBit =
+        mux(estimatedJBit.gt(maxShiftConst), maxShiftConst, estimatedJBit)
+            .named(&#39;estimatedJBit&#39;);
     &#47;&#47; Shift by current preJ to inspect leading bit
-    if (absValue.width &lt; mantissaWidth + 2) {
+    if (absAligned.width &lt; mantissaWidth + 2) {
       absValueShifted = ([
-                absValue,
-                Const(0, width: mantissaWidth + 2 - absValue.width)
+                absAligned,
+                Const(0, width: mantissaWidth + 2 - absAligned.width)
               ].concat() &lt;&lt;
               estimatedJBit)
           .named(&#39;absValueShifted&#39;);
     } else {
-      absValueShifted = (absValue &lt;&lt; estimatedJBit).named(&#39;absValueShifted&#39;);
+      absValueShifted =
+          (absAligned &lt;&lt; estimatedJBit).named(&#39;absValueShifted&#39;);
     }
-    &#47;&#47; Second Shift by one if leading digit is not &#39;1&#39;.
-    estimatedJBit = mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
+    &#47;&#47; Second Shift by one if leading digit is not &#39;1&#39; and the minimum
+    &#47;&#47; exponent has not been reached.
+    final shiftOne = (~absValueShifted[-1] &amp; estimatedJBit.lt(maxShiftConst))
+        .named(&#39;shiftOne&#39;);
+    estimatedJBit = mux(shiftOne, estimatedJBit + 1, estimatedJBit)
         .named(&#39;estimatedJBit2&#39;);
-    absValueShifted =
-        mux(absValueShifted[-1], absValueShifted, absValueShifted &lt;&lt; 1)
-            .named(&#39;absValueShifted&#39;);
+    absValueShifted = mux(shiftOne, absValueShifted &lt;&lt; 1, absValueShifted)
+        .named(&#39;absValueShifted&#39;);
 
     &#47;&#47; Third and final shift by one if leading digit is not &#39;1&#39;.
+    final shiftTwo = (~absValueShifted[-1] &amp; estimatedJBit.lt(maxShiftConst))
+        .named(&#39;shiftTwo&#39;);
     jBit &lt;=
-        mux(absValueShifted[-1], estimatedJBit, estimatedJBit + 1)
-            .zeroExtend(iWidth);
-    absValueShifted =
-        mux(absValueShifted[-1], absValueShifted, absValueShifted &lt;&lt; 1)
-            .named(&#39;absValueShifted&#39;);
+        mux(shiftTwo, estimatedJBit + 1, estimatedJBit).getRange(0, iWidth);
+    absValueShifted = mux(shiftTwo, absValueShifted &lt;&lt; 1, absValueShifted)
+        .named(&#39;absValueShifted&#39;);
   } else {
     &#47;&#47; No prediction given:  go find the leading digit
-    final exactJBit = RecursiveModulePriorityEncoder(absValue.reversed)
+    final exactJBit = RecursiveModulePriorityEncoder(absAligned.reversed)
         .out
         .zeroExtend(iWidth)
         .named(&#39;predictedjBit&#39;);
-    &#47;&#47; Limit to minimum exponent
-    if (maxShift &gt; 0) {
-      jBit &lt;=
-          mux(exactJBit.gt(maxShift), Const(maxShift, width: iWidth),
-              exactJBit);
-    } else {
-      jBit &lt;= exactJBit;
-    }
+    &#47;&#47; Limit to minimum exponent (maxShift is at least 0 because of
+    &#47;&#47; extraLeading).
+    jBit &lt;=
+        mux(exactJBit.gt(maxShift), Const(maxShift, width: iWidth),
+            exactJBit);
     &#47;&#47; Align mantissa
-    if (absValue.width &lt; mantissaWidth + 2) {
+    if (absAligned.width &lt; mantissaWidth + 2) {
       absValueShifted = ([
-                absValue,
-                Const(0, width: mantissaWidth + 2 - absValue.width)
+                absAligned,
+                Const(0, width: mantissaWidth + 2 - absAligned.width)
               ].concat() &lt;&lt;
               jBit)
           .named(&#39;absValueShifted&#39;);
     } else {
-      absValueShifted = (absValue &lt;&lt; jBit).named(&#39;absValueShiftedJ&#39;);
+      absValueShifted = (absAligned &lt;&lt; jBit).named(&#39;absValueShiftedJ&#39;);
     }
   }
   &#47;&#47; Extract mantissa
@@ -212,7 +239,13 @@ fixed-point value input to this converter.
   final sticky = Logic(name: &#39;stickyBit&#39;);
   mantissa &lt;= absValueShifted.getRange(-mantissaWidth - 1, -1);
   guard &lt;= absValueShifted.getRange(-mantissaWidth - 2, -mantissaWidth - 1);
-  sticky &lt;= absValueShifted.getRange(0, -mantissaWidth - 2).or();
+  &#47;&#47; Bits below the guard bit; there are none when the aligned value is
+  &#47;&#47; exactly mantissaWidth + 2 bits wide.
+  final stickyWidth = absValueShifted.width - mantissaWidth - 2;
+  sticky &lt;=
+      ((stickyWidth &gt; 0)
+          ? absValueShifted.getRange(0, stickyWidth).or()
+          : Const(0));
 
   final rounder = FloatingPointRounder.fromGRS(
       retainedLsb: mantissa[0],
@@ -231,11 +264,8 @@ fixed-point value input to this converter.
       .named(&#39;normalMantissa&#39;);
 
   &#47;&#47; Calculate biased exponent
-  final eRaw = mux(
-          absValueShifted[-1],
-          Const(bias + fixed.width - fixed.fractionWidth - 1, width: iWidth) -
-              jBit,
-          Const(0, width: iWidth))
+  final eRaw = mux(absValueShifted[-1],
+          Const(topExponent, width: iWidth) - jBit, Const(0, width: iWidth))
       .named(&#39;eRaw&#39;);
 
   &#47;&#47; TODO(desmonddak): potential optimization --

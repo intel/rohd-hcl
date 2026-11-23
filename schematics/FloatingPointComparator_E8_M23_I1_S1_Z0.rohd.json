@@ -2154,107 +2154,7 @@
             ]
           }
         },
-        "struct_unpack_0_b": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "b",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "mantissa",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 23,
-            "FIELD_1_NAME": "exponent",
-            "FIELD_1_OFFSET": 23,
-            "FIELD_1_WIDTH": 8,
-            "FIELD_2_NAME": "sign",
-            "FIELD_2_OFFSET": 31,
-            "FIELD_2_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "mantissa": "output",
-            "exponent": "output",
-            "sign": "output"
-          },
-          "connections": {
-            "A": [
-              34,
-              35,
-              36,
-              37,
-              38,
-              39,
-              40,
-              41,
-              42,
-              43,
-              44,
-              45,
-              46,
-              47,
-              48,
-              49,
-              50,
-              51,
-              52,
-              53,
-              54,
-              55,
-              56,
-              57,
-              58,
-              59,
-              60,
-              61,
-              62,
-              63,
-              64,
-              65
-            ],
-            "mantissa": [
-              170,
-              171,
-              172,
-              173,
-              174,
-              175,
-              176,
-              177,
-              178,
-              179,
-              180,
-              181,
-              182,
-              183,
-              184,
-              185,
-              186,
-              187,
-              188,
-              189,
-              190,
-              191,
-              192
-            ],
-            "exponent": [
-              193,
-              194,
-              195,
-              196,
-              197,
-              198,
-              199,
-              200
-            ],
-            "sign": [
-              201
-            ]
-          }
-        },
-        "struct_unpack_1_a": {
+        "struct_unpack_0_a": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -2351,6 +2251,106 @@
             ],
             "sign": [
               169
+            ]
+          }
+        },
+        "struct_unpack_1_b": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "b",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "mantissa",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 23,
+            "FIELD_1_NAME": "exponent",
+            "FIELD_1_OFFSET": 23,
+            "FIELD_1_WIDTH": 8,
+            "FIELD_2_NAME": "sign",
+            "FIELD_2_OFFSET": 31,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "mantissa": "output",
+            "exponent": "output",
+            "sign": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65
+            ],
+            "mantissa": [
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190,
+              191,
+              192
+            ],
+            "exponent": [
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200
+            ],
+            "sign": [
+              201
             ]
           }
         },
