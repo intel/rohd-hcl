@@ -190,7 +190,17 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
         .slice(extendWidthRPath - 1, 0)
         .named('lowbitsRpath');
 
-    final lowAdderRPathSum = adderGen(carryRPath.zeroExtend(extendWidthRPath),
+    // When bits of the smaller operand were shifted past the extension
+    // (farSticky) in a subtraction, the exact difference lies strictly
+    // between `large + ~small` and `large + ~small + 1`, so the end-around
+    // carry is not added to the low bits. Adding it turned all-zero low bits
+    // into zero guard and round bits, and a far subtraction from a power of
+    // two then rounded to the value one ulp below it.
+    final lowCarryRPath =
+        (carryRPath & ~(effectiveSubtractionFlopped & farStickyRPathFlopped))
+            .named('lowCarryRpath');
+    final lowAdderRPathSum = adderGen(
+            lowCarryRPath.zeroExtend(extendWidthRPath),
             mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
             name: 'rpath_lowadder')
         .sum

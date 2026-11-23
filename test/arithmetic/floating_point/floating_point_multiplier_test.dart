@@ -602,6 +602,38 @@ outSpec=$outSpec mode=$mode
       expect(multiplier.product.floatingPointValue, equals(expected));
     });
 
+    test('FP: simple multiplier E4M3 zero times every finite value', () {
+      // E4M3 uses the all-ones exponent for finite values (256 to 448), so
+      // a zero product cannot rely on the product exponent underflowing.
+      for (final mode in FloatingPointRoundingMode.values) {
+        final a = FloatingPoint8E4M3();
+        final b = FloatingPoint8E4M3();
+        final multiplier =
+            FloatingPointMultiplierSimple(a, b, roundingMode: mode);
+        for (final zeroSign in [0, 1]) {
+          final zero = a
+              .valuePopulator()
+              .ofLogicValue(LogicValue.ofInt(zeroSign << 7, 8));
+          for (var bits = 0; bits < 256; bits++) {
+            final other =
+                b.valuePopulator().ofLogicValue(LogicValue.ofInt(bits, 8));
+            if (other.isNaN) {
+              continue;
+            }
+            for (final (x, y) in [(zero, other), (other, zero)]) {
+              a.put(x);
+              b.put(y);
+              final computed = multiplier.product.floatingPointValue;
+              expect(computed.isAZero, isTrue,
+                  reason: 'mode=$mode $x * $y gave $computed');
+              expect(computed.sign.toInt(), zeroSign ^ other.sign.toInt(),
+                  reason: 'mode=$mode $x * $y gave $computed');
+            }
+          }
+        }
+      }
+    });
+
     test('FP: multiplier retains sticky bits for an oversized right shift', () {
       final fp1 = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
       final fp2 = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
