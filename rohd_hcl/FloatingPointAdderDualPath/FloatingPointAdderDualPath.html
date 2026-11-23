@@ -258,7 +258,17 @@ the output type will be the same as the input type <code>a</code>. Note that
       .slice(extendWidthRPath - 1, 0)
       .named(&#39;lowbitsRpath&#39;);
 
-  final lowAdderRPathSum = adderGen(carryRPath.zeroExtend(extendWidthRPath),
+  &#47;&#47; When bits of the smaller operand were shifted past the extension
+  &#47;&#47; (farSticky) in a subtraction, the exact difference lies strictly
+  &#47;&#47; between `large + ~small` and `large + ~small + 1`, so the end-around
+  &#47;&#47; carry is not added to the low bits. Adding it turned all-zero low bits
+  &#47;&#47; into zero guard and round bits, and a far subtraction from a power of
+  &#47;&#47; two then rounded to the value one ulp below it.
+  final lowCarryRPath =
+      (carryRPath &amp; ~(effectiveSubtractionFlopped &amp; farStickyRPathFlopped))
+          .named(&#39;lowCarryRpath&#39;);
+  final lowAdderRPathSum = adderGen(
+          lowCarryRPath.zeroExtend(extendWidthRPath),
           mux(effectiveSubtractionFlopped, ~lowBitsRPath, lowBitsRPath),
           name: &#39;rpath_lowadder&#39;)
       .sum

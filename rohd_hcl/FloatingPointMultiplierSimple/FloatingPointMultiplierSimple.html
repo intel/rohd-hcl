@@ -171,6 +171,12 @@ finite value if <a href="../../rohd_hcl/FloatingPoint/supportsInfinities.html">F
       (a.isSignalingNaN | b.isSignalingNaN | invalidArithmetic)
           .named(&#39;invalidOperation&#39;);
   final isNaN = (a.isNaN | b.isNaN | invalidArithmetic).named(&#39;isNaN&#39;);
+  &#47;&#47; A zero operand gives an exact zero. The zero-mantissa fallback for
+  &#47;&#47; the leading-one position below only reaches a zero exponent while the
+  &#47;&#47; other operand&#39;s exponent is at most twice the bias, which does not
+  &#47;&#47; hold for formats that use the all-ones exponent for finite values
+  &#47;&#47; (E4M3: 0 * 256 gave 2^-6).
+  final isZero = (a.isAZero | b.isAZero).named(&#39;isZero&#39;);
   final inputIsNaN = (a.isNaN | b.isNaN).named(&#39;inputIsNaN&#39;);
   final propagatedNaN = internalProduct.propagateNaN(a, b);
 
@@ -181,6 +187,7 @@ finite value if <a href="../../rohd_hcl/FloatingPoint/supportsInfinities.html">F
       localFlop(b.sign).named(&#39;b_sign&#39;, naming: Naming.renameable);
   final isInfLatch = localFlop(isInf);
   final isNaNLatch = localFlop(isNaN);
+  final isZeroLatch = localFlop(isZero);
   final invalidOperationLatch = localFlop(invalidOperation);
   final inputIsNaNLatch = localFlop(inputIsNaN);
   final nanLatch = localFlop(propagatedNaN);
@@ -308,7 +315,7 @@ finite value if <a href="../../rohd_hcl/FloatingPoint/supportsInfinities.html">F
             internalProduct &lt; internalProduct.largestFinite(sign: resultSign),
           ], orElse: [
             internalProduct.sign &lt; resultSign,
-            If(roundedExp[-1], then: [
+            If(roundedExp[-1] | isZeroLatch, then: [
               internalProduct.exponent &lt; Const(0, width: exponentWidth)
             ], orElse: [
               internalProduct.exponent &lt;

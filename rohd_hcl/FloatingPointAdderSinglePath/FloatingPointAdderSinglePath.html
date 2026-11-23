@@ -194,7 +194,10 @@ Decreasing the split width will increase speed but also increase area.</li>
       (smallExtendedMantissa &gt;&gt;&gt; expDiff).named(&#39;smallShiftedMantissa&#39;);
 
   &#47;&#47; Compute sticky bits past extendedWidth: expDiff - extendedWidth
-  final int posWidth = max(expDiff.width, smallMantissa.width.log2Ceil);
+  &#47;&#47; Wide enough to hold smallMantissa.width itself, which is compared
+  &#47;&#47; against `rem` below. log2Ceil is one bit short when that width is a
+  &#47;&#47; power of two and expDiff is not wider (E2M3, E3M7, E4M15).
+  final int posWidth = max(expDiff.width, smallMantissa.width.bitLength);
   final eD = expDiff.zeroExtend(posWidth).named(&#39;eD&#39;);
   final eW = Const(extendedWidth, width: posWidth).named(&#39;eW&#39;);
   final rem =
@@ -337,6 +340,18 @@ Decreasing the split width will increase speed but also increase area.</li>
               (internalSum.explicitJBit ? 1 : 0));
 
   final lead1Valid = leadingZerosPredictionValidFlopped;
+
+  &#47;&#47; An exact zero from an effective subtraction (x + -x, +0 + -0) is +0
+  &#47;&#47; in every rounding mode except roundTowardsNegativeInfinity, where it
+  &#47;&#47; is -0 (IEEE 754-2019 6.3).
+  final exactZero = (effectiveSubtractionFlopped &amp; ~fullSumWithIncrement.or())
+      .named(&#39;exactZero&#39;);
+  final resultSign = mux(
+          exactZero,
+          Const(roundingMode ==
+              FloatingPointRoundingMode.roundTowardsNegativeInfinity),
+          trueSignFlopped)
+      .named(&#39;resultSign&#39;);
 
   final infExponent =
       internalSum.inf(sign: trueSignFlopped).exponent.named(&#39;infExponent&#39;);
@@ -508,12 +523,12 @@ Decreasing the split width will increase speed but also increase area.</li>
         internalSum &lt; internalSum.inf(sign: trueSignFlopped),
       ]),
       ElseIf(lead1Dominates, [
-        internalSum.sign &lt; trueSignFlopped,
+        internalSum.sign &lt; resultSign,
         internalSum.exponent &lt; internalSum.zeroExponent,
         internalSum.mantissa &lt; mantissaRound,
       ]),
       Else([
-        internalSum.sign &lt; trueSignFlopped,
+        internalSum.sign &lt; resultSign,
         internalSum.exponent &lt; exponentRound,
         internalSum.mantissa &lt; mantissaRound,
       ])
