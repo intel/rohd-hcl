@@ -1,3 +1,8 @@
+## Unreleased
+
+- Added reusable fixed-point attention, softmax, RMS normalization, mixed-precision arithmetic, tensor movement and layout, scratchpad storage, and pooling-window components. See the [inference component guide](doc/components/inference.md).
+- Added protocol-neutral selective fan-out and policy-mux cores, typed tile multicast, scheduled serialization engines, and ready/valid packetization.
+
 ## 0.3.3
 
 - Confapp preserves hierarchical signal paths when cross-probing and avoids resolving a known module's signals in another module.

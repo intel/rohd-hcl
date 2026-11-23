@@ -4,6 +4,7 @@
 export 'associative/associative.dart';
 export 'behavioral/behavioral.dart';
 export 'cache/caches.dart';
+export 'contracts/byte_masked_write_request.dart';
 export 'contracts/contracts.dart';
 export 'csr/csrs.dart';
 export 'replacement/replacement.dart';
