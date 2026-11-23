@@ -540,6 +540,9 @@
     get$add$ax(receiver) {
       return J.getInterceptor$ax(receiver).get$add(receiver);
     },
+    get$bitLength$i(receiver) {
+      return J.getInterceptor$i(receiver).get$bitLength(receiver);
+    },
     get$buffer$x(receiver) {
       return J.getInterceptor$x(receiver).get$buffer(receiver);
     },
@@ -238031,7 +238034,7 @@
   A.SignMagnitudeDualAdder.prototype = {};
   A.FixedToFloat.prototype = {
     FixedToFloat$9$definitionName$leadingDigitPredict$name$reserveDefinitionName$reserveName$roundingMode$signed(fixed, outFloat, definitionName, leadingDigitPredict, $name, reserveDefinitionName, reserveName, roundingMode, signed, $T) {
-      var fixedAsLogic, t1, exponentWidth, t2, t3, t4, t5, mantissaWidth, bias, t6, iWidth, absValue, maxShift, jBit, fSign, t7, estimatedJBit, t8, absValueShifted, exactJBit, mantissa, guard, sticky, mantissaRounded, t9, subnormalMantissa, normalMantissa, eRaw, eRawRne, expoLessThanOne, largestFinite, maxFiniteExponent, t10, t11, expoMoreThanMax, overflowToInfinity, _this = this, _null = null,
+      var fixedAsLogic, t1, exponentWidth, t2, t3, t4, t5, mantissaWidth, bias, extraLeading, alignedWidth, topExponent, iWidth, t6, absValue, absAligned, maxShift, jBit, t7, fSign, shiftWidth, maxShiftConst, estimatedJBit, absValueShifted, shiftOne, shiftTwo, exactJBit, mantissa, guard, sticky, t8, stickyWidth, mantissaRounded, subnormalMantissa, normalMantissa, eRaw, eRawRne, expoLessThanOne, largestFinite, maxFiniteExponent, t9, t10, t11, expoMoreThanMax, overflowToInfinity, _this = this, _null = null,
         _s15_ = "absValueShifted";
       fixed = _this.addTypedInput$1$2("fixed", fixed, type$.FixedPoint);
       fixedAsLogic = fixed.get$isOutput() ? fixed._genPacked$0() : fixed.get$_packed();
@@ -238051,63 +238054,70 @@
       _this.__FixedToFloat_float_F = t5;
       leadingDigitPredict = leadingDigitPredict != null ? _this.addInput$3$width("leadingDigitPredict", leadingDigitPredict, leadingDigitPredict._wire.width) : _null;
       bias = t5.valuePopulator$0().ofFloatingPoint$1(t5).get$bias();
-      t3 = A.IntegerMath_get_log2Ceil(Math.max(1, fixed.fraction.get$width()));
-      t6 = fixed.get$width();
-      iWidth = B.JSNumber_methods.toInt$0(1 + Math.max(t3, Math.max(A.IntegerMath_get_log2Ceil(t6), t5.exponent._wire.width)));
-      t3 = t2.sign;
-      t3.$le(0, fixed.signed ? fixedAsLogic.$index(0, -1) : A.Const$(0, false, _null, _null));
-      absValue = A.Logic$("absValue", _null, t6);
-      absValue.gets$1(A.mux(t3, fixedAsLogic.$sub(0, 1).$not(0), fixedAsLogic, _null, type$.Logic));
-      maxShift = t6 - fixed.fraction.get$width() + bias - 2;
+      t3 = fixed.get$width();
+      extraLeading = Math.max(0, 2 - bias - (t3 - fixed.fraction.get$width()));
+      alignedWidth = t3 + extraLeading;
+      topExponent = bias + alignedWidth - fixed.fraction.get$width() - 1;
+      iWidth = Math.max(B.JSNumber_methods.toInt$0(1 + Math.max(A.IntegerMath_get_log2Ceil(Math.max(1, fixed.fraction.get$width())), Math.max(A.IntegerMath_get_log2Ceil(t3), t5.exponent._wire.width))), J.get$bitLength$i(Math.max(topExponent + 1, alignedWidth)) + 1);
+      t6 = t2.sign;
+      t6.$le(0, fixed.signed ? fixedAsLogic.$index(0, -1) : A.Const$(0, false, _null, _null));
+      absValue = A.Logic$("absValue", _null, t3);
+      absValue.gets$1(A.mux(t6, fixedAsLogic.$sub(0, 1).$not(0), fixedAsLogic, _null, type$.Logic));
+      t3 = extraLeading > 0;
+      absAligned = t3 ? absValue.zeroExtend$1(alignedWidth).named$1("absAligned") : absValue;
+      maxShift = topExponent - 1;
       jBit = A.Logic$("jBit", _null, iWidth);
+      t7 = type$.Logic;
       if (leadingDigitPredict != null) {
         fSign = fixedAsLogic.$index(0, -1).zeroExtend$1(leadingDigitPredict._wire.width).named$1("fixedSign");
-        t7 = type$.Logic;
-        estimatedJBit = A.mux(A.Equals$(t3, fixedAsLogic.$index(0, -1)).get$out(), A.mux(A.GreaterThanOrEqual$(leadingDigitPredict, fSign).get$out(), A.Subtract$(leadingDigitPredict, fSign).get$out(), leadingDigitPredict, _null, t7), A.Const$(0, false, _null, leadingDigitPredict._wire.width), _null, t7).named$1("estimatedJBit");
-        t8 = mantissaWidth + 2;
-        absValueShifted = absValue.get$width() < t8 ? A.LogicConcat_concat(A._setArrayType([absValue, A.Const$(0, false, _null, t8 - absValue.get$width())], type$.JSArray_Logic)).$shl(0, estimatedJBit).named$1(_s15_) : absValue.$shl(0, estimatedJBit).named$1(_s15_);
-        estimatedJBit = A.mux(absValueShifted.$index(0, -1), estimatedJBit, estimatedJBit.$add(0, 1), _null, t7).named$1("estimatedJBit2");
-        absValueShifted = A.mux(absValueShifted.$index(0, -1), absValueShifted, absValueShifted.$shl(0, 1), _null, t7).named$1(_s15_);
-        jBit.$le(0, A.mux(absValueShifted.$index(0, -1), estimatedJBit, estimatedJBit.$add(0, 1), _null, t7).zeroExtend$1(iWidth));
-        absValueShifted = A.mux(absValueShifted.$index(0, -1), absValueShifted, absValueShifted.$shl(0, 1), _null, t7).named$1(_s15_);
+        shiftWidth = Math.max(iWidth, leadingDigitPredict._wire.width + 1);
+        maxShiftConst = A.Const$(maxShift, false, _null, shiftWidth);
+        estimatedJBit = A.mux(A.Equals$(t6, fixedAsLogic.$index(0, -1)).get$out(), A.mux(A.GreaterThanOrEqual$(leadingDigitPredict, fSign).get$out(), A.Subtract$(leadingDigitPredict, fSign).get$out(), leadingDigitPredict, _null, t7), A.Const$(0, false, _null, leadingDigitPredict._wire.width), _null, t7).zeroExtend$1(shiftWidth);
+        if (t3)
+          estimatedJBit = estimatedJBit.$add(0, A.Const$(extraLeading, false, _null, shiftWidth));
+        estimatedJBit = A.mux(estimatedJBit.gt$1(maxShiftConst), maxShiftConst, estimatedJBit, _null, t7).named$1("estimatedJBit");
+        t3 = mantissaWidth + 2;
+        absValueShifted = absAligned.get$width() < t3 ? A.LogicConcat_concat(A._setArrayType([absAligned, A.Const$(0, false, _null, t3 - absAligned.get$width())], type$.JSArray_Logic)).$shl(0, estimatedJBit).named$1(_s15_) : absAligned.$shl(0, estimatedJBit).named$1(_s15_);
+        shiftOne = absValueShifted.$index(0, -1).$not(0).$and(0, estimatedJBit.lt$1(maxShiftConst)).named$1("shiftOne");
+        estimatedJBit = A.mux(shiftOne, estimatedJBit.$add(0, 1), estimatedJBit, _null, t7).named$1("estimatedJBit2");
+        absValueShifted = A.mux(shiftOne, absValueShifted.$shl(0, 1), absValueShifted, _null, t7).named$1(_s15_);
+        shiftTwo = absValueShifted.$index(0, -1).$not(0).$and(0, estimatedJBit.lt$1(maxShiftConst)).named$1("shiftTwo");
+        jBit.$le(0, A.mux(shiftTwo, estimatedJBit.$add(0, 1), estimatedJBit, _null, t7).getRange$2(0, 0, iWidth));
+        absValueShifted = A.mux(shiftTwo, absValueShifted.$shl(0, 1), absValueShifted, _null, t7).named$1(_s15_);
       } else {
-        exactJBit = A.RecursiveModulePriorityEncoder$(absValue.get$reversed(absValue), _null, false, "recursive_module_priority_encoder", false, false).output$1("out").zeroExtend$1(iWidth).named$1("predictedjBit");
-        if (maxShift > 0)
-          jBit.$le(0, A.mux(exactJBit.gt$1(maxShift), A.Const$(maxShift, false, _null, iWidth), exactJBit, _null, type$.Logic));
-        else
-          jBit.$le(0, exactJBit);
-        t7 = mantissaWidth + 2;
-        absValueShifted = absValue.get$width() < t7 ? A.LogicConcat_concat(A._setArrayType([absValue, A.Const$(0, false, _null, t7 - absValue.get$width())], type$.JSArray_Logic)).$shl(0, jBit).named$1(_s15_) : absValue.$shl(0, jBit).named$1("absValueShiftedJ");
+        exactJBit = A.RecursiveModulePriorityEncoder$(absAligned.get$reversed(absAligned), _null, false, "recursive_module_priority_encoder", false, false).output$1("out").zeroExtend$1(iWidth).named$1("predictedjBit");
+        jBit.$le(0, A.mux(exactJBit.gt$1(maxShift), A.Const$(maxShift, false, _null, iWidth), exactJBit, _null, t7));
+        t3 = mantissaWidth + 2;
+        absValueShifted = absAligned.get$width() < t3 ? A.LogicConcat_concat(A._setArrayType([absAligned, A.Const$(0, false, _null, t3 - absAligned.get$width())], type$.JSArray_Logic)).$shl(0, jBit).named$1(_s15_) : absAligned.$shl(0, jBit).named$1("absValueShiftedJ");
       }
       mantissa = A.Logic$("mantissa", _null, mantissaWidth);
       guard = A.Logic$("guardBit", _null, 1);
       sticky = A.Logic$("stickyBit", _null, 1);
-      t7 = -mantissaWidth;
-      t8 = t7 - 1;
+      t3 = -mantissaWidth;
+      t8 = t3 - 1;
       mantissa.$le(0, absValueShifted.getRange$2(0, t8, -1));
-      t7 -= 2;
-      guard.$le(0, absValueShifted.getRange$2(0, t7, t8));
-      sticky.$le(0, absValueShifted.getRange$2(0, 0, t7).or$0());
-      t7 = A.FloatingPointRounder$fromGRS(_null, guard, mantissa.$index(0, 0), _null, roundingMode, t3, sticky).__FloatingPointRounder__doRound_F;
-      t7 === $ && A.throwUnnamedLateFieldNI();
-      t8 = type$.Logic;
-      mantissaRounded = A.mux(t7, A.Add$(mantissa, 1).get$sum(), mantissa, _null, t8).named$1("roundedMantissa");
-      t9 = t2.mantissa;
-      subnormalMantissa = mantissaRounded.zeroExtend$1(t9._wire.width).named$1("subnormalMantissa");
+      guard.$le(0, absValueShifted.getRange$2(0, t3 - 2, t8));
+      stickyWidth = absValueShifted.get$width() - mantissaWidth - 2;
+      sticky.$le(0, stickyWidth > 0 ? absValueShifted.getRange$2(0, 0, stickyWidth).or$0() : A.Const$(0, false, _null, _null));
+      t3 = A.FloatingPointRounder$fromGRS(_null, guard, mantissa.$index(0, 0), _null, roundingMode, t6, sticky).__FloatingPointRounder__doRound_F;
+      t3 === $ && A.throwUnnamedLateFieldNI();
+      mantissaRounded = A.mux(t3, A.Add$(mantissa, 1).get$sum(), mantissa, _null, t7).named$1("roundedMantissa");
+      t8 = t2.mantissa;
+      subnormalMantissa = mantissaRounded.zeroExtend$1(t8._wire.width).named$1("subnormalMantissa");
       normalMantissa = (t4 ? A.LogicConcat_concat(A._setArrayType([A.Const$(1, false, _null, _null), mantissaRounded], type$.JSArray_Logic)) : mantissaRounded).named$1("normalMantissa");
-      eRaw = A.mux(absValueShifted.$index(0, -1), A.Subtract$(A.Const$(bias + t6 - fixed.fraction.get$width() - 1, false, _null, iWidth), jBit).get$out(), A.Const$(0, false, _null, iWidth), _null, t8).named$1("eRaw");
-      eRawRne = A.mux(t7.$and(0, mantissaRounded.or$0().$not(0)), eRaw.$add(0, 1), eRaw, _null, t8).named$1("eRawRNE");
+      eRaw = A.mux(absValueShifted.$index(0, -1), A.Subtract$(A.Const$(topExponent, false, _null, iWidth), jBit).get$out(), A.Const$(0, false, _null, iWidth), _null, t7).named$1("eRaw");
+      eRawRne = A.mux(t3.$and(0, mantissaRounded.or$0().$not(0)), eRaw.$add(0, 1), eRaw, _null, t7).named$1("eRawRNE");
       expoLessThanOne = eRawRne.$index(0, -1).$or(0, eRawRne.or$0().$not(0)).named$1("expLessThanOne");
       largestFinite = t2.valuePopulator$0().ofConstant$1(B.FloatingPointConstants_9);
-      t6 = largestFinite.__FloatingPointValue_exponent_F;
-      t6 === $ && A.throwUnnamedLateFieldNI();
-      maxFiniteExponent = A.Const$(t6, false, _null, _null).zeroExtend$1(eRawRne.get$width());
+      t3 = largestFinite.__FloatingPointValue_exponent_F;
+      t3 === $ && A.throwUnnamedLateFieldNI();
+      maxFiniteExponent = A.Const$(t3, false, _null, _null).zeroExtend$1(eRawRne.get$width());
       t7 = eRawRne.$index(0, -1).$not(0);
-      t8 = eRawRne.gt$1(maxFiniteExponent);
+      t9 = eRawRne.gt$1(maxFiniteExponent);
       t10 = eRawRne.eq$1(maxFiniteExponent);
       t11 = largestFinite.__FloatingPointValue_mantissa_F;
       t11 === $ && A.throwUnnamedLateFieldNI();
-      expoMoreThanMax = t7.$and(0, t8.$or(0, t10.$and(0, normalMantissa.gt$1(A.Const$(t11, false, _null, _null))))).named$1("expMoreThanMax");
+      expoMoreThanMax = t7.$and(0, t9.$or(0, t10.$and(0, normalMantissa.gt$1(A.Const$(t11, false, _null, _null))))).named$1("expMoreThanMax");
       t1.valuePopulator$0().ofConstant$1(B.FloatingPointConstants_2);
       $label0$0: {
         if (B.FloatingPointRoundingMode_1 === roundingMode || B.FloatingPointRoundingMode_2 === roundingMode) {
@@ -238119,11 +238129,11 @@
           break $label0$0;
         }
         if (B.FloatingPointRoundingMode_4 === roundingMode) {
-          t1 = A.NotGate$(t3).get$out();
+          t1 = A.NotGate$(t6).get$out();
           break $label0$0;
         }
         if (B.FloatingPointRoundingMode_5 === roundingMode) {
-          t1 = t3;
+          t1 = t6;
           break $label0$0;
         }
         t1 = _null;
@@ -238132,10 +238142,10 @@
       t1 = t2.exponent;
       t5 = t5.mantissa;
       t2 = type$.JSArray_Conditional;
-      t3 = A.ElseIf$(absValue.or$0().$not(0), A._setArrayType([t1.$lt(0, A.Const$(0, false, _null, exponentWidth)), t9.$lt(0, A.Const$(0, false, _null, t5._wire.width))], t2));
-      t4 = expoMoreThanMax.$and(0, overflowToInfinity);
+      t4 = A.ElseIf$(absValue.or$0().$not(0), A._setArrayType([t1.$lt(0, A.Const$(0, false, _null, exponentWidth)), t8.$lt(0, A.Const$(0, false, _null, t5._wire.width))], t2));
+      t6 = expoMoreThanMax.$and(0, overflowToInfinity);
       t7 = B._FilledLogicValue__LogicValueEnum_1_1.get$_enum();
-      A.Combinational$(A._setArrayType([A.If$block(A._setArrayType([t3, A.ElseIf$(t4, A._setArrayType([t1.$lt(0, new A._FilledLogicValue(exponentWidth > 0 ? t7 : B._LogicValueEnum_0, exponentWidth)), t9.$lt(0, A.Const$(0, false, _null, t5._wire.width))], t2)), A.ElseIf$(expoMoreThanMax, A._setArrayType([t1.$lt(0, A.Const$(t6, false, _null, _null)), t9.$lt(0, A.Const$(t11, false, _null, _null))], t2)), A.ElseIf$(expoLessThanOne, A._setArrayType([t1.$lt(0, A.Const$(0, false, _null, exponentWidth)), t9.$lt(0, subnormalMantissa)], t2)), A.Else$(A._setArrayType([t1.$lt(0, eRawRne.slice$2(0, exponentWidth - 1, 0)), t9.$lt(0, normalMantissa)], t2))], type$.JSArray_ElseIf))], t2), "combinational");
+      A.Combinational$(A._setArrayType([A.If$block(A._setArrayType([t4, A.ElseIf$(t6, A._setArrayType([t1.$lt(0, new A._FilledLogicValue(exponentWidth > 0 ? t7 : B._LogicValueEnum_0, exponentWidth)), t8.$lt(0, A.Const$(0, false, _null, t5._wire.width))], t2)), A.ElseIf$(expoMoreThanMax, A._setArrayType([t1.$lt(0, A.Const$(t3, false, _null, _null)), t8.$lt(0, A.Const$(t11, false, _null, _null))], t2)), A.ElseIf$(expoLessThanOne, A._setArrayType([t1.$lt(0, A.Const$(0, false, _null, exponentWidth)), t8.$lt(0, subnormalMantissa)], t2)), A.Else$(A._setArrayType([t1.$lt(0, eRawRne.slice$2(0, exponentWidth - 1, 0)), t8.$lt(0, normalMantissa)], t2))], type$.JSArray_ElseIf))], t2), "combinational");
     }
   };
   A.FloatToFixed.prototype = {};
