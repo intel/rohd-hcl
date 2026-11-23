@@ -262,33 +262,17 @@ class FloatingPointValuePopulator<FpvType extends FloatingPointValue> {
   /// Divides [a] by [b] exactly (to sufficient precision) and rounds once
   /// into this format.
   ///
-  /// Special operands follow IEEE 754: NaN operands propagate, `0 / 0` and
-  /// `inf / inf` give NaN, a finite value divided by infinity gives a signed
-  /// zero, and infinity divided by a finite value gives a signed infinity
-  /// (the largest finite value in a format without infinities, as in
-  /// [multiply]). A nonzero value divided by zero gives a signed infinity;
-  /// in a format without infinities, such as OFP8 E4M3, this throws an
-  /// [InfinityNotSupportedException].
+  /// [b] must be nonzero: callers are expected to handle infinity and
+  /// zero-divisor special cases before calling this (as
+  /// [FloatingPointValue.operator /] does). NaN operands are propagated
+  /// correctly.
   FpvType divide(FloatingPointValue a, FloatingPointValue b,
       {FloatingPointRoundingMode roundingMode =
           FloatingPointRoundingMode.roundNearestEven}) {
     if (a.isNaN | b.isNaN) {
       return _propagateNaN(a, b);
     }
-    if ((a.isAnInfinity && b.isAnInfinity) || (a.isAZero && b.isAZero)) {
-      return nan;
-    }
     final negative = a.sign.toBool() != b.sign.toBool();
-    if (a.isAnInfinity) {
-      return _infinityOrLargestFinite(
-          negative: negative, roundingMode: roundingMode);
-    }
-    if (b.isAZero) {
-      return negative ? negativeInfinity : positiveInfinity;
-    }
-    if (b.isAnInfinity) {
-      return _zero(negative);
-    }
 
     final aExact = _decodeFinite(a);
     final bExact = _decodeFinite(b);
