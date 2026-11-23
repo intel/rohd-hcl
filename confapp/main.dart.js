@@ -239440,12 +239440,13 @@
       return value;
     },
     FloatingPointConverter$10$adderGen$alignExplicitJBit$definitionName$name$priorityGen$reserveDefinitionName$reserveName$roundingMode(source, destination, adderGen, alignExplicitJBit, definitionName, $name, priorityGen, reserveDefinitionName, reserveName, roundingMode, FpTypeIn, FpTypeOut) {
-      var t1, t2, t3, t4, destOut, t5, t6, calculationSource, implicitSource, implicitDestination, converter, t7, t8, maxExpWidth, sBias, dBias, t9, se, t10, t11, t12, mantissa, nan, biasDiff, leadOneEncoder, leadOnePre, leadOne, t13, fullDiff, shift, leadOneValid, trueShift, newMantissa, topBitMeaningful, rounderPlaceholderTop, roundAdderPlaceholderTop, rounderRealTop, roundAdderRealTop, roundingInexact, roundAdderSum, roundedMantissa, roundIncExp, sliceMantissa, destMantissa, predictExp, predictSub, preExponent, destExponent, largestFinite, maxDestExp, maxDestMantissa, overflow, newSe, nextShift, jBitAdjust, tns, fullMantissa, shiftMantissa, shiftedOutSticky, rounder, postPredRndMantissa, roundAdder, rawMantissa, predictEN, finiteOverflow, finiteRoundingInexact, _this = this, _null = null,
+      var t1, t2, t3, t4, destOut, t5, t6, calculationSource, implicitSource, implicitDestination, converter, t7, t8, maxExpWidth, sBias, dBias, t9, se, t10, t11, t12, mantissa, nan, biasDiff, leadOneEncoder, leadOnePre, leadOne, t13, fullDiff, shift, leadOneValid, trueShift, newMantissa, topBitMeaningful, rounderPlaceholderTop, roundAdderPlaceholderTop, rounderRealTop, roundAdderRealTop, roundingInexact, roundAdderSum, roundedMantissa, roundIncExp, sliceMantissa, destMantissa, predictExp, predictSub, preExponent, roundedExponent, destExponent, largestFinite, maxDestExp, maxDestMantissa, overflow, newSe, nextShift, jBitAdjust, tns, fullMantissa, shiftMantissa, shiftedOutSticky, rounder, postPredRndMantissa, roundAdder, rawMantissa, finiteOverflow, finiteRoundingInexact, _this = this, _null = null,
         _s13_ = "combinational",
         _s20_ = "implicit_destination",
         _s8_ = "biasDiff",
         _s16_ = "lead_one_encoder",
         _s3_ = "sum",
+        _s15_ = "roundedExponent",
         _s12_ = "destExponent";
       if (source.subNormalAsZero)
         throw A.wrapException(A.ArgumentError$("FloatingPointConverter does not support denormal as zero (DAZ)", _null));
@@ -239624,21 +239625,23 @@
         }
         sliceMantissa = A.mux(topBitMeaningful, newMantissa.slice$2(0, -1, 1), newMantissa.slice$2(0, -2, 0), _null, t10);
         destMantissa = (t3 >= t7._wire.width ? A.LogicConcat_concat(A._setArrayType([sliceMantissa, A.Const$(0, false, _null, t3 - newMantissa.get$width() + 1)], t12)) : roundedMantissa).named$1("destMantissa");
+        t3 = maxExpWidth + 1;
         if (t2 > t6._wire.width) {
           predictExp = se.$add(0, biasDiff).named$1("predictExp");
           predictSub = A.mux(fullDiff.gte$1(leadOne).$and(0, leadOneValid), fullDiff.$sub(0, leadOne.$sub(0, A.Const$(1, false, _null, leadOne.get$width()))), fullDiff.$sub(0, shift), _null, t10).named$1("predictSubExp");
-          preExponent = A.mux(shift.gt$1(A.Const$(0, false, _null, shift.get$width())), predictSub, predictExp, _null, t10).$add(0, roundIncExp.zeroExtend$1(predictSub.get$width()));
+          preExponent = A.mux(shift.gt$1(A.Const$(0, false, _null, shift.get$width())), predictSub, predictExp, _null, t10).zeroExtend$1(t3).$add(0, roundIncExp.zeroExtend$1(t3));
         } else
-          preExponent = se.$add(0, roundIncExp.zeroExtend$1(se.get$width()).named$1("rndIncExp"));
+          preExponent = se.zeroExtend$1(t3).$add(0, roundIncExp.zeroExtend$1(t3).named$1("rndIncExp"));
+        roundedExponent = preExponent.named$1(_s15_);
         destExponent = preExponent.getRange$2(0, 0, t2).named$1(_s12_);
         largestFinite = t1.valuePopulator$0().ofConstant$1(B.FloatingPointConstants_9);
         t1 = largestFinite.__FloatingPointValue_exponent_F;
         t1 === $ && A.throwUnnamedLateFieldNI();
-        maxDestExp = A.Const$(t1, false, _null, maxExpWidth);
-        t1 = largestFinite.__FloatingPointValue_mantissa_F;
-        t1 === $ && A.throwUnnamedLateFieldNI();
-        maxDestMantissa = A.Const$(t1, false, _null, _null);
-        overflow = destExponent.zeroExtend$1(maxExpWidth).gt$1(maxDestExp).$or(0, destExponent.zeroExtend$1(maxExpWidth).eq$1(maxDestExp).$and(0, destMantissa.gt$1(maxDestMantissa)));
+        maxDestExp = A.Const$(t1, false, _null, t3);
+        t3 = largestFinite.__FloatingPointValue_mantissa_F;
+        t3 === $ && A.throwUnnamedLateFieldNI();
+        maxDestMantissa = A.Const$(t3, false, _null, _null);
+        overflow = roundedExponent.gt$1(maxDestExp).$or(0, roundedExponent.eq$1(maxDestExp).$and(0, destMantissa.gt$1(maxDestMantissa)));
       } else {
         biasDiff = sBias.$sub(0, dBias).named$1(_s8_);
         leadOneEncoder = priorityGen.call$3$generateValid$name(mantissa.get$reversed(mantissa), true, _s16_);
@@ -239668,13 +239671,14 @@
         roundIncExp = roundAdder.output$1(_s3_).$index(0, -1);
         rawMantissa = roundAdder.output$1(_s3_);
         destMantissa = A.mux(roundIncExp.$and(0, A.Const$(t9, false, _null, _null)), rawMantissa.slice$2(0, -1, 1), rawMantissa.slice$2(0, -2, 0), _null, t7).getRange$2(0, 0, t3);
-        predictEN = A.mux(biasDiff.gte$1(newSe), A.Const$(0, false, _null, maxExpWidth), newSe.$sub(0, biasDiff), _null, t7).named$1("predictExponent");
-        destExponent = predictEN.$add(0, roundIncExp.zeroExtend$1(predictEN.get$width())).getRange$2(0, 0, t2).named$1(_s12_);
-        maxDestExp = A.Const$(t1.valuePopulator$0().ofFloatingPoint$1(t1).get$bias() + t1.valuePopulator$0().ofFloatingPoint$1(t1).get$bias(), false, _null, maxExpWidth);
+        t3 = maxExpWidth + 1;
+        roundedExponent = A.mux(biasDiff.gte$1(newSe), A.Const$(0, false, _null, maxExpWidth), newSe.$sub(0, biasDiff), _null, t7).named$1("predictExponent").zeroExtend$1(t3).$add(0, roundIncExp.zeroExtend$1(t3)).named$1(_s15_);
+        destExponent = roundedExponent.getRange$2(0, 0, t2).named$1(_s12_);
+        maxDestExp = A.Const$(t1.valuePopulator$0().ofFloatingPoint$1(t1).get$bias() + t1.valuePopulator$0().ofFloatingPoint$1(t1).get$bias(), false, _null, t3);
         t1 = t1.valuePopulator$0().ofConstant$1(B.FloatingPointConstants_9).__FloatingPointValue_mantissa_F;
         t1 === $ && A.throwUnnamedLateFieldNI();
         maxDestMantissa = A.Const$(t1, false, _null, _null);
-        overflow = newSe.gt$1(biasDiff).$and(0, newSe.$sub(0, biasDiff).gt$1(maxDestExp)).$or(0, destExponent.zeroExtend$1(maxDestExp._wire.width).gt$1(maxDestExp)).$or(0, destExponent.zeroExtend$1(maxDestExp._wire.width).eq$1(maxDestExp).$and(0, destMantissa.gt$1(maxDestMantissa)));
+        overflow = newSe.gt$1(biasDiff).$and(0, newSe.$sub(0, biasDiff).zeroExtend$1(maxDestExp._wire.width).gt$1(maxDestExp)).$or(0, roundedExponent.gt$1(maxDestExp)).$or(0, roundedExponent.eq$1(maxDestExp).$and(0, destMantissa.gt$1(maxDestMantissa)));
         roundingInexact = t6;
       }
       $label0$0: {
@@ -239710,7 +239714,7 @@
       t3.$le(0, finiteOverflow);
       t3 = t5.__FloatingPointStatus_underflow_F;
       t3 === $ && A.throwUnnamedLateFieldNI();
-      t3.$le(0, destExponent.or$0().$not(0).$and(0, finiteRoundingInexact));
+      t3.$le(0, roundedExponent.or$0().$not(0).$and(0, finiteRoundingInexact));
       t5 = t5.__FloatingPointStatus_inexact_F;
       t5 === $ && A.throwUnnamedLateFieldNI();
       t5.$le(0, finiteOverflow.$or(0, finiteRoundingInexact));
