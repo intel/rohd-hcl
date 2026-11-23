@@ -3960,47 +3960,7 @@
             ]
           }
         },
-        "struct_unpack_0_rd_data_0": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "rd_data_0",
-            "FIELD_COUNT": 1,
-            "FIELD_0_NAME": "payload",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "payload": "output"
-          },
-          "connections": {
-            "A": [
-              112,
-              113,
-              114,
-              115,
-              116,
-              117,
-              118,
-              119
-            ],
-            "payload": [
-              27,
-              28,
-              29,
-              30,
-              31,
-              32,
-              33,
-              34
-            ]
-          }
-        },
-        "struct_unpack_1_writeData": {
+        "struct_unpack_0_writeData": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -4037,6 +3997,46 @@
               68,
               69,
               70
+            ]
+          }
+        },
+        "struct_unpack_1_rd_data_0": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "rd_data_0",
+            "FIELD_COUNT": 1,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "payload": "output"
+          },
+          "connections": {
+            "A": [
+              112,
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119
+            ],
+            "payload": [
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34
             ]
           }
         },
@@ -5128,21 +5128,7 @@
             "computed": 1
           }
         },
-        "struct_unpack_0_rd_data_0_payload": {
-          "bits": [
-            27,
-            28,
-            29,
-            30,
-            31,
-            32,
-            33,
-            34
-          ],
-          "hide_name": 1,
-          "attributes": {}
-        },
-        "struct_unpack_1_writeData_payload": {
+        "struct_unpack_0_writeData_payload": {
           "bits": [
             63,
             64,
@@ -5152,6 +5138,20 @@
             68,
             69,
             70
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "struct_unpack_1_rd_data_0_payload": {
+          "bits": [
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34
           ],
           "hide_name": 1,
           "attributes": {}
@@ -5943,47 +5943,7 @@
             ]
           }
         },
-        "struct_unpack_0_upstream_result": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "upstream_result",
-            "FIELD_COUNT": 1,
-            "FIELD_0_NAME": "payload",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "payload": "output"
-          },
-          "connections": {
-            "A": [
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11
-            ],
-            "payload": [
-              52,
-              53,
-              54,
-              55,
-              56,
-              57,
-              58,
-              59
-            ]
-          }
-        },
-        "struct_unpack_1_readData": {
+        "struct_unpack_0_readData": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -6020,6 +5980,46 @@
               37,
               38,
               39
+            ]
+          }
+        },
+        "struct_unpack_1_upstream_result": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_result",
+            "FIELD_COUNT": 1,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "payload": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "payload": [
+              52,
+              53,
+              54,
+              55,
+              56,
+              57,
+              58,
+              59
             ]
           }
         },
@@ -6774,21 +6774,7 @@
           "hide_name": 1,
           "attributes": {}
         },
-        "struct_unpack_0_upstream_result_payload": {
-          "bits": [
-            52,
-            53,
-            54,
-            55,
-            56,
-            57,
-            58,
-            59
-          ],
-          "hide_name": 1,
-          "attributes": {}
-        },
-        "struct_unpack_1_readData_payload": {
+        "struct_unpack_0_readData_payload": {
           "bits": [
             32,
             33,
@@ -6798,6 +6784,20 @@
             37,
             38,
             39
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "struct_unpack_1_upstream_result_payload": {
+          "bits": [
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59
           ],
           "hide_name": 1,
           "attributes": {}

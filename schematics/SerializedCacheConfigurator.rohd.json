@@ -23699,116 +23699,6 @@
           },
           "connections": {
             "A": [
-              721,
-              722,
-              723,
-              724,
-              725,
-              726,
-              727,
-              728,
-              729,
-              730,
-              731,
-              732,
-              733,
-              734,
-              735,
-              736,
-              737,
-              738,
-              739,
-              740,
-              741,
-              742,
-              743,
-              744,
-              745
-            ],
-            "operation": [
-              746,
-              747
-            ],
-            "address": [
-              748,
-              749,
-              750,
-              751,
-              752,
-              753,
-              754,
-              755
-            ],
-            "token": [
-              756,
-              757
-            ],
-            "data": [
-              758,
-              759,
-              760,
-              761,
-              762,
-              763,
-              764,
-              765
-            ],
-            "writeMask": [
-              766
-            ],
-            "lineMetadata": [
-              767,
-              768
-            ],
-            "requestContext": [
-              769,
-              770
-            ]
-          }
-        },
-        "struct_unpack_2_out": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "out",
-            "FIELD_COUNT": 7,
-            "FIELD_0_NAME": "operation",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 2,
-            "FIELD_1_NAME": "address",
-            "FIELD_1_OFFSET": 2,
-            "FIELD_1_WIDTH": 8,
-            "FIELD_2_NAME": "token",
-            "FIELD_2_OFFSET": 10,
-            "FIELD_2_WIDTH": 2,
-            "FIELD_3_NAME": "data",
-            "FIELD_3_OFFSET": 12,
-            "FIELD_3_WIDTH": 8,
-            "FIELD_4_NAME": "writeMask",
-            "FIELD_4_OFFSET": 20,
-            "FIELD_4_WIDTH": 1,
-            "FIELD_5_NAME": "lineMetadata",
-            "FIELD_5_OFFSET": 21,
-            "FIELD_5_WIDTH": 2,
-            "FIELD_6_NAME": "requestContext",
-            "FIELD_6_OFFSET": 23,
-            "FIELD_6_WIDTH": 2
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "operation": "output",
-            "address": "output",
-            "token": "output",
-            "data": "output",
-            "writeMask": "output",
-            "lineMetadata": "output",
-            "requestContext": "output"
-          },
-          "connections": {
-            "A": [
               571,
               572,
               573,
@@ -23873,6 +23763,116 @@
             "requestContext": [
               619,
               620
+            ]
+          }
+        },
+        "struct_unpack_2_out": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "out",
+            "FIELD_COUNT": 7,
+            "FIELD_0_NAME": "operation",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "address",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 8,
+            "FIELD_2_NAME": "token",
+            "FIELD_2_OFFSET": 10,
+            "FIELD_2_WIDTH": 2,
+            "FIELD_3_NAME": "data",
+            "FIELD_3_OFFSET": 12,
+            "FIELD_3_WIDTH": 8,
+            "FIELD_4_NAME": "writeMask",
+            "FIELD_4_OFFSET": 20,
+            "FIELD_4_WIDTH": 1,
+            "FIELD_5_NAME": "lineMetadata",
+            "FIELD_5_OFFSET": 21,
+            "FIELD_5_WIDTH": 2,
+            "FIELD_6_NAME": "requestContext",
+            "FIELD_6_OFFSET": 23,
+            "FIELD_6_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "operation": "output",
+            "address": "output",
+            "token": "output",
+            "data": "output",
+            "writeMask": "output",
+            "lineMetadata": "output",
+            "requestContext": "output"
+          },
+          "connections": {
+            "A": [
+              721,
+              722,
+              723,
+              724,
+              725,
+              726,
+              727,
+              728,
+              729,
+              730,
+              731,
+              732,
+              733,
+              734,
+              735,
+              736,
+              737,
+              738,
+              739,
+              740,
+              741,
+              742,
+              743,
+              744,
+              745
+            ],
+            "operation": [
+              746,
+              747
+            ],
+            "address": [
+              748,
+              749,
+              750,
+              751,
+              752,
+              753,
+              754,
+              755
+            ],
+            "token": [
+              756,
+              757
+            ],
+            "data": [
+              758,
+              759,
+              760,
+              761,
+              762,
+              763,
+              764,
+              765
+            ],
+            "writeMask": [
+              766
+            ],
+            "lineMetadata": [
+              767,
+              768
+            ],
+            "requestContext": [
+              769,
+              770
             ]
           }
         },
