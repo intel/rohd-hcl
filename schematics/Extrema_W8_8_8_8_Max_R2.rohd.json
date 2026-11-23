@@ -414,6 +414,56 @@
           },
           "connections": {
             "A": [
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171
+            ],
+            "payload": [
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132
+            ],
+            "index": [
+              172,
+              173
+            ]
+          }
+        },
+        "struct_unpack_1_out": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "out",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "payload",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "index",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "payload": "output",
+            "index": "output"
+          },
+          "connections": {
+            "A": [
               115,
               116,
               117,
@@ -441,7 +491,7 @@
             ]
           }
         },
-        "struct_unpack_1_out": {
+        "struct_unpack_2_out": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -488,56 +538,6 @@
             "index": [
               205,
               206
-            ]
-          }
-        },
-        "struct_unpack_2_out": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "out",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "payload",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8,
-            "FIELD_1_NAME": "index",
-            "FIELD_1_OFFSET": 8,
-            "FIELD_1_WIDTH": 2
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "payload": "output",
-            "index": "output"
-          },
-          "connections": {
-            "A": [
-              162,
-              163,
-              164,
-              165,
-              166,
-              167,
-              168,
-              169,
-              170,
-              171
-            ],
-            "payload": [
-              125,
-              126,
-              127,
-              128,
-              129,
-              130,
-              131,
-              132
-            ],
-            "index": [
-              172,
-              173
             ]
           }
         },

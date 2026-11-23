@@ -264,6 +264,7 @@ additionally require a fraction bit and IEEE special values.</li>
 
   final nan = source.isNaN;
   final Logic overflow;
+  final Logic roundedExponent;
   final Logic destExponent;
   final Logic destMantissa;
   final Logic biasDiff;
@@ -381,6 +382,8 @@ additionally require a fraction bit and IEEE special values.</li>
             : roundedMantissa)
         .named(&#39;destMantissa&#39;);
 
+    &#47;&#47; One extra bit so that a rounding carry out of the all-ones exponent
+    &#47;&#47; is still seen by the overflow check below.
     final Logic preExponent;
     if (destExponentWidth &gt; source.exponent.width) {
       final predictExp = (se + biasDiff).named(&#39;predictExp&#39;);
@@ -389,23 +392,25 @@ additionally require a fraction bit and IEEE special values.</li>
               fullDiff - (leadOne - Const(1, width: leadOne.width)),
               fullDiff - shift)
           .named(&#39;predictSubExp&#39;);
-      preExponent = mux(shift.gt(Const(0, width: shift.width)), predictSub,
-              predictExp) +
-          roundIncExp.zeroExtend(predictSub.width);
+      preExponent =
+          mux(shift.gt(Const(0, width: shift.width)), predictSub, predictExp)
+                  .zeroExtend(maxExpWidth + 1) +
+              roundIncExp.zeroExtend(maxExpWidth + 1);
     } else {
-      preExponent = se + roundIncExp.zeroExtend(se.width).named(&#39;rndIncExp&#39;);
+      preExponent = se.zeroExtend(maxExpWidth + 1) +
+          roundIncExp.zeroExtend(maxExpWidth + 1).named(&#39;rndIncExp&#39;);
     }
+    roundedExponent = preExponent.named(&#39;roundedExponent&#39;);
     destExponent =
         preExponent.getRange(0, destExponentWidth).named(&#39;destExponent&#39;);
 
     final largestFinite = destination
         .valuePopulator()
         .ofConstant(FloatingPointConstants.largestNormal);
-    final maxDestExp = Const(largestFinite.exponent, width: maxExpWidth);
+    final maxDestExp = Const(largestFinite.exponent, width: maxExpWidth + 1);
     final maxDestMantissa = Const(largestFinite.mantissa);
-    overflow = destExponent.zeroExtend(maxExpWidth).gt(maxDestExp) |
-        (destExponent.zeroExtend(maxExpWidth).eq(maxDestExp) &amp;
-            destMantissa.gt(maxDestMantissa));
+    overflow = roundedExponent.gt(maxDestExp) |
+        (roundedExponent.eq(maxDestExp) &amp; destMantissa.gt(maxDestMantissa));
   } else {
     &#47;&#47; Wide to Narrow exponent
     final biasDiff = (sBias - dBias).named(&#39;biasDiff&#39;);
@@ -485,23 +490,27 @@ additionally require a fraction bit and IEEE special values.</li>
             newSe - biasDiff)
         .named(&#39;predictExponent&#39;);
 
-    destExponent = (predictEN + roundIncExp.zeroExtend(predictEN.width))
-        .getRange(0, destExponentWidth)
-        .named(&#39;destExponent&#39;);
+    &#47;&#47; Keep the rounding carry: with an exponent that reaches all ones for
+    &#47;&#47; finite values (OFP8 E4M3), truncating first wraps it to zero.
+    roundedExponent = (predictEN.zeroExtend(maxExpWidth + 1) +
+            roundIncExp.zeroExtend(maxExpWidth + 1))
+        .named(&#39;roundedExponent&#39;);
+    destExponent =
+        roundedExponent.getRange(0, destExponentWidth).named(&#39;destExponent&#39;);
 
     final maxDestExp = Const(
         destination.floatingPointValue.maxExponent +
             destination.floatingPointValue.bias,
-        width: maxExpWidth);
+        width: maxExpWidth + 1);
     final largestFinite = destination
         .valuePopulator()
         .ofConstant(FloatingPointConstants.largestNormal);
     final maxDestMantissa = Const(largestFinite.mantissa);
 
-    overflow = (newSe.gt(biasDiff) &amp; (newSe - biasDiff).gt(maxDestExp)) |
-        destExponent.zeroExtend(maxDestExp.width).gt(maxDestExp) |
-        (destExponent.zeroExtend(maxDestExp.width).eq(maxDestExp) &amp;
-            destMantissa.gt(maxDestMantissa));
+    overflow = (newSe.gt(biasDiff) &amp;
+            (newSe - biasDiff).zeroExtend(maxDestExp.width).gt(maxDestExp)) |
+        roundedExponent.gt(maxDestExp) |
+        (roundedExponent.eq(maxDestExp) &amp; destMantissa.gt(maxDestMantissa));
   }
   final overflowToInfinity = switch (roundingMode) {
     FloatingPointRoundingMode.roundNearestEven ||
@@ -521,7 +530,7 @@ additionally require a fraction bit and IEEE special values.</li>
   _status.invalid &lt;= source.isSignalingNaN;
   _status.divideByZero &lt;= Const(0);
   _status.overflow &lt;= finiteOverflow;
-  _status.underflow &lt;= ~destExponent.or() &amp; finiteRoundingInexact;
+  _status.underflow &lt;= ~roundedExponent.or() &amp; finiteRoundingInexact;
   _status.inexact &lt;= finiteOverflow | finiteRoundingInexact;
   Combinational([
     If.block([
