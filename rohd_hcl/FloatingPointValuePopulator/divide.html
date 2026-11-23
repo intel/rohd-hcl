@@ -67,13 +67,10 @@
 <section class="desc markdown">
   <p>Divides <code>a</code> by <code>b</code> exactly (to sufficient precision) and rounds once
 into this format.</p>
-<p>Special operands follow IEEE 754: NaN operands propagate, <code>0 / 0</code> and
-<code>inf / inf</code> give NaN, a finite value divided by infinity gives a signed
-zero, and infinity divided by a finite value gives a signed infinity
-(the largest finite value in a format without infinities, as in
-<a href="../../rohd_hcl/FloatingPointValuePopulator/multiply.html">multiply</a>). A nonzero value divided by zero gives a signed infinity;
-in a format without infinities, such as OFP8 E4M3, this throws an
-<a href="../../rohd_hcl/InfinityNotSupportedException-class.html">InfinityNotSupportedException</a>.</p>
+<p><code>b</code> must be nonzero: callers are expected to handle infinity and
+zero-divisor special cases before calling this (as
+<a href="../../rohd_hcl/FloatingPointValue/operator_divide.html">FloatingPointValue.operator /</a> does). NaN operands are propagated
+correctly.</p>
 </section>
 
 
@@ -86,20 +83,7 @@ in a format without infinities, such as OFP8 E4M3, this throws an
   if (a.isNaN | b.isNaN) {
     return _propagateNaN(a, b);
   }
-  if ((a.isAnInfinity &amp;&amp; b.isAnInfinity) || (a.isAZero &amp;&amp; b.isAZero)) {
-    return nan;
-  }
   final negative = a.sign.toBool() != b.sign.toBool();
-  if (a.isAnInfinity) {
-    return _infinityOrLargestFinite(
-        negative: negative, roundingMode: roundingMode);
-  }
-  if (b.isAZero) {
-    return negative ? negativeInfinity : positiveInfinity;
-  }
-  if (b.isAnInfinity) {
-    return _zero(negative);
-  }
 
   final aExact = _decodeFinite(a);
   final bExact = _decodeFinite(b);

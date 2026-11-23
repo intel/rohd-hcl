@@ -9038,7 +9038,63 @@
             ]
           }
         },
-        "struct_unpack_0_b": {
+        "struct_unpack_0_out": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "out",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "mantissa",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 5,
+            "FIELD_1_NAME": "exponent",
+            "FIELD_1_OFFSET": 5,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "sign",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "mantissa": "output",
+            "exponent": "output",
+            "sign": "output"
+          },
+          "connections": {
+            "A": [
+              363,
+              364,
+              365,
+              366,
+              367,
+              368,
+              369,
+              370,
+              371,
+              372
+            ],
+            "mantissa": [
+              373,
+              374,
+              375,
+              376,
+              377
+            ],
+            "exponent": [
+              378,
+              379,
+              380,
+              381
+            ],
+            "sign": [
+              382
+            ]
+          }
+        },
+        "struct_unpack_1_b": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -9094,7 +9150,7 @@
             ]
           }
         },
-        "struct_unpack_1_a": {
+        "struct_unpack_2_a": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -9147,62 +9203,6 @@
             ],
             "sign": [
               247
-            ]
-          }
-        },
-        "struct_unpack_2_out": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "out",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "mantissa",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 5,
-            "FIELD_1_NAME": "exponent",
-            "FIELD_1_OFFSET": 5,
-            "FIELD_1_WIDTH": 4,
-            "FIELD_2_NAME": "sign",
-            "FIELD_2_OFFSET": 9,
-            "FIELD_2_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "mantissa": "output",
-            "exponent": "output",
-            "sign": "output"
-          },
-          "connections": {
-            "A": [
-              363,
-              364,
-              365,
-              366,
-              367,
-              368,
-              369,
-              370,
-              371,
-              372
-            ],
-            "mantissa": [
-              373,
-              374,
-              375,
-              376,
-              377
-            ],
-            "exponent": [
-              378,
-              379,
-              380,
-              381
-            ],
-            "sign": [
-              382
             ]
           }
         },

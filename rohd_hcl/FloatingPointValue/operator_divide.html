@@ -72,7 +72,19 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">FloatingPointValue operator &#47;(FloatingPointValue divisor) {
   _validateArithmeticFormat(divisor);
-  &#47;&#47; `divide` handles NaN, zero and infinity operands.
+  if (isAnInfinity) {
+    if (divisor.isAnInfinity | divisor.isAZero) {
+      return clonePopulator().nan;
+    } else {
+      return this;
+    }
+  } else {
+    if (divisor.isAZero) {
+      return sign != divisor.sign
+          ? clonePopulator().negativeInfinity
+          : clonePopulator().positiveInfinity;
+    }
+  }
   return clonePopulator().divide(this, divisor);
 }</code></pre>
 </section>
