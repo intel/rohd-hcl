@@ -13,8 +13,10 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/bit_operations/selection/one_hot_mux.dart';
 import 'package:rohd_hcl/src/flow_control/arbitration/priority_arbiter.dart';
+import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
 import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/memory/contracts/memory.dart';
 import 'package:rohd_hcl/src/memory/contracts/memory_array.dart';
 import 'package:rohd_hcl/src/memory/storage/memory_array_factories.dart';
@@ -94,14 +96,14 @@ class TensorScratchpadReadRequest extends LogicStructure {
       );
 }
 
-/// One tensor scratchpad write request.
+/// One tensor scratchpad write request retaining the word schema [T].
 /// {@category Inference}
-class TensorScratchpadWriteRequest extends LogicStructure {
+class TensorScratchpadWriteRequest<T extends Logic> extends LogicStructure {
   /// Flat scratchpad address.
   late final Logic address;
 
   /// Complete word to store.
-  late final Logic data;
+  T get data => elements[1] as T;
 
   /// Width of [address].
   final int addressWidth;
@@ -109,15 +111,18 @@ class TensorScratchpadWriteRequest extends LogicStructure {
   /// Width of [data].
   final int dataWidth;
 
-  /// Creates a scratchpad write request shape.
+  /// Creates a scratchpad write request with a checked clone of [data].
+  ///
+  /// [data] is a schema, not a driver. Drive this request's [data] field.
   TensorScratchpadWriteRequest({
     required this.addressWidth,
-    required this.dataWidth,
+    required T data,
     String name = 'tensorScratchpadWriteRequest',
-  }) : super(
+  })  : dataWidth = data.width,
+        super(
           [
             Logic(name: 'address', width: addressWidth),
-            Logic(name: 'data', width: dataWidth),
+            cloneTypedPayload<T>(data, name: 'data'),
           ],
           name: name,
         ) {
@@ -125,34 +130,22 @@ class TensorScratchpadWriteRequest extends LogicStructure {
       throw ArgumentError('Scratchpad write widths must be positive.');
     }
     address = elements[0];
-    data = elements[1];
-  }
-
-  TensorScratchpadWriteRequest._clone(
-    List<Logic> elements, {
-    required this.addressWidth,
-    required this.dataWidth,
-    required String name,
-  }) : super(elements, name: name) {
-    address = elements[0];
-    data = elements[1];
   }
 
   @override
-  TensorScratchpadWriteRequest clone({String? name}) =>
-      TensorScratchpadWriteRequest._clone(
-        elements.map((element) => element.clone(name: element.name)).toList(),
+  TensorScratchpadWriteRequest<T> clone({String? name}) =>
+      TensorScratchpadWriteRequest<T>(
+        data: data,
         addressWidth: addressWidth,
-        dataWidth: dataWidth,
         name: name ?? this.name,
       );
 }
 
-/// One retained tensor scratchpad read response.
+/// One retained tensor scratchpad read response retaining the word schema [T].
 /// {@category Inference}
-class TensorScratchpadReadResponse extends LogicStructure {
+class TensorScratchpadReadResponse<T extends Logic> extends LogicStructure {
   /// Returned word.
-  late final Logic data;
+  T get data => elements[0] as T;
 
   /// Metadata copied from the accepted request.
   late final Logic tag;
@@ -166,14 +159,15 @@ class TensorScratchpadReadResponse extends LogicStructure {
   /// Width of [tag].
   final int tagWidth;
 
-  /// Creates a scratchpad read response shape.
+  /// Creates a scratchpad read response with a checked clone of [data].
   TensorScratchpadReadResponse({
-    required this.dataWidth,
+    required T data,
     required this.tagWidth,
     String name = 'tensorScratchpadReadResponse',
-  }) : super(
+  })  : dataWidth = data.width,
+        super(
           [
-            Logic(name: 'data', width: dataWidth),
+            cloneTypedPayload<T>(data, name: 'data'),
             Logic(name: 'tag', width: tagWidth),
             Logic(name: 'error'),
           ],
@@ -182,40 +176,27 @@ class TensorScratchpadReadResponse extends LogicStructure {
     if (dataWidth < 1 || tagWidth < 1) {
       throw ArgumentError('Scratchpad response widths must be positive.');
     }
-    data = elements[0];
-    tag = elements[1];
-    error = elements[2];
-  }
-
-  TensorScratchpadReadResponse._clone(
-    List<Logic> elements, {
-    required this.dataWidth,
-    required this.tagWidth,
-    required String name,
-  }) : super(elements, name: name) {
-    data = elements[0];
     tag = elements[1];
     error = elements[2];
   }
 
   @override
-  TensorScratchpadReadResponse clone({String? name}) =>
-      TensorScratchpadReadResponse._clone(
-        elements.map((element) => element.clone(name: element.name)).toList(),
-        dataWidth: dataWidth,
+  TensorScratchpadReadResponse<T> clone({String? name}) =>
+      TensorScratchpadReadResponse<T>(
+        data: data,
         tagWidth: tagWidth,
         name: name ?? this.name,
       );
 }
 
-class _TensorScratchpadReadPortController extends Module {
+class _TensorScratchpadReadPortController<T extends Logic> extends Module {
   Logic get requestCandidate => output('requestCandidate');
 
   Logic get requestReady => output('requestReady');
 
   Logic get responseValid => output('responseValid');
 
-  Logic get responseData => output('responseData');
+  late final T responseData;
 
   Logic get responseTag => output('responseTag');
 
@@ -235,14 +216,14 @@ class _TensorScratchpadReadPortController extends Module {
     required Logic requestTag,
     required Logic requestGrant,
     required Logic rawResponseValid,
-    required Logic rawResponseData,
+    required T rawResponseData,
     required Logic downstreamReady,
     required int dataWidth,
     required int tagWidth,
     super.name = 'tensor_scratchpad_read_port_controller',
   }) : super(
-          definitionName:
-              'TensorScratchpadReadPortController_D${dataWidth}_T$tagWidth',
+          definitionName: 'TensorScratchpadReadPortController_'
+              '${payloadShapeIdentity(rawResponseData)}_T$tagWidth',
         ) {
     if (requestTag.width != tagWidth || rawResponseData.width != dataWidth) {
       throw ArgumentError('Scratchpad read-controller widths do not match.');
@@ -255,13 +236,13 @@ class _TensorScratchpadReadPortController extends Module {
     final localRequestTag = addInput('requestTag', requestTag, width: tagWidth);
     final localRequestGrant = addInput('requestGrant', requestGrant);
     final localRawValid = addInput('rawResponseValid', rawResponseValid);
-    final localRawData =
-        addInput('rawResponseData', rawResponseData, width: dataWidth);
+    final localRawData = addTypedInput<T>('rawResponseData', rawResponseData);
     final localDownstreamReady = addInput('downstreamReady', downstreamReady);
     final outstanding = Logic(name: '${name}_outstanding');
     final occupied = Logic(name: '${name}_occupied');
     final pendingTag = Logic(name: '${name}_pending_tag', width: tagWidth);
-    final storedData = Logic(name: '${name}_stored_data', width: dataWidth);
+    final storedData =
+        cloneTypedPayload<T>(localRawData, name: '${name}_stored_data');
     final storedTag = Logic(name: '${name}_stored_tag', width: tagWidth);
     final storedError = Logic(name: '${name}_stored_error');
     final canAcceptRequest = ~outstanding & (~occupied | localDownstreamReady);
@@ -280,7 +261,8 @@ class _TensorScratchpadReadPortController extends Module {
           canAcceptRequest,
         );
     addOutput('responseValid') <= occupied;
-    addOutput('responseData', width: dataWidth) <= storedData;
+    responseData = addTypedPayloadOutput<T>(this, 'responseData', storedData);
+    responseData <= storedData;
     addOutput('responseTag', width: tagWidth) <= storedTag;
     addOutput('responseError') <= storedError;
     addOutput('invalidAddress') <= invalidAccepted;
@@ -320,7 +302,7 @@ class _TensorScratchpadReadPortController extends Module {
   }
 }
 
-/// Banked tensor scratchpad with ready/valid logical ports.
+/// Banked tensor scratchpad with typed requests and synchronous enables.
 ///
 /// Requests to different banks may proceed concurrently. Conflicting requests
 /// are resolved by [bankConflictPolicy], with writes ordered before reads.
@@ -329,8 +311,31 @@ class _TensorScratchpadReadPortController extends Module {
 /// zero/error response; out-of-range writes are consumed and reported.
 /// A valid read has one cycle of bank latency followed by one cycle to enter
 /// the retained response slot. Each bank performs at most one access per cycle.
+/// Word type [T] and its declared schema survive bank selection, backing
+/// storage, and response retention. All word ports must have compatible
+/// schemas.
+///
+/// Each read/write enable bit offers one access for arbitration on that edge.
+/// [canRead] and [canWrite] give admission capacity; only enabled accesses with
+/// capacity are admitted. The core never retries a denied offer. A scheduler
+/// must account for bank conflicts and port capacity. With `consumeResponses`
+/// omitted, each retained response is consumed on the following edge;
+/// explicit consumption permits external retention.
+/// Reset abandons outstanding reads and clears response slots.
 /// {@category Inference}
-class TensorScratchpad extends Module {
+class TensorScratchpadCore<T extends Logic> extends Module {
+  /// Read admission capacity, one bit per logical port.
+  Logic get canRead => output('canRead');
+
+  /// Write admission capacity, one bit per logical port.
+  Logic get canWrite => output('canWrite');
+
+  /// Retained response availability, one bit per logical port.
+  Logic get responseValid => output('responseValid');
+
+  /// Typed retained response ports.
+  late final List<TensorScratchpadReadResponse<T>> responses;
+
   /// Number of flat addressable words.
   final int depth;
 
@@ -354,7 +359,10 @@ class TensorScratchpad extends Module {
 
   /// Selected bank storage. Combinational reads are registered by this module;
   /// one-cycle arrays are used directly.
-  final MemoryArrayFunctor<Logic> memoryFunctor;
+  final MemoryArrayFunctor<T> memoryFunctor;
+
+  /// Schema shared by every stored word.
+  final T wordSchema;
 
   /// Optional backing-array read collision requirement.
   ///
@@ -363,12 +371,11 @@ class TensorScratchpad extends Module {
   /// [MemoryArrayReadCollision.oldData] sampling contract.
   final MemoryArrayReadCollision? readUnderWrite;
 
-  late final List<ReadyValidInterface<TensorScratchpadReadRequest>>
-      _readRequests;
-  late final List<IrrevocableReadyValidInterface<TensorScratchpadReadResponse>>
-      _readResponses;
-  late final List<ReadyValidInterface<TensorScratchpadWriteRequest>>
-      _writeRequests;
+  late final List<TensorScratchpadReadRequest> _readRequests;
+  late final List<TensorScratchpadWriteRequest<T>> _writeRequests;
+  late final Logic _readEnable;
+  late final Logic _writeEnable;
+  late final Logic _consumeResponses;
 
   /// One blocked bit per write followed by read request.
   Logic get blockedRequests => output('blockedRequests');
@@ -388,39 +395,40 @@ class TensorScratchpad extends Module {
   /// One unexpected raw response bit per read port.
   Logic get unexpectedResponse => output('unexpectedResponse');
 
-  /// Creates a ready/valid banked tensor scratchpad.
+  /// Creates an action-driven banked tensor scratchpad.
   ///
   /// Banks use a single unmasked read port and a single unmasked write port
   /// with one shared access per cycle. The default array clears on reset;
   /// custom arrays provide their own storage reset behavior.
-  TensorScratchpad({
+  TensorScratchpadCore({
     required Logic clk,
     required Logic reset,
-    required List<ReadyValidInterface<TensorScratchpadReadRequest>>
-        readRequests,
-    required List<ReadyValidInterface<TensorScratchpadReadResponse>>
-        readResponses,
-    required List<ReadyValidInterface<TensorScratchpadWriteRequest>>
-        writeRequests,
+    required List<TensorScratchpadReadRequest> readRequests,
+    required List<TensorScratchpadReadResponse<T>> readResponses,
+    required List<TensorScratchpadWriteRequest<T>> writeRequests,
+    required Logic readEnable,
+    required Logic writeEnable,
     required this.depth,
     required this.bankCount,
-    MemoryArrayFunctor<Logic>? memoryFunctor,
-    this.bankConflictPolicy =
-        TensorScratchpadBankConflictPolicy.lowestPortWins,
+    Logic? consumeResponses,
+    MemoryArrayFunctor<T>? memoryFunctor,
+    this.bankConflictPolicy = TensorScratchpadBankConflictPolicy.lowestPortWins,
     this.bankMapping = TensorScratchpadBankMapping.lowAddressBits,
     this.readUnderWrite,
-    super.name = 'tensor_scratchpad',
-  })  : memoryFunctor = memoryFunctor ?? registerFileArray<Logic>(),
-        dataWidth = _firstPort(writeRequests, 'writeRequests').data.dataWidth,
+    super.name = 'tensor_scratchpad_core',
+  })  : memoryFunctor = memoryFunctor ?? registerFileArray<T>(),
+        wordSchema = _firstPort(writeRequests, 'writeRequests').data,
+        dataWidth = _firstPort(writeRequests, 'writeRequests').dataWidth,
         addressWidth = max(1, max(depth, 1).log2Ceil),
-        tagWidth = _firstPort(readRequests, 'readRequests').data.tagWidth,
+        tagWidth = _firstPort(readRequests, 'readRequests').tagWidth,
         super(
-          definitionName: 'TensorScratchpad_'
-              'D${depth}_W${writeRequests.first.data.dataWidth}_'
+          definitionName: 'TensorScratchpadCore_'
+              'D${depth}_W${writeRequests.first.dataWidth}_'
               'B${bankCount}_R${readRequests.length}_'
-              'P${writeRequests.length}_T${readRequests.first.data.tagWidth}_'
+              'P${writeRequests.length}_T${readRequests.first.tagWidth}_'
               '${bankConflictPolicy.name}_${bankMapping.name}_'
-              '${memoryFunctor?.identity ?? 'registerFile'}',
+              '${memoryFunctor?.identity ?? 'registerFile'}_'
+              '${payloadShapeIdentity(writeRequests.first.data)}',
         ) {
     if (readResponses.length != readRequests.length) {
       throw ArgumentError(
@@ -438,20 +446,26 @@ class TensorScratchpad extends Module {
     }
     if (readRequests.any(
           (request) =>
-              request.data.addressWidth != addressWidth ||
-              request.data.tagWidth != tagWidth,
+              request.addressWidth != addressWidth ||
+              request.tagWidth != tagWidth,
         ) ||
         writeRequests.any(
           (request) =>
-              request.data.addressWidth != addressWidth ||
-              request.data.dataWidth != dataWidth,
+              request.addressWidth != addressWidth ||
+              request.dataWidth != dataWidth,
         ) ||
         readResponses.any(
           (response) =>
-              response.data.dataWidth != dataWidth ||
-              response.data.tagWidth != tagWidth,
+              response.dataWidth != dataWidth || response.tagWidth != tagWidth,
         )) {
       throw ArgumentError('Scratchpad port shapes do not match.');
+    }
+    if (!compatiblePayloadSet([
+      wordSchema,
+      for (final request in writeRequests) request.data,
+      for (final response in readResponses) response.data,
+    ], allowRenamedClones: true)) {
+      throw ArgumentError('Scratchpad word schemas do not match.');
     }
     final latency = this.memoryFunctor.capabilities.readLatency;
     if (latency != 0 && latency != 1) {
@@ -468,31 +482,36 @@ class TensorScratchpad extends Module {
     final localReset = addInput('reset', reset);
     _readRequests = UnmodifiableListView([
       for (var port = 0; port < readRequests.length; port++)
-        addPairInterface(
-          readRequests[port],
-          PairRole.consumer,
-          uniquify: (original) => 'read_${port}_$original',
-        ),
+        addTypedInput<TensorScratchpadReadRequest>(
+            'read_$port', readRequests[port]),
     ]);
     _writeRequests = UnmodifiableListView([
       for (var port = 0; port < writeRequests.length; port++)
-        addPairInterface(
-          writeRequests[port],
-          PairRole.consumer,
-          uniquify: (original) => 'write_${port}_$original',
-        ),
+        addTypedInput<TensorScratchpadWriteRequest<T>>(
+            'write_$port', writeRequests[port]),
     ]);
-    _readResponses = UnmodifiableListView([
+    responses = UnmodifiableListView([
       for (var port = 0; port < readResponses.length; port++)
-        addPairInterfaceFrom(
-          IrrevocableReadyValidInterface<TensorScratchpadReadResponse>(
-            readResponses[port].data.clone(),
-          ),
-          readResponses[port],
-          PairRole.provider,
-          uniquify: (original) => 'response_${port}_$original',
-        ),
+        addTypedPayloadOutput(this, 'response_$port', readResponses[port]),
     ]);
+    _readEnable =
+        addInput('readEnable', readEnable, width: readRequests.length);
+    _writeEnable =
+        addInput('writeEnable', writeEnable, width: writeRequests.length);
+    _consumeResponses = addInput(
+      'consumeResponses',
+      consumeResponses ??
+          Const(LogicValue.filled(readRequests.length, LogicValue.one)),
+      width: readRequests.length,
+    );
+    final readCapacity = [
+      for (var port = 0; port < readRequests.length; port++)
+        Logic(name: '${name}_read_${port}_capacity'),
+    ];
+    final writeCapacity = [
+      for (var port = 0; port < writeRequests.length; port++)
+        Logic(name: '${name}_write_${port}_capacity'),
+    ];
 
     final readGrantSignals = [
       for (var port = 0; port < readRequests.length; port++)
@@ -502,35 +521,34 @@ class TensorScratchpad extends Module {
       for (var port = 0; port < readRequests.length; port++)
         (
           valid: Logic(name: 'rawValid_$port'),
-          data: Logic(name: 'rawData_$port', width: dataWidth),
+          data: cloneTypedPayload<T>(wordSchema, name: 'rawData_$port'),
         ),
     ];
-    final readControllers = <_TensorScratchpadReadPortController>[];
+    final readControllers = <_TensorScratchpadReadPortController<T>>[];
     final readCandidates = <Logic>[];
     for (var port = 0; port < readRequests.length; port++) {
       final request = _readRequests[port];
-      final response = _readResponses[port];
+      final response = responses[port];
       final raw = rawReads[port];
-      final addressValid = _addressInRange(request.data.address, depth);
-      final controller = _TensorScratchpadReadPortController(
+      final addressValid = _addressInRange(request.address, depth);
+      final controller = _TensorScratchpadReadPortController<T>(
         clk: localClk,
         reset: localReset,
-        requestValid: request.valid,
+        requestValid: _readEnable[port],
         requestAddressValid: addressValid,
-        requestTag: request.data.tag,
+        requestTag: request.tag,
         requestGrant: readGrantSignals[port],
         rawResponseValid: raw.valid,
         rawResponseData: raw.data,
-        downstreamReady: response.ready,
+        downstreamReady: _consumeResponses[port],
         dataWidth: dataWidth,
         tagWidth: tagWidth,
         name: '${name}_read_${port}_controller',
       );
-      request.ready <= controller.requestReady;
-      response.valid <= controller.responseValid;
-      response.data.data <= controller.responseData;
-      response.data.tag <= controller.responseTag;
-      response.data.error <= controller.responseError;
+      readCapacity[port] <= controller.requestReady;
+      response.data <= controller.responseData;
+      response.tag <= controller.responseTag;
+      response.error <= controller.responseError;
       readCandidates.add(controller.requestCandidate);
       readControllers.add(controller);
     }
@@ -538,8 +556,8 @@ class TensorScratchpad extends Module {
     final writeAddressValid = <Logic>[];
     for (var port = 0; port < writeRequests.length; port++) {
       final request = _writeRequests[port];
-      final addressValid = _addressInRange(request.data.address, depth);
-      writeCandidates.add(request.valid & addressValid);
+      final addressValid = _addressInRange(request.address, depth);
+      writeCandidates.add(_writeEnable[port] & addressValid);
       writeAddressValid.add(addressValid);
     }
     final grants = _connectBanks(
@@ -556,26 +574,33 @@ class TensorScratchpad extends Module {
     final conflicts = <Logic>[];
 
     for (var port = 0; port < writeRequests.length; port++) {
-      final request = _writeRequests[port];
-      final invalidAccepted = request.valid & ~writeAddressValid[port];
-      request.ready <=
+      final enabled = _writeEnable[port];
+      final invalidAccepted = enabled & ~writeAddressValid[port];
+      writeCapacity[port] <=
           mux(
-            request.valid,
+            enabled,
             mux(writeAddressValid[port], writeGrants[port], Const(1)),
             Const(1),
           );
       invalidWritePulses.add(invalidAccepted);
-      blocked.add(request.valid & ~request.ready);
+      blocked.add(enabled & ~writeCapacity[port]);
       conflicts.add(writeCandidates[port] & ~writeGrants[port]);
     }
     for (var port = 0; port < readRequests.length; port++) {
-      final request = _readRequests[port];
       readGrantSignals[port] <= readGrants[port];
       invalidReadPulses.add(readControllers[port].invalidAddress);
-      blocked.add(request.valid & ~request.ready);
+      blocked.add(_readEnable[port] & ~readCapacity[port]);
       conflicts.add(readCandidates[port] & ~readGrants[port]);
     }
 
+    addOutput('canRead', width: readRequests.length) <= readCapacity.rconcat();
+    addOutput('canWrite', width: writeRequests.length) <=
+        writeCapacity.rconcat();
+    addOutput('responseValid', width: readResponses.length) <=
+        readControllers
+            .map((controller) => controller.responseValid)
+            .toList()
+            .rconcat();
     addOutput(
           'blockedRequests',
           width: writeRequests.length + readRequests.length,
@@ -606,12 +631,12 @@ class TensorScratchpad extends Module {
     required Logic clk,
     required Logic reset,
     required List<Logic> candidates,
-    required List<({Logic valid, Logic data})> rawReads,
+    required List<({Logic valid, T data})> rawReads,
   }) {
     final writes = _writeRequests.length;
     final addresses = [
-      for (final request in _writeRequests) request.data.address,
-      for (final request in _readRequests) request.data.address,
+      for (final request in _writeRequests) request.address,
+      for (final request in _readRequests) request.address,
     ];
     final coordinates = addresses.map(_bankCoordinate).toList();
     final requests = [
@@ -623,7 +648,7 @@ class TensorScratchpad extends Module {
     ];
     final grantsByBank = _admitBanks(requests);
     final latency = memoryFunctor.capabilities.readLatency;
-    final bankReturns = <({Logic readers, Logic data})>[];
+    final bankReturns = <({Logic readers, T data})>[];
 
     for (var bank = 0; bank < bankCount; bank++) {
       final grants = grantsByBank[bank];
@@ -635,15 +660,15 @@ class TensorScratchpad extends Module {
         for (final coordinate in coordinates)
           coordinate.row.getRange(0, rowWidth),
       ];
-      final write = DataPortInterface<Logic>(dataWidth, rowWidth);
-      final read = DataPortInterface<Logic>(dataWidth, rowWidth);
+      final write = DataPortInterface<T>.typed(wordSchema, rowWidth);
+      final read = DataPortInterface<T>.typed(wordSchema, rowWidth);
       write.en <= writeGrants.or();
       write.addr <=
           OneHotMux(writeGrants, rowAddresses.take(writes).toList()).result;
-      write.data <=
-          OneHotMux(writeGrants, [
-            for (final request in _writeRequests) request.data.data,
-          ]).result;
+      final writeWords = [
+        for (final request in _writeRequests) request.data,
+      ];
+      write.data <= OneHotMux<T>(writeGrants, writeWords).result;
       read.en <= readGrants.or();
       read.addr <=
           OneHotMux(readGrants, rowAddresses.skip(writes).toList()).result;
@@ -664,7 +689,7 @@ class TensorScratchpad extends Module {
       bankReturns.add((
         readers: flop(clk, readGrants, reset: reset),
         data: latency == 0
-            ? flop(clk, read.data, en: read.en, reset: reset)
+            ? flop<T>(clk, read.data, en: read.en, reset: reset)
             : read.data,
       ));
     }
@@ -675,7 +700,7 @@ class TensorScratchpad extends Module {
         for (final response in bankReturns) response.readers[port],
       ].rconcat();
       rawReads[port].valid <= selected.or();
-      rawReads[port].data <= OneHotMux(selected, bankData).result;
+      rawReads[port].data <= OneHotMux<T>(selected, bankData).result;
     }
     return [
       for (var port = 0; port < candidates.length; port++)
@@ -691,6 +716,7 @@ class TensorScratchpad extends Module {
           PriorityArbiter(bankRequests).grants,
       ];
     }
+
     final conflicts = [
       for (final bankRequests in requests) _hasConflict(bankRequests),
     ];
@@ -728,15 +754,194 @@ class TensorScratchpad extends Module {
     return (bank: address % banks, row: address / banks);
   }
 
-  static T _firstPort<T>(List<T> ports, String name) {
-    if (ports.isEmpty) {
-      throw ArgumentError.value(ports, name, 'At least one port is required.');
-    }
-    return ports.first;
-  }
-
   static Logic _addressInRange(Logic address, int depth) =>
       BigInt.from(depth) == (BigInt.one << address.width)
           ? Const(1)
           : address.lt(Const(depth, width: address.width));
+}
+
+/// Ready/valid logical-port adapter around [TensorScratchpadCore].
+///
+/// Request offers identify contenders for core arbitration. Ingress
+/// attachments expose admission capacity as accepted transfers, and egress
+/// attachments retire the core's typed retained responses.
+/// {@category Inference}
+class TensorScratchpad<T extends Logic> extends Module {
+  late final TensorScratchpadCore<T> _core;
+
+  /// See [TensorScratchpadCore.depth].
+  int get depth => _core.depth;
+
+  /// See [TensorScratchpadCore.dataWidth].
+  int get dataWidth => _core.dataWidth;
+
+  /// See [TensorScratchpadCore.addressWidth].
+  int get addressWidth => _core.addressWidth;
+
+  /// See [TensorScratchpadCore.tagWidth].
+  int get tagWidth => _core.tagWidth;
+
+  /// See [TensorScratchpadCore.bankCount].
+  int get bankCount => _core.bankCount;
+
+  /// See [TensorScratchpadCore.bankConflictPolicy].
+  TensorScratchpadBankConflictPolicy get bankConflictPolicy =>
+      _core.bankConflictPolicy;
+
+  /// See [TensorScratchpadCore.bankMapping].
+  TensorScratchpadBankMapping get bankMapping => _core.bankMapping;
+
+  /// See [TensorScratchpadCore.memoryFunctor].
+  MemoryArrayFunctor<T> get memoryFunctor => _core.memoryFunctor;
+
+  /// See [TensorScratchpadCore.wordSchema].
+  T get wordSchema => _core.wordSchema;
+
+  /// See [TensorScratchpadCore.readUnderWrite].
+  MemoryArrayReadCollision? get readUnderWrite => _core.readUnderWrite;
+
+  /// See [TensorScratchpadCore.blockedRequests].
+  Logic get blockedRequests => output('blockedRequests');
+
+  /// See [TensorScratchpadCore.bankConflicts].
+  Logic get bankConflicts => output('bankConflicts');
+
+  /// See [TensorScratchpadCore.invalidReadAddress].
+  Logic get invalidReadAddress => output('invalidReadAddress');
+
+  /// See [TensorScratchpadCore.invalidWriteAddress].
+  Logic get invalidWriteAddress => output('invalidWriteAddress');
+
+  /// See [TensorScratchpadCore.responseOverflow].
+  Logic get responseOverflow => output('responseOverflow');
+
+  /// See [TensorScratchpadCore.unexpectedResponse].
+  Logic get unexpectedResponse => output('unexpectedResponse');
+
+  /// Attaches logical ready/valid ports to the typed banked storage core.
+  TensorScratchpad({
+    required Logic clk,
+    required Logic reset,
+    required List<ReadyValidInterface<TensorScratchpadReadRequest>>
+        readRequests,
+    required List<ReadyValidInterface<TensorScratchpadReadResponse<T>>>
+        readResponses,
+    required List<ReadyValidInterface<TensorScratchpadWriteRequest<T>>>
+        writeRequests,
+    required int depth,
+    required int bankCount,
+    MemoryArrayFunctor<T>? memoryFunctor,
+    TensorScratchpadBankConflictPolicy bankConflictPolicy =
+        TensorScratchpadBankConflictPolicy.lowestPortWins,
+    TensorScratchpadBankMapping bankMapping =
+        TensorScratchpadBankMapping.lowAddressBits,
+    MemoryArrayReadCollision? readUnderWrite,
+    super.name = 'tensor_scratchpad',
+  }) : super(
+          definitionName: 'TensorScratchpad_D${depth}_'
+              'W${_firstPort(writeRequests, 'writeRequests').data.dataWidth}_'
+              'B${bankCount}_R${readRequests.length}_'
+              'P${writeRequests.length}_'
+              'T${_firstPort(readRequests, 'readRequests').data.tagWidth}_'
+              '${bankConflictPolicy.name}_${bankMapping.name}_'
+              '${memoryFunctor?.identity ?? 'registerFile'}_'
+              '${payloadShapeIdentity(_firstPort(
+            writeRequests,
+            'writeRequests',
+          ).data.data)}',
+        ) {
+    final localClk = addInput('clk', clk);
+    final localReset = addInput('reset', reset);
+    final inputs = [
+      for (var port = 0; port < readRequests.length; port++)
+        addPairInterface(readRequests[port], PairRole.consumer,
+            uniquify: (original) => 'read_${port}_$original'),
+    ];
+    final writes = [
+      for (var port = 0; port < writeRequests.length; port++)
+        addPairInterface(writeRequests[port], PairRole.consumer,
+            uniquify: (original) => 'write_${port}_$original'),
+    ];
+    final outputs = [
+      for (var port = 0; port < readResponses.length; port++)
+        addPairInterfaceFrom(
+          IrrevocableReadyValidInterface(readResponses[port].data.clone()),
+          readResponses[port],
+          PairRole.provider,
+          uniquify: (original) => 'response_${port}_$original',
+        ),
+    ];
+    final readPayloads = [
+      for (final input in inputs) cloneTypedPayload(input.data),
+    ];
+    final writePayloads = [
+      for (final write in writes) cloneTypedPayload(write.data),
+    ];
+    final consumes = [
+      for (var port = 0; port < outputs.length; port++)
+        Logic(name: '${name}_consume_$port'),
+    ];
+    _core = TensorScratchpadCore<T>(
+      clk: localClk,
+      reset: localReset,
+      readRequests: readPayloads,
+      writeRequests: writePayloads,
+      readResponses: [for (final output in outputs) output.data],
+      readEnable: [for (final input in inputs) input.valid].rconcat(),
+      writeEnable: [for (final write in writes) write.valid].rconcat(),
+      consumeResponses: consumes.rconcat(),
+      depth: depth,
+      bankCount: bankCount,
+      memoryFunctor: memoryFunctor,
+      bankConflictPolicy: bankConflictPolicy,
+      bankMapping: bankMapping,
+      readUnderWrite: readUnderWrite,
+      name: '${name}_core',
+    );
+    for (var port = 0; port < inputs.length; port++) {
+      ReadyValidIngressAttachmentPolicy<TensorScratchpadReadRequest>(
+        supportsSameCycleReplacement: true,
+      ).attach(
+        upstream: inputs[port],
+        canAccept: _core.canRead[port],
+        accept: Logic(name: '${name}_read_${port}_accepted'),
+        payload: readPayloads[port],
+      );
+      ReadyValidEgressAttachmentPolicy<TensorScratchpadReadResponse<T>>()
+          .attach(
+        downstream: outputs[port],
+        offerValid: _core.responseValid[port],
+        payload: _core.responses[port],
+        transfer: consumes[port],
+      );
+    }
+    for (var port = 0; port < writes.length; port++) {
+      ReadyValidIngressAttachmentPolicy<TensorScratchpadWriteRequest<T>>(
+        supportsSameCycleReplacement: false,
+      ).attach(
+        upstream: writes[port],
+        canAccept: _core.canWrite[port],
+        accept: Logic(name: '${name}_write_${port}_accepted'),
+        payload: writePayloads[port],
+      );
+    }
+    for (final port in [
+      'blockedRequests',
+      'bankConflicts',
+      'invalidReadAddress',
+      'invalidWriteAddress',
+      'responseOverflow',
+      'unexpectedResponse',
+    ]) {
+      final signal = _core.output(port);
+      addOutput(port, width: signal.width) <= signal;
+    }
+  }
+}
+
+T _firstPort<T>(List<T> ports, String name) {
+  if (ports.isEmpty) {
+    throw ArgumentError.value(ports, name, 'At least one port is required.');
+  }
+  return ports.first;
 }

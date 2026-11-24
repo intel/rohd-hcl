@@ -10,14 +10,36 @@ behavior until their replacements and migration instructions are ready.
 | Milestone | Ship | Keep |
 | --- | --- | --- |
 | ROHD-HCL 0.3.3 (compatible) | The five direct generic imports and the synchronous lookup import, plus warnings for the legacy component and associative APIs below | Legacy barrel exports, constructors, callback aliases, and all HCL payload helpers |
-| ROHD 0.7.6 (target) | The reusable payload checks, cloning, and port registration changes prepared on `interface_cloning` off ROHD `main` | Existing strict defaults and untyped interface behavior |
+| Inference extension release (compatible) | Delegate strict payload shape and packed-bridge checks to hosted ROHD 0.7.5; remove the internal ROHD compatibility-alias import and duplicate strict connection logic | Existing helper entry points and behavior, renamed-clone checks, checked cloning, typed-port registration, and previously deprecated public APIs |
+| Next hosted ROHD release with payload parity (version not yet assigned here) | The reusable payload checks, cloning, and port registration changes prepared on `interface_cloning` off ROHD `main` | Existing strict defaults and untyped interface behavior |
 | First compatible HCL release after upstream parity | Adopt the hosted ROHD APIs, make the old helpers delegate where equivalent, and deprecate those helpers with migration guidance | The old helper entry points and behavior through this release |
 | Following HCL release | Remove the superseded helpers after their deprecation window; do not remove a published API in a compatible release | Helpers without a proven replacement, and operations that remain HCL-owned |
 
 The flat API migration has its own window: after 0.3.3 ships the warnings,
 the next **breaking** HCL release can remove the legacy flat APIs and promote
-the generic implementations to the simple names. This does not depend on ROHD
-0.7.6, and it must not shorten the separate payload-helper deprecation window.
+the generic implementations to the simple names. This does not depend on the
+next ROHD release, and it must not shorten the separate payload-helper deprecation window.
+
+## Inference extension release status
+
+No previously published public API is removed or newly deprecated in this release. The completed cleanup replaces implementation details, not helper entry points, and keeps the minimum ROHD version at 0.7.5.
+
+The new tensor layout and movement components use typed-only APIs. Their unpublished packed prototypes are replaced directly: `SystolicMatrixTranspose<T, V>` accepts a typed row, and `TensorScratchpad<T>` and `TensorDmaEngine<T>` retain a word schema through their ports and storage. These new APIs do not need a deprecation window or flat compatibility wrappers; the published APIs listed below still do.
+
+The unpublished `TensorTileTiler` and `TensorTileUntiler` interfaces are replaced directly with synchronous-action cores. Ready/valid callers use `ReadyValidTensorTileTiler` and `ReadyValidTensorTileUntiler`, which attach ingress and egress protocols to those same cores. No published API requires deprecation for this separation.
+
+Attention, sequential addressing, and scratchpads expose new synchronous-action `Core` classes; their existing new component names denote ready/valid attachment shells. The unpublished accumulating-bank action names are replaced directly with `write`, `read`, and `consumeResponse`; protocol callers use `ReadyValidTensorAccumulatingMemoryBank` with typed requests and responses. These shells are transport adapters, not legacy compatibility wrappers. No published interface is removed.
+
+| Area | Completed in this release | Still retained |
+| --- | --- | --- |
+| Strict shape comparison | `samePayloadShape` delegates to ROHD's public `sameRohdPayloadShape`; the internal `sameDeclaredPayloadShape` alias import is removed | The HCL helper signature and constant-name option |
+| Packed-bridge compatibility | `compatiblePayloadConnection` and the strict path of `compatiblePayloadSet` delegate to `rohdPayloadsCompatible` instead of duplicating its checks | The HCL entry points and the `allowRenamedClones` path |
+| Clone and port registration | No removal; the full replacement contract is not yet available in the selected hosted ROHD release | Renamed-clone checks, `cloneTypedPayload`, `cloneInterfacePayload`, `addTypedPayloadOutput`, and `connectTypedPayloadPorts` |
+| Existing public deprecations | No removal or promotion of generic APIs to legacy barrel names | The legacy component, associative, finite-field, CAM, and FIFO APIs described below |
+| Tensor layout and movement | Replace unpublished flat prototypes with typed rows and word-schema constructors; retain types in internal storage and selection | No flat wrappers for these new components; existing published APIs remain supported |
+| Inference scheduling | Separate reusable action cores from protocol shells; replace unpublished accumulating-bank handshake names with synchronous actions | Ready/valid attachment shells and intentionally transport-specific memory orchestrators |
+
+The removed family development plan is documentation cleanup, not an API deprecation. Planning and partition inventories remain on the communication development branch; public usage remains in the README-linked component guides.
 
 ## Same-named generic components
 
@@ -82,12 +104,14 @@ validation and typed port behavior.
 
 ## ROHD payload compatibility helpers
 
-Keep the [HCL payload helpers](lib/src/interfaces/payload_shape.dart) in
-ROHD-HCL 0.3.3. ROHD 0.7.5 already offers `sameRohdPayloadShape` and
-`rohdPayloadsCompatible` for strict shape and pairwise packed-bridge checks,
-but it does not replace the full HCL contract.
+The [HCL payload helpers](lib/src/interfaces/payload_shape.dart) delegate
+strict shape and pairwise packed-bridge checks to ROHD 0.7.5. This delegation
+is complete for the strict paths, but does not deprecate or remove the HCL
+helpers. Keep wrappers for renamed clones, checked cloning, and schema-aware
+port registration until the remaining contracts are available in a hosted
+ROHD release.
 
-### ROHD 0.7.6 target: `interface_cloning`
+### Next ROHD release candidate: `interface_cloning`
 
 - Support parent-renamed clones in shape and connection checks, including
   pairwise checks across packed bridges and generated constant names. Target:

@@ -14,13 +14,81 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
+
+import '../systemc_test_utils.dart';
+import '../verilator_test_utils.dart';
 
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
+  for (final useSram in [false, true]) {
+    test('nested unpacked rows retain shape and stalled data, SRAM=$useSram',
+        () async {
+      final row = LogicArray([2], 4, numUnpackedDimensions: 1);
+      final harness = _TensorScratchpadHarness(
+        clk: Logic(),
+        reset: Logic(),
+        readAddress: Logic(width: 3),
+        readTag: Logic(width: 2),
+        readValid: Logic(),
+        readResponseReady: Logic(),
+        writeAddress: Logic(width: 3),
+        writeData: row,
+        writeValid: Logic(),
+        memoryFunctor: useSram ? inferredSramArray<LogicArray>() : null,
+      );
+      await harness.build();
+      expect(harness.readResponseData.dimensions, [2]);
+      expect(harness.readResponseData.numUnpackedDimensions, 1);
+      final vectors = [
+        Vector({
+          'clk': 0,
+          'reset': 1,
+          'readAddress': 3,
+          'readTag': 2,
+          'readValid': 0,
+          'readResponseReady': 0,
+          'writeAddress': 3,
+          'writeData': 0,
+          'writeValid': 0,
+        }, const {}),
+        Vector({'clk': 1}, {'readResponseValid': 0}),
+        Vector({'clk': 0, 'reset': 0, 'writeData': 0xa5, 'writeValid': 1},
+            {'writeReady': 1}),
+        Vector({'clk': 1}, const {}),
+        Vector({'clk': 0, 'writeValid': 0, 'readValid': 1}, {'readReady': 1}),
+        Vector({'clk': 1}, const {}),
+        Vector({'clk': 0, 'readValid': 0}, {'readResponseValid': 0}),
+        Vector({'clk': 1}, const {}),
+        Vector({
+          'clk': 0,
+          'writeData': 0x3c
+        }, {
+          'readResponseValid': 1,
+          'readResponseData': 0xa5,
+          'readResponseTag': 2,
+          'readResponseError': 0,
+        }),
+        Vector({'clk': 1}, {'readResponseData': 0xa5}),
+        Vector({'clk': 0, 'readResponseReady': 1},
+            {'readResponseValid': 1, 'readResponseData': 0xa5}),
+        Vector({'clk': 1}, const {}),
+        Vector({'clk': 0}, {'readResponseValid': 0}),
+      ];
+      await SimCompare.checkFunctionalVector(harness, vectors);
+      SimCompare.checkIverilogVector(harness, vectors);
+      if (useSram && canRunSystemC()) {
+        await _checkBehavioralSystemC(vectors);
+      }
+      SimCompare.checkVerilatorVector(harness, vectors);
+      expectNoVerilatorWarnings(harness, ['LATCH', 'UNOPTFLAT']);
+    }, timeout: const Timeout(Duration(minutes: 5)));
+  }
 
   test('nested tensor scratchpad compiles in Icarus', () async {
     final harness = _TensorScratchpadHarness(
@@ -153,7 +221,84 @@ void main() {
   });
 }
 
-class _TensorScratchpadHarness extends Module {
+Future<void> _checkBehavioralSystemC(List<Vector> vectors) async {
+  final harness = _PackedSystemCScratchpadHarness();
+  await harness.build();
+  final hierarchy = generateBehavioralSystemCHierarchy(
+    harness,
+    select: (module) => module is InferredSram,
+    unknownOutputs: SystemCUnknownOutputPolicy.zeroUntilReset,
+  );
+  final cpp = StringBuffer('''
+${hierarchy.source}
+int sc_main(int, char**) {
+''');
+  for (final port in {...harness.inputs, ...harness.outputs}.entries) {
+    final width = port.value.width;
+    cpp.writeln('sc_signal<${width == 1 ? 'bool' : 'sc_uint<$width>'}> '
+        '${port.key};');
+  }
+  cpp.writeln('${hierarchy.topClassName} dut("dut");');
+  for (final port in [...harness.inputs.keys, ...harness.outputs.keys]) {
+    cpp.writeln('dut.$port($port);');
+  }
+  for (final (step, vector) in vectors.indexed) {
+    for (final input in vector.inputValues.entries) {
+      cpp.writeln('${input.key}=${input.value};');
+    }
+    cpp.writeln('sc_start(10, SC_NS);');
+    for (final expected in vector.expectedOutputValues.entries) {
+      cpp.writeln('if (${expected.key}.read() != ${expected.value}) { '
+          'std::cerr << "vector $step ${expected.key}" << std::endl; '
+          'return 1; }');
+    }
+  }
+  cpp.writeln('return 0;\n}');
+  final directory =
+      await Directory.systemTemp.createTemp('tensor_scratchpad_systemc_');
+  try {
+    final source = File('${directory.path}/test.cpp');
+    await source.writeAsString(cpp.toString());
+    final compile = await Process.run('g++', [
+      '-std=c++17',
+      source.path,
+      '-lsystemc',
+      '-o',
+      '${directory.path}/test',
+    ]);
+    expect(compile.exitCode, 0, reason: '${compile.stdout}\n${compile.stderr}');
+    final run = await Process.run('${directory.path}/test', []);
+    expect(run.exitCode, 0, reason: '${run.stdout}\n${run.stderr}');
+  } finally {
+    await directory.delete(recursive: true);
+  }
+}
+
+class _PackedSystemCScratchpadHarness extends Module {
+  _PackedSystemCScratchpadHarness() {
+    final row = LogicArray([2], 4, numUnpackedDimensions: 1)
+      ..gets(addInput('writeData', Logic(width: 8), width: 8));
+    final child = _TensorScratchpadHarness(
+      clk: addInput('clk', Logic()),
+      reset: addInput('reset', Logic()),
+      readAddress: addInput('readAddress', Logic(width: 3), width: 3),
+      readTag: addInput('readTag', Logic(width: 2), width: 2),
+      readValid: addInput('readValid', Logic()),
+      readResponseReady: addInput('readResponseReady', Logic()),
+      writeAddress: addInput('writeAddress', Logic(width: 3), width: 3),
+      writeData: row,
+      writeValid: addInput('writeValid', Logic()),
+      memoryFunctor: inferredSramArray<LogicArray>(),
+    );
+    for (final port in child.outputs.entries) {
+      addOutput(port.key, width: port.value.width) <= port.value;
+    }
+  }
+}
+
+class _TensorScratchpadHarness<T extends Logic> extends Module {
+  late final T readResponseData;
+
   _TensorScratchpadHarness({
     required Logic clk,
     required Logic reset,
@@ -162,8 +307,9 @@ class _TensorScratchpadHarness extends Module {
     required Logic readValid,
     required Logic readResponseReady,
     required Logic writeAddress,
-    required Logic writeData,
+    required T writeData,
     required Logic writeValid,
+    MemoryArrayFunctor<T>? memoryFunctor,
   }) : super(definitionName: 'TensorScratchpadHarness') {
     clk = addInput('clk', clk);
     reset = addInput('reset', reset);
@@ -172,7 +318,7 @@ class _TensorScratchpadHarness extends Module {
     readValid = addInput('readValid', readValid);
     readResponseReady = addInput('readResponseReady', readResponseReady);
     writeAddress = addInput('writeAddress', writeAddress, width: 3);
-    writeData = addInput('writeData', writeData, width: 8);
+    writeData = addTypedInput<T>('writeData', writeData);
     writeValid = addInput('writeValid', writeValid);
 
     final readRequest = ValidThenReadyInterface(
@@ -184,7 +330,7 @@ class _TensorScratchpadHarness extends Module {
     );
     final readResponse = ReadyValidInterface(
       TensorScratchpadReadResponse(
-        dataWidth: 8,
+        data: writeData,
         tagWidth: 2,
         name: 'readResponse',
       ),
@@ -192,7 +338,7 @@ class _TensorScratchpadHarness extends Module {
     final writeRequest = ValidThenReadyInterface(
       TensorScratchpadWriteRequest(
         addressWidth: 3,
-        dataWidth: 8,
+        data: writeData,
         name: 'writeRequest',
       ),
     );
@@ -213,11 +359,14 @@ class _TensorScratchpadHarness extends Module {
       writeRequests: [writeRequest],
       depth: 6,
       bankCount: 2,
+      memoryFunctor: memoryFunctor,
       name: 'scratchpad',
     );
 
     addOutput('readReady') <= readRequest.ready;
-    addOutput('readResponseData', width: 8) <= readResponse.data.data;
+    readResponseData = addTypedOutput<T>(
+        'readResponseData', readResponse.data.data.cloneTyped);
+    readResponseData <= readResponse.data.data;
     addOutput('readResponseTag', width: 2) <= readResponse.data.tag;
     addOutput('readResponseError') <= readResponse.data.error;
     addOutput('readResponseValid') <= readResponse.valid;

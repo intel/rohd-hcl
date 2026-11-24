@@ -113,9 +113,12 @@ void main() {
     expect(dut.overflow.value, LogicValue.zero);
 
     state.scalar.valid.inject(0);
+    state.scalar.normalizer.inject(0);
     await Simulator.tick();
     expect(dut.values.value.packed.toBigInt(), BigInt.zero);
     expect(dut.invalidState.value, LogicValue.one);
+    expect(dut.overflow.value, LogicValue.zero);
+    expect(dut.inexact.value, LogicValue.zero);
   });
 
   test('passes through one valid weighted state', () async {

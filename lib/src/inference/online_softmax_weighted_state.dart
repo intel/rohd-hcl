@@ -424,11 +424,11 @@ class OnlineSoftmaxNormalize extends Module {
         state.scalar.overflow |
             normalized.overflowMask.or() |
             normalized.underflowMask.or() |
-            reciprocal.status.overflow;
+            (state.scalar.valid & reciprocal.status.overflow);
     addOutput('inexact') <=
         state.scalar.inexact |
             normalized.inexactMask.or() |
-            reciprocal.status.inexact;
+            (state.scalar.valid & reciprocal.status.inexact);
     addOutput('approximationError') <=
         state.scalar.approximationError |
             (state.scalar.valid &

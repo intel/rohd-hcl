@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// tensor_masked_sram_bank_test.dart
+// Tests for byte-masked SRAM and read-response backpressure.
+//
+// 2026 November 23
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 @TestOn('vm')
 library;
@@ -20,8 +26,8 @@ class _Harness extends Module {
           TensorScratchpadReadRequest(addressWidth: 3, tagWidth: 1));
       final writes = ValidThenReadyInterface(
           ByteMaskedWriteRequest(addressWidth: 3, dataWidth: dataWidth));
-      final responses = ReadyAndValidInterface(
-          TensorScratchpadReadResponse(dataWidth: dataWidth, tagWidth: 1));
+      final responses = ReadyAndValidInterface(TensorScratchpadReadResponse(
+          data: Logic(width: dataWidth), tagWidth: 1));
       reads.valid <= addInput('readValid$i', Logic());
       reads.data.address <=
           addInput('readAddress$i', Logic(width: 3), width: 3);

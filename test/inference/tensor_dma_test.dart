@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -202,8 +203,75 @@ void main() {
     await Simulator.endSimulation();
   });
 
+  for (final useSram in [false, true]) {
+    test('copies typed tiles through nested DMA and scratchpads, SRAM=$useSram',
+        () async {
+      final schema = inferenceLogicTensorTile(
+        rowCount: 1,
+        columnCount: 2,
+        format: InferenceNumericFormat.signedInteger(8),
+      );
+      final fixture = _ScratchpadDmaFixture(
+        schema,
+        memoryFunctor: useSram
+            ? inferredSramArray<InferenceTensorTile<Logic, LogicValue>>()
+            : null,
+      );
+      await fixture.buildAndReset();
+      await fixture.preload(0, 0x71234);
+      await fixture.preload(1, 0x75678);
+      await fixture.startCommand(
+          sourceBase: 0,
+          destinationBase: 8,
+          nExtent: 1,
+          kExtent: 2,
+          nStride: 2,
+          commandId: 3);
+      await fixture.waitForCompletion();
+      expect(fixture.completion.data.error.value, LogicValue.zero);
+      expect(fixture.completion.data.transferredCount.value.toInt(), 2);
+      await fixture.acceptCompletion();
+      expect(await fixture.readDestination(8), 0x71234);
+      expect(await fixture.readDestination(9), 0x75678);
+      final returnedTile = fixture.destinationResponse.data.data;
+      expect(returnedTile.format, same(schema.format));
+      expect(returnedTile.data.dimensions, [1, 2]);
+      expect(returnedTile.data.arrayElements[0].value.toInt(), 0x78);
+      expect(returnedTile.data.arrayElements[1].value.toInt(), 0x56);
+      expect(returnedTile.rowMask.value.toInt(), 1);
+      expect(returnedTile.columnMask.value.toInt(), 3);
+      await Simulator.endSimulation();
+      final directory =
+          await Directory.systemTemp.createTemp('typed_tensor_dma_');
+      try {
+        final source = File('${directory.path}/dma.sv');
+        await source.writeAsString(fixture.dut.dumpSystemVerilog());
+        final compile =
+            await Process.run('iverilog', ['-g2012', '-tnull', source.path]);
+        expect(compile.exitCode, 0,
+            reason: '${compile.stdout}\n${compile.stderr}');
+      } finally {
+        await directory.delete(recursive: true);
+      }
+    });
+  }
+
+  test('DMA rejects equal-width words with incompatible numeric schemas', () {
+    final source = inferenceLogicTensorTile(
+        rowCount: 1,
+        columnCount: 2,
+        format: InferenceNumericFormat.signedInteger(8));
+    final destination = inferenceLogicTensorTile(
+        rowCount: 1,
+        columnCount: 2,
+        format: InferenceNumericFormat.unsignedInteger(8));
+    final fixture =
+        _ScratchpadDmaFixture(source, destinationSchema: destination);
+    expect(() => fixture.dut, throwsArgumentError);
+  });
+
   test('copies data between banked tensor scratchpads', () async {
-    final fixture = _ScratchpadDmaFixture();
+    final fixture = _ScratchpadDmaFixture(Logic(width: 8));
     await fixture.buildAndReset();
     final sourceContents = {
       2: 0x12,
@@ -285,7 +353,7 @@ class _TensorDmaFixture {
   final IrrevocableReadyValidInterface<TensorScratchpadReadResponse>
       sourceReadResponse = IrrevocableReadyValidInterface(
     TensorScratchpadReadResponse(
-      dataWidth: dataWidth,
+      data: Logic(width: dataWidth),
       tagWidth: tagWidth,
       name: 'sourceReadResponse',
     ),
@@ -294,7 +362,7 @@ class _TensorDmaFixture {
       destinationWriteRequest = ReadyAndValidInterface(
     TensorScratchpadWriteRequest(
       addressWidth: destinationAddressWidth,
-      dataWidth: dataWidth,
+      data: Logic(width: dataWidth),
       name: 'destinationWriteRequest',
     ),
   );
@@ -454,16 +522,17 @@ class _TensorDmaFixture {
   }
 }
 
-class _TensorDmaScratchpadHarness extends Module {
+class _TensorDmaScratchpadHarness<T extends Logic> extends Module {
   _TensorDmaScratchpadHarness({
     required Logic clk,
     required Logic reset,
     required ReadyValidInterface<TensorDmaCommand> command,
-    required ReadyValidInterface<TensorScratchpadWriteRequest> sourcePreload,
+    required ReadyValidInterface<TensorScratchpadWriteRequest<T>> sourcePreload,
     required ReadyValidInterface<TensorScratchpadReadRequest> destinationRead,
-    required ReadyValidInterface<TensorScratchpadReadResponse>
+    required ReadyValidInterface<TensorScratchpadReadResponse<T>>
         destinationResponse,
     required ReadyValidInterface<TensorDmaCompletion> completion,
+    MemoryArrayFunctor<T>? memoryFunctor,
   }) : super(definitionName: 'TensorDmaScratchpadHarness') {
     final localClk = addInput('clk', clk);
     final localReset = addInput('reset', reset);
@@ -503,7 +572,7 @@ class _TensorDmaScratchpadHarness extends Module {
     );
     final sourceReadResponse = ReadyValidInterface(
       TensorScratchpadReadResponse(
-        dataWidth: 8,
+        data: localSourcePreload.data.data,
         tagWidth: 2,
         name: 'dmaSourceReadResponse',
       ),
@@ -511,7 +580,7 @@ class _TensorDmaScratchpadHarness extends Module {
     final destinationWriteRequest = ReadyValidInterface(
       TensorScratchpadWriteRequest(
         addressWidth: 4,
-        dataWidth: 8,
+        data: localDestinationResponse.data.data,
         name: 'dmaDestinationWriteRequest',
       ),
     );
@@ -537,6 +606,7 @@ class _TensorDmaScratchpadHarness extends Module {
       writeRequests: [localSourcePreload],
       depth: 16,
       bankCount: 2,
+      memoryFunctor: memoryFunctor,
       name: 'sourceScratchpad',
     );
     TensorScratchpad(
@@ -547,12 +617,32 @@ class _TensorDmaScratchpadHarness extends Module {
       writeRequests: [destinationWriteRequest],
       depth: 16,
       bankCount: 2,
+      memoryFunctor: memoryFunctor,
       name: 'destinationScratchpad',
     );
   }
 }
 
-class _ScratchpadDmaFixture {
+class _ScratchpadDmaFixture<T extends Logic> {
+  final MemoryArrayFunctor<T>? memoryFunctor;
+
+  _ScratchpadDmaFixture(T wordSchema,
+      {T? destinationSchema, this.memoryFunctor})
+      : sourcePreload = ReadyAndValidInterface(
+          TensorScratchpadWriteRequest<T>(
+            addressWidth: 4,
+            data: wordSchema,
+            name: 'sourcePreload',
+          ),
+        ),
+        destinationResponse = ReadyAndValidInterface(
+          TensorScratchpadReadResponse<T>(
+            data: destinationSchema ?? wordSchema,
+            tagWidth: 2,
+            name: 'destinationResponse',
+          ),
+        );
+
   final Logic clk = SimpleClockGenerator(10).clk;
   final Logic reset = Logic();
   final ReadyAndValidInterface<TensorDmaCommand> command =
@@ -567,14 +657,7 @@ class _ScratchpadDmaFixture {
       name: 'integratedDmaCommand',
     ),
   );
-  final ReadyAndValidInterface<TensorScratchpadWriteRequest> sourcePreload =
-      ReadyAndValidInterface(
-    TensorScratchpadWriteRequest(
-      addressWidth: 4,
-      dataWidth: 8,
-      name: 'sourcePreload',
-    ),
-  );
+  final ReadyAndValidInterface<TensorScratchpadWriteRequest<T>> sourcePreload;
   final ReadyAndValidInterface<TensorScratchpadReadRequest> destinationRead =
       ReadyAndValidInterface(
     TensorScratchpadReadRequest(
@@ -583,14 +666,8 @@ class _ScratchpadDmaFixture {
       name: 'destinationRead',
     ),
   );
-  final ReadyAndValidInterface<TensorScratchpadReadResponse>
-      destinationResponse = ReadyAndValidInterface(
-    TensorScratchpadReadResponse(
-      dataWidth: 8,
-      tagWidth: 2,
-      name: 'destinationResponse',
-    ),
-  );
+  final ReadyAndValidInterface<TensorScratchpadReadResponse<T>>
+      destinationResponse;
   final ReadyAndValidInterface<TensorDmaCompletion> completion =
       ReadyAndValidInterface(
     TensorDmaCompletion(
@@ -599,7 +676,8 @@ class _ScratchpadDmaFixture {
       name: 'integratedDmaCompletion',
     ),
   );
-  late final _TensorDmaScratchpadHarness dut = _TensorDmaScratchpadHarness(
+  late final _TensorDmaScratchpadHarness<T> dut =
+      _TensorDmaScratchpadHarness<T>(
     clk: clk,
     reset: reset,
     command: command,
@@ -607,6 +685,7 @@ class _ScratchpadDmaFixture {
     destinationRead: destinationRead,
     destinationResponse: destinationResponse,
     completion: completion,
+    memoryFunctor: memoryFunctor,
   );
 
   Future<void> buildAndReset() async {

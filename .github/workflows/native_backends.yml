@@ -1,0 +1,70 @@
+# Copyright (C) 2026 Intel Corporation
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# native_backends.yml
+# Separately reported required SystemC and Verilator checks.
+#
+# 2026 November 23
+# Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
+
+name: Native Backends
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-backend:
+    name: ${{ matrix.backend }} Checks
+    timeout-minutes: 60
+    runs-on: ${{ github.repository_owner == 'intel' && 'intel-ubuntu-latest' || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - backend: SystemC
+            test_pattern: 'canRunSystemC|systemCUnavailable'
+          - backend: Verilator
+            test_pattern: 'expectNoVerilatorWarnings'
+    env:
+      NATIVE_TEST_PATTERN: ${{ matrix.test_pattern }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Flutter SDK
+        uses: flutter-actions/setup-flutter@v2
+        with:
+          channel: stable
+          version: 3.47.2
+
+      - name: Install project dependencies
+        run: tool/gh_actions/install_dependencies.sh
+
+      - name: Install native test dependencies
+        run: sudo apt-get update && sudo apt-get install -y iverilog verilator g++ libsystemc-dev
+
+      - name: Report native toolchains
+        run: |
+          verilator --version
+          g++ --version
+          dpkg-query -W libsystemc-dev
+
+      - name: Run backend test files
+        shell: bash
+        run: |
+          if ! selected="$(grep -rlE --include='*_test.dart' "$NATIVE_TEST_PATTERN" test)"; then
+            echo "::error::Could not select native backend test files." >&2
+            exit 1
+          fi
+          mapfile -t test_files <<< "$selected"
+          printf 'Selected test files:\n%s\n' "$selected"
+          tool/gh_actions/run_tests.sh "${test_files[@]}" --concurrency=2

@@ -13,6 +13,7 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/accumulation/accumulator.dart';
 import 'package:rohd_hcl/src/arithmetic/conversion/numeric_narrowing.dart';
 import 'package:rohd_hcl/src/bit_operations/population_count/count.dart';
+import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
 import 'package:rohd_hcl/src/inference/fixed_point_approximation.dart';
 import 'package:rohd_hcl/src/inference/fixed_point_attention.dart';
@@ -20,6 +21,7 @@ import 'package:rohd_hcl/src/inference/inference_multiplier_functor.dart';
 import 'package:rohd_hcl/src/inference/mixed_precision_dot_product.dart';
 import 'package:rohd_hcl/src/inference/online_softmax_weighted_state.dart';
 import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Query and transaction metadata for row-streaming fixed-point attention.
 /// {@category Inference}
@@ -166,8 +168,24 @@ class FixedPointAttentionRow extends LogicStructure {
 /// Rows may arrive with arbitrary gaps. Each accepted active row updates the
 /// online-softmax state without materializing a score array. The accepted row
 /// carrying [FixedPointAttentionRow.last] finalizes and retains the result.
+///
+/// Drive `load` only when [canLoad] is high, and `writeRow` only when
+/// [canWriteRow] is high. For cycle-accurate use, submit consecutive rows
+/// after loading the command. [resultValid] asserts immediately after writing
+/// the final row, including a singleton active row. With `retire` omitted the
+/// result is consumed on the next edge, which may also load the next command.
+/// Synchronous reset discards partial rows and any retained result.
 /// {@category Inference}
-class FixedPointAttentionRowEngine extends Module {
+class FixedPointAttentionRowCore extends Module {
+  /// Whether a new query command may be loaded.
+  Logic get canLoad => output('canLoad');
+
+  /// Whether a row may be submitted.
+  Logic get canWriteRow => output('canWriteRow');
+
+  /// Whether a retained result may be retired.
+  Logic get resultValid => output('resultValid');
+
   /// Number of query/key lanes.
   final int headDimension;
 
@@ -210,17 +228,21 @@ class FixedPointAttentionRowEngine extends Module {
   /// Number of accepted result transactions.
   Logic get completedRequests => output('completedRequests');
 
-  late final ReadyValidInterface<FixedPointAttentionRowCommand> _command;
-  late final ReadyValidInterface<FixedPointAttentionRow> _rows;
-  late final IrrevocableReadyValidInterface<FixedPointAttentionResult> _result;
+  late final FixedPointAttentionRowCommand _command;
+  late final FixedPointAttentionRow _rows;
+
+  /// Retained attention result.
+  late final FixedPointAttentionResult result;
 
   /// Creates a row-streaming fixed-point attention engine.
-  FixedPointAttentionRowEngine({
+  FixedPointAttentionRowCore({
     required Logic clk,
     required Logic reset,
-    required ReadyValidInterface<FixedPointAttentionRowCommand> command,
-    required ReadyValidInterface<FixedPointAttentionRow> rows,
-    required ReadyValidInterface<FixedPointAttentionResult> result,
+    required FixedPointAttentionRowCommand command,
+    required FixedPointAttentionRow rows,
+    required FixedPointAttentionResult resultSchema,
+    required Logic load,
+    required Logic writeRow,
     required int elementFractionBits,
     required int valueFractionBits,
     required int scoreWidth,
@@ -232,6 +254,7 @@ class FixedPointAttentionRowEngine extends Module {
     required int reciprocalWidth,
     required int reciprocalFractionBits,
     required int outputWidth,
+    Logic? retire,
     Logic? clearCounters,
     this.counterWidth = 32,
     InferenceMultiplierFunctor multiplierImplementation =
@@ -242,29 +265,34 @@ class FixedPointAttentionRowEngine extends Module {
         lookupReciprocalApproximationFunctor,
     NumericRoundingMode roundingMode = NumericRoundingMode.nearestEven,
     NumericOverflowMode overflowMode = NumericOverflowMode.saturate,
-    super.name = 'fixed_point_attention_row_engine',
-  })  : headDimension = command.data.headDimension,
-        valueDimension = rows.data.valueDimension,
-        elementWidth = command.data.elementWidth,
-        valueWidth = rows.data.valueWidth,
+    super.name = 'fixed_point_attention_row_core',
+  })  : headDimension = command.headDimension,
+        valueDimension = rows.valueDimension,
+        elementWidth = command.elementWidth,
+        valueWidth = rows.valueWidth,
         super(
-          definitionName: 'FixedPointAttentionRowEngine_'
-              'H${command.data.headDimension}_V${rows.data.valueDimension}_'
-              'E${command.data.elementWidth}F${elementFractionBits}_'
-              'D${rows.data.valueWidth}F${valueFractionBits}_'
+          definitionName: 'FixedPointAttentionRowCore_'
+              'H${command.headDimension}_V${rows.valueDimension}_'
+              'E${command.elementWidth}F${elementFractionBits}_'
+              'D${rows.valueWidth}F${valueFractionBits}_'
               'Q${scoreWidth}F${scoreFractionBits}_'
               'N${normalizerWidth}F${normalizerFractionBits}_'
               'X${expWidth}F${expFractionBits}_'
               'R${reciprocalWidth}F${reciprocalFractionBits}_'
-              'O${outputWidth}_C$counterWidth',
+              'O${outputWidth}_C${counterWidth}_'
+              '${multiplierImplementation.identity}_'
+              '${exp2Implementation.identity}_'
+              '${reciprocalImplementation.identity}_'
+              '${roundingMode.name}_${overflowMode.name}',
         ) {
-    if (rows.data.headDimension != headDimension ||
-        rows.data.elementWidth != elementWidth ||
-        result.data.valueDimension != valueDimension ||
-        result.data.outputWidth != outputWidth ||
-        result.data.requestIdWidth != command.data.requestIdWidth) {
+    if (rows.headDimension != headDimension ||
+        rows.elementWidth != elementWidth ||
+        resultSchema.valueDimension != valueDimension ||
+        resultSchema.outputWidth != outputWidth ||
+        resultSchema.requestIdWidth != command.requestIdWidth) {
       throw ArgumentError('Attention row interfaces do not match.');
     }
+
     final scoreShiftRight = elementFractionBits * 2 - scoreFractionBits;
     if (elementFractionBits < 0 ||
         elementFractionBits >= elementWidth ||
@@ -296,22 +324,12 @@ class FixedPointAttentionRowEngine extends Module {
     final localClear = clearCounters == null
         ? Const(0)
         : addInput('clearCounters', clearCounters);
-    _command = addPairInterface(
-      command,
-      PairRole.consumer,
-      uniquify: (original) => 'command_$original',
-    );
-    _rows = addPairInterface(
-      rows,
-      PairRole.consumer,
-      uniquify: (original) => 'rows_$original',
-    );
-    _result = addPairInterfaceFrom(
-      IrrevocableReadyValidInterface(result.data.clone()),
-      result,
-      PairRole.provider,
-      uniquify: (original) => 'result_$original',
-    );
+    _command = addTypedInput<FixedPointAttentionRowCommand>('command', command);
+    _rows = addTypedInput<FixedPointAttentionRow>('rows', rows);
+    result = addTypedPayloadOutput(this, 'result', resultSchema);
+    final localLoad = addInput('load', load);
+    final localWriteRow = addInput('writeRow', writeRow);
+    final localRetire = addInput('retire', retire ?? Const(1));
 
     final processingRows = Logic(name: '${name}_processing');
     final outputValid = Logic(name: '${name}_output_valid');
@@ -329,7 +347,7 @@ class FixedPointAttentionRowEngine extends Module {
     );
     final outputRequestId = Logic(
       name: '${name}_output_request_id',
-      width: command.data.requestIdWidth,
+      width: command.requestIdWidth,
     );
     final outputInvalid = Logic(name: '${name}_output_invalid');
     final outputOverflow = Logic(name: '${name}_output_overflow');
@@ -346,12 +364,12 @@ class FixedPointAttentionRowEngine extends Module {
       valueFractionBits: valueFractionBits,
       name: '${name}_state',
     );
-    final rowAccepted = _rows.accepted;
-    final positionActive = _rows.data.active & storedLaneMask.or();
+    final rowAccepted = localWriteRow;
+    final positionActive = _rows.active & storedLaneMask.or();
     final scoreAccumulatorWidth = elementWidth * 2 + headDimension.log2Ceil;
     final scoreDotProduct = MixedPrecisionDotProduct(
       storedQuery,
-      _rows.data.key,
+      _rows.key,
       outputWidth: scoreAccumulatorWidth,
       activeMask: storedLaneMask,
       signedLeft: true,
@@ -372,7 +390,7 @@ class FixedPointAttentionRowEngine extends Module {
     final update = OnlineSoftmaxWeightedUpdate(
       state,
       scoreNarrow.result,
-      _rows.data.values,
+      _rows.values,
       scoreValid: rowAccepted & positionActive,
       expWidth: expWidth,
       expFractionBits: expFractionBits,
@@ -421,20 +439,19 @@ class FixedPointAttentionRowEngine extends Module {
       name: '${name}_normalize',
     );
 
-    final commandAccepted = _command.accepted;
-    final resultAccepted = _result.accepted;
-    _command.ready <= ~processingRows & (~outputValid | _result.ready);
-    _rows.ready <= processingRows;
-    _result.valid <= outputValid;
+    final commandAccepted = localLoad;
+    final resultAccepted = outputValid & localRetire;
+    addOutput('canLoad') <= ~processingRows & (~outputValid | localRetire);
+    addOutput('canWriteRow') <= processingRows;
+    addOutput('resultValid') <= outputValid;
     for (var lane = 0; lane < valueDimension; lane++) {
-      _result.data.values.arrayElements[lane] <=
-          outputValues.arrayElements[lane];
+      result.values.arrayElements[lane] <= outputValues.arrayElements[lane];
     }
-    _result.data.requestId <= outputRequestId;
-    _result.data.invalidInput <= outputInvalid;
-    _result.data.overflow <= outputOverflow;
-    _result.data.inexact <= outputInexact;
-    _result.data.approximationError <= outputApproximationError;
+    result.requestId <= outputRequestId;
+    result.invalidInput <= outputInvalid;
+    result.overflow <= outputOverflow;
+    result.inexact <= outputInexact;
+    result.approximationError <= outputApproximationError;
     addOutput('processing') <= processingRows;
 
     Sequential(localClk, reset: localReset, resetValues: {
@@ -459,11 +476,10 @@ class FixedPointAttentionRowEngine extends Module {
       If(resultAccepted, then: [outputValid < 0]),
       If(commandAccepted, then: [
         processingRows < 1,
-        outputRequestId < _command.data.requestId,
-        storedLaneMask < _command.data.laneMask,
+        outputRequestId < _command.requestId,
+        storedLaneMask < _command.laneMask,
         for (var lane = 0; lane < headDimension; lane++)
-          storedQuery.arrayElements[lane] <
-              _command.data.query.arrayElements[lane],
+          storedQuery.arrayElements[lane] < _command.query.arrayElements[lane],
         state.scalar.maximum < 0,
         state.scalar.normalizer < 0,
         state.scalar.valid < 0,
@@ -483,7 +499,7 @@ class FixedPointAttentionRowEngine extends Module {
         for (var lane = 0; lane < valueDimension; lane++)
           state.weightedValues.arrayElements[lane] <
               updatedState.weightedValues.arrayElements[lane],
-        If(_rows.data.last, then: [
+        If(_rows.last, then: [
           processingRows < 0,
           outputValid < 1,
           for (var lane = 0; lane < valueDimension; lane++)
@@ -559,7 +575,7 @@ class FixedPointAttentionRowEngine extends Module {
         counter(
           'output_stall_cycles',
           amount: Const(1),
-          enable: outputValid & ~_result.ready,
+          enable: outputValid & ~localRetire,
         );
     addOutput('completedRequests', width: counterWidth) <=
         counter(
@@ -567,5 +583,187 @@ class FixedPointAttentionRowEngine extends Module {
           amount: Const(1),
           enable: resultAccepted,
         );
+  }
+}
+
+/// Ready/valid adapter around [FixedPointAttentionRowCore].
+///
+/// Independent ingress attachments load queries and submit rows. The egress
+/// attachment retires the retained result; no arithmetic is duplicated here.
+/// {@category Inference}
+class FixedPointAttentionRowEngine extends Module {
+  late final FixedPointAttentionRowCore _core;
+
+  /// See [FixedPointAttentionRowCore.headDimension].
+  int get headDimension => _core.headDimension;
+
+  /// See [FixedPointAttentionRowCore.valueDimension].
+  int get valueDimension => _core.valueDimension;
+
+  /// See [FixedPointAttentionRowCore.elementWidth].
+  int get elementWidth => _core.elementWidth;
+
+  /// See [FixedPointAttentionRowCore.valueWidth].
+  int get valueWidth => _core.valueWidth;
+
+  /// See [FixedPointAttentionRowCore.counterWidth].
+  int get counterWidth => _core.counterWidth;
+
+  /// See [FixedPointAttentionRowCore.processing].
+  Logic get processing => output('processing');
+
+  /// See [FixedPointAttentionRowCore.rowsAccepted].
+  Logic get rowsAccepted => output('rowsAccepted');
+
+  /// See [FixedPointAttentionRowCore.scoreProducts].
+  Logic get scoreProducts => output('scoreProducts');
+
+  /// See [FixedPointAttentionRowCore.activeValues].
+  Logic get activeValues => output('activeValues');
+
+  /// See [FixedPointAttentionRowCore.avoidedScoreWriteBytes].
+  Logic get avoidedScoreWriteBytes => output('avoidedScoreWriteBytes');
+
+  /// See [FixedPointAttentionRowCore.busyCycles].
+  Logic get busyCycles => output('busyCycles');
+
+  /// See [FixedPointAttentionRowCore.rowWaitCycles].
+  Logic get rowWaitCycles => output('rowWaitCycles');
+
+  /// See [FixedPointAttentionRowCore.outputStallCycles].
+  Logic get outputStallCycles => output('outputStallCycles');
+
+  /// See [FixedPointAttentionRowCore.completedRequests].
+  Logic get completedRequests => output('completedRequests');
+
+  /// Attaches independent query, row, and result protocols to the action core.
+  FixedPointAttentionRowEngine({
+    required Logic clk,
+    required Logic reset,
+    required ReadyValidInterface<FixedPointAttentionRowCommand> command,
+    required ReadyValidInterface<FixedPointAttentionRow> rows,
+    required ReadyValidInterface<FixedPointAttentionResult> result,
+    required int elementFractionBits,
+    required int valueFractionBits,
+    required int scoreWidth,
+    required int scoreFractionBits,
+    required int normalizerWidth,
+    required int normalizerFractionBits,
+    required int expWidth,
+    required int expFractionBits,
+    required int reciprocalWidth,
+    required int reciprocalFractionBits,
+    required int outputWidth,
+    Logic? clearCounters,
+    int counterWidth = 32,
+    InferenceMultiplierFunctor multiplierImplementation =
+        nativeInferenceMultiplierFunctor,
+    Exp2ApproximationFunctor exp2Implementation =
+        lookupExp2ApproximationFunctor,
+    PositiveApproximationFunctor reciprocalImplementation =
+        lookupReciprocalApproximationFunctor,
+    NumericRoundingMode roundingMode = NumericRoundingMode.nearestEven,
+    NumericOverflowMode overflowMode = NumericOverflowMode.saturate,
+    super.name = 'fixed_point_attention_row_engine',
+  }) : super(
+          definitionName: 'FixedPointAttentionRowEngine_'
+              'H${command.data.headDimension}_V${rows.data.valueDimension}_'
+              'E${command.data.elementWidth}F${elementFractionBits}_'
+              'D${rows.data.valueWidth}F${valueFractionBits}_'
+              'Q${scoreWidth}F${scoreFractionBits}_'
+              'N${normalizerWidth}F${normalizerFractionBits}_'
+              'X${expWidth}F${expFractionBits}_'
+              'R${reciprocalWidth}F${reciprocalFractionBits}_'
+              'O${outputWidth}_C${counterWidth}_'
+              '${multiplierImplementation.identity}_'
+              '${exp2Implementation.identity}_'
+              '${reciprocalImplementation.identity}_'
+              '${roundingMode.name}_${overflowMode.name}',
+        ) {
+    final localClk = addInput('clk', clk);
+    final localReset = addInput('reset', reset);
+    final localClear = clearCounters == null
+        ? Const(0)
+        : addInput('clearCounters', clearCounters);
+    final localCommand = addPairInterface(command, PairRole.consumer,
+        uniquify: (original) => 'command_$original');
+    final localRows = addPairInterface(rows, PairRole.consumer,
+        uniquify: (original) => 'rows_$original');
+    final localResult = addPairInterfaceFrom(
+      IrrevocableReadyValidInterface(result.data.clone()),
+      result,
+      PairRole.provider,
+      uniquify: (original) => 'result_$original',
+    );
+    final load = Logic(name: '${name}_load');
+    final writeRow = Logic(name: '${name}_write_row');
+    final retire = Logic(name: '${name}_retire');
+    final queryPayload = cloneTypedPayload(localCommand.data);
+    final rowPayload = cloneTypedPayload(localRows.data);
+    _core = FixedPointAttentionRowCore(
+      clk: localClk,
+      reset: localReset,
+      command: queryPayload,
+      rows: rowPayload,
+      resultSchema: localResult.data,
+      load: load,
+      writeRow: writeRow,
+      retire: retire,
+      elementFractionBits: elementFractionBits,
+      valueFractionBits: valueFractionBits,
+      scoreWidth: scoreWidth,
+      scoreFractionBits: scoreFractionBits,
+      normalizerWidth: normalizerWidth,
+      normalizerFractionBits: normalizerFractionBits,
+      expWidth: expWidth,
+      expFractionBits: expFractionBits,
+      reciprocalWidth: reciprocalWidth,
+      reciprocalFractionBits: reciprocalFractionBits,
+      outputWidth: outputWidth,
+      clearCounters: localClear,
+      counterWidth: counterWidth,
+      multiplierImplementation: multiplierImplementation,
+      exp2Implementation: exp2Implementation,
+      reciprocalImplementation: reciprocalImplementation,
+      roundingMode: roundingMode,
+      overflowMode: overflowMode,
+      name: '${name}_core',
+    );
+    ReadyValidIngressAttachmentPolicy<FixedPointAttentionRowCommand>(
+      supportsSameCycleReplacement: true,
+    ).attach(
+      upstream: localCommand,
+      canAccept: _core.canLoad,
+      accept: load,
+      payload: queryPayload,
+    );
+    ReadyValidIngressAttachmentPolicy<FixedPointAttentionRow>(
+      supportsSameCycleReplacement: false,
+    ).attach(
+      upstream: localRows,
+      canAccept: _core.canWriteRow,
+      accept: writeRow,
+      payload: rowPayload,
+    );
+    ReadyValidEgressAttachmentPolicy<FixedPointAttentionResult>().attach(
+      downstream: localResult,
+      offerValid: _core.resultValid,
+      payload: _core.result,
+      transfer: retire,
+    );
+    for (final port in [
+      'processing',
+      'rowsAccepted',
+      'scoreProducts',
+      'activeValues',
+      'avoidedScoreWriteBytes',
+      'busyCycles',
+      'rowWaitCycles',
+      'outputStallCycles',
+      'completedRequests',
+    ]) {
+      final signal = _core.output(port);
+      addOutput(port, width: signal.width) <= signal;
+    }
   }
 }

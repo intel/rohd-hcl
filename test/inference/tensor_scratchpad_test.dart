@@ -233,6 +233,7 @@ void main() {
     test('${policy.name} admission preserves unrelated bank policy', () async {
       final fixture = _ScratchpadFixture(bankConflictPolicy: policy);
       await fixture.buildAndReset();
+      await fixture.clk.nextPosedge;
       fixture
         ..driveWrite(0, address: 0, data: 0x11)
         ..driveWrite(1, address: 2, data: 0x22)
@@ -248,6 +249,14 @@ void main() {
         disallow ? LogicValue.one : LogicValue.zero,
       );
       expect(fixture.dut.bankConflicts.value.toInt(), disallow ? 0x3 : 0x7);
+      await fixture.clk.nextPosedge;
+      fixture
+        ..clearWriteValids()
+        ..clearReadValids();
+      if (disallow) {
+        await fixture.waitForResponse(0);
+        expect(fixture.readResponses[0].data.tag.value.toInt(), 1);
+      }
       await Simulator.endSimulation();
     });
   }
@@ -259,6 +268,77 @@ void main() {
     await fixture.readOne(0, address: 0, tag: 1);
     expect(fixture.readResponses[0].data.data.value.toInt(), 0x39);
     await Simulator.endSimulation();
+  });
+
+  test('rejects incompatible word schemas even across packed bridges', () {
+    final signedTile = inferenceLogicTensorTile(
+        rowCount: 1,
+        columnCount: 2,
+        format: InferenceNumericFormat.signedInteger(8));
+    final unsignedTile = inferenceLogicTensorTile(
+        rowCount: 1,
+        columnCount: 2,
+        format: InferenceNumericFormat.unsignedInteger(8));
+    final transposedShape = inferenceLogicTensorTile(
+        rowCount: 2, columnCount: 1, format: signedTile.format);
+    for (final destination in [unsignedTile, transposedShape]) {
+      expect(
+        () => TensorScratchpad<Logic>(
+          clk: Logic(),
+          reset: Logic(),
+          depth: 4,
+          bankCount: 2,
+          readRequests: [
+            ReadyValidInterface(
+                TensorScratchpadReadRequest(addressWidth: 2, tagWidth: 1)),
+          ],
+          readResponses: [
+            ReadyValidInterface(TensorScratchpadReadResponse<Logic>(
+                data: destination, tagWidth: 1)),
+          ],
+          writeRequests: [
+            ReadyValidInterface(TensorScratchpadWriteRequest<Logic>(
+                data: Logic(width: signedTile.width), addressWidth: 2)),
+            ReadyValidInterface(TensorScratchpadWriteRequest<Logic>(
+                data: signedTile, addressWidth: 2)),
+          ],
+        ),
+        throwsArgumentError,
+      );
+    }
+  });
+
+  test('rejects different codecs for equal-width array words', () {
+    TypedLogicArray<Logic, LogicValue> word() =>
+        TypedLogicArray<Logic, LogicValue>(
+          [2],
+          ({name}) => Logic(name: name, width: 4),
+          valueCodec:
+              // Distinct codec instances must not be canonicalized.
+              // ignore: prefer_const_constructors
+              LogicValueCodec(decode: _identityValue, encode: _identityValue),
+        );
+    expect(
+      () => TensorScratchpad(
+        clk: Logic(),
+        reset: Logic(),
+        depth: 4,
+        bankCount: 2,
+        readRequests: [
+          ReadyValidInterface(
+              TensorScratchpadReadRequest(addressWidth: 2, tagWidth: 1)),
+        ],
+        readResponses: [
+          ReadyValidInterface(
+              TensorScratchpadReadResponse(data: word(), tagWidth: 1)),
+        ],
+        writeRequests: [
+          ReadyValidInterface(
+              TensorScratchpadWriteRequest(data: word(), addressWidth: 2)),
+        ],
+      ),
+      throwsArgumentError,
+    );
   });
 
   test('rejects invalid banking and unsupported array limits', () {
@@ -283,6 +363,8 @@ void main() {
   });
 }
 
+LogicValue _identityValue(LogicValue value) => value;
+
 Memory<Logic> _unexpectedArrayBuild({
   required Logic clk,
   required Logic reset,
@@ -290,7 +372,8 @@ Memory<Logic> _unexpectedArrayBuild({
   required List<DataPortInterface<Logic>> readPorts,
   required int entryCount,
   required String name,
-}) => throw StateError('Incompatible backing array should not be built.');
+}) =>
+    throw StateError('Incompatible backing array should not be built.');
 
 class _ScratchpadFixture {
   final int depth;
@@ -298,11 +381,11 @@ class _ScratchpadFixture {
   final Logic clk = SimpleClockGenerator(10).clk;
   final Logic reset = Logic();
   late final List<ReadyValidInterface<TensorScratchpadReadRequest>>
-  readRequests;
+      readRequests;
   late final List<ReadyValidInterface<TensorScratchpadReadResponse>>
-  readResponses;
+      readResponses;
   late final List<ReadyValidInterface<TensorScratchpadWriteRequest>>
-  writeRequests;
+      writeRequests;
   late final TensorScratchpad dut;
 
   _ScratchpadFixture({
@@ -329,7 +412,7 @@ class _ScratchpadFixture {
       for (var port = 0; port < 2; port++)
         ReadyValidInterface(
           TensorScratchpadReadResponse(
-            dataWidth: 8,
+            data: Logic(width: 8),
             tagWidth: 2,
             name: 'readResponse$port',
           ),
@@ -340,7 +423,7 @@ class _ScratchpadFixture {
         ReadyValidInterface(
           TensorScratchpadWriteRequest(
             addressWidth: addressWidth,
-            dataWidth: 8,
+            data: Logic(width: 8),
             name: 'writeRequest$port',
           ),
         ),

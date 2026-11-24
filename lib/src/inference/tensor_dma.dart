@@ -16,6 +16,7 @@ import 'package:rohd_hcl/src/inference/inference_multiplier_functor.dart';
 import 'package:rohd_hcl/src/inference/tensor_scratchpad.dart';
 import 'package:rohd_hcl/src/inference/tensor_strided_address_generator.dart';
 import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// One strided tensor-copy command.
 ///
@@ -280,8 +281,12 @@ int tensorDmaCountWidth({
 /// Destination acceptance is the write-completion point; destinations that
 /// require a later error response should adapt that protocol before this
 /// engine.
+///
+/// Source and destination words share a compatible declared schema [T].
+/// The retained write buffer preserves that schema; no numeric conversion
+/// occurs when copying a word.
 /// {@category Inference}
-class TensorDmaEngine extends Module {
+class TensorDmaEngine<T extends Logic> extends Module {
   /// Optional number of valid source addresses.
   final int? sourceDepth;
 
@@ -297,9 +302,9 @@ class TensorDmaEngine extends Module {
   late final ReadyValidInterface<TensorDmaCommand> _command;
   late final IrrevocableReadyValidInterface<TensorScratchpadReadRequest>
       _sourceReadRequest;
-  late final ReadyValidInterface<TensorScratchpadReadResponse>
+  late final ReadyValidInterface<TensorScratchpadReadResponse<T>>
       _sourceReadResponse;
-  late final IrrevocableReadyValidInterface<TensorScratchpadWriteRequest>
+  late final IrrevocableReadyValidInterface<TensorScratchpadWriteRequest<T>>
       _destinationWriteRequest;
   late final IrrevocableReadyValidInterface<TensorDmaCompletion> _completion;
 
@@ -333,9 +338,9 @@ class TensorDmaEngine extends Module {
     required Logic reset,
     required ReadyValidInterface<TensorDmaCommand> command,
     required ReadyValidInterface<TensorScratchpadReadRequest> sourceReadRequest,
-    required ReadyValidInterface<TensorScratchpadReadResponse>
+    required ReadyValidInterface<TensorScratchpadReadResponse<T>>
         sourceReadResponse,
-    required ReadyValidInterface<TensorScratchpadWriteRequest>
+    required ReadyValidInterface<TensorScratchpadWriteRequest<T>>
         destinationWriteRequest,
     required ReadyValidInterface<TensorDmaCompletion> completion,
     this.sourceDepth,
@@ -353,7 +358,8 @@ class TensorDmaEngine extends Module {
               'D${sourceReadResponse.data.dataWidth}_'
               'T${sourceReadRequest.data.tagWidth}_'
               'SD${sourceDepth ?? 0}_DD${destinationDepth ?? 0}_'
-              'C${counterWidth}_${multiplierImplementation.identity}',
+              'C${counterWidth}_${multiplierImplementation.identity}_'
+              '${payloadShapeIdentity(sourceReadResponse.data.data)}',
         ) {
     final countWidth = tensorDmaCountWidth(
       mWidth: command.data.mWidth,
@@ -368,6 +374,12 @@ class TensorDmaEngine extends Module {
       completion,
       countWidth,
     );
+    if (!compatiblePayloadSet([
+      sourceReadResponse.data.data,
+      destinationWriteRequest.data.data,
+    ], allowRenamedClones: true)) {
+      throw ArgumentError('Tensor DMA word schemas do not match.');
+    }
     _validateDepth(sourceDepth, command.data.sourceAddressWidth, 'sourceDepth');
     _validateDepth(
       destinationDepth,
@@ -433,10 +445,9 @@ class TensorDmaEngine extends Module {
       name: '${name}_next_read_tag',
       width: sourceReadRequest.data.tagWidth,
     );
-    final bufferedWriteData = Logic(
-      name: '${name}_buffered_write_data',
-      width: sourceReadResponse.data.dataWidth,
-    );
+    final bufferedWriteData = cloneTypedPayload<T>(
+        _sourceReadResponse.data.data,
+        name: '${name}_buffered_write_data');
     final transferredCount =
         Logic(name: '${name}_transferred_count', width: countWidth);
     final completionCount =
@@ -450,103 +461,99 @@ class TensorDmaEngine extends Module {
     final addressErrorSeen = Logic(name: '${name}_address_error_seen');
     final protocolErrorSeen = Logic(name: '${name}_protocol_error_seen');
 
-    final sourceAddressCommand = ReadyValidInterface(
-      TensorAddressCommand(
-        addressWidth: command.data.sourceAddressWidth,
-        mWidth: command.data.mWidth,
-        nWidth: command.data.nWidth,
-        kWidth: command.data.kWidth,
-        commandIdWidth: command.data.commandIdWidth,
-        name: '${name}_source_address_command',
-      ),
+    final sourceAddressCommand = TensorAddressCommand(
+      addressWidth: command.data.sourceAddressWidth,
+      mWidth: command.data.mWidth,
+      nWidth: command.data.nWidth,
+      kWidth: command.data.kWidth,
+      commandIdWidth: command.data.commandIdWidth,
+      name: '${name}_source_address_command',
     );
-    final destinationAddressCommand = ReadyValidInterface(
-      TensorAddressCommand(
-        addressWidth: command.data.destinationAddressWidth,
-        mWidth: command.data.mWidth,
-        nWidth: command.data.nWidth,
-        kWidth: command.data.kWidth,
-        commandIdWidth: command.data.commandIdWidth,
-        name: '${name}_destination_address_command',
-      ),
+    final destinationAddressCommand = TensorAddressCommand(
+      addressWidth: command.data.destinationAddressWidth,
+      mWidth: command.data.mWidth,
+      nWidth: command.data.nWidth,
+      kWidth: command.data.kWidth,
+      commandIdWidth: command.data.commandIdWidth,
+      name: '${name}_destination_address_command',
     );
-    final sourceAddressBeat = ReadyValidInterface(
-      TensorAddressBeat(
-        addressWidth: command.data.sourceAddressWidth,
-        mWidth: command.data.mWidth,
-        nWidth: command.data.nWidth,
-        kWidth: command.data.kWidth,
-        commandIdWidth: command.data.commandIdWidth,
-        name: '${name}_source_address',
-      ),
+    final sourceAddressSchema = TensorAddressBeat(
+      addressWidth: command.data.sourceAddressWidth,
+      mWidth: command.data.mWidth,
+      nWidth: command.data.nWidth,
+      kWidth: command.data.kWidth,
+      commandIdWidth: command.data.commandIdWidth,
+      name: '${name}_source_address',
     );
-    final destinationAddressBeat = ReadyValidInterface(
-      TensorAddressBeat(
-        addressWidth: command.data.destinationAddressWidth,
-        mWidth: command.data.mWidth,
-        nWidth: command.data.nWidth,
-        kWidth: command.data.kWidth,
-        commandIdWidth: command.data.commandIdWidth,
-        name: '${name}_destination_address',
-      ),
+    final destinationAddressSchema = TensorAddressBeat(
+      addressWidth: command.data.destinationAddressWidth,
+      mWidth: command.data.mWidth,
+      nWidth: command.data.nWidth,
+      kWidth: command.data.kWidth,
+      commandIdWidth: command.data.commandIdWidth,
+      name: '${name}_destination_address',
     );
+    final loadAddresses = Logic(name: '${name}_load_addresses');
+    final advanceAddresses = Logic(name: '${name}_advance_addresses');
     _driveAddressCommand(
-      sourceAddressCommand.data,
+      sourceAddressCommand,
       _command.data,
       source: true,
     );
     _driveAddressCommand(
-      destinationAddressCommand.data,
+      destinationAddressCommand,
       _command.data,
       source: false,
     );
-    TensorStridedAddressGenerator(
+    final sourceAddresses = TensorStridedAddressGeneratorCore(
       clk: localClk,
       reset: localReset,
-      upstream: sourceAddressCommand,
-      downstream: sourceAddressBeat,
+      command: sourceAddressCommand,
+      resultSchema: sourceAddressSchema,
+      load: loadAddresses,
+      advance: advanceAddresses,
       clearCounters: localClear,
       counterWidth: counterWidth,
       multiplierImplementation: multiplierImplementation,
       name: '${name}_source_addresses',
     );
-    TensorStridedAddressGenerator(
+    final destinationAddresses = TensorStridedAddressGeneratorCore(
       clk: localClk,
       reset: localReset,
-      upstream: destinationAddressCommand,
-      downstream: destinationAddressBeat,
+      command: destinationAddressCommand,
+      resultSchema: destinationAddressSchema,
+      load: loadAddresses,
+      advance: advanceAddresses,
       clearCounters: localClear,
       counterWidth: counterWidth,
       multiplierImplementation: multiplierImplementation,
       name: '${name}_destination_addresses',
     );
 
+    final sourceAddressBeat = sourceAddresses.result;
+    final destinationAddressBeat = destinationAddresses.result;
     final idle =
         ~active & ~readOutstanding & ~writePending & ~completionPending;
-    sourceAddressCommand.valid <=
-        _command.valid & idle & destinationAddressCommand.ready;
-    destinationAddressCommand.valid <=
-        _command.valid & idle & sourceAddressCommand.ready;
     _command.ready <=
-        idle & sourceAddressCommand.ready & destinationAddressCommand.ready;
+        idle & sourceAddresses.canLoad & destinationAddresses.canLoad;
     final commandAccepted = _command.accepted;
+    loadAddresses <= commandAccepted;
     final invalidExtent = _command.data.mExtent.eq(0) |
         _command.data.nExtent.eq(0) |
         _command.data.kExtent.eq(0);
 
     final canIssueAddress = active & ~readOutstanding & ~writePending;
-    final addressPairValid =
-        sourceAddressBeat.valid & destinationAddressBeat.valid;
+    final addressPairValid = sourceAddresses.busy & destinationAddresses.busy;
     final sourceInRange = _addressInRange(
-      sourceAddressBeat.data.address,
+      sourceAddressBeat.address,
       sourceDepth,
     );
     final destinationInRange = _addressInRange(
-      destinationAddressBeat.data.address,
+      destinationAddressBeat.address,
       destinationDepth,
     );
-    final currentAddressError = sourceAddressBeat.data.overflow |
-        destinationAddressBeat.data.overflow |
+    final currentAddressError = sourceAddressBeat.overflow |
+        destinationAddressBeat.overflow |
         ~sourceInRange |
         ~destinationInRange;
     final skipAddress =
@@ -554,14 +561,11 @@ class TensorDmaEngine extends Module {
 
     _sourceReadRequest.valid <=
         addressPairValid & canIssueAddress & ~currentAddressError;
-    _sourceReadRequest.data.address <= sourceAddressBeat.data.address;
+    _sourceReadRequest.data.address <= sourceAddressBeat.address;
     _sourceReadRequest.data.tag <= nextReadTag;
     final readRequestAccepted = _sourceReadRequest.accepted;
     final addressPairAccepted = skipAddress | readRequestAccepted;
-    sourceAddressBeat.ready <=
-        destinationAddressBeat.valid & addressPairAccepted;
-    destinationAddressBeat.ready <=
-        sourceAddressBeat.valid & addressPairAccepted;
+    advanceAddresses <= addressPairAccepted;
 
     _sourceReadResponse.ready <= readOutstanding & ~writePending;
     final readResponseAccepted = _sourceReadResponse.accepted;
@@ -621,7 +625,7 @@ class TensorDmaEngine extends Module {
       ]),
       If(skipAddress, then: [
         addressErrorSeen < 1,
-        If(sourceAddressBeat.data.last, then: [
+        If(sourceAddressBeat.last, then: [
           active < 0,
           completionPending < 1,
           completionCount < transferredCount,
@@ -629,8 +633,8 @@ class TensorDmaEngine extends Module {
       ]),
       If(readRequestAccepted, then: [
         readOutstanding < 1,
-        pendingDestination < destinationAddressBeat.data.address,
-        pendingLast < sourceAddressBeat.data.last,
+        pendingDestination < destinationAddressBeat.address,
+        pendingLast < sourceAddressBeat.last,
         pendingReadTag < nextReadTag,
         nextReadTag < nextReadTag + 1,
       ]),
@@ -744,11 +748,12 @@ class TensorDmaEngine extends Module {
     }
   }
 
-  static void _validateInterfaces(
+  void _validateInterfaces(
     ReadyValidInterface<TensorDmaCommand> command,
     ReadyValidInterface<TensorScratchpadReadRequest> sourceReadRequest,
-    ReadyValidInterface<TensorScratchpadReadResponse> sourceReadResponse,
-    ReadyValidInterface<TensorScratchpadWriteRequest> destinationWriteRequest,
+    ReadyValidInterface<TensorScratchpadReadResponse<T>> sourceReadResponse,
+    ReadyValidInterface<TensorScratchpadWriteRequest<T>>
+        destinationWriteRequest,
     ReadyValidInterface<TensorDmaCompletion> completion,
     int countWidth,
   ) {

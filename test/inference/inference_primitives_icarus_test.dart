@@ -178,14 +178,14 @@ void main() {
     );
     final scratchpadReadResponse = ReadyValidInterface(
       TensorScratchpadReadResponse(
-        dataWidth: 8,
+        data: Logic(width: 8),
         tagWidth: 2,
       ),
     );
     final scratchpadWriteRequest = ReadyValidInterface(
       TensorScratchpadWriteRequest(
         addressWidth: 3,
-        dataWidth: 8,
+        data: Logic(width: 8),
       ),
     );
     final scratchpad = TensorScratchpad(
@@ -216,7 +216,7 @@ void main() {
     );
     final dmaReadResponse = ReadyValidInterface(
       TensorScratchpadReadResponse(
-        dataWidth: 8,
+        data: Logic(width: 8),
         tagWidth: 3,
         name: 'dmaReadResponse',
       ),
@@ -224,7 +224,7 @@ void main() {
     final dmaWriteRequest = ReadyValidInterface(
       TensorScratchpadWriteRequest(
         addressWidth: 8,
-        dataWidth: 8,
+        data: Logic(width: 8),
         name: 'dmaWriteRequest',
       ),
     );
@@ -314,7 +314,7 @@ void main() {
         ),
       ),
     );
-    final untiler = TensorTileUntiler<Logic, LogicValue>(
+    final untiler = ReadyValidTensorTileUntiler<Logic, LogicValue>(
       clk: Logic(),
       reset: Logic(),
       upstream: untilerInput,
@@ -337,11 +337,41 @@ void main() {
         name: 'tilerOutput',
       ),
     );
-    final tiler = TensorTileTiler<Logic, LogicValue>(
+    final tiler = ReadyValidTensorTileTiler<Logic, LogicValue>(
       clk: Logic(),
       reset: Logic(),
       upstream: tilerInput,
       downstream: tilerOutput,
+    );
+    final scheduledUntiler = TensorTileUntiler(
+      clk: Logic(),
+      reset: Logic(),
+      load: Logic(),
+      inputTile: untilerInput.data,
+      elementSchema: untilerOutput.data.data,
+    );
+    final scheduledTiler = TensorTileTiler(
+      clk: Logic(),
+      reset: Logic(),
+      element: tilerInput.data,
+      write: Logic(),
+      tileSchema: tilerOutput.data,
+    );
+    final accumulatingBank = ReadyValidTensorAccumulatingMemoryBank(
+      clk: Logic(),
+      reset: Logic(),
+      writes: ReadyValidInterface(TensorAccumulatingWriteRequest(
+        ByteMaskedWriteRequest(addressWidth: 2, dataWidth: 16),
+      )),
+      reads: ReadyValidInterface(
+        TensorScratchpadReadRequest(addressWidth: 2, tagWidth: 2),
+      ),
+      responses: ReadyValidInterface(TensorScratchpadReadResponse(
+        data: Logic(width: 16),
+        tagWidth: 2,
+      )),
+      depth: 4,
+      laneWidth: 8,
     );
 
     for (final (module, name) in [
@@ -366,6 +396,9 @@ void main() {
       (tileTranspose, 'tensor_tile_transpose'),
       (untiler, 'tensor_tile_untiler'),
       (tiler, 'tensor_tile_tiler'),
+      (scheduledUntiler, 'scheduled_tensor_tile_untiler'),
+      (scheduledTiler, 'scheduled_tensor_tile_tiler'),
+      (accumulatingBank, 'ready_valid_tensor_accumulating_bank'),
     ]) {
       await _expectCompiles(module, name);
     }

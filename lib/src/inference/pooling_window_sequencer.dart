@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// pooling_window_sequencer.dart
+// Pooling-window coordinate traversal with optional horizontal splits.
+//
+// 2026 November 23
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/accumulation/accumulator.dart';
@@ -60,9 +66,11 @@ class PoolingWindowSequencer extends Module {
 
   /// Creates a window sequencer with runtime geometry.
   ///
-  /// [splitCount] is the number of additional splits. When it is zero,
-  /// [outputWidth] is used; otherwise first, middle and last split widths
-  /// describe the output and must sum to [outputWidth].
+  /// Omit all four split inputs for an unsplit traversal with no split
+  /// hardware. Otherwise supply all four: [splitCount] is the number of
+  /// additional splits. When it is zero, [outputWidth] is used; otherwise
+  /// first, middle and last split widths describe the output and must sum
+  /// to [outputWidth]. [split] is tied low when split inputs are omitted.
   PoolingWindowSequencer({
     required Logic clk,
     required Logic reset,
@@ -80,31 +88,43 @@ class PoolingWindowSequencer extends Module {
     required Logic strideY,
     required Logic padLeft,
     required Logic padTop,
-    required Logic splitCount,
-    required Logic outputWidthFirst,
-    required Logic outputWidthMiddle,
-    required Logic outputWidthLast,
+    Logic? splitCount,
+    Logic? outputWidthFirst,
+    Logic? outputWidthMiddle,
+    Logic? outputWidthLast,
     super.name = 'pooling_window_sequencer',
   }) : super(
-          definitionName: 'PoolingWindowSequencer_'
-              '${[
-            inputWidth,
-            inputHeight,
-            outputWidth,
-            outputHeight,
-            groups,
-            kernelWidth,
-            kernelHeight,
-            strideX,
-            strideY,
-            padLeft,
-            padTop,
-            splitCount,
-            outputWidthFirst,
-            outputWidthMiddle,
-            outputWidthLast,
-          ].map((signal) => signal.width).join('_')}',
+          definitionName: [
+            'PoolingWindowSequencer',
+            for (final signal in [
+              inputWidth,
+              inputHeight,
+              outputWidth,
+              outputHeight,
+              groups,
+              kernelWidth,
+              kernelHeight,
+              strideX,
+              strideY,
+              padLeft,
+              padTop,
+              splitCount,
+              outputWidthFirst,
+              outputWidthMiddle,
+              outputWidthLast,
+            ])
+              signal?.width ?? 0,
+          ].join('_'),
         ) {
+    final splitInputs = [
+      splitCount,
+      outputWidthFirst,
+      outputWidthMiddle,
+      outputWidthLast,
+    ].nonNulls.toList();
+    if (splitInputs.isNotEmpty && splitInputs.length != 4) {
+      throw ArgumentError('Supply either all four split inputs or none.');
+    }
     final geometry = [
       inputWidth,
       inputHeight,
@@ -117,10 +137,7 @@ class PoolingWindowSequencer extends Module {
       strideY,
       padLeft,
       padTop,
-      splitCount,
-      outputWidthFirst,
-      outputWidthMiddle,
-      outputWidthLast,
+      ...splitInputs,
     ];
     if (geometry.any((signal) => signal.width < 1 || signal.width > 16)) {
       throw ArgumentError('Geometry input widths must be between 1 and 16.');
@@ -143,57 +160,83 @@ class PoolingWindowSequencer extends Module {
     strideY = input('strideY', strideY);
     padLeft = input('padLeft', padLeft);
     padTop = input('padTop', padTop);
-    splitCount = input('splitCount', splitCount);
-    outputWidthFirst = input('outputWidthFirst', outputWidthFirst);
-    outputWidthMiddle = input('outputWidthMiddle', outputWidthMiddle);
-    outputWidthLast = input('outputWidthLast', outputWidthLast);
 
     Logic wide(Logic value) => value.zeroExtend(64);
     Logic counter(String name, int width, Logic step, Logic clear) =>
-        Accumulator(Const(1),
-                clk: clk,
-                reset: reset,
-                width: width,
-                enable: step,
-                clear: clear,
-                name: name)
-            .value;
+        Accumulator(
+          Const(1),
+          clk: clk,
+          reset: reset,
+          width: width,
+          enable: step,
+          clear: clear,
+          name: name,
+        ).value;
     final lastX = Logic(name: 'lastX');
     final lastY = Logic(name: 'lastY');
     final lastGroup = Logic(name: 'lastGroup');
     final lastKernelX = Logic(name: 'lastKernelX');
     final lastKernelY = Logic(name: 'lastKernelY');
-    final x = counter('x_count', outputWidth.width, advanceOutput,
-        restart | (advanceOutput & lastX));
-    final y = counter('y_count', outputHeight.width, advanceOutput & lastX,
-        restart | (advanceOutput & lastX & lastY));
+    final x = counter(
+      'x_count',
+      outputWidth.width,
+      advanceOutput,
+      restart | (advanceOutput & lastX),
+    );
+    final y = counter(
+      'y_count',
+      outputHeight.width,
+      advanceOutput & lastX,
+      restart | (advanceOutput & lastX & lastY),
+    );
     final splitFinished = advanceOutput & lastX & lastY & lastGroup;
-    final group = counter('group_count', groups.width,
-        advanceOutput & lastX & lastY, restart | splitFinished);
-    final split =
-        counter('split_count', splitCount.width, splitFinished, restart);
-    final kx = counter('kernel_x_count', kernelWidth.width, advanceTerm,
-        restart | advanceOutput | (advanceTerm & lastKernelX));
-    final ky = counter('kernel_y_count', kernelHeight.width,
-        advanceTerm & lastKernelX, restart | advanceOutput);
-    final splitEnabled = splitCount.neq(0);
-    final splitWidth = mux(
-        ~splitEnabled,
-        wide(outputWidth),
-        mux(
-            split.eq(0),
-            wide(outputWidthFirst),
-            mux(split.eq(splitCount), wide(outputWidthLast),
-                wide(outputWidthMiddle))));
+    final group = counter(
+      'group_count',
+      groups.width,
+      advanceOutput & lastX & lastY,
+      restart | splitFinished,
+    );
+    final kx = counter(
+      'kernel_x_count',
+      kernelWidth.width,
+      advanceTerm,
+      restart | advanceOutput | (advanceTerm & lastKernelX),
+    );
+    final ky = counter(
+      'kernel_y_count',
+      kernelHeight.width,
+      advanceTerm & lastKernelX,
+      restart | advanceOutput,
+    );
+    Logic split = Const(0);
+    var splitWidth = wide(outputWidth);
+    var outputX = wide(x);
+    Logic lastSplit = Const(1);
+    if (splitCount != null) {
+      final count = input('splitCount', splitCount);
+      final first = wide(input('outputWidthFirst', outputWidthFirst!));
+      final middle = wide(input('outputWidthMiddle', outputWidthMiddle!));
+      final last = wide(input('outputWidthLast', outputWidthLast!));
+      split = counter('split_count', count.width, splitFinished, restart);
+      lastSplit = split.eq(count);
+      final splitEnabled = count.neq(0);
+      splitWidth = mux(
+        splitEnabled,
+        mux(split.eq(0), first, mux(lastSplit, last, middle)),
+        splitWidth,
+      );
+      final splitOffset = mux(
+        split.eq(0),
+        Const(0, width: 64),
+        first + (wide(split) - 1) * middle,
+      );
+      outputX += mux(splitEnabled, splitOffset, Const(0, width: 64));
+    }
     lastX <= wide(x).eq(splitWidth - 1);
     lastY <= wide(y).eq(wide(outputHeight) - 1);
     lastGroup <= wide(group).eq(wide(groups) - 1);
     lastKernelX <= wide(kx).eq(wide(kernelWidth) - 1);
     lastKernelY <= wide(ky).eq(wide(kernelHeight) - 1);
-    final splitOffset = mux(split.eq(0), Const(0, width: 64),
-        wide(outputWidthFirst) + (wide(split) - 1) * wide(outputWidthMiddle));
-    final outputX =
-        wide(x) + mux(splitEnabled, splitOffset, Const(0, width: 64));
     final rawX = outputX * wide(strideX) + wide(kx);
     final rawY = wide(y) * wide(strideY) + wide(ky);
     final inputX = rawX - wide(padLeft);
@@ -212,7 +255,7 @@ class PoolingWindowSequencer extends Module {
             rawY.gte(wide(padTop)) &
             inputX.lt(wide(inputWidth)) &
             inputY.lt(wide(inputHeight));
-    addOutput('lastOutput') <= lastX & lastY & lastGroup & split.eq(splitCount);
+    addOutput('lastOutput') <= lastX & lastY & lastGroup & lastSplit;
     addOutput('lastTerm') <= lastKernelX & lastKernelY;
   }
 }

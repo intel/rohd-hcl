@@ -528,42 +528,37 @@ class ScratchpadFixedPointAttention extends Module {
     _keyReadResponse.ready <= loadingRows & keyIssued & ~keyReceived;
     _valueReadResponse.ready <= loadingRows & valueIssued & ~valueReceived;
 
-    final rowCommand = ReadyValidInterface(
-      FixedPointAttentionRowCommand(
-        headDimension: headDimension,
-        elementWidth: elementWidth,
-        requestIdWidth: command.data.requestIdWidth,
-        name: '${name}_row_command',
-      ),
+    final rowCommand = FixedPointAttentionRowCommand(
+      headDimension: headDimension,
+      elementWidth: elementWidth,
+      requestIdWidth: command.data.requestIdWidth,
+      name: '${name}_row_command',
     );
-    final rowInput = ReadyValidInterface(
-      FixedPointAttentionRow(
-        headDimension: headDimension,
-        valueDimension: valueDimension,
-        elementWidth: elementWidth,
-        valueWidth: valueWidth,
-        name: '${name}_row',
-      ),
+    final rowInput = FixedPointAttentionRow(
+      headDimension: headDimension,
+      valueDimension: valueDimension,
+      elementWidth: elementWidth,
+      valueWidth: valueWidth,
+      name: '${name}_row',
     );
-    final rowResult = ReadyValidInterface(
-      FixedPointAttentionResult(
-        valueDimension: valueDimension,
-        outputWidth: outputWidth,
-        requestIdWidth: command.data.requestIdWidth,
-        name: '${name}_row_result',
-      ),
+    final rowResultSchema = FixedPointAttentionResult(
+      valueDimension: valueDimension,
+      outputWidth: outputWidth,
+      requestIdWidth: command.data.requestIdWidth,
+      name: '${name}_row_result',
     );
-    rowCommand.valid <= rowCommandPending;
+    final loadCompute = Logic(name: '${name}_load_compute');
+    final writeComputeRow = Logic(name: '${name}_write_compute_row');
+    final retireCompute = Logic(name: '${name}_retire_compute');
     for (var lane = 0; lane < headDimension; lane++) {
-      rowCommand.data.query.arrayElements[lane] <=
-          storedQuery.arrayElements[lane];
-      rowInput.data.key.arrayElements[lane] <= keyRow.arrayElements[lane];
+      rowCommand.query.arrayElements[lane] <= storedQuery.arrayElements[lane];
+      rowInput.key.arrayElements[lane] <= keyRow.arrayElements[lane];
     }
     for (var lane = 0; lane < valueDimension; lane++) {
-      rowInput.data.values.arrayElements[lane] <= valueRow.arrayElements[lane];
+      rowInput.values.arrayElements[lane] <= valueRow.arrayElements[lane];
     }
-    rowCommand.data.laneMask <= storedLaneMask;
-    rowCommand.data.requestId <= storedRequestId;
+    rowCommand.laneMask <= storedLaneMask;
+    rowCommand.requestId <= storedRequestId;
     final rowHasError = keyAddressOverflow |
         valueAddressOverflow |
         keyRowError |
@@ -574,20 +569,20 @@ class ScratchpadFixedPointAttention extends Module {
         currentIndex.zeroExtend(storedCausalCount.width).lt(storedCausalCount) &
         storedLaneMask.or() &
         ~rowHasError;
-    rowInput.valid <=
+    final rowOffered =
         loadingRows & keyComplete & valueComplete & ~rowCommandPending;
-    rowInput.data.active <= rowActive;
-    rowInput.data.last <= lastRow;
-    prefetchNextRow <= rowInput.accepted & ~lastRow;
-    rowResult.ready <= _result.ready;
-
-    final core = FixedPointAttentionRowEngine(
+    rowInput.active <= rowActive;
+    rowInput.last <= lastRow;
+    final core = FixedPointAttentionRowCore(
       clk: localClk,
       reset: localReset,
       clearCounters: localClear,
       command: rowCommand,
       rows: rowInput,
-      result: rowResult,
+      resultSchema: rowResultSchema,
+      load: loadCompute,
+      writeRow: writeComputeRow,
+      retire: retireCompute,
       elementFractionBits: elementFractionBits,
       valueFractionBits: valueFractionBits,
       scoreWidth: scoreWidth,
@@ -607,18 +602,23 @@ class ScratchpadFixedPointAttention extends Module {
       overflowMode: overflowMode,
       name: '${name}_core',
     );
+    loadCompute <= rowCommandPending & core.canLoad;
+    writeComputeRow <= rowOffered & core.canWriteRow;
+    retireCompute <= core.resultValid & _result.ready;
+    prefetchNextRow <= writeComputeRow & ~lastRow;
+    final rowResult = core.result;
 
     _command.ready <= ~transactionActive;
-    _result.valid <= rowResult.valid;
+    _result.valid <= core.resultValid;
     for (var lane = 0; lane < valueDimension; lane++) {
       _result.data.values.arrayElements[lane] <=
-          rowResult.data.values.arrayElements[lane];
+          rowResult.values.arrayElements[lane];
     }
-    _result.data.requestId <= rowResult.data.requestId;
-    _result.data.invalidInput <= rowResult.data.invalidInput;
-    _result.data.overflow <= rowResult.data.overflow;
-    _result.data.inexact <= rowResult.data.inexact;
-    _result.data.approximationError <= rowResult.data.approximationError;
+    _result.data.requestId <= rowResult.requestId;
+    _result.data.invalidInput <= rowResult.invalidInput;
+    _result.data.overflow <= rowResult.overflow;
+    _result.data.inexact <= rowResult.inexact;
+    _result.data.approximationError <= rowResult.approximationError;
     _result.data.memoryError <= memoryError;
     _result.data.protocolError <= protocolError;
     _result.data.addressOverflow <= addressOverflow;
@@ -628,8 +628,8 @@ class ScratchpadFixedPointAttention extends Module {
 
     final commandAccepted = _command.accepted;
     final resultAccepted = _result.accepted;
-    final rowCommandAccepted = rowCommand.accepted;
-    final rowAccepted = rowInput.accepted;
+    final rowCommandAccepted = loadCompute;
+    final rowAccepted = writeComputeRow;
     final keyPrefetchAccepted =
         prefetchNextRow & ~nextKeyAddressOverflow & _keyReadRequest.ready;
     final valuePrefetchAccepted =

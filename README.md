@@ -71,6 +71,7 @@ configurator. Examples include:
 - **Encodings:** Gray code, one-hot encoding, and priority encoders.
 - **Error Control:** error correction and parity.
 - **Flow Control:** arbiters, FIFOs, and ready/valid queues.
+- **Inference:** [fixed-point attention, tensor movement, storage, and layout](doc/components/inference.md), with a runnable [attention engine example](example/attention_engine_example.dart).
 - **Interfaces:** AMBA and SPI interfaces and endpoints.
 - **Memory:** register files, associative memories, shift registers, and CSRs.
 - **Models:** memory models and protocol bus functional models.

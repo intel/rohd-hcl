@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// tensor_strided_address.dart
+// Random-access strided tensor address calculation.
+//
+// 2026 November 23
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'dart:math';
 

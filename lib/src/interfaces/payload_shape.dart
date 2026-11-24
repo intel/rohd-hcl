@@ -21,17 +21,10 @@ bool samePayloadShape(Logic first, Logic second,
         ignoreConstantNames: ignoreConstantNames);
 
 /// Whether two interface payloads can connect, allowing a packed bridge.
-// TODO(rohd): Replace with rohdPayloadsCompatible when it is released.
 bool compatiblePayloadConnection(Logic target, Logic source,
-    {bool ignoreConstantNames = false}) {
-  if (target.width != source.width) {
-    return false;
-  }
-  return !hasDeclaredPayloadShape(target) ||
-      !hasDeclaredPayloadShape(source) ||
-      samePayloadShape(target, source,
-          ignoreConstantNames: ignoreConstantNames);
-}
+        {bool ignoreConstantNames = false}) =>
+    rohdPayloadsCompatible([target, source],
+        ignoreConstantNames: ignoreConstantNames);
 
 /// Whether all payloads are pairwise compatible, allowing packed bridges.
 ///
@@ -41,15 +34,15 @@ bool compatiblePayloadConnection(Logic target, Logic source,
 // supports allowRenamedClones, or retain that behavior separately.
 bool compatiblePayloadSet(Iterable<Logic> payloads,
     {bool ignoreConstantNames = false, bool allowRenamedClones = false}) {
+  if (!allowRenamedClones) {
+    return rohdPayloadsCompatible(payloads,
+        ignoreConstantNames: ignoreConstantNames);
+  }
   final values = payloads.toList();
   for (var i = 0; i < values.length; i++) {
     for (var j = i + 1; j < values.length; j++) {
-      final compatible = allowRenamedClones
-          ? compatiblePayloadConnectionAllowingRenamedClone(
-              values[i], values[j])
-          : compatiblePayloadConnection(values[i], values[j],
-              ignoreConstantNames: ignoreConstantNames);
-      if (!compatible) {
+      if (!compatiblePayloadConnectionAllowingRenamedClone(
+          values[i], values[j])) {
         return false;
       }
     }

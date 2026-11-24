@@ -15,7 +15,8 @@ import 'package:rohd_hcl/src/inference/inference_numeric_format.dart';
 /// The physical [data] dimensions are static. [rowMask] and [columnMask]
 /// describe the active rectangle or edge tile at runtime.
 /// {@category Inference}
-class InferenceTensorTile<TLogic extends Logic, TValue> extends LogicStructure {
+class InferenceTensorTile<TLogic extends Logic, TValue> extends LogicStructure
+    implements PayloadShapeMetadata {
   /// Tensor elements in row-major order.
   final TypedLogicArray<TLogic, TValue> data;
 
@@ -27,6 +28,9 @@ class InferenceTensorTile<TLogic extends Logic, TValue> extends LogicStructure {
 
   /// Numeric interpretation of every tensor element.
   final InferenceNumericFormat format;
+
+  @override
+  String get payloadShapeMetadata => format.configurationSignature;
 
   /// Number of physical rows.
   final int rowCount;

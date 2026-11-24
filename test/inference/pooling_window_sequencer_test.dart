@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// pooling_window_sequencer_test.dart
+// Tests for pooling-window traversal and runtime splits.
+//
+// 2026 November 23
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
@@ -9,32 +15,45 @@ import 'package:test/test.dart';
 void main() {
   tearDown(Simulator.reset);
 
-  for (final split in [false, true]) {
-    test('pooling windows ${split ? "with splits" : "without splits"}',
-        () async {
-      final dut = PoolingWindowSequencer(
-        clk: Logic(),
-        reset: Logic(),
-        restart: Logic(),
-        advanceTerm: Logic(),
-        advanceOutput: Logic(),
-        inputWidth: Logic(width: 4),
-        inputHeight: Logic(width: 4),
-        outputWidth: Logic(width: 4),
-        outputHeight: Logic(width: 4),
-        groups: Logic(width: 4),
-        kernelWidth: Logic(width: 4),
-        kernelHeight: Logic(width: 4),
-        strideX: Logic(width: 4),
-        strideY: Logic(width: 4),
-        padLeft: Logic(width: 4),
-        padTop: Logic(width: 4),
-        splitCount: Logic(width: 4),
-        outputWidthFirst: Logic(width: 4),
-        outputWidthMiddle: Logic(width: 4),
-        outputWidthLast: Logic(width: 4),
-      );
+  for (final (mode, count) in [
+    ('without split inputs', null),
+    ('with runtime splits disabled', 0),
+    ('with runtime splits enabled', 2),
+    ('with incomplete split inputs', -1),
+  ]) {
+    test('pooling windows $mode', () async {
+      final split = count == 2;
+      final hasSplitInputs = count != null && count >= 0;
+      final incomplete = count == -1;
+      PoolingWindowSequencer build() => PoolingWindowSequencer(
+            clk: Logic(),
+            reset: Logic(),
+            restart: Logic(),
+            advanceTerm: Logic(),
+            advanceOutput: Logic(),
+            inputWidth: Logic(width: 4),
+            inputHeight: Logic(width: 4),
+            outputWidth: Logic(width: 4),
+            outputHeight: Logic(width: 4),
+            groups: Logic(width: 4),
+            kernelWidth: Logic(width: 4),
+            kernelHeight: Logic(width: 4),
+            strideX: Logic(width: 4),
+            strideY: Logic(width: 4),
+            padLeft: Logic(width: 4),
+            padTop: Logic(width: 4),
+            splitCount: hasSplitInputs || incomplete ? Logic(width: 4) : null,
+            outputWidthFirst: hasSplitInputs ? Logic(width: 4) : null,
+            outputWidthMiddle: hasSplitInputs ? Logic(width: 4) : null,
+            outputWidthLast: hasSplitInputs ? Logic(width: 4) : null,
+          );
+      if (incomplete) {
+        expect(build, throwsArgumentError);
+        return;
+      }
+      final dut = build();
       await dut.build();
+      expect(dut.inputs.containsKey('splitCount'), hasSplitInputs);
       final inputs = <String, int>{
         'clk': 0,
         'reset': 1,
@@ -52,10 +71,12 @@ void main() {
         'strideY': 2,
         'padLeft': 1,
         'padTop': 1,
-        'splitCount': split ? 2 : 0,
-        'outputWidthFirst': 2,
-        'outputWidthMiddle': 1,
-        'outputWidthLast': 2,
+        if (hasSplitInputs) ...{
+          'splitCount': count,
+          'outputWidthFirst': 2,
+          'outputWidthMiddle': 1,
+          'outputWidthLast': 2,
+        },
       };
       final vectors = <Vector>[];
       void vector(int clk, [Map<String, dynamic> expected = const {}]) {

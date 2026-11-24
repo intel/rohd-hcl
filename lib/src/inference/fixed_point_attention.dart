@@ -14,11 +14,14 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/arithmetic/accumulation/accumulator.dart';
 import 'package:rohd_hcl/src/arithmetic/conversion/numeric_narrowing.dart';
 import 'package:rohd_hcl/src/bit_operations/population_count/count.dart';
+import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
 import 'package:rohd_hcl/src/inference/fixed_point_approximation.dart';
 import 'package:rohd_hcl/src/inference/inference_multiplier_functor.dart';
 import 'package:rohd_hcl/src/inference/mixed_precision_dot_product.dart';
 import 'package:rohd_hcl/src/inference/online_softmax_weighted_state.dart';
+import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// One complete fixed-point attention request.
 /// {@category Inference}
@@ -243,11 +246,23 @@ class FixedPointAttentionResult extends LogicStructure {
 /// Streaming fused fixed-point attention over one query and a bounded KV tile.
 ///
 /// The module captures one complete request, processes one key/value position
-/// per busy cycle, and retains the normalized output under backpressure. Score
+/// per busy cycle, and retains the normalized output until retirement. Score
 /// values are consumed directly by online softmax and are never materialized
 /// in an intermediate score memory.
+///
+/// Assert `load` only when [canLoad] is high. The result becomes available
+/// exactly [sequenceLength] cycles after the load edge, regardless of masks.
+/// With `retire` omitted it is consumed on the following edge; a scheduler may
+/// instead withhold retirement to retain it. Retirement and the next load may
+/// share an edge. Synchronous reset abandons the captured request and result.
 /// {@category Inference}
-class FixedPointAttention extends Module {
+class FixedPointAttentionCore extends Module {
+  /// New loads are legal only while this is high.
+  Logic get canLoad => output('canLoad');
+
+  /// Whether a retained result is available for retirement.
+  Logic get resultValid => output('resultValid');
+
   /// Number of physical sequence positions.
   final int sequenceLength;
 
@@ -314,11 +329,11 @@ class FixedPointAttention extends Module {
   /// Overflow policy used throughout the fixed-point pipeline.
   final NumericOverflowMode overflowMode;
 
-  /// Incoming complete attention requests.
-  late final ReadyValidInterface<FixedPointAttentionRequest> upstream;
+  /// Captured-request input schema.
+  late final FixedPointAttentionRequest request;
 
   /// Retained complete attention results.
-  late final ReadyValidInterface<FixedPointAttentionResult> downstream;
+  late final FixedPointAttentionResult result;
 
   /// High while one captured request is being processed.
   Logic get busy => output('busy');
@@ -348,11 +363,12 @@ class FixedPointAttention extends Module {
   Logic get completedRequests => output('completedRequests');
 
   /// Creates a fixed-point fused attention engine.
-  FixedPointAttention({
+  FixedPointAttentionCore({
     required Logic clk,
     required Logic reset,
-    required ReadyValidInterface<FixedPointAttentionRequest> upstream,
-    required ReadyValidInterface<FixedPointAttentionResult> downstream,
+    required FixedPointAttentionRequest request,
+    required FixedPointAttentionResult resultSchema,
+    required Logic load,
     required this.elementFractionBits,
     required this.valueFractionBits,
     required this.scoreWidth,
@@ -364,6 +380,7 @@ class FixedPointAttention extends Module {
     required this.reciprocalWidth,
     required this.reciprocalFractionBits,
     required this.outputWidth,
+    Logic? retire,
     Logic? clearCounters,
     this.counterWidth = 32,
     this.multiplierImplementation = nativeInferenceMultiplierFunctor,
@@ -371,19 +388,19 @@ class FixedPointAttention extends Module {
     this.reciprocalImplementation = lookupReciprocalApproximationFunctor,
     this.roundingMode = NumericRoundingMode.nearestEven,
     this.overflowMode = NumericOverflowMode.saturate,
-    super.name = 'fixed_point_attention',
-  })  : sequenceLength = upstream.data.sequenceLength,
-        headDimension = upstream.data.headDimension,
-        valueDimension = upstream.data.valueDimension,
-        elementWidth = upstream.data.elementWidth,
-        valueWidth = upstream.data.valueWidth,
+    super.name = 'fixed_point_attention_core',
+  })  : sequenceLength = request.sequenceLength,
+        headDimension = request.headDimension,
+        valueDimension = request.valueDimension,
+        elementWidth = request.elementWidth,
+        valueWidth = request.valueWidth,
         super(
-          definitionName: 'FixedPointAttention_'
-              'S${upstream.data.sequenceLength}_'
-              'H${upstream.data.headDimension}_'
-              'V${upstream.data.valueDimension}_'
-              'E${upstream.data.elementWidth}F${elementFractionBits}_'
-              'D${upstream.data.valueWidth}F${valueFractionBits}_'
+          definitionName: 'FixedPointAttentionCore_'
+              'S${request.sequenceLength}_'
+              'H${request.headDimension}_'
+              'V${request.valueDimension}_'
+              'E${request.elementWidth}F${elementFractionBits}_'
+              'D${request.valueWidth}F${valueFractionBits}_'
               'Q${scoreWidth}F${scoreFractionBits}_'
               'N${normalizerWidth}F${normalizerFractionBits}_'
               'X${expWidth}F${expFractionBits}_'
@@ -394,7 +411,7 @@ class FixedPointAttention extends Module {
               '${reciprocalImplementation.identity}_'
               '${roundingMode.name}_${overflowMode.name}',
         ) {
-    _validateInterfaces(upstream, downstream);
+    _validateInterfaces(request, resultSchema);
     final scoreShiftRight = elementFractionBits * 2 - scoreFractionBits;
     if (elementFractionBits < 0 ||
         elementFractionBits >= elementWidth ||
@@ -426,16 +443,11 @@ class FixedPointAttention extends Module {
     final localClear = clearCounters == null
         ? Const(0)
         : addInput('clearCounters', clearCounters);
-    this.upstream = addPairInterfacePorts(
-      upstream,
-      PairRole.consumer,
-      uniquify: (original) => 'upstream_$original',
-    );
-    this.downstream = addPairInterfacePorts(
-      downstream,
-      PairRole.provider,
-      uniquify: (original) => 'downstream_$original',
-    );
+    this.request =
+        addTypedInput<FixedPointAttentionRequest>('request', request);
+    result = addTypedPayloadOutput(this, 'result', resultSchema);
+    final localLoad = addInput('load', load);
+    final localRetire = addInput('retire', retire ?? Const(1));
 
     final indexWidth = max(1, sequenceLength.log2Ceil);
     final processing = Logic(name: '${name}_processing');
@@ -462,7 +474,7 @@ class FixedPointAttention extends Module {
         Logic(name: '${name}_lane_mask', width: headDimension);
     final storedCausalCount = Logic(
       name: '${name}_causal_count',
-      width: this.upstream.data.causalCountWidth,
+      width: this.request.causalCountWidth,
     );
     final outputValues = LogicArray(
       [valueDimension],
@@ -471,7 +483,7 @@ class FixedPointAttention extends Module {
     );
     final outputRequestId = Logic(
       name: '${name}_output_request_id',
-      width: this.upstream.data.requestIdWidth,
+      width: this.request.requestIdWidth,
     );
     final outputInvalid = Logic(name: '${name}_output_invalid');
     final outputOverflow = Logic(name: '${name}_output_overflow');
@@ -513,7 +525,9 @@ class FixedPointAttention extends Module {
               storedValues.at([position, lane]),
           ].selectIndex(index);
     }
-    final positionActive = storedKeyMask[index] &
+    final selectedKeyMask =
+        sequenceLength == 1 ? storedKeyMask : storedKeyMask[index];
+    final positionActive = selectedKeyMask &
         index.zeroExtend(storedCausalCount.width).lt(storedCausalCount) &
         storedLaneMask.or();
     final scoreAccumulatorWidth = elementWidth * 2 + headDimension.log2Ceil;
@@ -589,20 +603,19 @@ class FixedPointAttention extends Module {
       name: '${name}_normalize',
     );
 
-    final inputAccepted = this.upstream.accepted;
-    final outputAccepted = outputValid & this.downstream.ready;
+    final inputAccepted = localLoad;
+    final outputAccepted = outputValid & localRetire;
     final lastPosition = index.eq(sequenceLength - 1);
-    this.upstream.ready <= ~processing & (~outputValid | this.downstream.ready);
-    this.downstream.valid <= outputValid;
+    addOutput('canLoad') <= ~processing & (~outputValid | localRetire);
+    addOutput('resultValid') <= outputValid;
     for (var lane = 0; lane < valueDimension; lane++) {
-      this.downstream.data.values.arrayElements[lane] <=
-          outputValues.arrayElements[lane];
+      result.values.arrayElements[lane] <= outputValues.arrayElements[lane];
     }
-    this.downstream.data.requestId <= outputRequestId;
-    this.downstream.data.invalidInput <= outputInvalid;
-    this.downstream.data.overflow <= outputOverflow;
-    this.downstream.data.inexact <= outputInexact;
-    this.downstream.data.approximationError <= outputApproximationError;
+    result.requestId <= outputRequestId;
+    result.invalidInput <= outputInvalid;
+    result.overflow <= outputOverflow;
+    result.inexact <= outputInexact;
+    result.approximationError <= outputApproximationError;
     addOutput('busy') <= processing;
     addOutput('currentKey', width: indexWidth) <= index;
 
@@ -634,19 +647,19 @@ class FixedPointAttention extends Module {
       If(inputAccepted, then: [
         processing < 1,
         index < 0,
-        outputRequestId < this.upstream.data.requestId,
-        storedKeyMask < this.upstream.data.keyMask,
-        storedLaneMask < this.upstream.data.laneMask,
-        storedCausalCount < this.upstream.data.causalKeyCount,
+        outputRequestId < this.request.requestId,
+        storedKeyMask < this.request.keyMask,
+        storedLaneMask < this.request.laneMask,
+        storedCausalCount < this.request.causalKeyCount,
         for (var lane = 0; lane < headDimension; lane++)
           storedQuery.arrayElements[lane] <
-              this.upstream.data.query.arrayElements[lane],
+              this.request.query.arrayElements[lane],
         for (var lane = 0; lane < storedKeys.arrayElements.length; lane++)
           storedKeys.arrayElements[lane] <
-              this.upstream.data.keys.arrayElements[lane],
+              this.request.keys.arrayElements[lane],
         for (var lane = 0; lane < storedValues.arrayElements.length; lane++)
           storedValues.arrayElements[lane] <
-              this.upstream.data.values.arrayElements[lane],
+              this.request.values.arrayElements[lane],
         state.scalar.maximum < 0,
         state.scalar.normalizer < 0,
         state.scalar.valid < 0,
@@ -747,7 +760,7 @@ class FixedPointAttention extends Module {
         counter(
           'output_stall_cycles',
           amount: Const(1),
-          enable: outputValid & ~this.downstream.ready,
+          enable: outputValid & ~localRetire,
         );
     addOutput('completedRequests', width: counterWidth) <=
         counter(
@@ -758,16 +771,244 @@ class FixedPointAttention extends Module {
   }
 
   void _validateInterfaces(
-    ReadyValidInterface<FixedPointAttentionRequest> upstream,
-    ReadyValidInterface<FixedPointAttentionResult> downstream,
+    FixedPointAttentionRequest request,
+    FixedPointAttentionResult resultSchema,
   ) {
-    if (upstream.data.sequenceLength < 1 ||
-        upstream.data.headDimension < 1 ||
-        upstream.data.valueDimension < 1 ||
-        downstream.data.valueDimension != upstream.data.valueDimension ||
-        downstream.data.outputWidth != outputWidth ||
-        downstream.data.requestIdWidth != upstream.data.requestIdWidth) {
+    if (request.sequenceLength < 1 ||
+        request.headDimension < 1 ||
+        request.valueDimension < 1 ||
+        resultSchema.valueDimension != request.valueDimension ||
+        resultSchema.outputWidth != outputWidth ||
+        resultSchema.requestIdWidth != request.requestIdWidth) {
       throw ArgumentError('Attention request and result shapes do not match.');
+    }
+  }
+}
+
+/// Ready/valid adapter around [FixedPointAttentionCore].
+///
+/// The action core owns arithmetic and retained results. Directional
+/// attachments translate request acceptance and result retirement.
+/// {@category Inference}
+class FixedPointAttention extends Module {
+  late final FixedPointAttentionCore _core;
+
+  /// Registered ready/valid request boundary.
+  late final ReadyValidInterface<FixedPointAttentionRequest> upstream;
+
+  /// Registered ready/valid result boundary.
+  late final ReadyValidInterface<FixedPointAttentionResult> downstream;
+
+  /// See [FixedPointAttentionCore.sequenceLength].
+  int get sequenceLength => _core.sequenceLength;
+
+  /// See [FixedPointAttentionCore.headDimension].
+  int get headDimension => _core.headDimension;
+
+  /// See [FixedPointAttentionCore.valueDimension].
+  int get valueDimension => _core.valueDimension;
+
+  /// See [FixedPointAttentionCore.elementWidth].
+  int get elementWidth => _core.elementWidth;
+
+  /// See [FixedPointAttentionCore.elementFractionBits].
+  int get elementFractionBits => _core.elementFractionBits;
+
+  /// See [FixedPointAttentionCore.valueWidth].
+  int get valueWidth => _core.valueWidth;
+
+  /// See [FixedPointAttentionCore.valueFractionBits].
+  int get valueFractionBits => _core.valueFractionBits;
+
+  /// See [FixedPointAttentionCore.scoreWidth].
+  int get scoreWidth => _core.scoreWidth;
+
+  /// See [FixedPointAttentionCore.scoreFractionBits].
+  int get scoreFractionBits => _core.scoreFractionBits;
+
+  /// See [FixedPointAttentionCore.normalizerWidth].
+  int get normalizerWidth => _core.normalizerWidth;
+
+  /// See [FixedPointAttentionCore.normalizerFractionBits].
+  int get normalizerFractionBits => _core.normalizerFractionBits;
+
+  /// See [FixedPointAttentionCore.expWidth].
+  int get expWidth => _core.expWidth;
+
+  /// See [FixedPointAttentionCore.expFractionBits].
+  int get expFractionBits => _core.expFractionBits;
+
+  /// See [FixedPointAttentionCore.reciprocalWidth].
+  int get reciprocalWidth => _core.reciprocalWidth;
+
+  /// See [FixedPointAttentionCore.reciprocalFractionBits].
+  int get reciprocalFractionBits => _core.reciprocalFractionBits;
+
+  /// See [FixedPointAttentionCore.outputWidth].
+  int get outputWidth => _core.outputWidth;
+
+  /// See [FixedPointAttentionCore.counterWidth].
+  int get counterWidth => _core.counterWidth;
+
+  /// See [FixedPointAttentionCore.multiplierImplementation].
+  InferenceMultiplierFunctor get multiplierImplementation =>
+      _core.multiplierImplementation;
+
+  /// See [FixedPointAttentionCore.exp2Implementation].
+  Exp2ApproximationFunctor get exp2Implementation => _core.exp2Implementation;
+
+  /// See [FixedPointAttentionCore.reciprocalImplementation].
+  PositiveApproximationFunctor get reciprocalImplementation =>
+      _core.reciprocalImplementation;
+
+  /// See [FixedPointAttentionCore.roundingMode].
+  NumericRoundingMode get roundingMode => _core.roundingMode;
+
+  /// See [FixedPointAttentionCore.overflowMode].
+  NumericOverflowMode get overflowMode => _core.overflowMode;
+
+  /// See [FixedPointAttentionCore.busy].
+  Logic get busy => output('busy');
+
+  /// See [FixedPointAttentionCore.currentKey].
+  Logic get currentKey => output('currentKey');
+
+  /// See [FixedPointAttentionCore.scoreProducts].
+  Logic get scoreProducts => output('scoreProducts');
+
+  /// See [FixedPointAttentionCore.activeValues].
+  Logic get activeValues => output('activeValues');
+
+  /// See [FixedPointAttentionCore.inputBytes].
+  Logic get inputBytes => output('inputBytes');
+
+  /// See [FixedPointAttentionCore.avoidedScoreWriteBytes].
+  Logic get avoidedScoreWriteBytes => output('avoidedScoreWriteBytes');
+
+  /// See [FixedPointAttentionCore.busyCycles].
+  Logic get busyCycles => output('busyCycles');
+
+  /// See [FixedPointAttentionCore.outputStallCycles].
+  Logic get outputStallCycles => output('outputStallCycles');
+
+  /// See [FixedPointAttentionCore.completedRequests].
+  Logic get completedRequests => output('completedRequests');
+
+  /// Attaches ready/valid transport to bounded fixed-point attention.
+  FixedPointAttention({
+    required Logic clk,
+    required Logic reset,
+    required ReadyValidInterface<FixedPointAttentionRequest> upstream,
+    required ReadyValidInterface<FixedPointAttentionResult> downstream,
+    required int elementFractionBits,
+    required int valueFractionBits,
+    required int scoreWidth,
+    required int scoreFractionBits,
+    required int normalizerWidth,
+    required int normalizerFractionBits,
+    required int expWidth,
+    required int expFractionBits,
+    required int reciprocalWidth,
+    required int reciprocalFractionBits,
+    required int outputWidth,
+    Logic? clearCounters,
+    int counterWidth = 32,
+    InferenceMultiplierFunctor multiplierImplementation =
+        nativeInferenceMultiplierFunctor,
+    Exp2ApproximationFunctor exp2Implementation =
+        lookupExp2ApproximationFunctor,
+    PositiveApproximationFunctor reciprocalImplementation =
+        lookupReciprocalApproximationFunctor,
+    NumericRoundingMode roundingMode = NumericRoundingMode.nearestEven,
+    NumericOverflowMode overflowMode = NumericOverflowMode.saturate,
+    super.name = 'fixed_point_attention',
+  }) : super(
+          definitionName: 'FixedPointAttention_'
+              'S${upstream.data.sequenceLength}_'
+              'H${upstream.data.headDimension}_'
+              'V${upstream.data.valueDimension}_'
+              'E${upstream.data.elementWidth}F${elementFractionBits}_'
+              'D${upstream.data.valueWidth}F${valueFractionBits}_'
+              'Q${scoreWidth}F${scoreFractionBits}_'
+              'N${normalizerWidth}F${normalizerFractionBits}_'
+              'X${expWidth}F${expFractionBits}_'
+              'R${reciprocalWidth}F${reciprocalFractionBits}_'
+              'O${outputWidth}_C${counterWidth}_'
+              '${multiplierImplementation.identity}_'
+              '${exp2Implementation.identity}_'
+              '${reciprocalImplementation.identity}_'
+              '${roundingMode.name}_${overflowMode.name}',
+        ) {
+    final localClk = addInput('clk', clk);
+    final localReset = addInput('reset', reset);
+    final localClear = clearCounters == null
+        ? Const(0)
+        : addInput('clearCounters', clearCounters);
+    this.upstream = addPairInterface(upstream, PairRole.consumer,
+        uniquify: (original) => 'upstream_$original');
+    this.downstream = addPairInterfaceFrom(
+      IrrevocableReadyValidInterface(downstream.data.clone()),
+      downstream,
+      PairRole.provider,
+      uniquify: (original) => 'downstream_$original',
+    );
+    final load = Logic(name: '${name}_load');
+    final retire = Logic(name: '${name}_retire');
+    final payload = cloneTypedPayload(this.upstream.data);
+    _core = FixedPointAttentionCore(
+      clk: localClk,
+      reset: localReset,
+      request: payload,
+      resultSchema: this.downstream.data,
+      load: load,
+      retire: retire,
+      elementFractionBits: elementFractionBits,
+      valueFractionBits: valueFractionBits,
+      scoreWidth: scoreWidth,
+      scoreFractionBits: scoreFractionBits,
+      normalizerWidth: normalizerWidth,
+      normalizerFractionBits: normalizerFractionBits,
+      expWidth: expWidth,
+      expFractionBits: expFractionBits,
+      reciprocalWidth: reciprocalWidth,
+      reciprocalFractionBits: reciprocalFractionBits,
+      outputWidth: outputWidth,
+      clearCounters: localClear,
+      counterWidth: counterWidth,
+      multiplierImplementation: multiplierImplementation,
+      exp2Implementation: exp2Implementation,
+      reciprocalImplementation: reciprocalImplementation,
+      roundingMode: roundingMode,
+      overflowMode: overflowMode,
+      name: '${name}_core',
+    );
+    ReadyValidIngressAttachmentPolicy<FixedPointAttentionRequest>(
+      supportsSameCycleReplacement: true,
+    ).attach(
+      upstream: this.upstream,
+      canAccept: _core.canLoad,
+      accept: load,
+      payload: payload,
+    );
+    ReadyValidEgressAttachmentPolicy<FixedPointAttentionResult>().attach(
+      downstream: this.downstream,
+      offerValid: _core.resultValid,
+      payload: _core.result,
+      transfer: retire,
+    );
+    for (final port in [
+      'busy',
+      'currentKey',
+      'scoreProducts',
+      'activeValues',
+      'inputBytes',
+      'avoidedScoreWriteBytes',
+      'busyCycles',
+      'outputStallCycles',
+      'completedRequests',
+    ]) {
+      final signal = _core.output(port);
+      addOutput(port, width: signal.width) <= signal;
     }
   }
 }

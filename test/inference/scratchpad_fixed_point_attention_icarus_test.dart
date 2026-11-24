@@ -17,10 +17,41 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../example/attention_engine_example.dart';
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
+  test(
+    'public attention engine example runs and emits compilable RTL',
+    () async {
+      final example = await runAttentionExample();
+      expect(example.values, [3, 2]);
+      final directory = Directory.systemTemp.createTempSync(
+        'rohd_hcl_attention_example_',
+      );
+      try {
+        final source = File('${directory.path}/attention_engine.sv');
+        await source.writeAsString(example.systemVerilog);
+        final compile = await Process.run('iverilog', [
+          '-g2012',
+          '-s',
+          'AttentionEngine',
+          '-tnull',
+          source.path,
+        ]);
+        expect(
+          compile.exitCode,
+          0,
+          reason: '${compile.stdout}\n${compile.stderr}',
+        );
+      } finally {
+        directory.deleteSync(recursive: true);
+      }
+    },
+  );
 
   test('nested scratchpads and attention compile in Icarus', () async {
     final harness = _ScratchpadAttentionHarness(
@@ -38,8 +69,9 @@ void main() {
     );
     await harness.build();
 
-    final directory =
-        Directory.systemTemp.createTempSync('rohd_hcl_scratchpad_attention_');
+    final directory = Directory.systemTemp.createTempSync(
+      'rohd_hcl_scratchpad_attention_',
+    );
     final sourcePath = '${directory.path}/scratchpad_attention_harness.sv';
     try {
       final systemVerilog = harness.dumpSystemVerilog();
@@ -47,8 +79,11 @@ void main() {
       expect(systemVerilog, contains('module ScratchpadFixedPointAttention_'));
       expect(systemVerilog, contains('module TensorScratchpad_'));
       File(sourcePath).writeAsStringSync(systemVerilog);
-      final result =
-          Process.runSync('iverilog', ['-g2012', '-tnull', sourcePath]);
+      final result = Process.runSync('iverilog', [
+        '-g2012',
+        '-tnull',
+        sourcePath,
+      ]);
       expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
     } finally {
       directory.deleteSync(recursive: true);
@@ -180,8 +215,11 @@ class _ScratchpadAttentionHarness extends Module {
     keyWriteAddress = addInput('keyWriteAddress', keyWriteAddress, width: 3);
     keyWriteData = addInput('keyWriteData', keyWriteData, width: 8);
     keyWriteValid = addInput('keyWriteValid', keyWriteValid);
-    valueWriteAddress =
-        addInput('valueWriteAddress', valueWriteAddress, width: 3);
+    valueWriteAddress = addInput(
+      'valueWriteAddress',
+      valueWriteAddress,
+      width: 3,
+    );
     valueWriteData = addInput('valueWriteData', valueWriteData, width: 16);
     valueWriteValid = addInput('valueWriteValid', valueWriteValid);
 
@@ -207,7 +245,7 @@ class _ScratchpadAttentionHarness extends Module {
     );
     final keyReadResponse = ReadyValidInterface(
       TensorScratchpadReadResponse(
-        dataWidth: 8,
+        data: Logic(width: 8),
         tagWidth: 2,
         name: 'keyReadResponse',
       ),
@@ -215,7 +253,7 @@ class _ScratchpadAttentionHarness extends Module {
     final keyWriteRequest = ValidThenReadyInterface(
       TensorScratchpadWriteRequest(
         addressWidth: 3,
-        dataWidth: 8,
+        data: Logic(width: 8),
         name: 'keyWriteRequest',
       ),
     );
@@ -242,7 +280,7 @@ class _ScratchpadAttentionHarness extends Module {
     );
     final valueReadResponse = ReadyValidInterface(
       TensorScratchpadReadResponse(
-        dataWidth: 16,
+        data: Logic(width: 16),
         tagWidth: 2,
         name: 'valueReadResponse',
       ),
@@ -250,7 +288,7 @@ class _ScratchpadAttentionHarness extends Module {
     final valueWriteRequest = ValidThenReadyInterface(
       TensorScratchpadWriteRequest(
         addressWidth: 3,
-        dataWidth: 16,
+        data: Logic(width: 16),
         name: 'valueWriteRequest',
       ),
     );

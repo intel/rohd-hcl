@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// dynamic_numeric_narrowing_test.dart
+// Tests for runtime numeric narrowing and rounding.
+//
+// 2026 November 23
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 @TestOn('vm')
 library;

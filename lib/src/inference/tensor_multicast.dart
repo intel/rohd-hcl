@@ -181,8 +181,12 @@ class TensorTileMulticast<TLogic extends Logic, TValue> extends Module {
       advance: advance,
       name: '${name}_core',
     );
-    advance <= core.outputValidMask &
-        _downstreams.map((downstream) => downstream.ready).toList().rconcat();
+    advance <=
+        core.outputValidMask &
+            _downstreams
+                .map((downstream) => downstream.ready)
+                .toList()
+                .rconcat();
     _upstream.ready <= core.canLoad;
     for (final (index, downstream) in _downstreams.indexed) {
       downstream.valid <= core.outputValidMask[index];

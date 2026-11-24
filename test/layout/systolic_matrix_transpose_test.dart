@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// systolic_matrix_transpose_test.dart
+// Tests for stepped streaming matrix transpose.
+//
+// 2026 November 23
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 @TestOn('vm')
 library;
@@ -21,9 +27,7 @@ void main() {
         clk: Logic(),
         reset: Logic(),
         step: Logic(),
-        dataIn: Logic(width: dimension * width),
-        dimension: dimension,
-        elementWidth: width,
+        dataIn: LogicArray([dimension], width),
       );
       await dut.build();
       final descriptor =
@@ -111,20 +115,62 @@ void main() {
     });
   }
 
-  test('rejects invalid dimensions and input widths', () {
-    for (final (dimension, width) in [(0, 8), (1, 0), (2, 8)]) {
+  test('rejects empty and non-row arrays', () {
+    for (final dimensions in [
+      <int>[],
+      [0],
+      [2, 2],
+    ]) {
       expect(
           () => SystolicMatrixTranspose(
                 clk: Logic(),
                 reset: Logic(),
                 step: Logic(),
-                dataIn: Logic(width: 8),
-                dimension: dimension,
-                elementWidth: width,
+                dataIn: TypedLogicArray<Logic, LogicValue>(
+                    dimensions, ({name}) => Logic(name: name, width: 8)),
               ),
           throwsArgumentError);
     }
   });
+
+  for (final unpacked in [0, 1]) {
+    test('retains structured rows through a parent with unpacked=$unpacked',
+        () async {
+      final row = TypedLogicArray<_Sample, (LogicValue, int)>(
+        [2],
+        ({name}) => _Sample(name: name),
+        numUnpackedDimensions: unpacked,
+        valueCodec: LogicValueCodec<(LogicValue, int)>(
+          decode: (value) => (value, 1),
+          encode: (value) => value.$1,
+        ),
+      );
+      final dut = _TypedTransposeParent(row);
+      await dut.build();
+      expect(dut.dataOut.numUnpackedDimensions, unpacked);
+      expect(dut.dataOut.arrayElements.first.formatId, 1);
+      expect(dut.dataOut.valueCodec, same(row.valueCodec));
+      final vectors = [
+        Vector({'clk': 0, 'reset': 1, 'step': 0, 'dataIn': 0}, {'primed': 0}),
+        Vector({'clk': 1}, const {}),
+        Vector(
+            {'clk': 0, 'reset': 0, 'step': 1, 'dataIn': 0x4231}, {'primed': 0}),
+        Vector({'clk': 1}, const {}),
+        Vector({'clk': 0, 'dataIn': 0x6453}, {'primed': 0}),
+        Vector({'clk': 1}, const {}),
+        Vector({'clk': 0, 'step': 0, 'dataIn': 0},
+            {'primed': 1, 'dataOut': 0x5331}),
+        Vector({'clk': 1}, {'dataOut': 0x5331}),
+        Vector({'clk': 0, 'step': 1}, {'dataOut': 0x5331}),
+        Vector({'clk': 1}, const {}),
+        Vector({'clk': 0, 'step': 0}, {'dataOut': 0x6442}),
+      ];
+      await SimCompare.checkFunctionalVector(dut, vectors);
+      expect(dut.dataOut.value.arrayValues,
+          [(LogicValue.ofInt(0x42, 8), 1), (LogicValue.ofInt(0x64, 8), 1)]);
+      SimCompare.checkIverilogVector(dut, vectors);
+    });
+  }
 
   final referencePath = Platform.environment['GEMMINI_TRANSPOSE_VECTORS'];
   test('matches pinned upstream transposer step by step', () async {
@@ -134,9 +180,7 @@ void main() {
         clk: Logic(),
         reset: Logic(),
         step: Logic(),
-        dataIn: Logic(width: dimension * 8),
-        dimension: dimension,
-        elementWidth: 8,
+        dataIn: LogicArray([dimension], 8),
       );
       await dut.build();
       final vectors = <Vector>[];
@@ -147,6 +191,7 @@ void main() {
         if (int.parse(fields[0]) != dimension) {
           continue;
         }
+
         final input = {
           'clk': 0,
           'reset': int.parse(fields[1]),
@@ -172,4 +217,34 @@ void main() {
       skip: referencePath == null
           ? 'Set GEMMINI_TRANSPOSE_VECTORS to upstream reference vectors.'
           : null);
+}
+
+class _Sample extends LogicStructure implements PayloadShapeMetadata {
+  final int formatId;
+
+  _Sample({String? name, this.formatId = 1})
+      : super([Logic(name: 'tag', width: 3), Logic(name: 'value', width: 5)],
+            name: name ?? 'sample');
+
+  @override
+  String get payloadShapeMetadata => 'sample:$formatId';
+
+  @override
+  _Sample clone({String? name}) => _Sample(name: name, formatId: formatId);
+}
+
+class _TypedTransposeParent<V> extends Module {
+  late final TypedLogicArray<_Sample, V> dataOut;
+
+  _TypedTransposeParent(TypedLogicArray<_Sample, V> row) {
+    final clk = addInput('clk', Logic());
+    final reset = addInput('reset', Logic());
+    final step = addInput('step', Logic());
+    final dataIn = addTypedInput('dataIn', row);
+    final child = SystolicMatrixTranspose(
+        clk: clk, reset: reset, step: step, dataIn: dataIn);
+    dataOut = addTypedOutput('dataOut', child.dataOut.clone);
+    dataOut <= child.dataOut;
+    addOutput('primed') <= child.primed;
+  }
 }

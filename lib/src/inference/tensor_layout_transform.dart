@@ -14,12 +14,13 @@ import 'package:rohd_hcl/src/dataflow/layout/layout_shape.dart';
 import 'package:rohd_hcl/src/dataflow/layout/reshape_descriptor.dart';
 import 'package:rohd_hcl/src/dataflow/layout/transpose_descriptor.dart';
 import 'package:rohd_hcl/src/dataflow/layout/typed_static_permutation.dart';
-import 'package:rohd_hcl/src/dataflow/serialization/ready_valid_depacketizer.dart';
-import 'package:rohd_hcl/src/dataflow/serialization/ready_valid_packetizer.dart';
+import 'package:rohd_hcl/src/dataflow/serialization/scheduled_deserializer_engine.dart';
+import 'package:rohd_hcl/src/dataflow/serialization/scheduled_serializer_engine.dart';
+import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/payloads/ready_valid_frame.dart';
-import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
 import 'package:rohd_hcl/src/inference/inference_tensor_tile.dart';
-import 'package:rohd_hcl/src/interfaces/interface_port_helpers.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
+import 'package:rohd_hcl/src/utils.dart';
 
 /// One row-major tensor element with repeated tile-mask metadata.
 ///
@@ -50,14 +51,11 @@ class InferenceTensorStreamElement<TLogic extends Logic>
     required this.rowCount,
     required this.columnCount,
     String? name,
-  }) : super(
-          [
-            data,
-            Logic(name: 'rowActive'),
-            Logic(name: 'columnActive'),
-          ],
-          name: name ?? '${data.name}_tensor_element',
-        ) {
+  }) : super([
+          data,
+          Logic(name: 'rowActive'),
+          Logic(name: 'columnActive'),
+        ], name: name ?? '${data.name}_tensor_element') {
     if (rowCount < 1 || columnCount < 1) {
       throw ArgumentError('Streamed tensor dimensions must be positive.');
     }
@@ -120,12 +118,7 @@ class TensorTileTranspose<TLogic extends Logic, TValue> extends Module {
       'inputTile',
       inputTile,
     );
-    InferenceTensorTile<TLogic, TValue> resultClone({String? name}) =>
-        outputPrototype.clone(name: name);
-    result = addTypedOutput<InferenceTensorTile<TLogic, TValue>>(
-      'result',
-      resultClone,
-    );
+    result = addTypedPayloadOutput(this, 'result', outputPrototype);
     final localResult = result;
     final permutation = TypedStaticPermutation<TLogic, TValue>(
       localInput.data,
@@ -145,13 +138,20 @@ class TensorTileTranspose<TLogic extends Logic, TValue> extends Module {
   }
 }
 
-/// Converts ready/valid tiles into row-major framed element streams.
+/// Captures a tile on `load` and emits row-major framed elements.
 ///
 /// The implementation flattens data with [ReshapeDescriptor] and delegates all
-/// buffering, iteration, framing, and backpressure behavior to
-/// [ReadyValidPacketizer].
+/// storage and iteration to [ScheduledSerializerEngine]. With `advance`
+/// omitted, the first element appears immediately after the load edge,
+/// followed by one element each cycle for exactly `rows * columns` cycles,
+/// without backpressure. A scheduler may instead drive `advance` explicitly.
+/// Load only while idle or when advancing the final element; that final edge
+/// can load the next tile without a bubble. Synchronous reset discards it.
 /// {@category Inference}
 class TensorTileUntiler<TLogic extends Logic, TValue> extends Module {
+  /// Currently offered element and final-element marker.
+  late final Frame<InferenceTensorStreamElement<TLogic>> result;
+
   /// Index of the physical element currently offered downstream.
   Logic get index => output('index');
 
@@ -162,45 +162,44 @@ class TensorTileUntiler<TLogic extends Logic, TValue> extends Module {
   TensorTileUntiler({
     required Logic clk,
     required Logic reset,
-    required ReadyValidInterface<InferenceTensorTile<TLogic, TValue>> upstream,
-    required ReadyValidInterface<Frame<InferenceTensorStreamElement<TLogic>>>
-        downstream,
+    required InferenceTensorTile<TLogic, TValue> inputTile,
+    required InferenceTensorStreamElement<TLogic> elementSchema,
+    required Logic load,
+    Logic? advance,
     super.name = 'tensor_tile_untiler',
   }) : super(
           definitionName: 'TensorTileUntiler_'
-              'R${upstream.data.rowCount}_C${upstream.data.columnCount}_'
-              '${upstream.data.format.configurationSignature}',
+              '${payloadShapesIdentity([inputTile, elementSchema])}',
         ) {
-    _validateUntilerInterfaces(upstream, downstream);
+    _validateTileStream(inputTile, elementSchema);
+    advance ??= Const(1);
+    const actionPolicy = SynchronousActionAttachmentPolicy();
+    actionPolicy
+      ..validateAction(load, name: 'load')
+      ..validateAction(advance, name: 'advance');
     final localClk = addInput('clk', clk);
     final localReset = addInput('reset', reset);
-    final localUpstream = addPairInterface(
-      upstream,
-      PairRole.consumer,
-      uniquify: (original) => 'upstream_$original',
+    final localLoad = addInput('load', load);
+    final localAdvance = addInput('advance', advance);
+    final localInput = addTypedInput<InferenceTensorTile<TLogic, TValue>>(
+      'inputTile',
+      inputTile,
     );
-    final localDownstream = addPairInterfaceFrom(
-      IrrevocableReadyValidInterface(downstream.data.clone()),
-      downstream,
-      PairRole.provider,
-      uniquify: (original) => 'downstream_$original',
+    result = addTypedPayloadOutput(
+      this,
+      'result',
+      Frame(cloneTypedPayload(elementSchema)),
     );
-    final rows = upstream.data.rowCount;
-    final columns = upstream.data.columnCount;
+    final rows = inputTile.rowCount;
+    final columns = inputTile.columnCount;
     final descriptor = ReshapeDescriptor(
       inputShape: LayoutShape([rows, columns]),
       outputShape: LayoutShape([rows * columns]),
     );
-    final elementPrototype = localUpstream.data.data.arrayElements.first;
     final flattened =
         TypedLogicArray<InferenceTensorStreamElement<TLogic>, LogicValue>(
       [descriptor.elementCount],
-      ({name}) => InferenceTensorStreamElement<TLogic>(
-        elementPrototype.clone(name: 'data') as TLogic,
-        rowCount: rows,
-        columnCount: columns,
-        name: name,
-      ),
+      result.data.clone,
       name: '${name}_flattened',
     );
     for (var outputIndex = 0;
@@ -209,38 +208,54 @@ class TensorTileUntiler<TLogic extends Logic, TValue> extends Module {
       final sourceIndex = descriptor.permutation.sourceIndex(outputIndex);
       final coordinates = descriptor.inputShape.unflatten(sourceIndex);
       final outputElement = flattened.arrayElements[outputIndex];
-      outputElement.data <= localUpstream.data.data.arrayElements[sourceIndex];
-      outputElement.rowActive <= localUpstream.data.rowMask[coordinates[0]];
-      outputElement.columnActive <=
-          localUpstream.data.columnMask[coordinates[1]];
+      outputElement.data <= localInput.data.arrayElements[sourceIndex];
+      outputElement.rowActive <= localInput.rowMask[coordinates[0]];
+      outputElement.columnActive <= localInput.columnMask[coordinates[1]];
     }
-    final packetInput = ReadyValidInterface(flattened);
-    packetInput.valid <= localUpstream.valid;
-    localUpstream.ready <= packetInput.ready;
-    final packetizer =
-        ReadyValidPacketizer<InferenceTensorStreamElement<TLogic>>(
+    final engine =
+        ScheduledSerializerEngine<InferenceTensorStreamElement<TLogic>>(
       clk: localClk,
       reset: localReset,
-      upstream: packetInput,
-      downstream: localDownstream,
-      name: '${name}_packetizer',
+      loadData: flattened,
+      load: localLoad,
+      advance: localAdvance,
+      clear: Const(0),
+      name: '${name}_engine',
     );
-    addOutput('index', width: packetizer.index.width) <= packetizer.index;
-    addOutput('active') <= packetizer.active;
+    result.data <= engine.data;
+    result.last <= engine.last;
+    addOutput('index', width: engine.index.width) <= engine.index;
+    addOutput('active') <= engine.active;
   }
 }
 
 /// Collects a row-major framed element stream into a typed tensor tile.
 ///
-/// [ReadyValidDepacketizer] owns storage and framing. The output tile is valid
-/// even for a malformed frame, but both masks are cleared and [framingError]
-/// or [maskInconsistent] identifies why the data must be discarded.
+/// Each asserted `write` stores one element; there is no ownership-transfer
+/// protocol or backpressure. Drive `write` on consecutive edges for strict
+/// cycle-accurate collection. [complete] pulses immediately after the final
+/// physical element or an early `last` marker is written. The next write starts
+/// a new tile, so the caller must consume or retain the result before it.
+/// Synchronous reset discards partial collection without clearing data storage.
+///
+/// A malformed frame also completes, but both masks are cleared and
+/// [framingError] or [maskInconsistent] identifies why it must be discarded.
+/// Diagnostics are meaningful on completion; subsequent writes may change them.
 /// {@category Inference}
 class TensorTileTiler<TLogic extends Logic, TValue> extends Module {
-  /// High alongside a valid output when the frame length or marker is wrong.
+  /// Collected tile, meaningful on [complete] until the next write.
+  late final InferenceTensorTile<TLogic, TValue> result;
+
+  /// Pulses after a write completes a tile.
+  Logic get complete => output('complete');
+
+  /// Index receiving the next written element.
+  Logic get index => output('index');
+
+  /// High when the completed frame length or marker is wrong.
   Logic get framingError => output('framingError');
 
-  /// High alongside a valid output when repeated row/column mask bits differ.
+  /// High when repeated row/column mask bits differ in the completed frame.
   Logic get maskInconsistent => output('maskInconsistent');
 
   /// Number of elements collected in the current output frame.
@@ -250,88 +265,93 @@ class TensorTileTiler<TLogic extends Logic, TValue> extends Module {
   TensorTileTiler({
     required Logic clk,
     required Logic reset,
-    required ReadyValidInterface<Frame<InferenceTensorStreamElement<TLogic>>>
-        upstream,
-    required ReadyValidInterface<InferenceTensorTile<TLogic, TValue>>
-        downstream,
+    required Frame<InferenceTensorStreamElement<TLogic>> element,
+    required Logic write,
+    required InferenceTensorTile<TLogic, TValue> tileSchema,
     super.name = 'tensor_tile_tiler',
   }) : super(
           definitionName: 'TensorTileTiler_'
-              'R${downstream.data.rowCount}_C${downstream.data.columnCount}_'
-              '${downstream.data.format.configurationSignature}',
+              '${payloadShapesIdentity([element, tileSchema])}',
         ) {
-    _validateTilerInterfaces(upstream, downstream);
+    _validateTileStream(tileSchema, element.data);
+    const SynchronousActionAttachmentPolicy()
+        .validateAction(write, name: 'write');
     final localClk = addInput('clk', clk);
     final localReset = addInput('reset', reset);
-    final localUpstream = addPairInterface(
-      upstream,
-      PairRole.consumer,
-      uniquify: (original) => 'upstream_$original',
+    final localWrite = addInput('write', write);
+    final localElement =
+        addTypedInput<Frame<InferenceTensorStreamElement<TLogic>>>(
+      'element',
+      element,
     );
-    final localDownstream = addPairInterfaceFrom(
-      IrrevocableReadyValidInterface(downstream.data.clone()),
-      downstream,
-      PairRole.provider,
-      uniquify: (original) => 'downstream_$original',
-    );
-    final rows = downstream.data.rowCount;
-    final columns = downstream.data.columnCount;
+    result = addTypedPayloadOutput(this, 'result', tileSchema);
+    final rows = tileSchema.rowCount;
+    final columns = tileSchema.columnCount;
     final descriptor = ReshapeDescriptor(
       inputShape: LayoutShape([rows * columns]),
       outputShape: LayoutShape([rows, columns]),
     );
-    final streamPrototype = localUpstream.data.data;
-    final collected = ReadyValidInterface(
-      CollectedPacket(
-        TypedLogicArray<InferenceTensorStreamElement<TLogic>, LogicValue>(
-          [descriptor.elementCount],
-          streamPrototype.clone,
-          name: '${name}_collected_elements',
-        ),
-        name: '${name}_collected_packet',
-      ),
-    );
-    ReadyValidDepacketizer<InferenceTensorStreamElement<TLogic>>(
+    final engine =
+        ScheduledDeserializerEngine<InferenceTensorStreamElement<TLogic>>(
       clk: localClk,
       reset: localReset,
-      upstream: localUpstream,
-      downstream: collected,
-      name: '${name}_depacketizer',
+      element: localElement.data,
+      write: localWrite,
+      last: localElement.last,
+      clear: Const(0),
+      length: descriptor.elementCount,
+      name: '${name}_engine',
     );
+    final count = Logic(
+      name: '${name}_count',
+      width: widthFor(descriptor.elementCount + 1),
+    );
+    final missingLast = Logic(name: '${name}_missing_last');
+    Sequential(localClk, reset: localReset, resetValues: {
+      count: 0,
+      missingLast: 0,
+    }, [
+      If(
+          localWrite &
+              (localElement.last |
+                  engine.index.eq(descriptor.elementCount - 1)),
+          then: [
+            count <
+                engine.index.zeroExtend(count.width) +
+                    Const(1, width: count.width),
+            missingLast < ~localElement.last,
+          ]),
+    ]);
 
-    localDownstream.valid <= collected.valid;
-    collected.ready <= localDownstream.ready;
     for (var outputIndex = 0;
         outputIndex < descriptor.elementCount;
         outputIndex++) {
       final sourceIndex = descriptor.permutation.sourceIndex(outputIndex);
-      localDownstream.data.data.arrayElements[outputIndex] <=
-          collected.data.data.arrayElements[sourceIndex].data;
+      result.data.arrayElements[outputIndex] <=
+          engine.data.arrayElements[sourceIndex].data;
     }
 
-    final exactLength =
-        collected.data.validElements.eq(descriptor.elementCount);
-    final frameFailure = collected.data.framingError | ~exactLength;
+    final exactLength = count.eq(
+      descriptor.elementCount,
+    );
+    final frameFailure = missingLast | ~exactLength;
     final rowReferences = [
       for (var row = 0; row < rows; row++)
-        collected.data.data
-            .arrayElements[descriptor.outputShape.flatten([row, 0])].rowActive,
+        engine.data.arrayElements[descriptor.outputShape.flatten([row, 0])]
+            .rowActive,
     ];
     final columnReferences = [
       for (var column = 0; column < columns; column++)
-        collected
-            .data
-            .data
-            .arrayElements[descriptor.outputShape.flatten([0, column])]
+        engine.data.arrayElements[descriptor.outputShape.flatten([0, column])]
             .columnActive,
     ];
     final maskDifferences = <Logic>[];
     for (var row = 0; row < rows; row++) {
       for (var column = 0; column < columns; column++) {
         final elementIndex = descriptor.outputShape.flatten([row, column]);
-        final element = collected.data.data.arrayElements[elementIndex];
-        final elementValid = collected.data.validElements.gt(
-          Const(elementIndex, width: collected.data.validElements.width),
+        final element = engine.data.arrayElements[elementIndex];
+        final elementValid = count.gt(
+          Const(elementIndex, width: count.width),
         );
         maskDifferences
           ..add(elementValid & element.rowActive.neq(rowReferences[row]))
@@ -342,21 +362,19 @@ class TensorTileTiler<TLogic extends Logic, TValue> extends Module {
     }
     final inconsistentMask = maskDifferences.rconcat().or();
     final metadataValid = ~frameFailure & ~inconsistentMask;
-    localDownstream.data.rowMask <=
+    result.rowMask <=
         [for (final rowActive in rowReferences) metadataValid & rowActive]
             .rconcat();
-    localDownstream.data.columnMask <=
+    result.columnMask <=
         [
           for (final columnActive in columnReferences)
             metadataValid & columnActive,
         ].rconcat();
-    addOutput('framingError') <= collected.valid & frameFailure;
-    addOutput('maskInconsistent') <= collected.valid & inconsistentMask;
-    addOutput(
-          'collectedElements',
-          width: collected.data.validElements.width,
-        ) <=
-        collected.data.validElements;
+    addOutput('framingError') <= frameFailure;
+    addOutput('maskInconsistent') <= inconsistentMask;
+    addOutput('collectedElements', width: count.width) <= count;
+    addOutput('index', width: engine.index.width) <= engine.index;
+    addOutput('complete') <= engine.complete;
   }
 }
 
@@ -369,32 +387,24 @@ InferenceTensorTile<TLogic, TValue> _tileLike<TLogic extends Logic, TValue>(
     InferenceTensorTile<TLogic, TValue>(
       rowCount: rows,
       columnCount: columns,
-      elementBuilder: ({name}) =>
-          source.data.arrayElements.first.clone(name: name) as TLogic,
+      elementBuilder: ({name}) => cloneTypedPayload<TLogic>(
+          source.data.arrayElements.first,
+          name: name),
       format: source.format,
       valueCodec: source.data.valueCodec,
       name: name,
       numUnpackedDimensions: min(source.data.numUnpackedDimensions, 2),
     );
 
-void _validateUntilerInterfaces<TLogic extends Logic, TValue>(
-  ReadyValidInterface<InferenceTensorTile<TLogic, TValue>> upstream,
-  ReadyValidInterface<Frame<InferenceTensorStreamElement<TLogic>>> downstream,
+void _validateTileStream<TLogic extends Logic, TValue>(
+  InferenceTensorTile<TLogic, TValue> tile,
+  InferenceTensorStreamElement<TLogic> element,
 ) {
-  if (downstream.data.data.rowCount != upstream.data.rowCount ||
-      downstream.data.data.columnCount != upstream.data.columnCount ||
-      downstream.data.data.data.width != upstream.data.data.elementWidth) {
-    throw ArgumentError('Tensor untiler interface shapes do not match.');
-  }
-}
-
-void _validateTilerInterfaces<TLogic extends Logic, TValue>(
-  ReadyValidInterface<Frame<InferenceTensorStreamElement<TLogic>>> upstream,
-  ReadyValidInterface<InferenceTensorTile<TLogic, TValue>> downstream,
-) {
-  if (upstream.data.data.rowCount != downstream.data.rowCount ||
-      upstream.data.data.columnCount != downstream.data.columnCount ||
-      upstream.data.data.data.width != downstream.data.data.elementWidth) {
-    throw ArgumentError('Tensor tiler interface shapes do not match.');
+  if (element.rowCount != tile.rowCount ||
+      element.columnCount != tile.columnCount ||
+      tile.data.arrayElements.any(
+        (lane) => !compatiblePayloadConnection(lane, element.data),
+      )) {
+    throw ArgumentError('Tensor tile and stream shapes do not match.');
   }
 }

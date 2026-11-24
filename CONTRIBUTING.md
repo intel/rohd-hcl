@@ -84,6 +84,25 @@ CI and the development-container setup install these dependencies. Set
 backends, as CI does. A failure compiling or running a generated design with
 an available tool is still a test failure.
 
+Cache behavioral-SystemC hierarchy checks use a three-minute per-test
+compilation budget, matching the existing CSR checks, rather than the default
+30 seconds. Native compiler contention can exceed the default even when
+simulation is fast. These checks report native generation, compilation, and
+execution phases on failure; this does not change the global test timeout.
+
+The **Native Backends** workflow reports separate **SystemC Checks** and
+**Verilator Checks** on pull requests, pushes to `main`, and manual runs.
+It selects test files using the SystemC availability guards or the Verilator
+warning-check helper and runs them with two concurrent suites to limit native
+compiler contention. These checks supplement, rather than replace, the full
+root suite in the General workflow and the main-branch coverage workflow.
+`tool/gh_actions/run_tests.sh` accepts test-runner arguments for focused CI runs;
+without arguments it still runs the full root suite and requires both backends.
+
+Local native SystemC skips use a concise availability message rather than
+printing the compiler probe output. `ROHD_REQUIRE_SYSTEMC=1` turns an
+unavailable toolchain into a failure with the full probe diagnostic.
+
 ROHD caches a precompiled SystemC header in `tmp_test/pch`. If SystemC is
 upgraded or replaced, linker errors mentioning a different `sc_api_version` can
 indicate a stale cache. When no tests are running, remove

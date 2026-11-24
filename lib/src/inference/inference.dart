@@ -1,5 +1,11 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: BSD-3-Clause
+//
+// inference.dart
+// Public exports for inference building blocks.
+//
+// 2026 November 23
+// Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 export 'attention_architecture_metrics.dart';
 export 'fixed_point_approximation.dart';
@@ -19,6 +25,7 @@ export 'rms_norm.dart';
 export 'scratchpad_fixed_point_attention.dart';
 export 'tensor_accumulating_memory_bank.dart';
 export 'tensor_dma.dart';
+export 'tensor_layout_ready_valid.dart';
 export 'tensor_layout_transform.dart';
 export 'tensor_masked_sram_bank.dart';
 export 'tensor_multicast.dart' show TensorTileMulticastCore;

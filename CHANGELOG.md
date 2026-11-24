@@ -1,7 +1,24 @@
 ## Unreleased
 
-- Added reusable fixed-point attention, softmax, RMS normalization, mixed-precision arithmetic, tensor movement and layout, scratchpad storage, and pooling-window components. See the [inference component guide](doc/components/inference.md).
-- Added protocol-neutral selective fan-out and policy-mux cores, typed tile multicast, scheduled serialization engines, and ready/valid packetization.
+### Inference
+
+- Added bounded, row-streamed, and scratchpad-backed fixed-point attention, plus grouped-query tile distribution, online softmax, and RMS normalization.
+- Added fixed-point approximations, mixed-precision dot products, group scaling, vector reductions, and runtime numeric narrowing.
+- Added strided tensor addressing and typed DMA, configurable typed scratchpads, and byte-masked and accumulating tensor banks.
+- Separated attention, strided traversal, and banked-storage action cores from ready/valid attachment shells; DMA and scratchpad-backed attention use the action cores directly inside their memory-protocol adapters.
+- Empty online-softmax normalization does not report overflow or inexact flags from an unused reciprocal lookup.
+- Added typed, action-driven tensor tiling and untiling with separate ingress/egress ready/valid attachment shells, static and systolic transpose, and selective multicast, plus pooling-window traversal with optional runtime splits.
+- Added a runnable [attention engine example](example/attention_engine_example.dart) that simulates a query and emits SystemVerilog. See the [inference guide](doc/components/inference.md).
+
+### Dataflow and flow control
+
+- OneHotMux preserves typed case and result payloads, with unchanged bitwise OR selection and X/Z behavior.
+- Added protocol-neutral selective fan-out and policy-mux cores, configurable policy arbitration, scheduled serialization engines, and ready/valid packetization.
+
+### CI
+
+- Added separately named SystemC and Verilator checks alongside the full-suite CI, including inference attention arithmetic, scheduled tensor conversion, and nested typed scratchpad coverage with portable SRAM leaves for SystemC; backend test files run with required native toolchains and limited suite concurrency.
+- Scoped the existing three-minute native compilation allowance to cache behavioral-SystemC hierarchy checks and added failure-phase diagnostics, preventing false 30-second failures under compiler contention without changing global test timeouts.
 
 ## 0.3.3
 

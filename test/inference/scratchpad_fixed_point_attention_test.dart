@@ -226,7 +226,7 @@ class _ScratchpadAttentionFixture {
   );
   final ReadyValidInterface<TensorScratchpadReadResponse> keyReadResponse =
       ReadyValidInterface(
-    TensorScratchpadReadResponse(dataWidth: 8, tagWidth: 2),
+    TensorScratchpadReadResponse(data: Logic(width: 8), tagWidth: 2),
   );
   final ReadyValidInterface<TensorScratchpadReadRequest> valueReadRequest =
       ReadyValidInterface(
@@ -234,7 +234,7 @@ class _ScratchpadAttentionFixture {
   );
   final ReadyValidInterface<TensorScratchpadReadResponse> valueReadResponse =
       ReadyValidInterface(
-    TensorScratchpadReadResponse(dataWidth: 16, tagWidth: 2),
+    TensorScratchpadReadResponse(data: Logic(width: 16), tagWidth: 2),
   );
   final ReadyValidInterface<ScratchpadFixedPointAttentionResult> result =
       ReadyValidInterface(
