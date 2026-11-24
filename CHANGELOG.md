@@ -19,6 +19,7 @@
 
 - Added separately named SystemC and Verilator checks alongside the full-suite CI, including inference attention arithmetic, scheduled tensor conversion, and nested typed scratchpad coverage with portable SRAM leaves for SystemC; backend test files run with required native toolchains and limited suite concurrency.
 - Scoped the existing three-minute native compilation allowance to cache behavioral-SystemC hierarchy checks and added failure-phase diagnostics, preventing false 30-second failures under compiler contention without changing global test timeouts.
+- Prepare ROHD's shared SystemC precompiled header serially before parallel CI and coverage tests to prevent concurrent cold-cache initialization from corrupting native compilation.
 
 ## 0.3.3
 

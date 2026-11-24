@@ -104,8 +104,19 @@ printing the compiler probe output. `ROHD_REQUIRE_SYSTEMC=1` turns an
 unavailable toolchain into a failure with the full probe diagnostic.
 
 ROHD caches a precompiled SystemC header in `tmp_test/pch`. If SystemC is
-upgraded or replaced, linker errors mentioning a different `sc_api_version` can
-indicate a stale cache. When no tests are running, remove
+first used by concurrent test isolates, they can race while building this
+shared cache, corrupting it and causing native compiler errors. The shared CI
+test runner and coverage workflow prepare the cache serially using ROHD's
+compiler path before starting parallel tests. This preflight requires SystemC,
+checks generated behavior, and fails if the precompiled header is not created.
+For local parallel native runs with a cold cache, prepare it first:
+
+```shell
+dart run test:test tool/gh_actions/prepare_systemc_test.dart --concurrency=1
+```
+
+If SystemC is upgraded or replaced, linker errors mentioning a different
+`sc_api_version` can indicate a stale cache. When no tests are running, remove
 `tmp_test/pch/systemc.h.gch` and rerun the tests; ROHD rebuilds the header using
 the installed SystemC version.
 
