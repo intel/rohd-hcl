@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the OnlineSoftmaxNormalize.new constructor from Class OnlineSoftmaxNormalize from the rohd_hcl library, for the Dart programming language.">
+  <title>OnlineSoftmaxNormalize.new constructor - OnlineSoftmaxNormalize - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/OnlineSoftmaxNormalize-class.html">OnlineSoftmaxNormalize</a></li>
+    <li class="self-crumb">OnlineSoftmaxNormalize.new constructor</li>
+  </ol>
+  <div class="self-name">OnlineSoftmaxNormalize.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;OnlineSoftmaxNormalize-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">OnlineSoftmaxNormalize</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">OnlineSoftmaxNormalize</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-state"><span class="type-annotation"><a href="../../rohd_hcl/OnlineSoftmaxWeightedState-class.html">OnlineSoftmaxWeightedState</a></span> <span class="parameter-name">state</span>, {</span></li>
+<li><span class="parameter" id="param-reciprocalWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">reciprocalWidth</span>, </span></li>
+<li><span class="parameter" id="param-reciprocalFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">reciprocalFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputWidth</span>, </span></li>
+<li><span class="parameter" id="param-reciprocalImplementation"><span class="type-annotation"><a href="../../rohd_hcl/PositiveApproximationFunctor-class.html">PositiveApproximationFunctor</a></span> <span class="parameter-name">reciprocalImplementation</span> = <span class="default-value">lookupReciprocalApproximationFunctor</span>, </span></li>
+<li><span class="parameter" id="param-multiplierImplementation"><span class="type-annotation"><a href="../../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> <span class="parameter-name">multiplierImplementation</span> = <span class="default-value">nativeInferenceMultiplierFunctor</span>, </span></li>
+<li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericRoundingMode.html">NumericRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">NumericRoundingMode.nearestEven</span>, </span></li>
+<li><span class="parameter" id="param-overflowMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericOverflowMode.html">NumericOverflowMode</a></span> <span class="parameter-name">overflowMode</span> = <span class="default-value">NumericOverflowMode.saturate</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;online_softmax_normalize&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates fixed-point softmax output normalization.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">OnlineSoftmaxNormalize(
+  OnlineSoftmaxWeightedState state, {
+  required int reciprocalWidth,
+  required int reciprocalFractionBits,
+  required int outputWidth,
+  PositiveApproximationFunctor reciprocalImplementation =
+      lookupReciprocalApproximationFunctor,
+  InferenceMultiplierFunctor multiplierImplementation =
+      nativeInferenceMultiplierFunctor,
+  NumericRoundingMode roundingMode = NumericRoundingMode.nearestEven,
+  NumericOverflowMode overflowMode = NumericOverflowMode.saturate,
+  super.name = &#39;online_softmax_normalize&#39;,
+}) : super(
+        definitionName: &#39;OnlineSoftmaxNormalize_&#39;
+            &#39;N${state.scalar.normalizerWidth}&#39;
+            &#39;F${state.scalar.normalizerFractionBits}_&#39;
+            &#39;V${state.valueCount}W${state.valueWidth}_&#39;
+            &#39;R${reciprocalWidth}F${reciprocalFractionBits}_&#39;
+            &#39;O${outputWidth}_${reciprocalImplementation.identity}_&#39;
+            &#39;${multiplierImplementation.identity}_&#39;
+            &#39;${roundingMode.name}_${overflowMode.name}&#39;,
+      ) {
+  if (reciprocalImplementation.operation !=
+      FixedPointApproximationOperation.reciprocal) {
+    throw ArgumentError(&#39;A reciprocal approximation functor is required.&#39;);
+  }
+  if (state.scalar.normalizerWidth &gt; 12) {
+    throw ArgumentError(
+      &#39;Lookup reciprocal normalization supports normalizers through &#39;
+      &#39;12 bits.&#39;,
+    );
+  }
+  state = addTypedInput(&#39;state&#39;, state);
+  final reciprocal = reciprocalImplementation(
+    state.scalar.normalizer,
+    inputFractionBits: state.scalar.normalizerFractionBits,
+    outputWidth: reciprocalWidth,
+    outputFractionBits: reciprocalFractionBits,
+    minimumInputRaw: 1,
+    maximumInputRaw: (1 &lt;&lt; state.scalar.normalizerWidth) - 1,
+    roundingMode: roundingMode,
+    name: &#39;${name}_reciprocal&#39;,
+  );
+  final scales = LogicArray(
+    const [1],
+    reciprocalWidth,
+    name: &#39;${name}_scale&#39;,
+  );
+  scales.arrayElements.single &lt;= reciprocal.result;
+  final normalized = GroupScaleApply(
+    state.weightedValues,
+    scales,
+    groupSize: state.valueCount,
+    fractionalBits: reciprocalFractionBits,
+    outputWidth: outputWidth,
+    activeMask: state.scalar.valid.replicate(state.valueCount),
+    signedScale: false,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_values&#39;,
+  );
+  final outputValues = LogicArray(
+    [state.valueCount],
+    outputWidth,
+    name: &#39;values&#39;,
+  );
+  values = addTypedOutput(&#39;values&#39;, outputValues.clone);
+  for (var index = 0; index &lt; state.valueCount; index++) {
+    values.arrayElements[index] &lt;=
+        normalized.scaledValues.arrayElements[index];
+  }
+  addOutput(&#39;invalidState&#39;) &lt;= ~state.scalar.valid;
+  addOutput(&#39;overflow&#39;) &lt;=
+      state.scalar.overflow |
+          normalized.overflowMask.or() |
+          normalized.underflowMask.or() |
+          (state.scalar.valid &amp; reciprocal.status.overflow);
+  addOutput(&#39;inexact&#39;) &lt;=
+      state.scalar.inexact |
+          normalized.inexactMask.or() |
+          (state.scalar.valid &amp; reciprocal.status.inexact);
+  addOutput(&#39;approximationError&#39;) &lt;=
+      state.scalar.approximationError |
+          (state.scalar.valid &amp;
+              (reciprocal.status.invalidInput |
+                  reciprocal.status.outOfRange));
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/OnlineSoftmaxNormalize-class.html">OnlineSoftmaxNormalize</a></li>
+    <li class="self-crumb">OnlineSoftmaxNormalize.new constructor</li>
+</ol>
+
+    <h5>OnlineSoftmaxNormalize class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

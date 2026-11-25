@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TensorMaskedSramBank.new constructor from Class TensorMaskedSramBank from the rohd_hcl library, for the Dart programming language.">
+  <title>TensorMaskedSramBank.new constructor - TensorMaskedSramBank - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/TensorMaskedSramBank-class.html">TensorMaskedSramBank</a></li>
+    <li class="self-crumb">TensorMaskedSramBank.new constructor</li>
+  </ol>
+  <div class="self-name">TensorMaskedSramBank.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;TensorMaskedSramBank-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TensorMaskedSramBank</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TensorMaskedSramBank</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-reads"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ValidThenReadyInterface-class.html">ValidThenReadyInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadRequest-class.html">TensorScratchpadReadRequest</a></span>&gt;</span></span> <span class="parameter-name">reads</span>, </span></li>
+<li><span class="parameter" id="param-writes"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ValidThenReadyInterface-class.html">ValidThenReadyInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/ByteMaskedWriteRequest-class.html">ByteMaskedWriteRequest</a></span>&gt;</span></span> <span class="parameter-name">writes</span>, </span></li>
+<li><span class="parameter" id="param-responses"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadResponse-class.html">TensorScratchpadReadResponse</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">responses</span>, </span></li>
+<li><span class="parameter" id="param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
+<li><span class="parameter" id="param-memoryArray"><span class="type-annotation"><a href="../../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span>?</span> <span class="parameter-name">memoryArray</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tensor_masked_sram_bank&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates one SRAM bank with <code>depth</code> power-of-two entries.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TensorMaskedSramBank({
+  required Logic clk,
+  required Logic reset,
+  required ValidThenReadyInterface&lt;TensorScratchpadReadRequest&gt; reads,
+  required ValidThenReadyInterface&lt;ByteMaskedWriteRequest&gt; writes,
+  required ReadyValidInterface&lt;TensorScratchpadReadResponse&gt; responses,
+  required int depth,
+  MemoryArrayFunctor&lt;Logic&gt;? memoryArray,
+  super.name = &#39;tensor_masked_sram_bank&#39;,
+}) : super(
+        definitionName: &#39;TensorMaskedSramBank_D${depth}_&#39;
+            &#39;W${writes.data.dataWidth}_T${reads.data.tagWidth}_&#39;
+            &#39;${memoryArray?.identity ?? &#39;inferredSram1p&#39;}&#39;,
+      ) {
+  if (depth &lt; 2 ||
+      (depth &amp; (depth - 1)) != 0 ||
+      reads.data.addressWidth != depth.log2Ceil ||
+      writes.data.addressWidth != depth.log2Ceil ||
+      writes.data.dataWidth != responses.data.dataWidth ||
+      reads.data.tagWidth != responses.data.tagWidth) {
+    throw ArgumentError(&#39;Invalid SRAM bank geometry or payload widths.&#39;);
+  }
+  clk = addInput(&#39;clk&#39;, clk);
+  reset = addInput(&#39;reset&#39;, reset);
+  this.reads = addPairInterface(reads, PairRole.consumer,
+      uniquify: (original) =&gt; &#39;read_$original&#39;);
+  this.writes = addPairInterface(writes, PairRole.consumer,
+      uniquify: (original) =&gt; &#39;write_$original&#39;);
+  this.responses = addPairInterfaceFrom(
+    IrrevocableReadyValidInterface(responses.data.clone()),
+    responses,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;response_$original&#39;,
+  );
+
+  final rawValid = Logic(name: &#39;rawValid&#39;);
+  final rawTag = Logic(name: &#39;rawTag&#39;, width: reads.data.tagWidth);
+  final ingress =
+      ReadyAndValidInterface(responses.data.clone(name: &#39;bankResponse&#39;));
+  final egress =
+      ReadyAndValidInterface(responses.data.clone(name: &#39;bankResponse&#39;));
+  final queue = ReadyValidQueue&lt;TensorScratchpadReadResponse&gt;(
+    clk: clk,
+    reset: reset,
+    upstream: ingress,
+    downstream: egress,
+    depth: 1,
+    policy: ReadyValidQueuePolicy.fallThrough,
+    name: &#39;${name}_responses&#39;,
+  );
+  egress.ready &lt;= this.responses.ready;
+  this.responses.valid &lt;= egress.valid &amp; ~reset;
+  this.responses.data &lt;= egress.data;
+  ingress.valid &lt;= rawValid &amp; ~reset;
+  ingress.data.tag &lt;= rawTag;
+  ingress.data.error &lt;= Const(0);
+
+  final remaining = queue.occupancy.zeroExtend(2) +
+      ingress.accepted.zeroExtend(2) -
+      egress.accepted.zeroExtend(2);
+  this.writes.ready &lt;= ~reset;
+  this.reads.ready &lt;= remaining.eq(0) &amp; ~this.writes.valid &amp; ~reset;
+  final readAccepted = this.reads.accepted;
+  final writeAccepted = this.writes.accepted;
+  final bytes = &lt;Logic&gt;[];
+  for (var byte = 0; byte &lt; writes.data.dataWidth ~&#47; 8; byte++) {
+    final read = DataPortInterface&lt;Logic&gt;(8, reads.data.addressWidth);
+    final write = DataPortInterface&lt;Logic&gt;(8, reads.data.addressWidth);
+    read.en &lt;= readAccepted;
+    read.addr &lt;= this.reads.data.address;
+    write.en &lt;= writeAccepted &amp; this.writes.data.byteEnable[byte];
+    write.addr &lt;= this.writes.data.address;
+    write.data &lt;= this.writes.data.data.getRange(byte * 8, (byte + 1) * 8);
+    (memoryArray ?? inferredSramArray&lt;Logic&gt;())(
+      clk: clk,
+      reset: reset,
+      writePorts: [write],
+      readPorts: [read],
+      entryCount: depth,
+      readLatency: 1,
+      maxConcurrentReads: 1,
+      maxConcurrentWrites: 1,
+      maxConcurrentAccesses: 1,
+      name: &#39;${name}_byte_$byte&#39;,
+    );
+    bytes.add(read.data);
+  }
+  ingress.data.data &lt;= bytes.rconcat();
+  addOutput(&#39;responseOverflow&#39;) &lt;= ingress.valid &amp; ~ingress.ready;
+  Sequential(clk, reset: reset, resetValues: {
+    rawValid: 0,
+    rawTag: 0,
+  }, [
+    rawValid &lt; readAccepted,
+    If(readAccepted, then: [rawTag &lt; this.reads.data.tag]),
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/TensorMaskedSramBank-class.html">TensorMaskedSramBank</a></li>
+    <li class="self-crumb">TensorMaskedSramBank.new constructor</li>
+</ol>
+
+    <h5>TensorMaskedSramBank class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

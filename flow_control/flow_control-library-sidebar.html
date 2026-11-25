@@ -1,7 +1,9 @@
 <ol>
       <li class="section-title"><a href="flow_control/#classes">Classes</a></li>
         <li><a href="rohd_hcl/Arbiter-class.html">Arbiter</a></li>
+        <li><a href="rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></li>
         <li><a href="rohd_hcl/AsyncFifo-class.html">AsyncFifo</a></li>
+        <li><a href="rohd_hcl/CountedFrame-class.html">CountedFrame</a></li>
         <li><a href="rohd_hcl/DirectionalAttachmentCapabilities-class.html">DirectionalAttachmentCapabilities</a></li>
         <li><a href="rohd_hcl/Fifo-class.html">Fifo</a></li>
         <li><a href="rohd_hcl/FifoChecker-class.html">FifoChecker</a></li>
@@ -12,11 +14,18 @@
         <li><a href="rohd_hcl/FifoCoreRequirements-class.html">FifoCoreRequirements</a></li>
         <li><a href="rohd_hcl/FifoTracker-class.html">FifoTracker</a></li>
         <li><a href="rohd_hcl/FixedLatencyTracker-class.html">FixedLatencyTracker</a></li>
+        <li><a href="rohd_hcl/Frame-class.html">Frame</a></li>
         <li><a href="rohd_hcl/HardwareCoreBinding-class.html">HardwareCoreBinding</a></li>
         <li><a href="rohd_hcl/HardwareCoreCapabilities-class.html">HardwareCoreCapabilities</a></li>
         <li><a href="rohd_hcl/HardwareCoreFunctor-class.html">HardwareCoreFunctor</a></li>
         <li><a href="rohd_hcl/IrrevocableReadyValidInterface-class.html">IrrevocableReadyValidInterface</a></li>
         <li><a href="rohd_hcl/MaskRoundRobinArbiter-class.html">MaskRoundRobinArbiter</a></li>
+        <li><a href="rohd_hcl/PolicyArbiter-class.html">PolicyArbiter</a></li>
+        <li><a href="rohd_hcl/PolicyMuxCore-class.html">PolicyMuxCore</a></li>
+        <li><a href="rohd_hcl/PolicyMuxCoreBinding-class.html">PolicyMuxCoreBinding</a></li>
+        <li><a href="rohd_hcl/PolicyMuxCoreCapabilities-class.html">PolicyMuxCoreCapabilities</a></li>
+        <li><a href="rohd_hcl/PolicyMuxCoreFunctor-class.html">PolicyMuxCoreFunctor</a></li>
+        <li><a href="rohd_hcl/PolicyMuxCoreRequest-class.html">PolicyMuxCoreRequest</a></li>
         <li><a href="rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a></li>
         <li><a href="rohd_hcl/ReadyAndValidInterface-class.html">ReadyAndValidInterface</a></li>
         <li><a href="rohd_hcl/ReadyThenValidInterface-class.html">ReadyThenValidInterface</a></li>
@@ -35,24 +44,39 @@
         <li><a href="rohd_hcl/ReadyValidStorageStatus-class.html">ReadyValidStorageStatus</a></li>
         <li><a href="rohd_hcl/RotateRoundRobinArbiter-class.html">RotateRoundRobinArbiter</a></li>
         <li><a href="rohd_hcl/RoundRobinArbiter-class.html">RoundRobinArbiter</a></li>
+        <li><a href="rohd_hcl/SelectiveForkCore-class.html">SelectiveForkCore</a></li>
+        <li><a href="rohd_hcl/SelectiveForkCoreBinding-class.html">SelectiveForkCoreBinding</a></li>
+        <li><a href="rohd_hcl/SelectiveForkCoreCapabilities-class.html">SelectiveForkCoreCapabilities</a></li>
+        <li><a href="rohd_hcl/SelectiveForkCoreFunctor-class.html">SelectiveForkCoreFunctor</a></li>
+        <li><a href="rohd_hcl/SelectiveForkCoreRequest-class.html">SelectiveForkCoreRequest</a></li>
         <li><a href="rohd_hcl/StatefulArbiter-class.html">StatefulArbiter</a></li>
         <li><a href="rohd_hcl/SynchronousActionAttachmentPolicy-class.html">SynchronousActionAttachmentPolicy</a></li>
         <li><a href="rohd_hcl/ValidOnlyInterface-class.html">ValidOnlyInterface</a></li>
         <li><a href="rohd_hcl/ValidThenReadyInterface-class.html">ValidThenReadyInterface</a></li>
 
       <li class="section-title"><a href="flow_control/#enums">Enums</a></li>
+        <li><a href="rohd_hcl/ArbitrationAdvanceMode.html">ArbitrationAdvanceMode</a></li>
+        <li><a href="rohd_hcl/ArbitrationRetentionPolicy.html">ArbitrationRetentionPolicy</a></li>
         <li><a href="rohd_hcl/ReadyValidQueuePolicy.html">ReadyValidQueuePolicy</a></li>
         <li><a href="rohd_hcl/ReadyValidQueueStorage.html">ReadyValidQueueStorage</a></li>
         <li><a href="rohd_hcl/SingleEntryBufferMode.html">SingleEntryBufferMode</a></li>
 
 
 
+      <li class="section-title"><a href="flow_control/#constants">Constants</a></li>
+        <li><a href="rohd_hcl/fixedPriorityArbitrationPolicy-constant.html">fixedPriorityArbitrationPolicy</a></li>
+        <li><a href="rohd_hcl/highestScoreArbitrationPolicy-constant.html">highestScoreArbitrationPolicy</a></li>
+        <li><a href="rohd_hcl/maskRoundRobinArbitrationPolicy-constant.html">maskRoundRobinArbitrationPolicy</a></li>
+        <li><a href="rohd_hcl/rotateRoundRobinArbitrationPolicy-constant.html">rotateRoundRobinArbitrationPolicy</a></li>
+        <li><a href="rohd_hcl/roundRobinArbitrationPolicy-constant.html">roundRobinArbitrationPolicy</a></li>
 
 
       <li class="section-title"><a href="flow_control/#functions">Functions</a></li>
         <li><a href="rohd_hcl/configureSingleEntryBuffer.html">configureSingleEntryBuffer</a></li>
+        <li><a href="rohd_hcl/weightedPriorityArbitrationPolicy.html">weightedPriorityArbitrationPolicy</a></li>
 
       <li class="section-title"><a href="flow_control/#typedefs">Typedefs</a></li>
+        <li><a href="rohd_hcl/ArbitrationPolicyBuilder.html">ArbitrationPolicyBuilder</a></li>
         <li><a href="rohd_hcl/FixedLatencyCoreGenerator.html">FixedLatencyCoreGenerator</a></li>
 
 

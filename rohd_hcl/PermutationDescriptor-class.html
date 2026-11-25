@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PermutationDescriptor class from the rohd_hcl library, for the Dart programming language.">
+  <title>PermutationDescriptor class - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">PermutationDescriptor class</li>
+  </ol>
+  <div class="self-name">PermutationDescriptor</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+    data-below-sidebar="rohd_hcl&#47;PermutationDescriptor-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">PermutationDescriptor</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>An immutable one-to-one permutation.</p>
+<p>Entry <code>i</code> is the source index connected to output index <code>i</code>. For example,
+<code>[2, 0, 1]</code> transforms <code>[a, b, c]</code> into <code>[c, a, b]</code>.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+
+        
+        
+  <dt>Annotations</dt>
+  <dd>
+    <ul class="annotation-list clazz-relationships">
+        <li>@<a href="https://pub.dev/documentation/meta/1.19.0/meta/immutable-constant.html">immutable</a></li>
+    </ul>
+  </dd>
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="PermutationDescriptor.new" class="callable">
+          <span class="name"><a href="../rohd_hcl/PermutationDescriptor/PermutationDescriptor.html">PermutationDescriptor</a></span><span class="signature">(<span class="parameter" id="param-sourceIndices"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">sourceIndices</span></span>)</span>
+        </dt>
+        <dd>
+          Creates and validates a permutation from output-to-source indices.
+        </dd>
+        <dt id="PermutationDescriptor.blockInterleave" class="callable">
+          <span class="name"><a href="../rohd_hcl/PermutationDescriptor/PermutationDescriptor.blockInterleave.html">PermutationDescriptor.blockInterleave</a></span><span class="signature">(<span class="parameter" id="blockInterleave-param-rows"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">rows</span>, </span><span class="parameter" id="blockInterleave-param-columns"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">columns</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a row-write, column-read block interleaving permutation.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PermutationDescriptor.identity" class="callable">
+          <span class="name"><a href="../rohd_hcl/PermutationDescriptor/PermutationDescriptor.identity.html">PermutationDescriptor.identity</a></span><span class="signature">(<span class="parameter" id="identity-param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span></span>)</span>
+        </dt>
+        <dd>
+          Creates an identity permutation of <code>length</code>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PermutationDescriptor.reverse" class="callable">
+          <span class="name"><a href="../rohd_hcl/PermutationDescriptor/PermutationDescriptor.reverse.html">PermutationDescriptor.reverse</a></span><span class="signature">(<span class="parameter" id="reverse-param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a permutation that reverses <code>length</code> elements.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PermutationDescriptor.rotateLeft" class="callable">
+          <span class="name"><a href="../rohd_hcl/PermutationDescriptor/PermutationDescriptor.rotateLeft.html">PermutationDescriptor.rotateLeft</a></span><span class="signature">(<span class="parameter" id="rotateLeft-param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span>, </span><span class="parameter" id="rotateLeft-param-amount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">amount</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a left rotation of <code>length</code> elements by <code>amount</code>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+        <dt id="PermutationDescriptor.rotateRight" class="callable">
+          <span class="name"><a href="../rohd_hcl/PermutationDescriptor/PermutationDescriptor.rotateRight.html">PermutationDescriptor.rotateRight</a></span><span class="signature">(<span class="parameter" id="rotateRight-param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span>, </span><span class="parameter" id="rotateRight-param-amount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">amount</span></span>)</span>
+        </dt>
+        <dd>
+          Creates a right rotation of <code>length</code> elements by <code>amount</code>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="configurationSignature" class="property">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/configurationSignature.html">configurationSignature</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  A deterministic signature suitable for generated definition names.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="isIdentity" class="property">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/isIdentity.html">isIdentity</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Whether this mapping leaves every element in place.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="length" class="property">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/length.html">length</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Number of permuted elements.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sourceIndices" class="property">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/sourceIndices.html">sourceIndices</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Output-to-source index mapping.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="apply" class="callable">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/apply.html">apply</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="apply-param-elements"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">elements</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Applies this permutation to <code>elements</code>.
+  
+
+</dd>
+
+        <dt id="applyPacked" class="callable">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/applyPacked.html">applyPacked</a></span><span class="signature">(<wbr><span class="parameter" id="applyPacked-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">value</span>, {</span><span class="parameter" id="applyPacked-param-elementWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">elementWidth</span> = <span class="default-value">1</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Applies this permutation to fixed-width elements packed into <code>value</code>.
+  
+
+</dd>
+
+        <dt id="compose" class="callable">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/compose.html">compose</a></span><span class="signature">(<wbr><span class="parameter" id="compose-param-after"><span class="type-annotation"><a href="../rohd_hcl/PermutationDescriptor-class.html">PermutationDescriptor</a></span> <span class="parameter-name">after</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/PermutationDescriptor-class.html">PermutationDescriptor</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Composes this mapping followed by <code>after</code>.
+  
+
+</dd>
+
+        <dt id="inverse" class="callable">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/inverse.html">inverse</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/PermutationDescriptor-class.html">PermutationDescriptor</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the permutation that restores this permutation's input order.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="sourceIndex" class="callable">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/sourceIndex.html">sourceIndex</a></span><span class="signature">(<wbr><span class="parameter" id="sourceIndex-param-outputIndex"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputIndex</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the source index connected to <code>outputIndex</code>.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable">
+  <span class="name"><a href="../rohd_hcl/PermutationDescriptor/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  The equality operator.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">PermutationDescriptor class</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

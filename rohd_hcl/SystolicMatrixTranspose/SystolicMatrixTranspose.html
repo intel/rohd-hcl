@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the SystolicMatrixTranspose.new constructor from Class SystolicMatrixTranspose from the rohd_hcl library, for the Dart programming language.">
+  <title>SystolicMatrixTranspose.new constructor - SystolicMatrixTranspose - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/SystolicMatrixTranspose-class.html">SystolicMatrixTranspose<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">SystolicMatrixTranspose.new constructor</li>
+  </ol>
+  <div class="self-name">SystolicMatrixTranspose.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;SystolicMatrixTranspose-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">SystolicMatrixTranspose&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">SystolicMatrixTranspose&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-step"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">step</span>, </span></li>
+<li><span class="parameter" id="param-dataIn"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/TypedLogicArray-class.html">TypedLogicArray</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">dataIn</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;systolic_matrix_transpose&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a transposer for a nonempty, one-dimensional typed row.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">SystolicMatrixTranspose({
+  required Logic clk,
+  required Logic reset,
+  required Logic step,
+  required TypedLogicArray&lt;T, V&gt; dataIn,
+  super.name = &#39;systolic_matrix_transpose&#39;,
+})  : dimension =
+          dataIn.dimensions.length == 1 ? dataIn.dimensions.single : 0,
+      elementWidth = dataIn.elementWidth,
+      super(
+        definitionName:
+            &#39;SystolicMatrixTranspose_${payloadShapeIdentity(dataIn)}&#39;,
+      ) {
+  if (dimension &lt; 1 || elementWidth &lt; 1) {
+    throw ArgumentError(&#39;Matrix input must be a nonempty typed row.&#39;);
+  }
+  clk = addInput(&#39;clk&#39;, clk);
+  reset = addInput(&#39;reset&#39;, reset);
+  step = addInput(&#39;step&#39;, step);
+  dataIn = addTypedInput(&#39;dataIn&#39;, dataIn);
+  dataOut = addTypedPayloadOutput(this, &#39;dataOut&#39;, dataIn);
+  final direction = Logic(name: &#39;direction&#39;);
+  final counter = Logic(name: &#39;counter&#39;, width: max(1, dimension.log2Ceil));
+  final filled = Logic(name: &#39;filled&#39;);
+  final cells = TypedLogicArray&lt;T, V&gt;(
+    [dimension, dimension],
+    dataIn.arrayElements.first.cloneTyped,
+    valueCodec: dataIn.valueCodec,
+    name: &#39;cells&#39;,
+  );
+  T cell(int row, int column) =&gt;
+      cells.arrayElements[row * dimension + column];
+  for (var row = 0; row &lt; dimension; row++) {
+    for (var column = 0; column &lt; dimension; column++) {
+      final fromRight = column == dimension - 1
+          ? dataIn.arrayElements[row]
+          : cell(row, column + 1);
+      final fromBelow = row == dimension - 1
+          ? dataIn.arrayElements[column]
+          : cell(row + 1, column);
+      cell(row, column) &lt;=
+          ShiftRegister&lt;T&gt;(
+            mux&lt;T&gt;(direction, fromBelow, fromRight),
+            clk: clk,
+            enable: step &amp; ~reset,
+            depth: 1,
+            name: &#39;${name}_${row}_$column&#39;,
+            definitionName:
+                &#39;SystolicTransposeCell_${payloadShapeIdentity(fromRight)}&#39;,
+          ).dataOut;
+    }
+  }
+  for (var index = 0; index &lt; dimension; index++) {
+    dataOut.arrayElements[index] &lt;=
+        mux&lt;T&gt;(direction, cell(0, index), cell(index, 0));
+  }
+  addOutput(&#39;primed&#39;) &lt;= filled &amp; ~reset;
+  Sequential(clk, reset: reset, resetValues: {
+    counter: 0,
+    direction: 0,
+    filled: 0,
+  }, [
+    If(step, then: [
+      If(counter.eq(dimension - 1), then: [
+        counter &lt; 0,
+        direction &lt; ~direction,
+        filled &lt; 1,
+      ], orElse: [
+        counter &lt; counter + 1,
+      ]),
+    ]),
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/SystolicMatrixTranspose-class.html">SystolicMatrixTranspose<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span></a></li>
+    <li class="self-crumb">SystolicMatrixTranspose.new constructor</li>
+</ol>
+
+    <h5>SystolicMatrixTranspose class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

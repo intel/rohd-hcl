@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the RmsNorm.new constructor from Class RmsNorm from the rohd_hcl library, for the Dart programming language.">
+  <title>RmsNorm.new constructor - RmsNorm - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/RmsNorm-class.html">RmsNorm</a></li>
+    <li class="self-crumb">RmsNorm.new constructor</li>
+  </ol>
+  <div class="self-name">RmsNorm.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;RmsNorm-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">RmsNorm</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">RmsNorm</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-values"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicArray-class.html">LogicArray</a></span> <span class="parameter-name">values</span>, </span></li>
+<li><span class="parameter" id="param-weights"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicArray-class.html">LogicArray</a></span> <span class="parameter-name">weights</span>, {</span></li>
+<li><span class="parameter" id="param-valueFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">valueFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-weightFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">weightFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-meanSquareWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">meanSquareWidth</span>, </span></li>
+<li><span class="parameter" id="param-countReciprocalWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">countReciprocalWidth</span>, </span></li>
+<li><span class="parameter" id="param-countReciprocalFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">countReciprocalFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-inverseRmsWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">inverseRmsWidth</span>, </span></li>
+<li><span class="parameter" id="param-inverseRmsFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">inverseRmsFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputWidth</span>, </span></li>
+<li><span class="parameter" id="param-epsilonRaw"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">epsilonRaw</span>, </span></li>
+<li><span class="parameter" id="param-activeMask"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">activeMask</span>, </span></li>
+<li><span class="parameter" id="param-signedWeights"><span class="type-annotation">dynamic</span> <span class="parameter-name">signedWeights</span> = <span class="default-value">true</span>, </span></li>
+<li><span class="parameter" id="param-multiplierImplementation"><span class="type-annotation"><a href="../../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> <span class="parameter-name">multiplierImplementation</span> = <span class="default-value">nativeInferenceMultiplierFunctor</span>, </span></li>
+<li><span class="parameter" id="param-reciprocalImplementation"><span class="type-annotation"><a href="../../rohd_hcl/PositiveApproximationFunctor-class.html">PositiveApproximationFunctor</a></span> <span class="parameter-name">reciprocalImplementation</span> = <span class="default-value">lookupReciprocalApproximationFunctor</span>, </span></li>
+<li><span class="parameter" id="param-reciprocalSqrtImplementation"><span class="type-annotation"><a href="../../rohd_hcl/PositiveApproximationFunctor-class.html">PositiveApproximationFunctor</a></span> <span class="parameter-name">reciprocalSqrtImplementation</span> = <span class="default-value">lookupReciprocalSqrtApproximationFunctor</span>, </span></li>
+<li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericRoundingMode.html">NumericRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">NumericRoundingMode.nearestEven</span>, </span></li>
+<li><span class="parameter" id="param-overflowMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericOverflowMode.html">NumericOverflowMode</a></span> <span class="parameter-name">overflowMode</span> = <span class="default-value">NumericOverflowMode.saturate</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;rms_norm&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates fixed-point RMS normalization hardware.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">RmsNorm(
+  LogicArray values,
+  LogicArray weights, {
+  required this.valueFractionBits,
+  required this.weightFractionBits,
+  required this.meanSquareWidth,
+  required this.countReciprocalWidth,
+  required this.countReciprocalFractionBits,
+  required this.inverseRmsWidth,
+  required this.inverseRmsFractionBits,
+  required this.outputWidth,
+  required this.epsilonRaw,
+  Logic? activeMask,
+  dynamic signedWeights = true,
+  this.multiplierImplementation = nativeInferenceMultiplierFunctor,
+  this.reciprocalImplementation = lookupReciprocalApproximationFunctor,
+  this.reciprocalSqrtImplementation =
+      lookupReciprocalSqrtApproximationFunctor,
+  this.roundingMode = NumericRoundingMode.nearestEven,
+  this.overflowMode = NumericOverflowMode.saturate,
+  super.name = &#39;rms_norm&#39;,
+})  : laneCount = values.arrayElements.length,
+      super(
+        definitionName: &#39;RmsNorm_&#39;
+            &#39;L${values.arrayElements.length}_V${values.elementWidth}&#39;
+            &#39;F${valueFractionBits}_W${weights.elementWidth}&#39;
+            &#39;F${weightFractionBits}_M${meanSquareWidth}_&#39;
+            &#39;C${countReciprocalWidth}F${countReciprocalFractionBits}_&#39;
+            &#39;R${inverseRmsWidth}F${inverseRmsFractionBits}_&#39;
+            &#39;O${outputWidth}_E${epsilonRaw}_&#39;
+            &#39;${multiplierImplementation.identity}_&#39;
+            &#39;${reciprocalImplementation.identity}_&#39;
+            &#39;${reciprocalSqrtImplementation.identity}_&#39;
+            &#39;${roundingMode.name}_${overflowMode.name}_&#39;
+            &#39;M${activeMask == null ? 0 : 1}&#39;,
+      ) {
+  if (values.dimensions.length != 1 ||
+      weights.dimensions.length != 1 ||
+      laneCount &lt; 1 ||
+      weights.arrayElements.length != laneCount) {
+    throw ArgumentError(
+      &#39;Values and weights must be non-empty equal-length 1-D arrays.&#39;,
+    );
+  }
+  if (valueFractionBits &lt; 0 ||
+      valueFractionBits &gt;= values.elementWidth ||
+      weightFractionBits &lt; 0 ||
+      weightFractionBits &gt;= weights.elementWidth ||
+      meanSquareWidth &lt; 2 * valueFractionBits + 1 ||
+      meanSquareWidth &gt; 12 ||
+      countReciprocalWidth &lt; 2 ||
+      countReciprocalFractionBits &lt; 0 ||
+      countReciprocalFractionBits &gt;= countReciprocalWidth ||
+      inverseRmsWidth &lt; 2 ||
+      inverseRmsFractionBits &lt; 0 ||
+      inverseRmsFractionBits &gt;= inverseRmsWidth ||
+      outputWidth &lt; 2) {
+    throw ArgumentError(&#39;RMS normalization fixed-point formats are invalid.&#39;);
+  }
+  if (epsilonRaw &lt; 1 || epsilonRaw &gt;= (1 &lt;&lt; meanSquareWidth)) {
+    throw ArgumentError.value(
+      epsilonRaw,
+      &#39;epsilonRaw&#39;,
+      &#39;Must be positive and fit the mean-square format.&#39;,
+    );
+  }
+  if (activeMask != null &amp;&amp; activeMask.width != laneCount) {
+    throw PortWidthMismatchException(activeMask, laneCount);
+  }
+  if (reciprocalImplementation.operation !=
+          FixedPointApproximationOperation.reciprocal ||
+      reciprocalSqrtImplementation.operation !=
+          FixedPointApproximationOperation.reciprocalSquareRoot) {
+    throw ArgumentError(
+      &#39;RMS normalization requires reciprocal and reciprocal-square-root &#39;
+      &#39;approximation functors.&#39;,
+    );
+  }
+
+  values = addTypedInput(&#39;values&#39;, values);
+  weights = addTypedInput(&#39;weights&#39;, weights);
+  final localMask = activeMask == null
+      ? Const(-1, width: laneCount)
+      : addInput(&#39;activeMask&#39;, activeMask, width: laneCount);
+  final count = Count(localMask, name: &#39;${name}_active_count&#39;).count;
+  addOutput(&#39;activeCount&#39;, width: count.width) &lt;= count;
+
+  final squareSumWidth = values.elementWidth * 2 + laneCount.log2Ceil;
+  final squareSum = MixedPrecisionDotProduct(
+    values,
+    values,
+    outputWidth: squareSumWidth,
+    activeMask: localMask,
+    signedLeft: true,
+    signedRight: true,
+    signedResult: false,
+    multiplierImplementation: multiplierImplementation,
+    name: &#39;${name}_square_sum&#39;,
+  );
+  final countReciprocal = reciprocalImplementation(
+    count,
+    inputFractionBits: 0,
+    outputWidth: countReciprocalWidth,
+    outputFractionBits: countReciprocalFractionBits,
+    minimumInputRaw: 1,
+    maximumInputRaw: laneCount,
+    roundingMode: roundingMode,
+    name: &#39;${name}_count_reciprocal&#39;,
+  );
+  final squareSumArray = LogicArray(
+    const [1],
+    squareSumWidth,
+    name: &#39;${name}_square_sum_value&#39;,
+  );
+  squareSumArray.arrayElements.single &lt;= squareSum.result;
+  final countScaleArray = LogicArray(
+    const [1],
+    countReciprocalWidth,
+    name: &#39;${name}_count_scale&#39;,
+  );
+  countScaleArray.arrayElements.single &lt;= countReciprocal.result;
+  final meanScale = GroupScaleApply(
+    squareSumArray,
+    countScaleArray,
+    groupSize: 1,
+    fractionalBits: countReciprocalFractionBits,
+    outputWidth: meanSquareWidth,
+    signedValue: false,
+    signedScale: false,
+    signedOutput: false,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_mean&#39;,
+  );
+  final meanWithEpsilon = (meanScale.scaledValues.arrayElements.single
+              .zeroExtend(meanSquareWidth + 1) +
+          Const(epsilonRaw, width: meanSquareWidth + 1))
+      .getRange(0, meanSquareWidth + 1);
+  final epsilonNarrow = NumericNarrowing(
+    meanWithEpsilon,
+    outputWidth: meanSquareWidth,
+    overflowMode: overflowMode,
+    name: &#39;${name}_epsilon&#39;,
+  );
+  addOutput(&#39;meanSquare&#39;, width: meanSquareWidth) &lt;= epsilonNarrow.result;
+
+  final inverse = reciprocalSqrtImplementation(
+    meanSquare,
+    inputFractionBits: 2 * valueFractionBits,
+    outputWidth: inverseRmsWidth,
+    outputFractionBits: inverseRmsFractionBits,
+    minimumInputRaw: 1,
+    maximumInputRaw: (1 &lt;&lt; meanSquareWidth) - 1,
+    roundingMode: roundingMode,
+    name: &#39;${name}_inverse_rms&#39;,
+  );
+  addOutput(&#39;inverseRms&#39;, width: inverseRmsWidth) &lt;= inverse.result;
+  final inverseArray = LogicArray(
+    const [1],
+    inverseRmsWidth,
+    name: &#39;${name}_inverse_scale&#39;,
+  );
+  inverseArray.arrayElements.single &lt;= inverse.result;
+  final normalizedIntermediateWidth = max(
+    outputWidth,
+    values.elementWidth + 2,
+  );
+  final normalized = GroupScaleApply(
+    values,
+    inverseArray,
+    groupSize: laneCount,
+    fractionalBits: inverseRmsFractionBits,
+    outputWidth: normalizedIntermediateWidth,
+    activeMask: localMask,
+    signedScale: false,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_normalize&#39;,
+  );
+  final weighted = GroupScaleApply(
+    normalized.scaledValues,
+    weights,
+    groupSize: 1,
+    fractionalBits: weightFractionBits,
+    outputWidth: outputWidth,
+    activeMask: localMask,
+    signedScale: signedWeights,
+    signedOutput: true,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_weights&#39;,
+  );
+  final outputValues = LogicArray(
+    [laneCount],
+    outputWidth,
+    name: &#39;normalizedValues&#39;,
+  );
+  normalizedValues = addTypedOutput(&#39;normalizedValues&#39;, outputValues.clone);
+  for (var lane = 0; lane &lt; laneCount; lane++) {
+    normalizedValues.arrayElements[lane] &lt;=
+        weighted.scaledValues.arrayElements[lane];
+  }
+
+  final internalStatus = RmsNormStatus(
+    laneCount: laneCount,
+    name: &#39;${name}_internal_status&#39;,
+  );
+  internalStatus.invalidInput &lt;= ~count.or();
+  internalStatus.approximationError &lt;=
+      (countReciprocal.status.invalidInput |
+              countReciprocal.status.outOfRange) |
+          (inverse.status.invalidInput | inverse.status.outOfRange);
+  internalStatus.laneOverflowMask &lt;= weighted.overflowMask;
+  internalStatus.laneUnderflowMask &lt;= weighted.underflowMask;
+  internalStatus.overflow &lt;=
+      squareSum.overflowed |
+          squareSum.underflowed |
+          meanScale.overflowMask.or() |
+          meanScale.underflowMask.or() |
+          epsilonNarrow.overflowed |
+          inverse.status.overflow |
+          normalized.overflowMask.or() |
+          normalized.underflowMask.or() |
+          weighted.overflowMask.or() |
+          weighted.underflowMask.or();
+  internalStatus.inexact &lt;=
+      countReciprocal.status.inexact |
+          meanScale.inexactMask.or() |
+          epsilonNarrow.inexact |
+          inverse.status.inexact |
+          normalized.inexactMask.or() |
+          weighted.inexactMask.or();
+  status = addTypedOutput(&#39;status&#39;, internalStatus.clone);
+  status &lt;= internalStatus;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/RmsNorm-class.html">RmsNorm</a></li>
+    <li class="self-crumb">RmsNorm.new constructor</li>
+</ol>
+
+    <h5>RmsNorm class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

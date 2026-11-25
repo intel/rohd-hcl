@@ -86,6 +86,10 @@ contract-generic.</p>
 
 
         
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../rohd_hcl/RohdHclModuleInterfacePorts.html">RohdHclModuleInterfacePorts</a></li>
+  </ul></dd>
         
 
 
@@ -500,6 +504,24 @@ named <code>name</code>.
 
 </dd>
 
+        <dt id="addInterface" class="callable">
+  <span class="name"><a href="../rohd_hcl/RohdHclModuleInterfacePorts/addInterface.html">addInterface</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span></span>, <span class="type-parameter">TagType extends <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addInterface-param-source"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInterface-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="addInterface-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="addInterface-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span><span class="parameter" id="addInterface-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a>,
+        provided by the <a href="../rohd_hcl/RohdHclModuleInterfacePorts.html">RohdHclModuleInterfacePorts</a> extension</span>
+      </p>
+  Clones <code>source</code>, registers its selected ports on this module, and returns
+the clone for use by the module implementation.
+  
+
+</dd>
+
         <dt id="addInterfaceFrom" class="callable inherited">
   <span class="name"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module/addInterfaceFrom.html">addInterfaceFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span></span>, <span class="type-parameter">TagType extends <a href="https://api.flutter.dev/flutter/dart-core/Enum-class.html">Enum</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addInterfaceFrom-param-target"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">target</span>, </span><span class="parameter" id="addInterfaceFrom-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span></span> <span class="parameter-name">source</span>, {</span><span class="parameter" id="addInterfaceFrom-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span><span class="parameter" id="addInterfaceFrom-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span><span class="parameter" id="addInterfaceFrom-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter">TagType</span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span><span class="parameter" id="addInterfaceFrom-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
     <span class="returntype parameter">&#8594; InterfaceType</span>
@@ -579,6 +601,42 @@ named <code>name</code>.
 <dd class="inherited">
   Registers a consumer <code>source</code> endpoint and returns its internal clone.
   <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addPairInterface" class="callable">
+  <span class="name"><a href="../rohd_hcl/RohdHclModuleInterfacePorts/addPairInterface.html">addPairInterface</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairInterface-param-source"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">source</span>, </span><span class="parameter" id="addPairInterface-param-role"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairRole.html">PairRole</a></span> <span class="parameter-name">role</span>, {</span><span class="parameter" id="addPairInterface-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a>,
+        provided by the <a href="../rohd_hcl/RohdHclModuleInterfacePorts.html">RohdHclModuleInterfacePorts</a> extension</span>
+      </p>
+  Clones <code>source</code>, registers it for the selected <code>role</code>, and returns the
+clone for use by the module implementation.
+  
+
+</dd>
+
+        <dt id="addPairInterfaceFrom" class="callable">
+  <span class="name"><a href="../rohd_hcl/RohdHclModuleInterfacePorts/addPairInterfaceFrom.html">addPairInterfaceFrom</a></span><span class="signature">&lt;<wbr><span class="type-parameter">InterfaceType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairInterface-class.html">PairInterface</a></span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="addPairInterfaceFrom-param-target"><span class="type-annotation">InterfaceType</span> <span class="parameter-name">target</span>, </span><span class="parameter" id="addPairInterfaceFrom-param-source"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairInterface-class.html">PairInterface</a></span> <span class="parameter-name">source</span>, </span><span class="parameter" id="addPairInterfaceFrom-param-role"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairRole.html">PairRole</a></span> <span class="parameter-name">role</span>, {</span><span class="parameter" id="addPairInterfaceFrom-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span>)?</span>})
+    <span class="returntype parameter">&#8594; InterfaceType</span>
+  </span>
+  
+
+</dt>
+<dd>
+      <p class="from-extension">
+        <span>Available on <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a>,
+        provided by the <a href="../rohd_hcl/RohdHclModuleInterfacePorts.html">RohdHclModuleInterfacePorts</a> extension</span>
+      </p>
+  Registers an already-constructed <code>target</code> against <code>source</code> for cases
+where a module intentionally changes the concrete pair-interface type.
+  
 
 </dd>
 
@@ -1022,7 +1080,7 @@ named <code>name</code>.
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.3
+      0.3.4
   </span>
   
 </footer>

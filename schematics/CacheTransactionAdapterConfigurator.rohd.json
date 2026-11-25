@@ -3280,97 +3280,7 @@
             ]
           }
         },
-        "struct_unpack_2_cache_response_cache_response": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "cache_response_cache_response",
-            "FIELD_COUNT": 6,
-            "FIELD_0_NAME": "token",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 2,
-            "FIELD_1_NAME": "status",
-            "FIELD_1_OFFSET": 2,
-            "FIELD_1_WIDTH": 2,
-            "FIELD_2_NAME": "data",
-            "FIELD_2_OFFSET": 4,
-            "FIELD_2_WIDTH": 8,
-            "FIELD_3_NAME": "lineMetadata",
-            "FIELD_3_OFFSET": 12,
-            "FIELD_3_WIDTH": 2,
-            "FIELD_4_NAME": "requestContext",
-            "FIELD_4_OFFSET": 14,
-            "FIELD_4_WIDTH": 2,
-            "FIELD_5_NAME": "result",
-            "FIELD_5_OFFSET": 16,
-            "FIELD_5_WIDTH": 2
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "token": "output",
-            "status": "output",
-            "data": "output",
-            "lineMetadata": "output",
-            "requestContext": "output",
-            "result": "output"
-          },
-          "connections": {
-            "A": [
-              34,
-              35,
-              36,
-              37,
-              38,
-              39,
-              40,
-              41,
-              42,
-              43,
-              44,
-              45,
-              46,
-              47,
-              48,
-              49,
-              50,
-              51
-            ],
-            "token": [
-              300,
-              301
-            ],
-            "status": [
-              302,
-              303
-            ],
-            "data": [
-              304,
-              305,
-              306,
-              307,
-              308,
-              309,
-              310,
-              311
-            ],
-            "lineMetadata": [
-              312,
-              313
-            ],
-            "requestContext": [
-              314,
-              315
-            ],
-            "result": [
-              316,
-              317
-            ]
-          }
-        },
-        "struct_unpack_3_q": {
+        "struct_unpack_2_q": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -3480,7 +3390,7 @@
             ]
           }
         },
-        "struct_unpack_4_input_request_cache_request": {
+        "struct_unpack_3_input_request_cache_request": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -3587,6 +3497,96 @@
             "requestContext": [
               298,
               299
+            ]
+          }
+        },
+        "struct_unpack_4_cache_response_cache_response": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "cache_response_cache_response",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "token",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "status",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 2,
+            "FIELD_2_NAME": "data",
+            "FIELD_2_OFFSET": 4,
+            "FIELD_2_WIDTH": 8,
+            "FIELD_3_NAME": "lineMetadata",
+            "FIELD_3_OFFSET": 12,
+            "FIELD_3_WIDTH": 2,
+            "FIELD_4_NAME": "requestContext",
+            "FIELD_4_OFFSET": 14,
+            "FIELD_4_WIDTH": 2,
+            "FIELD_5_NAME": "result",
+            "FIELD_5_OFFSET": 16,
+            "FIELD_5_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "token": "output",
+            "status": "output",
+            "data": "output",
+            "lineMetadata": "output",
+            "requestContext": "output",
+            "result": "output"
+          },
+          "connections": {
+            "A": [
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ],
+            "token": [
+              300,
+              301
+            ],
+            "status": [
+              302,
+              303
+            ],
+            "data": [
+              304,
+              305,
+              306,
+              307,
+              308,
+              309,
+              310,
+              311
+            ],
+            "lineMetadata": [
+              312,
+              313
+            ],
+            "requestContext": [
+              314,
+              315
+            ],
+            "result": [
+              316,
+              317
             ]
           }
         },

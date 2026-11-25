@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TensorDmaEngine.new constructor from Class TensorDmaEngine from the rohd_hcl library, for the Dart programming language.">
+  <title>TensorDmaEngine.new constructor - TensorDmaEngine - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/TensorDmaEngine-class.html">TensorDmaEngine<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">TensorDmaEngine.new constructor</li>
+  </ol>
+  <div class="self-name">TensorDmaEngine.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;TensorDmaEngine-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TensorDmaEngine&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TensorDmaEngine&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-command"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorDmaCommand-class.html">TensorDmaCommand</a></span>&gt;</span></span> <span class="parameter-name">command</span>, </span></li>
+<li><span class="parameter" id="param-sourceReadRequest"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadRequest-class.html">TensorScratchpadReadRequest</a></span>&gt;</span></span> <span class="parameter-name">sourceReadRequest</span>, </span></li>
+<li><span class="parameter" id="param-sourceReadResponse"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadResponse-class.html">TensorScratchpadReadResponse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">sourceReadResponse</span>, </span></li>
+<li><span class="parameter" id="param-destinationWriteRequest"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadWriteRequest-class.html">TensorScratchpadWriteRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">destinationWriteRequest</span>, </span></li>
+<li><span class="parameter" id="param-completion"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorDmaCompletion-class.html">TensorDmaCompletion</a></span>&gt;</span></span> <span class="parameter-name">completion</span>, </span></li>
+<li><span class="parameter" id="param-sourceDepth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">sourceDepth</span>, </span></li>
+<li><span class="parameter" id="param-destinationDepth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">destinationDepth</span>, </span></li>
+<li><span class="parameter" id="param-clearCounters"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clearCounters</span>, </span></li>
+<li><span class="parameter" id="param-counterWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">counterWidth</span> = <span class="default-value">32</span>, </span></li>
+<li><span class="parameter" id="param-multiplierImplementation"><span class="type-annotation"><a href="../../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> <span class="parameter-name">multiplierImplementation</span> = <span class="default-value">nativeInferenceMultiplierFunctor</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tensor_dma_engine&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a single-outstanding strided tensor DMA engine.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TensorDmaEngine({
+  required Logic clk,
+  required Logic reset,
+  required ReadyValidInterface&lt;TensorDmaCommand&gt; command,
+  required ReadyValidInterface&lt;TensorScratchpadReadRequest&gt; sourceReadRequest,
+  required ReadyValidInterface&lt;TensorScratchpadReadResponse&lt;T&gt;&gt;
+      sourceReadResponse,
+  required ReadyValidInterface&lt;TensorScratchpadWriteRequest&lt;T&gt;&gt;
+      destinationWriteRequest,
+  required ReadyValidInterface&lt;TensorDmaCompletion&gt; completion,
+  this.sourceDepth,
+  this.destinationDepth,
+  Logic? clearCounters,
+  this.counterWidth = 32,
+  this.multiplierImplementation = nativeInferenceMultiplierFunctor,
+  super.name = &#39;tensor_dma_engine&#39;,
+}) : super(
+        definitionName: &#39;TensorDmaEngine_&#39;
+            &#39;SA${command.data.sourceAddressWidth}_&#39;
+            &#39;DA${command.data.destinationAddressWidth}_&#39;
+            &#39;M${command.data.mWidth}_N${command.data.nWidth}_&#39;
+            &#39;K${command.data.kWidth}_ID${command.data.commandIdWidth}_&#39;
+            &#39;D${sourceReadResponse.data.dataWidth}_&#39;
+            &#39;T${sourceReadRequest.data.tagWidth}_&#39;
+            &#39;SD${sourceDepth ?? 0}_DD${destinationDepth ?? 0}_&#39;
+            &#39;C${counterWidth}_${multiplierImplementation.identity}_&#39;
+            &#39;${payloadShapeIdentity(sourceReadResponse.data.data)}&#39;,
+      ) {
+  final countWidth = tensorDmaCountWidth(
+    mWidth: command.data.mWidth,
+    nWidth: command.data.nWidth,
+    kWidth: command.data.kWidth,
+  );
+  _validateInterfaces(
+    command,
+    sourceReadRequest,
+    sourceReadResponse,
+    destinationWriteRequest,
+    completion,
+    countWidth,
+  );
+  if (!compatiblePayloadSet([
+    sourceReadResponse.data.data,
+    destinationWriteRequest.data.data,
+  ], allowRenamedClones: true)) {
+    throw ArgumentError(&#39;Tensor DMA word schemas do not match.&#39;);
+  }
+  _validateDepth(sourceDepth, command.data.sourceAddressWidth, &#39;sourceDepth&#39;);
+  _validateDepth(
+    destinationDepth,
+    command.data.destinationAddressWidth,
+    &#39;destinationDepth&#39;,
+  );
+  if (counterWidth &lt; 1) {
+    throw ArgumentError.value(
+      counterWidth,
+      &#39;counterWidth&#39;,
+      &#39;Must be positive.&#39;,
+    );
+  }
+
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final localClear = clearCounters == null
+      ? Const(0)
+      : addInput(&#39;clearCounters&#39;, clearCounters);
+  _command = addPairInterface(
+    command,
+    PairRole.consumer,
+    uniquify: (original) =&gt; &#39;command_$original&#39;,
+  );
+  _sourceReadRequest = addPairInterfaceFrom(
+    IrrevocableReadyValidInterface(sourceReadRequest.data.clone()),
+    sourceReadRequest,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;source_read_request_$original&#39;,
+  );
+  _sourceReadResponse = addPairInterface(
+    sourceReadResponse,
+    PairRole.consumer,
+    uniquify: (original) =&gt; &#39;source_read_response_$original&#39;,
+  );
+  _destinationWriteRequest = addPairInterfaceFrom(
+    IrrevocableReadyValidInterface(destinationWriteRequest.data.clone()),
+    destinationWriteRequest,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;destination_write_request_$original&#39;,
+  );
+  _completion = addPairInterfaceFrom(
+    IrrevocableReadyValidInterface(completion.data.clone()),
+    completion,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;completion_$original&#39;,
+  );
+
+  final active = Logic(name: &#39;${name}_active&#39;);
+  final readOutstanding = Logic(name: &#39;${name}_read_outstanding&#39;);
+  final writePending = Logic(name: &#39;${name}_write_pending&#39;);
+  final completionPending = Logic(name: &#39;${name}_completion_pending&#39;);
+  final pendingDestination = Logic(
+    name: &#39;${name}_pending_destination&#39;,
+    width: command.data.destinationAddressWidth,
+  );
+  final pendingLast = Logic(name: &#39;${name}_pending_last&#39;);
+  final pendingReadTag = Logic(
+    name: &#39;${name}_pending_read_tag&#39;,
+    width: sourceReadRequest.data.tagWidth,
+  );
+  final nextReadTag = Logic(
+    name: &#39;${name}_next_read_tag&#39;,
+    width: sourceReadRequest.data.tagWidth,
+  );
+  final bufferedWriteData = cloneTypedPayload&lt;T&gt;(
+      _sourceReadResponse.data.data,
+      name: &#39;${name}_buffered_write_data&#39;);
+  final transferredCount =
+      Logic(name: &#39;${name}_transferred_count&#39;, width: countWidth);
+  final completionCount =
+      Logic(name: &#39;${name}_completion_count&#39;, width: countWidth);
+  final completionCommandId = Logic(
+    name: &#39;${name}_completion_command_id&#39;,
+    width: command.data.commandIdWidth,
+  );
+  final invalidCommandSeen = Logic(name: &#39;${name}_invalid_command_seen&#39;);
+  final sourceErrorSeen = Logic(name: &#39;${name}_source_error_seen&#39;);
+  final addressErrorSeen = Logic(name: &#39;${name}_address_error_seen&#39;);
+  final protocolErrorSeen = Logic(name: &#39;${name}_protocol_error_seen&#39;);
+
+  final sourceAddressCommand = TensorAddressCommand(
+    addressWidth: command.data.sourceAddressWidth,
+    mWidth: command.data.mWidth,
+    nWidth: command.data.nWidth,
+    kWidth: command.data.kWidth,
+    commandIdWidth: command.data.commandIdWidth,
+    name: &#39;${name}_source_address_command&#39;,
+  );
+  final destinationAddressCommand = TensorAddressCommand(
+    addressWidth: command.data.destinationAddressWidth,
+    mWidth: command.data.mWidth,
+    nWidth: command.data.nWidth,
+    kWidth: command.data.kWidth,
+    commandIdWidth: command.data.commandIdWidth,
+    name: &#39;${name}_destination_address_command&#39;,
+  );
+  final sourceAddressSchema = TensorAddressBeat(
+    addressWidth: command.data.sourceAddressWidth,
+    mWidth: command.data.mWidth,
+    nWidth: command.data.nWidth,
+    kWidth: command.data.kWidth,
+    commandIdWidth: command.data.commandIdWidth,
+    name: &#39;${name}_source_address&#39;,
+  );
+  final destinationAddressSchema = TensorAddressBeat(
+    addressWidth: command.data.destinationAddressWidth,
+    mWidth: command.data.mWidth,
+    nWidth: command.data.nWidth,
+    kWidth: command.data.kWidth,
+    commandIdWidth: command.data.commandIdWidth,
+    name: &#39;${name}_destination_address&#39;,
+  );
+  final loadAddresses = Logic(name: &#39;${name}_load_addresses&#39;);
+  final advanceAddresses = Logic(name: &#39;${name}_advance_addresses&#39;);
+  _driveAddressCommand(
+    sourceAddressCommand,
+    _command.data,
+    source: true,
+  );
+  _driveAddressCommand(
+    destinationAddressCommand,
+    _command.data,
+    source: false,
+  );
+  final sourceAddresses = TensorStridedAddressGeneratorCore(
+    clk: localClk,
+    reset: localReset,
+    command: sourceAddressCommand,
+    resultSchema: sourceAddressSchema,
+    load: loadAddresses,
+    advance: advanceAddresses,
+    clearCounters: localClear,
+    counterWidth: counterWidth,
+    multiplierImplementation: multiplierImplementation,
+    name: &#39;${name}_source_addresses&#39;,
+  );
+  final destinationAddresses = TensorStridedAddressGeneratorCore(
+    clk: localClk,
+    reset: localReset,
+    command: destinationAddressCommand,
+    resultSchema: destinationAddressSchema,
+    load: loadAddresses,
+    advance: advanceAddresses,
+    clearCounters: localClear,
+    counterWidth: counterWidth,
+    multiplierImplementation: multiplierImplementation,
+    name: &#39;${name}_destination_addresses&#39;,
+  );
+
+  final sourceAddressBeat = sourceAddresses.result;
+  final destinationAddressBeat = destinationAddresses.result;
+  final idle =
+      ~active &amp; ~readOutstanding &amp; ~writePending &amp; ~completionPending;
+  _command.ready &lt;=
+      idle &amp; sourceAddresses.canLoad &amp; destinationAddresses.canLoad;
+  final commandAccepted = _command.accepted;
+  loadAddresses &lt;= commandAccepted;
+  final invalidExtent = _command.data.mExtent.eq(0) |
+      _command.data.nExtent.eq(0) |
+      _command.data.kExtent.eq(0);
+
+  final canIssueAddress = active &amp; ~readOutstanding &amp; ~writePending;
+  final addressPairValid = sourceAddresses.busy &amp; destinationAddresses.busy;
+  final sourceInRange = _addressInRange(
+    sourceAddressBeat.address,
+    sourceDepth,
+  );
+  final destinationInRange = _addressInRange(
+    destinationAddressBeat.address,
+    destinationDepth,
+  );
+  final currentAddressError = sourceAddressBeat.overflow |
+      destinationAddressBeat.overflow |
+      ~sourceInRange |
+      ~destinationInRange;
+  final skipAddress =
+      addressPairValid &amp; canIssueAddress &amp; currentAddressError;
+
+  _sourceReadRequest.valid &lt;=
+      addressPairValid &amp; canIssueAddress &amp; ~currentAddressError;
+  _sourceReadRequest.data.address &lt;= sourceAddressBeat.address;
+  _sourceReadRequest.data.tag &lt;= nextReadTag;
+  final readRequestAccepted = _sourceReadRequest.accepted;
+  final addressPairAccepted = skipAddress | readRequestAccepted;
+  advanceAddresses &lt;= addressPairAccepted;
+
+  _sourceReadResponse.ready &lt;= readOutstanding &amp; ~writePending;
+  final readResponseAccepted = _sourceReadResponse.accepted;
+  final responseTagMismatch =
+      _sourceReadResponse.data.tag.neq(pendingReadTag);
+  final responseFailed = _sourceReadResponse.data.error | responseTagMismatch;
+
+  _destinationWriteRequest.valid &lt;= writePending;
+  _destinationWriteRequest.data.address &lt;= pendingDestination;
+  _destinationWriteRequest.data.data &lt;= bufferedWriteData;
+  final writeAccepted = _destinationWriteRequest.accepted;
+
+  _completion.valid &lt;= completionPending;
+  _completion.data.commandId &lt;= completionCommandId;
+  _completion.data.transferredCount &lt;= completionCount;
+  _completion.data.invalidCommand &lt;= invalidCommandSeen;
+  _completion.data.sourceError &lt;= sourceErrorSeen;
+  _completion.data.addressError &lt;= addressErrorSeen;
+  _completion.data.protocolError &lt;= protocolErrorSeen;
+  _completion.data.error &lt;=
+      invalidCommandSeen |
+          sourceErrorSeen |
+          addressErrorSeen |
+          protocolErrorSeen;
+  final completionAccepted = _completion.accepted;
+  addOutput(&#39;busy&#39;) &lt;= ~idle;
+
+  Sequential(localClk, reset: localReset, resetValues: {
+    active: 0,
+    readOutstanding: 0,
+    writePending: 0,
+    completionPending: 0,
+    pendingDestination: 0,
+    pendingLast: 0,
+    pendingReadTag: 0,
+    nextReadTag: 0,
+    bufferedWriteData: 0,
+    transferredCount: 0,
+    completionCount: 0,
+    completionCommandId: 0,
+    invalidCommandSeen: 0,
+    sourceErrorSeen: 0,
+    addressErrorSeen: 0,
+    protocolErrorSeen: 0,
+  }, [
+    If(completionAccepted, then: [completionPending &lt; 0]),
+    If(commandAccepted, then: [
+      active &lt; ~invalidExtent,
+      completionPending &lt; invalidExtent,
+      transferredCount &lt; 0,
+      completionCount &lt; 0,
+      completionCommandId &lt; _command.data.commandId,
+      invalidCommandSeen &lt; invalidExtent,
+      sourceErrorSeen &lt; 0,
+      addressErrorSeen &lt; 0,
+      protocolErrorSeen &lt; 0,
+    ]),
+    If(skipAddress, then: [
+      addressErrorSeen &lt; 1,
+      If(sourceAddressBeat.last, then: [
+        active &lt; 0,
+        completionPending &lt; 1,
+        completionCount &lt; transferredCount,
+      ]),
+    ]),
+    If(readRequestAccepted, then: [
+      readOutstanding &lt; 1,
+      pendingDestination &lt; destinationAddressBeat.address,
+      pendingLast &lt; sourceAddressBeat.last,
+      pendingReadTag &lt; nextReadTag,
+      nextReadTag &lt; nextReadTag + 1,
+    ]),
+    If(readResponseAccepted, then: [
+      readOutstanding &lt; 0,
+      If(responseFailed, then: [
+        sourceErrorSeen &lt; sourceErrorSeen | _sourceReadResponse.data.error,
+        protocolErrorSeen &lt; protocolErrorSeen | responseTagMismatch,
+        If(pendingLast, then: [
+          active &lt; 0,
+          completionPending &lt; 1,
+          completionCount &lt; transferredCount,
+        ]),
+      ], orElse: [
+        writePending &lt; 1,
+        bufferedWriteData &lt; _sourceReadResponse.data.data,
+      ]),
+    ]),
+    If(writeAccepted, then: [
+      writePending &lt; 0,
+      transferredCount &lt; transferredCount + 1,
+      If(pendingLast, then: [
+        active &lt; 0,
+        completionPending &lt; 1,
+        completionCount &lt; transferredCount + 1,
+      ]),
+    ]),
+  ]);
+
+  Logic counter(
+    String counterName, {
+    required Logic enable,
+  }) =&gt;
+      Accumulator(
+        Const(1),
+        clk: localClk,
+        reset: localReset,
+        clear: localClear,
+        enable: enable,
+        width: counterWidth,
+        saturates: true,
+        name: &#39;${name}_$counterName&#39;,
+      ).value;
+
+  addOutput(&#39;commandsAccepted&#39;, width: counterWidth) &lt;=
+      counter(&#39;commands_accepted&#39;, enable: commandAccepted);
+  addOutput(&#39;readRequestsIssued&#39;, width: counterWidth) &lt;=
+      counter(&#39;read_requests_issued&#39;, enable: readRequestAccepted);
+  addOutput(&#39;writesCompleted&#39;, width: counterWidth) &lt;=
+      counter(&#39;writes_completed&#39;, enable: writeAccepted);
+  addOutput(&#39;failedCommands&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;failed_commands&#39;,
+        enable: completionAccepted &amp; _completion.data.error,
+      );
+  addOutput(&#39;readStallCycles&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;read_stall_cycles&#39;,
+        enable: _sourceReadRequest.valid &amp; ~_sourceReadRequest.ready,
+      );
+  addOutput(&#39;writeStallCycles&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;write_stall_cycles&#39;,
+        enable:
+            _destinationWriteRequest.valid &amp; ~_destinationWriteRequest.ready,
+      );
+  addOutput(&#39;completionStallCycles&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;completion_stall_cycles&#39;,
+        enable: _completion.valid &amp; ~_completion.ready,
+      );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/TensorDmaEngine-class.html">TensorDmaEngine<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">TensorDmaEngine.new constructor</li>
+</ol>
+
+    <h5>TensorDmaEngine class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

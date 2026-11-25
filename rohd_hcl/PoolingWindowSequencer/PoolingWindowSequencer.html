@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PoolingWindowSequencer.new constructor from Class PoolingWindowSequencer from the rohd_hcl library, for the Dart programming language.">
+  <title>PoolingWindowSequencer.new constructor - PoolingWindowSequencer - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/PoolingWindowSequencer-class.html">PoolingWindowSequencer</a></li>
+    <li class="self-crumb">PoolingWindowSequencer.new constructor</li>
+  </ol>
+  <div class="self-name">PoolingWindowSequencer.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;PoolingWindowSequencer-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">PoolingWindowSequencer</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">PoolingWindowSequencer</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-restart"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">restart</span>, </span></li>
+<li><span class="parameter" id="param-advanceTerm"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">advanceTerm</span>, </span></li>
+<li><span class="parameter" id="param-advanceOutput"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">advanceOutput</span>, </span></li>
+<li><span class="parameter" id="param-inputWidth"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">inputWidth</span>, </span></li>
+<li><span class="parameter" id="param-inputHeight"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">inputHeight</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">outputWidth</span>, </span></li>
+<li><span class="parameter" id="param-outputHeight"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">outputHeight</span>, </span></li>
+<li><span class="parameter" id="param-groups"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">groups</span>, </span></li>
+<li><span class="parameter" id="param-kernelWidth"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">kernelWidth</span>, </span></li>
+<li><span class="parameter" id="param-kernelHeight"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">kernelHeight</span>, </span></li>
+<li><span class="parameter" id="param-strideX"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">strideX</span>, </span></li>
+<li><span class="parameter" id="param-strideY"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">strideY</span>, </span></li>
+<li><span class="parameter" id="param-padLeft"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">padLeft</span>, </span></li>
+<li><span class="parameter" id="param-padTop"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">padTop</span>, </span></li>
+<li><span class="parameter" id="param-splitCount"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">splitCount</span>, </span></li>
+<li><span class="parameter" id="param-outputWidthFirst"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">outputWidthFirst</span>, </span></li>
+<li><span class="parameter" id="param-outputWidthMiddle"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">outputWidthMiddle</span>, </span></li>
+<li><span class="parameter" id="param-outputWidthLast"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">outputWidthLast</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;pooling_window_sequencer&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a window sequencer with runtime geometry.</p>
+<p>Omit all four split inputs for an unsplit traversal with no split
+hardware. Otherwise supply all four: <code>splitCount</code> is the number of
+additional splits. When it is zero, <code>outputWidth</code> is used; otherwise
+first, middle and last split widths describe the output and must sum
+to <code>outputWidth</code>. <a href="../../rohd_hcl/PoolingWindowSequencer/split.html">split</a> is tied low when split inputs are omitted.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">PoolingWindowSequencer({
+  required Logic clk,
+  required Logic reset,
+  required Logic restart,
+  required Logic advanceTerm,
+  required Logic advanceOutput,
+  required Logic inputWidth,
+  required Logic inputHeight,
+  required Logic outputWidth,
+  required Logic outputHeight,
+  required Logic groups,
+  required Logic kernelWidth,
+  required Logic kernelHeight,
+  required Logic strideX,
+  required Logic strideY,
+  required Logic padLeft,
+  required Logic padTop,
+  Logic? splitCount,
+  Logic? outputWidthFirst,
+  Logic? outputWidthMiddle,
+  Logic? outputWidthLast,
+  super.name = &#39;pooling_window_sequencer&#39;,
+}) : super(
+        definitionName: [
+          &#39;PoolingWindowSequencer&#39;,
+          for (final signal in [
+            inputWidth,
+            inputHeight,
+            outputWidth,
+            outputHeight,
+            groups,
+            kernelWidth,
+            kernelHeight,
+            strideX,
+            strideY,
+            padLeft,
+            padTop,
+            splitCount,
+            outputWidthFirst,
+            outputWidthMiddle,
+            outputWidthLast,
+          ])
+            signal?.width ?? 0,
+        ].join(&#39;_&#39;),
+      ) {
+  final splitInputs = [
+    splitCount,
+    outputWidthFirst,
+    outputWidthMiddle,
+    outputWidthLast,
+  ].nonNulls.toList();
+  if (splitInputs.isNotEmpty &amp;&amp; splitInputs.length != 4) {
+    throw ArgumentError(&#39;Supply either all four split inputs or none.&#39;);
+  }
+  final geometry = [
+    inputWidth,
+    inputHeight,
+    outputWidth,
+    outputHeight,
+    groups,
+    kernelWidth,
+    kernelHeight,
+    strideX,
+    strideY,
+    padLeft,
+    padTop,
+    ...splitInputs,
+  ];
+  if (geometry.any((signal) =&gt; signal.width &lt; 1 || signal.width &gt; 16)) {
+    throw ArgumentError(&#39;Geometry input widths must be between 1 and 16.&#39;);
+  }
+  clk = addInput(&#39;clk&#39;, clk);
+  reset = addInput(&#39;reset&#39;, reset);
+  restart = addInput(&#39;restart&#39;, restart);
+  advanceTerm = addInput(&#39;advanceTerm&#39;, advanceTerm);
+  advanceOutput = addInput(&#39;advanceOutput&#39;, advanceOutput);
+  Logic input(String name, Logic value) =&gt;
+      addInput(name, value, width: value.width);
+  inputWidth = input(&#39;inputWidth&#39;, inputWidth);
+  inputHeight = input(&#39;inputHeight&#39;, inputHeight);
+  outputWidth = input(&#39;outputWidth&#39;, outputWidth);
+  outputHeight = input(&#39;outputHeight&#39;, outputHeight);
+  groups = input(&#39;groups&#39;, groups);
+  kernelWidth = input(&#39;kernelWidth&#39;, kernelWidth);
+  kernelHeight = input(&#39;kernelHeight&#39;, kernelHeight);
+  strideX = input(&#39;strideX&#39;, strideX);
+  strideY = input(&#39;strideY&#39;, strideY);
+  padLeft = input(&#39;padLeft&#39;, padLeft);
+  padTop = input(&#39;padTop&#39;, padTop);
+
+  Logic wide(Logic value) =&gt; value.zeroExtend(64);
+  Logic counter(String name, int width, Logic step, Logic clear) =&gt;
+      Accumulator(
+        Const(1),
+        clk: clk,
+        reset: reset,
+        width: width,
+        enable: step,
+        clear: clear,
+        name: name,
+      ).value;
+  final lastX = Logic(name: &#39;lastX&#39;);
+  final lastY = Logic(name: &#39;lastY&#39;);
+  final lastGroup = Logic(name: &#39;lastGroup&#39;);
+  final lastKernelX = Logic(name: &#39;lastKernelX&#39;);
+  final lastKernelY = Logic(name: &#39;lastKernelY&#39;);
+  final x = counter(
+    &#39;x_count&#39;,
+    outputWidth.width,
+    advanceOutput,
+    restart | (advanceOutput &amp; lastX),
+  );
+  final y = counter(
+    &#39;y_count&#39;,
+    outputHeight.width,
+    advanceOutput &amp; lastX,
+    restart | (advanceOutput &amp; lastX &amp; lastY),
+  );
+  final splitFinished = advanceOutput &amp; lastX &amp; lastY &amp; lastGroup;
+  final group = counter(
+    &#39;group_count&#39;,
+    groups.width,
+    advanceOutput &amp; lastX &amp; lastY,
+    restart | splitFinished,
+  );
+  final kx = counter(
+    &#39;kernel_x_count&#39;,
+    kernelWidth.width,
+    advanceTerm,
+    restart | advanceOutput | (advanceTerm &amp; lastKernelX),
+  );
+  final ky = counter(
+    &#39;kernel_y_count&#39;,
+    kernelHeight.width,
+    advanceTerm &amp; lastKernelX,
+    restart | advanceOutput,
+  );
+  Logic split = Const(0);
+  var splitWidth = wide(outputWidth);
+  var outputX = wide(x);
+  Logic lastSplit = Const(1);
+  if (splitCount != null) {
+    final count = input(&#39;splitCount&#39;, splitCount);
+    final first = wide(input(&#39;outputWidthFirst&#39;, outputWidthFirst!));
+    final middle = wide(input(&#39;outputWidthMiddle&#39;, outputWidthMiddle!));
+    final last = wide(input(&#39;outputWidthLast&#39;, outputWidthLast!));
+    split = counter(&#39;split_count&#39;, count.width, splitFinished, restart);
+    lastSplit = split.eq(count);
+    final splitEnabled = count.neq(0);
+    splitWidth = mux(
+      splitEnabled,
+      mux(split.eq(0), first, mux(lastSplit, last, middle)),
+      splitWidth,
+    );
+    final splitOffset = mux(
+      split.eq(0),
+      Const(0, width: 64),
+      first + (wide(split) - 1) * middle,
+    );
+    outputX += mux(splitEnabled, splitOffset, Const(0, width: 64));
+  }
+  lastX &lt;= wide(x).eq(splitWidth - 1);
+  lastY &lt;= wide(y).eq(wide(outputHeight) - 1);
+  lastGroup &lt;= wide(group).eq(wide(groups) - 1);
+  lastKernelX &lt;= wide(kx).eq(wide(kernelWidth) - 1);
+  lastKernelY &lt;= wide(ky).eq(wide(kernelHeight) - 1);
+  final rawX = outputX * wide(strideX) + wide(kx);
+  final rawY = wide(y) * wide(strideY) + wide(ky);
+  final inputX = rawX - wide(padLeft);
+  final inputY = rawY - wide(padTop);
+  addOutput(&#39;x&#39;, width: x.width) &lt;= x;
+  addOutput(&#39;y&#39;, width: y.width) &lt;= y;
+  addOutput(&#39;group&#39;, width: group.width) &lt;= group;
+  addOutput(&#39;split&#39;, width: split.width) &lt;= split;
+  addOutput(&#39;kernelX&#39;, width: kx.width) &lt;= kx;
+  addOutput(&#39;kernelY&#39;, width: ky.width) &lt;= ky;
+  addOutput(&#39;outputX&#39;, width: 64) &lt;= outputX;
+  addOutput(&#39;inputX&#39;, width: 64) &lt;= inputX;
+  addOutput(&#39;inputY&#39;, width: 64) &lt;= inputY;
+  addOutput(&#39;inBounds&#39;) &lt;=
+      rawX.gte(wide(padLeft)) &amp;
+          rawY.gte(wide(padTop)) &amp;
+          inputX.lt(wide(inputWidth)) &amp;
+          inputY.lt(wide(inputHeight));
+  addOutput(&#39;lastOutput&#39;) &lt;= lastX &amp; lastY &amp; lastGroup &amp; lastSplit;
+  addOutput(&#39;lastTerm&#39;) &lt;= lastKernelX &amp; lastKernelY;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/PoolingWindowSequencer-class.html">PoolingWindowSequencer</a></li>
+    <li class="self-crumb">PoolingWindowSequencer.new constructor</li>
+</ol>
+
+    <h5>PoolingWindowSequencer class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

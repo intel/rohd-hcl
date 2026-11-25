@@ -76,6 +76,14 @@
 specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending</a>.
 </dd>
 
+          <dt id="CollectedPacket">
+  <span class="name "><a href="../rohd_hcl/CollectedPacket-class.html">CollectedPacket</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A collected packet and its framing result.
+</dd>
+
           <dt id="Deserializer">
   <span class="name "><a href="../rohd_hcl/Deserializer-class.html">Deserializer</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">V</span>&gt;</span></span> 
 
@@ -90,6 +98,38 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 </dt>
 <dd>
   Determines the extrema (maximum or minimum) of typed payloads.
+</dd>
+
+          <dt id="LayoutShape">
+  <span class="name "><a href="../rohd_hcl/LayoutShape-class.html">LayoutShape</a></span> 
+
+</dt>
+<dd>
+  An immutable row-major multidimensional shape.
+</dd>
+
+          <dt id="PermutationDescriptor">
+  <span class="name "><a href="../rohd_hcl/PermutationDescriptor-class.html">PermutationDescriptor</a></span> 
+
+</dt>
+<dd>
+  An immutable one-to-one permutation.
+</dd>
+
+          <dt id="ReadyValidDepacketizer">
+  <span class="name "><a href="../rohd_hcl/ReadyValidDepacketizer-class.html">ReadyValidDepacketizer</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Aggregates a delimited frame stream into bounded typed packets.
+</dd>
+
+          <dt id="ReadyValidPacketizer">
+  <span class="name "><a href="../rohd_hcl/ReadyValidPacketizer-class.html">ReadyValidPacketizer</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Converts a fixed one-dimensional array into a delimited frame stream.
 </dd>
 
           <dt id="ReductionTree">
@@ -109,6 +149,30 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
 inline so that the <a href="../rohd_hcl/ReductionTreeGenerator/operation.html">operation</a> can access global signals.
 </dd>
 
+          <dt id="ReshapeDescriptor">
+  <span class="name "><a href="../rohd_hcl/ReshapeDescriptor-class.html">ReshapeDescriptor</a></span> 
+
+</dt>
+<dd>
+  Describes a row-major reshape that preserves linear element order.
+</dd>
+
+          <dt id="ScheduledDeserializerEngine">
+  <span class="name "><a href="../rohd_hcl/ScheduledDeserializerEngine-class.html">ScheduledDeserializerEngine</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Collects typed elements into a fixed-length array under explicit scheduling.
+</dd>
+
+          <dt id="ScheduledSerializerEngine">
+  <span class="name "><a href="../rohd_hcl/ScheduledSerializerEngine-class.html">ScheduledSerializerEngine</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Captures and emits a typed array one element per scheduled advance.
+</dd>
+
           <dt id="Serializer">
   <span class="name "><a href="../rohd_hcl/Serializer-class.html">Serializer</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">V</span>&gt;</span></span> 
 
@@ -123,6 +187,30 @@ inline so that the <a href="../rohd_hcl/ReductionTreeGenerator/operation.html">o
 </dt>
 <dd>
   An abstract class for all sort algorithm.
+</dd>
+
+          <dt id="SystolicMatrixTranspose">
+  <span class="name "><a href="../rohd_hcl/SystolicMatrixTranspose-class.html">SystolicMatrixTranspose</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Transposes a continuous sequence of square matrices one row per step.
+</dd>
+
+          <dt id="TransposeDescriptor">
+  <span class="name "><a href="../rohd_hcl/TransposeDescriptor-class.html">TransposeDescriptor</a></span> 
+
+</dt>
+<dd>
+  Describes a row-major permutation of layout axes.
+</dd>
+
+          <dt id="TypedStaticPermutation">
+  <span class="name "><a href="../rohd_hcl/TypedStaticPermutation-class.html">TypedStaticPermutation</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Statically permutes typed array elements while preserving their structure.
 </dd>
 
       </dl>
@@ -182,7 +270,7 @@ inline so that the <a href="../rohd_hcl/ReductionTreeGenerator/operation.html">o
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.3
+      0.3.4
   </span>
   
 </footer>

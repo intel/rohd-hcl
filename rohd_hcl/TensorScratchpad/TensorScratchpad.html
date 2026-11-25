@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TensorScratchpad.new constructor from Class TensorScratchpad from the rohd_hcl library, for the Dart programming language.">
+  <title>TensorScratchpad.new constructor - TensorScratchpad - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/TensorScratchpad-class.html">TensorScratchpad<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">TensorScratchpad.new constructor</li>
+  </ol>
+  <div class="self-name">TensorScratchpad.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;TensorScratchpad-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TensorScratchpad&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TensorScratchpad&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-readRequests"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadRequest-class.html">TensorScratchpadReadRequest</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">readRequests</span>, </span></li>
+<li><span class="parameter" id="param-readResponses"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadResponse-class.html">TensorScratchpadReadResponse</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">readResponses</span>, </span></li>
+<li><span class="parameter" id="param-writeRequests"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadWriteRequest-class.html">TensorScratchpadWriteRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">writeRequests</span>, </span></li>
+<li><span class="parameter" id="param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
+<li><span class="parameter" id="param-bankCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">bankCount</span>, </span></li>
+<li><span class="parameter" id="param-memoryFunctor"><span class="type-annotation"><a href="../../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span>?</span> <span class="parameter-name">memoryFunctor</span>, </span></li>
+<li><span class="parameter" id="param-bankConflictPolicy"><span class="type-annotation"><a href="../../rohd_hcl/TensorScratchpadBankConflictPolicy.html">TensorScratchpadBankConflictPolicy</a></span> <span class="parameter-name">bankConflictPolicy</span> = <span class="default-value">TensorScratchpadBankConflictPolicy.lowestPortWins</span>, </span></li>
+<li><span class="parameter" id="param-bankMapping"><span class="type-annotation"><a href="../../rohd_hcl/TensorScratchpadBankMapping.html">TensorScratchpadBankMapping</a></span> <span class="parameter-name">bankMapping</span> = <span class="default-value">TensorScratchpadBankMapping.lowAddressBits</span>, </span></li>
+<li><span class="parameter" id="param-readUnderWrite"><span class="type-annotation"><a href="../../rohd_hcl/MemoryArrayReadCollision.html">MemoryArrayReadCollision</a>?</span> <span class="parameter-name">readUnderWrite</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tensor_scratchpad&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Attaches logical ready/valid ports to the typed banked storage core.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TensorScratchpad({
+  required Logic clk,
+  required Logic reset,
+  required List&lt;ReadyValidInterface&lt;TensorScratchpadReadRequest&gt;&gt;
+      readRequests,
+  required List&lt;ReadyValidInterface&lt;TensorScratchpadReadResponse&lt;T&gt;&gt;&gt;
+      readResponses,
+  required List&lt;ReadyValidInterface&lt;TensorScratchpadWriteRequest&lt;T&gt;&gt;&gt;
+      writeRequests,
+  required int depth,
+  required int bankCount,
+  MemoryArrayFunctor&lt;T&gt;? memoryFunctor,
+  TensorScratchpadBankConflictPolicy bankConflictPolicy =
+      TensorScratchpadBankConflictPolicy.lowestPortWins,
+  TensorScratchpadBankMapping bankMapping =
+      TensorScratchpadBankMapping.lowAddressBits,
+  MemoryArrayReadCollision? readUnderWrite,
+  super.name = &#39;tensor_scratchpad&#39;,
+}) : super(
+        definitionName: &#39;TensorScratchpad_D${depth}_&#39;
+            &#39;W${_firstPort(writeRequests, &#39;writeRequests&#39;).data.dataWidth}_&#39;
+            &#39;B${bankCount}_R${readRequests.length}_&#39;
+            &#39;P${writeRequests.length}_&#39;
+            &#39;T${_firstPort(readRequests, &#39;readRequests&#39;).data.tagWidth}_&#39;
+            &#39;${bankConflictPolicy.name}_${bankMapping.name}_&#39;
+            &#39;${memoryFunctor?.identity ?? &#39;registerFile&#39;}_&#39;
+            &#39;${payloadShapeIdentity(_firstPort(
+          writeRequests,
+          &#39;writeRequests&#39;,
+        ).data.data)}&#39;,
+      ) {
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final inputs = [
+    for (var port = 0; port &lt; readRequests.length; port++)
+      addPairInterface(readRequests[port], PairRole.consumer,
+          uniquify: (original) =&gt; &#39;read_${port}_$original&#39;),
+  ];
+  final writes = [
+    for (var port = 0; port &lt; writeRequests.length; port++)
+      addPairInterface(writeRequests[port], PairRole.consumer,
+          uniquify: (original) =&gt; &#39;write_${port}_$original&#39;),
+  ];
+  final outputs = [
+    for (var port = 0; port &lt; readResponses.length; port++)
+      addPairInterfaceFrom(
+        IrrevocableReadyValidInterface(readResponses[port].data.clone()),
+        readResponses[port],
+        PairRole.provider,
+        uniquify: (original) =&gt; &#39;response_${port}_$original&#39;,
+      ),
+  ];
+  final readPayloads = [
+    for (final input in inputs) cloneTypedPayload(input.data),
+  ];
+  final writePayloads = [
+    for (final write in writes) cloneTypedPayload(write.data),
+  ];
+  final consumes = [
+    for (var port = 0; port &lt; outputs.length; port++)
+      Logic(name: &#39;${name}_consume_$port&#39;),
+  ];
+  _core = TensorScratchpadCore&lt;T&gt;(
+    clk: localClk,
+    reset: localReset,
+    readRequests: readPayloads,
+    writeRequests: writePayloads,
+    readResponses: [for (final output in outputs) output.data],
+    readEnable: [for (final input in inputs) input.valid].rconcat(),
+    writeEnable: [for (final write in writes) write.valid].rconcat(),
+    consumeResponses: consumes.rconcat(),
+    depth: depth,
+    bankCount: bankCount,
+    memoryFunctor: memoryFunctor,
+    bankConflictPolicy: bankConflictPolicy,
+    bankMapping: bankMapping,
+    readUnderWrite: readUnderWrite,
+    name: &#39;${name}_core&#39;,
+  );
+  for (var port = 0; port &lt; inputs.length; port++) {
+    ReadyValidIngressAttachmentPolicy&lt;TensorScratchpadReadRequest&gt;(
+      supportsSameCycleReplacement: true,
+    ).attach(
+      upstream: inputs[port],
+      canAccept: _core.canRead[port],
+      accept: Logic(name: &#39;${name}_read_${port}_accepted&#39;),
+      payload: readPayloads[port],
+    );
+    ReadyValidEgressAttachmentPolicy&lt;TensorScratchpadReadResponse&lt;T&gt;&gt;()
+        .attach(
+      downstream: outputs[port],
+      offerValid: _core.responseValid[port],
+      payload: _core.responses[port],
+      transfer: consumes[port],
+    );
+  }
+  for (var port = 0; port &lt; writes.length; port++) {
+    ReadyValidIngressAttachmentPolicy&lt;TensorScratchpadWriteRequest&lt;T&gt;&gt;(
+      supportsSameCycleReplacement: false,
+    ).attach(
+      upstream: writes[port],
+      canAccept: _core.canWrite[port],
+      accept: Logic(name: &#39;${name}_write_${port}_accepted&#39;),
+      payload: writePayloads[port],
+    );
+  }
+  for (final port in [
+    &#39;blockedRequests&#39;,
+    &#39;bankConflicts&#39;,
+    &#39;invalidReadAddress&#39;,
+    &#39;invalidWriteAddress&#39;,
+    &#39;responseOverflow&#39;,
+    &#39;unexpectedResponse&#39;,
+  ]) {
+    final signal = _core.output(port);
+    addOutput(port, width: signal.width) &lt;= signal;
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/TensorScratchpad-class.html">TensorScratchpad<span class="signature">&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">TensorScratchpad.new constructor</li>
+</ol>
+
+    <h5>TensorScratchpad class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

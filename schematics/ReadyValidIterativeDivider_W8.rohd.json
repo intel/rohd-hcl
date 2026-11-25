@@ -7777,77 +7777,7 @@
             ]
           }
         },
-        "struct_unpack_0_upstream_divisionRequest": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "upstream_divisionRequest",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "dividend",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8,
-            "FIELD_1_NAME": "divisor",
-            "FIELD_1_OFFSET": 8,
-            "FIELD_1_WIDTH": 8,
-            "FIELD_2_NAME": "isSigned",
-            "FIELD_2_OFFSET": 16,
-            "FIELD_2_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "dividend": "output",
-            "divisor": "output",
-            "isSigned": "output"
-          },
-          "connections": {
-            "A": [
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20
-            ],
-            "dividend": [
-              113,
-              114,
-              115,
-              116,
-              117,
-              118,
-              119,
-              120
-            ],
-            "divisor": [
-              121,
-              122,
-              123,
-              124,
-              125,
-              126,
-              127,
-              128
-            ],
-            "isSigned": [
-              129
-            ]
-          }
-        },
-        "struct_unpack_1_downstream_divisionResult": {
+        "struct_unpack_0_downstream_divisionResult": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -7914,6 +7844,76 @@
             ],
             "divZero": [
               92
+            ]
+          }
+        },
+        "struct_unpack_1_upstream_divisionRequest": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_divisionRequest",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "dividend",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "divisor",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 8,
+            "FIELD_2_NAME": "isSigned",
+            "FIELD_2_OFFSET": 16,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "dividend": "output",
+            "divisor": "output",
+            "isSigned": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20
+            ],
+            "dividend": [
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119,
+              120
+            ],
+            "divisor": [
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128
+            ],
+            "isSigned": [
+              129
             ]
           }
         },

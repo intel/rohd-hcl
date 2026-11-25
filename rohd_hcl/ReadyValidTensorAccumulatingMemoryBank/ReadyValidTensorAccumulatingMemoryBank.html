@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ReadyValidTensorAccumulatingMemoryBank.new constructor from Class ReadyValidTensorAccumulatingMemoryBank from the rohd_hcl library, for the Dart programming language.">
+  <title>ReadyValidTensorAccumulatingMemoryBank.new constructor - ReadyValidTensorAccumulatingMemoryBank - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/ReadyValidTensorAccumulatingMemoryBank-class.html">ReadyValidTensorAccumulatingMemoryBank</a></li>
+    <li class="self-crumb">ReadyValidTensorAccumulatingMemoryBank.new constructor</li>
+  </ol>
+  <div class="self-name">ReadyValidTensorAccumulatingMemoryBank.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;ReadyValidTensorAccumulatingMemoryBank-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">ReadyValidTensorAccumulatingMemoryBank</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">ReadyValidTensorAccumulatingMemoryBank</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-writes"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorAccumulatingWriteRequest-class.html">TensorAccumulatingWriteRequest</a></span>&gt;</span></span> <span class="parameter-name">writes</span>, </span></li>
+<li><span class="parameter" id="param-reads"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadRequest-class.html">TensorScratchpadReadRequest</a></span>&gt;</span></span> <span class="parameter-name">reads</span>, </span></li>
+<li><span class="parameter" id="param-responses"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/TensorScratchpadReadResponse-class.html">TensorScratchpadReadResponse</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">responses</span>, </span></li>
+<li><span class="parameter" id="param-depth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">depth</span>, </span></li>
+<li><span class="parameter" id="param-laneWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">laneWidth</span>, </span></li>
+<li><span class="parameter" id="param-memoryArray"><span class="type-annotation"><a href="../../rohd_hcl/MemoryArrayFunctor-class.html">MemoryArrayFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span>?</span> <span class="parameter-name">memoryArray</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ready_valid_tensor_accumulating_memory_bank&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Attaches request and response protocols to <a href="../../rohd_hcl/TensorAccumulatingMemoryBank-class.html">TensorAccumulatingMemoryBank</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ReadyValidTensorAccumulatingMemoryBank({
+  required Logic clk,
+  required Logic reset,
+  required ReadyValidInterface&lt;TensorAccumulatingWriteRequest&gt; writes,
+  required ReadyValidInterface&lt;TensorScratchpadReadRequest&gt; reads,
+  required ReadyValidInterface&lt;TensorScratchpadReadResponse&lt;Logic&gt;&gt; responses,
+  required int depth,
+  required int laneWidth,
+  MemoryArrayFunctor&lt;Logic&gt;? memoryArray,
+  super.name = &#39;ready_valid_tensor_accumulating_memory_bank&#39;,
+}) : super(
+        definitionName: &#39;ReadyValidTensorAccumulatingMemoryBank_D${depth}_&#39;
+            &#39;L${laneWidth}_${payloadShapesIdentity([
+              writes.data,
+              reads.data,
+              responses.data,
+            ])}_${memoryArray?.identity ?? &#39;inferredSram1p&#39;}&#39;,
+      ) {
+  if (writes.data.write.dataWidth != responses.data.dataWidth ||
+      reads.data.tagWidth != responses.data.tagWidth) {
+    throw ArgumentError(&#39;Accumulating bank response schema must match.&#39;);
+  }
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final localWrites = addPairInterface(writes, PairRole.consumer,
+      uniquify: (original) =&gt; &#39;write_$original&#39;);
+  final localReads = addPairInterface(reads, PairRole.consumer,
+      uniquify: (original) =&gt; &#39;read_$original&#39;);
+  final localResponses = addPairInterfaceFrom(
+    IrrevocableReadyValidInterface(responses.data.clone()),
+    responses,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;response_$original&#39;,
+  );
+  final write = Logic(name: &#39;${name}_write&#39;);
+  final read = Logic(name: &#39;${name}_read&#39;);
+  final consume = Logic(name: &#39;${name}_consume&#39;);
+  final writePayload = cloneTypedPayload(localWrites.data);
+  final readPayload = cloneTypedPayload(localReads.data);
+  final responsePayload = cloneTypedPayload(localResponses.data);
+  final core = TensorAccumulatingMemoryBank(
+    clk: localClk,
+    reset: localReset,
+    write: write,
+    writeAddress: writePayload.write.address,
+    writeData: writePayload.write.data,
+    writeMask: writePayload.write.byteEnable,
+    writeAccumulate: writePayload.accumulate,
+    read: read,
+    readAddress: readPayload.address,
+    readTag: readPayload.tag,
+    consumeResponse: consume,
+    depth: depth,
+    laneWidth: laneWidth,
+    memoryArray: memoryArray,
+    name: &#39;${name}_core&#39;,
+  );
+  ReadyValidIngressAttachmentPolicy&lt;TensorAccumulatingWriteRequest&gt;(
+    supportsSameCycleReplacement: false,
+  ).attach(
+    upstream: localWrites,
+    canAccept: core.canWrite,
+    accept: write,
+    payload: writePayload,
+  );
+  ReadyValidIngressAttachmentPolicy&lt;TensorScratchpadReadRequest&gt;(
+    supportsSameCycleReplacement: false,
+  ).attach(
+    upstream: localReads,
+    canAccept: core.canRead,
+    accept: read,
+    payload: readPayload,
+  );
+  connectPackedPayload(responsePayload.data, core.responseData);
+  responsePayload.tag &lt;= core.responseTag;
+  responsePayload.error &lt;= Const(0);
+  ReadyValidEgressAttachmentPolicy&lt;TensorScratchpadReadResponse&lt;Logic&gt;&gt;()
+      .attach(
+    downstream: localResponses,
+    offerValid: core.responseValid,
+    payload: responsePayload,
+    transfer: consume,
+  );
+  addOutput(&#39;writePending&#39;) &lt;= core.writePending;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/ReadyValidTensorAccumulatingMemoryBank-class.html">ReadyValidTensorAccumulatingMemoryBank</a></li>
+    <li class="self-crumb">ReadyValidTensorAccumulatingMemoryBank.new constructor</li>
+</ol>
+
+    <h5>ReadyValidTensorAccumulatingMemoryBank class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

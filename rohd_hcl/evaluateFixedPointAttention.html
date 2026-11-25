@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the evaluateFixedPointAttention function from the rohd_hcl library, for the Dart programming language.">
+  <title>evaluateFixedPointAttention function - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li class="self-crumb">evaluateFixedPointAttention function</li>
+  </ol>
+  <div class="self-name">evaluateFixedPointAttention</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;rohd_hcl-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">evaluateFixedPointAttention</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="../rohd_hcl/FixedPointAttentionReferenceResult-class.html">FixedPointAttentionReferenceResult</a></span>
+<span class="name ">evaluateFixedPointAttention</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="evaluateFixedPointAttention-param-query"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">query</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-keys"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">keys</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-values"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">values</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-keyMask"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span> <span class="parameter-name">keyMask</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-laneMask"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span> <span class="parameter-name">laneMask</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-causalKeyCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">causalKeyCount</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-inputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">inputFractionBits</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-scoreFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">scoreFractionBits</span>, </span></li>
+<li><span class="parameter" id="evaluateFixedPointAttention-param-outputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputFractionBits</span>, </span></li>
+</ol>})
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Evaluates materialized base-2 fixed-point attention in software.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FixedPointAttentionReferenceResult evaluateFixedPointAttention({
+  required List&lt;int&gt; query,
+  required List&lt;List&lt;int&gt;&gt; keys,
+  required List&lt;List&lt;int&gt;&gt; values,
+  required List&lt;bool&gt; keyMask,
+  required List&lt;bool&gt; laneMask,
+  required int causalKeyCount,
+  required int inputFractionBits,
+  required int scoreFractionBits,
+  required int outputFractionBits,
+}) {
+  if (keys.length != values.length ||
+      keys.length != keyMask.length ||
+      query.length != laneMask.length ||
+      keys.any((key) =&gt; key.length != query.length) ||
+      values.isEmpty ||
+      values.any((value) =&gt; value.length != values.first.length)) {
+    throw ArgumentError(&#39;Attention reference shapes do not match.&#39;);
+  }
+  final active = &lt;int&gt;[];
+  final scores = &lt;int&gt;[];
+  final scoreScale = pow(2, scoreFractionBits - 2 * inputFractionBits);
+  for (var position = 0; position &lt; keys.length; position++) {
+    if (!keyMask[position] ||
+        position &gt;= causalKeyCount ||
+        !laneMask.contains(true)) {
+      continue;
+    }
+    var dot = 0;
+    for (var lane = 0; lane &lt; query.length; lane++) {
+      if (laneMask[lane]) {
+        dot += query[lane] * keys[position][lane];
+      }
+    }
+    active.add(position);
+    scores.add((dot * scoreScale).round());
+  }
+  if (active.isEmpty) {
+    return FixedPointAttentionReferenceResult(
+      values: List&lt;int&gt;.filled(values.first.length, 0),
+      scores: const [],
+      invalidInput: true,
+    );
+  }
+  final maximum = scores.reduce(max);
+  final weights = [
+    for (final score in scores)
+      pow(2, (score - maximum) &#47; pow(2, scoreFractionBits)).toDouble(),
+  ];
+  final normalizer = weights.reduce((left, right) =&gt; left + right);
+  final result = &lt;int&gt;[];
+  for (var lane = 0; lane &lt; values.first.length; lane++) {
+    var numerator = 0.0;
+    for (var item = 0; item &lt; active.length; item++) {
+      numerator += weights[item] * values[active[item]][lane];
+    }
+    result.add(
+      (numerator &#47; normalizer * pow(2, outputFractionBits)).round(),
+    );
+  }
+  return FixedPointAttentionReferenceResult(
+    values: List&lt;int&gt;.unmodifiable(result),
+    scores: List&lt;int&gt;.unmodifiable(scores),
+    invalidInput: false,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">rohd_hcl</a></li>
+    <li><a href="../rohd_hcl/">rohd_hcl</a></li>
+    <li class="self-crumb">evaluateFixedPointAttention function</li>
+</ol>
+
+    <h5>rohd_hcl library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

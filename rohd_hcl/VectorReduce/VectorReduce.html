@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the VectorReduce.new constructor from Class VectorReduce from the rohd_hcl library, for the Dart programming language.">
+  <title>VectorReduce.new constructor - VectorReduce - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/VectorReduce-class.html">VectorReduce</a></li>
+    <li class="self-crumb">VectorReduce.new constructor</li>
+  </ol>
+  <div class="self-name">VectorReduce.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;VectorReduce-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">VectorReduce</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">VectorReduce</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-lanes"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicArray-class.html">LogicArray</a></span> <span class="parameter-name">lanes</span>, {</span></li>
+<li><span class="parameter" id="param-operation"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/InferenceVectorReduction.html">InferenceVectorReduction</a></span> <span class="parameter-name">operation</span>, </span></li>
+<li><span class="parameter" id="param-activeMask"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">activeMask</span>, </span></li>
+<li><span class="parameter" id="param-signed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">signed</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">outputWidth</span>, </span></li>
+<li><span class="parameter" id="param-overflowMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericOverflowMode.html">NumericOverflowMode</a></span> <span class="parameter-name">overflowMode</span> = <span class="default-value">NumericOverflowMode.saturate</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;vector_reduce&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a combinational masked vector reduction.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">VectorReduce(
+  LogicArray lanes, {
+  required this.operation,
+  Logic? activeMask,
+  this.signed = false,
+  int? outputWidth,
+  NumericOverflowMode overflowMode = NumericOverflowMode.saturate,
+  super.name = &#39;vector_reduce&#39;,
+})  : laneCount = lanes.arrayElements.length,
+      elementWidth = lanes.elementWidth,
+      outputWidth = _defaultReductionWidth(
+        operation,
+        lanes.elementWidth,
+        lanes.arrayElements.length,
+        outputWidth,
+      ),
+      super(
+        definitionName: &#39;VectorReduce_${operation.name}_&#39;
+            &#39;L${lanes.arrayElements.length}_W${lanes.elementWidth}_&#39;
+            &#39;O${_defaultReductionWidth(
+          operation,
+          lanes.elementWidth,
+          lanes.arrayElements.length,
+          outputWidth,
+        )}_S${signed ? 1 : 0}_${overflowMode.name}_&#39;
+            &#39;M${activeMask == null ? 0 : 1}&#39;,
+      ) {
+  if (lanes.dimensions.length != 1 || laneCount &lt; 1) {
+    throw ArgumentError(&#39;Input lanes must be a non-empty 1-D typed array.&#39;);
+  }
+  if (this.outputWidth &lt; 1 ||
+      (operation != InferenceVectorReduction.sum &amp;&amp;
+          this.outputWidth &lt; elementWidth)) {
+    throw ArgumentError(
+      &#39;Reduction output width is invalid for the selected operation.&#39;,
+    );
+  }
+  if (activeMask != null &amp;&amp; activeMask.width != laneCount) {
+    throw PortWidthMismatchException(activeMask, laneCount);
+  }
+
+  lanes = addTypedInput(&#39;lanes&#39;, lanes);
+  final localMask = activeMask == null
+      ? Const(-1, width: laneCount)
+      : addInput(&#39;activeMask&#39;, activeMask, width: laneCount);
+  final isEmpty = ~localMask.or();
+  final count = Count(localMask, name: &#39;${name}_active_count&#39;).count;
+  final indexWidth = max(1, laneCount.log2Ceil);
+
+  final Logic reducedResult;
+  final Logic reducedIndex;
+  final Logic didOverflow;
+  final Logic didUnderflow;
+  if (operation == InferenceVectorReduction.sum) {
+    final calculationWidth =
+        max(elementWidth + laneCount.log2Ceil, this.outputWidth) + 1;
+    final terms = [
+      for (var lane = 0; lane &lt; laneCount; lane++)
+        mux(
+          localMask[lane],
+          signed
+              ? lanes.arrayElements[lane].signExtend(calculationWidth)
+              : lanes.arrayElements[lane].zeroExtend(calculationWidth),
+          Const(0, width: calculationWidth),
+        ),
+    ];
+    final sum = ReductionTreeGenerator(
+      terms,
+      (inputs, {depth = 0, control, name = &#39;sum&#39;}) =&gt; inputs.reduce(
+        (left, right) =&gt; (left + right).getRange(0, calculationWidth),
+      ),
+    ).out;
+    final narrowed = NumericNarrowing(
+      sum,
+      outputWidth: this.outputWidth,
+      signed: signed,
+      overflowMode: overflowMode,
+      name: &#39;${name}_narrow&#39;,
+    );
+    reducedResult = narrowed.result;
+    reducedIndex = Const(0, width: indexWidth);
+    didOverflow = narrowed.overflowed;
+    didUnderflow = narrowed.underflowed;
+  } else {
+    final keys = &lt;Logic&gt;[];
+    for (var lane = 0; lane &lt; laneCount; lane++) {
+      final value = signed
+          ? lanes.arrayElements[lane] ^
+              Const(
+                BigInt.one &lt;&lt; (elementWidth - 1),
+                width: elementWidth,
+              )
+          : lanes.arrayElements[lane];
+      final activePriority = operation == InferenceVectorReduction.maximum
+          ? localMask[lane]
+          : ~localMask[lane];
+      keys.add([activePriority, value].concat());
+    }
+    final extrema = Extrema(
+      keys,
+      max: operation == InferenceVectorReduction.maximum,
+      name: &#39;${name}_extrema&#39;,
+    );
+    final selected = lanes.arrayElements.selectIndex(extrema.index);
+    reducedResult = mux(
+      isEmpty,
+      Const(0, width: this.outputWidth),
+      signed
+          ? selected.signExtend(this.outputWidth)
+          : selected.zeroExtend(this.outputWidth),
+    );
+    reducedIndex = extrema.index;
+    didOverflow = Const(0);
+    didUnderflow = Const(0);
+  }
+
+  addOutput(&#39;result&#39;, width: this.outputWidth) &lt;= reducedResult;
+  addOutput(&#39;selectedIndex&#39;, width: indexWidth) &lt;= reducedIndex;
+  addOutput(&#39;activeCount&#39;, width: count.width) &lt;= count;
+  addOutput(&#39;empty&#39;) &lt;= isEmpty;
+  addOutput(&#39;overflowed&#39;) &lt;= didOverflow;
+  addOutput(&#39;underflowed&#39;) &lt;= didUnderflow;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/VectorReduce-class.html">VectorReduce</a></li>
+    <li class="self-crumb">VectorReduce.new constructor</li>
+</ol>
+
+    <h5>VectorReduce class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -521,6 +521,14 @@ as defined in ROHD-HCL.
   An abstract description of an arbiter module.
 </dd>
 
+          <dt id="ArbitrationPolicy">
+  <span class="name "><a href="../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span> 
+
+</dt>
+<dd>
+  A reusable arbitration selection policy.
+</dd>
+
           <dt id="AssociativeIndexedSideReadProvider">
   <span class="name "><a href="../rohd_hcl/AssociativeIndexedSideReadProvider-class.html">AssociativeIndexedSideReadProvider</a></span> 
 
@@ -2504,6 +2512,14 @@ specified order based on <a href="../rohd_hcl/Sort/isAscending.html">isAscending
   A Brute Sign Extension class.
 </dd>
 
+          <dt id="ByteMaskedWriteRequest">
+  <span class="name "><a href="../rohd_hcl/ByteMaskedWriteRequest-class.html">ByteMaskedWriteRequest</a></span> 
+
+</dt>
+<dd>
+  One word-addressed write with one enable per byte, least-significant first.
+</dd>
+
           <dt id="Cache">
   <span class="name "><a href="../rohd_hcl/Cache-class.html">Cache</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
@@ -2793,6 +2809,14 @@ modulo <a href="../rohd_hcl/CircularPointer/slots.html">slots</a>.
   An <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a> for controlling <a href="../rohd_hcl/ClockGate-class.html">ClockGate</a>s.
 </dd>
 
+          <dt id="CollectedPacket">
+  <span class="name "><a href="../rohd_hcl/CollectedPacket-class.html">CollectedPacket</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A collected packet and its framing result.
+</dd>
+
           <dt id="ColumnCompressor">
   <span class="name "><a href="../rohd_hcl/ColumnCompressor-class.html">ColumnCompressor</a></span> 
 
@@ -2952,6 +2976,14 @@ performing common tasks with it.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/Count-class.html">Count</a>.
+</dd>
+
+          <dt id="CountedFrame">
+  <span class="name "><a href="../rohd_hcl/CountedFrame-class.html">CountedFrame</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A framed payload whose final beat declares its valid sub-element count.
 </dd>
 
           <dt id="Counter">
@@ -3179,6 +3211,14 @@ configuration for widths, saturation behavior, and restarting.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for documented dot-product implementations.
 </dd>
 
+          <dt id="DynamicNumericNarrowing">
+  <span class="name "><a href="../rohd_hcl/DynamicNumericNarrowing-class.html">DynamicNumericNarrowing</a></span> 
+
+</dt>
+<dd>
+  Runtime-shift counterpart of <a href="../rohd_hcl/NumericNarrowing-class.html">NumericNarrowing</a>.
+</dd>
+
           <dt id="EccConfigurator">
   <span class="name "><a href="../rohd_hcl/EccConfigurator-class.html">EccConfigurator</a></span> 
 
@@ -3220,6 +3260,22 @@ correcting.
 <dd>
   A transmitter for data which includes a <a href="../rohd_hcl/ErrorCheckingTransmitter/code.html">code</a> for checking and possibly
 correcting data at the receiving end.
+</dd>
+
+          <dt id="Exp2Approximation">
+  <span class="name "><a href="../rohd_hcl/Exp2Approximation-class.html">Exp2Approximation</a></span> 
+
+</dt>
+<dd>
+  Combinational lookup approximation of <code>2^x</code>.
+</dd>
+
+          <dt id="Exp2ApproximationFunctor">
+  <span class="name "><a href="../rohd_hcl/Exp2ApproximationFunctor-class.html">Exp2ApproximationFunctor</a></span> 
+
+</dt>
+<dd>
+  A named, replaceable <code>2^x</code> approximation implementation.
 </dd>
 
           <dt id="Extrema">
@@ -3385,12 +3441,124 @@ Q notation (Qm.n format) as introduced by
 Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">https://www.ti.com/lit/ug/spru565b/spru565b.pdf</a>).
 </dd>
 
+          <dt id="FixedPointApproximation">
+  <span class="name "><a href="../rohd_hcl/FixedPointApproximation-class.html">FixedPointApproximation</a></span> 
+
+</dt>
+<dd>
+  Common lookup-table implementation for fixed-point special functions.
+</dd>
+
+          <dt id="FixedPointApproximationContract">
+  <span class="name "><a href="../rohd_hcl/FixedPointApproximationContract-class.html">FixedPointApproximationContract</a></span> 
+
+</dt>
+<dd>
+  Static shape, domain, and accuracy contract for one approximation.
+</dd>
+
+          <dt id="FixedPointApproximationReferenceResult">
+  <span class="name "><a href="../rohd_hcl/FixedPointApproximationReferenceResult-class.html">FixedPointApproximationReferenceResult</a></span> 
+
+</dt>
+<dd>
+  Pure-Dart result from one fixed-point approximation lookup.
+</dd>
+
+          <dt id="FixedPointApproximationStatus">
+  <span class="name "><a href="../rohd_hcl/FixedPointApproximationStatus-class.html">FixedPointApproximationStatus</a></span> 
+
+</dt>
+<dd>
+  Status produced by a fixed-point approximation.
+</dd>
+
           <dt id="FixedPointArray">
   <span class="name "><a href="../rohd_hcl/FixedPointArray-class.html">FixedPointArray</a></span> 
 
 </dt>
 <dd>
   A fixed-size collection of <a href="../rohd_hcl/FixedPoint-class.html">FixedPoint</a> signals.
+</dd>
+
+          <dt id="FixedPointAttention">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttention-class.html">FixedPointAttention</a></span> 
+
+</dt>
+<dd>
+  Ready/valid adapter around <a href="../rohd_hcl/FixedPointAttentionCore-class.html">FixedPointAttentionCore</a>.
+</dd>
+
+          <dt id="FixedPointAttentionCore">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionCore-class.html">FixedPointAttentionCore</a></span> 
+
+</dt>
+<dd>
+  Streaming fused fixed-point attention over one query and a bounded KV tile.
+</dd>
+
+          <dt id="FixedPointAttentionReferenceResult">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionReferenceResult-class.html">FixedPointAttentionReferenceResult</a></span> 
+
+</dt>
+<dd>
+  Pure-Dart result from materialized fixed-point base-2 attention.
+</dd>
+
+          <dt id="FixedPointAttentionRequest">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionRequest-class.html">FixedPointAttentionRequest</a></span> 
+
+</dt>
+<dd>
+  One complete fixed-point attention request.
+</dd>
+
+          <dt id="FixedPointAttentionResult">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionResult-class.html">FixedPointAttentionResult</a></span> 
+
+</dt>
+<dd>
+  Retained output from one fixed-point attention request.
+</dd>
+
+          <dt id="FixedPointAttentionRow">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionRow-class.html">FixedPointAttentionRow</a></span> 
+
+</dt>
+<dd>
+  One key/value row consumed by row-streaming fixed-point attention.
+</dd>
+
+          <dt id="FixedPointAttentionRowCommand">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionRowCommand-class.html">FixedPointAttentionRowCommand</a></span> 
+
+</dt>
+<dd>
+  Query and transaction metadata for row-streaming fixed-point attention.
+</dd>
+
+          <dt id="FixedPointAttentionRowCore">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionRowCore-class.html">FixedPointAttentionRowCore</a></span> 
+
+</dt>
+<dd>
+  Computes fused fixed-point attention from an accepted command and KV rows.
+</dd>
+
+          <dt id="FixedPointAttentionRowEngine">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionRowEngine-class.html">FixedPointAttentionRowEngine</a></span> 
+
+</dt>
+<dd>
+  Ready/valid adapter around <a href="../rohd_hcl/FixedPointAttentionRowCore-class.html">FixedPointAttentionRowCore</a>.
+</dd>
+
+          <dt id="FixedPointAttentionTrafficModel">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionTrafficModel-class.html">FixedPointAttentionTrafficModel</a></span> 
+
+</dt>
+<dd>
+  Static numeric-traffic model for one bounded fixed-point attention request.
 </dd>
 
           <dt id="FixedPointSqrt">
@@ -3866,6 +4034,14 @@ The output is in two's complement and in Qm.n format where:
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/FloatToFixed-class.html">FloatToFixed</a>.
 </dd>
 
+          <dt id="Frame">
+  <span class="name "><a href="../rohd_hcl/Frame-class.html">Frame</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A typed payload with an explicit end-of-frame marker.
+</dd>
+
           <dt id="FullAdder">
   <span class="name "><a href="../rohd_hcl/FullAdder-class.html">FullAdder</a></span> 
 
@@ -3993,12 +4169,36 @@ pluggable-generator convention already used for the final adder inside
   A module for converting Gray code to binary representation.
 </dd>
 
+          <dt id="GroupedQueryAttentionTileDistributor">
+  <span class="name "><a href="../rohd_hcl/GroupedQueryAttentionTileDistributor-class.html">GroupedQueryAttentionTileDistributor</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Routes one KV tile to the query heads that share its KV head.
+</dd>
+
+          <dt id="GroupedQueryHeadMapping">
+  <span class="name "><a href="../rohd_hcl/GroupedQueryHeadMapping-class.html">GroupedQueryHeadMapping</a></span> 
+
+</dt>
+<dd>
+  Static mapping from KV heads to their associated query heads.
+</dd>
+
           <dt id="GroupOfKnobs">
   <span class="name "><a href="../rohd_hcl/GroupOfKnobs-class.html">GroupOfKnobs</a></span> 
 
 </dt>
 <dd>
   A knob which groups together other <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a>s.
+</dd>
+
+          <dt id="GroupScaleApply">
+  <span class="name "><a href="../rohd_hcl/GroupScaleApply-class.html">GroupScaleApply</a></span> 
+
+</dt>
+<dd>
+  Applies one fixed-point scale and optional zero point per lane group.
 </dd>
 
           <dt id="HammingEccReceiver">
@@ -4041,6 +4241,46 @@ and possibly correction.
 </dt>
 <dd>
   Constructs a hardware core from a typed <code>Request</code> and returns its <code>Binding</code>.
+</dd>
+
+          <dt id="InferenceMultiplierFunctor">
+  <span class="name "><a href="../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> 
+
+</dt>
+<dd>
+  A named, replaceable multiplier implementation.
+</dd>
+
+          <dt id="InferenceNumericFormat">
+  <span class="name "><a href="../rohd_hcl/InferenceNumericFormat-class.html">InferenceNumericFormat</a></span> 
+
+</dt>
+<dd>
+  Immutable numeric policy for inference tensor elements.
+</dd>
+
+          <dt id="InferenceSignedness">
+  <span class="name "><a href="../rohd_hcl/InferenceSignedness-class.html">InferenceSignedness</a></span> 
+
+</dt>
+<dd>
+  A validated static or runtime signedness selection.
+</dd>
+
+          <dt id="InferenceTensorStreamElement">
+  <span class="name "><a href="../rohd_hcl/InferenceTensorStreamElement-class.html">InferenceTensorStreamElement</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  One row-major tensor element with repeated tile-mask metadata.
+</dd>
+
+          <dt id="InferenceTensorTile">
+  <span class="name "><a href="../rohd_hcl/InferenceTensorTile-class.html">InferenceTensorTile</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  A two-dimensional typed tensor tile with runtime row and column masks.
 </dd>
 
           <dt id="InferredSram">
@@ -4123,6 +4363,14 @@ accepted.
 <dd>
   <a href="../rohd_hcl/KoggeStone-class.html">KoggeStone</a> implements the Kogge-Stone shaped <a href="../rohd_hcl/ParallelPrefix-class.html">ParallelPrefix</a> tree
 pattern.
+</dd>
+
+          <dt id="LayoutShape">
+  <span class="name "><a href="../rohd_hcl/LayoutShape-class.html">LayoutShape</a></span> 
+
+</dt>
+<dd>
+  An immutable row-major multidimensional shape.
 </dd>
 
           <dt id="LeadingDigitAnticipate">
@@ -4690,6 +4938,14 @@ store data.
   Lossless four-state values for images and generated behavioral metadata.
 </dd>
 
+          <dt id="MixedPrecisionDotProduct">
+  <span class="name "><a href="../rohd_hcl/MixedPrecisionDotProduct-class.html">MixedPrecisionDotProduct</a></span> 
+
+</dt>
+<dd>
+  Computes a masked mixed-width integer dot product.
+</dd>
+
           <dt id="MultiCycleDivider">
   <span class="name "><a href="../rohd_hcl/MultiCycleDivider-class.html">MultiCycleDivider</a></span> 
 
@@ -4866,7 +5122,7 @@ A Partial Product Generator using None Sign Extension
 </dd>
 
           <dt id="OneHotMux">
-  <span class="name "><a href="../rohd_hcl/OneHotMux-class.html">OneHotMux</a></span> 
+  <span class="name "><a href="../rohd_hcl/OneHotMux-class.html">OneHotMux</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
@@ -4896,6 +5152,62 @@ ones-complement values, producing a magnitude and sign.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a>.
+</dd>
+
+          <dt id="OnlineSoftmaxMerge">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxMerge-class.html">OnlineSoftmaxMerge</a></span> 
+
+</dt>
+<dd>
+  Merges two independently accumulated online softmax states.
+</dd>
+
+          <dt id="OnlineSoftmaxNormalize">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxNormalize-class.html">OnlineSoftmaxNormalize</a></span> 
+
+</dt>
+<dd>
+  Divides a weighted softmax numerator by its normalization sum.
+</dd>
+
+          <dt id="OnlineSoftmaxState">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxState-class.html">OnlineSoftmaxState</a></span> 
+
+</dt>
+<dd>
+  Mergeable maximum and normalization sum for online softmax.
+</dd>
+
+          <dt id="OnlineSoftmaxUpdate">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxUpdate-class.html">OnlineSoftmaxUpdate</a></span> 
+
+</dt>
+<dd>
+  Updates an online softmax state with one fixed-point score.
+</dd>
+
+          <dt id="OnlineSoftmaxWeightedMerge">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxWeightedMerge-class.html">OnlineSoftmaxWeightedMerge</a></span> 
+
+</dt>
+<dd>
+  Merges two weighted online softmax states.
+</dd>
+
+          <dt id="OnlineSoftmaxWeightedState">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxWeightedState-class.html">OnlineSoftmaxWeightedState</a></span> 
+
+</dt>
+<dd>
+  Online softmax state with a weighted output-vector numerator.
+</dd>
+
+          <dt id="OnlineSoftmaxWeightedUpdate">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxWeightedUpdate-class.html">OnlineSoftmaxWeightedUpdate</a></span> 
+
+</dt>
+<dd>
+  Updates weighted online softmax state with one score/value pair.
 </dd>
 
           <dt id="OutputWidthSelectKnob">
@@ -5130,12 +5442,84 @@ their shifts. This is a base class for the <a href="../rohd_hcl/PartialProduct-c
   Semantic signal metadata not represented by the hardware layout.
 </dd>
 
+          <dt id="PermutationDescriptor">
+  <span class="name "><a href="../rohd_hcl/PermutationDescriptor-class.html">PermutationDescriptor</a></span> 
+
+</dt>
+<dd>
+  An immutable one-to-one permutation.
+</dd>
+
           <dt id="PipelineTimingContract">
   <span class="name "><a href="../rohd_hcl/PipelineTimingContract-class.html">PipelineTimingContract</a></span> 
 
 </dt>
 <dd>
   Describes how a fixed-latency pipeline can be scheduled.
+</dd>
+
+          <dt id="PolicyArbiter">
+  <span class="name "><a href="../rohd_hcl/PolicyArbiter-class.html">PolicyArbiter</a></span> 
+
+</dt>
+<dd>
+  Composes selection, advancement, and retention into an arbiter.
+</dd>
+
+          <dt id="PolicyMuxCore">
+  <span class="name "><a href="../rohd_hcl/PolicyMuxCore-class.html">PolicyMuxCore</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Protocol-neutral policy mux driven by an explicit service action.
+</dd>
+
+          <dt id="PolicyMuxCoreBinding">
+  <span class="name "><a href="../rohd_hcl/PolicyMuxCoreBinding-class.html">PolicyMuxCoreBinding</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Constructed policy mux and its output-only binding.
+</dd>
+
+          <dt id="PolicyMuxCoreCapabilities">
+  <span class="name "><a href="../rohd_hcl/PolicyMuxCoreCapabilities-class.html">PolicyMuxCoreCapabilities</a></span> 
+
+</dt>
+<dd>
+  Configured arbitration and action contract for <a href="../rohd_hcl/PolicyMuxCoreFunctor-class.html">PolicyMuxCoreFunctor</a>.
+</dd>
+
+          <dt id="PolicyMuxCoreFunctor">
+  <span class="name "><a href="../rohd_hcl/PolicyMuxCoreFunctor-class.html">PolicyMuxCoreFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Constructs protocol-neutral policy mux cores.
+</dd>
+
+          <dt id="PolicyMuxCoreRequest">
+  <span class="name "><a href="../rohd_hcl/PolicyMuxCoreRequest-class.html">PolicyMuxCoreRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Wrapper-owned signals used to construct an action-driven policy mux.
+</dd>
+
+          <dt id="PoolingWindowSequencer">
+  <span class="name "><a href="../rohd_hcl/PoolingWindowSequencer-class.html">PoolingWindowSequencer</a></span> 
+
+</dt>
+<dd>
+  Traverses rectangular pooling windows and optional horizontal output splits.
+</dd>
+
+          <dt id="PositiveApproximationFunctor">
+  <span class="name "><a href="../rohd_hcl/PositiveApproximationFunctor-class.html">PositiveApproximationFunctor</a></span> 
+
+</dt>
+<dd>
+  A named positive-input approximation implementation.
 </dd>
 
           <dt id="PositiveIntConfigKnob">
@@ -5285,6 +5669,14 @@ computed.
 channel.
 </dd>
 
+          <dt id="ReadyValidDepacketizer">
+  <span class="name "><a href="../rohd_hcl/ReadyValidDepacketizer-class.html">ReadyValidDepacketizer</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Aggregates a delimited frame stream into bounded typed packets.
+</dd>
+
           <dt id="ReadyValidEgressAttachmentBinding">
   <span class="name "><a href="../rohd_hcl/ReadyValidEgressAttachmentBinding-class.html">ReadyValidEgressAttachmentBinding</a></span> 
 
@@ -5407,6 +5799,14 @@ channel.
   A packet to be transmitted over a ready/valid interface.
 </dd>
 
+          <dt id="ReadyValidPacketizer">
+  <span class="name "><a href="../rohd_hcl/ReadyValidPacketizer-class.html">ReadyValidPacketizer</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Converts a fixed one-dimensional array into a delimited frame stream.
+</dd>
+
           <dt id="ReadyValidQueue">
   <span class="name "><a href="../rohd_hcl/ReadyValidQueue-class.html">ReadyValidQueue</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
@@ -5447,6 +5847,30 @@ channel.
   Common retained-storage status exposed by ready/valid storage components.
 </dd>
 
+          <dt id="ReadyValidTensorAccumulatingMemoryBank">
+  <span class="name "><a href="../rohd_hcl/ReadyValidTensorAccumulatingMemoryBank-class.html">ReadyValidTensorAccumulatingMemoryBank</a></span> 
+
+</dt>
+<dd>
+  Ready/valid adapter around the synchronous accumulating bank.
+</dd>
+
+          <dt id="ReadyValidTensorTileTiler">
+  <span class="name "><a href="../rohd_hcl/ReadyValidTensorTileTiler-class.html">ReadyValidTensorTileTiler</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Adds ready/valid transport and completion retention to <a href="../rohd_hcl/TensorTileTiler-class.html">TensorTileTiler</a>.
+</dd>
+
+          <dt id="ReadyValidTensorTileUntiler">
+  <span class="name "><a href="../rohd_hcl/ReadyValidTensorTileUntiler-class.html">ReadyValidTensorTileUntiler</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Adds ready/valid transport to <a href="../rohd_hcl/TensorTileUntiler-class.html">TensorTileUntiler</a>.
+</dd>
+
           <dt id="ReadyValidTracker">
   <span class="name "><a href="../rohd_hcl/ReadyValidTracker-class.html">ReadyValidTracker</a></span> 
 
@@ -5469,6 +5893,22 @@ channel.
 </dt>
 <dd>
   An <a href="https://pub.dev/documentation/rohd_vf/0.7.0/rohd_vf/Agent-class.html">Agent</a> for transmitting over a ready/valid protocol.
+</dd>
+
+          <dt id="ReciprocalApproximation">
+  <span class="name "><a href="../rohd_hcl/ReciprocalApproximation-class.html">ReciprocalApproximation</a></span> 
+
+</dt>
+<dd>
+  Combinational lookup approximation of <code>1 / x</code>.
+</dd>
+
+          <dt id="ReciprocalSqrtApproximation">
+  <span class="name "><a href="../rohd_hcl/ReciprocalSqrtApproximation-class.html">ReciprocalSqrtApproximation</a></span> 
+
+</dt>
+<dd>
+  Combinational lookup approximation of <code>1 / sqrt(x)</code>.
 </dd>
 
           <dt id="RecursiveModulePriorityEncoder">
@@ -5592,6 +6032,14 @@ inline so that the <a href="../rohd_hcl/ReductionTreeGenerator/operation.html">o
   Caller-owned persistent reservations for one set of replacement entries.
 </dd>
 
+          <dt id="ReshapeDescriptor">
+  <span class="name "><a href="../rohd_hcl/ReshapeDescriptor-class.html">ReshapeDescriptor</a></span> 
+
+</dt>
+<dd>
+  Describes a row-major reshape that preserves linear element order.
+</dd>
+
           <dt id="Ripple">
   <span class="name "><a href="../rohd_hcl/Ripple-class.html">Ripple</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
@@ -5618,6 +6066,22 @@ adder sequentially adds corresponding bits of two binary numbers.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a>.
+</dd>
+
+          <dt id="RmsNorm">
+  <span class="name "><a href="../rohd_hcl/RmsNorm-class.html">RmsNorm</a></span> 
+
+</dt>
+<dd>
+  Fixed-point RMS normalization over a masked lane vector.
+</dd>
+
+          <dt id="RmsNormStatus">
+  <span class="name "><a href="../rohd_hcl/RmsNormStatus-class.html">RmsNormStatus</a></span> 
+
+</dt>
+<dd>
+  Status associated with one RMS normalization result.
 </dd>
 
           <dt id="RotateConfigurator">
@@ -5706,6 +6170,86 @@ adder sequentially adds corresponding bits of two binary numbers.
 </dt>
 <dd>
   A deprecated convenience wrapper for 1-bit runtime boolean configurations.
+</dd>
+
+          <dt id="ScheduledDeserializerEngine">
+  <span class="name "><a href="../rohd_hcl/ScheduledDeserializerEngine-class.html">ScheduledDeserializerEngine</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Collects typed elements into a fixed-length array under explicit scheduling.
+</dd>
+
+          <dt id="ScheduledSerializerEngine">
+  <span class="name "><a href="../rohd_hcl/ScheduledSerializerEngine-class.html">ScheduledSerializerEngine</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Captures and emits a typed array one element per scheduled advance.
+</dd>
+
+          <dt id="ScratchpadFixedPointAttention">
+  <span class="name "><a href="../rohd_hcl/ScratchpadFixedPointAttention-class.html">ScratchpadFixedPointAttention</a></span> 
+
+</dt>
+<dd>
+  Loads packed KV rows from scratchpads and runs fused fixed-point attention.
+</dd>
+
+          <dt id="ScratchpadFixedPointAttentionCommand">
+  <span class="name "><a href="../rohd_hcl/ScratchpadFixedPointAttentionCommand-class.html">ScratchpadFixedPointAttentionCommand</a></span> 
+
+</dt>
+<dd>
+  Command for one fixed-point attention operation over contiguous KV rows.
+</dd>
+
+          <dt id="ScratchpadFixedPointAttentionResult">
+  <span class="name "><a href="../rohd_hcl/ScratchpadFixedPointAttentionResult-class.html">ScratchpadFixedPointAttentionResult</a></span> 
+
+</dt>
+<dd>
+  Result and memory status from scratchpad-backed fixed-point attention.
+</dd>
+
+          <dt id="SelectiveForkCore">
+  <span class="name "><a href="../rohd_hcl/SelectiveForkCore-class.html">SelectiveForkCore</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Scheduled selective fan-out with retained payload and completion mask.
+</dd>
+
+          <dt id="SelectiveForkCoreBinding">
+  <span class="name "><a href="../rohd_hcl/SelectiveForkCoreBinding-class.html">SelectiveForkCoreBinding</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Constructed selective fork and its output-only binding.
+</dd>
+
+          <dt id="SelectiveForkCoreCapabilities">
+  <span class="name "><a href="../rohd_hcl/SelectiveForkCoreCapabilities-class.html">SelectiveForkCoreCapabilities</a></span> 
+
+</dt>
+<dd>
+  Action semantics and configured shape of a selective fork core.
+</dd>
+
+          <dt id="SelectiveForkCoreFunctor">
+  <span class="name "><a href="../rohd_hcl/SelectiveForkCoreFunctor-class.html">SelectiveForkCoreFunctor</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Constructs protocol-neutral selective fork cores.
+</dd>
+
+          <dt id="SelectiveForkCoreRequest">
+  <span class="name "><a href="../rohd_hcl/SelectiveForkCoreRequest-class.html">SelectiveForkCoreRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Wrapper-owned actions and payload for a selective fork construction.
 </dd>
 
           <dt id="SerializationConfigurator">
@@ -6314,6 +6858,14 @@ sum or count.
   Execution-boundary choices, independent of storage and memory family.
 </dd>
 
+          <dt id="SystolicMatrixTranspose">
+  <span class="name "><a href="../rohd_hcl/SystolicMatrixTranspose-class.html">SystolicMatrixTranspose</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">V</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Transposes a continuous sequence of square matrices one row per step.
+</dd>
+
           <dt id="TagInterface">
   <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/TagInterface-class.html">TagInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
@@ -6321,6 +6873,174 @@ sum or count.
 <dd>
   An interface to a Content-Addressable Memory (CAM) that allows querying
 for tags and returns the index of the matching tag if found.
+</dd>
+
+          <dt id="TensorAccumulatingMemoryBank">
+  <span class="name "><a href="../rohd_hcl/TensorAccumulatingMemoryBank-class.html">TensorAccumulatingMemoryBank</a></span> 
+
+</dt>
+<dd>
+  Serialized, byte-masked tensor storage with optional lane-wise accumulation.
+</dd>
+
+          <dt id="TensorAccumulatingWriteRequest">
+  <span class="name "><a href="../rohd_hcl/TensorAccumulatingWriteRequest-class.html">TensorAccumulatingWriteRequest</a></span> 
+
+</dt>
+<dd>
+  A byte-masked write with optional lane-wise accumulation.
+</dd>
+
+          <dt id="TensorAddressBeat">
+  <span class="name "><a href="../rohd_hcl/TensorAddressBeat-class.html">TensorAddressBeat</a></span> 
+
+</dt>
+<dd>
+  One generated tensor address and its M/N/K coordinate.
+</dd>
+
+          <dt id="TensorAddressCommand">
+  <span class="name "><a href="../rohd_hcl/TensorAddressCommand-class.html">TensorAddressCommand</a></span> 
+
+</dt>
+<dd>
+  One runtime M/N/K strided address traversal command.
+</dd>
+
+          <dt id="TensorDmaCommand">
+  <span class="name "><a href="../rohd_hcl/TensorDmaCommand-class.html">TensorDmaCommand</a></span> 
+
+</dt>
+<dd>
+  One strided tensor-copy command.
+</dd>
+
+          <dt id="TensorDmaCompletion">
+  <span class="name "><a href="../rohd_hcl/TensorDmaCompletion-class.html">TensorDmaCompletion</a></span> 
+
+</dt>
+<dd>
+  Completion and aggregate error status for one tensor DMA command.
+</dd>
+
+          <dt id="TensorDmaEngine">
+  <span class="name "><a href="../rohd_hcl/TensorDmaEngine-class.html">TensorDmaEngine</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Copies a strided tensor through tagged ready/valid memory transactions.
+</dd>
+
+          <dt id="TensorMaskedSramBank">
+  <span class="name "><a href="../rohd_hcl/TensorMaskedSramBank-class.html">TensorMaskedSramBank</a></span> 
+
+</dt>
+<dd>
+  Single-port byte-masked SRAM with pipelined, retained read responses.
+</dd>
+
+          <dt id="TensorScratchpad">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpad-class.html">TensorScratchpad</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Ready/valid logical-port adapter around <a href="../rohd_hcl/TensorScratchpadCore-class.html">TensorScratchpadCore</a>.
+</dd>
+
+          <dt id="TensorScratchpadCore">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadCore-class.html">TensorScratchpadCore</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Banked tensor scratchpad with typed requests and synchronous enables.
+</dd>
+
+          <dt id="TensorScratchpadReadRequest">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadReadRequest-class.html">TensorScratchpadReadRequest</a></span> 
+
+</dt>
+<dd>
+  One tensor scratchpad read request.
+</dd>
+
+          <dt id="TensorScratchpadReadResponse">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadReadResponse-class.html">TensorScratchpadReadResponse</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  One retained tensor scratchpad read response retaining the word schema <code>T</code>.
+</dd>
+
+          <dt id="TensorScratchpadWriteRequest">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadWriteRequest-class.html">TensorScratchpadWriteRequest</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
+
+</dt>
+<dd>
+  One tensor scratchpad write request retaining the word schema <code>T</code>.
+</dd>
+
+          <dt id="TensorStridedAddress">
+  <span class="name "><a href="../rohd_hcl/TensorStridedAddress-class.html">TensorStridedAddress</a></span> 
+
+</dt>
+<dd>
+  Computes an unsigned random-access strided tensor address.
+</dd>
+
+          <dt id="TensorStridedAddressGenerator">
+  <span class="name "><a href="../rohd_hcl/TensorStridedAddressGenerator-class.html">TensorStridedAddressGenerator</a></span> 
+
+</dt>
+<dd>
+  Ready/valid adapter around <a href="../rohd_hcl/TensorStridedAddressGeneratorCore-class.html">TensorStridedAddressGeneratorCore</a>.
+</dd>
+
+          <dt id="TensorStridedAddressGeneratorCore">
+  <span class="name "><a href="../rohd_hcl/TensorStridedAddressGeneratorCore-class.html">TensorStridedAddressGeneratorCore</a></span> 
+
+</dt>
+<dd>
+  Generates strided M/N/K addresses under synchronous load/advance actions.
+</dd>
+
+          <dt id="TensorTileIterator">
+  <span class="name "><a href="../rohd_hcl/TensorTileIterator-class.html">TensorTileIterator</a></span> 
+
+</dt>
+<dd>
+  Iterates runtime-bounded M/N/K tile coordinates with K as the inner loop.
+</dd>
+
+          <dt id="TensorTileMulticastCore">
+  <span class="name "><a href="../rohd_hcl/TensorTileMulticastCore-class.html">TensorTileMulticastCore</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Retains one typed tile until every selected destination completes.
+</dd>
+
+          <dt id="TensorTileTiler">
+  <span class="name "><a href="../rohd_hcl/TensorTileTiler-class.html">TensorTileTiler</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Collects a row-major framed element stream into a typed tensor tile.
+</dd>
+
+          <dt id="TensorTileTranspose">
+  <span class="name "><a href="../rohd_hcl/TensorTileTranspose-class.html">TensorTileTranspose</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Statically transposes a typed inference tile.
+</dd>
+
+          <dt id="TensorTileUntiler">
+  <span class="name "><a href="../rohd_hcl/TensorTileUntiler-class.html">TensorTileUntiler</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Captures a tile on <code>load</code> and emits row-major framed elements.
 </dd>
 
           <dt id="TextConfigKnob">
@@ -6372,6 +7092,14 @@ text.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/ToggleGate-class.html">ToggleGate</a>.
 </dd>
 
+          <dt id="TransposeDescriptor">
+  <span class="name "><a href="../rohd_hcl/TransposeDescriptor-class.html">TransposeDescriptor</a></span> 
+
+</dt>
+<dd>
+  Describes a row-major permutation of layout axes.
+</dd>
+
           <dt id="TreeOneHotToBinary">
   <span class="name "><a href="../rohd_hcl/TreeOneHotToBinary-class.html">TreeOneHotToBinary</a></span> 
 
@@ -6418,6 +7146,14 @@ text.
 </dt>
 <dd>
   An associative update port preserving a typed key schema.
+</dd>
+
+          <dt id="TypedStaticPermutation">
+  <span class="name "><a href="../rohd_hcl/TypedStaticPermutation-class.html">TypedStaticPermutation</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
+
+</dt>
+<dd>
+  Statically permutes typed array elements while preserving their structure.
 </dd>
 
           <dt id="UncertainMemoryWrite">
@@ -6478,6 +7214,14 @@ reports whether the true product did not fit in <a href="../rohd_hcl/UnsignedMul
   A ready/valid interface where ready may be computed after valid.
 </dd>
 
+          <dt id="VectorReduce">
+  <span class="name "><a href="../rohd_hcl/VectorReduce-class.html">VectorReduce</a></span> 
+
+</dt>
+<dd>
+  Reduces a masked one-dimensional inference vector.
+</dd>
+
           <dt id="WithSet">
   <span class="name "><a href="../rohd_hcl/WithSet-class.html">WithSet</a></span> 
 
@@ -6530,6 +7274,22 @@ reports whether the true product did not fit in <a href="../rohd_hcl/UnsignedMul
 </dt>
 <dd>
   A grouping of signals on the <a href="../rohd_hcl/ApbInterface-class.html">ApbInterface</a> interface based on direction.
+</dd>
+
+          <dt id="ArbitrationAdvanceMode">
+  <span class="name "><a href="../rohd_hcl/ArbitrationAdvanceMode.html">ArbitrationAdvanceMode</a></span> 
+
+</dt>
+<dd>
+  Determines what event advances arbitration policy state.
+</dd>
+
+          <dt id="ArbitrationRetentionPolicy">
+  <span class="name "><a href="../rohd_hcl/ArbitrationRetentionPolicy.html">ArbitrationRetentionPolicy</a></span> 
+
+</dt>
+<dd>
+  Determines how ownership is retained independently of selection policy.
 </dd>
 
           <dt id="AssociativeBulkOperationCompletion">
@@ -6885,6 +7645,14 @@ See A13.6.1-A13.6.4 for flow descriptions.
   Available dot-product implementations.
 </dd>
 
+          <dt id="FixedPointApproximationOperation">
+  <span class="name "><a href="../rohd_hcl/FixedPointApproximationOperation.html">FixedPointApproximationOperation</a></span> 
+
+</dt>
+<dd>
+  Fixed-point special function implemented by an approximation.
+</dd>
+
           <dt id="FixedPointOverflowMode">
   <span class="name "><a href="../rohd_hcl/FixedPointOverflowMode.html">FixedPointOverflowMode</a></span> 
 
@@ -6933,6 +7701,30 @@ integer format.
 <dd>
   Type of Hamming code, with different characteristics for error correction,
 error detection, and number of check bits required.
+</dd>
+
+          <dt id="InferenceElementKind">
+  <span class="name "><a href="../rohd_hcl/InferenceElementKind.html">InferenceElementKind</a></span> 
+
+</dt>
+<dd>
+  Physical interpretation of one inference tensor element.
+</dd>
+
+          <dt id="InferenceScaleKind">
+  <span class="name "><a href="../rohd_hcl/InferenceScaleKind.html">InferenceScaleKind</a></span> 
+
+</dt>
+<dd>
+  Scale representation associated with an inference tensor.
+</dd>
+
+          <dt id="InferenceVectorReduction">
+  <span class="name "><a href="../rohd_hcl/InferenceVectorReduction.html">InferenceVectorReduction</a></span> 
+
+</dt>
+<dd>
+  Reduction operation performed by <a href="../rohd_hcl/VectorReduce-class.html">VectorReduce</a>.
 </dd>
 
           <dt id="LtiRespField">
@@ -7189,6 +7981,22 @@ error detection, and number of check bits required.
 </dt>
 <dd>
   Explicit treatment of unknown outputs at a two-state boundary.
+</dd>
+
+          <dt id="TensorScratchpadBankConflictPolicy">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadBankConflictPolicy.html">TensorScratchpadBankConflictPolicy</a></span> 
+
+</dt>
+<dd>
+  Policy for multiple scratchpad requests to the same bank in one cycle.
+</dd>
+
+          <dt id="TensorScratchpadBankMapping">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadBankMapping.html">TensorScratchpadBankMapping</a></span> 
+
+</dt>
+<dd>
+  Mapping from the scratchpad's flat word address to a physical bank.
 </dd>
 
       </dl>
@@ -7489,6 +8297,16 @@ simulation with live logic values.
   Converts one-hot <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicValue-class.html">LogicValue</a>s to binary values.
 </dd>
 
+          <dt id="RohdHclModuleInterfacePorts">
+  <span class="name "><a href="../rohd_hcl/RohdHclModuleInterfacePorts.html">RohdHclModuleInterfacePorts</a></span>
+  on <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a>
+  
+
+</dt>
+<dd>
+  Convenience methods for registering ROHD interfaces on HCL modules.
+</dd>
+
           <dt id="RotateLogic">
   <span class="name "><a href="../rohd_hcl/RotateLogic.html">RotateLogic</a></span>
   on <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>
@@ -7547,6 +8365,91 @@ simulation with live logic values.
 
 </dd>
 
+          <dt id="fixedPriorityArbitrationPolicy" class="constant">
+    <span class="name "><a href="../rohd_hcl/fixedPriorityArbitrationPolicy-constant.html">fixedPriorityArbitrationPolicy</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span>
+  
+
+</dt>
+<dd>
+  Selects the lowest-indexed active request.
+  
+
+</dd>
+
+          <dt id="highestScoreArbitrationPolicy" class="constant">
+    <span class="name "><a href="../rohd_hcl/highestScoreArbitrationPolicy-constant.html">highestScoreArbitrationPolicy</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span>
+  
+
+</dt>
+<dd>
+  Selects the valid request with the highest runtime score.
+  
+
+</dd>
+
+          <dt id="lookupExp2ApproximationFunctor" class="constant">
+    <span class="name "><a href="../rohd_hcl/lookupExp2ApproximationFunctor-constant.html">lookupExp2ApproximationFunctor</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/Exp2ApproximationFunctor-class.html">Exp2ApproximationFunctor</a></span>
+  
+
+</dt>
+<dd>
+  Full-domain combinational lookup-table implementation of <code>2^x</code>.
+  
+
+</dd>
+
+          <dt id="lookupReciprocalApproximationFunctor" class="constant">
+    <span class="name "><a href="../rohd_hcl/lookupReciprocalApproximationFunctor-constant.html">lookupReciprocalApproximationFunctor</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/PositiveApproximationFunctor-class.html">PositiveApproximationFunctor</a></span>
+  
+
+</dt>
+<dd>
+  Full-domain combinational lookup-table reciprocal implementation.
+  
+
+</dd>
+
+          <dt id="lookupReciprocalSqrtApproximationFunctor" class="constant">
+    <span class="name "><a href="../rohd_hcl/lookupReciprocalSqrtApproximationFunctor-constant.html">lookupReciprocalSqrtApproximationFunctor</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/PositiveApproximationFunctor-class.html">PositiveApproximationFunctor</a></span>
+  
+
+</dt>
+<dd>
+  Full-domain combinational lookup-table reciprocal-square-root
+implementation.
+  
+
+</dd>
+
+          <dt id="maskRoundRobinArbitrationPolicy" class="constant">
+    <span class="name "><a href="../rohd_hcl/maskRoundRobinArbitrationPolicy-constant.html">maskRoundRobinArbitrationPolicy</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span>
+  
+
+</dt>
+<dd>
+  Selects requests fairly using a mask-based round-robin implementation.
+  
+
+</dd>
+
+          <dt id="nativeInferenceMultiplierFunctor" class="constant">
+    <span class="name "><a href="../rohd_hcl/nativeInferenceMultiplierFunctor-constant.html">nativeInferenceMultiplierFunctor</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span>
+  
+
+</dt>
+<dd>
+  Native-operator multiplier implementation.
+  
+
+</dd>
+
           <dt id="parallelAssociativeMemoryFunctor" class="constant">
     <span class="name "><a href="../rohd_hcl/parallelAssociativeMemoryFunctor-constant.html">parallelAssociativeMemoryFunctor</a></span>
   <span class="signature">&#8594; const <a href="../rohd_hcl/AssociativeMemoryFunctor-class.html">AssociativeMemoryFunctor</a></span>
@@ -7555,6 +8458,30 @@ simulation with live logic values.
 </dt>
 <dd>
   Synthesizable parallel-flop associative-memory functor.
+  
+
+</dd>
+
+          <dt id="rotateRoundRobinArbitrationPolicy" class="constant">
+    <span class="name "><a href="../rohd_hcl/rotateRoundRobinArbitrationPolicy-constant.html">rotateRoundRobinArbitrationPolicy</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span>
+  
+
+</dt>
+<dd>
+  Selects requests fairly using rotation around a priority selector.
+  
+
+</dd>
+
+          <dt id="roundRobinArbitrationPolicy" class="constant">
+    <span class="name "><a href="../rohd_hcl/roundRobinArbitrationPolicy-constant.html">roundRobinArbitrationPolicy</a></span>
+  <span class="signature">&#8594; const <a href="../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span>
+  
+
+</dt>
+<dd>
+  Default logical round-robin selection policy.
   
 
 </dd>
@@ -7575,6 +8502,19 @@ simulation with live logic values.
 </dt>
 <dd>
   Creates the behavioral equivalent of <a href="../rohd_hcl/registerFileArray.html">registerFileArray</a>.
+  
+
+</dd>
+
+          <dt id="compressionTreeInferenceMultiplierFunctor" class="callable">
+  <span class="name"><a href="../rohd_hcl/compressionTreeInferenceMultiplierFunctor.html">compressionTreeInferenceMultiplierFunctor</a></span><span class="signature">(<wbr>{<span class="parameter" id="compressionTreeInferenceMultiplierFunctor-param-radix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">4</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a compression-tree multiplier implementation.
   
 
 </dd>
@@ -7614,6 +8554,32 @@ simulation with live logic values.
 </dt>
 <dd>
   Used to test different sign extension methods
+  
+
+</dd>
+
+          <dt id="evaluateFixedPointApproximation" class="callable">
+  <span class="name"><a href="../rohd_hcl/evaluateFixedPointApproximation.html">evaluateFixedPointApproximation</a></span><span class="signature">(<wbr><span class="parameter" id="evaluateFixedPointApproximation-param-contract"><span class="type-annotation"><a href="../rohd_hcl/FixedPointApproximationContract-class.html">FixedPointApproximationContract</a></span> <span class="parameter-name">contract</span>, </span><span class="parameter" id="evaluateFixedPointApproximation-param-inputRaw"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">inputRaw</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointApproximationReferenceResult-class.html">FixedPointApproximationReferenceResult</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Evaluates an approximation contract in software.
+  
+
+</dd>
+
+          <dt id="evaluateFixedPointAttention" class="callable">
+  <span class="name"><a href="../rohd_hcl/evaluateFixedPointAttention.html">evaluateFixedPointAttention</a></span><span class="signature">(<wbr>{<span class="parameter" id="evaluateFixedPointAttention-param-query"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">query</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-keys"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">keys</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-values"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">values</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-keyMask"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span> <span class="parameter-name">keyMask</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-laneMask"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>&gt;</span></span> <span class="parameter-name">laneMask</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-causalKeyCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">causalKeyCount</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-inputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">inputFractionBits</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-scoreFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">scoreFractionBits</span>, </span><span class="parameter" id="evaluateFixedPointAttention-param-outputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputFractionBits</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/FixedPointAttentionReferenceResult-class.html">FixedPointAttentionReferenceResult</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Evaluates materialized base-2 fixed-point attention in software.
   
 
 </dd>
@@ -7666,6 +8632,19 @@ simulation with live logic values.
 </dt>
 <dd>
   Prefers a candidate with a higher selection value.
+  
+
+</dd>
+
+          <dt id="inferenceLogicTensorTile" class="callable">
+  <span class="name"><a href="../rohd_hcl/inferenceLogicTensorTile.html">inferenceLogicTensorTile</a></span><span class="signature">(<wbr>{<span class="parameter" id="inferenceLogicTensorTile-param-rowCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">rowCount</span>, </span><span class="parameter" id="inferenceLogicTensorTile-param-columnCount"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">columnCount</span>, </span><span class="parameter" id="inferenceLogicTensorTile-param-format"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/InferenceNumericFormat-class.html">InferenceNumericFormat</a></span> <span class="parameter-name">format</span>, </span><span class="parameter" id="inferenceLogicTensorTile-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;inferenceLogicTensorTile&#39;</span>, </span><span class="parameter" id="inferenceLogicTensorTile-param-numUnpackedDimensions"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">numUnpackedDimensions</span> = <span class="default-value">0</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/InferenceTensorTile-class.html">InferenceTensorTile</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicValue-class.html">LogicValue</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates an integer or packed-bit tensor tile.
   
 
 </dd>
@@ -7800,6 +8779,58 @@ simulation with live logic values.
 
 </dd>
 
+          <dt id="tensorDmaCountWidth" class="callable">
+  <span class="name"><a href="../rohd_hcl/tensorDmaCountWidth.html">tensorDmaCountWidth</a></span><span class="signature">(<wbr>{<span class="parameter" id="tensorDmaCountWidth-param-mWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">mWidth</span>, </span><span class="parameter" id="tensorDmaCountWidth-param-nWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">nWidth</span>, </span><span class="parameter" id="tensorDmaCountWidth-param-kWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">kWidth</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns the lossless width for a DMA command's transferred-beat count.
+  
+
+</dd>
+
+          <dt id="tensorPingPongBuffer" class="callable">
+  <span class="name"><a href="../rohd_hcl/tensorPingPongBuffer.html">tensorPingPongBuffer</a></span><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span><span class="signature">(<wbr>{<span class="parameter" id="tensorPingPongBuffer-param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="tensorPingPongBuffer-param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="tensorPingPongBuffer-param-upstream"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/InferenceTensorTile-class.html">InferenceTensorTile</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">upstream</span>, </span><span class="parameter" id="tensorPingPongBuffer-param-downstream"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/InferenceTensorTile-class.html">InferenceTensorTile</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">downstream</span>, </span><span class="parameter" id="tensorPingPongBuffer-param-flush"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">flush</span>, </span><span class="parameter" id="tensorPingPongBuffer-param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tensor_ping_pong_buffer&#39;</span></span>})
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/ReadyValidQueue-class.html">ReadyValidQueue</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/InferenceTensorTile-class.html">InferenceTensorTile</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a two-entry registered tensor-tile queue.
+  
+
+</dd>
+
+          <dt id="tensorStridedAddress" class="callable">
+  <span class="name"><a href="../rohd_hcl/tensorStridedAddress.html">tensorStridedAddress</a></span><span class="signature">(<wbr>{<span class="parameter" id="tensorStridedAddress-param-baseAddress"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">baseAddress</span>, </span><span class="parameter" id="tensorStridedAddress-param-mIndex"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">mIndex</span>, </span><span class="parameter" id="tensorStridedAddress-param-nIndex"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">nIndex</span>, </span><span class="parameter" id="tensorStridedAddress-param-kIndex"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">kIndex</span>, </span><span class="parameter" id="tensorStridedAddress-param-mStride"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">mStride</span>, </span><span class="parameter" id="tensorStridedAddress-param-nStride"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">nStride</span>, </span><span class="parameter" id="tensorStridedAddress-param-kStride"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span> <span class="parameter-name">kStride</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/BigInt-class.html">BigInt</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Computes one tensor address in software.
+  
+
+</dd>
+
+          <dt id="weightedPriorityArbitrationPolicy" class="callable">
+  <span class="name"><a href="../rohd_hcl/weightedPriorityArbitrationPolicy.html">weightedPriorityArbitrationPolicy</a></span><span class="signature">(<wbr><span class="parameter" id="weightedPriorityArbitrationPolicy-param-weights"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span> <span class="parameter-name">weights</span></span>)
+    <span class="returntype parameter">&#8594; <a href="../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a static weighted-priority policy.
+  
+
+</dd>
+
           <dt id="widthFor" class="callable">
   <span class="name"><a href="../rohd_hcl/widthFor.html">widthFor</a></span><span class="signature">(<wbr><span class="parameter" id="widthFor-param-val"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">val</span></span>)
     <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
@@ -7821,6 +8852,20 @@ hardware).
     <section class="summary offset-anchor" id="typedefs">
       <h2>Typedefs</h2>
       <dl>
+          
+  <dt id="ArbitrationPolicyBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/ArbitrationPolicyBuilder.html">ArbitrationPolicyBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> Function<span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-completedGrant"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">completedGrant</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-policyInputs"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">policyInputs</span>, </span><span class="parameter" id="param-requests"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds a one-hot candidate selection for an arbitration point.
+    
+
+  </dd>
+
           
   <dt id="AssociativeKeyComparator" class="callable">
     <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/AssociativeKeyComparator.html">AssociativeKeyComparator</a></span><span class="signature">
@@ -8050,6 +9095,20 @@ hardware).
 
 
           
+  <dt id="Exp2ApproximationBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/Exp2ApproximationBuilder.html">Exp2ApproximationBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/FixedPointApproximation-class.html">FixedPointApproximation</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="param-inputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">inputFractionBits</span>, </span><span class="parameter" id="param-maximumInputRaw"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maximumInputRaw</span>, </span><span class="parameter" id="param-minimumInputRaw"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">minimumInputRaw</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-outputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputFractionBits</span>, </span><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputWidth</span>, </span><span class="parameter" id="param-roundingMode"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/NumericRoundingMode.html">NumericRoundingMode</a></span> <span class="parameter-name">roundingMode</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builder signature for a replaceable <code>2^x</code> approximation.
+    
+
+  </dd>
+
+          
   <dt id="FixedLatencyCoreGenerator" class="callable">
     <span class="name"><a href="../rohd_hcl/FixedLatencyCoreGenerator.html">FixedLatencyCoreGenerator</a></span>&lt;<wbr><span class="type-parameter">Input extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">Output extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;<span class="signature">
       <span class="returntype parameter">= Output Function<span class="signature">({<span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-data"><span>required</span> <span class="type-annotation">Input</span> <span class="parameter-name">data</span>, </span><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-start"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">start</span></span>})</span></span>
@@ -8059,6 +9118,20 @@ hardware).
   </dt>
   <dd>
     Builds an in-order fixed-latency core from wrapper-owned signals.
+    
+
+  </dd>
+
+          
+  <dt id="InferenceMultiplierBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/InferenceMultiplierBuilder.html">InferenceMultiplierBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/Multiplier-class.html">Multiplier</a> Function<span class="signature">(<span class="parameter" id="param-a"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">a</span>, </span><span class="parameter" id="param-b"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">b</span>, {</span><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span><span class="parameter" id="param-signedMultiplicand"><span class="type-annotation"><a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplicand</span>, </span><span class="parameter" id="param-signedMultiplier"><span class="type-annotation"><a href="../rohd_hcl/StaticOrRuntimeParameter-class.html">StaticOrRuntimeParameter</a>?</span> <span class="parameter-name">signedMultiplier</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builds one multiplier lane for an inference dot product.
     
 
   </dd>
@@ -8087,6 +9160,20 @@ hardware).
   </dt>
   <dd>
     Constructs a prefix network retaining payload type <code>T</code>.
+    
+
+  </dd>
+
+          
+  <dt id="PositiveApproximationBuilder" class="callable">
+    <span class="name"><a href="../rohd_hcl/PositiveApproximationBuilder.html">PositiveApproximationBuilder</a></span><span class="signature">
+      <span class="returntype parameter">= <a href="../rohd_hcl/FixedPointApproximation-class.html">FixedPointApproximation</a> Function<span class="signature">(<span class="parameter" id="param-input"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">input</span>, {</span><span class="parameter" id="param-inputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">inputFractionBits</span>, </span><span class="parameter" id="param-maximumInputRaw"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">maximumInputRaw</span>, </span><span class="parameter" id="param-minimumInputRaw"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">minimumInputRaw</span>, </span><span class="parameter" id="param-name"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span>, </span><span class="parameter" id="param-outputFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputFractionBits</span>, </span><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputWidth</span>, </span><span class="parameter" id="param-roundingMode"><span>required</span> <span class="type-annotation"><a href="../rohd_hcl/NumericRoundingMode.html">NumericRoundingMode</a></span> <span class="parameter-name">roundingMode</span></span>})</span></span>
+    </span>
+    
+
+  </dt>
+  <dd>
+    Builder signature for a replaceable positive-input approximation.
     
 
   </dd>
@@ -8256,7 +9343,7 @@ values.
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.3
+      0.3.4
   </span>
   
 </footer>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the TensorStridedAddress.new constructor from Class TensorStridedAddress from the rohd_hcl library, for the Dart programming language.">
+  <title>TensorStridedAddress.new constructor - TensorStridedAddress - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/TensorStridedAddress-class.html">TensorStridedAddress</a></li>
+    <li class="self-crumb">TensorStridedAddress.new constructor</li>
+  </ol>
+  <div class="self-name">TensorStridedAddress.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;TensorStridedAddress-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">TensorStridedAddress</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">TensorStridedAddress</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-baseAddress"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">baseAddress</span>, </span></li>
+<li><span class="parameter" id="param-indices"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">indices</span>, </span></li>
+<li><span class="parameter" id="param-strides"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">strides</span>, </span></li>
+<li><span class="parameter" id="param-addressWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">addressWidth</span>, </span></li>
+<li><span class="parameter" id="param-multiplierImplementation"><span class="type-annotation"><a href="../../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> <span class="parameter-name">multiplierImplementation</span> = <span class="default-value">nativeInferenceMultiplierFunctor</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;tensor_strided_address&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Constructs a combinational address calculation.</p>
+<p><code>indices</code> and <code>strides</code> must have the same nonzero length. Operands may
+have different widths and are interpreted as unsigned values.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">TensorStridedAddress({
+  required Logic baseAddress,
+  required List&lt;Logic&gt; indices,
+  required List&lt;Logic&gt; strides,
+  required this.addressWidth,
+  InferenceMultiplierFunctor multiplierImplementation =
+      nativeInferenceMultiplierFunctor,
+  super.name = &#39;tensor_strided_address&#39;,
+}) : super(
+        definitionName: &#39;TensorStridedAddress_&#39;
+            &#39;B${baseAddress.width}_A${addressWidth}_&#39;
+            &#39;I${indices.map((signal) =&gt; signal.width).join(&quot;_&quot;)}_&#39;
+            &#39;S${strides.map((signal) =&gt; signal.width).join(&quot;_&quot;)}_&#39;
+            &#39;${multiplierImplementation.identity}&#39;,
+      ) {
+  if (indices.isEmpty || indices.length != strides.length) {
+    throw ArgumentError(
+        &#39;Provide the same nonzero number of indices and strides.&#39;);
+  }
+  if (addressWidth &lt; 1) {
+    throw ArgumentError.value(
+        addressWidth, &#39;addressWidth&#39;, &#39;Must be positive.&#39;);
+  }
+  baseAddress =
+      addInput(&#39;baseAddress&#39;, baseAddress, width: baseAddress.width);
+  final indexWidth = indices.map((signal) =&gt; signal.width).reduce(max);
+  final strideWidth = strides.map((signal) =&gt; signal.width).reduce(max);
+  final localIndices = [
+    for (var i = 0; i &lt; indices.length; i++)
+      addInput(&#39;index_$i&#39;, indices[i], width: indices[i].width)
+          .zeroExtend(indexWidth),
+  ];
+  final localStrides = [
+    for (var i = 0; i &lt; strides.length; i++)
+      addInput(&#39;stride_$i&#39;, strides[i], width: strides[i].width)
+          .zeroExtend(strideWidth),
+  ];
+  final offset = GeneralDotProduct(
+    localIndices,
+    localStrides,
+    multiplierGen: multiplierImplementation.call,
+    multiplierIdentity: multiplierImplementation.identity,
+    name: &#39;${name}_offset&#39;,
+  ).product;
+  final calculationWidth = max(offset.width, baseAddress.width) + 1;
+  final fullWidth = max(calculationWidth, addressWidth);
+  final fullAddress =
+      offset.zeroExtend(fullWidth) + baseAddress.zeroExtend(fullWidth);
+  addOutput(&#39;fullAddress&#39;, width: fullWidth) &lt;= fullAddress;
+  addOutput(&#39;address&#39;, width: addressWidth) &lt;=
+      fullAddress.getRange(0, addressWidth);
+  addOutput(&#39;overflow&#39;) &lt;=
+      (fullWidth &gt; addressWidth
+          ? fullAddress.getRange(addressWidth).or()
+          : Const(0));
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/TensorStridedAddress-class.html">TensorStridedAddress</a></li>
+    <li class="self-crumb">TensorStridedAddress.new constructor</li>
+</ol>
+
+    <h5>TensorStridedAddress class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

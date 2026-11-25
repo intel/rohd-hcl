@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ReadyValidDepacketizer.new constructor from Class ReadyValidDepacketizer from the rohd_hcl library, for the Dart programming language.">
+  <title>ReadyValidDepacketizer.new constructor - ReadyValidDepacketizer - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/ReadyValidDepacketizer-class.html">ReadyValidDepacketizer<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">ReadyValidDepacketizer.new constructor</li>
+  </ol>
+  <div class="self-name">ReadyValidDepacketizer.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;ReadyValidDepacketizer-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">ReadyValidDepacketizer&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">ReadyValidDepacketizer&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-upstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/Frame-class.html">Frame</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">upstream</span>, </span></li>
+<li><span class="parameter" id="param-downstream"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ReadyValidInterface-class.html">ReadyValidInterface</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../rohd_hcl/CollectedPacket-class.html">CollectedPacket</a><span class="signature">&lt;<wbr><span class="type-parameter">LogicType</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">downstream</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;ready_valid_depacketizer&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a bounded depacketizer.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ReadyValidDepacketizer(
+    {required Logic clk,
+    required Logic reset,
+    required ReadyValidInterface&lt;Frame&lt;LogicType&gt;&gt; upstream,
+    required ReadyValidInterface&lt;CollectedPacket&lt;LogicType&gt;&gt; downstream,
+    String name = &#39;ready_valid_depacketizer&#39;})
+    : capacity = downstream.data.data.dimensions.single,
+      super(
+          definitionName: &#39;ReadyValidDepacketizer_L&#39;
+              &#39;${downstream.data.data.dimensions.single}&#39;
+              &#39;_W${upstream.data.data.width}_&#39;
+              &#39;${payloadShapesIdentity([upstream.data, downstream.data])}&#39;,
+          name: name) {
+  if (downstream.data.data.dimensions.length != 1 ||
+      downstream.data.data.elementWidth != upstream.data.data.width) {
+    throw ArgumentError(&#39;Packet data must be a one-dimensional array of &#39;
+        &#39;${upstream.data.data.width}-bit values.&#39;);
+  }
+  if (downstream.data.data.arrayElements.any((element) =&gt;
+      !compatiblePayloadConnection(upstream.data.data, element,
+          ignoreConstantNames: true))) {
+    throw ArgumentError(&#39;Input and packet element payloads must match.&#39;);
+  }
+  this.clk = addInput(&#39;clk&#39;, clk);
+  this.reset = addInput(&#39;reset&#39;, reset);
+  addOutput(&#39;index&#39;, width: widthFor(capacity));
+  addOutput(&#39;outputOccupied&#39;);
+  _upstream = addPairInterface(upstream, PairRole.consumer,
+      uniquify: (original) =&gt; &#39;upstream_$original&#39;);
+  _downstream = addPairInterfaceFrom(
+    IrrevocableReadyValidInterface&lt;CollectedPacket&lt;LogicType&gt;&gt;(
+        downstream.data.cloneTyped()),
+    downstream,
+    PairRole.provider,
+    uniquify: (original) =&gt; &#39;downstream_$original&#39;,
+  );
+
+  final inputAccepted = Logic(name: &#39;${name}_input_accepted&#39;);
+  final outputAccepted = Logic(name: &#39;${name}_output_accepted&#39;);
+  final isFull = Logic(name: &#39;${name}_is_full&#39;);
+  final completesPacket = Logic(name: &#39;${name}_completes_packet&#39;);
+  final validElements = Logic(
+    name: &#39;${name}_valid_elements&#39;,
+    width: _downstream.data.validElements.width,
+  );
+  final framingError = Logic(name: &#39;${name}_framing_error&#39;);
+  final engine = ScheduledDeserializerEngine&lt;LogicType&gt;(
+    clk: this.clk,
+    reset: this.reset,
+    element: _upstream.data.data,
+    write: inputAccepted,
+    last: _upstream.data.last,
+    clear: Const(0),
+    length: capacity,
+    name: &#39;${name}_engine&#39;,
+  );
+
+  _upstream.ready &lt;= ~outputOccupied | outputAccepted;
+  inputAccepted &lt;= _upstream.valid &amp; _upstream.ready;
+  outputAccepted &lt;= outputOccupied &amp; _downstream.ready;
+  isFull &lt;= engine.index.eq(capacity - 1);
+  completesPacket &lt;= _upstream.data.last | isFull;
+  _downstream.valid &lt;= outputOccupied;
+  _downstream.data.data &lt;= engine.data;
+  _downstream.data.validElements &lt;= validElements;
+  _downstream.data.framingError &lt;= framingError;
+  index &lt;= engine.index;
+
+  Sequential(this.clk, reset: this.reset, resetValues: {
+    outputOccupied: 0,
+    validElements: 0,
+    framingError: 0,
+  }, [
+    If(inputAccepted, then: [
+      If(completesPacket, then: [
+        outputOccupied &lt; 1,
+        validElements &lt;
+            engine.index.zeroExtend(validElements.width) +
+                Const(1, width: validElements.width),
+        framingError &lt; isFull &amp; ~_upstream.data.last,
+      ]),
+    ]),
+    If(outputAccepted &amp; ~(inputAccepted &amp; completesPacket), then: [
+      outputOccupied &lt; 0,
+    ]),
+  ]);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/ReadyValidDepacketizer-class.html">ReadyValidDepacketizer<span class="signature">&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;</span></a></li>
+    <li class="self-crumb">ReadyValidDepacketizer.new constructor</li>
+</ol>
+
+    <h5>ReadyValidDepacketizer class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

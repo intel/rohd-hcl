@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FixedPointAttentionCore.new constructor from Class FixedPointAttentionCore from the rohd_hcl library, for the Dart programming language.">
+  <title>FixedPointAttentionCore.new constructor - FixedPointAttentionCore - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FixedPointAttentionCore-class.html">FixedPointAttentionCore</a></li>
+    <li class="self-crumb">FixedPointAttentionCore.new constructor</li>
+  </ol>
+  <div class="self-name">FixedPointAttentionCore.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;FixedPointAttentionCore-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FixedPointAttentionCore</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">FixedPointAttentionCore</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-request"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/FixedPointAttentionRequest-class.html">FixedPointAttentionRequest</a></span> <span class="parameter-name">request</span>, </span></li>
+<li><span class="parameter" id="param-resultSchema"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/FixedPointAttentionResult-class.html">FixedPointAttentionResult</a></span> <span class="parameter-name">resultSchema</span>, </span></li>
+<li><span class="parameter" id="param-load"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">load</span>, </span></li>
+<li><span class="parameter" id="param-elementFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">elementFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-valueFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">valueFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-scoreWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">scoreWidth</span>, </span></li>
+<li><span class="parameter" id="param-scoreFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">scoreFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-normalizerWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">normalizerWidth</span>, </span></li>
+<li><span class="parameter" id="param-normalizerFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">normalizerFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-expWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">expWidth</span>, </span></li>
+<li><span class="parameter" id="param-expFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">expFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-reciprocalWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">reciprocalWidth</span>, </span></li>
+<li><span class="parameter" id="param-reciprocalFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">reciprocalFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputWidth</span>, </span></li>
+<li><span class="parameter" id="param-retire"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">retire</span>, </span></li>
+<li><span class="parameter" id="param-clearCounters"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clearCounters</span>, </span></li>
+<li><span class="parameter" id="param-counterWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">counterWidth</span> = <span class="default-value">32</span>, </span></li>
+<li><span class="parameter" id="param-multiplierImplementation"><span class="type-annotation"><a href="../../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> <span class="parameter-name">multiplierImplementation</span> = <span class="default-value">nativeInferenceMultiplierFunctor</span>, </span></li>
+<li><span class="parameter" id="param-exp2Implementation"><span class="type-annotation"><a href="../../rohd_hcl/Exp2ApproximationFunctor-class.html">Exp2ApproximationFunctor</a></span> <span class="parameter-name">exp2Implementation</span> = <span class="default-value">lookupExp2ApproximationFunctor</span>, </span></li>
+<li><span class="parameter" id="param-reciprocalImplementation"><span class="type-annotation"><a href="../../rohd_hcl/PositiveApproximationFunctor-class.html">PositiveApproximationFunctor</a></span> <span class="parameter-name">reciprocalImplementation</span> = <span class="default-value">lookupReciprocalApproximationFunctor</span>, </span></li>
+<li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericRoundingMode.html">NumericRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">NumericRoundingMode.nearestEven</span>, </span></li>
+<li><span class="parameter" id="param-overflowMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericOverflowMode.html">NumericOverflowMode</a></span> <span class="parameter-name">overflowMode</span> = <span class="default-value">NumericOverflowMode.saturate</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fixed_point_attention_core&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a fixed-point fused attention engine.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FixedPointAttentionCore({
+  required Logic clk,
+  required Logic reset,
+  required FixedPointAttentionRequest request,
+  required FixedPointAttentionResult resultSchema,
+  required Logic load,
+  required this.elementFractionBits,
+  required this.valueFractionBits,
+  required this.scoreWidth,
+  required this.scoreFractionBits,
+  required this.normalizerWidth,
+  required this.normalizerFractionBits,
+  required this.expWidth,
+  required this.expFractionBits,
+  required this.reciprocalWidth,
+  required this.reciprocalFractionBits,
+  required this.outputWidth,
+  Logic? retire,
+  Logic? clearCounters,
+  this.counterWidth = 32,
+  this.multiplierImplementation = nativeInferenceMultiplierFunctor,
+  this.exp2Implementation = lookupExp2ApproximationFunctor,
+  this.reciprocalImplementation = lookupReciprocalApproximationFunctor,
+  this.roundingMode = NumericRoundingMode.nearestEven,
+  this.overflowMode = NumericOverflowMode.saturate,
+  super.name = &#39;fixed_point_attention_core&#39;,
+})  : sequenceLength = request.sequenceLength,
+      headDimension = request.headDimension,
+      valueDimension = request.valueDimension,
+      elementWidth = request.elementWidth,
+      valueWidth = request.valueWidth,
+      super(
+        definitionName: &#39;FixedPointAttentionCore_&#39;
+            &#39;S${request.sequenceLength}_&#39;
+            &#39;H${request.headDimension}_&#39;
+            &#39;V${request.valueDimension}_&#39;
+            &#39;E${request.elementWidth}F${elementFractionBits}_&#39;
+            &#39;D${request.valueWidth}F${valueFractionBits}_&#39;
+            &#39;Q${scoreWidth}F${scoreFractionBits}_&#39;
+            &#39;N${normalizerWidth}F${normalizerFractionBits}_&#39;
+            &#39;X${expWidth}F${expFractionBits}_&#39;
+            &#39;R${reciprocalWidth}F${reciprocalFractionBits}_&#39;
+            &#39;O${outputWidth}_C${counterWidth}_&#39;
+            &#39;${multiplierImplementation.identity}_&#39;
+            &#39;${exp2Implementation.identity}_&#39;
+            &#39;${reciprocalImplementation.identity}_&#39;
+            &#39;${roundingMode.name}_${overflowMode.name}&#39;,
+      ) {
+  _validateInterfaces(request, resultSchema);
+  final scoreShiftRight = elementFractionBits * 2 - scoreFractionBits;
+  if (elementFractionBits &lt; 0 ||
+      elementFractionBits &gt;= elementWidth ||
+      valueFractionBits &lt; 0 ||
+      valueFractionBits &gt;= valueWidth ||
+      scoreShiftRight &lt; 0 ||
+      scoreWidth &lt; 2 ||
+      normalizerWidth &lt; 2 ||
+      normalizerWidth &gt; 12 ||
+      normalizerFractionBits &lt; 0 ||
+      normalizerFractionBits &gt;= normalizerWidth ||
+      expWidth &lt; 2 ||
+      expFractionBits &lt; 0 ||
+      expFractionBits &gt;= expWidth ||
+      reciprocalWidth &lt; 2 ||
+      reciprocalFractionBits &lt; 0 ||
+      reciprocalFractionBits &gt;= reciprocalWidth ||
+      outputWidth &lt; 2 ||
+      counterWidth &lt; 1) {
+    throw ArgumentError(&#39;Fixed-point attention formats are invalid.&#39;);
+  }
+  if (reciprocalImplementation.operation !=
+      FixedPointApproximationOperation.reciprocal) {
+    throw ArgumentError(&#39;Attention normalization requires reciprocal.&#39;);
+  }
+
+  final localClk = addInput(&#39;clk&#39;, clk);
+  final localReset = addInput(&#39;reset&#39;, reset);
+  final localClear = clearCounters == null
+      ? Const(0)
+      : addInput(&#39;clearCounters&#39;, clearCounters);
+  this.request =
+      addTypedInput&lt;FixedPointAttentionRequest&gt;(&#39;request&#39;, request);
+  result = addTypedPayloadOutput(this, &#39;result&#39;, resultSchema);
+  final localLoad = addInput(&#39;load&#39;, load);
+  final localRetire = addInput(&#39;retire&#39;, retire ?? Const(1));
+
+  final indexWidth = max(1, sequenceLength.log2Ceil);
+  final processing = Logic(name: &#39;${name}_processing&#39;);
+  final index = Logic(name: &#39;${name}_index&#39;, width: indexWidth);
+  final outputValid = Logic(name: &#39;${name}_output_valid&#39;);
+  final storedQuery = LogicArray(
+    [headDimension],
+    elementWidth,
+    name: &#39;${name}_query&#39;,
+  );
+  final storedKeys = LogicArray(
+    [sequenceLength, headDimension],
+    elementWidth,
+    name: &#39;${name}_keys&#39;,
+  );
+  final storedValues = LogicArray(
+    [sequenceLength, valueDimension],
+    valueWidth,
+    name: &#39;${name}_values&#39;,
+  );
+  final storedKeyMask =
+      Logic(name: &#39;${name}_key_mask&#39;, width: sequenceLength);
+  final storedLaneMask =
+      Logic(name: &#39;${name}_lane_mask&#39;, width: headDimension);
+  final storedCausalCount = Logic(
+    name: &#39;${name}_causal_count&#39;,
+    width: this.request.causalCountWidth,
+  );
+  final outputValues = LogicArray(
+    [valueDimension],
+    outputWidth,
+    name: &#39;${name}_output_values&#39;,
+  );
+  final outputRequestId = Logic(
+    name: &#39;${name}_output_request_id&#39;,
+    width: this.request.requestIdWidth,
+  );
+  final outputInvalid = Logic(name: &#39;${name}_output_invalid&#39;);
+  final outputOverflow = Logic(name: &#39;${name}_output_overflow&#39;);
+  final outputInexact = Logic(name: &#39;${name}_output_inexact&#39;);
+  final outputApproximationError =
+      Logic(name: &#39;${name}_output_approximation_error&#39;);
+  final state = OnlineSoftmaxWeightedState(
+    scoreWidth: scoreWidth,
+    scoreFractionBits: scoreFractionBits,
+    normalizerWidth: normalizerWidth,
+    normalizerFractionBits: normalizerFractionBits,
+    valueCount: valueDimension,
+    valueWidth: valueWidth,
+    valueFractionBits: valueFractionBits,
+    name: &#39;${name}_state&#39;,
+  );
+
+  final selectedKey = LogicArray(
+    [headDimension],
+    elementWidth,
+    name: &#39;${name}_selected_key&#39;,
+  );
+  for (var lane = 0; lane &lt; headDimension; lane++) {
+    selectedKey.arrayElements[lane] &lt;=
+        [
+          for (var position = 0; position &lt; sequenceLength; position++)
+            storedKeys.at([position, lane]),
+        ].selectIndex(index);
+  }
+  final selectedValue = LogicArray(
+    [valueDimension],
+    valueWidth,
+    name: &#39;${name}_selected_value&#39;,
+  );
+  for (var lane = 0; lane &lt; valueDimension; lane++) {
+    selectedValue.arrayElements[lane] &lt;=
+        [
+          for (var position = 0; position &lt; sequenceLength; position++)
+            storedValues.at([position, lane]),
+        ].selectIndex(index);
+  }
+  final selectedKeyMask =
+      sequenceLength == 1 ? storedKeyMask : storedKeyMask[index];
+  final positionActive = selectedKeyMask &amp;
+      index.zeroExtend(storedCausalCount.width).lt(storedCausalCount) &amp;
+      storedLaneMask.or();
+  final scoreAccumulatorWidth = elementWidth * 2 + headDimension.log2Ceil;
+  final scoreDotProduct = MixedPrecisionDotProduct(
+    storedQuery,
+    selectedKey,
+    outputWidth: scoreAccumulatorWidth,
+    activeMask: storedLaneMask,
+    signedLeft: true,
+    signedRight: true,
+    signedResult: true,
+    multiplierImplementation: multiplierImplementation,
+    name: &#39;${name}_score&#39;,
+  );
+  final scoreNarrow = NumericNarrowing(
+    scoreDotProduct.result,
+    outputWidth: scoreWidth,
+    signed: true,
+    shiftRight: scoreShiftRight,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_score_narrow&#39;,
+  );
+  final update = OnlineSoftmaxWeightedUpdate(
+    state,
+    scoreNarrow.result,
+    selectedValue,
+    scoreValid: processing &amp; positionActive,
+    expWidth: expWidth,
+    expFractionBits: expFractionBits,
+    exp2Implementation: exp2Implementation,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_softmax_update&#39;,
+  );
+  final updatedState = OnlineSoftmaxWeightedState(
+    scoreWidth: scoreWidth,
+    scoreFractionBits: scoreFractionBits,
+    normalizerWidth: normalizerWidth,
+    normalizerFractionBits: normalizerFractionBits,
+    valueCount: valueDimension,
+    valueWidth: valueWidth,
+    valueFractionBits: valueFractionBits,
+    name: &#39;${name}_updated_state&#39;,
+  );
+  updatedState.scalar.maximum &lt;= update.nextState.scalar.maximum;
+  updatedState.scalar.normalizer &lt;= update.nextState.scalar.normalizer;
+  updatedState.scalar.valid &lt;= update.nextState.scalar.valid;
+  updatedState.scalar.overflow &lt;=
+      update.nextState.scalar.overflow |
+          (processing &amp;
+              positionActive &amp;
+              (scoreNarrow.overflowed | scoreNarrow.underflowed));
+  updatedState.scalar.inexact &lt;=
+      update.nextState.scalar.inexact |
+          (processing &amp; positionActive &amp; scoreNarrow.inexact);
+  updatedState.scalar.approximationError &lt;=
+      update.nextState.scalar.approximationError;
+  for (var lane = 0; lane &lt; valueDimension; lane++) {
+    updatedState.weightedValues.arrayElements[lane] &lt;=
+        update.nextState.weightedValues.arrayElements[lane];
+  }
+  final normalize = OnlineSoftmaxNormalize(
+    updatedState,
+    reciprocalWidth: reciprocalWidth,
+    reciprocalFractionBits: reciprocalFractionBits,
+    outputWidth: outputWidth,
+    reciprocalImplementation: reciprocalImplementation,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_normalize&#39;,
+  );
+
+  final inputAccepted = localLoad;
+  final outputAccepted = outputValid &amp; localRetire;
+  final lastPosition = index.eq(sequenceLength - 1);
+  addOutput(&#39;canLoad&#39;) &lt;= ~processing &amp; (~outputValid | localRetire);
+  addOutput(&#39;resultValid&#39;) &lt;= outputValid;
+  for (var lane = 0; lane &lt; valueDimension; lane++) {
+    result.values.arrayElements[lane] &lt;= outputValues.arrayElements[lane];
+  }
+  result.requestId &lt;= outputRequestId;
+  result.invalidInput &lt;= outputInvalid;
+  result.overflow &lt;= outputOverflow;
+  result.inexact &lt;= outputInexact;
+  result.approximationError &lt;= outputApproximationError;
+  addOutput(&#39;busy&#39;) &lt;= processing;
+  addOutput(&#39;currentKey&#39;, width: indexWidth) &lt;= index;
+
+  Sequential(localClk, reset: localReset, resetValues: {
+    processing: 0,
+    index: 0,
+    outputValid: 0,
+    storedKeyMask: 0,
+    storedLaneMask: 0,
+    storedCausalCount: 0,
+    outputRequestId: 0,
+    outputInvalid: 0,
+    outputOverflow: 0,
+    outputInexact: 0,
+    outputApproximationError: 0,
+    state.scalar.maximum: 0,
+    state.scalar.normalizer: 0,
+    state.scalar.valid: 0,
+    state.scalar.overflow: 0,
+    state.scalar.inexact: 0,
+    state.scalar.approximationError: 0,
+    for (final lane in storedQuery.arrayElements) lane: 0,
+    for (final lane in storedKeys.arrayElements) lane: 0,
+    for (final lane in storedValues.arrayElements) lane: 0,
+    for (final lane in state.weightedValues.arrayElements) lane: 0,
+    for (final lane in outputValues.arrayElements) lane: 0,
+  }, [
+    If(outputAccepted, then: [outputValid &lt; 0]),
+    If(inputAccepted, then: [
+      processing &lt; 1,
+      index &lt; 0,
+      outputRequestId &lt; this.request.requestId,
+      storedKeyMask &lt; this.request.keyMask,
+      storedLaneMask &lt; this.request.laneMask,
+      storedCausalCount &lt; this.request.causalKeyCount,
+      for (var lane = 0; lane &lt; headDimension; lane++)
+        storedQuery.arrayElements[lane] &lt;
+            this.request.query.arrayElements[lane],
+      for (var lane = 0; lane &lt; storedKeys.arrayElements.length; lane++)
+        storedKeys.arrayElements[lane] &lt;
+            this.request.keys.arrayElements[lane],
+      for (var lane = 0; lane &lt; storedValues.arrayElements.length; lane++)
+        storedValues.arrayElements[lane] &lt;
+            this.request.values.arrayElements[lane],
+      state.scalar.maximum &lt; 0,
+      state.scalar.normalizer &lt; 0,
+      state.scalar.valid &lt; 0,
+      state.scalar.overflow &lt; 0,
+      state.scalar.inexact &lt; 0,
+      state.scalar.approximationError &lt; 0,
+      for (final lane in state.weightedValues.arrayElements) lane &lt; 0,
+    ]),
+    If(processing, then: [
+      state.scalar.maximum &lt; updatedState.scalar.maximum,
+      state.scalar.normalizer &lt; updatedState.scalar.normalizer,
+      state.scalar.valid &lt; updatedState.scalar.valid,
+      state.scalar.overflow &lt; updatedState.scalar.overflow,
+      state.scalar.inexact &lt; updatedState.scalar.inexact,
+      state.scalar.approximationError &lt;
+          updatedState.scalar.approximationError,
+      for (var lane = 0; lane &lt; valueDimension; lane++)
+        state.weightedValues.arrayElements[lane] &lt;
+            updatedState.weightedValues.arrayElements[lane],
+      If(lastPosition, then: [
+        processing &lt; 0,
+        outputValid &lt; 1,
+        for (var lane = 0; lane &lt; valueDimension; lane++)
+          outputValues.arrayElements[lane] &lt;
+              normalize.values.arrayElements[lane],
+        outputInvalid &lt; normalize.invalidState,
+        outputOverflow &lt; normalize.overflow,
+        outputInexact &lt; normalize.inexact,
+        outputApproximationError &lt; normalize.approximationError,
+        index &lt; 0,
+      ], orElse: [
+        index &lt; index + 1,
+      ]),
+    ]),
+  ]);
+
+  final activeLaneCount =
+      Count(storedLaneMask, name: &#39;${name}_active_lanes&#39;).count;
+  final inputTensorBits = headDimension * elementWidth +
+      sequenceLength * headDimension * elementWidth +
+      sequenceLength * valueDimension * valueWidth;
+  final inputTensorBytes = (inputTensorBits + 7) ~&#47; 8;
+  final scoreBytes = (scoreWidth + 7) ~&#47; 8;
+
+  Logic counter(
+    String counterName, {
+    required Logic amount,
+    required Logic enable,
+  }) =&gt;
+      Accumulator(
+        amount,
+        clk: localClk,
+        reset: localReset,
+        clear: localClear,
+        enable: enable,
+        width: counterWidth,
+        saturates: true,
+        name: &#39;${name}_$counterName&#39;,
+      ).value;
+
+  addOutput(&#39;scoreProducts&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;score_products&#39;,
+        amount: activeLaneCount,
+        enable: processing &amp; positionActive,
+      );
+  addOutput(&#39;activeValues&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;active_values&#39;,
+        amount: Const(1),
+        enable: processing &amp; positionActive,
+      );
+  addOutput(&#39;inputBytes&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;input_bytes&#39;,
+        amount: Const(
+          inputTensorBytes,
+          width: max(1, (inputTensorBytes + 1).log2Ceil),
+        ),
+        enable: inputAccepted,
+      );
+  addOutput(&#39;avoidedScoreWriteBytes&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;avoided_score_write_bytes&#39;,
+        amount: Const(
+          scoreBytes,
+          width: max(1, (scoreBytes + 1).log2Ceil),
+        ),
+        enable: processing &amp; positionActive,
+      );
+  addOutput(&#39;busyCycles&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;busy_cycles&#39;,
+        amount: Const(1),
+        enable: processing,
+      );
+  addOutput(&#39;outputStallCycles&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;output_stall_cycles&#39;,
+        amount: Const(1),
+        enable: outputValid &amp; ~localRetire,
+      );
+  addOutput(&#39;completedRequests&#39;, width: counterWidth) &lt;=
+      counter(
+        &#39;completed_requests&#39;,
+        amount: Const(1),
+        enable: outputAccepted,
+      );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FixedPointAttentionCore-class.html">FixedPointAttentionCore</a></li>
+    <li class="self-crumb">FixedPointAttentionCore.new constructor</li>
+</ol>
+
+    <h5>FixedPointAttentionCore class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

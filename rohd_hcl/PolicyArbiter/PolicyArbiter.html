@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the PolicyArbiter.new constructor from Class PolicyArbiter from the rohd_hcl library, for the Dart programming language.">
+  <title>PolicyArbiter.new constructor - PolicyArbiter - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/PolicyArbiter-class.html">PolicyArbiter</a></li>
+    <li class="self-crumb">PolicyArbiter.new constructor</li>
+  </ol>
+  <div class="self-name">PolicyArbiter.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;PolicyArbiter-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">PolicyArbiter</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">PolicyArbiter</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-requests"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">requests</span>, {</span></li>
+<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-policy"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/ArbitrationPolicy-class.html">ArbitrationPolicy</a></span> <span class="parameter-name">policy</span>, </span></li>
+<li><span class="parameter" id="param-advanceMode"><span class="type-annotation"><a href="../../rohd_hcl/ArbitrationAdvanceMode.html">ArbitrationAdvanceMode</a></span> <span class="parameter-name">advanceMode</span> = <span class="default-value">ArbitrationAdvanceMode.onGrant</span>, </span></li>
+<li><span class="parameter" id="param-retentionPolicy"><span class="type-annotation"><a href="../../rohd_hcl/ArbitrationRetentionPolicy.html">ArbitrationRetentionPolicy</a></span> <span class="parameter-name">retentionPolicy</span> = <span class="default-value">ArbitrationRetentionPolicy.none</span>, </span></li>
+<li><span class="parameter" id="param-accepted"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">accepted</span>, </span></li>
+<li><span class="parameter" id="param-complete"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">complete</span>, </span></li>
+<li><span class="parameter" id="param-captureOwner"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">captureOwner</span>, </span></li>
+<li><span class="parameter" id="param-releaseOwner"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">releaseOwner</span>, </span></li>
+<li><span class="parameter" id="param-policyInputs"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> <span class="parameter-name">policyInputs</span> = <span class="default-value">const []</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;policy_arbiter&#39;</span>, </span></li>
+<li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="param-definitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">definitionName</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a composed policy arbiter.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">PolicyArbiter(
+  super.requests, {
+  required super.clk,
+  required super.reset,
+  required this.policy,
+  this.advanceMode = ArbitrationAdvanceMode.onGrant,
+  this.retentionPolicy = ArbitrationRetentionPolicy.none,
+  Logic? accepted,
+  Logic? complete,
+  Logic? captureOwner,
+  Logic? releaseOwner,
+  List&lt;Logic&gt; policyInputs = const [],
+  super.name = &#39;policy_arbiter&#39;,
+  super.reserveName,
+  super.reserveDefinitionName,
+  String? definitionName,
+})  : policyInputCount = policyInputs.length,
+      super(
+        definitionName: definitionName ??
+            &#39;PolicyArbiter_W${requests.length}_P${policy.identity}_&#39;
+                &#39;A${advanceMode.name}_R${retentionPolicy.name}_&#39;
+                &#39;Q${accepted == null ? 0 : 1}_&#39;
+                &#39;I${policyInputs.map((input) =&gt; input.width).join(&#39;_&#39;)}&#39;,
+      ) {
+  if (requests.isEmpty) {
+    throw ArgumentError.value(requests, &#39;requests&#39;, &#39;Must not be empty.&#39;);
+  }
+  for (final control in {
+    &#39;accepted&#39;: accepted,
+    &#39;complete&#39;: complete,
+    &#39;captureOwner&#39;: captureOwner,
+    &#39;releaseOwner&#39;: releaseOwner,
+  }.entries) {
+    if (control.value != null &amp;&amp; control.value!.width != 1) {
+      throw ArgumentError.value(
+        control.value,
+        control.key,
+        &#39;Arbitration controls must be one bit.&#39;,
+      );
+    }
+  }
+  if ((advanceMode == ArbitrationAdvanceMode.onAccepted ||
+          retentionPolicy == ArbitrationRetentionPolicy.holdUntilAccepted) &amp;&amp;
+      accepted == null) {
+    throw ArgumentError(
+      &#39;Accepted advancement and hold retention require an accepted &#39;
+      &#39;qualifier.&#39;,
+    );
+  }
+  if (advanceMode == ArbitrationAdvanceMode.onCompletion &amp;&amp;
+      complete == null) {
+    throw ArgumentError(
+      &#39;onCompletion advancement requires a complete event.&#39;,
+    );
+  }
+  if (advanceMode != ArbitrationAdvanceMode.onCompletion &amp;&amp;
+      complete != null) {
+    throw ArgumentError(
+      &#39;A complete event is valid only with onCompletion advancement.&#39;,
+    );
+  }
+  if (retentionPolicy == ArbitrationRetentionPolicy.lockUntilRelease &amp;&amp;
+      (captureOwner == null || releaseOwner == null)) {
+    throw ArgumentError(
+      &#39;lockUntilRelease retention requires capture and release controls.&#39;,
+    );
+  }
+  if (retentionPolicy != ArbitrationRetentionPolicy.lockUntilRelease &amp;&amp;
+      (captureOwner != null || releaseOwner != null)) {
+    throw ArgumentError(
+      &#39;Capture and release controls are valid only with lockUntilRelease &#39;
+      &#39;retention.&#39;,
+    );
+  }
+
+  final acceptedQualifier =
+      accepted == null ? Const(1) : addInput(&#39;accepted&#39;, accepted);
+  final completionEvent = advanceMode == ArbitrationAdvanceMode.onCompletion
+      ? addInput(&#39;complete&#39;, complete!)
+      : Const(0);
+  final captureRequest =
+      retentionPolicy == ArbitrationRetentionPolicy.lockUntilRelease
+          ? addInput(&#39;captureOwner&#39;, captureOwner!)
+          : Const(0);
+  final releaseRequest =
+      retentionPolicy == ArbitrationRetentionPolicy.lockUntilRelease
+          ? addInput(&#39;releaseOwner&#39;, releaseOwner!)
+          : Const(0);
+  final localPolicyInputs = [
+    for (var index = 0; index &lt; policyInputs.length; index++)
+      addInput(
+        &#39;policyInput_$index&#39;,
+        policyInputs[index],
+        width: policyInputs[index].width,
+      ),
+  ];
+
+  addOutput(&#39;candidate&#39;, width: count);
+  addOutput(&#39;selection&#39;, width: count);
+  addOutput(&#39;retainedOwner&#39;, width: count);
+  addOutput(&#39;acceptedGrant&#39;, width: count);
+  addOutput(&#39;completedGrant&#39;, width: count);
+  addOutput(&#39;locked&#39;);
+
+  final completedGrantFeedback =
+      Logic(name: &#39;${name}_completed_grant_feedback&#39;, width: count);
+  final candidateSelection = policy.build(
+    requests: requests,
+    completedGrant: completedGrantFeedback,
+    policyInputs: localPolicyInputs,
+    clk: clk,
+    reset: reset,
+    name: &#39;${name}_${policy.identity}&#39;,
+  );
+  candidate &lt;= candidateSelection;
+
+  late final Logic captureControl;
+  late final Logic releaseControl;
+  late final Logic ownerSelection;
+  late final Logic registeredOwner;
+  late final Logic activeGrant;
+  late final Logic retentionLocked;
+  if (retentionPolicy == ArbitrationRetentionPolicy.none) {
+    captureControl = Const(0);
+    releaseControl = Const(0);
+    ownerSelection = candidateSelection;
+    registeredOwner = Const(0, width: count);
+    activeGrant = candidateSelection &amp; requests.rconcat();
+    retentionLocked = Const(0);
+  } else {
+    captureControl = Logic(name: &#39;${name}_capture_control&#39;);
+    releaseControl = Logic(name: &#39;${name}_release_control&#39;);
+    final retainer = GrantRetainer(
+      clk: clk,
+      reset: reset,
+      candidate: candidateSelection,
+      requests: requests.rconcat(),
+      capture: captureControl,
+      release: releaseControl,
+      name: &#39;${name}_retainer&#39;,
+    );
+    ownerSelection = retainer.selection;
+    registeredOwner = retainer.retainedOwner;
+    activeGrant = retainer.grant;
+    retentionLocked = retainer.locked;
+  }
+  selection &lt;= ownerSelection;
+  retainedOwner &lt;= registeredOwner;
+  locked &lt;= retentionLocked;
+  for (var index = 0; index &lt; count; index++) {
+    grants[index] &lt;= activeGrant[index];
+  }
+
+  final acceptedBits = [
+    for (var index = 0; index &lt; count; index++)
+      (activeGrant[index] &amp; acceptedQualifier)
+          .named(&#39;${name}_accepted_$index&#39;),
+  ].rconcat();
+  acceptedGrant &lt;= acceptedBits;
+
+  switch (retentionPolicy) {
+    case ArbitrationRetentionPolicy.none:
+      break;
+    case ArbitrationRetentionPolicy.holdUntilAccepted:
+      captureControl &lt;=
+          ~retentionLocked &amp; activeGrant.or() &amp; ~acceptedQualifier;
+      releaseControl &lt;=
+          retentionLocked &amp; activeGrant.or() &amp; acceptedQualifier;
+    case ArbitrationRetentionPolicy.lockUntilRelease:
+      captureControl &lt;= captureRequest;
+      releaseControl &lt;= retentionLocked &amp; releaseRequest;
+  }
+  switch (advanceMode) {
+    case ArbitrationAdvanceMode.onGrant:
+      completedGrantFeedback &lt;= activeGrant;
+    case ArbitrationAdvanceMode.onAccepted:
+      completedGrantFeedback &lt;= acceptedBits;
+    case ArbitrationAdvanceMode.onCompletion:
+      completedGrantFeedback &lt;=
+          ownerSelection &amp; completionEvent.replicate(count);
+  }
+  completedGrant &lt;= completedGrantFeedback;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/PolicyArbiter-class.html">PolicyArbiter</a></li>
+    <li class="self-crumb">PolicyArbiter.new constructor</li>
+</ol>
+
+    <h5>PolicyArbiter class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

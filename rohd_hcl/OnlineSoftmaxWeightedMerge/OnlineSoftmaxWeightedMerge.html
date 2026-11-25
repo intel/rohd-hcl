@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the OnlineSoftmaxWeightedMerge.new constructor from Class OnlineSoftmaxWeightedMerge from the rohd_hcl library, for the Dart programming language.">
+  <title>OnlineSoftmaxWeightedMerge.new constructor - OnlineSoftmaxWeightedMerge - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/OnlineSoftmaxWeightedMerge-class.html">OnlineSoftmaxWeightedMerge</a></li>
+    <li class="self-crumb">OnlineSoftmaxWeightedMerge.new constructor</li>
+  </ol>
+  <div class="self-name">OnlineSoftmaxWeightedMerge.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;OnlineSoftmaxWeightedMerge-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">OnlineSoftmaxWeightedMerge</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">OnlineSoftmaxWeightedMerge</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-left"><span class="type-annotation"><a href="../../rohd_hcl/OnlineSoftmaxWeightedState-class.html">OnlineSoftmaxWeightedState</a></span> <span class="parameter-name">left</span>, </span></li>
+<li><span class="parameter" id="param-right"><span class="type-annotation"><a href="../../rohd_hcl/OnlineSoftmaxWeightedState-class.html">OnlineSoftmaxWeightedState</a></span> <span class="parameter-name">right</span>, {</span></li>
+<li><span class="parameter" id="param-expWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">expWidth</span>, </span></li>
+<li><span class="parameter" id="param-expFractionBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">expFractionBits</span>, </span></li>
+<li><span class="parameter" id="param-exp2Implementation"><span class="type-annotation"><a href="../../rohd_hcl/Exp2ApproximationFunctor-class.html">Exp2ApproximationFunctor</a></span> <span class="parameter-name">exp2Implementation</span> = <span class="default-value">lookupExp2ApproximationFunctor</span>, </span></li>
+<li><span class="parameter" id="param-multiplierImplementation"><span class="type-annotation"><a href="../../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> <span class="parameter-name">multiplierImplementation</span> = <span class="default-value">nativeInferenceMultiplierFunctor</span>, </span></li>
+<li><span class="parameter" id="param-roundingMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericRoundingMode.html">NumericRoundingMode</a></span> <span class="parameter-name">roundingMode</span> = <span class="default-value">NumericRoundingMode.nearestEven</span>, </span></li>
+<li><span class="parameter" id="param-overflowMode"><span class="type-annotation"><a href="../../rohd_hcl/NumericOverflowMode.html">NumericOverflowMode</a></span> <span class="parameter-name">overflowMode</span> = <span class="default-value">NumericOverflowMode.saturate</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;online_softmax_weighted_merge&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a weighted online state merge.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">OnlineSoftmaxWeightedMerge(
+  OnlineSoftmaxWeightedState left,
+  OnlineSoftmaxWeightedState right, {
+  required int expWidth,
+  required int expFractionBits,
+  Exp2ApproximationFunctor exp2Implementation =
+      lookupExp2ApproximationFunctor,
+  InferenceMultiplierFunctor multiplierImplementation =
+      nativeInferenceMultiplierFunctor,
+  NumericRoundingMode roundingMode = NumericRoundingMode.nearestEven,
+  NumericOverflowMode overflowMode = NumericOverflowMode.saturate,
+  super.name = &#39;online_softmax_weighted_merge&#39;,
+}) : super(
+        definitionName: &#39;OnlineSoftmaxWeightedMerge_&#39;
+            &#39;S${left.scalar.scoreWidth}F${left.scalar.scoreFractionBits}_&#39;
+            &#39;N${left.scalar.normalizerWidth}&#39;
+            &#39;F${left.scalar.normalizerFractionBits}_&#39;
+            &#39;V${left.valueCount}W${left.valueWidth}&#39;
+            &#39;F${left.valueFractionBits}_&#39;
+            &#39;E${expWidth}F${expFractionBits}_&#39;
+            &#39;${exp2Implementation.identity}_&#39;
+            &#39;${multiplierImplementation.identity}_&#39;
+            &#39;${roundingMode.name}_${overflowMode.name}&#39;,
+      ) {
+  _validateWeightedStates(left, right);
+  left = addTypedInput(&#39;left&#39;, left);
+  right = addTypedInput(&#39;right&#39;, right);
+  final scalarMerge = OnlineSoftmaxMerge(
+    left.scalar,
+    right.scalar,
+    expWidth: expWidth,
+    expFractionBits: expFractionBits,
+    exp2Implementation: exp2Implementation,
+    roundingMode: roundingMode,
+    name: &#39;${name}_scalar_merge&#39;,
+  );
+  final leftScaleArray =
+      LogicArray(const [1], expWidth, name: &#39;${name}_left_scale&#39;);
+  final rightScaleArray =
+      LogicArray(const [1], expWidth, name: &#39;${name}_right_scale&#39;);
+  leftScaleArray.arrayElements.single &lt;= scalarMerge.leftScale;
+  rightScaleArray.arrayElements.single &lt;= scalarMerge.rightScale;
+  final scaledLeft = GroupScaleApply(
+    left.weightedValues,
+    leftScaleArray,
+    groupSize: left.valueCount,
+    fractionalBits: expFractionBits,
+    outputWidth: left.valueWidth,
+    signedScale: false,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_left_values&#39;,
+  );
+  final scaledRight = GroupScaleApply(
+    right.weightedValues,
+    rightScaleArray,
+    groupSize: right.valueCount,
+    fractionalBits: expFractionBits,
+    outputWidth: right.valueWidth,
+    signedScale: false,
+    multiplierImplementation: multiplierImplementation,
+    roundingMode: roundingMode,
+    overflowMode: overflowMode,
+    name: &#39;${name}_right_values&#39;,
+  );
+
+  final outputState = OnlineSoftmaxWeightedState(
+    scoreWidth: left.scalar.scoreWidth,
+    scoreFractionBits: left.scalar.scoreFractionBits,
+    normalizerWidth: left.scalar.normalizerWidth,
+    normalizerFractionBits: left.scalar.normalizerFractionBits,
+    valueCount: left.valueCount,
+    valueWidth: left.valueWidth,
+    valueFractionBits: left.valueFractionBits,
+    name: &#39;mergedState&#39;,
+  );
+  mergedState = addTypedOutput(&#39;mergedState&#39;, outputState.clone);
+  mergedState.scalar.maximum &lt;= scalarMerge.mergedState.maximum;
+  mergedState.scalar.normalizer &lt;= scalarMerge.mergedState.normalizer;
+  mergedState.scalar.valid &lt;= scalarMerge.mergedState.valid;
+  var mergedOverflow = scalarMerge.mergedState.overflow |
+      scaledLeft.overflowMask.or() |
+      scaledLeft.underflowMask.or() |
+      scaledRight.overflowMask.or() |
+      scaledRight.underflowMask.or();
+  mergedState.scalar.inexact &lt;=
+      scalarMerge.mergedState.inexact |
+          scaledLeft.inexactMask.or() |
+          scaledRight.inexactMask.or();
+  mergedState.scalar.approximationError &lt;=
+      scalarMerge.mergedState.approximationError;
+
+  for (var index = 0; index &lt; left.valueCount; index++) {
+    final calculationWidth = left.valueWidth + 1;
+    final sum = (scaledLeft.scaledValues.arrayElements[index]
+                .signExtend(calculationWidth) +
+            scaledRight.scaledValues.arrayElements[index]
+                .signExtend(calculationWidth))
+        .getRange(0, calculationWidth);
+    final narrowed = NumericNarrowing(
+      sum,
+      outputWidth: left.valueWidth,
+      signed: true,
+      overflowMode: overflowMode,
+      name: &#39;${name}_value_${index}_sum&#39;,
+    );
+    mergedState.weightedValues.arrayElements[index] &lt;= narrowed.result;
+    mergedOverflow =
+        mergedOverflow | narrowed.overflowed | narrowed.underflowed;
+  }
+  mergedState.scalar.overflow &lt;= mergedOverflow;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/OnlineSoftmaxWeightedMerge-class.html">OnlineSoftmaxWeightedMerge</a></li>
+    <li class="self-crumb">OnlineSoftmaxWeightedMerge.new constructor</li>
+</ol>
+
+    <h5>OnlineSoftmaxWeightedMerge class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the FixedPointApproximation.new constructor from Class FixedPointApproximation from the rohd_hcl library, for the Dart programming language.">
+  <title>FixedPointApproximation.new constructor - FixedPointApproximation - rohd_hcl library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl.dart</a></li>
+    <li><a href="../../rohd_hcl/FixedPointApproximation-class.html">FixedPointApproximation</a></li>
+    <li class="self-crumb">FixedPointApproximation.new constructor</li>
+  </ol>
+  <div class="self-name">FixedPointApproximation.new</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="rohd_hcl&#47;FixedPointApproximation-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">FixedPointApproximation</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">FixedPointApproximation</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-input"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">input</span>, {</span></li>
+<li><span class="parameter" id="param-contract"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/FixedPointApproximationContract-class.html">FixedPointApproximationContract</a></span> <span class="parameter-name">contract</span>, </span></li>
+<li><span class="parameter" id="param-definitionPrefix"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">definitionPrefix</span>, </span></li>
+<li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;fixed_point_approximation&#39;</span>, </span></li>
+</ol>})
+    </section>
+    
+<section class="desc markdown">
+  <p>Creates a full-domain combinational lookup approximation.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FixedPointApproximation(
+  Logic input, {
+  required this.contract,
+  required String definitionPrefix,
+  super.name = &#39;fixed_point_approximation&#39;,
+}) : super(
+        definitionName:
+            &#39;${definitionPrefix}_${contract.configurationSignature}&#39;,
+      ) {
+  if (input.width != contract.inputWidth) {
+    throw PortWidthMismatchException(input, contract.inputWidth);
+  }
+  if ((1 &lt;&lt; input.width) &gt; 4096) {
+    throw ArgumentError(
+      &#39;Lookup approximation inputs are limited to 4096 entries.&#39;,
+    );
+  }
+  input = addInput(&#39;inputData&#39;, input, width: input.width);
+  final entries = 1 &lt;&lt; input.width;
+  final results = &lt;Logic&gt;[];
+  final invalidBits = &lt;Logic&gt;[];
+  final rangeBits = &lt;Logic&gt;[];
+  final overflowBits = &lt;Logic&gt;[];
+  final inexactBits = &lt;Logic&gt;[];
+  for (var encoded = 0; encoded &lt; entries; encoded++) {
+    final raw = contract.signedInput
+        ? BigInt.from(encoded).toSigned(input.width).toInt()
+        : encoded;
+    final reference = evaluateFixedPointApproximation(contract, raw);
+    results.add(Const(reference.result, width: contract.outputWidth));
+    invalidBits.add(Const(reference.invalidInput ? 1 : 0));
+    rangeBits.add(Const(reference.outOfRange ? 1 : 0));
+    overflowBits.add(Const(reference.overflow ? 1 : 0));
+    inexactBits.add(Const(reference.inexact ? 1 : 0));
+  }
+  addOutput(&#39;result&#39;, width: contract.outputWidth) &lt;=
+      results.selectIndex(input);
+  final internalStatus = FixedPointApproximationStatus(
+    name: &#39;${name}_internal_status&#39;,
+  );
+  internalStatus.invalidInput &lt;= invalidBits.selectIndex(input);
+  internalStatus.outOfRange &lt;= rangeBits.selectIndex(input);
+  internalStatus.overflow &lt;= overflowBits.selectIndex(input);
+  internalStatus.inexact &lt;= inexactBits.selectIndex(input);
+  status = addTypedOutput(&#39;status&#39;, internalStatus.clone);
+  status &lt;= internalStatus;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/">rohd_hcl</a></li>
+    <li><a href="../../rohd_hcl/FixedPointApproximation-class.html">FixedPointApproximation</a></li>
+    <li class="self-crumb">FixedPointApproximation.new constructor</li>
+</ol>
+
+    <h5>FixedPointApproximation class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    rohd_hcl
+      0.3.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
