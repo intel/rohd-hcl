@@ -10,6 +10,7 @@
 import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart' as general;
 import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -27,6 +28,190 @@ class Wrapper extends Module {
 }
 
 void main() {
+  test('attention formats share labeled definitions and guard removal', () {
+    final formats = AttentionNumericFormatsKnob();
+    expect(() => formats.definitionsKnob.count = 5, throwsArgumentError);
+    for (final role in AttentionFormatRole.values) {
+      formats.assignments[role]!.value = 0;
+    }
+    formats.definitionsKnob.count = 1;
+    expect(() => formats.definitionsKnob.count = 0, throwsArgumentError);
+    formats.definitionsKnob.count = 2;
+    final extra = formats.definitionAt(1);
+    extra.labelKnob.value = 'Shared scales';
+    extra.formatKnob.widthKnob.value = 10;
+    formats.assignments[AttentionFormatRole.value]!.value = 1;
+    expect(
+        formats.formatFor(AttentionFormatRole.value), same(extra.formatKnob));
+    expect(
+      formats.assignments[AttentionFormatRole.value]!.labelFor(1),
+      '1: Shared scales',
+    );
+    expect(() => formats.definitionsKnob.count = 1, throwsArgumentError);
+    formats.assignments[AttentionFormatRole.value]!.value = 0;
+    formats.definitionsKnob.count = 1;
+    formats.definitionsKnob.count = 2;
+    expect(formats.definitionAt(1), same(extra));
+    expect(formats.definitionAt(1).labelKnob.value, 'Shared scales');
+    expect(() => formats.assignments[AttentionFormatRole.score]!.value = 2,
+        throwsA(isA<RohdHclException>()));
+  });
+
+  test('attention format JSON restores expanded and shared pools', () {
+    final cfg = FixedPointAttentionConfigurator();
+    cfg.formatsKnob.definitionsKnob.count = 7;
+    final extra = cfg.formatsKnob.definitionAt(6);
+    extra.labelKnob.value = 'Custom values';
+    extra.formatKnob.widthKnob.value = 10;
+    cfg.formatsKnob.assignments[AttentionFormatRole.value]!.value = 6;
+    final expanded = FixedPointAttentionConfigurator()..loadJson(cfg.toJson());
+    expect(expanded.toJson(), cfg.toJson());
+    expect(expanded.valueKnob.widthKnob.value, 10);
+    for (final assignment in cfg.formatsKnob.assignments.values) {
+      assignment.value = 0;
+    }
+    cfg.formatsKnob.definitionsKnob.count = 1;
+    cfg.elementKnob.widthKnob.value = 6;
+    cfg.elementKnob.fractionBitsKnob.value = 2;
+    expanded.loadJson(cfg.toJson());
+    expect(expanded.toJson(), cfg.toJson());
+    expect(expanded.valueKnob, same(expanded.elementKnob));
+    expect(expanded.reciprocalKnob, same(expanded.elementKnob));
+    final empty = cfg.formatsKnob.toJson();
+    empty['Format Definitions'] = {'knobs': <dynamic>[]};
+    expect(() => expanded.formatsKnob.loadJson(empty), throwsArgumentError);
+  });
+
+  test('attention restores the original independent format JSON', () {
+    final original = FixedPointAttentionRowConfigurator();
+    original.valueKnob.widthKnob.value = 10;
+    original.scoreKnob.widthKnob.value = 6;
+    original.normalizerKnob
+      ..widthKnob.value = 8
+      ..fractionBitsKnob.value = 4;
+    original.expKnob
+      ..widthKnob.value = 6
+      ..fractionBitsKnob.value = 4;
+    original.reciprocalKnob
+      ..widthKnob.value = 8
+      ..fractionBitsKnob.value = 6;
+    original.outputWidthKnob.value = 8;
+    final legacy = jsonDecode(original.toJson()) as Map<String, dynamic>;
+    (legacy['knobs'] as Map<String, dynamic>)
+      ..remove('Numeric Formats')
+      ..addAll({
+        'Query/Key Format': original.elementKnob.toJson(),
+        'Value Format': original.valueKnob.toJson(),
+        'Score Format': original.scoreKnob.toJson(),
+        'Normalizer Format': original.normalizerKnob.toJson(),
+        'Exponential Format': original.expKnob.toJson(),
+        'Reciprocal Format': original.reciprocalKnob.toJson(),
+      });
+    final restored = FixedPointAttentionRowConfigurator()
+      ..loadJson(jsonEncode(legacy));
+    expect(restored.toJson(), original.toJson());
+  });
+
+  test('narrow attention preview computes and retires an average', () async {
+    addTearDown(Simulator.reset);
+    final module = FixedPointAttentionConfigurator().createModule();
+    if (module is! FixedPointAttentionCore) {
+      fail('Default attention must expose its action core.');
+    }
+    await module.build();
+    var valueBits = BigInt.zero;
+    for (final (index, value) in [1, 3, 3, 1].indexed) {
+      valueBits |= BigInt.from(value) << (index * module.valueWidth);
+    }
+    final fields = [
+      BigInt.zero,
+      BigInt.zero,
+      valueBits,
+      BigInt.from(3),
+      BigInt.from(3),
+      BigInt.from(2),
+      BigInt.from(5)
+    ];
+    var request = BigInt.zero;
+    var offset = 0;
+    for (final (index, element) in module.request.elements.indexed) {
+      request |= fields[index] << offset;
+      offset += element.width;
+    }
+    final result = BigInt.from(2) |
+        (BigInt.from(2) << module.outputWidth) |
+        (BigInt.from(5) << (module.outputWidth * module.valueDimension));
+    final vectors = <Vector>[];
+    void cycle(Map<String, dynamic> inputs, Map<String, dynamic> outputs) {
+      vectors
+        ..add(Vector({'clk': 0, ...inputs}, outputs))
+        ..add(Vector({'clk': 1}, const {}));
+    }
+
+    cycle({'reset': 1, 'load': 0, 'retire': 0, 'request': 0}, const {});
+    cycle({'reset': 0, 'load': 1, 'request': request},
+        {'canLoad': 1, 'resultValid': 0});
+    cycle({'load': 0}, {'busy': 1, 'resultValid': 0});
+    cycle(const {}, {'busy': 1, 'resultValid': 0});
+    cycle(const {}, {'resultValid': 1, 'result': result});
+    cycle({'retire': 1}, {'resultValid': 1, 'result': result});
+    cycle({'retire': 0}, {'resultValid': 0, 'canLoad': 1});
+    await SimCompare.checkFunctionalVector(module, vectors);
+    SimCompare.checkIverilogVector(module, vectors);
+  });
+
+  test('RMS preview retains mean-square range at the negative input limit',
+      () async {
+    addTearDown(Simulator.reset);
+    final module = RmsNormConfigurator().createModule();
+    if (module is! RmsNorm) {
+      fail('RMS preview must create RMS normalization hardware.');
+    }
+    await module.build();
+    final vectors = [
+      // Two raw -4 values, unit weights (raw 2), and raw -2 output lanes.
+      Vector(
+        {'values': 36, 'weights': 34, 'activeMask': 3},
+        {'meanSquare': 17, 'inverseRms': 8, 'normalizedValues': 4030},
+      ),
+    ];
+    await SimCompare.checkFunctionalVector(module, vectors);
+    expect(module.status.overflow.value, LogicValue.zero);
+    SimCompare.checkIverilogVector(module, vectors);
+  });
+
+  test('shared attention format generates all cores and transport adapters',
+      () async {
+    for (final cfg in [
+      FixedPointAttentionConfigurator(),
+      FixedPointAttentionRowConfigurator(),
+      ScratchpadFixedPointAttentionConfigurator(),
+    ]) {
+      for (final selection in cfg.formatsKnob.assignments.values) {
+        selection.value = 0;
+      }
+      cfg.formatsKnob.definitionsKnob.count = 1;
+      cfg.elementKnob.widthKnob.value = 6;
+      cfg.elementKnob.fractionBitsKnob.value = 2;
+      for (final boundary in cfg is ScratchpadFixedPointAttentionConfigurator
+          ? [InferenceConfiguratorBoundary.actions]
+          : InferenceConfiguratorBoundary.values) {
+        cfg.boundaryKnob.value = boundary;
+        final module = cfg.createModule();
+        if (module is FixedPointAttentionCore) {
+          expect(module.elementWidth, 6);
+          expect(module.valueWidth, 6);
+          expect(module.scoreWidth, 6);
+          expect(module.elementFractionBits, 2);
+          expect(module.valueFractionBits, 2);
+          expect(module.scoreFractionBits, 2);
+        }
+        await module.build();
+        SimCompare.checkIverilogVector(module, const [], buildOnly: true);
+      }
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
   test('to and from json', () {
     final cfg = ExampleConfigurator();
     cfg.knobs['a']!.value = 'banana';
@@ -86,6 +271,140 @@ void main() {
         reason: '${cfg.name} has no subcategory tag',
       );
     }
+  });
+
+  test('inference catalog generates hardware and restores its configuration',
+      () async {
+    final inference = componentRegistry
+        .where((cfg) => cfg.category == ComponentCategory.inference)
+        .toList();
+    expect(inference, hasLength(25));
+    for (final cfg in inference) {
+      final restored = componentRegistry
+          .singleWhere((other) => other.name == cfg.name)
+        ..loadJson(cfg.toJson());
+      expect(restored.toJson(), cfg.toJson(), reason: cfg.name);
+      final module = restored.createModule();
+      await module.build();
+      expect(module.dumpSystemVerilog(), contains(module.definitionName),
+          reason: cfg.name);
+      expect(module.outputs, isNotEmpty, reason: cfg.name);
+      SimCompare.checkIverilogVector(module, const [], buildOnly: true);
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('inference boundaries generate cores and existing protocol shells',
+      () async {
+    final configurations = componentRegistry.where((cfg) =>
+        cfg.category == ComponentCategory.inference &&
+        cfg.knobs.containsKey('Boundary'));
+    expect(configurations, hasLength(7));
+    for (final cfg in configurations) {
+      final boundary = cfg.knobs['Boundary'];
+      if (boundary is! ChoiceConfigKnob<InferenceConfiguratorBoundary>) {
+        fail('${cfg.name} must expose the typed boundary selection.');
+      }
+      final core = cfg.createModule();
+      await core.build();
+      expect(core.inputs.keys.where((name) => name.endsWith('_valid')), isEmpty,
+          reason: '${cfg.name} action core must not require ready/valid');
+      boundary.value = InferenceConfiguratorBoundary.readyValid;
+      final shell = cfg.createModule();
+      await shell.build();
+      expect(shell.inputs.keys.any((name) => name.endsWith('_valid')), isTrue,
+          reason: '${cfg.name} shell must expose its protocol');
+      expect(shell.dumpSystemVerilog(), contains(shell.definitionName));
+      SimCompare.checkIverilogVector(shell, const [], buildOnly: true);
+      final restored = componentRegistry
+          .singleWhere((other) => other.name == cfg.name)
+        ..loadJson(cfg.toJson());
+      expect(restored.toJson(), cfg.toJson());
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('inference operation choices generate every supported implementation',
+      () async {
+    final softmax = OnlineSoftmaxConfigurator();
+    for (final operation in OnlineSoftmaxConfiguratorOperation.values) {
+      softmax.operationKnob.value = operation;
+      expect(await softmax.generateSV(), contains('OnlineSoftmax'));
+      final restored = OnlineSoftmaxConfigurator()..loadJson(softmax.toJson());
+      expect(restored.toJson(), softmax.toJson());
+    }
+    final approximation = FixedPointApproximationConfigurator();
+    for (final operation in FixedPointApproximationOperation.values) {
+      approximation.operationKnob.value = operation;
+      expect(await approximation.generateSV(), contains('Approximation'));
+    }
+    final reduction = VectorReduceConfigurator();
+    for (final operation in InferenceVectorReduction.values) {
+      reduction.operationKnob.value = operation;
+      expect(await reduction.generateSV(), contains('VectorReduce'));
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('tensor configurators retain nondefault schemas and storage choices',
+      () async {
+    final transpose = TensorTileTransposeConfigurator();
+    transpose.tensorKnob
+      ..rowsKnob.value = 1
+      ..columnsKnob.value = 3
+      ..unpackedKnob.value = true;
+    transpose.tensorKnob.formatKnob
+      ..widthKnob.value = 6
+      ..fractionBitsKnob.value = 2;
+    final module =
+        transpose.createModule() as TensorTileTranspose<Logic, LogicValue>;
+    expect(module.result.data.dimensions, [3, 1]);
+    expect(module.result.data.numUnpackedDimensions, 2);
+    expect(
+        module.result.data.arrayElements.first,
+        isA<FixedPoint>()
+            .having((element) => element.fractionWidth, 'fraction width', 2));
+    expect(module.result.format.elementWidth, 6);
+    expect(module.result.format.signed, isTrue);
+    final restored = TensorTileTransposeConfigurator()
+      ..loadJson(transpose.toJson());
+    expect(restored.toJson(), transpose.toJson());
+    expect(await restored.generateSV(), contains('TensorTileTranspose'));
+    await module.build();
+    SimCompare.checkIverilogVector(module, const [], buildOnly: true);
+
+    final scratchpad = TensorScratchpadConfigurator()
+      ..depthKnob.value = 5
+      ..bankCountKnob.value = 3
+      ..mappingKnob.value = TensorScratchpadBankMapping.modulo
+      ..unpackedKnob.value = true;
+    scratchpad.elementKnob.fractionBitsKnob.value = 2;
+    for (final sram in [false, true]) {
+      scratchpad.sramKnob.value = sram;
+      final storage = scratchpad.createModule();
+      await storage.build();
+      expect(storage.dumpSystemVerilog(), contains('TensorScratchpadCore'));
+      SimCompare.checkIverilogVector(storage, const [], buildOnly: true);
+    }
+    final dma = TensorDmaConfigurator()..unpackedKnob.value = true;
+    dma.elementKnob.fractionBitsKnob.value = 2;
+    final movement = dma.createModule();
+    await movement.build();
+    expect(movement.dumpSystemVerilog(), contains('TensorDmaEngine'));
+    SimCompare.checkIverilogVector(movement, const [], buildOnly: true);
+    final pooling = PoolingWindowSequencerConfigurator()
+      ..splitsKnob.value = true;
+    expect(pooling.createModule().inputs, contains('splitCount'));
+  });
+
+  test('inference configurators reject unsupported configuration geometry', () {
+    final tensor = InferenceTensorKnob();
+    tensor.formatKnob.fractionBitsKnob.value = 8;
+    expect(tensor.tile, throwsArgumentError);
+    final mapping = GroupedQueryAttentionTileDistributorConfigurator()
+      ..queryHeadsKnob.value = 3;
+    expect(mapping.createModule, throwsArgumentError);
+    final scratchpad = TensorScratchpadConfigurator()..bankCountKnob.value = 3;
+    expect(scratchpad.createModule, throwsArgumentError);
+    final bank = TensorMaskedSramBankConfigurator()..depthKnob.value = 3;
+    expect(bank.createModule, throwsArgumentError);
   });
 
   test('static-or-runtime integer knobs preserve static values and inputs', () {

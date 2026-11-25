@@ -67,20 +67,28 @@ not generate the family indexes.
 | [Encodings](#encodings) | [`encodings.dart`](../lib/src/encodings/encodings.dart) | `gray`, `one_hot`, `priority`, `thermometer` |
 | [Error control](#error-control) | [`error_control.dart`](../lib/src/error_control/error_control.dart) | `protection` |
 | [Flow control](#flow-control) | [`flow_control.dart`](../lib/src/flow_control/flow_control.dart) | `arbitration`, `attachments`, `control`, `ready_valid`, `storage` |
+| [Inference](./components/inference.md) | [`inference.dart`](../lib/src/inference/inference.dart) | Flat source layout; catalog groups are described in the inference guide |
 | [Interfaces](#interfaces) | [`interfaces.dart`](../lib/src/interfaces/interfaces.dart) | `amba` (`amba4`, `amba5`, `endpoints`), `spi` (`endpoints`) |
 | [Memory](#memory) | [`memories.dart`](../lib/src/memory/memories.dart) | `associative`, `behavioral`, `cache`, `contracts`, `csr`, `replacement`, `sequential`, `state`, `storage` |
 | [Models](#models) | [`models.dart`](../lib/src/models/models.dart) | `amba`, `memory`, `ready_valid_bfm`, `spi_bfm` |
 
-The configurator tags each configurable component with the same category and
-subcategory, and the confapp sidebar groups components accordingly.
+The configurator tags each configurable component by category and subcategory,
+and the confapp sidebar groups components accordingly. The inference catalog
+also exposes shared runtime narrowing and systolic transpose blocks whose
+sources remain in arithmetic and dataflow.
 
-Confapp includes compute, binary-math, recurrence, and fixed-latency
+Confapp includes inference, compute, binary-math, recurrence, and fixed-latency
 configurators as well as the existing catalog. Its generic ready/valid
 fixed-latency entry wraps a delay-line example, not an arbitrary user-supplied
 core. In binary-math controls, matrix rows are comma-separated binary strings
 with output or state bit zero first; polynomials, field constants, offsets,
 and seeds are hexadecimal, and tap indices are zero-based decimal integers.
 PRBS configurations can use a standard or a custom polynomial.
+
+Expand **Inference** in the sidebar for attention, tensor movement and layout,
+local storage, and numeric processing. See the
+[inference configurator guide](./components/inference.md#configurator)
+for scheduling boundaries and typed tensor controls.
 
 Compression-tree multiplier, MAC, and dot-product controls optionally accept
 custom delay tables. Enter comma-separated nonnegative delays in input order,

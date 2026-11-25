@@ -18,6 +18,7 @@ import 'package:rohd_hcl/src/dataflow/serialization/scheduled_deserializer_engin
 import 'package:rohd_hcl/src/dataflow/serialization/scheduled_serializer_engine.dart';
 import 'package:rohd_hcl/src/flow_control/attachments/directional_attachments.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/payloads/ready_valid_frame.dart';
+import 'package:rohd_hcl/src/inference/inference_numeric_format.dart';
 import 'package:rohd_hcl/src/inference/inference_tensor_tile.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/utils.dart';
@@ -81,6 +82,104 @@ class InferenceTensorStreamElement<TLogic extends Logic>
         columnCount: columnCount,
         name: name,
       );
+}
+
+/// Readable parameters for canonical scalar tensor streams and tiles.
+///
+/// Custom fields and semantic lanes use the full schema representation instead
+/// of dropping distinctions from the name.
+String tensorTileStreamShapeIdentity<TLogic extends Logic, TValue>(
+  InferenceTensorTile<TLogic, TValue> tile,
+  InferenceTensorStreamElement<TLogic> stream, {
+  required String definitionPrefix,
+  Frame<InferenceTensorStreamElement<TLogic>>? frame,
+}) {
+  final payloads = <Logic>[tile, frame ?? stream];
+  final format = tile.format;
+  final canonicalFormat = switch (format.elementKind) {
+    InferenceElementKind.signedInteger =>
+      InferenceNumericFormat.signedInteger(format.elementWidth),
+    InferenceElementKind.unsignedInteger =>
+      InferenceNumericFormat.unsignedInteger(format.elementWidth),
+    InferenceElementKind.fixedPoint => InferenceNumericFormat.fixedPoint(
+        signed: format.signed,
+        integerWidth: format.integerWidth!,
+        fractionWidth: format.fractionWidth!,
+      ),
+    _ => null,
+  };
+  String? readable;
+  if (canonicalFormat != null) {
+    final canonicalData = tile.data is LogicArray
+        ? LogicArray(tile.data.dimensions, format.elementWidth,
+            name: 'data',
+            numUnpackedDimensions: tile.data.numUnpackedDimensions)
+        : TypedLogicArray<Logic, LogicValue>(
+            tile.data.dimensions,
+            ({name}) => Logic(name: name, width: format.elementWidth),
+            name: 'data',
+            numUnpackedDimensions: tile.data.numUnpackedDimensions,
+          );
+    final canonicalTile = InferenceTensorTile<Logic, LogicValue>.fromData(
+      data: canonicalData,
+      format: format,
+    );
+    final canonicalStream = InferenceTensorStreamElement(
+      Logic(name: stream.data.name, width: format.elementWidth),
+      rowCount: tile.rowCount,
+      columnCount: tile.columnCount,
+      name: stream.name,
+    );
+    if (payloadShapeIdentity(tile) == payloadShapeIdentity(canonicalTile) &&
+        payloadShapeIdentity(stream) == payloadShapeIdentity(canonicalStream) &&
+        (frame == null ||
+            payloadShapeIdentity(frame) ==
+                payloadShapeIdentity(Frame(canonicalStream)))) {
+      final numeric = switch (format.elementKind) {
+        InferenceElementKind.fixedPoint => 'Q${format.signed ? 'S' : 'U'}'
+            '_I${format.integerWidth}_F${format.fractionWidth}',
+        InferenceElementKind.signedInteger => 'S${format.elementWidth}',
+        _ => 'U${format.elementWidth}',
+      };
+      final nondefaults = [
+        if (format.productWidth != canonicalFormat.productWidth)
+          'P${format.productWidth}',
+        if (format.accumulatorWidth != canonicalFormat.accumulatorWidth)
+          'A${format.accumulatorWidth}',
+        if (format.signed != canonicalFormat.signed)
+          'S${format.signed ? 1 : 0}',
+        if (format.scaleKind != canonicalFormat.scaleKind)
+          'Scale${format.scaleKind.name}',
+        if (format.scaleWidth != canonicalFormat.scaleWidth)
+          'SW${format.scaleWidth}',
+        if (format.groupSize != canonicalFormat.groupSize)
+          'G${format.groupSize}',
+        if (format.integerWidth != canonicalFormat.integerWidth)
+          'I${format.integerWidth ?? 0}',
+        if (format.fractionWidth != canonicalFormat.fractionWidth)
+          'F${format.fractionWidth ?? 0}',
+        if (format.exponentWidth != canonicalFormat.exponentWidth)
+          'X${format.exponentWidth ?? 0}',
+        if (format.mantissaWidth != canonicalFormat.mantissaWidth)
+          'M${format.mantissaWidth ?? 0}',
+        if (format.roundingMode != canonicalFormat.roundingMode)
+          format.roundingMode.name,
+        if (format.overflowMode != canonicalFormat.overflowMode)
+          format.overflowMode.name,
+      ].map((parameter) => '_$parameter').join();
+      final customName = stream.name == '${stream.data.name}_tensor_element'
+          ? ''
+          : '_Name${readableSchemaName(stream.name)}';
+      readable = 'R${tile.rowCount}_C${tile.columnCount}_$numeric$nondefaults'
+          '_U${tile.data.numUnpackedDimensions}'
+          '${tile.data is LogicArray ? '' : '_Typed'}'
+          '_N${readableSchemaName(stream.data.name)}'
+          '$customName'
+          '${frame != null ? '_Frame' : ''}';
+    }
+  }
+  return compactPayloadShapesIdentity(payloads,
+      definitionPrefix: definitionPrefix, readableIdentity: readable);
 }
 
 /// Statically transposes a typed inference tile.
@@ -169,7 +268,11 @@ class TensorTileUntiler<TLogic extends Logic, TValue> extends Module {
     super.name = 'tensor_tile_untiler',
   }) : super(
           definitionName: 'TensorTileUntiler_'
-              '${payloadShapesIdentity([inputTile, elementSchema])}',
+              '${tensorTileStreamShapeIdentity(
+            inputTile,
+            elementSchema,
+            definitionPrefix: 'TensorTileUntiler_',
+          )}',
         ) {
     _validateTileStream(inputTile, elementSchema);
     advance ??= Const(1);
@@ -271,7 +374,12 @@ class TensorTileTiler<TLogic extends Logic, TValue> extends Module {
     super.name = 'tensor_tile_tiler',
   }) : super(
           definitionName: 'TensorTileTiler_'
-              '${payloadShapesIdentity([element, tileSchema])}',
+              '${tensorTileStreamShapeIdentity(
+            tileSchema,
+            element.data,
+            definitionPrefix: 'TensorTileTiler_',
+            frame: element,
+          )}',
         ) {
     _validateTileStream(tileSchema, element.data);
     const SynchronousActionAttachmentPolicy()

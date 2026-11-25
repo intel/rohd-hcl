@@ -15,6 +15,7 @@ import 'dart:async';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
+import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 import '../systemc_test_utils.dart';
@@ -23,6 +24,114 @@ import '../verilator_test_utils.dart';
 void main() {
   tearDown(() async {
     await Simulator.reset();
+  });
+
+  test('tiler names are bounded and distinguish complete payload schemas',
+      () async {
+    TensorTileTiler<Logic, LogicValue> create(
+        {required bool unpacked, required bool signed, String name = 'tile'}) {
+      final format = InferenceNumericFormat.fixedPoint(
+        signed: signed,
+        integerWidth: signed ? 5 : 6,
+        fractionWidth: 2,
+      );
+      final tile = InferenceTensorTile<Logic, LogicValue>(
+        rowCount: 2,
+        columnCount: 3,
+        elementBuilder: ({name}) => Logic(name: name, width: 8),
+        format: format,
+        numUnpackedDimensions: unpacked ? 2 : 0,
+        name: name,
+      );
+      return TensorTileTiler(
+        clk: Logic(),
+        reset: Logic(),
+        write: Logic(),
+        element: Frame(InferenceTensorStreamElement(
+          Logic(name: 'sample', width: 8),
+          rowCount: 2,
+          columnCount: 3,
+        )),
+        tileSchema: tile,
+      );
+    }
+
+    final first = create(unpacked: false, signed: true, name: 'first');
+    final renamed = create(unpacked: false, signed: true, name: 'renamed');
+    final unpacked = create(unpacked: true, signed: true);
+    final unsigned = create(unpacked: false, signed: false);
+    expect(first.definitionName, renamed.definitionName);
+    expect(first.definitionName, contains('R2_C3_QS_I5_F2_U0_Typed'));
+    expect(unpacked.definitionName, contains('_U2_Typed'));
+    expect(unsigned.definitionName, contains('QU_I6_F2'));
+    expect(first.definitionName, isNot(contains('_H')));
+    expect(
+      {first.definitionName, unpacked.definitionName, unsigned.definitionName},
+      hasLength(3),
+    );
+    for (final module in [first, renamed, unpacked, unsigned]) {
+      expect(module.definitionName.length, lessThanOrEqualTo(80));
+      expect(module.definitionName, matches(r'^[A-Za-z_][A-Za-z0-9_]*$'));
+      await module.build();
+      SimCompare.checkIverilogVector(module, const [], buildOnly: true);
+    }
+  });
+
+  test('readable schemas hash only beyond the name-length boundary', () {
+    LogicStructure schema(int nameLength) => LogicStructure([
+          Logic(name: 'a' * nameLength, width: 8),
+        ]);
+    final short = compactPayloadShapesIdentity([schema(70)]);
+    expect(short.length, 80);
+    expect(short, startsWith('S1_N70_'));
+    final long = compactPayloadShapesIdentity([schema(71)]);
+    expect(long, matches(r'^H[0-9a-f]{64}$'));
+    expect(compactPayloadShapesIdentity([Logic(width: 8)]), 'L8');
+    expect(
+      schemaQualifiedDefinitionName('Module_', [schema(70)]),
+      matches(r'^Module_H[0-9a-f]{64}$'),
+    );
+    final different = compactPayloadShapesIdentity([
+      LogicStructure([Logic(name: 'a' * 70 + 'b', width: 8)]),
+    ]);
+    expect(different, isNot(long));
+    expect(compactPayloadShapesIdentity([schema(71)]), long);
+  });
+
+  test('custom tensor field names and numeric policies retain distinct names',
+      () {
+    TensorTileTiler<Logic, LogicValue> create(
+        {String dataName = 'sample', int accumulatorWidth = 16, int rows = 2}) {
+      final tile = inferenceLogicTensorTile(
+        rowCount: rows,
+        columnCount: 3,
+        format: InferenceNumericFormat.signedInteger(
+          8,
+          accumulatorWidth: accumulatorWidth,
+        ),
+      );
+      return TensorTileTiler(
+        clk: Logic(),
+        reset: Logic(),
+        write: Logic(),
+        element: Frame(InferenceTensorStreamElement(
+          Logic(name: dataName, width: 8),
+          rowCount: rows,
+          columnCount: 3,
+        )),
+        tileSchema: tile,
+      );
+    }
+
+    final ordinary = create();
+    expect(ordinary.definitionName, contains('R2_C3_S8_U0_N6_sample'));
+    expect(ordinary.definitionName, isNot(contains('_H')));
+    expect(create(rows: 4).definitionName, contains('R4_C3'));
+    final custom = create(dataName: 'custom' * 30);
+    expect(custom.definitionName, matches(r'^TensorTileTiler_H[0-9a-f]{64}$'));
+    expect(create(accumulatorWidth: 24).definitionName, contains('_A24'));
+    expect(create(dataName: 'other').definitionName,
+        isNot(ordinary.definitionName));
   });
 
   test('transposes typed tile data and exchanges runtime masks', () async {

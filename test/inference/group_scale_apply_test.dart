@@ -8,6 +8,7 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
@@ -15,6 +16,55 @@ void main() {
   tearDown(() async {
     await Simulator.reset();
   });
+
+  for (final laneCount in [1, 4]) {
+    test('packed shared scale matches array scaling for $laneCount lanes',
+        () async {
+      final values = _array(laneCount, 8, 'values');
+      final scalarScale = Logic(width: 4);
+      final scales = _array(1, 4, 'scales');
+      final mask = Logic(width: laneCount);
+      final shared = GroupScaleApply(
+        values,
+        scalarScale,
+        groupSize: laneCount,
+        fractionalBits: 1,
+        outputWidth: 8,
+        activeMask: mask,
+      );
+      final array = GroupScaleApply(
+        values,
+        scales,
+        groupSize: laneCount,
+        fractionalBits: 1,
+        outputWidth: 8,
+        activeMask: mask,
+      );
+      await shared.build();
+      await array.build();
+      final synthesizer = NetlistSynthesizer();
+      synthesizer.generateCombinedJson(
+        SynthBuilder(shared, synthesizer),
+        shared,
+      );
+      SimCompare.checkIverilogVector(shared, const [], buildOnly: true);
+      _injectSigned(values, [3, -5, 120, -128].take(laneCount).toList());
+      for (final (scale, active) in [
+        (3, (1 << laneCount) - 1),
+        (-2, 1),
+        (0, 0),
+      ]) {
+        scalarScale.inject(BigInt.from(scale).toUnsigned(4));
+        _injectSigned(scales, [scale]);
+        mask.inject(active);
+        await Simulator.tick();
+        expect(shared.scaledValues.value, array.scaledValues.value);
+        expect(shared.overflowMask.value, array.overflowMask.value);
+        expect(shared.underflowMask.value, array.underflowMask.value);
+        expect(shared.inexactMask.value, array.inexactMask.value);
+      }
+    });
+  }
 
   test('applies one fixed-point scale per lane group', () async {
     final nativeValues = _array(4, 8, 'nativeValues');
@@ -167,6 +217,16 @@ void main() {
   });
 
   test('validates scale count and group size', () {
+    expect(
+      () => GroupScaleApply(
+        _array(4, 8, 'values'),
+        Logic(width: 8),
+        groupSize: 2,
+        fractionalBits: 0,
+        outputWidth: 8,
+      ),
+      throwsArgumentError,
+    );
     expect(
       () => GroupScaleApply(
         _array(4, 8, 'values'),

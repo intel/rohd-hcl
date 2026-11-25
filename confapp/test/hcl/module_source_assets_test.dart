@@ -65,6 +65,40 @@ void main() {
     }
   });
 
+  test(
+      'inference variants have bundled sources for their actual '
+      'implementations', () async {
+    final configs = componentRegistry
+        .where((cfg) => cfg.category == ComponentCategory.inference);
+    for (final cfg in configs) {
+      final boundary = cfg.knobs['Boundary'];
+      final choices =
+          boundary is ChoiceConfigKnob<InferenceConfiguratorBoundary>
+              ? InferenceConfiguratorBoundary.values
+              : [InferenceConfiguratorBoundary.actions];
+      for (final choice in choices) {
+        if (boundary is ChoiceConfigKnob<InferenceConfiguratorBoundary>) {
+          boundary.value = choice;
+        }
+        final module = cfg.createModule();
+        final asset = moduleSourceAsset(module);
+        expect(asset, isNotNull, reason: '${cfg.name}: $choice');
+        final source = await rootBundle.loadString('assets/$asset');
+        expect(
+            source, contains('class ${module.definitionName.split('_').first}'),
+            reason: asset);
+      }
+    }
+    final softmax = OnlineSoftmaxConfigurator();
+    for (final operation in OnlineSoftmaxConfiguratorOperation.values) {
+      softmax.operationKnob.value = operation;
+      final asset = moduleSourceAsset(softmax.createModule());
+      expect(asset, isNotNull, reason: operation.name);
+      expect(await rootBundle.loadString('assets/$asset'),
+          contains('class OnlineSoftmax'));
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
   test('typed priority mux uses its source asset', () {
     final mux =
         general.PriorityMux<Logic>(Logic(), [Logic(width: 4)], Logic(width: 4));

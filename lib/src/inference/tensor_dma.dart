@@ -350,7 +350,8 @@ class TensorDmaEngine<T extends Logic> extends Module {
     this.multiplierImplementation = nativeInferenceMultiplierFunctor,
     super.name = 'tensor_dma_engine',
   }) : super(
-          definitionName: 'TensorDmaEngine_'
+          definitionName: schemaQualifiedDefinitionName(
+              'TensorDmaEngine_'
               'SA${command.data.sourceAddressWidth}_'
               'DA${command.data.destinationAddressWidth}_'
               'M${command.data.mWidth}_N${command.data.nWidth}_'
@@ -358,8 +359,10 @@ class TensorDmaEngine<T extends Logic> extends Module {
               'D${sourceReadResponse.data.dataWidth}_'
               'T${sourceReadRequest.data.tagWidth}_'
               'SD${sourceDepth ?? 0}_DD${destinationDepth ?? 0}_'
-              'C${counterWidth}_${multiplierImplementation.identity}_'
-              '${payloadShapeIdentity(sourceReadResponse.data.data)}',
+              'C${counterWidth}_${multiplierImplementation.identity}_',
+              [
+                sourceReadResponse.data.data,
+              ]),
         ) {
     final countWidth = tensorDmaCountWidth(
       mWidth: command.data.mWidth,

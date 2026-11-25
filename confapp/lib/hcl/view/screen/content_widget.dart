@@ -16,6 +16,7 @@ import 'package:confapp/hcl/module_source_assets.dart';
 import 'package:confapp/hcl/view/screen/browser_interop.dart';
 import 'package:confapp/hcl/view/screen/dart_syntax_code_controller.dart';
 import 'package:confapp/hcl/view/screen/dock_lock_icon.dart';
+import 'package:confapp/hcl/view/screen/fixed_point_format_control.dart';
 import 'package:confapp/hcl/view/screen/flc_trace_data.dart';
 import 'package:confapp/hcl/view/screen/integer_knob_control.dart';
 import 'package:flutter/foundation.dart';
@@ -2164,8 +2165,17 @@ class _SVGeneratorState extends State<SVGenerator>
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Text('Add or remove: '),
+              Flexible(
+                child: Text(
+                  'Count: ${knob.count}',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               IconButton(
+                tooltip: 'Add entry',
+                constraints:
+                    const BoxConstraints.tightFor(width: 40, height: 40),
+                padding: const EdgeInsets.all(8),
                 onPressed: () {
                   knob.value += 1;
                   _invalidateGeneratedOutputs();
@@ -2173,13 +2183,18 @@ class _SVGeneratorState extends State<SVGenerator>
                 icon: const Icon(Icons.add),
               ),
               IconButton(
-                onPressed: () {
-                  if (knob.value == 0) {
-                    return;
-                  }
-                  knob.value -= 1;
-                  _invalidateGeneratedOutputs();
-                },
+                constraints:
+                    const BoxConstraints.tightFor(width: 40, height: 40),
+                padding: const EdgeInsets.all(8),
+                tooltip: knob.value <= knob.minCount
+                    ? 'At least ${knob.minCount} entries are required.'
+                    : 'Remove last entry',
+                onPressed: knob.value <= knob.minCount
+                    ? null
+                    : () {
+                        knob.value -= 1;
+                        _invalidateGeneratedOutputs();
+                      },
                 icon: const Icon(Icons.remove),
               ),
             ],
@@ -2204,41 +2219,63 @@ class _SVGeneratorState extends State<SVGenerator>
                 ),
                 child: Container(
                   key: ValueKey('${knob.name}-$index'),
-                  child: subKnob is GroupOfKnobs
-                      ? Column(
-                          children: [
-                            _containerOfKnobs(
-                              title: '${subKnob.name} $index',
+                  child: subKnob is InferenceFixedPointFormatKnob
+                      ? _generateKnobControl('${knob.name} $index', subKnob)
+                      : subKnob is GroupOfKnobs
+                          ? Column(
                               children: [
-                                for (final subKnobEntry
-                                    in subKnob.subKnobs.entries)
-                                  _generateKnobControl(
-                                    subKnobEntry.key,
-                                    subKnobEntry.value,
-                                  ),
+                                _containerOfKnobs(
+                                  title: subKnob is NamedAttentionFormatKnob
+                                      ? 'Format $index: ${subKnob.name}'
+                                      : '${subKnob.name} $index',
+                                  children: [
+                                    for (final subKnobEntry
+                                        in subKnob.subKnobs.entries)
+                                      _generateKnobControl(
+                                        subKnob is NamedAttentionFormatKnob &&
+                                                subKnobEntry.key == 'Format'
+                                            ? '${subKnob.name} Format'
+                                            : subKnobEntry.key,
+                                        subKnobEntry.value,
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                _generateKnobControl(
+                                  '${knob.name} $index',
+                                  subKnob,
+                                ),
+                                const SizedBox(height: 12),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                          ],
-                        )
-                      : Column(
-                          children: [
-                            _generateKnobControl(
-                              '${knob.name} $index',
-                              subKnob,
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                        ),
                 ),
               ),
             ),
         ],
       );
+    } else if (knob is InferenceFixedPointFormatKnob) {
+      selector = FixedPointFormatControl(
+        key: ObjectKey(knob),
+        label: label,
+        knob: knob,
+        onChanged: _invalidateGeneratedOutputs,
+      );
     } else if (knob is GroupOfKnobs) {
       selector = _containerOfKnobs(
-        title: knob.name,
+        title: label,
         children: [
+          if (knob is AttentionNumericFormatsKnob)
+            const Padding(
+              padding: EdgeInsets.all(8),
+              child: Text(
+                'Roles can share a named format. Reassign roles before '
+                'removing a referenced format.',
+              ),
+            ),
           for (final subKnobEntry in knob.subKnobs.entries)
             _generateKnobControl(subKnobEntry.key, subKnobEntry.value),
         ],

@@ -310,19 +310,13 @@ class RmsNorm extends Module {
       name: '${name}_inverse_rms',
     );
     addOutput('inverseRms', width: inverseRmsWidth) <= inverse.result;
-    final inverseArray = LogicArray(
-      const [1],
-      inverseRmsWidth,
-      name: '${name}_inverse_scale',
-    );
-    inverseArray.arrayElements.single <= inverse.result;
     final normalizedIntermediateWidth = max(
       outputWidth,
       values.elementWidth + 2,
     );
     final normalized = GroupScaleApply(
       values,
-      inverseArray,
+      inverseRms,
       groupSize: laneCount,
       fractionalBits: inverseRmsFractionBits,
       outputWidth: normalizedIntermediateWidth,

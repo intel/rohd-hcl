@@ -21,6 +21,9 @@ String _scaleSignedIdentity(dynamic value) =>
 String _scaleOutputSignedIdentity(dynamic value) =>
     value == null ? 'derived' : _scaleSignedIdentity(value);
 
+int _scaleElementWidth(Logic scales) =>
+    scales is LogicArray ? scales.elementWidth : scales.width;
+
 int _scaleGroupCount(int laneCount, int groupSize) {
   if (groupSize < 1) {
     throw ArgumentError.value(groupSize, 'groupSize', 'Must be positive.');
@@ -39,6 +42,8 @@ int _scaleGroupCount(int laneCount, int groupSize) {
 ///
 /// Signedness may be static or selected by runtime one-bit controls. The
 /// result exposes one overflow, underflow, and inexact bit per lane.
+/// A packed scalar scale may be supplied when all lanes share one group;
+/// otherwise supply a 1-D [LogicArray] with one scale per group.
 /// {@category Inference}
 class GroupScaleApply extends Module {
   /// Number of physical data lanes.
@@ -95,7 +100,7 @@ class GroupScaleApply extends Module {
   /// Creates grouped fixed-point scaling and requantization hardware.
   GroupScaleApply(
     LogicArray values,
-    LogicArray scales, {
+    Logic scales, {
     required this.groupSize,
     required this.fractionalBits,
     required this.outputWidth,
@@ -116,7 +121,7 @@ class GroupScaleApply extends Module {
         super(
           definitionName: 'GroupScaleApply_'
               'L${values.arrayElements.length}_G${groupSize}_'
-              'V${values.elementWidth}_S${scales.elementWidth}_'
+              'V${values.elementWidth}_S${_scaleElementWidth(scales)}_'
               'F${fractionalBits}_O${outputWidth}_'
               'SV${_scaleSignedIdentity(signedValue)}_'
               'SS${_scaleSignedIdentity(signedScale)}_'
@@ -124,20 +129,24 @@ class GroupScaleApply extends Module {
               '${roundingMode.name}_${overflowMode.name}_'
               '${multiplierImplementation.identity}_'
               'Z${zeroPoints == null ? 0 : 1}_'
-              'M${activeMask == null ? 0 : 1}',
+              'M${activeMask == null ? 0 : 1}'
+              '${scales is LogicArray ? '' : '_Shared'}',
         ) {
     if (values.dimensions.length != 1 ||
-        scales.dimensions.length != 1 ||
         laneCount < 1 ||
         groupSize < 1 ||
-        scales.arrayElements.length != groupCount) {
+        _scaleElementWidth(scales) < 1 ||
+        (scales is LogicArray
+            ? scales.dimensions.length != 1 ||
+                scales.arrayElements.length != groupCount
+            : scales is LogicStructure || groupCount != 1)) {
       throw ArgumentError(
-        'Values and scales must be non-empty 1-D arrays with exactly one '
-        'scale per configured lane group.',
+        'Values must be a non-empty 1-D array. Scales must be a 1-D array '
+        'with one scale per group, or a packed scalar for a single group.',
       );
     }
     if (fractionalBits < 0 ||
-        fractionalBits > values.elementWidth + scales.elementWidth) {
+        fractionalBits > values.elementWidth + _scaleElementWidth(scales)) {
       throw ArgumentError.value(
         fractionalBits,
         'fractionalBits',
@@ -165,7 +174,9 @@ class GroupScaleApply extends Module {
         ? null
         : InferenceSignedness(signedOutput, name: 'signedOutput');
     values = addTypedInput('values', values);
-    scales = addTypedInput('scales', scales);
+    final scaleLanes = scales is LogicArray
+        ? addTypedInput('scales', scales).arrayElements
+        : [addInput('scale', scales, width: scales.width)];
     if (zeroPoints != null) {
       zeroPoints = addTypedInput('zeroPoints', zeroPoints);
     }
@@ -191,7 +202,7 @@ class GroupScaleApply extends Module {
       final group = lane ~/ groupSize;
       final multiplier = multiplierImplementation(
         values.arrayElements[lane],
-        scales.arrayElements[group],
+        scaleLanes[group],
         signedMultiplicand: this.signedValue.childConfiguration(this),
         signedMultiplier: this.signedScale.childConfiguration(this),
       );

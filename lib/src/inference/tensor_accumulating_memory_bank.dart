@@ -237,12 +237,14 @@ class ReadyValidTensorAccumulatingMemoryBank extends Module {
     MemoryArrayFunctor<Logic>? memoryArray,
     super.name = 'ready_valid_tensor_accumulating_memory_bank',
   }) : super(
-          definitionName: 'ReadyValidTensorAccumulatingMemoryBank_D${depth}_'
-              'L${laneWidth}_${payloadShapesIdentity([
+          definitionName: schemaQualifiedDefinitionName(
+              'ReadyValidTensorAccumulatingMemoryBank_D${depth}_L${laneWidth}_',
+              [
                 writes.data,
                 reads.data,
                 responses.data,
-              ])}_${memoryArray?.identity ?? 'inferredSram1p'}',
+              ],
+              suffix: '_${memoryArray?.identity ?? 'inferredSram1p'}'),
         ) {
     if (writes.data.write.dataWidth != responses.data.dataWidth ||
         reads.data.tagWidth != responses.data.tagWidth) {
