@@ -197,6 +197,10 @@ Leave custom tables disabled to retain the built-in timing heuristics.
   support credit accounting, and the [LTI BFM](./components/amba/lti.md#validation)
   models credit-based traffic.
 
+### Inference
+
+- [Attention, tensor movement, storage, and layout](./components/inference.md).
+
 ### Interfaces
 
 - **AMBA:** [AXI, AXI-Lite, ACE, and AXI-S](./components/amba/axi.md),

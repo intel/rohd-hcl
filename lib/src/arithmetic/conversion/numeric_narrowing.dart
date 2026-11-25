@@ -182,3 +182,72 @@ class NumericNarrowing extends Module {
     }
   }
 }
+
+/// Runtime-shift counterpart of [NumericNarrowing].
+///
+/// Shifts larger than the input width retain the mathematically correct
+/// rounding and inexact behavior for every [NumericRoundingMode].
+/// {@category Arithmetic}
+class DynamicNumericNarrowing extends Module {
+  /// Rounded and narrowed result.
+  Logic get result => output('result');
+
+  /// High when the rounded value exceeds the output maximum.
+  Logic get overflowed => output('overflowed');
+
+  /// High when the rounded signed value is below the output minimum.
+  Logic get underflowed => output('underflowed');
+
+  /// High when non-zero bits were discarded.
+  Logic get inexact => output('inexact');
+
+  /// Creates combinational narrowing with an unsigned runtime shift.
+  DynamicNumericNarrowing(
+    Logic value,
+    Logic shift, {
+    required int outputWidth,
+    bool signed = false,
+    NumericRoundingMode roundingMode = NumericRoundingMode.truncate,
+    NumericOverflowMode overflowMode = NumericOverflowMode.wrap,
+    super.name = 'dynamic_numeric_narrowing',
+    super.reserveName,
+    super.reserveDefinitionName,
+    String? definitionName,
+  }) : super(
+          definitionName: definitionName ??
+              'DynamicNumericNarrowing_I${value.width}_O${outputWidth}_'
+                  'S${signed ? 1 : 0}_R${shift.width}_'
+                  '${roundingMode.name}_${overflowMode.name}',
+        ) {
+    if (outputWidth <= 0) {
+      throw RohdHclException(
+          'Numeric narrowing output width must be positive.');
+    }
+    value = addInput('value', value, width: value.width);
+    shift = addInput('shift', shift, width: shift.width);
+    final limit = value.width + 1;
+    final maxShift =
+        shift.width >= limit.bitLength ? limit : (1 << shift.width) - 1;
+    final boundedShift = shift.width >= limit.bitLength
+        ? mux(shift.gt(limit), Const(limit, width: shift.width), shift)
+        : shift;
+    final extended = signed
+        ? value.signExtend(value.width + maxShift)
+        : value.zeroExtend(value.width + maxShift);
+    final aligned =
+        extended << (Const(maxShift, width: shift.width) - boundedShift);
+    final narrowed = NumericNarrowing(
+      aligned,
+      outputWidth: outputWidth,
+      signed: signed,
+      shiftRight: maxShift,
+      roundingMode: roundingMode,
+      overflowMode: overflowMode,
+      name: '${name}_narrow',
+    );
+    addOutput('result', width: outputWidth) <= narrowed.result;
+    addOutput('overflowed') <= narrowed.overflowed;
+    addOutput('underflowed') <= narrowed.underflowed;
+    addOutput('inexact') <= narrowed.inexact;
+  }
+}

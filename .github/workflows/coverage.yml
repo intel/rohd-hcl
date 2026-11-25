@@ -37,6 +37,9 @@ jobs:
       - name: Install native test dependencies
         run: sudo apt-get update && sudo apt-get install -y iverilog verilator g++ libsystemc-dev lcov
 
+      - name: Prepare SystemC precompiled header
+        run: dart run test:test tool/gh_actions/prepare_systemc_test.dart --concurrency=1
+
       - name: Generate coverage and badge
         env:
           ROHD_REQUIRE_VERILATOR: '1'

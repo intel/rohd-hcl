@@ -11,6 +11,7 @@ export 'src/encodings/encodings.dart';
 export 'src/error_control/error_control.dart';
 export 'src/exceptions.dart';
 export 'src/flow_control/flow_control.dart';
+export 'src/inference/inference.dart';
 export 'src/interfaces/interfaces.dart'
     hide SpiMainImplementation, SpiSubImplementation;
 export 'src/memory/memories.dart'

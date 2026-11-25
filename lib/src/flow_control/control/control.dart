@@ -4,3 +4,5 @@
 export 'fifo_core_functor.dart';
 export 'fixed_latency_tracker.dart';
 export 'hardware_core_functor.dart';
+export 'policy_mux_core.dart';
+export 'selective_fork_core.dart';

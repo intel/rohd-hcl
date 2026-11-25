@@ -23,7 +23,10 @@ bool canRunSystemC() {
   if (Platform.environment['ROHD_REQUIRE_SYSTEMC'] == '1') {
     fail(reason);
   }
-  markTestSkipped(reason);
+  markTestSkipped(
+      'Optional SystemC checks skipped: native toolchain unavailable. '
+      'Set ROHD_REQUIRE_SYSTEMC=1 to require it '
+      'and show the probe diagnostic.');
   return false;
 }
 

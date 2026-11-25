@@ -158,9 +158,33 @@ void main() {
     SimCompare.checkVerilatorVector(dut, vectors);
   });
 
+  test('OneHotMux retains structured cases and bitwise X/Z behavior', () async {
+    final dut = OneHotMux<_Payload>(
+        Logic(width: 2), [_Payload(name: 'first'), _Payload(name: 'second')]);
+    await dut.build();
+    final vectors = [
+      Vector({'selector': 0, 'case0': 3, 'case1': 12}, {'result': 0}),
+      Vector({'selector': 1}, {'result': 3}),
+      Vector({'selector': 2}, {'result': 12}),
+      Vector({'selector': 3}, {'result': 15}),
+      Vector({'selector': 1, 'case0': LogicValue.ofString('1z0x')},
+          {'result': LogicValue.ofString('1x0x')}),
+    ];
+    await SimCompare.checkFunctionalVector(dut, vectors);
+    SimCompare.checkIverilogVector(dut, vectors);
+    expect(dut.result.elements.first.name, 'tag');
+    expect(
+        () => OneHotMux<Logic>(Logic(width: 3), [
+              _Payload(),
+              Logic(width: 4),
+              _Payload(tagName: 'other'),
+            ]),
+        throwsArgumentError);
+  });
+
   test('OneHotMux rejects invalid case and selector widths', () {
     expect(
-      () => OneHotMux(Logic(), []),
+      () => OneHotMux<Logic>(Logic(), []),
       throwsA(predicate(
           (e) => e is Exception && e.toString().contains('At least one case'))),
     );

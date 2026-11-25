@@ -8,9 +8,6 @@
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
-// ROHD 0.7.4 retains this 0.7.3 name as an internal compatibility alias.
-// ignore: implementation_imports
-import 'package:rohd/src/signals/signals.dart' as rohd_signals;
 import 'package:rohd_hcl/src/exceptions.dart';
 
 export 'package:rohd/rohd.dart' show PayloadShapeMetadata;
@@ -18,26 +15,16 @@ export 'package:rohd/rohd.dart' show PayloadShapeMetadata;
 // See DEPRECATION_PLAN.md for the prerequisites for replacing these helpers.
 
 /// Whether two payloads have identical declared shapes.
-// TODO(rohd): Replace with sameRohdPayloadShape after requiring ROHD 0.7.4.
 bool samePayloadShape(Logic first, Logic second,
         {bool ignoreConstantNames = false}) =>
-    // The compatibility alias is deprecated in ROHD 0.7.4.
-    // ignore: deprecated_member_use
-    rohd_signals.sameDeclaredPayloadShape(first, second,
+    sameRohdPayloadShape(first, second,
         ignoreConstantNames: ignoreConstantNames);
 
 /// Whether two interface payloads can connect, allowing a packed bridge.
-// TODO(rohd): Replace with rohdPayloadsCompatible when it is released.
 bool compatiblePayloadConnection(Logic target, Logic source,
-    {bool ignoreConstantNames = false}) {
-  if (target.width != source.width) {
-    return false;
-  }
-  return !hasDeclaredPayloadShape(target) ||
-      !hasDeclaredPayloadShape(source) ||
-      samePayloadShape(target, source,
-          ignoreConstantNames: ignoreConstantNames);
-}
+        {bool ignoreConstantNames = false}) =>
+    rohdPayloadsCompatible([target, source],
+        ignoreConstantNames: ignoreConstantNames);
 
 /// Whether all payloads are pairwise compatible, allowing packed bridges.
 ///
@@ -47,15 +34,15 @@ bool compatiblePayloadConnection(Logic target, Logic source,
 // supports allowRenamedClones, or retain that behavior separately.
 bool compatiblePayloadSet(Iterable<Logic> payloads,
     {bool ignoreConstantNames = false, bool allowRenamedClones = false}) {
+  if (!allowRenamedClones) {
+    return rohdPayloadsCompatible(payloads,
+        ignoreConstantNames: ignoreConstantNames);
+  }
   final values = payloads.toList();
   for (var i = 0; i < values.length; i++) {
     for (var j = i + 1; j < values.length; j++) {
-      final compatible = allowRenamedClones
-          ? compatiblePayloadConnectionAllowingRenamedClone(
-              values[i], values[j])
-          : compatiblePayloadConnection(values[i], values[j],
-              ignoreConstantNames: ignoreConstantNames);
-      if (!compatible) {
+      if (!compatiblePayloadConnectionAllowingRenamedClone(
+          values[i], values[j])) {
         return false;
       }
     }
@@ -92,6 +79,12 @@ T cloneTypedPayload<T extends Logic>(T source, {String? name}) {
   _validatePayloadClone(source, clone, name ?? source.name);
   return clone;
 }
+
+/// Unambiguous ordered identity for a collection of payload shapes.
+String payloadShapesIdentity(Iterable<Logic> payloads) => payloads.map((value) {
+      final shape = payloadShapeIdentity(value);
+      return '${shape.length}_$shape';
+    }).join('_');
 
 /// Clones an interface payload, making a widened scalar constant driveable.
 // TODO(rohd): Remove when ROHD interface registration handles this constant
@@ -165,6 +158,22 @@ void putPackedLogicValue(Logic data, LogicValue value) {
     }
   } else {
     data.put(value);
+  }
+}
+
+/// Drives packed bits into a payload's leaves without semantic conversion.
+void connectPackedPayload(Logic destination, Logic packed) {
+  if (destination.width != packed.width) {
+    throw ArgumentError('Packed payload widths must match.');
+  }
+  if (destination is LogicStructure) {
+    var offset = 0;
+    for (final leaf in destination.leafElements) {
+      leaf <= packed.getRange(offset, offset + leaf.width);
+      offset += leaf.width;
+    }
+  } else {
+    destination <= packed;
   }
 }
 

@@ -21,6 +21,9 @@ import 'package:test/test.dart';
 
 import '../../systemc_test_utils.dart';
 
+// Native compilation shares CPU with other suites and can exceed 30 seconds.
+const _compileTimeout = Timeout(Duration(minutes: 3));
+
 class _SynchronousArray<T extends Logic> extends Memory<T> {
   @override
   final int readLatency;
@@ -475,6 +478,7 @@ List<Vector> _vectors(int latency, {bool useAdapter = false}) {
 }
 
 Future<void> _checkBehavioralHierarchy(Module dut, List<Vector> vectors) async {
+  final timing = Stopwatch()..start();
   final hierarchy = generateBehavioralSystemCHierarchy(
     dut,
     select: (module) =>
@@ -483,6 +487,7 @@ Future<void> _checkBehavioralHierarchy(Module dut, List<Vector> vectors) async {
         module is BehavioralReplacementPolicy,
     unknownOutputs: SystemCUnknownOutputPolicy.zeroUntilReset,
   );
+  printOnFailure('SystemC generation completed after ${timing.elapsed}.');
   final dir = await Directory.systemTemp.createTemp('cache_systemc_miter_');
   try {
     final cpp = StringBuffer(hierarchy.source)..writeln('''
@@ -516,6 +521,7 @@ int sc_main(int, char**) {
     if (!canRunSystemC()) {
       return;
     }
+    printOnFailure('SystemC compilation started after ${timing.elapsed}.');
     final compile = await Process.run('g++', [
       '-std=c++17',
       '${dir.path}/test.cpp',
@@ -523,8 +529,10 @@ int sc_main(int, char**) {
       '-o',
       '${dir.path}/test'
     ]);
+    printOnFailure('SystemC compilation completed after ${timing.elapsed}.');
     expect(compile.exitCode, 0, reason: '${compile.stdout}\n${compile.stderr}');
     final run = await Process.run('${dir.path}/test', []);
+    printOnFailure('SystemC execution completed after ${timing.elapsed}.');
     expect(run.exitCode, 0, reason: '${run.stdout}\n${run.stderr}');
   } finally {
     await dir.delete(recursive: true);
@@ -878,16 +886,21 @@ void main() {
     SimCompare.checkIverilogVector(dut, vectors);
   });
 
-  test('typed transactions use inferred SRAM data', () async {
+  test('typed transactions use inferred SRAM data', timeout: _compileTimeout,
+      () async {
+    final timing = Stopwatch()..start();
     final dut = _TypedHarness(_Data(), behavioral: false, inferredSram: true);
     final vectors = _vectors(1, useAdapter: true);
     await dut.build();
+    printOnFailure('Cache build completed after ${timing.elapsed}.');
     await SimCompare.checkFunctionalVector(dut, vectors);
+    printOnFailure('Dart simulation completed after ${timing.elapsed}.');
     SimCompare.checkIverilogVector(dut, vectors);
+    printOnFailure('Icarus check completed after ${timing.elapsed}.');
     await _checkBehavioralHierarchy(dut, vectors);
   });
   test('typed transactions use behavioral tags with inferred SRAM data',
-      () async {
+      timeout: _compileTimeout, () async {
     final dut = _TypedHarness(_Data(),
         behavioral: false, inferredSram: true, behavioralTags: true);
     final vectors = _vectors(1, useAdapter: true);
@@ -937,7 +950,7 @@ void main() {
 
   for (final behavioralTags in [false, true]) {
     test('lower-numbered request port wins, behavioralTags=$behavioralTags',
-        () async {
+        timeout: behavioralTags ? _compileTimeout : null, () async {
       final dut = _Harness(1,
           behavioral: false, twoPorts: true, behavioralTags: behavioralTags);
       final vectors = [
@@ -1002,7 +1015,8 @@ void main() {
     for (final behavioralTags in [false, true]) {
       test(
           'reset cancels ${resetDuringEviction ? 'eviction' : 'pipeline'} '
-          'behavioralTags=$behavioralTags', () async {
+          'behavioralTags=$behavioralTags',
+          timeout: behavioralTags ? _compileTimeout : null, () async {
         final dut =
             _Harness(2, behavioral: false, behavioralTags: behavioralTags);
         final vectors = <Vector>[];
@@ -1084,7 +1098,8 @@ void main() {
       });
     }
   }
-  test('serialized cache uses inferred single-port SRAM data', () async {
+  test('serialized cache uses inferred single-port SRAM data',
+      timeout: _compileTimeout, () async {
     final dut = _Harness(1, behavioral: false, inferredSram: true);
     final vectors = _vectors(1);
     await dut.build();
@@ -1115,7 +1130,7 @@ void main() {
   });
   for (final kind in BehavioralReplacementKind.values) {
     test('SRAM cache and Dart behavioral replacement match RTL backends: $kind',
-        timeout: const Timeout(Duration(minutes: 3)), () async {
+        timeout: _compileTimeout, () async {
       final rtl = _Harness(1,
           behavioral: false, inferredSram: true, replacementKind: kind);
       final software = _Harness(1,

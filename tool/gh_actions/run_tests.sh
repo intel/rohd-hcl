@@ -17,4 +17,5 @@ export ROHD_REQUIRE_SYSTEMC=1
 # Match the Dart SDK used by Flutter to resolve this workspace, while invoking
 # package:test directly for this package's pure-Dart tests.
 flutter_bin_dir="$(dirname "$(readlink -f "$(command -v flutter)")")"
-"$flutter_bin_dir/dart" run test:test
+"$flutter_bin_dir/dart" run test:test tool/gh_actions/prepare_systemc_test.dart --concurrency=1
+"$flutter_bin_dir/dart" run test:test "$@"
