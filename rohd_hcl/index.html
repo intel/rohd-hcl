@@ -722,6 +722,22 @@ or reset when <code>replace</code> is requested.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a>.
 </dd>
 
+          <dt id="AttentionFormatSelectionKnob">
+  <span class="name "><a href="../rohd_hcl/AttentionFormatSelectionKnob-class.html">AttentionFormatSelectionKnob</a></span> 
+
+</dt>
+<dd>
+  Selects a named definition while serializing a stable zero-based index.
+</dd>
+
+          <dt id="AttentionNumericFormatsKnob">
+  <span class="name "><a href="../rohd_hcl/AttentionNumericFormatsKnob-class.html">AttentionNumericFormatsKnob</a></span> 
+
+</dt>
+<dd>
+  Shares named format definitions between the six attention arithmetic roles.
+</dd>
+
           <dt id="Axi4ArChannelInterface">
   <span class="name "><a href="../rohd_hcl/Axi4ArChannelInterface-class.html">Axi4ArChannelInterface</a></span> 
 
@@ -3219,6 +3235,14 @@ configuration for widths, saturation behavior, and restarting.
   Runtime-shift counterpart of <a href="../rohd_hcl/NumericNarrowing-class.html">NumericNarrowing</a>.
 </dd>
 
+          <dt id="DynamicNumericNarrowingConfigurator">
+  <span class="name "><a href="../rohd_hcl/DynamicNumericNarrowingConfigurator-class.html">DynamicNumericNarrowingConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures narrowing with a runtime shift input.
+</dd>
+
           <dt id="EccConfigurator">
   <span class="name "><a href="../rohd_hcl/EccConfigurator-class.html">EccConfigurator</a></span> 
 
@@ -3449,6 +3473,14 @@ Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">ht
   Common lookup-table implementation for fixed-point special functions.
 </dd>
 
+          <dt id="FixedPointApproximationConfigurator">
+  <span class="name "><a href="../rohd_hcl/FixedPointApproximationConfigurator-class.html">FixedPointApproximationConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the three bounded lookup approximation implementations.
+</dd>
+
           <dt id="FixedPointApproximationContract">
   <span class="name "><a href="../rohd_hcl/FixedPointApproximationContract-class.html">FixedPointApproximationContract</a></span> 
 
@@ -3487,6 +3519,14 @@ Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">ht
 </dt>
 <dd>
   Ready/valid adapter around <a href="../rohd_hcl/FixedPointAttentionCore-class.html">FixedPointAttentionCore</a>.
+</dd>
+
+          <dt id="FixedPointAttentionConfigurator">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionConfigurator-class.html">FixedPointAttentionConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures bounded attention and its optional protocol attachment.
 </dd>
 
           <dt id="FixedPointAttentionCore">
@@ -3535,6 +3575,14 @@ Texas Instruments: (<a href="https://www.ti.com/lit/ug/spru565b/spru565b.pdf">ht
 </dt>
 <dd>
   Query and transaction metadata for row-streaming fixed-point attention.
+</dd>
+
+          <dt id="FixedPointAttentionRowConfigurator">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionRowConfigurator-class.html">FixedPointAttentionRowConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures scheduled row attention and its existing transport shell.
 </dd>
 
           <dt id="FixedPointAttentionRowCore">
@@ -4177,6 +4225,14 @@ pluggable-generator convention already used for the final adder inside
   Routes one KV tile to the query heads that share its KV head.
 </dd>
 
+          <dt id="GroupedQueryAttentionTileDistributorConfigurator">
+  <span class="name "><a href="../rohd_hcl/GroupedQueryAttentionTileDistributorConfigurator-class.html">GroupedQueryAttentionTileDistributorConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures MHA, GQA, or MQA tile distribution.
+</dd>
+
           <dt id="GroupedQueryHeadMapping">
   <span class="name "><a href="../rohd_hcl/GroupedQueryHeadMapping-class.html">GroupedQueryHeadMapping</a></span> 
 
@@ -4199,6 +4255,14 @@ pluggable-generator convention already used for the final adder inside
 </dt>
 <dd>
   Applies one fixed-point scale and optional zero point per lane group.
+</dd>
+
+          <dt id="GroupScaleApplyConfigurator">
+  <span class="name "><a href="../rohd_hcl/GroupScaleApplyConfigurator-class.html">GroupScaleApplyConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures grouped scaling, rounding, and zero-point application.
 </dd>
 
           <dt id="HammingEccReceiver">
@@ -4243,6 +4307,14 @@ and possibly correction.
   Constructs a hardware core from a typed <code>Request</code> and returns its <code>Binding</code>.
 </dd>
 
+          <dt id="InferenceFixedPointFormatKnob">
+  <span class="name "><a href="../rohd_hcl/InferenceFixedPointFormatKnob-class.html">InferenceFixedPointFormatKnob</a></span> 
+
+</dt>
+<dd>
+  Groups the width and fractional precision of a fixed-point format.
+</dd>
+
           <dt id="InferenceMultiplierFunctor">
   <span class="name "><a href="../rohd_hcl/InferenceMultiplierFunctor-class.html">InferenceMultiplierFunctor</a></span> 
 
@@ -4265,6 +4337,14 @@ and possibly correction.
 </dt>
 <dd>
   A validated static or runtime signedness selection.
+</dd>
+
+          <dt id="InferenceTensorKnob">
+  <span class="name "><a href="../rohd_hcl/InferenceTensorKnob-class.html">InferenceTensorKnob</a></span> 
+
+</dt>
+<dd>
+  Groups tensor dimensions, element format, and packed/unpacked layout.
 </dd>
 
           <dt id="InferenceTensorStreamElement">
@@ -4946,6 +5026,14 @@ store data.
   Computes a masked mixed-width integer dot product.
 </dd>
 
+          <dt id="MixedPrecisionDotProductConfigurator">
+  <span class="name "><a href="../rohd_hcl/MixedPrecisionDotProductConfigurator-class.html">MixedPrecisionDotProductConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures mixed-width products with static or runtime signedness.
+</dd>
+
           <dt id="MultiCycleDivider">
   <span class="name "><a href="../rohd_hcl/MultiCycleDivider-class.html">MultiCycleDivider</a></span> 
 
@@ -5059,6 +5147,14 @@ term and applies the multiplier function.
   Configures bitwise, one-hot, and priority multiplexers.
 </dd>
 
+          <dt id="NamedAttentionFormatKnob">
+  <span class="name "><a href="../rohd_hcl/NamedAttentionFormatKnob-class.html">NamedAttentionFormatKnob</a></span> 
+
+</dt>
+<dd>
+  An editable label and its fixed-point format definition.
+</dd>
+
           <dt id="NativeAdder">
   <span class="name "><a href="../rohd_hcl/NativeAdder-class.html">NativeAdder</a></span> 
 
@@ -5152,6 +5248,14 @@ ones-complement values, producing a magnitude and sign.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a>.
+</dd>
+
+          <dt id="OnlineSoftmaxConfigurator">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxConfigurator-class.html">OnlineSoftmaxConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures scalar and weighted online softmax state operations.
 </dd>
 
           <dt id="OnlineSoftmaxMerge">
@@ -5512,6 +5616,14 @@ their shifts. This is a base class for the <a href="../rohd_hcl/PartialProduct-c
 </dt>
 <dd>
   Traverses rectangular pooling windows and optional horizontal output splits.
+</dd>
+
+          <dt id="PoolingWindowSequencerConfigurator">
+  <span class="name "><a href="../rohd_hcl/PoolingWindowSequencerConfigurator-class.html">PoolingWindowSequencerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures runtime pooling geometry traversal, with optional split inputs.
 </dd>
 
           <dt id="PositiveApproximationFunctor">
@@ -6076,6 +6188,14 @@ adder sequentially adds corresponding bits of two binary numbers.
   Fixed-point RMS normalization over a masked lane vector.
 </dd>
 
+          <dt id="RmsNormConfigurator">
+  <span class="name "><a href="../rohd_hcl/RmsNormConfigurator-class.html">RmsNormConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures fixed-point RMS normalization.
+</dd>
+
           <dt id="RmsNormStatus">
   <span class="name "><a href="../rohd_hcl/RmsNormStatus-class.html">RmsNormStatus</a></span> 
 
@@ -6202,6 +6322,14 @@ adder sequentially adds corresponding bits of two binary numbers.
 </dt>
 <dd>
   Command for one fixed-point attention operation over contiguous KV rows.
+</dd>
+
+          <dt id="ScratchpadFixedPointAttentionConfigurator">
+  <span class="name "><a href="../rohd_hcl/ScratchpadFixedPointAttentionConfigurator-class.html">ScratchpadFixedPointAttentionConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures attention with external typed scratchpad memory transactions.
 </dd>
 
           <dt id="ScratchpadFixedPointAttentionResult">
@@ -6866,6 +6994,14 @@ sum or count.
   Transposes a continuous sequence of square matrices one row per step.
 </dd>
 
+          <dt id="SystolicMatrixTransposeConfigurator">
+  <span class="name "><a href="../rohd_hcl/SystolicMatrixTransposeConfigurator-class.html">SystolicMatrixTransposeConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures square-matrix transpose with one stepped typed row per cycle.
+</dd>
+
           <dt id="TagInterface">
   <span class="name deprecated"><a class="deprecated" href="../rohd_hcl/TagInterface-class.html">TagInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
@@ -6881,6 +7017,14 @@ for tags and returns the index of the matching tag if found.
 </dt>
 <dd>
   Serialized, byte-masked tensor storage with optional lane-wise accumulation.
+</dd>
+
+          <dt id="TensorAccumulatingMemoryBankConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorAccumulatingMemoryBankConfigurator-class.html">TensorAccumulatingMemoryBankConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures lane-wise masked accumulation and its protocol shell.
 </dd>
 
           <dt id="TensorAccumulatingWriteRequest">
@@ -6923,6 +7067,14 @@ for tags and returns the index of the matching tag if found.
   Completion and aggregate error status for one tensor DMA command.
 </dd>
 
+          <dt id="TensorDmaConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorDmaConfigurator-class.html">TensorDmaConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures typed tensor DMA between independent memory transaction ports.
+</dd>
+
           <dt id="TensorDmaEngine">
   <span class="name "><a href="../rohd_hcl/TensorDmaEngine-class.html">TensorDmaEngine</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
@@ -6939,12 +7091,36 @@ for tags and returns the index of the matching tag if found.
   Single-port byte-masked SRAM with pipelined, retained read responses.
 </dd>
 
+          <dt id="TensorMaskedSramBankConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorMaskedSramBankConfigurator-class.html">TensorMaskedSramBankConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the byte-masked single-bank memory transaction adapter.
+</dd>
+
+          <dt id="TensorPingPongBufferConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorPingPongBufferConfigurator-class.html">TensorPingPongBufferConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the existing two-entry typed tensor queue composition.
+</dd>
+
           <dt id="TensorScratchpad">
   <span class="name "><a href="../rohd_hcl/TensorScratchpad-class.html">TensorScratchpad</a><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>&gt;</span></span> 
 
 </dt>
 <dd>
   Ready/valid logical-port adapter around <a href="../rohd_hcl/TensorScratchpadCore-class.html">TensorScratchpadCore</a>.
+</dd>
+
+          <dt id="TensorScratchpadConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadConfigurator-class.html">TensorScratchpadConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures banked typed scratchpad storage with either scheduling boundary.
 </dd>
 
           <dt id="TensorScratchpadCore">
@@ -6987,12 +7163,28 @@ for tags and returns the index of the matching tag if found.
   Computes an unsigned random-access strided tensor address.
 </dd>
 
+          <dt id="TensorStridedAddressConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorStridedAddressConfigurator-class.html">TensorStridedAddressConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a combinational multidimensional address calculation.
+</dd>
+
           <dt id="TensorStridedAddressGenerator">
   <span class="name "><a href="../rohd_hcl/TensorStridedAddressGenerator-class.html">TensorStridedAddressGenerator</a></span> 
 
 </dt>
 <dd>
   Ready/valid adapter around <a href="../rohd_hcl/TensorStridedAddressGeneratorCore-class.html">TensorStridedAddressGeneratorCore</a>.
+</dd>
+
+          <dt id="TensorStridedAddressGeneratorConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorStridedAddressGeneratorConfigurator-class.html">TensorStridedAddressGeneratorConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures nested tensor traversal with an optional transport shell.
 </dd>
 
           <dt id="TensorStridedAddressGeneratorCore">
@@ -7011,6 +7203,22 @@ for tags and returns the index of the matching tag if found.
   Iterates runtime-bounded M/N/K tile coordinates with K as the inner loop.
 </dd>
 
+          <dt id="TensorTileIteratorConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileIteratorConfigurator-class.html">TensorTileIteratorConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures runtime nested M/N/K coordinate traversal.
+</dd>
+
+          <dt id="TensorTileMulticastConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileMulticastConfigurator-class.html">TensorTileMulticastConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures explicit-action selective tensor fan-out.
+</dd>
+
           <dt id="TensorTileMulticastCore">
   <span class="name "><a href="../rohd_hcl/TensorTileMulticastCore-class.html">TensorTileMulticastCore</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
 
@@ -7027,6 +7235,14 @@ for tags and returns the index of the matching tag if found.
   Collects a row-major framed element stream into a typed tensor tile.
 </dd>
 
+          <dt id="TensorTileTilerConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileTilerConfigurator-class.html">TensorTileTilerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures framed stream-to-tile conversion with an optional protocol shell.
+</dd>
+
           <dt id="TensorTileTranspose">
   <span class="name "><a href="../rohd_hcl/TensorTileTranspose-class.html">TensorTileTranspose</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
 
@@ -7035,12 +7251,28 @@ for tags and returns the index of the matching tag if found.
   Statically transposes a typed inference tile.
 </dd>
 
+          <dt id="TensorTileTransposeConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileTransposeConfigurator-class.html">TensorTileTransposeConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a static typed tensor transpose.
+</dd>
+
           <dt id="TensorTileUntiler">
   <span class="name "><a href="../rohd_hcl/TensorTileUntiler-class.html">TensorTileUntiler</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span></span> 
 
 </dt>
 <dd>
   Captures a tile on <code>load</code> and emits row-major framed elements.
+</dd>
+
+          <dt id="TensorTileUntilerConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileUntilerConfigurator-class.html">TensorTileUntilerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures typed tile-to-framed-stream conversion.
 </dd>
 
           <dt id="TextConfigKnob">
@@ -7222,6 +7454,14 @@ reports whether the true product did not fit in <a href="../rohd_hcl/UnsignedMul
   Reduces a masked one-dimensional inference vector.
 </dd>
 
+          <dt id="VectorReduceConfigurator">
+  <span class="name "><a href="../rohd_hcl/VectorReduceConfigurator-class.html">VectorReduceConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures masked sum, minimum, and maximum reductions.
+</dd>
+
           <dt id="WithSet">
   <span class="name "><a href="../rohd_hcl/WithSet-class.html">WithSet</a></span> 
 
@@ -7370,6 +7610,14 @@ reports whether the true product did not fit in <a href="../rohd_hcl/UnsignedMul
 </dt>
 <dd>
   Resolution of simultaneous updates targeting the same entry index.
+</dd>
+
+          <dt id="AttentionFormatRole">
+  <span class="name "><a href="../rohd_hcl/AttentionFormatRole.html">AttentionFormatRole</a></span> 
+
+</dt>
+<dd>
+  Arithmetic uses of a shared attention format definition.
 </dd>
 
           <dt id="Axi4BurstField">
@@ -7703,6 +7951,14 @@ integer format.
 error detection, and number of check bits required.
 </dd>
 
+          <dt id="InferenceConfiguratorBoundary">
+  <span class="name "><a href="../rohd_hcl/InferenceConfiguratorBoundary.html">InferenceConfiguratorBoundary</a></span> 
+
+</dt>
+<dd>
+  Boundary exposed by independently reusable inference engines.
+</dd>
+
           <dt id="InferenceElementKind">
   <span class="name "><a href="../rohd_hcl/InferenceElementKind.html">InferenceElementKind</a></span> 
 
@@ -7781,6 +8037,14 @@ error detection, and number of check bits required.
 </dt>
 <dd>
   Rounding policy applied when discarding low-order binary digits.
+</dd>
+
+          <dt id="OnlineSoftmaxConfiguratorOperation">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxConfiguratorOperation.html">OnlineSoftmaxConfiguratorOperation</a></span> 
+
+</dt>
+<dd>
+  Available online softmax state operations.
 </dd>
 
           <dt id="ParallelPrefixOperation">
@@ -8814,6 +9078,19 @@ implementation.
 </dt>
 <dd>
   Computes one tensor address in software.
+  
+
+</dd>
+
+          <dt id="tensorTileStreamShapeIdentity" class="callable">
+  <span class="name"><a href="../rohd_hcl/tensorTileStreamShapeIdentity.html">tensorTileStreamShapeIdentity</a></span><span class="signature">&lt;<wbr><span class="type-parameter">TLogic extends <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span>, <span class="type-parameter">TValue</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="tensorTileStreamShapeIdentity-param-tile"><span class="type-annotation"><a href="../rohd_hcl/InferenceTensorTile-class.html">InferenceTensorTile</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span> <span class="parameter-name">tile</span>, </span><span class="parameter" id="tensorTileStreamShapeIdentity-param-stream"><span class="type-annotation"><a href="../rohd_hcl/InferenceTensorStreamElement-class.html">InferenceTensorStreamElement</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>&gt;</span></span> <span class="parameter-name">stream</span>, {</span><span class="parameter" id="tensorTileStreamShapeIdentity-param-definitionPrefix"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">definitionPrefix</span>, </span><span class="parameter" id="tensorTileStreamShapeIdentity-param-frame"><span class="type-annotation"><a href="../rohd_hcl/Frame-class.html">Frame</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../rohd_hcl/InferenceTensorStreamElement-class.html">InferenceTensorStreamElement</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">frame</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Readable parameters for canonical scalar tensor streams and tiles.
   
 
 </dd>

@@ -1,0 +1,408 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "Exp2Approximation_exp2_I4F2S1_O8F4_D_8_7_nearestEven": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "inputData": {
+          "direction": "input",
+          "bits": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "logic_type": {
+            "width": 4
+          }
+        },
+        "result": {
+          "direction": "output",
+          "bits": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "width": 8
+          }
+        },
+        "status": {
+          "direction": "output",
+          "bits": [
+            14,
+            15,
+            16,
+            17
+          ],
+          "logic_type": {
+            "typeName": "FixedPointApproximationStatus",
+            "fields": [
+              {
+                "name": "invalidInput",
+                "width": 1,
+                "bits": [
+                  14
+                ]
+              },
+              {
+                "name": "outOfRange",
+                "width": 1,
+                "bits": [
+                  15
+                ]
+              },
+              {
+                "name": "overflow",
+                "width": 1,
+                "bits": [
+                  16
+                ]
+              },
+              {
+                "name": "inexact",
+                "width": 1,
+                "bits": [
+                  17
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "cells": {
+        "combinational": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "inputData": "input",
+            "result": "output"
+          },
+          "connections": {
+            "inputData": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "result": [
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ]
+          }
+        },
+        "combinational_0": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "inputData": "input",
+            "exp2_approximation_internal_status_outOfRange": "output"
+          },
+          "connections": {
+            "inputData": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "exp2_approximation_internal_status_outOfRange": [
+              19
+            ]
+          }
+        },
+        "combinational_1": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "inputData": "input",
+            "exp2_approximation_internal_status_overflow": "output"
+          },
+          "connections": {
+            "inputData": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "exp2_approximation_internal_status_overflow": [
+              20
+            ]
+          }
+        },
+        "combinational_2": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "inputData": "input",
+            "exp2_approximation_internal_status_inexact": "output"
+          },
+          "connections": {
+            "inputData": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "exp2_approximation_internal_status_inexact": [
+              21
+            ]
+          }
+        },
+        "combinational_3": {
+          "hide_name": 0,
+          "type": "Combinational",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "inputData": "input",
+            "exp2_approximation_internal_status_invalidInput": "output"
+          },
+          "connections": {
+            "inputData": [
+              2,
+              3,
+              4,
+              5
+            ],
+            "exp2_approximation_internal_status_invalidInput": [
+              18
+            ]
+          }
+        },
+        "struct_concat_2_status": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "status",
+            "FIELD_COUNT": 4,
+            "FIELD_0_NAME": "invalidInput",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 1,
+            "FIELD_1_NAME": "outOfRange",
+            "FIELD_1_OFFSET": 1,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "overflow",
+            "FIELD_2_OFFSET": 2,
+            "FIELD_2_WIDTH": 1,
+            "FIELD_3_NAME": "inexact",
+            "FIELD_3_OFFSET": 3,
+            "FIELD_3_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "invalidInput": "input",
+            "outOfRange": "input",
+            "overflow": "input",
+            "inexact": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "invalidInput": [
+              18
+            ],
+            "outOfRange": [
+              19
+            ],
+            "overflow": [
+              20
+            ],
+            "inexact": [
+              21
+            ],
+            "Y": [
+              14,
+              15,
+              16,
+              17
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "inputData": {
+          "bits": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {}
+        },
+        "result": {
+          "bits": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "status": {
+          "bits": [
+            14,
+            15,
+            16,
+            17
+          ],
+          "logic_type": {
+            "typeName": "FixedPointApproximationStatus",
+            "fields": [
+              {
+                "name": "invalidInput",
+                "width": 1,
+                "bits": [
+                  14
+                ]
+              },
+              {
+                "name": "outOfRange",
+                "width": 1,
+                "bits": [
+                  15
+                ]
+              },
+              {
+                "name": "overflow",
+                "width": 1,
+                "bits": [
+                  16
+                ]
+              },
+              {
+                "name": "inexact",
+                "width": 1,
+                "bits": [
+                  17
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "exp2_approximation_internal_status_invalidInput": {
+          "bits": [
+            18
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "exp2_approximation_internal_status_outOfRange": {
+          "bits": [
+            19
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "exp2_approximation_internal_status_overflow": {
+          "bits": [
+            20
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "exp2_approximation_internal_status_inexact": {
+          "bits": [
+            21
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "status_invalidInput": {
+          "bits": [
+            18
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "status_outOfRange": {
+          "bits": [
+            19
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "status_overflow": {
+          "bits": [
+            20
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "status_inexact": {
+          "bits": [
+            21
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        }
+      }
+    }
+  }
+}

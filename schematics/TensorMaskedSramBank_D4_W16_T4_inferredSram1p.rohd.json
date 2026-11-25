@@ -1,0 +1,8520 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "ReadyValidFallThroughBuffer_bankResponse": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "upstream_bankResponse": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              }
+            ]
+          }
+        },
+        "upstream_valid": {
+          "direction": "input",
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "downstream_ready": {
+          "direction": "input",
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "occupied": {
+          "direction": "output",
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "occupancy": {
+          "direction": "output",
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "empty": {
+          "direction": "output",
+          "bits": [
+            29
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "full": {
+          "direction": "output",
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "upstream_ready": {
+          "direction": "output",
+          "bits": [
+            31
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "downstream_bankResponse": {
+          "direction": "output",
+          "bits": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45,
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  48,
+                  49,
+                  50,
+                  51
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  52
+                ]
+              }
+            ]
+          }
+        },
+        "downstream_valid": {
+          "direction": "output",
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "bankResponse_0": "output",
+            "reset": "input",
+            "tensor_masked_sram_bank_responses_storage_stage_0_write_accepted": "input",
+            "bankResponse_data": "input",
+            "bankResponse_tag": "input",
+            "bankResponse_error_1": "input",
+            "_occupied_and__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b_or__tensor_masked_sram_bank_responses_storage_stage_0_write_accepted_and__occupied_or__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": "input",
+            "clk": "input",
+            "occupied": "output"
+          },
+          "connections": {
+            "bankResponse_0": [
+              139,
+              140,
+              141,
+              142,
+              143,
+              144,
+              145,
+              146,
+              147,
+              148,
+              149,
+              150,
+              151,
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159
+            ],
+            "reset": [
+              3
+            ],
+            "tensor_masked_sram_bank_responses_storage_stage_0_write_accepted": [
+              54
+            ],
+            "bankResponse_data": [
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176
+            ],
+            "bankResponse_tag": [
+              177,
+              178,
+              179,
+              180
+            ],
+            "bankResponse_error_1": [
+              181
+            ],
+            "_occupied_and__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b_or__tensor_masked_sram_bank_responses_storage_stage_0_write_accepted_and__occupied_or__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": [
+              205
+            ],
+            "clk": [
+              2
+            ],
+            "occupied": [
+              27
+            ]
+          }
+        },
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              54
+            ],
+            "B": [
+              206
+            ],
+            "Y": [
+              207
+            ]
+          }
+        },
+        "or_": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              208
+            ],
+            "B": [
+              207
+            ],
+            "Y": [
+              205
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              27
+            ],
+            "B": [
+              209
+            ],
+            "Y": [
+              208
+            ]
+          }
+        },
+        "not_": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              55
+            ],
+            "Y": [
+              209
+            ]
+          }
+        },
+        "not__0": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              55
+            ],
+            "Y": [
+              210
+            ]
+          }
+        },
+        "or__0": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              27
+            ],
+            "B": [
+              210
+            ],
+            "Y": [
+              206
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              26
+            ],
+            "B": [
+              53
+            ],
+            "Y": [
+              55
+            ]
+          }
+        },
+        "or__1": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              211
+            ],
+            "B": [
+              26
+            ],
+            "Y": [
+              31
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              31
+            ],
+            "B": [
+              25
+            ],
+            "Y": [
+              54
+            ]
+          }
+        },
+        "or__2": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              27
+            ],
+            "B": [
+              25
+            ],
+            "Y": [
+              53
+            ]
+          }
+        },
+        "not__1": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              27
+            ],
+            "Y": [
+              211
+            ]
+          }
+        },
+        "concat": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 16,
+            "IN1_WIDTH": 4,
+            "IN2_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[15:0]": "input",
+            "[19:16]": "input",
+            "[20]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[15:0]": [
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176
+            ],
+            "[19:16]": [
+              177,
+              178,
+              179,
+              180
+            ],
+            "[20]": [
+              181
+            ],
+            "Y": [
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82,
+              83,
+              84,
+              85,
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96
+            ]
+          }
+        },
+        "mux": {
+          "hide_name": 0,
+          "type": "$mux",
+          "parameters": {
+            "WIDTH": 21
+          },
+          "attributes": {},
+          "port_directions": {
+            "S": "input",
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "S": [
+              27
+            ],
+            "A": [
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82,
+              83,
+              84,
+              85,
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96
+            ],
+            "B": [
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135,
+              136,
+              137,
+              138
+            ],
+            "Y": [
+              212,
+              213,
+              214,
+              215,
+              216,
+              217,
+              218,
+              219,
+              220,
+              221,
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232
+            ]
+          }
+        },
+        "bussubset": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 21,
+            "Y_WIDTH": 16
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              212,
+              213,
+              214,
+              215,
+              216,
+              217,
+              218,
+              219,
+              220,
+              221,
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232
+            ],
+            "Y": [
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112
+            ]
+          }
+        },
+        "bussubset_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 16,
+            "A_WIDTH": 21,
+            "Y_WIDTH": 4
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              212,
+              213,
+              214,
+              215,
+              216,
+              217,
+              218,
+              219,
+              220,
+              221,
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232
+            ],
+            "Y": [
+              113,
+              114,
+              115,
+              116
+            ]
+          }
+        },
+        "bussubset_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 20,
+            "A_WIDTH": 21,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              212,
+              213,
+              214,
+              215,
+              216,
+              217,
+              218,
+              219,
+              220,
+              221,
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232
+            ],
+            "Y": [
+              117
+            ]
+          }
+        },
+        "concat_0": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 16,
+            "IN1_WIDTH": 4,
+            "IN2_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[15:0]": "input",
+            "[19:16]": "input",
+            "[20]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[15:0]": [
+              139,
+              140,
+              141,
+              142,
+              143,
+              144,
+              145,
+              146,
+              147,
+              148,
+              149,
+              150,
+              151,
+              152,
+              153,
+              154
+            ],
+            "[19:16]": [
+              155,
+              156,
+              157,
+              158
+            ],
+            "[20]": [
+              159
+            ],
+            "Y": [
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135,
+              136,
+              137,
+              138
+            ]
+          }
+        },
+        "not__2": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              27
+            ],
+            "Y": [
+              29
+            ]
+          }
+        },
+        "struct_unpack_0_upstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output",
+            "tag": "output",
+            "error": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            "data": [
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176
+            ],
+            "tag": [
+              177,
+              178,
+              179,
+              180
+            ],
+            "error": [
+              181
+            ]
+          }
+        },
+        "struct_concat_10_downstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "downstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "tag": "input",
+            "error": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112
+            ],
+            "tag": [
+              113,
+              114,
+              115,
+              116
+            ],
+            "error": [
+              117
+            ],
+            "Y": [
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51,
+              52
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_bankResponse": {
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "upstream_valid": {
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "downstream_ready": {
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "occupied": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "occupancy": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "empty": {
+          "bits": [
+            29
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "full": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_ready": {
+          "bits": [
+            31
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse": {
+          "bits": [
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45,
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  48,
+                  49,
+                  50,
+                  51
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  52
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "downstream_valid": {
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_storage_stage_0_write_accepted": {
+          "bits": [
+            54
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage_stage_0_read_accepted": {
+          "bits": [
+            55
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_data": {
+          "bits": [
+            161,
+            162,
+            163,
+            164,
+            165,
+            166,
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag": {
+          "bits": [
+            177,
+            178,
+            179,
+            180
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse": {
+          "bits": [
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96
+          ],
+          "logic_type": {
+            "width": 21
+          },
+          "attributes": {}
+        },
+        "bankResponse_data_0": {
+          "bits": [
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag_0": {
+          "bits": [
+            113,
+            114,
+            115,
+            116
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error": {
+          "bits": [
+            117
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_0": {
+          "bits": [
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138
+          ],
+          "logic_type": {
+            "width": 21
+          },
+          "attributes": {}
+        },
+        "bankResponse_data_1": {
+          "bits": [
+            139,
+            140,
+            141,
+            142,
+            143,
+            144,
+            145,
+            146,
+            147,
+            148,
+            149,
+            150,
+            151,
+            152,
+            153,
+            154
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag_1": {
+          "bits": [
+            155,
+            156,
+            157,
+            158
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error_0": {
+          "bits": [
+            159
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error_1": {
+          "bits": [
+            181
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_data": {
+          "bits": [
+            161,
+            162,
+            163,
+            164,
+            165,
+            166,
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_tag": {
+          "bits": [
+            177,
+            178,
+            179,
+            180
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_error": {
+          "bits": [
+            181
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_occupied_and__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b_or__tensor_masked_sram_bank_responses_storage_stage_0_write_accepted_and__occupied_or__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": {
+          "bits": [
+            205
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupied_or__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": {
+          "bits": [
+            206
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_masked_sram_bank_responses_storage_stage_0_write_accepted_and__occupied_or__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": {
+          "bits": [
+            207
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupied_and__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": {
+          "bits": [
+            208
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": {
+          "bits": [
+            209
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__tensor_masked_sram_bank_responses_storage_stage_0_read_accepted_b": {
+          "bits": [
+            210
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupied_b": {
+          "bits": [
+            211
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_out": {
+          "bits": [
+            212,
+            213,
+            214,
+            215,
+            216,
+            217,
+            218,
+            219,
+            220,
+            221,
+            222,
+            223,
+            224,
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            232
+          ],
+          "logic_type": {
+            "width": 21
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse_data": {
+          "bits": [
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "downstream_bankResponse_tag": {
+          "bits": [
+            113,
+            114,
+            115,
+            116
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "downstream_bankResponse_error": {
+          "bits": [
+            117
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        }
+      }
+    },
+    "ReadyValidElasticPipeline_D1_F_bankResponse": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "upstream_bankResponse": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              }
+            ]
+          }
+        },
+        "upstream_valid": {
+          "direction": "input",
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "downstream_ready": {
+          "direction": "input",
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "upstream_ready": {
+          "direction": "output",
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "downstream_bankResponse": {
+          "direction": "output",
+          "bits": [
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  28,
+                  29,
+                  30,
+                  31,
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  44,
+                  45,
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  48
+                ]
+              }
+            ]
+          }
+        },
+        "downstream_valid": {
+          "direction": "output",
+          "bits": [
+            49
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "occupancy": {
+          "direction": "output",
+          "bits": [
+            50
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "empty": {
+          "direction": "output",
+          "bits": [
+            51
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "full": {
+          "direction": "output",
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              27
+            ],
+            "B": [
+              25
+            ],
+            "Y": [
+              53
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53
+            ],
+            "B": [
+              141
+            ],
+            "Y": [
+              54
+            ]
+          }
+        },
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "tensor_masked_sram_bank_responses_storage_input_only_accepted": "input",
+            "_occupancy_add_const_1": "input",
+            "tensor_masked_sram_bank_responses_storage_output_only_accepted": "input",
+            "_occupancy_subtract_const_1": "input",
+            "clk": "input",
+            "occupancy": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "tensor_masked_sram_bank_responses_storage_input_only_accepted": [
+              54
+            ],
+            "_occupancy_add_const_1": [
+              144
+            ],
+            "tensor_masked_sram_bank_responses_storage_output_only_accepted": [
+              55
+            ],
+            "_occupancy_subtract_const_1": [
+              145
+            ],
+            "clk": [
+              2
+            ],
+            "occupancy": [
+              50
+            ]
+          }
+        },
+        "add": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              146
+            ],
+            "Y": [
+              144,
+              147
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              148
+            ],
+            "B": [
+              56
+            ],
+            "Y": [
+              55
+            ]
+          }
+        },
+        "not_": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53
+            ],
+            "Y": [
+              148
+            ]
+          }
+        },
+        "not__0": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              56
+            ],
+            "Y": [
+              141
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              26
+            ],
+            "B": [
+              49
+            ],
+            "Y": [
+              56
+            ]
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage_stage_0": {
+          "hide_name": 0,
+          "type": "ReadyValidFallThroughBuffer_bankResponse",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "upstream_bankResponse": "input",
+            "upstream_valid": "input",
+            "downstream_ready": "input",
+            "occupied": "output",
+            "occupancy": "output",
+            "empty": "output",
+            "full": "output",
+            "upstream_ready": "output",
+            "downstream_bankResponse": "output",
+            "downstream_valid": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "upstream_bankResponse": [
+              149,
+              150,
+              151,
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159,
+              160,
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169
+            ],
+            "upstream_valid": [
+              25
+            ],
+            "downstream_ready": [
+              26
+            ],
+            "occupied": [
+              170
+            ],
+            "occupancy": [
+              171
+            ],
+            "empty": [
+              172
+            ],
+            "full": [
+              173
+            ],
+            "upstream_ready": [
+              27
+            ],
+            "downstream_bankResponse": [
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194
+            ],
+            "downstream_valid": [
+              49
+            ]
+          }
+        },
+        "subtract": {
+          "hide_name": 0,
+          "type": "$sub",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              195
+            ],
+            "Y": [
+              145
+            ]
+          }
+        },
+        "equals": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              196
+            ],
+            "Y": [
+              51
+            ]
+          }
+        },
+        "equals_0": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              197
+            ],
+            "Y": [
+              52
+            ]
+          }
+        },
+        "struct_unpack_0_upstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output",
+            "tag": "output",
+            "error": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            "data": [
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135
+            ],
+            "tag": [
+              136,
+              137,
+              138,
+              139
+            ],
+            "error": [
+              140
+            ]
+          }
+        },
+        "struct_unpack_1_downstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "downstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output",
+            "tag": "output",
+            "error": "output"
+          },
+          "connections": {
+            "A": [
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194
+            ],
+            "data": [
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72
+            ],
+            "tag": [
+              73,
+              74,
+              75,
+              76
+            ],
+            "error": [
+              77
+            ]
+          }
+        },
+        "struct_concat_6_downstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "downstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "tag": "input",
+            "error": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72
+            ],
+            "tag": [
+              73,
+              74,
+              75,
+              76
+            ],
+            "error": [
+              77
+            ],
+            "Y": [
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ]
+          }
+        },
+        "struct_concat_2_upstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "tag": "input",
+            "error": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135
+            ],
+            "tag": [
+              136,
+              137,
+              138,
+              139
+            ],
+            "error": [
+              140
+            ],
+            "Y": [
+              149,
+              150,
+              151,
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159,
+              160,
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169
+            ]
+          }
+        },
+        "const_0_1_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              146
+            ]
+          }
+        },
+        "const_1_1_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              195
+            ]
+          }
+        },
+        "const_2_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              196
+            ]
+          }
+        },
+        "const_3_1_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              197
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_bankResponse": {
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "upstream_valid": {
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "downstream_ready": {
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_ready": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse": {
+          "bits": [
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  28,
+                  29,
+                  30,
+                  31,
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  44,
+                  45,
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  48
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "downstream_valid": {
+          "bits": [
+            49
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "occupancy": {
+          "bits": [
+            50
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "empty": {
+          "bits": [
+            51
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "full": {
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bankResponse_accepted": {
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage_input_only_accepted": {
+          "bits": [
+            54
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage_output_only_accepted": {
+          "bits": [
+            55
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_accepted_0": {
+          "bits": [
+            56
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_data": {
+          "bits": [
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag": {
+          "bits": [
+            73,
+            74,
+            75,
+            76
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error": {
+          "bits": [
+            77
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_data": {
+          "bits": [
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_tag": {
+          "bits": [
+            136,
+            137,
+            138,
+            139
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag_0": {
+          "bits": [
+            136,
+            137,
+            138,
+            139
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_data_0": {
+          "bits": [
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error_0": {
+          "bits": [
+            140
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_error": {
+          "bits": [
+            140
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_data": {
+          "bits": [
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_tag": {
+          "bits": [
+            136,
+            137,
+            138,
+            139
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_error": {
+          "bits": [
+            140
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_bankResponse_accepted_b": {
+          "bits": [
+            141
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupancy_add_const_1": {
+          "bits": [
+            144
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupancy_subtract_const_1": {
+          "bits": [
+            145
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupancy_add_const_1_carry": {
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__bankResponse_accepted_b": {
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_bankResponse_0": {
+          "bits": [
+            149,
+            150,
+            151,
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            160,
+            161,
+            162,
+            163,
+            164,
+            165,
+            166,
+            167,
+            168,
+            169
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  149,
+                  150,
+                  151,
+                  152,
+                  153,
+                  154,
+                  155,
+                  156,
+                  157,
+                  158,
+                  159,
+                  160,
+                  161,
+                  162,
+                  163,
+                  164
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  165,
+                  166,
+                  167,
+                  168
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  169
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse_0": {
+          "bits": [
+            174,
+            175,
+            176,
+            177,
+            178,
+            179,
+            180,
+            181,
+            182,
+            183,
+            184,
+            185,
+            186,
+            187,
+            188,
+            189,
+            190,
+            191,
+            192,
+            193,
+            194
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  174,
+                  175,
+                  176,
+                  177,
+                  178,
+                  179,
+                  180,
+                  181,
+                  182,
+                  183,
+                  184,
+                  185,
+                  186,
+                  187,
+                  188,
+                  189
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  190,
+                  191,
+                  192,
+                  193
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  194
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse_data": {
+          "bits": [
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "downstream_bankResponse_tag": {
+          "bits": [
+            73,
+            74,
+            75,
+            76
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "downstream_bankResponse_error": {
+          "bits": [
+            77
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "const_0_1_h1": {
+          "bits": [
+            146
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_1_h1": {
+          "bits": [
+            195
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_1_h0": {
+          "bits": [
+            196
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h1": {
+          "bits": [
+            197
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage_stage_0_occupied": {
+          "bits": [
+            170
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_storage_stage_0_occupancy": {
+          "bits": [
+            171
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_storage_stage_0_empty": {
+          "bits": [
+            172
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_storage_stage_0_full": {
+          "bits": [
+            173
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        }
+      }
+    },
+    "ReadyValidQueue_D1_F_Regs_AF1_AE0_bankResponse": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "upstream_bankResponse": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              }
+            ]
+          }
+        },
+        "upstream_valid": {
+          "direction": "input",
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "downstream_ready": {
+          "direction": "input",
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "upstream_ready": {
+          "direction": "output",
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "downstream_bankResponse": {
+          "direction": "output",
+          "bits": [
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  28,
+                  29,
+                  30,
+                  31,
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  44,
+                  45,
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  48
+                ]
+              }
+            ]
+          }
+        },
+        "downstream_valid": {
+          "direction": "output",
+          "bits": [
+            49
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "occupancy": {
+          "direction": "output",
+          "bits": [
+            50
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "empty": {
+          "direction": "output",
+          "bits": [
+            51
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "full": {
+          "direction": "output",
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "almostFull": {
+          "direction": "output",
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "almostEmpty": {
+          "direction": "output",
+          "bits": [
+            54
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              27
+            ],
+            "B": [
+              25
+            ],
+            "Y": [
+              55
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              55
+            ],
+            "B": [
+              144
+            ],
+            "Y": [
+              56
+            ]
+          }
+        },
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "tensor_masked_sram_bank_responses_storage_reset": "input",
+            "tensor_masked_sram_bank_responses_input_only_accepted": "input",
+            "_occupancy_add_const_1": "input",
+            "tensor_masked_sram_bank_responses_output_only_accepted": "input",
+            "_occupancy_subtract_const_1": "input",
+            "clk": "input",
+            "occupancy": "output"
+          },
+          "connections": {
+            "tensor_masked_sram_bank_responses_storage_reset": [
+              57
+            ],
+            "tensor_masked_sram_bank_responses_input_only_accepted": [
+              56
+            ],
+            "_occupancy_add_const_1": [
+              147
+            ],
+            "tensor_masked_sram_bank_responses_output_only_accepted": [
+              80
+            ],
+            "_occupancy_subtract_const_1": [
+              148
+            ],
+            "clk": [
+              2
+            ],
+            "occupancy": [
+              50
+            ]
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage": {
+          "hide_name": 0,
+          "type": "ReadyValidElasticPipeline_D1_F_bankResponse",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "upstream_bankResponse": "input",
+            "upstream_valid": "input",
+            "downstream_ready": "input",
+            "upstream_ready": "output",
+            "downstream_bankResponse": "output",
+            "downstream_valid": "output",
+            "occupancy": "output",
+            "empty": "output",
+            "full": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              57
+            ],
+            "upstream_bankResponse": [
+              149,
+              150,
+              151,
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159,
+              160,
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169
+            ],
+            "upstream_valid": [
+              25
+            ],
+            "downstream_ready": [
+              26
+            ],
+            "upstream_ready": [
+              27
+            ],
+            "downstream_bankResponse": [
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190
+            ],
+            "downstream_valid": [
+              49
+            ],
+            "occupancy": [
+              191
+            ],
+            "empty": [
+              192
+            ],
+            "full": [
+              193
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              26
+            ],
+            "B": [
+              49
+            ],
+            "Y": [
+              79
+            ]
+          }
+        },
+        "not_": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              79
+            ],
+            "Y": [
+              144
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              194
+            ],
+            "B": [
+              79
+            ],
+            "Y": [
+              80
+            ]
+          }
+        },
+        "not__0": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              55
+            ],
+            "Y": [
+              194
+            ]
+          }
+        },
+        "or_": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              195
+            ],
+            "B": [
+              3
+            ],
+            "Y": [
+              57
+            ]
+          }
+        },
+        "add": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              196
+            ],
+            "Y": [
+              147,
+              197
+            ]
+          }
+        },
+        "subtract": {
+          "hide_name": 0,
+          "type": "$sub",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              198
+            ],
+            "Y": [
+              148
+            ]
+          }
+        },
+        "equals": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              199
+            ],
+            "Y": [
+              51
+            ]
+          }
+        },
+        "equals_0": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              200
+            ],
+            "Y": [
+              52
+            ]
+          }
+        },
+        "not__1": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              201
+            ],
+            "Y": [
+              53
+            ]
+          }
+        },
+        "lessthan": {
+          "hide_name": 0,
+          "type": "$lt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              202
+            ],
+            "Y": [
+              201
+            ]
+          }
+        },
+        "lessThanOrEqual": {
+          "hide_name": 0,
+          "type": "$le",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              50
+            ],
+            "B": [
+              203
+            ],
+            "Y": [
+              54
+            ]
+          }
+        },
+        "struct_unpack_0_upstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output",
+            "tag": "output",
+            "error": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            "data": [
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135,
+              136,
+              137,
+              138
+            ],
+            "tag": [
+              139,
+              140,
+              141,
+              142
+            ],
+            "error": [
+              143
+            ]
+          }
+        },
+        "struct_unpack_1_downstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "downstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output",
+            "tag": "output",
+            "error": "output"
+          },
+          "connections": {
+            "A": [
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190
+            ],
+            "data": [
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73
+            ],
+            "tag": [
+              74,
+              75,
+              76,
+              77
+            ],
+            "error": [
+              78
+            ]
+          }
+        },
+        "struct_concat_6_downstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "downstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "tag": "input",
+            "error": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73
+            ],
+            "tag": [
+              74,
+              75,
+              76,
+              77
+            ],
+            "error": [
+              78
+            ],
+            "Y": [
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48
+            ]
+          }
+        },
+        "struct_concat_2_upstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "tag": "input",
+            "error": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135,
+              136,
+              137,
+              138
+            ],
+            "tag": [
+              139,
+              140,
+              141,
+              142
+            ],
+            "error": [
+              143
+            ],
+            "Y": [
+              149,
+              150,
+              151,
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159,
+              160,
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169
+            ]
+          }
+        },
+        "const_0_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              195
+            ]
+          }
+        },
+        "const_1_1_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              196
+            ]
+          }
+        },
+        "const_2_1_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              198
+            ]
+          }
+        },
+        "const_3_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              199
+            ]
+          }
+        },
+        "const_4_1_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              200
+            ]
+          }
+        },
+        "const_5_1_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h1": "output"
+          },
+          "connections": {
+            "1'h1": [
+              202
+            ]
+          }
+        },
+        "const_6_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              203
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_bankResponse": {
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  20,
+                  21,
+                  22,
+                  23
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  24
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "upstream_valid": {
+          "bits": [
+            25
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "downstream_ready": {
+          "bits": [
+            26
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_ready": {
+          "bits": [
+            27
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse": {
+          "bits": [
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  28,
+                  29,
+                  30,
+                  31,
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  44,
+                  45,
+                  46,
+                  47
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  48
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "downstream_valid": {
+          "bits": [
+            49
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "occupancy": {
+          "bits": [
+            50
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "empty": {
+          "bits": [
+            51
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "full": {
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "almostFull": {
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "almostEmpty": {
+          "bits": [
+            54
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bankResponse_accepted": {
+          "bits": [
+            55
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_input_only_accepted": {
+          "bits": [
+            56
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage_reset": {
+          "bits": [
+            57
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_data": {
+          "bits": [
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag": {
+          "bits": [
+            74,
+            75,
+            76,
+            77
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error": {
+          "bits": [
+            78
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_accepted_0": {
+          "bits": [
+            79
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_output_only_accepted": {
+          "bits": [
+            80
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_data": {
+          "bits": [
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_tag": {
+          "bits": [
+            139,
+            140,
+            141,
+            142
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag_0": {
+          "bits": [
+            139,
+            140,
+            141,
+            142
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_data_0": {
+          "bits": [
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error_0": {
+          "bits": [
+            143
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_error": {
+          "bits": [
+            143
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_data": {
+          "bits": [
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_tag": {
+          "bits": [
+            139,
+            140,
+            141,
+            142
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_bankResponse_error": {
+          "bits": [
+            143
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_bankResponse_accepted_b": {
+          "bits": [
+            144
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupancy_add_const_1": {
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupancy_subtract_const_1": {
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_bankResponse_0": {
+          "bits": [
+            149,
+            150,
+            151,
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            160,
+            161,
+            162,
+            163,
+            164,
+            165,
+            166,
+            167,
+            168,
+            169
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  149,
+                  150,
+                  151,
+                  152,
+                  153,
+                  154,
+                  155,
+                  156,
+                  157,
+                  158,
+                  159,
+                  160,
+                  161,
+                  162,
+                  163,
+                  164
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  165,
+                  166,
+                  167,
+                  168
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  169
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse_0": {
+          "bits": [
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179,
+            180,
+            181,
+            182,
+            183,
+            184,
+            185,
+            186,
+            187,
+            188,
+            189,
+            190
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  170,
+                  171,
+                  172,
+                  173,
+                  174,
+                  175,
+                  176,
+                  177,
+                  178,
+                  179,
+                  180,
+                  181,
+                  182,
+                  183,
+                  184,
+                  185
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  186,
+                  187,
+                  188,
+                  189
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  190
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "_in0__bankResponse_accepted_b": {
+          "bits": [
+            194
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupancy_add_const_1_carry": {
+          "bits": [
+            197
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_occupancy_lessthan_const_1": {
+          "bits": [
+            201
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse_data": {
+          "bits": [
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "downstream_bankResponse_tag": {
+          "bits": [
+            74,
+            75,
+            76,
+            77
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "downstream_bankResponse_error": {
+          "bits": [
+            78
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "const_0_1_h0": {
+          "bits": [
+            195
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_1_h1": {
+          "bits": [
+            196
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_1_h1": {
+          "bits": [
+            198
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h0": {
+          "bits": [
+            199
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_1_h1": {
+          "bits": [
+            200
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_1_h1": {
+          "bits": [
+            202
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_6_1_h0": {
+          "bits": [
+            203
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_storage_occupancy": {
+          "bits": [
+            191
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_storage_empty": {
+          "bits": [
+            192
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_storage_full": {
+          "bits": [
+            193
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        }
+      }
+    },
+    "TensorMaskedSramBank_D4_W16_T4_inferredSram1p": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "read_tensorScratchpadReadRequest": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadRequest",
+            "fields": [
+              {
+                "name": "address",
+                "width": 2,
+                "bits": [
+                  4,
+                  5
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              }
+            ]
+          }
+        },
+        "read_valid": {
+          "direction": "input",
+          "bits": [
+            10
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "write_byte_masked_write_request": {
+          "direction": "input",
+          "bits": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "logic_type": {
+            "typeName": "ByteMaskedWriteRequest",
+            "fields": [
+              {
+                "name": "address",
+                "width": 2,
+                "bits": [
+                  11,
+                  12
+                ]
+              },
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28
+                ]
+              },
+              {
+                "name": "byteEnable",
+                "width": 2,
+                "bits": [
+                  29,
+                  30
+                ]
+              }
+            ]
+          }
+        },
+        "write_valid": {
+          "direction": "input",
+          "bits": [
+            31
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "response_ready": {
+          "direction": "input",
+          "bits": [
+            32
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "read_ready": {
+          "direction": "output",
+          "bits": [
+            33
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "write_ready": {
+          "direction": "output",
+          "bits": [
+            34
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "response_tensorScratchpadReadResponse": {
+          "direction": "output",
+          "bits": [
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45,
+                  46,
+                  47,
+                  48,
+                  49,
+                  50
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  51,
+                  52,
+                  53,
+                  54
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  55
+                ]
+              }
+            ]
+          }
+        },
+        "response_valid": {
+          "direction": "output",
+          "bits": [
+            56
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "responseOverflow": {
+          "direction": "output",
+          "bits": [
+            57
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              33
+            ],
+            "B": [
+              10
+            ],
+            "Y": [
+              58
+            ]
+          }
+        },
+        "tensor_masked_sram_bank_byte_0": {
+          "hide_name": 0,
+          "type": "InferredSram_E4_A2_D8_L8",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "rd_en_0": "input",
+            "rd_addr_0": "input",
+            "wr_data_0": "input",
+            "wr_en_0": "input",
+            "wr_addr_0": "input",
+            "rd_data_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "rd_en_0": [
+              58
+            ],
+            "rd_addr_0": [
+              214,
+              215
+            ],
+            "wr_data_0": [
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212,
+              213
+            ],
+            "wr_en_0": [
+              133
+            ],
+            "wr_addr_0": [
+              220,
+              221
+            ],
+            "rd_data_0": [
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66
+            ]
+          }
+        },
+        "concat": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 8,
+            "B_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66
+            ],
+            "B": [
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104
+            ],
+            "Y": [
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75,
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82
+            ]
+          }
+        },
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "tensorScratchpadReadRequest_accepted": "input",
+            "tensorScratchpadReadRequest_tag": "input",
+            "clk": "input",
+            "rawValid": "output",
+            "rawTag": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "tensorScratchpadReadRequest_accepted": [
+              58
+            ],
+            "tensorScratchpadReadRequest_tag": [
+              216,
+              217,
+              218,
+              219
+            ],
+            "clk": [
+              2
+            ],
+            "rawValid": [
+              161
+            ],
+            "rawTag": [
+              87,
+              88,
+              89,
+              90
+            ]
+          }
+        },
+        "tensor_masked_sram_bank_byte_1": {
+          "hide_name": 0,
+          "type": "InferredSram_E4_A2_D8_L8",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "rd_en_0": "input",
+            "rd_addr_0": "input",
+            "wr_data_0": "input",
+            "wr_en_0": "input",
+            "wr_addr_0": "input",
+            "rd_data_0": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "rd_en_0": [
+              58
+            ],
+            "rd_addr_0": [
+              214,
+              215
+            ],
+            "wr_data_0": [
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112
+            ],
+            "wr_en_0": [
+              135
+            ],
+            "wr_addr_0": [
+              220,
+              221
+            ],
+            "rd_data_0": [
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104
+            ]
+          }
+        },
+        "bussubset": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 8,
+            "A_WIDTH": 16,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232,
+              233,
+              234,
+              235,
+              236,
+              237
+            ],
+            "Y": [
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112
+            ]
+          }
+        },
+        "bussubset_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              238,
+              239
+            ],
+            "Y": [
+              246
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              134
+            ],
+            "B": [
+              246
+            ],
+            "Y": [
+              133
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              134
+            ],
+            "B": [
+              247
+            ],
+            "Y": [
+              135
+            ]
+          }
+        },
+        "bussubset_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 1,
+            "A_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              238,
+              239
+            ],
+            "Y": [
+              247
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              34
+            ],
+            "B": [
+              31
+            ],
+            "Y": [
+              134
+            ]
+          }
+        },
+        "not_": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              34
+            ]
+          }
+        },
+        "not__0": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              31
+            ],
+            "Y": [
+              248
+            ]
+          }
+        },
+        "and__3": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              249
+            ],
+            "B": [
+              248
+            ],
+            "Y": [
+              250
+            ]
+          }
+        },
+        "and__4": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              250
+            ],
+            "B": [
+              251
+            ],
+            "Y": [
+              33
+            ]
+          }
+        },
+        "not__1": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              251
+            ]
+          }
+        },
+        "equals": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              252,
+              253
+            ],
+            "B": [
+              254,
+              255
+            ],
+            "Y": [
+              249
+            ]
+          }
+        },
+        "subtract": {
+          "hide_name": 0,
+          "type": "$sub",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 2
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              256,
+              257
+            ],
+            "B": [
+              258,
+              259
+            ],
+            "Y": [
+              252,
+              253
+            ]
+          }
+        },
+        "add": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              260,
+              261
+            ],
+            "B": [
+              262,
+              263
+            ],
+            "Y": [
+              256,
+              257,
+              264
+            ]
+          }
+        },
+        "concat_0": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              265
+            ],
+            "B": [
+              266
+            ],
+            "Y": [
+              260,
+              261
+            ]
+          }
+        },
+        "tensor_masked_sram_bank_responses": {
+          "hide_name": 0,
+          "type": "ReadyValidQueue_D1_F_Regs_AF1_AE0_bankResponse",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "upstream_bankResponse": "input",
+            "upstream_valid": "input",
+            "downstream_ready": "input",
+            "upstream_ready": "output",
+            "downstream_bankResponse": "output",
+            "downstream_valid": "output",
+            "occupancy": "output",
+            "empty": "output",
+            "full": "output",
+            "almostFull": "output",
+            "almostEmpty": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "upstream_bankResponse": [
+              267,
+              268,
+              269,
+              270,
+              271,
+              272,
+              273,
+              274,
+              275,
+              276,
+              277,
+              278,
+              279,
+              280,
+              281,
+              282,
+              283,
+              284,
+              285,
+              286,
+              287
+            ],
+            "upstream_valid": [
+              158
+            ],
+            "downstream_ready": [
+              32
+            ],
+            "upstream_ready": [
+              160
+            ],
+            "downstream_bankResponse": [
+              288,
+              289,
+              290,
+              291,
+              292,
+              293,
+              294,
+              295,
+              296,
+              297,
+              298,
+              299,
+              300,
+              301,
+              302,
+              303,
+              304,
+              305,
+              306,
+              307,
+              308
+            ],
+            "downstream_valid": [
+              163
+            ],
+            "occupancy": [
+              265
+            ],
+            "empty": [
+              309
+            ],
+            "full": [
+              310
+            ],
+            "almostFull": [
+              311
+            ],
+            "almostEmpty": [
+              312
+            ]
+          }
+        },
+        "and__5": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              160
+            ],
+            "B": [
+              158
+            ],
+            "Y": [
+              159
+            ]
+          }
+        },
+        "concat_1": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              159
+            ],
+            "B": [
+              313
+            ],
+            "Y": [
+              262,
+              263
+            ]
+          }
+        },
+        "not__2": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              160
+            ],
+            "Y": [
+              314
+            ]
+          }
+        },
+        "and__6": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              158
+            ],
+            "B": [
+              314
+            ],
+            "Y": [
+              57
+            ]
+          }
+        },
+        "and__7": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              161
+            ],
+            "B": [
+              315
+            ],
+            "Y": [
+              158
+            ]
+          }
+        },
+        "not__3": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              315
+            ]
+          }
+        },
+        "and__8": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              32
+            ],
+            "B": [
+              163
+            ],
+            "Y": [
+              162
+            ]
+          }
+        },
+        "concat_2": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              162
+            ],
+            "B": [
+              316
+            ],
+            "Y": [
+              258,
+              259
+            ]
+          }
+        },
+        "and__9": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              163
+            ],
+            "B": [
+              317
+            ],
+            "Y": [
+              56
+            ]
+          }
+        },
+        "not__4": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              3
+            ],
+            "Y": [
+              317
+            ]
+          }
+        },
+        "bussubset_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 16,
+            "Y_WIDTH": 8
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232,
+              233,
+              234,
+              235,
+              236,
+              237
+            ],
+            "Y": [
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212,
+              213
+            ]
+          }
+        },
+        "struct_unpack_0_downstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "downstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output",
+            "tag": "output",
+            "error": "output"
+          },
+          "connections": {
+            "A": [
+              288,
+              289,
+              290,
+              291,
+              292,
+              293,
+              294,
+              295,
+              296,
+              297,
+              298,
+              299,
+              300,
+              301,
+              302,
+              303,
+              304,
+              305,
+              306,
+              307,
+              308
+            ],
+            "data": [
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179
+            ],
+            "tag": [
+              180,
+              181,
+              182,
+              183
+            ],
+            "error": [
+              205
+            ]
+          }
+        },
+        "struct_unpack_1_read_tensorScratchpadReadRequest": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "read_tensorScratchpadReadRequest",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "address",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 4
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "address": "output",
+            "tag": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "address": [
+              214,
+              215
+            ],
+            "tag": [
+              216,
+              217,
+              218,
+              219
+            ]
+          }
+        },
+        "struct_unpack_2_write_byte_masked_write_request": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "write_byte_masked_write_request",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "address",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "data",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 16,
+            "FIELD_2_NAME": "byteEnable",
+            "FIELD_2_OFFSET": 18,
+            "FIELD_2_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "address": "output",
+            "data": "output",
+            "byteEnable": "output"
+          },
+          "connections": {
+            "A": [
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30
+            ],
+            "address": [
+              220,
+              221
+            ],
+            "data": [
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232,
+              233,
+              234,
+              235,
+              236,
+              237
+            ],
+            "byteEnable": [
+              238,
+              239
+            ]
+          }
+        },
+        "struct_concat_9_response_tensorScratchpadReadResponse": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "response_tensorScratchpadReadResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "tag": "input",
+            "error": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179
+            ],
+            "tag": [
+              180,
+              181,
+              182,
+              183
+            ],
+            "error": [
+              205
+            ],
+            "Y": [
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55
+            ]
+          }
+        },
+        "struct_concat_2_upstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "tag": "input",
+            "error": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75,
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82
+            ],
+            "tag": [
+              87,
+              88,
+              89,
+              90
+            ],
+            "error": [
+              339
+            ],
+            "Y": [
+              267,
+              268,
+              269,
+              270,
+              271,
+              272,
+              273,
+              274,
+              275,
+              276,
+              277,
+              278,
+              279,
+              280,
+              281,
+              282,
+              283,
+              284,
+              285,
+              286,
+              287
+            ]
+          }
+        },
+        "const_0_2_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h0": "output"
+          },
+          "connections": {
+            "2'h0": [
+              254,
+              255
+            ]
+          }
+        },
+        "const_1_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              266
+            ]
+          }
+        },
+        "const_2_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              313
+            ]
+          }
+        },
+        "const_3_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              316
+            ]
+          }
+        },
+        "const_4_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              339
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "read_tensorScratchpadReadRequest": {
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadRequest",
+            "fields": [
+              {
+                "name": "address",
+                "width": 2,
+                "bits": [
+                  4,
+                  5
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  6,
+                  7,
+                  8,
+                  9
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "read_valid": {
+          "bits": [
+            10
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "write_byte_masked_write_request": {
+          "bits": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "logic_type": {
+            "typeName": "ByteMaskedWriteRequest",
+            "fields": [
+              {
+                "name": "address",
+                "width": 2,
+                "bits": [
+                  11,
+                  12
+                ]
+              },
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28
+                ]
+              },
+              {
+                "name": "byteEnable",
+                "width": 2,
+                "bits": [
+                  29,
+                  30
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "write_valid": {
+          "bits": [
+            31
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "response_ready": {
+          "bits": [
+            32
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "read_ready": {
+          "bits": [
+            33
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "write_ready": {
+          "bits": [
+            34
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "response_tensorScratchpadReadResponse": {
+          "bits": [
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45,
+                  46,
+                  47,
+                  48,
+                  49,
+                  50
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  51,
+                  52,
+                  53,
+                  54
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  55
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "response_valid": {
+          "bits": [
+            56
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "responseOverflow": {
+          "bits": [
+            57
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "tensorScratchpadReadRequest_accepted": {
+          "bits": [
+            58
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "rd_data_0": {
+          "bits": [
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "bankResponse_data": {
+          "bits": [
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag": {
+          "bits": [
+            87,
+            88,
+            89,
+            90
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "rawTag": {
+          "bits": [
+            87,
+            88,
+            89,
+            90
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensorScratchpadReadRequest_tag": {
+          "bits": [
+            216,
+            217,
+            218,
+            219
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensorScratchpadReadRequest_address": {
+          "bits": [
+            214,
+            215
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data": {
+          "bits": [
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data_input_bridge": {
+          "bits": [
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "byte_masked_write_request_data": {
+          "bits": [
+            222,
+            223,
+            224,
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            232,
+            233,
+            234,
+            235,
+            236,
+            237
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "byte_masked_write_request_address": {
+          "bits": [
+            220,
+            221
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "byte_masked_write_request_byteEnable": {
+          "bits": [
+            238,
+            239
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "wr_en_0": {
+          "bits": [
+            133
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "byte_masked_write_request_accepted": {
+          "bits": [
+            134
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "en": {
+          "bits": [
+            135
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bankResponse_input_bridge_data": {
+          "bits": [
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_tag": {
+          "bits": [
+            87,
+            88,
+            89,
+            90
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_input_bridge_error": {
+          "bits": [
+            339
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error": {
+          "bits": [
+            339
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_valid": {
+          "bits": [
+            158
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bankResponse_accepted": {
+          "bits": [
+            159
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "upstream_ready": {
+          "bits": [
+            160
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "rawValid": {
+          "bits": [
+            161
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_accepted_0": {
+          "bits": [
+            162
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "downstream_valid": {
+          "bits": [
+            163
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "bankResponse_data_0": {
+          "bits": [
+            164,
+            165,
+            166,
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_tag_0": {
+          "bits": [
+            180,
+            181,
+            182,
+            183
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensorScratchpadReadResponse_tag": {
+          "bits": [
+            180,
+            181,
+            182,
+            183
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensorScratchpadReadResponse_data": {
+          "bits": [
+            164,
+            165,
+            166,
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensorScratchpadReadResponse_error": {
+          "bits": [
+            205
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "bankResponse_error_0": {
+          "bits": [
+            205
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data_input_bridge_0": {
+          "bits": [
+            206,
+            207,
+            208,
+            209,
+            210,
+            211,
+            212,
+            213
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "read_tensorScratchpadReadRequest_address": {
+          "bits": [
+            214,
+            215
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "read_tensorScratchpadReadRequest_tag": {
+          "bits": [
+            216,
+            217,
+            218,
+            219
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "write_byte_masked_write_request_address": {
+          "bits": [
+            220,
+            221
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "write_byte_masked_write_request_data": {
+          "bits": [
+            222,
+            223,
+            224,
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            232,
+            233,
+            234,
+            235,
+            236,
+            237
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "write_byte_masked_write_request_byteEnable": {
+          "bits": [
+            238,
+            239
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_subset_0_0_byteEnable": {
+          "bits": [
+            246
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_subset_1_1_byteEnable": {
+          "bits": [
+            247
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_valid_b": {
+          "bits": [
+            248
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_concatd_add__concatd_subtract__concatd_equals_const_0": {
+          "bits": [
+            249
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_concatd_add__concatd_subtract__concatd_equals_const_0_and__valid_b": {
+          "bits": [
+            250
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b": {
+          "bits": [
+            251
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_concatd_add__concatd_subtract__concatd": {
+          "bits": [
+            252,
+            253
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_concatd_add__concatd": {
+          "bits": [
+            256,
+            257
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_concatd": {
+          "bits": [
+            258,
+            259
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in0__concatd": {
+          "bits": [
+            260,
+            261
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in1__concatd": {
+          "bits": [
+            262,
+            263
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_concatd_add__concatd_carry": {
+          "bits": [
+            264
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "occupancy": {
+          "bits": [
+            265
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "upstream_bankResponse": {
+          "bits": [
+            267,
+            268,
+            269,
+            270,
+            271,
+            272,
+            273,
+            274,
+            275,
+            276,
+            277,
+            278,
+            279,
+            280,
+            281,
+            282,
+            283,
+            284,
+            285,
+            286,
+            287
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  267,
+                  268,
+                  269,
+                  270,
+                  271,
+                  272,
+                  273,
+                  274,
+                  275,
+                  276,
+                  277,
+                  278,
+                  279,
+                  280,
+                  281,
+                  282
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  283,
+                  284,
+                  285,
+                  286
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  287
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "downstream_bankResponse": {
+          "bits": [
+            288,
+            289,
+            290,
+            291,
+            292,
+            293,
+            294,
+            295,
+            296,
+            297,
+            298,
+            299,
+            300,
+            301,
+            302,
+            303,
+            304,
+            305,
+            306,
+            307,
+            308
+          ],
+          "logic_type": {
+            "typeName": "TensorScratchpadReadResponse<Logic>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 16,
+                "bits": [
+                  288,
+                  289,
+                  290,
+                  291,
+                  292,
+                  293,
+                  294,
+                  295,
+                  296,
+                  297,
+                  298,
+                  299,
+                  300,
+                  301,
+                  302,
+                  303
+                ]
+              },
+              {
+                "name": "tag",
+                "width": 4,
+                "bits": [
+                  304,
+                  305,
+                  306,
+                  307
+                ]
+              },
+              {
+                "name": "error",
+                "width": 1,
+                "bits": [
+                  308
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "_ready_b": {
+          "bits": [
+            314
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__reset_b": {
+          "bits": [
+            315
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_reset_b_0": {
+          "bits": [
+            317
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "response_tensorScratchpadReadResponse_data": {
+          "bits": [
+            164,
+            165,
+            166,
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179
+          ],
+          "logic_type": {
+            "width": 16
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "response_tensorScratchpadReadResponse_tag": {
+          "bits": [
+            180,
+            181,
+            182,
+            183
+          ],
+          "logic_type": {
+            "width": 4
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "response_tensorScratchpadReadResponse_error": {
+          "bits": [
+            205
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "const_0_2_h0": {
+          "bits": [
+            254,
+            255
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_1_h0": {
+          "bits": [
+            266
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_1_h0": {
+          "bits": [
+            313
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h0": {
+          "bits": [
+            316
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_1_h0": {
+          "bits": [
+            339
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "tensor_masked_sram_bank_responses_empty": {
+          "bits": [
+            309
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_full": {
+          "bits": [
+            310
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_almostFull": {
+          "bits": [
+            311
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        },
+        "tensor_masked_sram_bank_responses_almostEmpty": {
+          "bits": [
+            312
+          ],
+          "hide_name": 1,
+          "attributes": {}
+        }
+      }
+    }
+  }
+}

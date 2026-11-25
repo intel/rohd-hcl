@@ -1,0 +1,5716 @@
+{
+  "creator": "NetlistSynthesizer (rohd)",
+  "version": "0.1.0",
+  "modules": {
+    "ScheduledDeserializerEngine_L4_W10_S3_N005f0073_L8_N0072006f0077004100630074006900760065_L1_N0063006f006c0075006d006e004100630074006900760065_L1": {
+      "attributes": {
+        "src": "generated"
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "element": {
+          "direction": "input",
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  12
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  13
+                ]
+              }
+            ]
+          }
+        },
+        "write": {
+          "direction": "input",
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "last": {
+          "direction": "input",
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "clear": {
+          "direction": "input",
+          "bits": [
+            16
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "data": {
+          "direction": "output",
+          "bits": [
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96
+          ],
+          "logic_type": {
+            "width": 40,
+            "arrayDims": [
+              4
+            ],
+            "elementWidth": 10,
+            "elementType": {
+              "typeName": "InferenceTensorStreamElement<Logic>",
+              "fields": [
+                {
+                  "name": "_s",
+                  "width": 8
+                },
+                {
+                  "name": "rowActive",
+                  "width": 1
+                },
+                {
+                  "name": "columnActive",
+                  "width": 1
+                }
+              ]
+            }
+          }
+        },
+        "index": {
+          "direction": "output",
+          "bits": [
+            180,
+            181
+          ],
+          "logic_type": {
+            "width": 2
+          }
+        },
+        "complete": {
+          "direction": "output",
+          "bits": [
+            182
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "struct_pack_data_0": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d0_0",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "anonymous_0": "input",
+            "rowActive": "input",
+            "columnActive": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "anonymous_0": [
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114
+            ],
+            "rowActive": [
+              115
+            ],
+            "columnActive": [
+              116
+            ],
+            "Y": [
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ]
+          }
+        },
+        "struct_pack_data_1": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d0_1",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "anonymous_0": "input",
+            "rowActive": "input",
+            "columnActive": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "anonymous_0": [
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134
+            ],
+            "rowActive": [
+              135
+            ],
+            "columnActive": [
+              136
+            ],
+            "Y": [
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36
+            ]
+          }
+        },
+        "struct_pack_data_2": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d0_2",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "anonymous_0": "input",
+            "rowActive": "input",
+            "columnActive": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "anonymous_0": [
+              147,
+              148,
+              149,
+              150,
+              151,
+              152,
+              153,
+              154
+            ],
+            "rowActive": [
+              155
+            ],
+            "columnActive": [
+              156
+            ],
+            "Y": [
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46
+            ]
+          }
+        },
+        "struct_pack_data_3": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "d0_3",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "anonymous_0": "input",
+            "rowActive": "input",
+            "columnActive": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "anonymous_0": [
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174
+            ],
+            "rowActive": [
+              175
+            ],
+            "columnActive": [
+              176
+            ],
+            "Y": [
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55,
+              56
+            ]
+          }
+        },
+        "array_concat_output_6": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 10,
+            "IN1_WIDTH": 10,
+            "IN2_WIDTH": 10,
+            "IN3_WIDTH": 10
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "outputArrayConcat",
+          "port_directions": {
+            "[9:0]": "input",
+            "[19:10]": "input",
+            "[29:20]": "input",
+            "[39:30]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[9:0]": [
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ],
+            "[19:10]": [
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36
+            ],
+            "[29:20]": [
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46
+            ],
+            "[39:30]": [
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55,
+              56
+            ],
+            "Y": [
+              57,
+              58,
+              59,
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72,
+              73,
+              74,
+              75,
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82,
+              83,
+              84,
+              85,
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96
+            ]
+          }
+        },
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "clear": "input",
+            "write": "input",
+            "_tensor_tile_tiler_engine_index_equals_const_0": "input",
+            "element__s": "input",
+            "element_rowActive": "input",
+            "element_columnActive": "input",
+            "_tensor_tile_tiler_engine_index_equals_const_1": "input",
+            "_tensor_tile_tiler_engine_index_equals_const_2": "input",
+            "_tensor_tile_tiler_engine_index_equals_const_3": "input",
+            "_last_or__tensor_tile_tiler_engine_index_equals_const_3": "input",
+            "_tensor_tile_tiler_engine_index_add_const_1": "input",
+            "element__s__in22__s_0": "input",
+            "element_rowActive__in23_rowActive_0": "input",
+            "element_columnActive__in24_columnActive_0": "input",
+            "element__s__in22__s_1": "input",
+            "element_rowActive__in23_rowActive_1": "input",
+            "element_columnActive__in24_columnActive_1": "input",
+            "element__s__in22__s_2": "input",
+            "element_rowActive__in23_rowActive_2": "input",
+            "element_columnActive__in24_columnActive_2": "input",
+            "clk": "input",
+            "tensor_tile_tiler_engine_index": "output",
+            "tensor_tile_tiler_engine_complete": "output",
+            "data_0___s": "output",
+            "data_0__rowActive": "output",
+            "data_0__columnActive": "output",
+            "data_1___s": "output",
+            "data_1__rowActive": "output",
+            "data_1__columnActive": "output",
+            "data_2___s": "output",
+            "data_2__rowActive": "output",
+            "data_2__columnActive": "output",
+            "data_3___s": "output",
+            "data_3__rowActive": "output",
+            "data_3__columnActive": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "clear": [
+              16
+            ],
+            "write": [
+              14
+            ],
+            "_tensor_tile_tiler_engine_index_equals_const_0": [
+              241
+            ],
+            "element__s": [
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190
+            ],
+            "element_rowActive": [
+              191
+            ],
+            "element_columnActive": [
+              192
+            ],
+            "_tensor_tile_tiler_engine_index_equals_const_1": [
+              242
+            ],
+            "_tensor_tile_tiler_engine_index_equals_const_2": [
+              243
+            ],
+            "_tensor_tile_tiler_engine_index_equals_const_3": [
+              244
+            ],
+            "_last_or__tensor_tile_tiler_engine_index_equals_const_3": [
+              245
+            ],
+            "_tensor_tile_tiler_engine_index_add_const_1": [
+              250,
+              251
+            ],
+            "element__s__in22__s_0": [
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190
+            ],
+            "element_rowActive__in23_rowActive_0": [
+              191
+            ],
+            "element_columnActive__in24_columnActive_0": [
+              192
+            ],
+            "element__s__in22__s_1": [
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190
+            ],
+            "element_rowActive__in23_rowActive_1": [
+              191
+            ],
+            "element_columnActive__in24_columnActive_1": [
+              192
+            ],
+            "element__s__in22__s_2": [
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190
+            ],
+            "element_rowActive__in23_rowActive_2": [
+              191
+            ],
+            "element_columnActive__in24_columnActive_2": [
+              192
+            ],
+            "clk": [
+              2
+            ],
+            "tensor_tile_tiler_engine_index": [
+              180,
+              181
+            ],
+            "tensor_tile_tiler_engine_complete": [
+              182
+            ],
+            "data_0___s": [
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114
+            ],
+            "data_0__rowActive": [
+              115
+            ],
+            "data_0__columnActive": [
+              116
+            ],
+            "data_1___s": [
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134
+            ],
+            "data_1__rowActive": [
+              135
+            ],
+            "data_1__columnActive": [
+              136
+            ],
+            "data_2___s": [
+              147,
+              148,
+              149,
+              150,
+              151,
+              152,
+              153,
+              154
+            ],
+            "data_2__rowActive": [
+              155
+            ],
+            "data_2__columnActive": [
+              156
+            ],
+            "data_3___s": [
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174
+            ],
+            "data_3__rowActive": [
+              175
+            ],
+            "data_3__columnActive": [
+              176
+            ]
+          }
+        },
+        "equals": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              180,
+              181
+            ],
+            "B": [
+              252,
+              253
+            ],
+            "Y": [
+              241
+            ]
+          }
+        },
+        "equals_0": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              180,
+              181
+            ],
+            "B": [
+              254,
+              255
+            ],
+            "Y": [
+              242
+            ]
+          }
+        },
+        "equals_1": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              180,
+              181
+            ],
+            "B": [
+              256,
+              257
+            ],
+            "Y": [
+              243
+            ]
+          }
+        },
+        "equals_2": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              180,
+              181
+            ],
+            "B": [
+              258,
+              259
+            ],
+            "Y": [
+              244
+            ]
+          }
+        },
+        "equals_3": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              180,
+              181
+            ],
+            "B": [
+              260,
+              261
+            ],
+            "Y": [
+              262
+            ]
+          }
+        },
+        "or_": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              15
+            ],
+            "B": [
+              262
+            ],
+            "Y": [
+              245
+            ]
+          }
+        },
+        "add": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 3
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              180,
+              181
+            ],
+            "B": [
+              263,
+              264
+            ],
+            "Y": [
+              250,
+              251,
+              265
+            ]
+          }
+        },
+        "struct_unpack_0_element": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "element",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "anonymous_0": "output",
+            "rowActive": "output",
+            "columnActive": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "anonymous_0": [
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190
+            ],
+            "rowActive": [
+              191
+            ],
+            "columnActive": [
+              192
+            ]
+          }
+        },
+        "const_0_2_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h0": "output"
+          },
+          "connections": {
+            "2'h0": [
+              252,
+              253
+            ]
+          }
+        },
+        "const_1_2_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h1": "output"
+          },
+          "connections": {
+            "2'h1": [
+              254,
+              255
+            ]
+          }
+        },
+        "const_2_2_h2_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h2": "output"
+          },
+          "connections": {
+            "2'h2": [
+              256,
+              257
+            ]
+          }
+        },
+        "const_3_2_h3_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h3": "output"
+          },
+          "connections": {
+            "2'h3": [
+              258,
+              259
+            ]
+          }
+        },
+        "const_4_2_h3_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h3": "output"
+          },
+          "connections": {
+            "2'h3": [
+              260,
+              261
+            ]
+          }
+        },
+        "const_5_2_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h1": "output"
+          },
+          "connections": {
+            "2'h1": [
+              263,
+              264
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "element": {
+          "bits": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  4,
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  12
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  13
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "write": {
+          "bits": [
+            14
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "last": {
+          "bits": [
+            15
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "clear": {
+          "bits": [
+            16
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "data": {
+          "bits": [
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96
+          ],
+          "logic_type": {
+            "width": 40,
+            "arrayDims": [
+              4
+            ],
+            "elementWidth": 10,
+            "elementType": {
+              "typeName": "InferenceTensorStreamElement<Logic>",
+              "fields": [
+                {
+                  "name": "_s",
+                  "width": 8
+                },
+                {
+                  "name": "rowActive",
+                  "width": 1
+                },
+                {
+                  "name": "columnActive",
+                  "width": 1
+                }
+              ]
+            }
+          },
+          "attributes": {}
+        },
+        "index": {
+          "bits": [
+            180,
+            181
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "complete": {
+          "bits": [
+            182
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "data[0]": {
+          "bits": [
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  25
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  26
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[0][7:0]": {
+          "bits": [
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data[0][8]": {
+          "bits": [
+            115
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[0][9]": {
+          "bits": [
+            116
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[1]": {
+          "bits": [
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  27,
+                  28,
+                  29,
+                  30,
+                  31,
+                  32,
+                  33,
+                  34
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  35
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  36
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[1][7:0]": {
+          "bits": [
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data[1][8]": {
+          "bits": [
+            135
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[1][9]": {
+          "bits": [
+            136
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[2]": {
+          "bits": [
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  45
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  46
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[2][7:0]": {
+          "bits": [
+            147,
+            148,
+            149,
+            150,
+            151,
+            152,
+            153,
+            154
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data[2][8]": {
+          "bits": [
+            155
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[2][9]": {
+          "bits": [
+            156
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[3]": {
+          "bits": [
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  47,
+                  48,
+                  49,
+                  50,
+                  51,
+                  52,
+                  53,
+                  54
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  55
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  56
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[3][7:0]": {
+          "bits": [
+            167,
+            168,
+            169,
+            170,
+            171,
+            172,
+            173,
+            174
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "data[3][8]": {
+          "bits": [
+            175
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[3][9]": {
+          "bits": [
+            176
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_tile_tiler_engine_index": {
+          "bits": [
+            180,
+            181
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_tile_tiler_engine_complete": {
+          "bits": [
+            182
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "element__s": {
+          "bits": [
+            183,
+            184,
+            185,
+            186,
+            187,
+            188,
+            189,
+            190
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "element_rowActive": {
+          "bits": [
+            191
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "element_columnActive": {
+          "bits": [
+            192
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_tensor_tile_tiler_engine_index_equals_const_0": {
+          "bits": [
+            241
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_engine_index_equals_const_1": {
+          "bits": [
+            242
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_engine_index_equals_const_2": {
+          "bits": [
+            243
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_engine_index_equals_const_3": {
+          "bits": [
+            244
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_last_or__tensor_tile_tiler_engine_index_equals_const_3": {
+          "bits": [
+            245
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_engine_index_add_const_1": {
+          "bits": [
+            250,
+            251
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "_in1__tensor_tile_tiler_engine_index_equals_const_3": {
+          "bits": [
+            262
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_engine_index_add_const_1_carry": {
+          "bits": [
+            265
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "const_0_2_h0": {
+          "bits": [
+            252,
+            253
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_2_h1": {
+          "bits": [
+            254,
+            255
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_2_h2": {
+          "bits": [
+            256,
+            257
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_2_h3": {
+          "bits": [
+            258,
+            259
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_2_h3": {
+          "bits": [
+            260,
+            261
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_2_h1": {
+          "bits": [
+            263,
+            264
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    },
+    "TensorTileTiler_R2_C2_S8_U0_Typed_N6__005fs_Frame": {
+      "attributes": {
+        "src": "generated",
+        "top": 1
+      },
+      "ports": {
+        "clk": {
+          "direction": "input",
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "reset": {
+          "direction": "input",
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "write": {
+          "direction": "input",
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "element": {
+          "direction": "input",
+          "bits": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "typeName": "Frame<InferenceTensorStreamElement<Logic>>",
+            "fields": [
+              {
+                "name": "_s_tensor_element",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14
+                ],
+                "type": {
+                  "typeName": "InferenceTensorStreamElement<Logic>",
+                  "fields": [
+                    {
+                      "name": "_s",
+                      "width": 8,
+                      "bits": [
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12
+                      ]
+                    },
+                    {
+                      "name": "rowActive",
+                      "width": 1,
+                      "bits": [
+                        13
+                      ]
+                    },
+                    {
+                      "name": "columnActive",
+                      "width": 1,
+                      "bits": [
+                        14
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "last",
+                "width": 1,
+                "bits": [
+                  15
+                ]
+              }
+            ]
+          }
+        },
+        "result": {
+          "direction": "output",
+          "bits": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorTile<Logic, LogicValue>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 32,
+                "bits": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28,
+                  29,
+                  30,
+                  31,
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45,
+                  46,
+                  47
+                ],
+                "type": {
+                  "width": 32,
+                  "arrayDims": [
+                    2,
+                    2
+                  ],
+                  "elementWidth": 8,
+                  "elementType": {
+                    "width": 16,
+                    "arrayDims": [
+                      2
+                    ],
+                    "elementWidth": 8
+                  }
+                }
+              },
+              {
+                "name": "rowMask",
+                "width": 2,
+                "bits": [
+                  48,
+                  49
+                ]
+              },
+              {
+                "name": "columnMask",
+                "width": 2,
+                "bits": [
+                  50,
+                  51
+                ]
+              }
+            ]
+          }
+        },
+        "framingError": {
+          "direction": "output",
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "maskInconsistent": {
+          "direction": "output",
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        },
+        "collectedElements": {
+          "direction": "output",
+          "bits": [
+            61,
+            62,
+            63
+          ],
+          "logic_type": {
+            "width": 3
+          }
+        },
+        "index": {
+          "direction": "output",
+          "bits": [
+            57,
+            58
+          ],
+          "logic_type": {
+            "width": 2
+          }
+        },
+        "complete": {
+          "direction": "output",
+          "bits": [
+            59
+          ],
+          "logic_type": {
+            "width": 1
+          }
+        }
+      },
+      "cells": {
+        "tensor_tile_tiler_engine": {
+          "hide_name": 0,
+          "type": "ScheduledDeserializerEngine_L4_W10_S3_N005f0073_L8_N0072006f0077004100630074006900760065_L1_N0063006f006c0075006d006e004100630074006900760065_L1",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "clk": "input",
+            "reset": "input",
+            "element": "input",
+            "write": "input",
+            "last": "input",
+            "clear": "input",
+            "data": "output",
+            "index": "output",
+            "complete": "output"
+          },
+          "connections": {
+            "clk": [
+              2
+            ],
+            "reset": [
+              3
+            ],
+            "element": [
+              75,
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82,
+              83,
+              84
+            ],
+            "write": [
+              4
+            ],
+            "last": [
+              74
+            ],
+            "clear": [
+              85
+            ],
+            "data": [
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125
+            ],
+            "index": [
+              57,
+              58
+            ],
+            "complete": [
+              59
+            ]
+          }
+        },
+        "notEquals": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              126
+            ],
+            "B": [
+              126
+            ],
+            "Y": [
+              127
+            ]
+          }
+        },
+        "and_": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              128
+            ],
+            "B": [
+              127
+            ],
+            "Y": [
+              129
+            ]
+          }
+        },
+        "concat": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "IN0_WIDTH": 1,
+            "IN1_WIDTH": 1,
+            "IN2_WIDTH": 1,
+            "IN3_WIDTH": 1,
+            "IN4_WIDTH": 1,
+            "IN5_WIDTH": 1,
+            "IN6_WIDTH": 1,
+            "IN7_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "[0]": "input",
+            "[1]": "input",
+            "[2]": "input",
+            "[3]": "input",
+            "[4]": "input",
+            "[5]": "input",
+            "[6]": "input",
+            "[7]": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "[0]": [
+              129
+            ],
+            "[1]": [
+              130
+            ],
+            "[2]": [
+              131
+            ],
+            "[3]": [
+              132
+            ],
+            "[4]": [
+              133
+            ],
+            "[5]": [
+              134
+            ],
+            "[6]": [
+              135
+            ],
+            "[7]": [
+              136
+            ],
+            "Y": [
+              137,
+              138,
+              139,
+              140,
+              141,
+              142,
+              143,
+              144
+            ]
+          }
+        },
+        "uor": {
+          "hide_name": 0,
+          "type": "$reduce_or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 8,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              137,
+              138,
+              139,
+              140,
+              141,
+              142,
+              143,
+              144
+            ],
+            "Y": [
+              53
+            ]
+          }
+        },
+        "not_": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              53
+            ],
+            "Y": [
+              145
+            ]
+          }
+        },
+        "and__0": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              146
+            ],
+            "B": [
+              145
+            ],
+            "Y": [
+              147
+            ]
+          }
+        },
+        "and__1": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              147
+            ],
+            "B": [
+              126
+            ],
+            "Y": [
+              148
+            ]
+          }
+        },
+        "concat_0": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              148
+            ],
+            "B": [
+              149
+            ],
+            "Y": [
+              150,
+              151
+            ]
+          }
+        },
+        "and__2": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              147
+            ],
+            "B": [
+              152
+            ],
+            "Y": [
+              149
+            ]
+          }
+        },
+        "and__3": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              147
+            ],
+            "B": [
+              153
+            ],
+            "Y": [
+              154
+            ]
+          }
+        },
+        "concat_1": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 1,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              154
+            ],
+            "B": [
+              155
+            ],
+            "Y": [
+              156,
+              157
+            ]
+          }
+        },
+        "and__4": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              147
+            ],
+            "B": [
+              158
+            ],
+            "Y": [
+              155
+            ]
+          }
+        },
+        "not__0": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              52
+            ],
+            "Y": [
+              146
+            ]
+          }
+        },
+        "or_": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              60
+            ],
+            "B": [
+              159
+            ],
+            "Y": [
+              52
+            ]
+          }
+        },
+        "sequential": {
+          "hide_name": 0,
+          "type": "Sequential",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "reset": "input",
+            "_write_and__last_or__index_equals_const_3": "input",
+            "_concatd_add_const_1": "input",
+            "_last_b": "input",
+            "clk": "input",
+            "tensor_tile_tiler_count": "output",
+            "tensor_tile_tiler_missing_last": "output"
+          },
+          "connections": {
+            "reset": [
+              3
+            ],
+            "_write_and__last_or__index_equals_const_3": [
+              165
+            ],
+            "_concatd_add_const_1": [
+              166,
+              167,
+              168
+            ],
+            "_last_b": [
+              169
+            ],
+            "clk": [
+              2
+            ],
+            "tensor_tile_tiler_count": [
+              61,
+              62,
+              63
+            ],
+            "tensor_tile_tiler_missing_last": [
+              60
+            ]
+          }
+        },
+        "and__5": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              4
+            ],
+            "B": [
+              170
+            ],
+            "Y": [
+              165
+            ]
+          }
+        },
+        "or__0": {
+          "hide_name": 0,
+          "type": "$or",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              74
+            ],
+            "B": [
+              171
+            ],
+            "Y": [
+              170
+            ]
+          }
+        },
+        "equals": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 2,
+            "B_SIGNED": 0,
+            "B_WIDTH": 2,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              57,
+              58
+            ],
+            "B": [
+              172,
+              173
+            ],
+            "Y": [
+              171
+            ]
+          }
+        },
+        "add": {
+          "hide_name": 0,
+          "type": "$add",
+          "parameters": {
+            "A_WIDTH": 3,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 4
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              174,
+              175,
+              176
+            ],
+            "B": [
+              177,
+              178,
+              179
+            ],
+            "Y": [
+              166,
+              167,
+              168,
+              180
+            ]
+          }
+        },
+        "concat_2": {
+          "hide_name": 0,
+          "type": "$concat",
+          "parameters": {
+            "A_WIDTH": 2,
+            "B_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              57,
+              58
+            ],
+            "B": [
+              181
+            ],
+            "Y": [
+              174,
+              175,
+              176
+            ]
+          }
+        },
+        "not__1": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              74
+            ],
+            "Y": [
+              169
+            ]
+          }
+        },
+        "equals_0": {
+          "hide_name": 0,
+          "type": "$eq",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              61,
+              62,
+              63
+            ],
+            "B": [
+              182,
+              183,
+              184
+            ],
+            "Y": [
+              185
+            ]
+          }
+        },
+        "not__2": {
+          "hide_name": 0,
+          "type": "$not",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              185
+            ],
+            "Y": [
+              159
+            ]
+          }
+        },
+        "greaterThan": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              61,
+              62,
+              63
+            ],
+            "B": [
+              186,
+              187,
+              188
+            ],
+            "Y": [
+              128
+            ]
+          }
+        },
+        "and__6": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              128
+            ],
+            "B": [
+              189
+            ],
+            "Y": [
+              130
+            ]
+          }
+        },
+        "notEquals_0": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              153
+            ],
+            "B": [
+              153
+            ],
+            "Y": [
+              189
+            ]
+          }
+        },
+        "greaterThan_0": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              61,
+              62,
+              63
+            ],
+            "B": [
+              190,
+              191,
+              192
+            ],
+            "Y": [
+              193
+            ]
+          }
+        },
+        "and__7": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              193
+            ],
+            "B": [
+              194
+            ],
+            "Y": [
+              131
+            ]
+          }
+        },
+        "notEquals_1": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              195
+            ],
+            "B": [
+              126
+            ],
+            "Y": [
+              194
+            ]
+          }
+        },
+        "and__8": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              193
+            ],
+            "B": [
+              196
+            ],
+            "Y": [
+              132
+            ]
+          }
+        },
+        "notEquals_2": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              158
+            ],
+            "B": [
+              158
+            ],
+            "Y": [
+              196
+            ]
+          }
+        },
+        "greaterThan_1": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              61,
+              62,
+              63
+            ],
+            "B": [
+              197,
+              198,
+              199
+            ],
+            "Y": [
+              200
+            ]
+          }
+        },
+        "and__9": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              200
+            ],
+            "B": [
+              201
+            ],
+            "Y": [
+              133
+            ]
+          }
+        },
+        "notEquals_3": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              152
+            ],
+            "B": [
+              152
+            ],
+            "Y": [
+              201
+            ]
+          }
+        },
+        "and__10": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              200
+            ],
+            "B": [
+              202
+            ],
+            "Y": [
+              134
+            ]
+          }
+        },
+        "notEquals_4": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              203
+            ],
+            "B": [
+              153
+            ],
+            "Y": [
+              202
+            ]
+          }
+        },
+        "greaterThan_2": {
+          "hide_name": 0,
+          "type": "$gt",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 3,
+            "B_SIGNED": 0,
+            "B_WIDTH": 3,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              61,
+              62,
+              63
+            ],
+            "B": [
+              204,
+              205,
+              206
+            ],
+            "Y": [
+              207
+            ]
+          }
+        },
+        "and__11": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              207
+            ],
+            "B": [
+              208
+            ],
+            "Y": [
+              135
+            ]
+          }
+        },
+        "notEquals_5": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              209
+            ],
+            "B": [
+              152
+            ],
+            "Y": [
+              208
+            ]
+          }
+        },
+        "and__12": {
+          "hide_name": 0,
+          "type": "$and",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              207
+            ],
+            "B": [
+              210
+            ],
+            "Y": [
+              136
+            ]
+          }
+        },
+        "notEquals_6": {
+          "hide_name": 0,
+          "type": "$ne",
+          "parameters": {
+            "A_SIGNED": 0,
+            "A_WIDTH": 1,
+            "B_SIGNED": 0,
+            "B_WIDTH": 1,
+            "Y_WIDTH": 1
+          },
+          "attributes": {},
+          "port_directions": {
+            "A": "input",
+            "B": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              211
+            ],
+            "B": [
+              158
+            ],
+            "Y": [
+              210
+            ]
+          }
+        },
+        "array_slice": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 0,
+            "A_WIDTH": 40,
+            "Y_WIDTH": 10
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "arraySlice",
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125
+            ],
+            "Y": [
+              380,
+              381,
+              382,
+              383,
+              384,
+              385,
+              386,
+              387,
+              388,
+              389
+            ]
+          }
+        },
+        "array_slice_0": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 10,
+            "A_WIDTH": 40,
+            "Y_WIDTH": 10
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "arraySlice",
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125
+            ],
+            "Y": [
+              390,
+              391,
+              392,
+              393,
+              394,
+              395,
+              396,
+              397,
+              398,
+              399
+            ]
+          }
+        },
+        "array_slice_1": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 20,
+            "A_WIDTH": 40,
+            "Y_WIDTH": 10
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "arraySlice",
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125
+            ],
+            "Y": [
+              400,
+              401,
+              402,
+              403,
+              404,
+              405,
+              406,
+              407,
+              408,
+              409
+            ]
+          }
+        },
+        "array_slice_2": {
+          "hide_name": 0,
+          "type": "$slice",
+          "parameters": {
+            "OFFSET": 30,
+            "A_WIDTH": 40,
+            "Y_WIDTH": 10
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "arraySlice",
+          "port_directions": {
+            "A": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "A": [
+              86,
+              87,
+              88,
+              89,
+              90,
+              91,
+              92,
+              93,
+              94,
+              95,
+              96,
+              97,
+              98,
+              99,
+              100,
+              101,
+              102,
+              103,
+              104,
+              105,
+              106,
+              107,
+              108,
+              109,
+              110,
+              111,
+              112,
+              113,
+              114,
+              115,
+              116,
+              117,
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125
+            ],
+            "Y": [
+              410,
+              411,
+              412,
+              413,
+              414,
+              415,
+              416,
+              417,
+              418,
+              419
+            ]
+          }
+        },
+        "struct_unpack_0_element": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "element",
+            "FIELD_COUNT": 4,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1,
+            "FIELD_3_NAME": "last",
+            "FIELD_3_OFFSET": 10,
+            "FIELD_3_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "anonymous_0": "output",
+            "rowActive": "output",
+            "columnActive": "output",
+            "last": "output"
+          },
+          "connections": {
+            "A": [
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "anonymous_0": [
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71
+            ],
+            "rowActive": [
+              72
+            ],
+            "columnActive": [
+              73
+            ],
+            "last": [
+              74
+            ]
+          }
+        },
+        "struct_unpack_1_d0_0": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "d0_0",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "anonymous_0": "output",
+            "rowActive": "output",
+            "columnActive": "output"
+          },
+          "connections": {
+            "A": [
+              380,
+              381,
+              382,
+              383,
+              384,
+              385,
+              386,
+              387,
+              388,
+              389
+            ],
+            "anonymous_0": [
+              332,
+              333,
+              334,
+              335,
+              336,
+              337,
+              338,
+              339
+            ],
+            "rowActive": [
+              126
+            ],
+            "columnActive": [
+              153
+            ]
+          }
+        },
+        "struct_unpack_2_d0_3": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "d0_3",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "anonymous_0": "output",
+            "rowActive": "output",
+            "columnActive": "output"
+          },
+          "connections": {
+            "A": [
+              410,
+              411,
+              412,
+              413,
+              414,
+              415,
+              416,
+              417,
+              418,
+              419
+            ],
+            "anonymous_0": [
+              356,
+              357,
+              358,
+              359,
+              360,
+              361,
+              362,
+              363
+            ],
+            "rowActive": [
+              209
+            ],
+            "columnActive": [
+              211
+            ]
+          }
+        },
+        "struct_unpack_3_d0_2": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "d0_2",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "anonymous_0": "output",
+            "rowActive": "output",
+            "columnActive": "output"
+          },
+          "connections": {
+            "A": [
+              400,
+              401,
+              402,
+              403,
+              404,
+              405,
+              406,
+              407,
+              408,
+              409
+            ],
+            "anonymous_0": [
+              348,
+              349,
+              350,
+              351,
+              352,
+              353,
+              354,
+              355
+            ],
+            "rowActive": [
+              152
+            ],
+            "columnActive": [
+              203
+            ]
+          }
+        },
+        "struct_unpack_4_d0_1": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "d0_1",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "anonymous_0": "output",
+            "rowActive": "output",
+            "columnActive": "output"
+          },
+          "connections": {
+            "A": [
+              390,
+              391,
+              392,
+              393,
+              394,
+              395,
+              396,
+              397,
+              398,
+              399
+            ],
+            "anonymous_0": [
+              340,
+              341,
+              342,
+              343,
+              344,
+              345,
+              346,
+              347
+            ],
+            "rowActive": [
+              195
+            ],
+            "columnActive": [
+              158
+            ]
+          }
+        },
+        "struct_concat_4_result": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "result",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "data",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 8,
+            "FIELD_2_NAME": "data",
+            "FIELD_2_OFFSET": 16,
+            "FIELD_2_WIDTH": 8,
+            "FIELD_3_NAME": "data",
+            "FIELD_3_OFFSET": 24,
+            "FIELD_3_WIDTH": 8,
+            "FIELD_4_NAME": "rowMask",
+            "FIELD_4_OFFSET": 32,
+            "FIELD_4_WIDTH": 2,
+            "FIELD_5_NAME": "columnMask",
+            "FIELD_5_OFFSET": 34,
+            "FIELD_5_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "data": "input",
+            "data_1": "input",
+            "data_2": "input",
+            "data_3": "input",
+            "rowMask": "input",
+            "columnMask": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "data": [
+              332,
+              333,
+              334,
+              335,
+              336,
+              337,
+              338,
+              339
+            ],
+            "data_1": [
+              340,
+              341,
+              342,
+              343,
+              344,
+              345,
+              346,
+              347
+            ],
+            "data_2": [
+              348,
+              349,
+              350,
+              351,
+              352,
+              353,
+              354,
+              355
+            ],
+            "data_3": [
+              356,
+              357,
+              358,
+              359,
+              360,
+              361,
+              362,
+              363
+            ],
+            "rowMask": [
+              150,
+              151
+            ],
+            "columnMask": [
+              156,
+              157
+            ],
+            "Y": [
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33,
+              34,
+              35,
+              36,
+              37,
+              38,
+              39,
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51
+            ]
+          }
+        },
+        "struct_concat_2_element": {
+          "hide_name": 0,
+          "type": "$struct_pack",
+          "parameters": {
+            "STRUCT_NAME": "element",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "_s",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structurePack",
+          "port_directions": {
+            "_s": "input",
+            "rowActive": "input",
+            "columnActive": "input",
+            "Y": "output"
+          },
+          "connections": {
+            "_s": [
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71
+            ],
+            "rowActive": [
+              72
+            ],
+            "columnActive": [
+              73
+            ],
+            "Y": [
+              75,
+              76,
+              77,
+              78,
+              79,
+              80,
+              81,
+              82,
+              83,
+              84
+            ]
+          }
+        },
+        "const_0_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              85
+            ]
+          }
+        },
+        "const_1_2_h3_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "2'h3": "output"
+          },
+          "connections": {
+            "2'h3": [
+              172,
+              173
+            ]
+          }
+        },
+        "const_2_3_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h1": "output"
+          },
+          "connections": {
+            "3'h1": [
+              177,
+              178,
+              179
+            ]
+          }
+        },
+        "const_3_1_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "1'h0": "output"
+          },
+          "connections": {
+            "1'h0": [
+              181
+            ]
+          }
+        },
+        "const_4_3_h4_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h4": "output"
+          },
+          "connections": {
+            "3'h4": [
+              182,
+              183,
+              184
+            ]
+          }
+        },
+        "const_5_3_h0_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h0": "output"
+          },
+          "connections": {
+            "3'h0": [
+              186,
+              187,
+              188
+            ]
+          }
+        },
+        "const_6_3_h1_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h1": "output"
+          },
+          "connections": {
+            "3'h1": [
+              190,
+              191,
+              192
+            ]
+          }
+        },
+        "const_7_3_h2_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h2": "output"
+          },
+          "connections": {
+            "3'h2": [
+              197,
+              198,
+              199
+            ]
+          }
+        },
+        "const_8_3_h3_driver": {
+          "hide_name": 0,
+          "type": "$const",
+          "parameters": {},
+          "attributes": {},
+          "port_directions": {
+            "3'h3": "output"
+          },
+          "connections": {
+            "3'h3": [
+              204,
+              205,
+              206
+            ]
+          }
+        }
+      },
+      "netnames": {
+        "clk": {
+          "bits": [
+            2
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "reset": {
+          "bits": [
+            3
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "write": {
+          "bits": [
+            4
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "element": {
+          "bits": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "logic_type": {
+            "typeName": "Frame<InferenceTensorStreamElement<Logic>>",
+            "fields": [
+              {
+                "name": "_s_tensor_element",
+                "bits": [
+                  5,
+                  6,
+                  7,
+                  8,
+                  9,
+                  10,
+                  11,
+                  12,
+                  13,
+                  14
+                ],
+                "type": {
+                  "typeName": "InferenceTensorStreamElement<Logic>",
+                  "fields": [
+                    {
+                      "name": "_s",
+                      "width": 8,
+                      "bits": [
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12
+                      ]
+                    },
+                    {
+                      "name": "rowActive",
+                      "width": 1,
+                      "bits": [
+                        13
+                      ]
+                    },
+                    {
+                      "name": "columnActive",
+                      "width": 1,
+                      "bits": [
+                        14
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "last",
+                "width": 1,
+                "bits": [
+                  15
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "result": {
+          "bits": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorTile<Logic, LogicValue>",
+            "fields": [
+              {
+                "name": "data",
+                "width": 32,
+                "bits": [
+                  16,
+                  17,
+                  18,
+                  19,
+                  20,
+                  21,
+                  22,
+                  23,
+                  24,
+                  25,
+                  26,
+                  27,
+                  28,
+                  29,
+                  30,
+                  31,
+                  32,
+                  33,
+                  34,
+                  35,
+                  36,
+                  37,
+                  38,
+                  39,
+                  40,
+                  41,
+                  42,
+                  43,
+                  44,
+                  45,
+                  46,
+                  47
+                ],
+                "type": {
+                  "width": 32,
+                  "arrayDims": [
+                    2,
+                    2
+                  ],
+                  "elementWidth": 8,
+                  "elementType": {
+                    "width": 16,
+                    "arrayDims": [
+                      2
+                    ],
+                    "elementWidth": 8
+                  }
+                }
+              },
+              {
+                "name": "rowMask",
+                "width": 2,
+                "bits": [
+                  48,
+                  49
+                ]
+              },
+              {
+                "name": "columnMask",
+                "width": 2,
+                "bits": [
+                  50,
+                  51
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "framingError": {
+          "bits": [
+            52
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "maskInconsistent": {
+          "bits": [
+            53
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "collectedElements": {
+          "bits": [
+            61,
+            62,
+            63
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {}
+        },
+        "index": {
+          "bits": [
+            57,
+            58
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {}
+        },
+        "complete": {
+          "bits": [
+            59
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "tensor_tile_tiler_missing_last": {
+          "bits": [
+            60
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "tensor_tile_tiler_count": {
+          "bits": [
+            61,
+            62,
+            63
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "element__s": {
+          "bits": [
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "element__s_tensor_element_rowActive": {
+          "bits": [
+            72
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "element__s_tensor_element_columnActive": {
+          "bits": [
+            73
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "last": {
+          "bits": [
+            74
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "element_0": {
+          "bits": [
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  75,
+                  76,
+                  77,
+                  78,
+                  79,
+                  80,
+                  81,
+                  82
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  83
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  84
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data": {
+          "bits": [
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125
+          ],
+          "logic_type": {
+            "width": 40,
+            "arrayDims": [
+              4
+            ],
+            "elementWidth": 10,
+            "elementType": {
+              "typeName": "InferenceTensorStreamElement<Logic>",
+              "fields": [
+                {
+                  "name": "_s",
+                  "width": 8
+                },
+                {
+                  "name": "rowActive",
+                  "width": 1
+                },
+                {
+                  "name": "columnActive",
+                  "width": 1
+                }
+              ]
+            }
+          },
+          "attributes": {}
+        },
+        "data[0][8]": {
+          "bits": [
+            126
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_rowActive_notEquals_rowActive": {
+          "bits": [
+            127
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_0": {
+          "bits": [
+            128
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_0_and__rowActive_notEquals_rowActive": {
+          "bits": [
+            129
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_0_and__columnActive_notEquals_columnActive": {
+          "bits": [
+            130
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_1_and__rowActive_notEquals_rowActive": {
+          "bits": [
+            131
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_1_and__columnActive_notEquals_columnActive": {
+          "bits": [
+            132
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_2_and__rowActive_notEquals_rowActive": {
+          "bits": [
+            133
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_2_and__columnActive_notEquals_columnActive": {
+          "bits": [
+            134
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_3_and__rowActive_notEquals_rowActive": {
+          "bits": [
+            135
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_3_and__columnActive_notEquals_columnActive": {
+          "bits": [
+            136
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_concatd": {
+          "bits": [
+            137,
+            138,
+            139,
+            140,
+            141,
+            142,
+            143,
+            144
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "_uor__concatd_b": {
+          "bits": [
+            145
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_missing_last_or__tensor_tile_tiler_count_equals_const_4_b_b": {
+          "bits": [
+            146
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_missing_last_or__tensor_tile_tiler_count_equals_const_4_b_b_and__uor__concatd_b": {
+          "bits": [
+            147
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_missing_last_or__tensor_tile_tiler_count_equals_const_4_b_b_and__uor__concatd_b_and_rowActive": {
+          "bits": [
+            148
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1": {
+          "bits": [
+            149
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "result_rowMask": {
+          "bits": [
+            150,
+            151
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[2][8]": {
+          "bits": [
+            152
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[0][9]": {
+          "bits": [
+            153
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_tensor_tile_tiler_missing_last_or__tensor_tile_tiler_count_equals_const_4_b_b_and__uor__concatd_b_and_columnActive": {
+          "bits": [
+            154
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_missing_last_or__tensor_tile_tiler_count_equals_const_4_b_b_and__uor__concatd_b_and_columnActive_0": {
+          "bits": [
+            155
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "result_columnMask": {
+          "bits": [
+            156,
+            157
+          ],
+          "logic_type": {
+            "width": 2
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[1][9]": {
+          "bits": [
+            158
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_tensor_tile_tiler_count_equals_const_4_b": {
+          "bits": [
+            159
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_write_and__last_or__index_equals_const_3": {
+          "bits": [
+            165
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_concatd_add_const_1": {
+          "bits": [
+            166,
+            167,
+            168
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {}
+        },
+        "_last_b": {
+          "bits": [
+            169
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_last_or__index_equals_const_3": {
+          "bits": [
+            170
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_index_equals_const_3": {
+          "bits": [
+            171
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in0__concatd": {
+          "bits": [
+            174,
+            175,
+            176
+          ],
+          "logic_type": {
+            "width": 3
+          },
+          "attributes": {}
+        },
+        "_concatd_add_const_1_carry": {
+          "bits": [
+            180
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_equals_const_4": {
+          "bits": [
+            185
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_columnActive_notEquals_columnActive": {
+          "bits": [
+            189
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_1": {
+          "bits": [
+            193
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_in1__rowActive_notEquals_rowActive": {
+          "bits": [
+            194
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "data[1][8]": {
+          "bits": [
+            195
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_in1__columnActive_notEquals_columnActive": {
+          "bits": [
+            196
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_2": {
+          "bits": [
+            200
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_rowActive_notEquals_rowActive_0": {
+          "bits": [
+            201
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_columnActive_notEquals_columnActive_0": {
+          "bits": [
+            202
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "data[2][9]": {
+          "bits": [
+            203
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_tensor_tile_tiler_count_greaterThan_const_3": {
+          "bits": [
+            207
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "_rowActive_notEquals_rowActive_1": {
+          "bits": [
+            208
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "data[3][8]": {
+          "bits": [
+            209
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "_columnActive_notEquals_columnActive_1": {
+          "bits": [
+            210
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {}
+        },
+        "data[3][9]": {
+          "bits": [
+            211
+          ],
+          "logic_type": {
+            "width": 1
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[0]": {
+          "bits": [
+            380,
+            381,
+            382,
+            383,
+            384,
+            385,
+            386,
+            387,
+            388,
+            389
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  380,
+                  381,
+                  382,
+                  383,
+                  384,
+                  385,
+                  386,
+                  387
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  388
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  389
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[1]": {
+          "bits": [
+            390,
+            391,
+            392,
+            393,
+            394,
+            395,
+            396,
+            397,
+            398,
+            399
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  390,
+                  391,
+                  392,
+                  393,
+                  394,
+                  395,
+                  396,
+                  397
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  398
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  399
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[2]": {
+          "bits": [
+            400,
+            401,
+            402,
+            403,
+            404,
+            405,
+            406,
+            407,
+            408,
+            409
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  400,
+                  401,
+                  402,
+                  403,
+                  404,
+                  405,
+                  406,
+                  407
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  408
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  409
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[3]": {
+          "bits": [
+            410,
+            411,
+            412,
+            413,
+            414,
+            415,
+            416,
+            417,
+            418,
+            419
+          ],
+          "logic_type": {
+            "typeName": "InferenceTensorStreamElement<Logic>",
+            "fields": [
+              {
+                "name": "_s",
+                "width": 8,
+                "bits": [
+                  410,
+                  411,
+                  412,
+                  413,
+                  414,
+                  415,
+                  416,
+                  417
+                ]
+              },
+              {
+                "name": "rowActive",
+                "width": 1,
+                "bits": [
+                  418
+                ]
+              },
+              {
+                "name": "columnActive",
+                "width": 1,
+                "bits": [
+                  419
+                ]
+              }
+            ]
+          },
+          "attributes": {}
+        },
+        "data[0][7:0]": {
+          "bits": [
+            332,
+            333,
+            334,
+            335,
+            336,
+            337,
+            338,
+            339
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "result_data[0][0]": {
+          "bits": [
+            332,
+            333,
+            334,
+            335,
+            336,
+            337,
+            338,
+            339
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[1][7:0]": {
+          "bits": [
+            340,
+            341,
+            342,
+            343,
+            344,
+            345,
+            346,
+            347
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "result_data[0][1]": {
+          "bits": [
+            340,
+            341,
+            342,
+            343,
+            344,
+            345,
+            346,
+            347
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[2][7:0]": {
+          "bits": [
+            348,
+            349,
+            350,
+            351,
+            352,
+            353,
+            354,
+            355
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "result_data[1][0]": {
+          "bits": [
+            348,
+            349,
+            350,
+            351,
+            352,
+            353,
+            354,
+            355
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "data[3][7:0]": {
+          "bits": [
+            356,
+            357,
+            358,
+            359,
+            360,
+            361,
+            362,
+            363
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {}
+        },
+        "result_data[1][1]": {
+          "bits": [
+            356,
+            357,
+            358,
+            359,
+            360,
+            361,
+            362,
+            363
+          ],
+          "logic_type": {
+            "width": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "result_data[0]": {
+          "bits": [
+            332,
+            333,
+            334,
+            335,
+            336,
+            337,
+            338,
+            339,
+            340,
+            341,
+            342,
+            343,
+            344,
+            345,
+            346,
+            347
+          ],
+          "logic_type": {
+            "width": 16,
+            "arrayDims": [
+              2
+            ],
+            "elementWidth": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "result_data": {
+          "bits": [
+            332,
+            333,
+            334,
+            335,
+            336,
+            337,
+            338,
+            339,
+            340,
+            341,
+            342,
+            343,
+            344,
+            345,
+            346,
+            347,
+            348,
+            349,
+            350,
+            351,
+            352,
+            353,
+            354,
+            355,
+            356,
+            357,
+            358,
+            359,
+            360,
+            361,
+            362,
+            363
+          ],
+          "logic_type": {
+            "width": 32,
+            "arrayDims": [
+              2,
+              2
+            ],
+            "elementWidth": 8,
+            "elementType": {
+              "width": 16,
+              "arrayDims": [
+                2
+              ],
+              "elementWidth": 8
+            }
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "result_data[1]": {
+          "bits": [
+            348,
+            349,
+            350,
+            351,
+            352,
+            353,
+            354,
+            355,
+            356,
+            357,
+            358,
+            359,
+            360,
+            361,
+            362,
+            363
+          ],
+          "logic_type": {
+            "width": 16,
+            "arrayDims": [
+              2
+            ],
+            "elementWidth": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "const_0_1_h0": {
+          "bits": [
+            85
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_1_2_h3": {
+          "bits": [
+            172,
+            173
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_2_3_h1": {
+          "bits": [
+            177,
+            178,
+            179
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_3_1_h0": {
+          "bits": [
+            181
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_4_3_h4": {
+          "bits": [
+            182,
+            183,
+            184
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_5_3_h0": {
+          "bits": [
+            186,
+            187,
+            188
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_6_3_h1": {
+          "bits": [
+            190,
+            191,
+            192
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_7_3_h2": {
+          "bits": [
+            197,
+            198,
+            199
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        },
+        "const_8_3_h3": {
+          "bits": [
+            204,
+            205,
+            206
+          ],
+          "attributes": {
+            "computed": 1
+          }
+        }
+      }
+    }
+  }
+}

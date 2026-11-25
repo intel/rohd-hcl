@@ -107,6 +107,22 @@
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/AsyncFifo-class.html">AsyncFifo</a>.
 </dd>
 
+          <dt id="AttentionFormatSelectionKnob">
+  <span class="name "><a href="../rohd_hcl/AttentionFormatSelectionKnob-class.html">AttentionFormatSelectionKnob</a></span> 
+
+</dt>
+<dd>
+  Selects a named definition while serializing a stable zero-based index.
+</dd>
+
+          <dt id="AttentionNumericFormatsKnob">
+  <span class="name "><a href="../rohd_hcl/AttentionNumericFormatsKnob-class.html">AttentionNumericFormatsKnob</a></span> 
+
+</dt>
+<dd>
+  Shares named format definitions between the six attention arithmetic roles.
+</dd>
+
           <dt id="BinaryLinearRecurrenceConfigurator">
   <span class="name "><a href="../rohd_hcl/BinaryLinearRecurrenceConfigurator-class.html">BinaryLinearRecurrenceConfigurator</a></span> 
 
@@ -316,6 +332,14 @@ performing common tasks with it.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for documented dot-product implementations.
 </dd>
 
+          <dt id="DynamicNumericNarrowingConfigurator">
+  <span class="name "><a href="../rohd_hcl/DynamicNumericNarrowingConfigurator-class.html">DynamicNumericNarrowingConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures narrowing with a runtime shift input.
+</dd>
+
           <dt id="EccConfigurator">
   <span class="name "><a href="../rohd_hcl/EccConfigurator-class.html">EccConfigurator</a></span> 
 
@@ -378,6 +402,30 @@ performing common tasks with it.
 </dt>
 <dd>
   Configures the protocol-neutral fixed-latency tracker.
+</dd>
+
+          <dt id="FixedPointApproximationConfigurator">
+  <span class="name "><a href="../rohd_hcl/FixedPointApproximationConfigurator-class.html">FixedPointApproximationConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the three bounded lookup approximation implementations.
+</dd>
+
+          <dt id="FixedPointAttentionConfigurator">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionConfigurator-class.html">FixedPointAttentionConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures bounded attention and its optional protocol attachment.
+</dd>
+
+          <dt id="FixedPointAttentionRowConfigurator">
+  <span class="name "><a href="../rohd_hcl/FixedPointAttentionRowConfigurator-class.html">FixedPointAttentionRowConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures scheduled row attention and its existing transport shell.
 </dd>
 
           <dt id="FixedPointSqrtConfigurator">
@@ -500,12 +548,44 @@ performing common tasks with it.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/GrayToBinaryConverter-class.html">GrayToBinaryConverter</a>.
 </dd>
 
+          <dt id="GroupedQueryAttentionTileDistributorConfigurator">
+  <span class="name "><a href="../rohd_hcl/GroupedQueryAttentionTileDistributorConfigurator-class.html">GroupedQueryAttentionTileDistributorConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures MHA, GQA, or MQA tile distribution.
+</dd>
+
           <dt id="GroupOfKnobs">
   <span class="name "><a href="../rohd_hcl/GroupOfKnobs-class.html">GroupOfKnobs</a></span> 
 
 </dt>
 <dd>
   A knob which groups together other <a href="../rohd_hcl/ConfigKnob-class.html">ConfigKnob</a>s.
+</dd>
+
+          <dt id="GroupScaleApplyConfigurator">
+  <span class="name "><a href="../rohd_hcl/GroupScaleApplyConfigurator-class.html">GroupScaleApplyConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures grouped scaling, rounding, and zero-point application.
+</dd>
+
+          <dt id="InferenceFixedPointFormatKnob">
+  <span class="name "><a href="../rohd_hcl/InferenceFixedPointFormatKnob-class.html">InferenceFixedPointFormatKnob</a></span> 
+
+</dt>
+<dd>
+  Groups the width and fractional precision of a fixed-point format.
+</dd>
+
+          <dt id="InferenceTensorKnob">
+  <span class="name "><a href="../rohd_hcl/InferenceTensorKnob-class.html">InferenceTensorKnob</a></span> 
+
+</dt>
+<dd>
+  Groups tensor dimensions, element format, and packed/unpacked layout.
 </dd>
 
           <dt id="InferredSramConfigurator">
@@ -572,6 +652,14 @@ performing common tasks with it.
   Configures a strict-majority function.
 </dd>
 
+          <dt id="MixedPrecisionDotProductConfigurator">
+  <span class="name "><a href="../rohd_hcl/MixedPrecisionDotProductConfigurator-class.html">MixedPrecisionDotProductConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures mixed-width products with static or runtime signedness.
+</dd>
+
           <dt id="MultiCycleDividerConfigurator">
   <span class="name "><a href="../rohd_hcl/MultiCycleDividerConfigurator-class.html">MultiCycleDividerConfigurator</a></span> 
 
@@ -620,6 +708,14 @@ performing common tasks with it.
   Configures bitwise, one-hot, and priority multiplexers.
 </dd>
 
+          <dt id="NamedAttentionFormatKnob">
+  <span class="name "><a href="../rohd_hcl/NamedAttentionFormatKnob-class.html">NamedAttentionFormatKnob</a></span> 
+
+</dt>
+<dd>
+  An editable label and its fixed-point format definition.
+</dd>
+
           <dt id="NonNegativeIntConfigKnob">
   <span class="name "><a href="../rohd_hcl/NonNegativeIntConfigKnob-class.html">NonNegativeIntConfigKnob</a></span> 
 
@@ -650,6 +746,14 @@ performing common tasks with it.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/OnesComplementAdder-class.html">OnesComplementAdder</a>.
+</dd>
+
+          <dt id="OnlineSoftmaxConfigurator">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxConfigurator-class.html">OnlineSoftmaxConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures scalar and weighted online softmax state operations.
 </dd>
 
           <dt id="OutputWidthSelectKnob">
@@ -714,6 +818,14 @@ performing common tasks with it.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for parity transmitters and receivers.
+</dd>
+
+          <dt id="PoolingWindowSequencerConfigurator">
+  <span class="name "><a href="../rohd_hcl/PoolingWindowSequencerConfigurator-class.html">PoolingWindowSequencerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures runtime pooling geometry traversal, with optional split inputs.
 </dd>
 
           <dt id="PositiveIntConfigKnob">
@@ -828,6 +940,14 @@ performing common tasks with it.
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/RippleCarryAdder-class.html">RippleCarryAdder</a>.
 </dd>
 
+          <dt id="RmsNormConfigurator">
+  <span class="name "><a href="../rohd_hcl/RmsNormConfigurator-class.html">RmsNormConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures fixed-point RMS normalization.
+</dd>
+
           <dt id="RotateConfigurator">
   <span class="name "><a href="../rohd_hcl/RotateConfigurator-class.html">RotateConfigurator</a></span> 
 
@@ -842,6 +962,14 @@ performing common tasks with it.
 </dt>
 <dd>
   A <a href="../rohd_hcl/Configurator-class.html">Configurator</a> for <a href="../rohd_hcl/PriorityArbiter-class.html">PriorityArbiter</a>.
+</dd>
+
+          <dt id="ScratchpadFixedPointAttentionConfigurator">
+  <span class="name "><a href="../rohd_hcl/ScratchpadFixedPointAttentionConfigurator-class.html">ScratchpadFixedPointAttentionConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures attention with external typed scratchpad memory transactions.
 </dd>
 
           <dt id="SerializationConfigurator">
@@ -988,6 +1116,110 @@ performing common tasks with it.
   Configures a control-signal clock-domain synchronizer.
 </dd>
 
+          <dt id="SystolicMatrixTransposeConfigurator">
+  <span class="name "><a href="../rohd_hcl/SystolicMatrixTransposeConfigurator-class.html">SystolicMatrixTransposeConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures square-matrix transpose with one stepped typed row per cycle.
+</dd>
+
+          <dt id="TensorAccumulatingMemoryBankConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorAccumulatingMemoryBankConfigurator-class.html">TensorAccumulatingMemoryBankConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures lane-wise masked accumulation and its protocol shell.
+</dd>
+
+          <dt id="TensorDmaConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorDmaConfigurator-class.html">TensorDmaConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures typed tensor DMA between independent memory transaction ports.
+</dd>
+
+          <dt id="TensorMaskedSramBankConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorMaskedSramBankConfigurator-class.html">TensorMaskedSramBankConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the byte-masked single-bank memory transaction adapter.
+</dd>
+
+          <dt id="TensorPingPongBufferConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorPingPongBufferConfigurator-class.html">TensorPingPongBufferConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures the existing two-entry typed tensor queue composition.
+</dd>
+
+          <dt id="TensorScratchpadConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorScratchpadConfigurator-class.html">TensorScratchpadConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures banked typed scratchpad storage with either scheduling boundary.
+</dd>
+
+          <dt id="TensorStridedAddressConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorStridedAddressConfigurator-class.html">TensorStridedAddressConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a combinational multidimensional address calculation.
+</dd>
+
+          <dt id="TensorStridedAddressGeneratorConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorStridedAddressGeneratorConfigurator-class.html">TensorStridedAddressGeneratorConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures nested tensor traversal with an optional transport shell.
+</dd>
+
+          <dt id="TensorTileIteratorConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileIteratorConfigurator-class.html">TensorTileIteratorConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures runtime nested M/N/K coordinate traversal.
+</dd>
+
+          <dt id="TensorTileMulticastConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileMulticastConfigurator-class.html">TensorTileMulticastConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures explicit-action selective tensor fan-out.
+</dd>
+
+          <dt id="TensorTileTilerConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileTilerConfigurator-class.html">TensorTileTilerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures framed stream-to-tile conversion with an optional protocol shell.
+</dd>
+
+          <dt id="TensorTileTransposeConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileTransposeConfigurator-class.html">TensorTileTransposeConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures a static typed tensor transpose.
+</dd>
+
+          <dt id="TensorTileUntilerConfigurator">
+  <span class="name "><a href="../rohd_hcl/TensorTileUntilerConfigurator-class.html">TensorTileUntilerConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures typed tile-to-framed-stream conversion.
+</dd>
+
           <dt id="TextConfigKnob">
   <span class="name "><a href="../rohd_hcl/TextConfigKnob-class.html">TextConfigKnob</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> 
 
@@ -1029,6 +1261,14 @@ text.
   Configures a valid-only carry-save multiplier.
 </dd>
 
+          <dt id="VectorReduceConfigurator">
+  <span class="name "><a href="../rohd_hcl/VectorReduceConfigurator-class.html">VectorReduceConfigurator</a></span> 
+
+</dt>
+<dd>
+  Configures masked sum, minimum, and maximum reductions.
+</dd>
+
           <dt id="WithSetConfigurator">
   <span class="name "><a href="../rohd_hcl/WithSetConfigurator-class.html">WithSetConfigurator</a></span> 
 
@@ -1043,6 +1283,14 @@ text.
     <section class="summary offset-anchor" id="enums">
       <h2>Enums</h2>
       <dl>
+          <dt id="AttentionFormatRole">
+  <span class="name "><a href="../rohd_hcl/AttentionFormatRole.html">AttentionFormatRole</a></span> 
+
+</dt>
+<dd>
+  Arithmetic uses of a shared attention format definition.
+</dd>
+
           <dt id="BitwisePopcountOperation">
   <span class="name "><a href="../rohd_hcl/BitwisePopcountOperation.html">BitwisePopcountOperation</a></span> 
 
@@ -1091,12 +1339,28 @@ text.
   Gray-to-binary conversion topology.
 </dd>
 
+          <dt id="InferenceConfiguratorBoundary">
+  <span class="name "><a href="../rohd_hcl/InferenceConfiguratorBoundary.html">InferenceConfiguratorBoundary</a></span> 
+
+</dt>
+<dd>
+  Boundary exposed by independently reusable inference engines.
+</dd>
+
           <dt id="MuxImplementation">
   <span class="name "><a href="../rohd_hcl/MuxImplementation.html">MuxImplementation</a></span> 
 
 </dt>
 <dd>
   Selection behavior for a configurable multiplexer.
+</dd>
+
+          <dt id="OnlineSoftmaxConfiguratorOperation">
+  <span class="name "><a href="../rohd_hcl/OnlineSoftmaxConfiguratorOperation.html">OnlineSoftmaxConfiguratorOperation</a></span> 
+
+</dt>
+<dd>
+  Available online softmax state operations.
 </dd>
 
           <dt id="ParallelPrefixOperation">

@@ -85,12 +85,14 @@
   MemoryArrayFunctor&lt;Logic&gt;? memoryArray,
   super.name = &#39;ready_valid_tensor_accumulating_memory_bank&#39;,
 }) : super(
-        definitionName: &#39;ReadyValidTensorAccumulatingMemoryBank_D${depth}_&#39;
-            &#39;L${laneWidth}_${payloadShapesIdentity([
+        definitionName: schemaQualifiedDefinitionName(
+            &#39;ReadyValidTensorAccumulatingMemoryBank_D${depth}_L${laneWidth}_&#39;,
+            [
               writes.data,
               reads.data,
               responses.data,
-            ])}_${memoryArray?.identity ?? &#39;inferredSram1p&#39;}&#39;,
+            ],
+            suffix: &#39;_${memoryArray?.identity ?? &#39;inferredSram1p&#39;}&#39;),
       ) {
   if (writes.data.write.dataWidth != responses.data.dataWidth ||
       reads.data.tagWidth != responses.data.tagWidth) {

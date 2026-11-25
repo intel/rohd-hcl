@@ -242,19 +242,13 @@
     name: &#39;${name}_inverse_rms&#39;,
   );
   addOutput(&#39;inverseRms&#39;, width: inverseRmsWidth) &lt;= inverse.result;
-  final inverseArray = LogicArray(
-    const [1],
-    inverseRmsWidth,
-    name: &#39;${name}_inverse_scale&#39;,
-  );
-  inverseArray.arrayElements.single &lt;= inverse.result;
   final normalizedIntermediateWidth = max(
     outputWidth,
     values.elementWidth + 2,
   );
   final normalized = GroupScaleApply(
     values,
-    inverseArray,
+    inverseRms,
     groupSize: laneCount,
     fractionalBits: inverseRmsFractionBits,
     outputWidth: normalizedIntermediateWidth,

@@ -55,7 +55,7 @@
     <section class="multi-line-signature">
       
       <span class="name ">GroupScaleApply</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-values"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicArray-class.html">LogicArray</a></span> <span class="parameter-name">values</span>, </span></li>
-<li><span class="parameter" id="param-scales"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicArray-class.html">LogicArray</a></span> <span class="parameter-name">scales</span>, {</span></li>
+<li><span class="parameter" id="param-scales"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">scales</span>, {</span></li>
 <li><span class="parameter" id="param-groupSize"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">groupSize</span>, </span></li>
 <li><span class="parameter" id="param-fractionalBits"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fractionalBits</span>, </span></li>
 <li><span class="parameter" id="param-outputWidth"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">outputWidth</span>, </span></li>
@@ -81,7 +81,7 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">GroupScaleApply(
   LogicArray values,
-  LogicArray scales, {
+  Logic scales, {
   required this.groupSize,
   required this.fractionalBits,
   required this.outputWidth,
@@ -102,7 +102,7 @@
       super(
         definitionName: &#39;GroupScaleApply_&#39;
             &#39;L${values.arrayElements.length}_G${groupSize}_&#39;
-            &#39;V${values.elementWidth}_S${scales.elementWidth}_&#39;
+            &#39;V${values.elementWidth}_S${_scaleElementWidth(scales)}_&#39;
             &#39;F${fractionalBits}_O${outputWidth}_&#39;
             &#39;SV${_scaleSignedIdentity(signedValue)}_&#39;
             &#39;SS${_scaleSignedIdentity(signedScale)}_&#39;
@@ -110,20 +110,24 @@
             &#39;${roundingMode.name}_${overflowMode.name}_&#39;
             &#39;${multiplierImplementation.identity}_&#39;
             &#39;Z${zeroPoints == null ? 0 : 1}_&#39;
-            &#39;M${activeMask == null ? 0 : 1}&#39;,
+            &#39;M${activeMask == null ? 0 : 1}&#39;
+            &#39;${scales is LogicArray ? &#39;&#39; : &#39;_Shared&#39;}&#39;,
       ) {
   if (values.dimensions.length != 1 ||
-      scales.dimensions.length != 1 ||
       laneCount &lt; 1 ||
       groupSize &lt; 1 ||
-      scales.arrayElements.length != groupCount) {
+      _scaleElementWidth(scales) &lt; 1 ||
+      (scales is LogicArray
+          ? scales.dimensions.length != 1 ||
+              scales.arrayElements.length != groupCount
+          : scales is LogicStructure || groupCount != 1)) {
     throw ArgumentError(
-      &#39;Values and scales must be non-empty 1-D arrays with exactly one &#39;
-      &#39;scale per configured lane group.&#39;,
+      &#39;Values must be a non-empty 1-D array. Scales must be a 1-D array &#39;
+      &#39;with one scale per group, or a packed scalar for a single group.&#39;,
     );
   }
   if (fractionalBits &lt; 0 ||
-      fractionalBits &gt; values.elementWidth + scales.elementWidth) {
+      fractionalBits &gt; values.elementWidth + _scaleElementWidth(scales)) {
     throw ArgumentError.value(
       fractionalBits,
       &#39;fractionalBits&#39;,
@@ -151,7 +155,9 @@
       ? null
       : InferenceSignedness(signedOutput, name: &#39;signedOutput&#39;);
   values = addTypedInput(&#39;values&#39;, values);
-  scales = addTypedInput(&#39;scales&#39;, scales);
+  final scaleLanes = scales is LogicArray
+      ? addTypedInput(&#39;scales&#39;, scales).arrayElements
+      : [addInput(&#39;scale&#39;, scales, width: scales.width)];
   if (zeroPoints != null) {
     zeroPoints = addTypedInput(&#39;zeroPoints&#39;, zeroPoints);
   }
@@ -177,7 +183,7 @@
     final group = lane ~&#47; groupSize;
     final multiplier = multiplierImplementation(
       values.arrayElements[lane],
-      scales.arrayElements[group],
+      scaleLanes[group],
       signedMultiplicand: this.signedValue.childConfiguration(this),
       signedMultiplier: this.signedScale.childConfiguration(this),
     );

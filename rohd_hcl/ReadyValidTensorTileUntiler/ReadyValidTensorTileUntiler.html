@@ -79,7 +79,12 @@
   super.name = &#39;ready_valid_tensor_tile_untiler&#39;,
 }) : super(
         definitionName: &#39;ReadyValidTensorTileUntiler_&#39;
-            &#39;${payloadShapesIdentity([upstream.data, downstream.data])}&#39;,
+            &#39;${tensorTileStreamShapeIdentity(
+          upstream.data,
+          downstream.data.data,
+          definitionPrefix: &#39;ReadyValidTensorTileUntiler_&#39;,
+          frame: downstream.data,
+        )}&#39;,
       ) {
   final localClk = addInput(&#39;clk&#39;, clk);
   final localReset = addInput(&#39;reset&#39;, reset);

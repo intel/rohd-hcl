@@ -82,7 +82,11 @@
   super.name = &#39;tensor_tile_untiler&#39;,
 }) : super(
         definitionName: &#39;TensorTileUntiler_&#39;
-            &#39;${payloadShapesIdentity([inputTile, elementSchema])}&#39;,
+            &#39;${tensorTileStreamShapeIdentity(
+          inputTile,
+          elementSchema,
+          definitionPrefix: &#39;TensorTileUntiler_&#39;,
+        )}&#39;,
       ) {
   _validateTileStream(inputTile, elementSchema);
   advance ??= Const(1);

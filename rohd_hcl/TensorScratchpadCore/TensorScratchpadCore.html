@@ -105,13 +105,14 @@ custom arrays provide their own storage reset behavior.</p>
       addressWidth = max(1, max(depth, 1).log2Ceil),
       tagWidth = _firstPort(readRequests, &#39;readRequests&#39;).tagWidth,
       super(
-        definitionName: &#39;TensorScratchpadCore_&#39;
+        definitionName: schemaQualifiedDefinitionName(
+            &#39;TensorScratchpadCore_&#39;
             &#39;D${depth}_W${writeRequests.first.dataWidth}_&#39;
             &#39;B${bankCount}_R${readRequests.length}_&#39;
             &#39;P${writeRequests.length}_T${readRequests.first.tagWidth}_&#39;
             &#39;${bankConflictPolicy.name}_${bankMapping.name}_&#39;
-            &#39;${memoryFunctor?.identity ?? &#39;registerFile&#39;}_&#39;
-            &#39;${payloadShapeIdentity(writeRequests.first.data)}&#39;,
+            &#39;${memoryFunctor?.identity ?? &#39;registerFile&#39;}_&#39;,
+            [writeRequests.first.data]),
       ) {
   if (readResponses.length != readRequests.length) {
     throw ArgumentError(

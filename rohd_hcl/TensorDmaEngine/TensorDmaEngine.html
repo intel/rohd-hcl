@@ -95,7 +95,8 @@
   this.multiplierImplementation = nativeInferenceMultiplierFunctor,
   super.name = &#39;tensor_dma_engine&#39;,
 }) : super(
-        definitionName: &#39;TensorDmaEngine_&#39;
+        definitionName: schemaQualifiedDefinitionName(
+            &#39;TensorDmaEngine_&#39;
             &#39;SA${command.data.sourceAddressWidth}_&#39;
             &#39;DA${command.data.destinationAddressWidth}_&#39;
             &#39;M${command.data.mWidth}_N${command.data.nWidth}_&#39;
@@ -103,8 +104,10 @@
             &#39;D${sourceReadResponse.data.dataWidth}_&#39;
             &#39;T${sourceReadRequest.data.tagWidth}_&#39;
             &#39;SD${sourceDepth ?? 0}_DD${destinationDepth ?? 0}_&#39;
-            &#39;C${counterWidth}_${multiplierImplementation.identity}_&#39;
-            &#39;${payloadShapeIdentity(sourceReadResponse.data.data)}&#39;,
+            &#39;C${counterWidth}_${multiplierImplementation.identity}_&#39;,
+            [
+              sourceReadResponse.data.data,
+            ]),
       ) {
   final countWidth = tensorDmaCountWidth(
     mWidth: command.data.mWidth,

@@ -80,7 +80,12 @@
   super.name = &#39;tensor_tile_tiler&#39;,
 }) : super(
         definitionName: &#39;TensorTileTiler_&#39;
-            &#39;${payloadShapesIdentity([element, tileSchema])}&#39;,
+            &#39;${tensorTileStreamShapeIdentity(
+          tileSchema,
+          element.data,
+          definitionPrefix: &#39;TensorTileTiler_&#39;,
+          frame: element,
+        )}&#39;,
       ) {
   _validateTileStream(tileSchema, element.data);
   const SynchronousActionAttachmentPolicy()

@@ -96,17 +96,20 @@
   MemoryArrayReadCollision? readUnderWrite,
   super.name = &#39;tensor_scratchpad&#39;,
 }) : super(
-        definitionName: &#39;TensorScratchpad_D${depth}_&#39;
+        definitionName: schemaQualifiedDefinitionName(
+            &#39;TensorScratchpad_D${depth}_&#39;
             &#39;W${_firstPort(writeRequests, &#39;writeRequests&#39;).data.dataWidth}_&#39;
             &#39;B${bankCount}_R${readRequests.length}_&#39;
             &#39;P${writeRequests.length}_&#39;
             &#39;T${_firstPort(readRequests, &#39;readRequests&#39;).data.tagWidth}_&#39;
             &#39;${bankConflictPolicy.name}_${bankMapping.name}_&#39;
-            &#39;${memoryFunctor?.identity ?? &#39;registerFile&#39;}_&#39;
-            &#39;${payloadShapeIdentity(_firstPort(
-          writeRequests,
-          &#39;writeRequests&#39;,
-        ).data.data)}&#39;,
+            &#39;${memoryFunctor?.identity ?? &#39;registerFile&#39;}_&#39;,
+            [
+              _firstPort(
+                writeRequests,
+                &#39;writeRequests&#39;,
+              ).data.data
+            ]),
       ) {
   final localClk = addInput(&#39;clk&#39;, clk);
   final localReset = addInput(&#39;reset&#39;, reset);

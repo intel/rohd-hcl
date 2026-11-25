@@ -81,9 +81,10 @@
   required Logic advance,
   super.name = &#39;tensor_tile_multicast_core&#39;,
 }) : super(
-        definitionName: &#39;TensorTileMulticastCore_&#39;
-            &#39;${selection.width}_${tile.format.configurationSignature}_&#39;
-            &#39;${payloadShapeIdentity(tile)}&#39;,
+        definitionName: schemaQualifiedDefinitionName(
+            &#39;TensorTileMulticastCore_&#39;
+            &#39;${selection.width}_${tile.format.configurationSignature}_&#39;,
+            [tile]),
       ) {
   if (advance.width != selection.width) {
     throw ArgumentError(&#39;Advance and selection masks must match in width.&#39;);
