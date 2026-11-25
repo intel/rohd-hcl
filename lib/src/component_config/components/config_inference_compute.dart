@@ -311,22 +311,24 @@ class OnlineSoftmaxConfigurator extends Configurator {
   final scoreKnob = InferenceFixedPointFormatKnob(width: 4);
 
   /// Normalization sum format.
-  final normalizerKnob = InferenceFixedPointFormatKnob(fractionBits: 4);
+  final normalizerKnob =
+      InferenceFixedPointFormatKnob(width: 6, fractionBits: 2);
 
   /// Exponential scale format.
-  final expKnob = InferenceFixedPointFormatKnob(width: 6, fractionBits: 4);
+  final expKnob = InferenceFixedPointFormatKnob(width: 4, fractionBits: 2);
 
   /// Number of weighted values.
   final valueCountKnob = PositiveIntConfigKnob(value: 2);
 
   /// Weighted value format.
-  final valueKnob = InferenceFixedPointFormatKnob();
+  final valueKnob = InferenceFixedPointFormatKnob(width: 6);
 
   /// Reciprocal scale format.
-  final reciprocalKnob = InferenceFixedPointFormatKnob(fractionBits: 6);
+  final reciprocalKnob =
+      InferenceFixedPointFormatKnob(width: 6, fractionBits: 4);
 
   /// Normalized output width.
-  final outputWidthKnob = PositiveIntConfigKnob(value: 8);
+  final outputWidthKnob = PositiveIntConfigKnob(value: 6);
 
   /// Rounding policy.
   final roundingKnob = ChoiceConfigKnob(NumericRoundingMode.values,
@@ -422,22 +424,24 @@ class RmsNormConfigurator extends Configurator {
   final lanesKnob = PositiveIntConfigKnob(value: 2);
 
   /// Input value format.
-  final valueKnob = InferenceFixedPointFormatKnob(width: 4, fractionBits: 1);
+  final valueKnob = InferenceFixedPointFormatKnob(width: 3, fractionBits: 1);
 
   /// Per-lane weight format.
   final weightKnob = InferenceFixedPointFormatKnob(width: 4, fractionBits: 1);
 
   /// Quantized mean-square width.
-  final meanSquareWidthKnob = PositiveIntConfigKnob(value: 6);
+  final meanSquareWidthKnob = PositiveIntConfigKnob(value: 5);
 
   /// Active-count reciprocal format.
-  final countReciprocalKnob = InferenceFixedPointFormatKnob(fractionBits: 6);
+  final countReciprocalKnob =
+      InferenceFixedPointFormatKnob(width: 6, fractionBits: 4);
 
   /// Inverse-RMS scale format.
-  final inverseRmsKnob = InferenceFixedPointFormatKnob(fractionBits: 6);
+  final inverseRmsKnob =
+      InferenceFixedPointFormatKnob(width: 6, fractionBits: 4);
 
   /// Output width.
-  final outputWidthKnob = PositiveIntConfigKnob(value: 8);
+  final outputWidthKnob = PositiveIntConfigKnob(value: 6);
 
   /// Positive epsilon in raw mean-square units.
   final epsilonKnob = PositiveIntConfigKnob(value: 1);

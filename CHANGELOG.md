@@ -10,6 +10,10 @@
 - Added typed, action-driven tensor tiling and untiling with separate ingress/egress ready/valid attachment shells, static and systolic transpose, and selective multicast, plus pooling-window traversal with optional runtime splits.
 - Added a runnable [attention engine example](example/attention_engine_example.dart) that simulates a query and emits SystemVerilog. See the [inference guide](doc/components/inference.md).
 - Added 25 inference configurator entries covering compute, attention, normalization, tensor layout and distribution, traversal, DMA, and storage, with typed tensor schemas, action-core/ready-valid choices, and bundled source navigation.
+- Attention configurators support named shared numeric-format definitions with adjustable counts, explicit arithmetic-role assignments, compact labeled editors, safe removal, and restoration of earlier independent-format configurations.
+- Inference RTL definition names prefer readable parameters and schema fields; SHA-256 is reserved for complex schemas exceeding the 80-character name limit when the digest shortens them, preserving full schema checks and source navigation.
+- GroupScaleApply accepts a packed scalar for a single shared scale group; RmsNorm uses this direct boundary to avoid duplicate-driver netlist validation errors from an unnecessary singleton scale array, without changing its arithmetic or existing array-scaling APIs.
+- Narrowed attention, online-softmax, and RMS configurator preview formats to reduce lookup tables and generated RTL while preserving editable precision, saved configurations, and reusable hardware defaults.
 
 ### Dataflow and flow control
 

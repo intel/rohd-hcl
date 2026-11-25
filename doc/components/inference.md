@@ -12,6 +12,33 @@ generates the configured hardware and supports saving/loading its knob JSON.
 The ROHD source view links to the actual implementation, including protocol
 shells and alternative online softmax and approximation operations.
 
+Attention configurators have a **Numeric Formats** pool with editable names,
+compact **Width**/**Fraction Bits** fields, and an adjustable definition count.
+The six **Arithmetic Roles** menus explicitly select the format used for
+Query/Key, Value, Score, Normalizer, Exponential, and Reciprocal arithmetic.
+Several roles may share one definition; editing it updates all assigned roles.
+The defaults use six independent, small preview formats. To remove a
+trailing definition, first reassign every role using it. Removal is disabled
+while referenced, and at least one definition remains. Adding a removed,
+unused definition restores its previous edits. Names, definitions, and
+assignments round-trip in saved JSON; the original independent-role JSON also
+loads without losing its precision settings. Sharing formats does not change
+the number of arithmetic stages or bypass their numeric constraints.
+
+Typed inference RTL definition names prefer readable parameters. Canonical
+scalar tilers/untilers show rows, columns, integer/fixed-point precision,
+packed/unpacked layout, and stream field names. Other schemas preserve readable
+field names and metadata instead of hexadecimal text. An 80-character total
+name limit triggers a SHA-256 fallback only when a complex schema cannot fit
+readably and the digest shortens it. Existing explicit numeric parameters are
+never hashed; short schema suffixes stay readable even in long parameter names.
+Nondefault arithmetic widths and numeric policies are included explicitly
+when they fit. Custom fields remain part of the full schema identity.
+Shape, lane names, layout, and numeric metadata all participate in
+any fallback digest; compatibility checks retain the full schemas.
+The generated names stay consistent between native and web generation, and
+source navigation uses the actual shortened RTL identifiers.
+
 Attention, row attention, scratchpads, accumulating banks, strided address
 generators, tilers, and untilers offer a **Boundary** choice. The default
 **actions** selection exposes the protocol-neutral engine; **readyValid**
@@ -31,11 +58,38 @@ uses the existing static-or-runtime controls rather than declaring a fixed
 semantic sign on a runtime-reinterpreted operand.
 
 Defaults are deliberately small to keep interactive generation practical.
+Attention previews use 4-bit query/key and score formats, 6-bit values and
+outputs, a 6-bit normalizer with two fractional bits, a 4-bit exponential
+with two fractional bits, and a 6-bit reciprocal with four fractional bits.
+This gives each exponential lookup 32 entries and the reciprocal lookup
+64 entries, instead of the earlier 128 and 256. Online softmax uses the same
+small normalization/value formats; RMS previews use 3-bit values, a 5-bit
+mean-square lookup, and 6-bit scale/output formats. The mean-square format
+retains room for the default values' full squared range plus epsilon.
+Storage, byte-lane, layout, and traversal
+defaults remain unchanged because their small geometries already generate
+quickly.
+
+These are interactive previews, not recommended precision for trained models.
+Narrower scores and sums have less range; fewer fractional bits increase
+quantization error. Increase the editable widths/fractions for the intended
+workload. Saved configurations retain their explicit formats on load, and
+the reusable components' hardware defaults are unchanged. Browser schematic
+layout and source tracing can add time beyond RTL/netlist generation.
+
 Lookup approximation inputs are limited to 12 bits; attention and online
 normalization use the supported lookup formats, not unbounded floating-point
 math. Invalid formats, non-power-of-two bank geometries where required, and
 unsupported mappings fail explicitly during configuration. The ping-pong
 entry reuses the existing two-entry `ReadyValidQueue` composition.
+
+`GroupScaleApply(values, scale, groupSize: laneCount, ...)` accepts a packed
+scalar scale when every lane shares one group. A 1-D `LogicArray` remains the
+interface for multiple groups, with one element per group. The scalar form
+exposes a `scale` input; existing array callers retain their `scales` input
+and definition names. Masks, rounding, overflow, and signedness policies are
+unchanged. `RmsNorm` uses the scalar form for its shared inverse-RMS factor,
+avoiding a redundant one-element array at that component boundary.
 
 ## Build a small attention engine
 

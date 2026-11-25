@@ -11,6 +11,19 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('list minimum applies to construction, resizing and JSON', () {
+    ListOfKnobsKnob create(int count) => ListOfKnobsKnob(
+          count: count,
+          minCount: 1,
+          generateKnob: (_) => IntConfigKnob(value: 8),
+        );
+    expect(() => create(0), throwsArgumentError);
+    final list = create(1);
+    expect(() => list.count = 0, throwsArgumentError);
+    expect(() => list.loadJson({'knobs': <dynamic>[]}), throwsArgumentError);
+    expect(list.count, 1);
+  });
+
   test('signed knobs preserve negative values and hexadecimal JSON', () {
     final knob = IntConfigKnob(value: -7);
     expect(knob.value, -7);

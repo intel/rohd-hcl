@@ -146,6 +146,71 @@ Future<void> pumpUntilOutputContains(
 }
 
 void main() {
+  testWidgets('attention formats are named, shared, and safely removable',
+      (tester) async {
+    final previous = components;
+    final cfg = FixedPointAttentionConfigurator();
+    components = [cfg];
+    addTearDown(() => components = previous);
+    await pumpHclPage(tester, assetBundle: _StubSourceAssetBundle());
+    expect(
+      tester
+          .widget<IconButton>(
+            find.byWidgetPredicate((widget) =>
+                widget is IconButton &&
+                widget.tooltip == 'At least 6 entries are required.'),
+          )
+          .onPressed,
+      isNull,
+    );
+    expect(find.text('Format 0: Query/Key'), findsOneWidget);
+    expect(find.text('Query/Key Format'), findsOneWidget);
+    expect(find.text('Format 5: Reciprocal'), findsOneWidget);
+    final add = find.byTooltip('Add entry');
+    await tester.ensureVisible(add);
+    await tester.tap(add);
+    await tester.pumpAndSettle();
+    expect(cfg.formatsKnob.definitionsKnob.count, 7);
+    expect(find.text('Count: 7'), findsOneWidget);
+    final removeUnused = find.byTooltip('Remove last entry');
+    await tester.ensureVisible(removeUnused);
+    await tester.tap(removeUnused);
+    await tester.pumpAndSettle();
+    expect(cfg.formatsKnob.definitionsKnob.count, 6);
+    final label = find.byKey(const Key('Label')).first;
+    await tester.ensureVisible(label);
+    await tester.enterText(label, 'Shared keys');
+    await tester.pump();
+    expect(
+      tester
+          .widget<EditableText>(
+            find.descendant(of: label, matching: find.byType(EditableText)),
+          )
+          .focusNode
+          .hasFocus,
+      isTrue,
+    );
+    expect(find.text('Format 0: Shared keys'), findsOneWidget);
+    expect(find.text('Shared keys Format'), findsOneWidget);
+    final lastRole = find.byKey(const Key('Reciprocal'));
+    await tester.ensureVisible(lastRole);
+    await tester.tap(lastRole);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('0: Shared keys').last);
+    await tester.pumpAndSettle();
+    expect(
+      cfg.formatsKnob.assignments[AttentionFormatRole.reciprocal]!.value,
+      0,
+    );
+    final enabledRemove = find.byTooltip('Remove last entry');
+    await tester.ensureVisible(enabledRemove);
+    await tester.tap(enabledRemove);
+    await tester.pumpAndSettle();
+    expect(cfg.formatsKnob.definitionsKnob.count, 5);
+    expect(find.text('Format 5: Reciprocal'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   test('sorts components alphabetically without mutating the input', () {
     final input = <Configurator>[
       RotateConfigurator(),

@@ -222,8 +222,11 @@ class _TensorScratchpadReadPortController<T extends Logic> extends Module {
     required int tagWidth,
     super.name = 'tensor_scratchpad_read_port_controller',
   }) : super(
-          definitionName: 'TensorScratchpadReadPortController_'
-              '${payloadShapeIdentity(rawResponseData)}_T$tagWidth',
+          definitionName: schemaQualifiedDefinitionName(
+            'TensorScratchpadReadPortController_',
+            [rawResponseData],
+            suffix: '_T$tagWidth',
+          ),
         ) {
     if (requestTag.width != tagWidth || rawResponseData.width != dataWidth) {
       throw ArgumentError('Scratchpad read-controller widths do not match.');
@@ -422,13 +425,14 @@ class TensorScratchpadCore<T extends Logic> extends Module {
         addressWidth = max(1, max(depth, 1).log2Ceil),
         tagWidth = _firstPort(readRequests, 'readRequests').tagWidth,
         super(
-          definitionName: 'TensorScratchpadCore_'
+          definitionName: schemaQualifiedDefinitionName(
+              'TensorScratchpadCore_'
               'D${depth}_W${writeRequests.first.dataWidth}_'
               'B${bankCount}_R${readRequests.length}_'
               'P${writeRequests.length}_T${readRequests.first.tagWidth}_'
               '${bankConflictPolicy.name}_${bankMapping.name}_'
-              '${memoryFunctor?.identity ?? 'registerFile'}_'
-              '${payloadShapeIdentity(writeRequests.first.data)}',
+              '${memoryFunctor?.identity ?? 'registerFile'}_',
+              [writeRequests.first.data]),
         ) {
     if (readResponses.length != readRequests.length) {
       throw ArgumentError(
@@ -838,17 +842,20 @@ class TensorScratchpad<T extends Logic> extends Module {
     MemoryArrayReadCollision? readUnderWrite,
     super.name = 'tensor_scratchpad',
   }) : super(
-          definitionName: 'TensorScratchpad_D${depth}_'
+          definitionName: schemaQualifiedDefinitionName(
+              'TensorScratchpad_D${depth}_'
               'W${_firstPort(writeRequests, 'writeRequests').data.dataWidth}_'
               'B${bankCount}_R${readRequests.length}_'
               'P${writeRequests.length}_'
               'T${_firstPort(readRequests, 'readRequests').data.tagWidth}_'
               '${bankConflictPolicy.name}_${bankMapping.name}_'
-              '${memoryFunctor?.identity ?? 'registerFile'}_'
-              '${payloadShapeIdentity(_firstPort(
-            writeRequests,
-            'writeRequests',
-          ).data.data)}',
+              '${memoryFunctor?.identity ?? 'registerFile'}_',
+              [
+                _firstPort(
+                  writeRequests,
+                  'writeRequests',
+                ).data.data
+              ]),
         ) {
     final localClk = addInput('clk', clk);
     final localReset = addInput('reset', reset);

@@ -39,7 +39,12 @@ class ReadyValidTensorTileUntiler<TLogic extends Logic, TValue> extends Module {
     super.name = 'ready_valid_tensor_tile_untiler',
   }) : super(
           definitionName: 'ReadyValidTensorTileUntiler_'
-              '${payloadShapesIdentity([upstream.data, downstream.data])}',
+              '${tensorTileStreamShapeIdentity(
+            upstream.data,
+            downstream.data.data,
+            definitionPrefix: 'ReadyValidTensorTileUntiler_',
+            frame: downstream.data,
+          )}',
         ) {
     final localClk = addInput('clk', clk);
     final localReset = addInput('reset', reset);
@@ -112,7 +117,12 @@ class ReadyValidTensorTileTiler<TLogic extends Logic, TValue> extends Module {
     super.name = 'ready_valid_tensor_tile_tiler',
   }) : super(
           definitionName: 'ReadyValidTensorTileTiler_'
-              '${payloadShapesIdentity([upstream.data, downstream.data])}',
+              '${tensorTileStreamShapeIdentity(
+            downstream.data,
+            upstream.data.data,
+            definitionPrefix: 'ReadyValidTensorTileTiler_',
+            frame: upstream.data,
+          )}',
         ) {
     final localClk = addInput('clk', clk);
     final localReset = addInput('reset', reset);

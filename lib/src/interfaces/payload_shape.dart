@@ -7,6 +7,9 @@
 // 2026 October 21
 // Author: Desmond Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/exceptions.dart';
 
@@ -85,6 +88,65 @@ String payloadShapesIdentity(Iterable<Logic> payloads) => payloads.map((value) {
       final shape = payloadShapeIdentity(value);
       return '${shape.length}_$shape';
     }).join('_');
+
+/// Readable shape parameters, with a digest fallback for long complex schemas.
+///
+/// [readableIdentity] may summarize a known canonical schema without omitting
+/// distinctions; callers must verify that schema before supplying a summary.
+/// Otherwise, field names and metadata use lossless readable escaping.
+/// Only names exceeding 80 characters including [definitionPrefix] require
+/// a SHA-256 fallback, and only when it shortens the schema. Explicit module
+/// parameters are never hashed.
+String compactPayloadShapesIdentity(
+  Iterable<Logic> payloads, {
+  String definitionPrefix = '',
+  String? readableIdentity,
+}) {
+  final values = payloads.toList();
+  final readable = readableIdentity ??
+      values.map((value) {
+        final shape = _readablePayloadShapeIdentity(value);
+        return values.length == 1 ? shape : '${shape.length}_$shape';
+      }).join('_');
+  if (definitionPrefix.length + readable.length <= 80 ||
+      readable.length <= 65) {
+    return readable;
+  }
+  return 'H${sha256.convert(utf8.encode(payloadShapesIdentity(values)))}';
+}
+
+/// Appends a readable schema or a long-schema digest to module parameters.
+String schemaQualifiedDefinitionName(
+  String prefix,
+  Iterable<Logic> payloads, {
+  String suffix = '',
+}) =>
+    '$prefix${compactPayloadShapesIdentity(
+      payloads,
+      definitionPrefix: '$prefix$suffix',
+    )}$suffix';
+
+String _readablePayloadShapeIdentity(Logic logic) {
+  final domain = logic is PayloadShapeMetadata
+      ? 'D${readableSchemaName(
+          (logic as PayloadShapeMetadata).payloadShapeMetadata,
+        )}_'
+      : '';
+  return '$domain${_payloadLayoutIdentity(logic, readable: true)}';
+}
+
+/// Losslessly escapes a schema name into a length-delimited RTL identifier.
+String readableSchemaName(String name) {
+  final escaped = name.codeUnits.map((unit) {
+    if ((unit >= 65 && unit <= 90) ||
+        (unit >= 97 && unit <= 122) ||
+        (unit >= 48 && unit <= 57)) {
+      return String.fromCharCode(unit);
+    }
+    return '_${unit.toRadixString(16).padLeft(4, '0')}';
+  }).join();
+  return '${escaped.length}_$escaped';
+}
 
 /// Clones an interface payload, making a widened scalar constant driveable.
 // TODO(rohd): Remove when ROHD interface registration handles this constant
@@ -185,14 +247,17 @@ String payloadShapeIdentity(Logic logic) {
   return '$domain${_payloadLayoutIdentity(logic)}';
 }
 
-String _payloadLayoutIdentity(Logic logic) {
+String _payloadLayoutIdentity(Logic logic, {bool readable = false}) {
+  final identity =
+      readable ? _readablePayloadShapeIdentity : payloadShapeIdentity;
+  final encodeName = readable ? readableSchemaName : _encodeName;
   if (logic is TypedLogicArray) {
     final shape = 'A${logic.dimensions.join('x')}_'
         'E${logic.elementWidth}_U${logic.numUnpackedDimensions}';
     if (logic is LogicArray || logic.arrayElements.isEmpty) {
       return shape;
     }
-    final elements = logic.arrayElements.map(payloadShapeIdentity).toList();
+    final elements = logic.arrayElements.map(identity).toList();
     if (elements.every((element) => element == elements.first)) {
       return '${shape}_T${elements.first}';
     }
@@ -202,13 +267,12 @@ String _payloadLayoutIdentity(Logic logic) {
   }
   if (logic is LogicEnum) {
     return 'E${logic.width}_'
-        '${logic.mapping.entries.map((e) => 'N${_encodeName(e.key.name)}_'
+        '${logic.mapping.entries.map((e) => 'N${encodeName(e.key.name)}_'
             'V${e.value.toBigInt().toRadixString(16)}').join('_')}';
   }
   if (logic is LogicStructure) {
     final fields = logic.elements
-        .map((element) =>
-            'N${_encodeName(element.name)}_${payloadShapeIdentity(element)}')
+        .map((element) => 'N${encodeName(element.name)}_${identity(element)}')
         .join('_');
     return 'S${logic.elements.length}_$fields';
   }

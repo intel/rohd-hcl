@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 export 'adder_select_knob.dart';
+export 'attention_format_knob.dart';
 export 'choice_config_knob.dart';
 export 'compression_delay_knob.dart';
 export 'config_knob.dart';

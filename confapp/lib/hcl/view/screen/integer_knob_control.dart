@@ -19,6 +19,7 @@ class IntegerKnobControl extends StatefulWidget {
     required this.label,
     required this.knob,
     required this.onChanged,
+    this.compact = false,
     super.key,
   }) : assert(knob is IntConfigKnob || knob is IntOptionalConfigKnob,
             'An integer control requires an integer knob.');
@@ -32,6 +33,9 @@ class IntegerKnobControl extends StatefulWidget {
   /// Called only when a valid edit changes the parameter value.
   final VoidCallback onChanged;
 
+  /// Uses smaller step buttons for paired numeric-format fields.
+  final bool compact;
+
   @override
   State<IntegerKnobControl> createState() => _IntegerKnobControlState();
 
@@ -41,6 +45,7 @@ class IntegerKnobControl extends StatefulWidget {
     properties
       ..add(StringProperty('label', label))
       ..add(DiagnosticsProperty<TextConfigKnob<int?>>('knob', knob))
+      ..add(FlagProperty('compact', value: compact, ifTrue: 'compact'))
       ..add(ObjectFlagProperty<VoidCallback>.has('onChanged', onChanged));
   }
 }
@@ -132,14 +137,31 @@ class _IntegerKnobControlState extends State<IntegerKnobControl> {
           labelText: widget.label,
           hintText: widget.knob.allowEmpty ? 'Automatic' : null,
           isDense: true,
+          errorMaxLines: widget.compact ? 2 : null,
+          prefixIconConstraints: widget.compact
+              ? const BoxConstraints(minWidth: 32, minHeight: 32)
+              : null,
+          suffixIconConstraints: widget.compact
+              ? const BoxConstraints(minWidth: 32, minHeight: 32)
+              : null,
           prefixIcon: IconButton(
             tooltip: 'Decrease ${widget.label}',
             onPressed: _canStep(-1) ? () => _step(-1) : null,
+            constraints: widget.compact
+                ? const BoxConstraints.tightFor(width: 32, height: 32)
+                : null,
+            padding: widget.compact ? const EdgeInsets.all(4) : null,
+            iconSize: widget.compact ? 18 : null,
             icon: const Icon(Icons.remove),
           ),
           suffixIcon: IconButton(
             tooltip: 'Increase ${widget.label}',
             onPressed: _canStep(1) ? () => _step(1) : null,
+            constraints: widget.compact
+                ? const BoxConstraints.tightFor(width: 32, height: 32)
+                : null,
+            padding: widget.compact ? const EdgeInsets.all(4) : null,
+            iconSize: widget.compact ? 18 : null,
             icon: const Icon(Icons.add),
           ),
         ),

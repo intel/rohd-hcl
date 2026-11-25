@@ -7,6 +7,7 @@
 // 2026 November 24
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:rohd/rohd.dart';
@@ -27,26 +28,35 @@ class FixedPointAttentionConfigurator extends Configurator {
   /// Value vector length.
   final valueDimensionKnob = PositiveIntConfigKnob(value: 2);
 
-  /// Query/key element format.
-  final elementKnob = InferenceFixedPointFormatKnob(width: 4);
+  /// Named definitions shared by explicitly selected arithmetic roles.
+  final formatsKnob = AttentionNumericFormatsKnob();
+
+  /// Selected query/key element format.
+  InferenceFixedPointFormatKnob get elementKnob =>
+      formatsKnob.formatFor(AttentionFormatRole.queryKey);
 
   /// Value element format.
-  final valueKnob = InferenceFixedPointFormatKnob();
+  InferenceFixedPointFormatKnob get valueKnob =>
+      formatsKnob.formatFor(AttentionFormatRole.value);
 
   /// Score format.
-  final scoreKnob = InferenceFixedPointFormatKnob(width: 6);
+  InferenceFixedPointFormatKnob get scoreKnob =>
+      formatsKnob.formatFor(AttentionFormatRole.score);
 
   /// Normalization sum format.
-  final normalizerKnob = InferenceFixedPointFormatKnob(fractionBits: 4);
+  InferenceFixedPointFormatKnob get normalizerKnob =>
+      formatsKnob.formatFor(AttentionFormatRole.normalizer);
 
   /// Exponential scale format.
-  final expKnob = InferenceFixedPointFormatKnob(width: 6, fractionBits: 4);
+  InferenceFixedPointFormatKnob get expKnob =>
+      formatsKnob.formatFor(AttentionFormatRole.exponential);
 
   /// Reciprocal scale format.
-  final reciprocalKnob = InferenceFixedPointFormatKnob(fractionBits: 6);
+  InferenceFixedPointFormatKnob get reciprocalKnob =>
+      formatsKnob.formatFor(AttentionFormatRole.reciprocal);
 
   /// Result element width.
-  final outputWidthKnob = PositiveIntConfigKnob(value: 8);
+  final outputWidthKnob = PositiveIntConfigKnob(value: 6);
 
   /// Request identifier width.
   final requestIdWidthKnob = PositiveIntConfigKnob(value: 4);
@@ -75,26 +85,24 @@ class FixedPointAttentionConfigurator extends Configurator {
   @override
   String get name => 'Fixed-Point Attention';
   @override
-  Map<String, ConfigKnob<dynamic>> get knobs => {
-        'Boundary': boundaryKnob,
-        'Sequence Length': sequenceLengthKnob,
-        'Head Dimension': headDimensionKnob,
-        'Value Dimension': valueDimensionKnob,
-        'Query/Key Format': elementKnob,
-        'Value Format': valueKnob,
-        'Score Format': scoreKnob,
-        'Normalizer Format': normalizerKnob,
-        'Exponential Format': expKnob,
-        'Reciprocal Format': reciprocalKnob,
-        'Output Width': outputWidthKnob,
-        'Request ID Width': requestIdWidthKnob,
-        'Counter Width': counterWidthKnob,
-        'Clear Counters': clearCountersKnob,
-        if (boundaryKnob.value == InferenceConfiguratorBoundary.actions)
-          'Automatic Retirement': automaticRetireKnob,
-        'Rounding': roundingKnob,
-        'Overflow': overflowKnob,
-      };
+  Map<String, ConfigKnob<dynamic>> get knobs {
+    formatsKnob.refreshChoices();
+    return {
+      'Boundary': boundaryKnob,
+      'Sequence Length': sequenceLengthKnob,
+      'Head Dimension': headDimensionKnob,
+      'Value Dimension': valueDimensionKnob,
+      'Numeric Formats': formatsKnob,
+      'Output Width': outputWidthKnob,
+      'Request ID Width': requestIdWidthKnob,
+      'Counter Width': counterWidthKnob,
+      'Clear Counters': clearCountersKnob,
+      if (boundaryKnob.value == InferenceConfiguratorBoundary.actions)
+        'Automatic Retirement': automaticRetireKnob,
+      'Rounding': roundingKnob,
+      'Overflow': overflowKnob,
+    };
+  }
 
   /// Creates the shared result schema for bounded and row attention.
   FixedPointAttentionResult resultSchema() => FixedPointAttentionResult(
@@ -102,6 +110,35 @@ class FixedPointAttentionConfigurator extends Configurator {
         outputWidth: outputWidthKnob.value,
         requestIdWidth: requestIdWidthKnob.value,
       );
+
+  @override
+  void loadJson(String json) {
+    final decoded = jsonDecode(json) as Map<String, dynamic>;
+    final savedKnobs = decoded['knobs'] as Map<String, dynamic>;
+    const legacyRoles = {
+      'Query/Key Format': AttentionFormatRole.queryKey,
+      'Value Format': AttentionFormatRole.value,
+      'Score Format': AttentionFormatRole.score,
+      'Normalizer Format': AttentionFormatRole.normalizer,
+      'Exponential Format': AttentionFormatRole.exponential,
+      'Reciprocal Format': AttentionFormatRole.reciprocal,
+    };
+    if (!savedKnobs.containsKey('Numeric Formats') &&
+        legacyRoles.keys.any(savedKnobs.containsKey)) {
+      final migrated = AttentionNumericFormatsKnob();
+      for (final entry in legacyRoles.entries) {
+        migrated.formatFor(entry.value).loadJson(
+              savedKnobs.containsKey(entry.key)
+                  ? savedKnobs.remove(entry.key) as Map<String, dynamic>
+                  : formatsKnob.formatFor(entry.value).toJson(),
+            );
+      }
+      savedKnobs['Numeric Formats'] = migrated.toJson();
+      super.loadJson(jsonEncode(decoded));
+    } else {
+      super.loadJson(json);
+    }
+  }
 
   @override
   Module createModule() {

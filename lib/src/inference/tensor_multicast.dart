@@ -48,9 +48,10 @@ class TensorTileMulticastCore<TLogic extends Logic, TValue> extends Module {
     required Logic advance,
     super.name = 'tensor_tile_multicast_core',
   }) : super(
-          definitionName: 'TensorTileMulticastCore_'
-              '${selection.width}_${tile.format.configurationSignature}_'
-              '${payloadShapeIdentity(tile)}',
+          definitionName: schemaQualifiedDefinitionName(
+              'TensorTileMulticastCore_'
+              '${selection.width}_${tile.format.configurationSignature}_',
+              [tile]),
         ) {
     if (advance.width != selection.width) {
       throw ArgumentError('Advance and selection masks must match in width.');
