@@ -7,6 +7,7 @@ export 'compression_delay_knob.dart';
 export 'config_knob.dart';
 export 'floating_point_rounding_mode_knob.dart';
 export 'group_of_knobs_knob.dart';
+export 'inference_knobs.dart';
 export 'int_config_knob.dart';
 export 'int_optional_config_knob.dart';
 export 'list_of_knobs_knob.dart';

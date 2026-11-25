@@ -9,6 +9,7 @@
 - Empty online-softmax normalization does not report overflow or inexact flags from an unused reciprocal lookup.
 - Added typed, action-driven tensor tiling and untiling with separate ingress/egress ready/valid attachment shells, static and systolic transpose, and selective multicast, plus pooling-window traversal with optional runtime splits.
 - Added a runnable [attention engine example](example/attention_engine_example.dart) that simulates a query and emits SystemVerilog. See the [inference guide](doc/components/inference.md).
+- Added 25 inference configurator entries covering compute, attention, normalization, tensor layout and distribution, traversal, DMA, and storage, with typed tensor schemas, action-core/ready-valid choices, and bundled source navigation.
 
 ### Dataflow and flow control
 

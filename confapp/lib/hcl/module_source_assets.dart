@@ -193,6 +193,41 @@ const moduleSourceAssets = <String, String>{
       'rohd_src/arithmetic/multiplication/valid_only_carry_save_multiplier.dart',
   'XnorPopcount': 'rohd_src/bit_operations/population_count/xnor_popcount.dart',
   'XorPopcount': 'rohd_src/bit_operations/population_count/xor_popcount.dart',
+  'MixedPrecisionDotProduct':
+      'rohd_src/inference/mixed_precision_dot_product.dart',
+  'VectorReduce': 'rohd_src/inference/vector_reduce.dart',
+  'GroupScaleApply': 'rohd_src/inference/group_scale_apply.dart',
+  'FixedPointApproximation':
+      'rohd_src/inference/fixed_point_approximation.dart',
+  'OnlineSoftmaxMerge': 'rohd_src/inference/online_softmax_state.dart',
+  'OnlineSoftmaxWeightedMerge':
+      'rohd_src/inference/online_softmax_weighted_state.dart',
+  'RmsNorm': 'rohd_src/inference/rms_norm.dart',
+  'DynamicNumericNarrowing':
+      'rohd_src/arithmetic/conversion/numeric_narrowing.dart',
+  'FixedPointAttention': 'rohd_src/inference/fixed_point_attention.dart',
+  'FixedPointAttentionRowEngine':
+      'rohd_src/inference/fixed_point_attention_row_engine.dart',
+  'ScratchpadFixedPointAttention':
+      'rohd_src/inference/scratchpad_fixed_point_attention.dart',
+  'TensorScratchpad': 'rohd_src/inference/tensor_scratchpad.dart',
+  'TensorMaskedSramBank': 'rohd_src/inference/tensor_masked_sram_bank.dart',
+  'TensorAccumulatingMemoryBank':
+      'rohd_src/inference/tensor_accumulating_memory_bank.dart',
+  'TensorTileTranspose': 'rohd_src/inference/tensor_layout_transform.dart',
+  'SystolicMatrixTranspose':
+      'rohd_src/dataflow/layout/systolic_matrix_transpose.dart',
+  'ReadyValidTensorTileTiler':
+      'rohd_src/inference/tensor_layout_ready_valid.dart',
+  'TensorTileMulticastCore': 'rohd_src/inference/tensor_multicast.dart',
+  'GroupedQueryAttentionTileDistributor':
+      'rohd_src/inference/grouped_query_attention_distribution.dart',
+  'TensorStridedAddress': 'rohd_src/inference/tensor_strided_address.dart',
+  'TensorStridedAddressGenerator':
+      'rohd_src/inference/tensor_strided_address_generator.dart',
+  'TensorTileIterator': 'rohd_src/inference/tensor_tile_iterator.dart',
+  'PoolingWindowSequencer': 'rohd_src/inference/pooling_window_sequencer.dart',
+  'TensorDmaEngine': 'rohd_src/inference/tensor_dma.dart',
 };
 
 /// Returns the bundled ROHD source asset for [module], if one is indexed.
@@ -356,6 +391,57 @@ String? moduleSourceAsset(Module module) => switch (module) {
         moduleSourceAssets['ValidOnlyCarrySaveMultiplier'],
       XnorPopcount() => moduleSourceAssets['XnorPopcount'],
       XorPopcount() => moduleSourceAssets['XorPopcount'],
+      MixedPrecisionDotProduct() =>
+        moduleSourceAssets['MixedPrecisionDotProduct'],
+      VectorReduce() => moduleSourceAssets['VectorReduce'],
+      GroupScaleApply() => moduleSourceAssets['GroupScaleApply'],
+      FixedPointApproximation() =>
+        moduleSourceAssets['FixedPointApproximation'],
+      OnlineSoftmaxMerge() ||
+      OnlineSoftmaxUpdate() =>
+        moduleSourceAssets['OnlineSoftmaxMerge'],
+      OnlineSoftmaxWeightedMerge() ||
+      OnlineSoftmaxWeightedUpdate() ||
+      OnlineSoftmaxNormalize() =>
+        moduleSourceAssets['OnlineSoftmaxWeightedMerge'],
+      RmsNorm() => moduleSourceAssets['RmsNorm'],
+      DynamicNumericNarrowing() =>
+        moduleSourceAssets['DynamicNumericNarrowing'],
+      FixedPointAttentionCore() ||
+      FixedPointAttention() =>
+        moduleSourceAssets['FixedPointAttention'],
+      FixedPointAttentionRowCore() ||
+      FixedPointAttentionRowEngine() =>
+        moduleSourceAssets['FixedPointAttentionRowEngine'],
+      ScratchpadFixedPointAttention() =>
+        moduleSourceAssets['ScratchpadFixedPointAttention'],
+      TensorScratchpadCore() ||
+      TensorScratchpad() =>
+        moduleSourceAssets['TensorScratchpad'],
+      TensorMaskedSramBank() => moduleSourceAssets['TensorMaskedSramBank'],
+      TensorAccumulatingMemoryBank() ||
+      ReadyValidTensorAccumulatingMemoryBank() =>
+        moduleSourceAssets['TensorAccumulatingMemoryBank'],
+      TensorTileTranspose() ||
+      TensorTileTiler() ||
+      TensorTileUntiler() =>
+        moduleSourceAssets['TensorTileTranspose'],
+      SystolicMatrixTranspose() =>
+        moduleSourceAssets['SystolicMatrixTranspose'],
+      ReadyValidTensorTileTiler() ||
+      ReadyValidTensorTileUntiler() =>
+        moduleSourceAssets['ReadyValidTensorTileTiler'],
+      TensorTileMulticastCore() =>
+        moduleSourceAssets['TensorTileMulticastCore'],
+      GroupedQueryAttentionTileDistributor() =>
+        moduleSourceAssets['GroupedQueryAttentionTileDistributor'],
+      TensorStridedAddress() => moduleSourceAssets['TensorStridedAddress'],
+      TensorStridedAddressGeneratorCore() ||
+      TensorStridedAddressGenerator() =>
+        moduleSourceAssets['TensorStridedAddressGenerator'],
+      TensorTileIterator() => moduleSourceAssets['TensorTileIterator'],
+      PoolingWindowSequencer() => moduleSourceAssets['PoolingWindowSequencer'],
+      TensorDmaEngine() => moduleSourceAssets['TensorDmaEngine'],
       _ when InferredSramConfigurator.isConfiguredModule(module) =>
         moduleSourceAssets['InferredSram'],
       _ => null,

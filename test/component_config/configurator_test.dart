@@ -10,6 +10,7 @@
 import 'dart:convert';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/interfaces/spi/endpoints/spi_main.dart' as general;
 import 'package:rohd_hcl/interfaces/spi/endpoints/spi_sub.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
@@ -86,6 +87,140 @@ void main() {
         reason: '${cfg.name} has no subcategory tag',
       );
     }
+  });
+
+  test('inference catalog generates hardware and restores its configuration',
+      () async {
+    final inference = componentRegistry
+        .where((cfg) => cfg.category == ComponentCategory.inference)
+        .toList();
+    expect(inference, hasLength(25));
+    for (final cfg in inference) {
+      final restored = componentRegistry
+          .singleWhere((other) => other.name == cfg.name)
+        ..loadJson(cfg.toJson());
+      expect(restored.toJson(), cfg.toJson(), reason: cfg.name);
+      final module = restored.createModule();
+      await module.build();
+      expect(module.dumpSystemVerilog(), contains(module.definitionName),
+          reason: cfg.name);
+      expect(module.outputs, isNotEmpty, reason: cfg.name);
+      SimCompare.checkIverilogVector(module, const [], buildOnly: true);
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('inference boundaries generate cores and existing protocol shells',
+      () async {
+    final configurations = componentRegistry.where((cfg) =>
+        cfg.category == ComponentCategory.inference &&
+        cfg.knobs.containsKey('Boundary'));
+    expect(configurations, hasLength(7));
+    for (final cfg in configurations) {
+      final boundary = cfg.knobs['Boundary'];
+      if (boundary is! ChoiceConfigKnob<InferenceConfiguratorBoundary>) {
+        fail('${cfg.name} must expose the typed boundary selection.');
+      }
+      final core = cfg.createModule();
+      await core.build();
+      expect(core.inputs.keys.where((name) => name.endsWith('_valid')), isEmpty,
+          reason: '${cfg.name} action core must not require ready/valid');
+      boundary.value = InferenceConfiguratorBoundary.readyValid;
+      final shell = cfg.createModule();
+      await shell.build();
+      expect(shell.inputs.keys.any((name) => name.endsWith('_valid')), isTrue,
+          reason: '${cfg.name} shell must expose its protocol');
+      expect(shell.dumpSystemVerilog(), contains(shell.definitionName));
+      SimCompare.checkIverilogVector(shell, const [], buildOnly: true);
+      final restored = componentRegistry
+          .singleWhere((other) => other.name == cfg.name)
+        ..loadJson(cfg.toJson());
+      expect(restored.toJson(), cfg.toJson());
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('inference operation choices generate every supported implementation',
+      () async {
+    final softmax = OnlineSoftmaxConfigurator();
+    for (final operation in OnlineSoftmaxConfiguratorOperation.values) {
+      softmax.operationKnob.value = operation;
+      expect(await softmax.generateSV(), contains('OnlineSoftmax'));
+      final restored = OnlineSoftmaxConfigurator()..loadJson(softmax.toJson());
+      expect(restored.toJson(), softmax.toJson());
+    }
+    final approximation = FixedPointApproximationConfigurator();
+    for (final operation in FixedPointApproximationOperation.values) {
+      approximation.operationKnob.value = operation;
+      expect(await approximation.generateSV(), contains('Approximation'));
+    }
+    final reduction = VectorReduceConfigurator();
+    for (final operation in InferenceVectorReduction.values) {
+      reduction.operationKnob.value = operation;
+      expect(await reduction.generateSV(), contains('VectorReduce'));
+    }
+  }, timeout: const Timeout(Duration(minutes: 3)));
+
+  test('tensor configurators retain nondefault schemas and storage choices',
+      () async {
+    final transpose = TensorTileTransposeConfigurator();
+    transpose.tensorKnob
+      ..rowsKnob.value = 1
+      ..columnsKnob.value = 3
+      ..unpackedKnob.value = true;
+    transpose.tensorKnob.formatKnob
+      ..widthKnob.value = 6
+      ..fractionBitsKnob.value = 2;
+    final module =
+        transpose.createModule() as TensorTileTranspose<Logic, LogicValue>;
+    expect(module.result.data.dimensions, [3, 1]);
+    expect(module.result.data.numUnpackedDimensions, 2);
+    expect(
+        module.result.data.arrayElements.first,
+        isA<FixedPoint>()
+            .having((element) => element.fractionWidth, 'fraction width', 2));
+    expect(module.result.format.elementWidth, 6);
+    expect(module.result.format.signed, isTrue);
+    final restored = TensorTileTransposeConfigurator()
+      ..loadJson(transpose.toJson());
+    expect(restored.toJson(), transpose.toJson());
+    expect(await restored.generateSV(), contains('TensorTileTranspose'));
+    await module.build();
+    SimCompare.checkIverilogVector(module, const [], buildOnly: true);
+
+    final scratchpad = TensorScratchpadConfigurator()
+      ..depthKnob.value = 5
+      ..bankCountKnob.value = 3
+      ..mappingKnob.value = TensorScratchpadBankMapping.modulo
+      ..unpackedKnob.value = true;
+    scratchpad.elementKnob.fractionBitsKnob.value = 2;
+    for (final sram in [false, true]) {
+      scratchpad.sramKnob.value = sram;
+      final storage = scratchpad.createModule();
+      await storage.build();
+      expect(storage.dumpSystemVerilog(), contains('TensorScratchpadCore'));
+      SimCompare.checkIverilogVector(storage, const [], buildOnly: true);
+    }
+    final dma = TensorDmaConfigurator()..unpackedKnob.value = true;
+    dma.elementKnob.fractionBitsKnob.value = 2;
+    final movement = dma.createModule();
+    await movement.build();
+    expect(movement.dumpSystemVerilog(), contains('TensorDmaEngine'));
+    SimCompare.checkIverilogVector(movement, const [], buildOnly: true);
+    final pooling = PoolingWindowSequencerConfigurator()
+      ..splitsKnob.value = true;
+    expect(pooling.createModule().inputs, contains('splitCount'));
+  });
+
+  test('inference configurators reject unsupported configuration geometry', () {
+    final tensor = InferenceTensorKnob();
+    tensor.formatKnob.fractionBitsKnob.value = 8;
+    expect(tensor.tile, throwsArgumentError);
+    final mapping = GroupedQueryAttentionTileDistributorConfigurator()
+      ..queryHeadsKnob.value = 3;
+    expect(mapping.createModule, throwsArgumentError);
+    final scratchpad = TensorScratchpadConfigurator()..bankCountKnob.value = 3;
+    expect(scratchpad.createModule, throwsArgumentError);
+    final bank = TensorMaskedSramBankConfigurator()..depthKnob.value = 3;
+    expect(bank.createModule, throwsArgumentError);
   });
 
   test('static-or-runtime integer knobs preserve static values and inputs', () {

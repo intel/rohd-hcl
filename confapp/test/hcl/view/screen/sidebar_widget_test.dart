@@ -53,6 +53,32 @@ Future<void> _openArithmetic(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('inference catalog is visible and its components are selectable',
+      (tester) async {
+    final inference = componentRegistry
+        .where((component) => component.category == ComponentCategory.inference)
+        .toList();
+    final cubit = await _pumpSidebar(tester, inference);
+    await tester.tap(find.text('Inference'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Attention'));
+    await tester.pumpAndSettle();
+    final attention =
+        inference.singleWhere((cfg) => cfg.name == 'Fixed-Point Attention');
+    final item = find.byKey(ObjectKey(attention));
+    expect(item, findsOneWidget);
+    await tester.tap(item);
+    await tester.pumpAndSettle();
+    expect(cubit.selectedComponent, same(attention));
+    expect(find.text('Compute'), findsOneWidget);
+    expect(find.text('Layout'), findsOneWidget);
+    expect(find.text('Movement'), findsOneWidget);
+    expect(find.text('Normalization'), findsOneWidget);
+    expect(find.text('Storage'), findsOneWidget);
+    expect(find.text('Distribution'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('catalog shows replacement components instead of legacy ones',
       (tester) async {
     final components = componentRegistry

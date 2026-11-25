@@ -3,6 +3,40 @@
 Import `package:rohd_hcl/rohd_hcl.dart`. These components supply reusable
 datapaths, addressing and local storage, not a complete accelerator.
 
+## Configurator
+
+Confapp exposes 25 entries under **Inference**, grouped into Attention,
+Compute, Distribution, Layout, Movement, Normalization, and Storage. Expand
+the category and then its subcategory to select a component. Each entry
+generates the configured hardware and supports saving/loading its knob JSON.
+The ROHD source view links to the actual implementation, including protocol
+shells and alternative online softmax and approximation operations.
+
+Attention, row attention, scratchpads, accumulating banks, strided address
+generators, tilers, and untilers offer a **Boundary** choice. The default
+**actions** selection exposes the protocol-neutral engine; **readyValid**
+selects its existing attachment shell. Scratchpad-fed attention, DMA,
+byte-masked SRAM banks, grouped-query distribution, and ping-pong buffers
+are intentionally memory/transport compositions.
+
+Tensor controls retain elements in `TypedLogicArray` payloads, including
+fractional precision, signedness, masks, and packed/unpacked layout.
+Integer lanes use packed `Logic`; fractional lanes retain `FixedPoint` schemas.
+Tiles carry matching signed-integer, unsigned-integer, or fixed-point metadata.
+This avoids zero-width fractional fields in integer hardware.
+Scratchpad and DMA word controls retain typed element arrays through storage
+and memory transactions. Compute controls use the components' existing array
+interfaces and expose their explicit arithmetic formats; runtime signedness
+uses the existing static-or-runtime controls rather than declaring a fixed
+semantic sign on a runtime-reinterpreted operand.
+
+Defaults are deliberately small to keep interactive generation practical.
+Lookup approximation inputs are limited to 12 bits; attention and online
+normalization use the supported lookup formats, not unbounded floating-point
+math. Invalid formats, non-power-of-two bank geometries where required, and
+unsupported mappings fail explicitly during configuration. The ping-pong
+entry reuses the existing two-entry `ReadyValidQueue` composition.
+
 ## Build a small attention engine
 
 The [runnable attention engine example](../../example/attention_engine_example.dart)
