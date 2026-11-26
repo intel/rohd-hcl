@@ -148,13 +148,6 @@ void main() {
 
   test('SignMagnitudeAdder case test', () {
     const width = 8;
-    final aSign = Logic(name: 'aSign');
-    final a = Logic(name: 'a', width: width);
-    final bSign = Logic(name: 'bSign');
-    final b = Logic(name: 'b', width: width);
-
-    a.put(25);
-    b.put(21);
 
     const F = false;
     const T = true;
@@ -227,6 +220,12 @@ void main() {
     }
 
     for (final t in tests) {
+      // An adder is built for every case; each has its own operands, so
+      // that driving them does not also simulate all the earlier ones.
+      final aSign = Logic(name: 'aSign');
+      final a = Logic(name: 'a', width: width);
+      final bSign = Logic(name: 'bSign');
+      final b = Logic(name: 'b', width: width);
       aSign.put(t.aSign);
       a.put(t.aMag);
       bSign.put(t.bSign);
@@ -391,5 +390,18 @@ void main() {
 
     final adder = SignMagnitudeDualAdder(aSign, a, bSign, b);
     expect(adder.sum.value.toInt(), equals(286));
+  });
+
+  test('SignMagnitudeDualAdder is not renamed by its component adders',
+      () async {
+    // A top module that shares a definition name with a different module
+    // inside it is generated under another name, so instantiating the
+    // generated SystemVerilog by definition name reaches the wrong module.
+    final adder = SignMagnitudeDualAdder(
+        Logic(), Logic(width: 4), Logic(), Logic(width: 4));
+    await adder.build();
+    final generated = adder.dumpSystemVerilog();
+    expect(generated, contains('module ${adder.definitionName} ('));
+    expect(generated, isNot(contains('module ${adder.definitionName}_0 (')));
   });
 }

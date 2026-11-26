@@ -473,16 +473,22 @@ void main() {
   // toDouble()/ofDouble() only exactly round-trip values that fit within a
   // double's 52-bit mantissa, so this loop keeps source widths well below
   // that limit rather than exhaustively covering every exponent width.
+  //
+  // Every input of every pairing of source format with narrower output
+  // widths.
   test('FloatToFixed: exhaustive round-trip fp->smallerfx fpv->xpv', () {
     for (var sEW = 2; sEW < 5; sEW++) {
       for (var sMW = 2; sMW < 6; sMW++) {
-        final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
-          ..put(0);
-        final nominal = FloatToFixed(fp1);
+        FloatingPoint source() =>
+            FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)..put(0);
+        final nominal = FloatToFixed(source());
         for (var i = 0; i < nominal.fractionWidth - 2; i++) {
           final tN = nominal.fractionWidth - i;
           for (var j = 0; j < nominal.integerWidth - 2; j++) {
             final tM = nominal.integerWidth - j;
+            // Each converter has its own input, so that driving it does
+            // not also simulate every converter built before it.
+            final fp1 = source();
             final convert = FloatToFixed(
               fp1,
               integerWidth: tM,

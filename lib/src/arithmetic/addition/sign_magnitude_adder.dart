@@ -138,7 +138,7 @@ class SignMagnitudeDualAdder extends SignMagnitudeAdderBase {
       String? definitionName})
       : super(
             definitionName:
-                definitionName ?? 'SignMagnitudeAdder_W${a.width}') {
+                definitionName ?? 'SignMagnitudeDualAdder_W${a.width}') {
     final adderForward = SignMagnitudeAdder(Const(0), a, aSign ^ bSign, b,
         generateEndAroundCarry: true,
         largestMagnitudeFirst: true,

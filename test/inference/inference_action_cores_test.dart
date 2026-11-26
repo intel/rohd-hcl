@@ -87,7 +87,7 @@ void main() {
     if (canRunSystemC()) {
       SimCompare.checkSystemCVector(dut, vectors);
     }
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
     expectNoVerilatorWarnings(dut, ['LATCH', 'UNOPTFLAT']);
   }, timeout: const Timeout(Duration(minutes: 5)));
 

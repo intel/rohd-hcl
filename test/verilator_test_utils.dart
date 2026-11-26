@@ -10,7 +10,37 @@
 import 'dart:io';
 
 import 'package:rohd/rohd.dart';
+import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:test/test.dart';
+
+/// Verilator arguments that shorten the C++ build of a test.
+///
+/// The vectors of a test simulate in no time, so the model and Verilator's
+/// runtime are compiled without optimization, which for a long list of
+/// vectors is most of the build. With `ccache` installed, compiled objects
+/// are reused: Verilator's runtime is the same for every design, and
+/// compiling it is most of building a small one.
+final List<String> verilatorBuildArguments = [
+  for (final flags in ['OPT_FAST', 'OPT_GLOBAL']) ...[
+    '-MAKEFLAGS',
+    '$flags=-O0'
+  ],
+  if (_haveCcache()) ...['-MAKEFLAGS', 'OBJCACHE=ccache'],
+];
+
+bool _haveCcache() {
+  try {
+    return Process.runSync('ccache', ['--version']).exitCode == 0;
+  } on ProcessException {
+    return false;
+  }
+}
+
+/// Checks [vectors] on [dut] in Verilator as
+/// [SimCompare.checkVerilatorVector] does, with [verilatorBuildArguments].
+bool checkVerilatorVector(Module dut, List<Vector> vectors) =>
+    SimCompare.checkVerilatorVector(dut, vectors,
+        verilatorExtraArgs: verilatorBuildArguments);
 
 void expectNoVerilatorWarnings(Module dut, List<String> warningNames) {
   try {

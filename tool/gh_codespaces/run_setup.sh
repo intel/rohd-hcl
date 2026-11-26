@@ -13,7 +13,7 @@ set -euo pipefail
 
 # Install native dependencies for RTL and behavioral SystemC tests.
 sudo apt-get update
-sudo apt-get install -y iverilog verilator g++ libsystemc-dev
+sudo apt-get install -y iverilog verilator g++ libsystemc-dev ccache
 
 # Install Dart SDK.
 tool/gh_codespaces/install_dart.sh

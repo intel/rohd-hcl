@@ -12,6 +12,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../verilator_test_utils.dart';
+
 void checkMapping<T extends Enum>(Logic raw, LogicEnum<T> view,
     Iterable<T> values, int Function(T) encoding) {
   for (final value in values) {
@@ -171,6 +173,6 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   });
 }

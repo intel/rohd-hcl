@@ -73,11 +73,49 @@ Future<void> _checkBehavioralSystemC(
             className: 'Scheduler',
             options: SystemCModelOptions(portType: portType));
     await File('${dir.path}/model.h').writeAsString(model);
+    // The signals driven for each vector, with the name of the input that
+    // drives each and its width.
+    final fields = <(String signal, String input, int width)>[
+      ('clk', 'clk', 1),
+      ('reset', 'reset', 1),
+      for (var r = 0; r < 2; r++) ('a[$r]', 'a$r', 2),
+      for (var i = 0; i < 3; i++) ...[
+        ('v[$i]', 'v$i', 1),
+        ('c[$i]', 'c$i', 3),
+        for (var r = 0; r < 2; r++) ('d[$i][$r]', 'd${i}_$r', 2),
+      ],
+    ];
+
+    // The vectors are a table that one loop applies. Written out as a
+    // statement for every bit of every vector, they took the compiler far
+    // longer than the model does.
+    String cell(LogicValue value) => twoState
+        ? '${value.toInt()}'
+        : '"${[
+            for (var bit = value.width - 1; bit >= 0; bit--) _bit(value[bit])
+          ].join()}"';
     final cpp = StringBuffer('''
 #include "model.h"
 #include <iostream>
 using namespace sc_core;
 using namespace sc_dt;
+// The bits of a table entry, most significant first. A string that begins
+// "0X" would be read as hexadecimal if given to sc_lv itself.
+template <int W> static sc_lv<W> bits(const char* text) {
+  sc_lv<W> value;
+  for (int bit = 0; bit < W; bit++) value[bit] = sc_logic(text[W - 1 - bit]);
+  return value;
+}
+static const ${twoState ? 'unsigned' : 'char* const'} vectors[][${fields.length}] = {
+''');
+    for (final vector in vectors) {
+      cpp.writeln('  {${[
+        for (final (_, input, _) in fields)
+          cell(vector.inputValues[input] as LogicValue)
+      ].join(',')}},');
+    }
+    cpp.write('''
+};
 int sc_main(int, char**) {
   sc_signal<${twoState ? 'bool' : 'sc_logic'}> clk, reset, invalid, v[3], g[3];
   sc_signal<${twoState ? 'sc_uint<2>' : 'sc_lv<2>'}> a[2], d[3][2];
@@ -93,48 +131,33 @@ int sc_main(int, char**) {
         cpp.writeln('  dut.request_${i}_demand_$r(d[$i][$r]);');
       }
     }
-    void assign(String target, LogicValue value) {
-      if (twoState) {
-        cpp.writeln('  $target=${value.toInt()};');
-      } else if (value.width == 1) {
-        cpp.writeln('  $target=SC_LOGIC_${_bit(value)};');
-      } else {
-        cpp.writeln('  { sc_lv<${value.width}> value;');
-        for (var bit = 0; bit < value.width; bit++) {
-          cpp.writeln('    value[$bit]=SC_LOGIC_${_bit(value[bit])};');
-        }
-        cpp.writeln('    $target=value; }');
-      }
+    cpp.writeln('  for (unsigned index = 0; '
+        'index < sizeof(vectors) / sizeof(vectors[0]); index++) {');
+    for (final (column, (signal, _, width)) in fields.indexed) {
+      final value = 'vectors[index][$column]';
+      final driven = twoState
+          ? value
+          : width == 1
+              ? 'sc_logic($value[0])'
+              : 'bits<$width>($value)';
+      cpp.writeln('    $signal = $driven;');
     }
-
-    for (final (index, vector) in vectors.indexed) {
-      final values = vector.inputValues;
-      assign('clk', values['clk'] as LogicValue);
-      assign('reset', values['reset'] as LogicValue);
-      for (var r = 0; r < 2; r++) {
-        assign('a[$r]', values['a$r'] as LogicValue);
-      }
-      for (var i = 0; i < 3; i++) {
-        assign('v[$i]', values['v$i'] as LogicValue);
-        assign('c[$i]', values['c$i'] as LogicValue);
-        for (var r = 0; r < 2; r++) {
-          assign('d[$i][$r]', values['d${i}_$r'] as LogicValue);
-        }
-      }
-      cpp.writeln('  sc_start(1,SC_NS);');
-      final actual = twoState
-          ? 'invalid.read() << g[0].read() << g[1].read() << g[2].read()'
-          : 'invalid.read().to_char() << g[0].read().to_char()'
-              ' << g[1].read().to_char() << g[2].read().to_char()';
-      cpp.writeln('  std::cout << "M $index " << $actual << "\\n";');
-    }
-    cpp.writeln('  return 0;\n}');
+    final outputs = twoState
+        ? 'invalid.read() << g[0].read() << g[1].read() << g[2].read()'
+        : 'invalid.read().to_char() << g[0].read().to_char()'
+            ' << g[1].read().to_char() << g[2].read().to_char()';
+    cpp
+      ..writeln('    sc_start(1,SC_NS);')
+      ..writeln('    std::cout << "M " << index << " " << $outputs << "\\n";')
+      ..writeln('  }')
+      ..writeln('  return 0;\n}');
     await File('${dir.path}/test.cpp').writeAsString(cpp.toString());
     if (!canRunSystemC()) {
       return;
     }
     final compile = await Process.run('g++', [
       '-std=c++17',
+      ...systemCHeaderArguments,
       '${dir.path}/test.cpp',
       '-lsystemc',
       '-o',
@@ -367,6 +390,7 @@ int sc_main(int, char**) {
           }
           final compile = await Process.run('g++', [
             '-std=c++17',
+            ...systemCHeaderArguments,
             '${dir.path}/test.cpp',
             '-lsystemc',
             '-o',

@@ -53,6 +53,10 @@ class FloatingPointAdderSinglePath<FpTypeIn extends FloatingPoint,
       throw RohdHclException('This adder currently only supports '
           'output exponent width equal to input exponent width.');
     }
+    if (a.exponent.width < 2) {
+      throw RohdHclException(
+          'This adder requires an exponent of at least 2 bits.');
+    }
     if (internalSum.mantissa.width < a.mantissa.width) {
       throw RohdHclException('This adder currently only supports '
           'output mantissa width greater than or equal '

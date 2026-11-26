@@ -88,6 +88,7 @@ Future<void> _compileAndRun(String header, String source) async {
     }
     final compile = await Process.run('g++', [
       '-std=c++17',
+      ...systemCHeaderArguments,
       '-O0',
       '${directory.path}/test.cpp',
       '-lsystemc',

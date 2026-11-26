@@ -26,6 +26,23 @@
 - Scoped the existing three-minute native compilation allowance to cache behavioral-SystemC hierarchy checks and added failure-phase diagnostics, preventing false 30-second failures under compiler contention without changing global test timeouts.
 - Prepare ROHD's shared SystemC precompiled header serially before parallel CI and coverage tests to prevent concurrent cold-cache initialization from corrupting native compilation.
 
+### Fixes
+
+- `SignMagnitudeDualAdder` now has its own definition name, `SignMagnitudeDualAdder_W<n>`. It shared `SignMagnitudeAdder_W<n>` with the two differently configured `SignMagnitudeAdder`s inside it, so the generated SystemVerilog gave that name to a component adder and renamed the top `SignMagnitudeAdder_W<n>_0`: instantiating the generated module by its definition name selected a component adder that needs its larger operand first.
+- `FloatingPointAdderDualPath` now rejects an exponent narrower than three bits, and `FloatingPointAdderSinglePath` one narrower than two, with a message naming the limit, instead of failing inside the constructor with an index or width error.
+- Removed from `FixedToFloat` a check for E4M3 that built an `UnimplementedError` without throwing it, and the statement in its documentation that E4M3 is not supported; it is, and is tested.
+
+### Tests
+
+- Arithmetic tests that built one component after another on shared input signals, in a loop or across the tests of a group, now give each component its own inputs. Driving a shared input simulated every component built so far, which made sweeps quadratically slow; nothing that is checked has changed.
+- The six tests that each compiled a small combinational component for Verilator are one compilation in `derived_quantities_verilator_test.dart`; the components' own tests keep the comparison of ROHD with Icarus Verilog.
+- Verilator checks in tests go through `checkVerilatorVector` in `test/verilator_test_utils.dart`, which compiles the model without C++ optimization and reuses compiled objects through `ccache` when it is installed; CI, the development container, and the Codespaces setup now install it. Verilator's runtime was being compiled again for every test, which was most of each build.
+- Tests that compile their own SystemC harness share one precompiled `<systemc>` header, built on first use under `tmp_test/systemc_pch`, through `systemCHeaderArguments` in `test/systemc_test_utils.dart`.
+- The CSR benchmark test runs the benchmark in the test process instead of compiling it with `dart run` for each case, which had brought it to the default 30-second timeout on a loaded machine.
+- The reduction-tree tests use the shortest sequences that reach their cases instead of 290 and 1,024 elements: every radix of a 65-element sequence (one more than a power of 2, 4 and 8), four radix-4 levels in two pipeline stages, and a 128-element mux tree with two pipeline stages where 1,024 elements gave three.
+- The SystemC harnesses of the cache scheduler's four-state arbitration test and of the replacement-policy miter apply their vectors from a table in a loop instead of a statement for every bit of every vector.
+- The compression-tree variant of the fixed-point attention test uses two keys and one value lane, checked against `evaluateFixedPointAttention`; the native variant keeps three keys and two lanes.
+
 ## 0.3.3
 
 - Confapp preserves hierarchical signal paths when cross-probing and avoids resolving a known module's signals in another module.

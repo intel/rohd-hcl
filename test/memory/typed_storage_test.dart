@@ -18,6 +18,8 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
+import '../verilator_test_utils.dart';
+
 class _Word extends LogicStructure {
   Logic get low => elements[0];
   Logic get high => elements[1];
@@ -235,7 +237,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
     SimCompare.checkSystemCVector(dut, vectors);
   } else if (verilator) {
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   } else {
     SimCompare.checkIverilogVector(dut, vectors);
   }

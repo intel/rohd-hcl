@@ -294,7 +294,7 @@ void main() {
     await dut.build();
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   });
 
   test('typed receive-only SPI subordinate preserves output fields', () async {
@@ -548,7 +548,7 @@ void main() {
 
       await SimCompare.checkFunctionalVector(dut, vectors);
       SimCompare.checkIverilogVector(dut, vectors);
-      SimCompare.checkVerilatorVector(dut, vectors);
+      checkVerilatorVector(dut, vectors);
     });
   }
 
@@ -608,7 +608,7 @@ void main() {
 
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
     expectNoVerilatorWarnings(dut, ['WIDTHEXPAND', 'UNOPTFLAT']);
   });
 
@@ -651,7 +651,7 @@ void main() {
 
       await SimCompare.checkFunctionalVector(dut, vectors);
       SimCompare.checkIverilogVector(dut, vectors);
-      SimCompare.checkVerilatorVector(dut, vectors);
+      checkVerilatorVector(dut, vectors);
     });
   }
 }

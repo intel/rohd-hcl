@@ -30,6 +30,19 @@ void main() {
     expect(nearest.definitionName, isNot(towardsZero.definitionName));
   });
 
+  test('FP: single-path adder rejects a one-bit exponent', () {
+    FloatingPoint operand() =>
+        FloatingPoint(exponentWidth: 1, mantissaWidth: 4);
+    expect(() => FloatingPointAdderSinglePath(operand(), operand()),
+        throwsA(isA<RohdHclException>()));
+    // Two bits are enough.
+    expect(
+        () => FloatingPointAdderSinglePath(
+            FloatingPoint(exponentWidth: 2, mantissaWidth: 3),
+            FloatingPoint(exponentWidth: 2, mantissaWidth: 3)),
+        returnsNormally);
+  });
+
   test('FP: simple wide singleton test', () {
     const exponentWidth = 4;
     const mantissaWidth = 18;
@@ -417,15 +430,18 @@ void main() {
     const mantissaWidth = 4;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp1 = fpConstructor();
-    final fp2 = fpConstructor();
+    // Fresh operands for each test, so that driving them does not also
+    // simulate the adders that earlier tests built on them.
+    late FloatingPoint fp1;
+    late FloatingPoint fp2;
+    setUp(() {
+      fp1 = fpConstructor()..put(0);
+      fp2 = fpConstructor()..put(0);
+    });
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     FloatingPointValue ofString(String s) =>
         fpvPopulator().ofSpacedBinaryString(s);
-
-    fp1.put(0);
-    fp2.put(0);
     test('FP: simple adder narrow corner tests', () {
       final testCases = [
         (ofString('0 0001 0000'), ofString('0 0000 0000')),
@@ -770,16 +786,15 @@ void main() {
     const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp1 = fpConstructor();
-    final fp2 = fpConstructor();
-    FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
-
     for (final outMantissaWidth in [6, 9]) {
+      // Each adder has its own operands, so that driving them does not
+      // also simulate the adder built before it.
+      final fp1 = fpConstructor()..put(0);
+      final fp2 = fpConstructor()..put(0);
+      FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
       final fpOut = FloatingPoint(
           exponentWidth: exponentWidth, mantissaWidth: outMantissaWidth);
       FloatingPointValuePopulator fpvOutPopulator() => fpOut.valuePopulator();
-      fp1.put(0);
-      fp2.put(0);
       final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
 
       for (final subtract in [1, 0]) {
@@ -1039,12 +1054,11 @@ void main() {
         'representative corners', () {
       for (final input1ExplicitJBit in [false, true]) {
         for (final input2ExplicitJBit in [false, true]) {
-          final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit);
-          final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit);
-
-          fp1.put(0);
-          fp2.put(0);
           for (final outputExplicitJBit in [false, true]) {
+            // Each adder has its own operands, so that driving them does
+            // not also simulate the adder built before it.
+            final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit)..put(0);
+            final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit)..put(0);
             final fpOut = fpConstructor(explicitJBit: outputExplicitJBit);
             final adder = FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);
 
@@ -1156,12 +1170,13 @@ void main() {
 
         for (final input1ExplicitJBit in [false, true]) {
           for (final input2ExplicitJBit in [false, true]) {
-            final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit);
-            final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit);
-
-            fp1.put(0);
-            fp2.put(0);
             for (final outputExplicitJBit in [false, true]) {
+              // Each adder has its own operands, so that driving them does
+              // not also simulate the adder built before it.
+              final fp1 = fpConstructor(explicitJBit: input1ExplicitJBit)
+                ..put(0);
+              final fp2 = fpConstructor(explicitJBit: input2ExplicitJBit)
+                ..put(0);
               final fpOut = fpOutConstructor(explicitJBit: outputExplicitJBit);
               final adder =
                   FloatingPointAdderSinglePath(fp1, fp2, outSum: fpOut);

@@ -93,7 +93,7 @@ void main() {
 
         await SimCompare.checkFunctionalVector(dut, vectors);
         SimCompare.checkIverilogVector(dut, vectors);
-        SimCompare.checkVerilatorVector(dut, vectors);
+        checkVerilatorVector(dut, vectors);
 
         expectNoVerilatorWarnings(dut, ['UNOPTFLAT', 'WIDTHEXPAND']);
       });

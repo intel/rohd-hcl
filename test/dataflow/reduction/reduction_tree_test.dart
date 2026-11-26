@@ -79,10 +79,12 @@ void main() {
     File('mux_tree.sv').writeAsStringSync(muxTree.dumpSystemVerilog());
   });
 
-  test('reduction tree of muxes -- large flopped', () async {
+  test('reduction tree of muxes -- flopped', () async {
     final clk = SimpleClockGenerator(10).clk;
 
-    const length = 1024;
+    // The shortest binary tree with two pipeline stages, through which
+    // the control is carried with the data.
+    const length = 128;
     final width = length.log2Ceil;
     final vec = <Logic>[];
 
@@ -95,7 +97,7 @@ void main() {
     final muxTree = ReductionTree<Logic, Logic>(vec, muxReduce,
         clk: clk, depthBetweenFlops: 2, control: control, name: 'mux');
 
-    final positions = [7, 4, 5, 6, 12, 0, 1010, 511, 212, 0, 789];
+    final positions = [7, 4, 5, 6, 12, 0, 101, 127, 63, 0, 89];
 
     await muxTree.build();
     final latency = muxTree.latency;
@@ -112,11 +114,13 @@ void main() {
     await Simulator.endSimulation();
   });
 
-  test('reduction tree of adders -- large', () {
+  test('reduction tree of adders -- every radix, clocked without flops', () {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
-    const length = 290;
+    // One more than a power of 2, 4 and 8, so that those radices leave a
+    // lone element beside full subtrees; radix 2 gives seven levels.
+    const length = 65;
     final vec = <Logic>[];
 
     // First sum will be length *(length-1) /2
@@ -132,11 +136,13 @@ void main() {
     }
   });
 
-  test('reduction tree of adders -- large, pipelined', () async {
+  test('reduction tree of adders -- pipelined', () async {
     final clk = SimpleClockGenerator(10).clk;
 
     const width = 17;
-    const length = 290;
+    // Smallest length that exercises four radix-4 reduction levels, in two
+    // pipeline stages.
+    const length = 65;
     final vec = <Logic>[];
     // First sum will be length *(length-1) /2
     for (var i = 0; i < length; i++) {

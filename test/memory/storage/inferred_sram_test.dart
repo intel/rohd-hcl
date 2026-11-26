@@ -19,6 +19,7 @@ import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
 import '../../systemc_test_utils.dart';
+import '../../verilator_test_utils.dart';
 
 LogicValue _alternateCodecValue(LogicValue value) => value;
 const _alternateCodec = LogicValueCodec<LogicValue>(
@@ -168,6 +169,7 @@ int sc_main(int, char**) {
     }
     final compile = await Process.run('g++', [
       '-std=c++17',
+      ...systemCHeaderArguments,
       '${dir.path}/test.cpp',
       '-lsystemc',
       '-o',
@@ -231,7 +233,7 @@ void main() {
       await dut.build();
       await SimCompare.checkFunctionalVector(dut, vectors);
       SimCompare.checkIverilogVector(dut, vectors);
-      SimCompare.checkVerilatorVector(dut, vectors.take(6).toList());
+      checkVerilatorVector(dut, vectors.take(6).toList());
     });
   }
 
@@ -306,6 +308,7 @@ int sc_main(int, char**) {
       }
       final compile = await Process.run('g++', [
         '-std=c++17',
+        ...systemCHeaderArguments,
         '${dir.path}/test.cpp',
         '-lsystemc',
         '-o',
@@ -477,6 +480,7 @@ int sc_main(int, char**) {
         }
         final compile = await Process.run('g++', [
           '-std=c++17',
+          ...systemCHeaderArguments,
           '${dir.path}/test.cpp',
           '-lsystemc',
           '-o',
@@ -573,6 +577,7 @@ int sc_main(int, char**) {
           }
           final compile = await Process.run('g++', [
             '-std=c++17',
+            ...systemCHeaderArguments,
             '${dir.path}/test.cpp',
             '-lsystemc',
             '-o',

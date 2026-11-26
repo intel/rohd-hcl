@@ -50,7 +50,8 @@ void main() {
       ];
       await SimCompare.checkFunctionalVector(dut, vectors);
       SimCompare.checkIverilogVector(dut, vectors);
-      SimCompare.checkVerilatorVector(dut, vectors);
+      // Verilator compiles this component, with the others like it, in
+      // derived_quantities_verilator_test.dart.
     });
   }
 
@@ -76,7 +77,8 @@ void main() {
       ];
       await SimCompare.checkFunctionalVector(dut, vectors);
       SimCompare.checkIverilogVector(dut, vectors);
-      SimCompare.checkVerilatorVector(dut, vectors);
+      // Verilator compiles this component, with the others like it, in
+      // derived_quantities_verilator_test.dart.
     });
   }
 }

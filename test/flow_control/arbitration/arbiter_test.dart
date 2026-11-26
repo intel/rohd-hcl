@@ -13,6 +13,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../verilator_test_utils.dart';
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -56,7 +58,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(arbiter, vectors);
     SimCompare.checkIverilogVector(arbiter, vectors);
-    SimCompare.checkVerilatorVector(arbiter, vectors);
+    checkVerilatorVector(arbiter, vectors);
   });
 
   group('round robin', () {

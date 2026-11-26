@@ -533,6 +533,7 @@ Future<_Outcome> _compileAndRunSystemC(
     await File('${directory.path}/main.cpp').writeAsString(mainSource);
     final compile = await Process.run('g++', [
       '-std=c++17',
+      ...systemCHeaderArguments,
       '-I',
       directory.path,
       '${directory.path}/main.cpp',

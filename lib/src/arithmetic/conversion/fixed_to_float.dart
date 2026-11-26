@@ -13,10 +13,11 @@ import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
-/// [FixedToFloat] converts a fixed point input to floating point with
-/// rouding to nearest even. If the input exceeds the floating point range,
-/// the output will be infinity. E4M3 is not supported as this format doesn't
-/// support infinity.
+/// [FixedToFloat] converts a fixed point input to floating point, rounding
+/// to nearest even by default. If the input exceeds the floating point range,
+/// the output is infinity or the largest finite value, as the rounding mode
+/// directs. In a format without infinities, such as [FloatingPoint8E4M3], it
+/// is always the largest finite value.
 class FixedToFloat<T extends FloatingPoint> extends Module {
   /// Output port [float]
   late final T float;
@@ -84,11 +85,6 @@ class FixedToFloat<T extends FloatingPoint> extends Module {
                     max(fixed.width.log2Ceil, float.exponent.width)))
             .toInt(),
         max(topExponent + 1, alignedWidth).bitLength + 1);
-
-    // Special handling needed for E4M3 as it does not support inf
-    if ((exponentWidth == 4) && (mantissaWidth == 3)) {
-      UnimplementedError('E4M3 is not supported.');
-    }
 
     final Logic absValue;
     if (signed) {

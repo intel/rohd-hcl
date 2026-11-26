@@ -29,7 +29,8 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
   ///
   ///  If [outSum] is provided, it will be used as the output type, otherwise
   /// the output type will be the same as the input type [a]. Note that
-  /// [FloatingPointAdderDualPath] does not support explicit j-bit types.
+  /// [FloatingPointAdderDualPath] does not support explicit j-bit types, and
+  /// requires exponents of at least three bits.
   FloatingPointAdderDualPath(super.a, super.b,
       {Logic? subtract,
       super.clk,
@@ -58,6 +59,14 @@ class FloatingPointAdderDualPath<FpTypeIn extends FloatingPoint,
     if (internalSum.explicitJBit) {
       throw ArgumentError(
           'FloatingPointAdderDualPath does not support explicit J bit output.');
+    }
+
+    // The far path extends the smaller operand by a number of bits that a
+    // narrower exponent leaves too small to hold guard, round and sticky.
+    if (a.exponent.width < 3 || exponentWidth < 3) {
+      throw ArgumentError(
+          'FloatingPointAdderDualPath requires an exponent of at least 3 '
+          'bits.');
     }
 
     subtract = (subtract != null) ? addInput('subtract', subtract) : null;

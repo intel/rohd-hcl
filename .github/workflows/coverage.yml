@@ -35,7 +35,7 @@ jobs:
         run: tool/gh_actions/install_dependencies.sh
 
       - name: Install native test dependencies
-        run: sudo apt-get update && sudo apt-get install -y iverilog verilator g++ libsystemc-dev lcov
+        run: sudo apt-get update && sudo apt-get install -y iverilog verilator g++ libsystemc-dev ccache lcov
 
       - name: Prepare SystemC precompiled header
         run: dart run test:test tool/gh_actions/prepare_systemc_test.dart --concurrency=1
