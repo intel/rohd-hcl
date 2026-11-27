@@ -459,15 +459,16 @@ void main() {
       const exponentWidth = 3;
       const mantissaWidth = 3;
 
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      fp1.put(0);
-      fp2.put(0);
-
       for (var expOutWidth = 3; expOutWidth < 5; expOutWidth++) {
         for (var mantOutWidth = 3; mantOutWidth < 16; mantOutWidth += 4) {
+          // Each multiplier has its own operands, so that driving them
+          // does not also simulate every multiplier built before it.
+          final fp1 = FloatingPoint(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            ..put(0);
+          final fp2 = FloatingPoint(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            ..put(0);
           final fpOut = FloatingPoint(
               exponentWidth: expOutWidth, mantissaWidth: mantOutWidth)
             ..put(0);
@@ -505,15 +506,16 @@ void main() {
       const exponentWidth = 5;
       const mantissaWidth = 6;
 
-      final fp1 = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      final fp2 = FloatingPoint(
-          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-      fp1.put(0);
-      fp2.put(0);
-
       for (final outSpec in [(3, 2), (3, 4), (4, 3)]) {
         for (final mode in FloatingPointRoundingMode.values) {
+          // Each multiplier has its own inputs, so that driving them does
+          // not also simulate every multiplier built before it.
+          final fp1 = FloatingPoint(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            ..put(0);
+          final fp2 = FloatingPoint(
+              exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+            ..put(0);
           final fpOut = FloatingPoint(
               exponentWidth: outSpec.$1, mantissaWidth: outSpec.$2)
             ..put(0);

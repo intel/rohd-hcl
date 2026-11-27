@@ -152,6 +152,7 @@ int sc_main(int, char**) {
       }
       final compile = await Process.run('g++', [
         '-std=c++17',
+        ...systemCHeaderArguments,
         '${dir.path}/test.cpp',
         '-lsystemc',
         '-o',
@@ -254,6 +255,7 @@ int sc_main(int, char**) {
       }
       final compile = await Process.run('g++', [
         '-std=c++17',
+        ...systemCHeaderArguments,
         '-O0',
         '${directory.path}/test.cpp',
         '-lsystemc',
@@ -363,6 +365,7 @@ int sc_main(int, char**) {
       }
       final compile = await Process.run('g++', [
         '-std=c++17',
+        ...systemCHeaderArguments,
         '-O0',
         '${directory.path}/test.cpp',
         '-lsystemc',
@@ -519,6 +522,7 @@ int sc_main(int, char**) {
       }
       final compile = await Process.run('g++', [
         '-std=c++17',
+        ...systemCHeaderArguments,
         '-O0',
         '${directory.path}/test.cpp',
         '-lsystemc',

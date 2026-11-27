@@ -12,6 +12,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../verilator_test_utils.dart';
+
 class _Record extends LogicStructure {
   Logic get key => elements[0];
   Logic get tag => elements[1];
@@ -254,7 +256,7 @@ Future<void> _compare(Module dut, List<Vector> vectors,
   await SimCompare.checkFunctionalVector(dut, vectors);
   SimCompare.checkIverilogVector(dut, vectors);
   if (verilator) {
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   }
   if (systemC) {
     SimCompare.checkSystemCVector(dut, vectors);

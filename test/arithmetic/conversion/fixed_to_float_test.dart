@@ -19,11 +19,13 @@ void main() {
     // corners (fraction wider than the output mantissa forces rounding).
     const integerWidth = 2;
     const fractionWidth = 4;
-    final fixed =
-        FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
     final output = FloatingPoint(exponentWidth: 4, mantissaWidth: 2);
 
     for (final mode in FloatingPointRoundingMode.values) {
+      // Each converter has its own input, so that driving it does not
+      // also simulate the converters built before it.
+      final fixed =
+          FixedPoint(integerWidth: integerWidth, fractionWidth: fractionWidth);
       final dut = FixedToFloat(fixed, output, roundingMode: mode);
       for (var raw = 0; raw < 1 << fixed.width; raw++) {
         final fixedValue = fixed

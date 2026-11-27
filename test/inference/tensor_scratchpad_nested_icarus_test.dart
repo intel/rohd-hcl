@@ -85,7 +85,7 @@ void main() {
       if (useSram && canRunSystemC()) {
         await _checkBehavioralSystemC(vectors);
       }
-      SimCompare.checkVerilatorVector(harness, vectors);
+      checkVerilatorVector(harness, vectors);
       expectNoVerilatorWarnings(harness, ['LATCH', 'UNOPTFLAT']);
     }, timeout: const Timeout(Duration(minutes: 5)));
   }
@@ -261,6 +261,7 @@ int sc_main(int, char**) {
     await source.writeAsString(cpp.toString());
     final compile = await Process.run('g++', [
       '-std=c++17',
+      ...systemCHeaderArguments,
       source.path,
       '-lsystemc',
       '-o',

@@ -13,6 +13,8 @@ import 'package:rohd_hcl/bit_operations/selection/priority_mux.dart' as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../verilator_test_utils.dart';
+
 class _Payload extends LogicStructure {
   _Payload({String name = 'payload', String tagName = 'tag'})
       : super([Logic(name: tagName, width: 2), Logic(name: 'value', width: 2)],
@@ -155,7 +157,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   });
 
   test('OneHotMux retains structured cases and bitwise X/Z behavior', () async {
@@ -228,7 +230,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   });
 
   test('typed priority mux preserves structured cases and result', () async {

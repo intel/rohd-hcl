@@ -216,8 +216,6 @@ void main() {
 
   test('ones complement adder: random with boolean subtract', () {
     const width = 4;
-    final a = Logic(width: width);
-    final b = Logic(width: width);
     const nSamples = 100;
 
     for (var i = 0; i < nSamples; i++) {
@@ -225,6 +223,10 @@ void main() {
       final bv = Random().nextLogicValue(width: width);
 
       for (final subtract in [true]) {
+        // An adder is built for every sample; each has its own operands,
+        // so that driving them does not also simulate all the earlier ones.
+        final a = Logic(width: width);
+        final b = Logic(width: width);
         a.put(av);
         b.put(bv);
         final adder = CarrySelectOnesComplementCompoundAdder(a, b,

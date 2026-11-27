@@ -12,6 +12,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../verilator_test_utils.dart';
+
 int _clz(int v, int w) {
   for (var i = w - 1; i >= 0; i--) {
     if ((v >> i) & 1 == 1) {
@@ -49,7 +51,7 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   });
 
   test('ctz matches reference for every input', () async {
@@ -62,6 +64,6 @@ void main() {
     ];
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   });
 }

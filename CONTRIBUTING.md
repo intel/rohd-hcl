@@ -76,13 +76,29 @@ install the native dependencies for full coverage with:
 
 ```shell
 sudo apt-get update
-sudo apt-get install -y iverilog verilator g++ libsystemc-dev
+sudo apt-get install -y iverilog verilator g++ libsystemc-dev ccache
 ```
 
 CI and the development-container setup install these dependencies. Set
 `ROHD_REQUIRE_VERILATOR=1` and `ROHD_REQUIRE_SYSTEMC=1` to require both optional
 backends, as CI does. A failure compiling or running a generated design with
 an available tool is still a test failure.
+
+Compiling for the native backends is most of what their tests cost, so use
+the helpers that share that work rather than calling the tools directly.
+`checkVerilatorVector` in `test/verilator_test_utils.dart` builds the model
+without C++ optimization and, when `ccache` is installed, reuses compiled
+objects: Verilator's runtime is the same for every design and is most of
+building a small one. A test that compiles its own SystemC harness passes
+`systemCHeaderArguments` from `test/systemc_test_utils.dart` to the compiler,
+before the source file, to use a `<systemc>` header precompiled once under
+`tmp_test/systemc_pch`. Run a tool's `main` in the test rather than starting
+`dart run`, which compiles the tool again each time.
+
+A component stays connected to the signals it was built on. When a loop, or
+the tests of a group, build one component after another on the same input
+signals, driving those signals simulates every component built so far. Give
+each component its own inputs: create them inside the loop, or in `setUp`.
 
 Cache behavioral-SystemC hierarchy checks use a three-minute per-test
 compilation budget, matching the existing CSR checks, rather than the default

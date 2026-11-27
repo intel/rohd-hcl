@@ -125,11 +125,34 @@ Future<void> _checkSystemC(
         : width == 1
             ? 'sc_logic'
             : 'sc_lv<$width>';
+    // The vectors are a table that one loop applies. Written out as a
+    // statement for every bit of every vector, they took the compiler
+    // several times longer than the model does.
+    final inputs = vectors.first.inputValues.keys.toList();
+    String row(Vector vector) {
+      expect(vector.inputValues.keys, inputs);
+      return '  {${[
+        for (final name in inputs)
+          '"${_binary(vector.inputValues[name] as LogicValue)}"'
+      ].join(',')}},';
+    }
+
     final cpp = StringBuffer('''
 #include "model.h"
 #include <iostream>
+#include <string>
 using namespace sc_core;
 using namespace sc_dt;
+// The bits of a table entry, most significant first. A string that begins
+// "0X" would be read as hexadecimal if given to sc_lv itself.
+template <int W> static sc_lv<W> bits(const char* text) {
+  sc_lv<W> value;
+  for (int bit = 0; bit < W; bit++) value[bit] = sc_logic(text[W - 1 - bit]);
+  return value;
+}
+static const char* const vectors[][${inputs.length}] = {
+${vectors.map(row).join('\n')}
+};
 int sc_main(int, char**) {
   Replacement dut("dut");
   Replacement::image saved, beforeReset;
@@ -143,35 +166,47 @@ int sc_main(int, char**) {
         ..writeln('  dut.${port.key}(s_${port.key});');
     }
 
-    void assign(String name, LogicValue value) {
-      if (twoState) {
-        cpp.writeln('  s_$name=${value.toBigInt()};');
-      } else if (value.width == 1) {
-        cpp.writeln('  s_$name=SC_LOGIC_${_bit(value)};');
-      } else {
-        cpp.writeln('  { sc_lv<${value.width}> v;');
-        for (var bit = 0; bit < value.width; bit++) {
-          cpp.writeln('    v[$bit]=SC_LOGIC_${_bit(value[bit])};');
+    cpp.writeln('  auto apply = [&](unsigned index) {');
+    for (final (column, name) in inputs.indexed) {
+      final width = description.inputPorts[name]!;
+      for (final vector in vectors) {
+        final value = vector.inputValues[name] as LogicValue;
+        expect(value.width, width);
+        if (twoState) {
+          expect(value.isValid, isTrue, reason: 'two-state input $name');
         }
-        cpp.writeln('    s_$name=v; }');
       }
+      final text = 'vectors[index][$column]';
+      final value = twoState
+          ? width == 1
+              ? "$text[0] == '1'"
+              : '${type(width)}(bits<$width>($text))'
+          : width == 1
+              ? 'sc_logic($text[0])'
+              : 'bits<$width>($text)';
+      cpp.writeln('    s_$name = $value;');
     }
+    cpp.writeln('  };');
+
+    final fields = <String>[];
+    for (final output in description.outputPorts.entries) {
+      final signal = 's_${output.key}.read()';
+      fields.add(twoState
+          ? output.value == 1
+              ? signal
+              : 'sc_lv<${output.value}>($signal).to_string()'
+          : output.value == 1
+              ? '$signal.to_char()'
+              : '$signal.to_string()');
+    }
+    cpp
+      ..writeln('  auto capture = [&](const std::string& label) {')
+      ..writeln('    std::cout << "M " << label << " " << '
+          '${fields.join(' << " " << ')} << "\\n";')
+      ..writeln('  };');
 
     final expected = <String>[];
-    void capture(String label, Vector vector) {
-      final fields = <String>[];
-      for (final output in description.outputPorts.entries) {
-        final signal = 's_${output.key}.read()';
-        fields.add(twoState
-            ? output.value == 1
-                ? signal
-                : 'sc_lv<${output.value}>($signal).to_string()'
-            : output.value == 1
-                ? '$signal.to_char()'
-                : '$signal.to_string()');
-      }
-      cpp.writeln('  std::cout << "M $label " << '
-          '${fields.join(' << " " << ')} << "\\n";');
+    void expectCapture(String label, Vector vector) {
       final values = description.outputPorts.keys
           .map((name) =>
               _binary(vector.expectedOutputValues[name] as LogicValue))
@@ -179,31 +214,25 @@ int sc_main(int, char**) {
       expected.add('M $label $values');
     }
 
-    for (final (step, vector) in vectors.indexed) {
-      for (final input in vector.inputValues.entries) {
-        assign(input.key, input.value as LogicValue);
-      }
-      cpp.writeln('  sc_start(1,SC_NS);');
-      if (step == 0) {
-        cpp.writeln('  beforeReset=dut.snapshot();');
-      } else if (step == 10) {
-        cpp.writeln('  saved=dut.snapshot();');
-      }
-      if (!(twoState && step == 0)) {
-        capture('$step', vector);
-      }
+    // The first vector of a two-state trace is applied but not compared.
+    final firstCaptured = twoState ? 1 : 0;
+    cpp.writeln('''
+  for (unsigned index = 0; index < ${vectors.length}; index++) {
+    apply(index);
+    sc_start(1,SC_NS);
+    if (index == 0) beforeReset=dut.snapshot();
+    if (index == 10) saved=dut.snapshot();
+    if (index >= $firstCaptured) capture(std::to_string(index));
+  }
+  apply(10); dut.restore(saved); sc_start(1,SC_NS); capture("restore");''');
+    for (var step = firstCaptured; step < vectors.length; step++) {
+      expectCapture('$step', vectors[step]);
     }
-    for (final input in vectors[10].inputValues.entries) {
-      assign(input.key, input.value as LogicValue);
-    }
-    cpp.writeln('  dut.restore(saved); sc_start(1,SC_NS);');
-    capture('restore', vectors[10]);
+    expectCapture('restore', vectors[10]);
     if (!twoState) {
-      for (final input in vectors[0].inputValues.entries) {
-        assign(input.key, input.value as LogicValue);
-      }
-      cpp.writeln('  dut.restore(beforeReset); sc_start(1,SC_NS);');
-      capture('restore_unknown', vectors[0]);
+      cpp.writeln('  apply(0); dut.restore(beforeReset); sc_start(1,SC_NS); '
+          'capture("restore_unknown");');
+      expectCapture('restore_unknown', vectors[0]);
     }
     cpp.writeln('  return 0;\n}');
     await File('${directory.path}/test.cpp').writeAsString(cpp.toString());
@@ -212,6 +241,7 @@ int sc_main(int, char**) {
     }
     final compile = await Process.run('g++', [
       '-std=c++17',
+      ...systemCHeaderArguments,
       '${directory.path}/test.cpp',
       '-lsystemc',
       '-o',
@@ -290,6 +320,7 @@ int sc_main(int, char**) {
         }
         final compile = await Process.run('g++', [
           '-std=c++17',
+          ...systemCHeaderArguments,
           '${directory.path}/test.cpp',
           '-lsystemc',
           '-o',
@@ -359,6 +390,7 @@ int sc_main(int, char**) {
         }
         final compile = await Process.run('g++', [
           '-std=c++17',
+          ...systemCHeaderArguments,
           '${directory.path}/test.cpp',
           '-lsystemc',
           '-o',

@@ -104,15 +104,17 @@ void main() {
     const mantissaWidth = 6;
     const normal = 0; // set to zero for subnormal testing
 
-    final fp1 = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-      ..put(0);
     for (var destExponentWidth = exponentWidth - 1;
         destExponentWidth > 2;
         destExponentWidth--) {
       for (var destMantissaWidth = mantissaWidth + 3;
           destMantissaWidth > 3;
           destMantissaWidth--) {
+        // Each converter has its own input, so that driving it does not
+        // also simulate every converter built before it.
+        final fp1 = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          ..put(0);
         final fp2 = FloatingPoint(
             exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
         final convert = FloatingPointConverter(fp1, fp2);
@@ -149,15 +151,17 @@ void main() {
     const mantissaWidth = 5;
     const normal = 0; // set to zero for subnormal testing
 
-    final fp1 = FloatingPoint(
-        exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
-      ..put(0);
     for (var destExponentWidth = exponentWidth;
         destExponentWidth < exponentWidth + 2;
         destExponentWidth++) {
       for (var destMantissaWidth = mantissaWidth - 2;
           destMantissaWidth < mantissaWidth + 3;
           destMantissaWidth++) {
+        // Each converter has its own input, so that driving it does not
+        // also simulate every converter built before it.
+        final fp1 = FloatingPoint(
+            exponentWidth: exponentWidth, mantissaWidth: mantissaWidth)
+          ..put(0);
         final fp2 = FloatingPoint(
             exponentWidth: destExponentWidth, mantissaWidth: destMantissaWidth);
         final convert = FloatingPointConverter(fp1, fp2);
@@ -191,10 +195,12 @@ void main() {
     for (var sEW = 2; sEW < 5; sEW++) {
       for (var sMW = 2; sMW < 5; sMW++) {
         final rv = Random(13);
-        final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
-          ..put(0);
         for (var dEW = 2; dEW < 6; dEW++) {
           for (var dMW = 2; dMW < 6; dMW++) {
+            // Each converter has its own input, so that driving it does
+            // not also simulate every converter built before it.
+            final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
+              ..put(0);
             final fp2 = FloatingPoint(exponentWidth: dEW, mantissaWidth: dMW);
             final convert = FloatingPointConverter(fp1, fp2);
             for (var iter = 0; iter < 20; iter++) {
@@ -223,10 +229,12 @@ void main() {
   test('FP: conversion exhaustive', () {
     for (var sEW = 2; sEW < 5; sEW++) {
       for (var sMW = 2; sMW < 5; sMW++) {
-        final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
-          ..put(0);
         for (var dEW = 2; dEW < 6; dEW++) {
           for (var dMW = 2; dMW < 6; dMW++) {
+            // Each converter has its own input, so that driving it does
+            // not also simulate every converter built before it.
+            final fp1 = FloatingPoint(exponentWidth: sEW, mantissaWidth: sMW)
+              ..put(0);
             final fp2 = FloatingPoint(exponentWidth: dEW, mantissaWidth: dMW);
             final convert = FloatingPointConverter(fp1, fp2);
             for (final negate in [false, true]) {

@@ -171,30 +171,51 @@ void main() {
   });
 
   test('compression-tree attention implementation matches reference', () async {
+    // ROHD's simulator carries every intermediate change of a compression
+    // tree into the trees after it, so each clock cycle of this variant
+    // takes seconds, more with every key and value lane. Two keys and one
+    // value lane still pass through each place the core multiplies.
     final fixture = _AttentionFixture(
       multiplierImplementation: compressionTreeInferenceMultiplierFunctor(),
+      sequenceLength: 2,
+      valueDimension: 1,
     );
     await fixture.buildAndReset();
+    const query = [1, 0];
+    const keys = [
+      [0, 0],
+      [-1, 0],
+    ];
+    const values = [
+      [4],
+      [0],
+    ];
+    final reference = evaluateFixedPointAttention(
+      query: query,
+      keys: keys,
+      values: values,
+      keyMask: const [true, true],
+      laneMask: const [true, true],
+      causalKeyCount: 2,
+      inputFractionBits: 0,
+      scoreFractionBits: 0,
+      outputFractionBits: 0,
+    );
     await fixture.send(
       requestId: 3,
-      query: const [1, 0],
-      keys: const [
-        [0, 0],
-        [-1, 0],
-        [-2, 0],
-      ],
-      values: const [
-        [4, 0],
-        [0, 4],
-        [4, 4],
-      ],
-      keyMask: 7,
+      query: query,
+      keys: keys,
+      values: values,
+      keyMask: 3,
       laneMask: 3,
-      causalKeyCount: 3,
+      causalKeyCount: 2,
     );
     await fixture.waitForOutput();
 
-    expect(fixture.outputValues, [3, 2]);
+    // The second key takes part of the weight, so the result is not simply
+    // the first value.
+    expect(reference.values, [3]);
+    expect(fixture.outputValues, reference.values);
     expect(
       fixture.dut.multiplierImplementation.identity,
       'compressionTreeR4',
@@ -214,12 +235,14 @@ class _AttentionFixture {
 
   _AttentionFixture({
     this.multiplierImplementation = nativeInferenceMultiplierFunctor,
+    int sequenceLength = 3,
+    int valueDimension = 2,
   }) {
     upstream = ReadyValidInterface(
       FixedPointAttentionRequest(
-        sequenceLength: 3,
+        sequenceLength: sequenceLength,
         headDimension: 2,
-        valueDimension: 2,
+        valueDimension: valueDimension,
         elementWidth: 4,
         valueWidth: 8,
         requestIdWidth: 3,
@@ -227,7 +250,7 @@ class _AttentionFixture {
     );
     downstream = ReadyValidInterface(
       FixedPointAttentionResult(
-        valueDimension: 2,
+        valueDimension: valueDimension,
         outputWidth: 8,
         requestIdWidth: 3,
       ),

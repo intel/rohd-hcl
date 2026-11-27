@@ -10,24 +10,32 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:rohd/rohd.dart';
 import 'package:test/test.dart';
 
+import '../../tool/csr_model_benchmark.dart' as benchmark;
+
 void main() {
+  tearDown(Simulator.reset);
+
   for (final software in [false, true]) {
     test('YAML benchmark runs with ${software ? 'software' : 'RTL'} CSR',
         () async {
-      final result = await Process.run(Platform.resolvedExecutable, [
-        'run',
-        'tool/csr_model_benchmark.dart',
-        '--yaml=test/tool/fixtures/csr_model_benchmark.yaml',
-        if (software) '--software',
-      ]);
-      expect(result.exitCode, 0, reason: '${result.stdout}\n${result.stderr}');
-      final output =
-          jsonDecode(result.stdout as String) as Map<String, dynamic>;
+      // The benchmark runs in this process. Starting it with `dart run`
+      // compiled it again for each test, which under a loaded machine took
+      // most of the time a test is allowed.
+      final printed = <String>[];
+      await runZoned(
+          () => benchmark.main([
+                '--yaml=test/tool/fixtures/csr_model_benchmark.yaml',
+                if (software) '--software',
+              ]),
+          zoneSpecification: ZoneSpecification(
+              print: (self, parent, zone, line) => printed.add(line)));
+      final output = jsonDecode(printed.single) as Map<String, dynamic>;
       expect(output['implementation'], software ? 'software' : 'rtl');
       expect(output['blocks'], 1);
       expect(output['registers'], 2);

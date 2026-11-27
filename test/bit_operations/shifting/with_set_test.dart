@@ -12,6 +12,8 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
 import 'package:test/test.dart';
 
+import '../../verilator_test_utils.dart';
+
 void main() {
   tearDown(() async {
     await Simulator.reset();
@@ -46,6 +48,6 @@ void main() {
 
     await SimCompare.checkFunctionalVector(dut, vectors);
     SimCompare.checkIverilogVector(dut, vectors);
-    SimCompare.checkVerilatorVector(dut, vectors);
+    checkVerilatorVector(dut, vectors);
   });
 }

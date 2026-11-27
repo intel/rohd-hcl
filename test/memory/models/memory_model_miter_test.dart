@@ -324,6 +324,7 @@ int sc_main(int, char**) {
       }
       await _run('g++', [
         '-std=c++17',
+        ...systemCHeaderArguments,
         '-O0',
         '${directory.path}/test.cpp',
         '-lsystemc',

@@ -524,6 +524,7 @@ int sc_main(int, char**) {
     printOnFailure('SystemC compilation started after ${timing.elapsed}.');
     final compile = await Process.run('g++', [
       '-std=c++17',
+      ...systemCHeaderArguments,
       '${dir.path}/test.cpp',
       '-lsystemc',
       '-o',

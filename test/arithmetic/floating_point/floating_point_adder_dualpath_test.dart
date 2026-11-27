@@ -55,6 +55,23 @@ void main() {
     }
   });
 
+  test('FP: dual-path adder rejects exponents narrower than three bits', () {
+    for (final (exponentWidth, mantissaWidth) in [(2, 3), (2, 2), (1, 4)]) {
+      FloatingPoint operand() => FloatingPoint(
+          exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
+      expect(() => FloatingPointAdderDualPath(operand(), operand()),
+          throwsArgumentError,
+          reason: 'E${exponentWidth}M$mantissaWidth');
+    }
+    // A narrow sum is rejected as well as narrow operands.
+    expect(
+        () => FloatingPointAdderDualPath(
+            FloatingPoint(exponentWidth: 3, mantissaWidth: 2),
+            FloatingPoint(exponentWidth: 3, mantissaWidth: 2),
+            outSum: FloatingPoint(exponentWidth: 2, mantissaWidth: 2)),
+        throwsArgumentError);
+  });
+
   test('FP: dual-path directed rounding sees subtraction tail', () {
     final a = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
     final b = FloatingPoint(exponentWidth: 5, mantissaWidth: 6);
@@ -225,8 +242,14 @@ void main() {
     const mantissaWidth = 3;
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp1 = fpConstructor();
-    final fp2 = fpConstructor();
+    // Fresh operands for each test, so that driving them does not also
+    // simulate the adders that earlier tests built on them.
+    late FloatingPoint fp1;
+    late FloatingPoint fp2;
+    setUp(() {
+      fp1 = fpConstructor();
+      fp2 = fpConstructor();
+    });
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     test('FP: dual-path adder N path singleton', () {
@@ -290,8 +313,14 @@ void main() {
 
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp1 = fpConstructor();
-    final fp2 = fpConstructor();
+    // Fresh operands for each test, so that driving them does not also
+    // simulate the adders that earlier tests built on them.
+    late FloatingPoint fp1;
+    late FloatingPoint fp2;
+    setUp(() {
+      fp1 = fpConstructor();
+      fp2 = fpConstructor();
+    });
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
     test('FP: dual-path adder singleton R path', () async {
@@ -403,8 +432,14 @@ void main() {
 
     FloatingPoint fpConstructor() => FloatingPoint(
         exponentWidth: exponentWidth, mantissaWidth: mantissaWidth);
-    final fp1 = fpConstructor();
-    final fp2 = fpConstructor();
+    // Fresh operands for each test, so that driving them does not also
+    // simulate the adders that earlier tests built on them.
+    late FloatingPoint fp1;
+    late FloatingPoint fp2;
+    setUp(() {
+      fp1 = fpConstructor();
+      fp2 = fpConstructor();
+    });
 
     FloatingPointValuePopulator fpvPopulator() => fp1.valuePopulator();
 
