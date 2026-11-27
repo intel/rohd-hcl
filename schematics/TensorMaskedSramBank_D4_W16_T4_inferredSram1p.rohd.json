@@ -2451,85 +2451,7 @@
             ]
           }
         },
-        "struct_unpack_0_upstream_bankResponse": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "upstream_bankResponse",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "data",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 16,
-            "FIELD_1_NAME": "tag",
-            "FIELD_1_OFFSET": 16,
-            "FIELD_1_WIDTH": 4,
-            "FIELD_2_NAME": "error",
-            "FIELD_2_OFFSET": 20,
-            "FIELD_2_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "data": "output",
-            "tag": "output",
-            "error": "output"
-          },
-          "connections": {
-            "A": [
-              4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24
-            ],
-            "data": [
-              120,
-              121,
-              122,
-              123,
-              124,
-              125,
-              126,
-              127,
-              128,
-              129,
-              130,
-              131,
-              132,
-              133,
-              134,
-              135
-            ],
-            "tag": [
-              136,
-              137,
-              138,
-              139
-            ],
-            "error": [
-              140
-            ]
-          }
-        },
-        "struct_unpack_1_downstream_bankResponse": {
+        "struct_unpack_0_downstream_bankResponse": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -2604,6 +2526,84 @@
             ],
             "error": [
               77
+            ]
+          }
+        },
+        "struct_unpack_1_upstream_bankResponse": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "upstream_bankResponse",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "data",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 16,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 16,
+            "FIELD_1_WIDTH": 4,
+            "FIELD_2_NAME": "error",
+            "FIELD_2_OFFSET": 20,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "data": "output",
+            "tag": "output",
+            "error": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24
+            ],
+            "data": [
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              133,
+              134,
+              135
+            ],
+            "tag": [
+              136,
+              137,
+              138,
+              139
+            ],
+            "error": [
+              140
             ]
           }
         },
@@ -6889,7 +6889,83 @@
             ]
           }
         },
-        "struct_unpack_0_downstream_bankResponse": {
+        "struct_unpack_0_write_byte_masked_write_request": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "write_byte_masked_write_request",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "address",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "data",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 16,
+            "FIELD_2_NAME": "byteEnable",
+            "FIELD_2_OFFSET": 18,
+            "FIELD_2_WIDTH": 2
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "address": "output",
+            "data": "output",
+            "byteEnable": "output"
+          },
+          "connections": {
+            "A": [
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30
+            ],
+            "address": [
+              220,
+              221
+            ],
+            "data": [
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232,
+              233,
+              234,
+              235,
+              236,
+              237
+            ],
+            "byteEnable": [
+              238,
+              239
+            ]
+          }
+        },
+        "struct_unpack_1_downstream_bankResponse": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -6967,7 +7043,7 @@
             ]
           }
         },
-        "struct_unpack_1_read_tensorScratchpadReadRequest": {
+        "struct_unpack_2_read_tensorScratchpadReadRequest": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -7006,82 +7082,6 @@
               217,
               218,
               219
-            ]
-          }
-        },
-        "struct_unpack_2_write_byte_masked_write_request": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "write_byte_masked_write_request",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "address",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 2,
-            "FIELD_1_NAME": "data",
-            "FIELD_1_OFFSET": 2,
-            "FIELD_1_WIDTH": 16,
-            "FIELD_2_NAME": "byteEnable",
-            "FIELD_2_OFFSET": 18,
-            "FIELD_2_WIDTH": 2
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "address": "output",
-            "data": "output",
-            "byteEnable": "output"
-          },
-          "connections": {
-            "A": [
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19,
-              20,
-              21,
-              22,
-              23,
-              24,
-              25,
-              26,
-              27,
-              28,
-              29,
-              30
-            ],
-            "address": [
-              220,
-              221
-            ],
-            "data": [
-              222,
-              223,
-              224,
-              225,
-              226,
-              227,
-              228,
-              229,
-              230,
-              231,
-              232,
-              233,
-              234,
-              235,
-              236,
-              237
-            ],
-            "byteEnable": [
-              238,
-              239
             ]
           }
         },

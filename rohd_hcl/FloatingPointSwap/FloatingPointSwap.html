@@ -93,7 +93,7 @@ values.</p>
         &#39;both null or both non-null.&#39;);
   }
   if (metaA != null &amp;&amp; metaB != null) {
-    if (!samePayloadShapeAllowingRenamedClone(metaA, metaB)) {
+    if (!sameRohdPayloadShape(metaA, metaB, allowRenamedClones: true)) {
       throw RohdHclException(&#39;FloatingPointSwap requires metaA and metaB to &#39;
           &#39;have matching layouts and value codecs.&#39;);
     }

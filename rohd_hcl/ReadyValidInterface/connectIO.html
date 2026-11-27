@@ -60,11 +60,11 @@
     </ol>
   </div>
 <span class="returntype">void</span>
-<span class="name ">connectIO</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="connectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span></li>
-<li><span class="parameter" id="connectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface-class.html">Interface</a></span> <span class="parameter-name">srcInterface</span>, {</span></li>
-<li><span class="parameter" id="connectIO-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span></li>
-<li><span class="parameter" id="connectIO-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span></li>
-<li><span class="parameter" id="connectIO-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span></li>
+<span class="name ">connectIO</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="connectIO-param-module"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Module-class.html">Module</a></span> <span class="parameter-name">module</span>, </span></li>
+<li><span class="parameter" id="connectIO-param-srcInterface"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Interface-class.html">Interface</a></span> <span class="parameter-name">srcInterface</span>, {</span></li>
+<li><span class="parameter" id="connectIO-param-inputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">inputTags</span>, </span></li>
+<li><span class="parameter" id="connectIO-param-outputTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">outputTags</span>, </span></li>
+<li><span class="parameter" id="connectIO-param-inOutTags"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/PairDirection.html">PairDirection</a></span>&gt;</span>?</span> <span class="parameter-name">inOutTags</span>, </span></li>
 <li><span class="parameter" id="connectIO-param-uniquify"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">uniquify</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-original"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">original</span></span></li>
 </ol>)?, </span></li>
 </ol>})
@@ -75,8 +75,8 @@
     
 <section class="desc markdown">
   <p>Connects this channel while retaining the payload's concrete logic type.</p>
-<p>Generic <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Interface/connectIO.html">Interface.connectIO</a> registers every non-array port with scalar
-<code>addInput</code> and <code>addOutput</code>. Ready/valid payloads may be <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicStructure-class.html">LogicStructure</a>s,
+<p>Generic <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Interface/connectIO.html">Interface.connectIO</a> registers every non-array port with scalar
+<code>addInput</code> and <code>addOutput</code>. Ready/valid payloads may be <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/LogicStructure-class.html">LogicStructure</a>s,
 so this override uses typed module ports for <a href="../../rohd_hcl/ReadyValidInterface/data.html">data</a>, bridges compatible
 packed sources, and leaves sidebands, nested interfaces, and the
 single-bit controls on the standard recursive connection path.</p>

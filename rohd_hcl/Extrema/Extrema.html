@@ -57,7 +57,7 @@
       <span class="name ">Extrema&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-signals"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">signals</span>, {</span></li>
 <li><span class="parameter" id="param-max"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">max</span> = <span class="default-value">true</span>, </span></li>
 <li><span class="parameter" id="param-radix"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">radix</span> = <span class="default-value">2</span>, </span></li>
-<li><span class="parameter" id="param-isLessThan"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">isLessThan</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-a"><span class="type-annotation">T</span> <span class="parameter-name">a</span>, </span></li>
+<li><span class="parameter" id="param-isLessThan"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">isLessThan</span>(<ol class="parameter-list single-line"> <li><span class="parameter" id="param-a"><span class="type-annotation">T</span> <span class="parameter-name">a</span>, </span></li>
 <li><span class="parameter" id="param-b"><span class="type-annotation">T</span> <span class="parameter-name">b</span></span></li>
 </ol>)?, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;extrema&#39;</span>, </span></li>
@@ -69,12 +69,12 @@
     
 <section class="desc markdown">
   <p>Finds an extrema of <code>signals</code>, preserving the selected payload type <code>T</code>.
-Plain <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> inputs may differ in width and are zero-extended.
+Plain <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a> inputs may differ in width and are zero-extended.
 Structured inputs must have matching layouts.</p>
 <p>If <code>max</code> is <code>true</code>, will find maximum value, else will find minimum.</p>
 <p><code>radix</code> controls the maximum number of candidates compared by each
 balanced reduction node. Equal candidates preserve the earliest index.
-<code>isLessThan</code> defaults to the payload's <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic/lt.html">Logic.lt</a> comparison. Supply it
+<code>isLessThan</code> defaults to the payload's <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic/lt.html">Logic.lt</a> comparison. Supply it
 to compare record keys while transporting complete records. Use
 <code>Extrema&lt;Logic&gt;</code> for scalar constant inputs.</p>
 <p>Outputs the <a href="../../rohd_hcl/Extrema/index.html">index</a> and <a href="../../rohd_hcl/Extrema/val.html">val</a> of the extrema in the list of <code>signals</code>.</p>
@@ -102,8 +102,8 @@ to compare record keys while transporting complete records. Use
     throw RohdHclException(&#39;List cannot be empty.&#39;);
   }
   if (signals.any(hasDeclaredPayloadShape) &amp;&amp;
-      signals.any(
-          (s) =&gt; !samePayloadShapeAllowingRenamedClone(signals.first, s))) {
+      signals.any((s) =&gt; !sameRohdPayloadShape(signals.first, s,
+          allowRenamedClones: true))) {
     throw RohdHclException(&#39;Extrema payload layouts must match.&#39;);
   }
   final logics = [

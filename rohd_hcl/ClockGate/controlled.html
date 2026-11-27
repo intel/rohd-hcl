@@ -71,7 +71,7 @@ is the signal that should be used as inputs to logic depending on the
 <p>If a <code>resetValue</code> is provided, then the signal will be reset to that value
 when the clock gating is reset. Declared reset and payload formats must
 match; a plain packed reset signal supplies raw bits.</p>
-<p>Preserves payload type <code>T</code> and its width. Use <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a> for scalar constants
+<p>Preserves payload type <code>T</code> and its width. Use <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a> for scalar constants
 when a driveable delayed output is required.</p>
 </section>
 
@@ -95,8 +95,8 @@ when a driveable delayed output is required.</p>
   if (_reset != null &amp;&amp;
       resetValue is Logic &amp;&amp;
       resetValue.width == original.width &amp;&amp;
-      !compatiblePayloadConnectionAllowingRenamedClone(
-          original, resetValue)) {
+      !rohdPayloadsCompatible([original, resetValue],
+          allowRenamedClones: true)) {
     throw ArgumentError.value(
         resetValue, &#39;resetValue&#39;, &#39;Payload formats must match.&#39;);
   }

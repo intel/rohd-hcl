@@ -59,8 +59,8 @@
         <li>@<a href="https://api.flutter.dev/flutter/dart-core/Deprecated/Deprecated.html">Deprecated</a>(&#39;Use ParallelAssociativeMemory or parallelAssociativeMemoryFunctor.&#39;)</li>
     </ol>
   </div>
-      <span class="name deprecated">Cam&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+      <span class="name deprecated">Cam&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="param-writePorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a class="deprecated" href="../../rohd_hcl/TagInterface-class.html">TagInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">writePorts</span>, </span></li>
 <li><span class="parameter" id="param-lookupPorts"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a class="deprecated" href="../../rohd_hcl/TagInterface-class.html">TagInterface</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">lookupPorts</span>, {</span></li>
 <li><span class="parameter" id="param-numEntries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">numEntries</span> = <span class="default-value">8</span>, </span></li>
@@ -124,7 +124,7 @@ Cam(Logic clk, Logic reset, List&lt;TagInterface&lt;T&gt;&gt; writePorts,
   }
   final schema = lookupPorts.first.tag;
   for (final port in [...writePorts, ...lookupPorts]) {
-    if (!samePayloadShape(schema, port.tag)) {
+    if (!sameRohdPayloadShape(schema, port.tag)) {
       throw RohdHclException(&#39;CAM ports must have matching tag layouts.&#39;);
     }
     if (port.idWidth &lt; widthFor(numEntries)) {

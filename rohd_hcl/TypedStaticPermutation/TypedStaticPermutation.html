@@ -54,8 +54,8 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">TypedStaticPermutation&lt;<wbr><span class="type-parameter">TLogic extends Logic</span>, <span class="type-parameter">TValue</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-dataIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/TypedLogicArray-class.html">TypedLogicArray</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span> <span class="parameter-name">dataIn</span>, {</span></li>
-<li><span class="parameter" id="param-outputPrototype"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/TypedLogicArray-class.html">TypedLogicArray</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span> <span class="parameter-name">outputPrototype</span>, </span></li>
+      <span class="name ">TypedStaticPermutation&lt;<wbr><span class="type-parameter">TLogic extends Logic</span>, <span class="type-parameter">TValue</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-dataIn"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/TypedLogicArray-class.html">TypedLogicArray</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span> <span class="parameter-name">dataIn</span>, {</span></li>
+<li><span class="parameter" id="param-outputPrototype"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/TypedLogicArray-class.html">TypedLogicArray</a><span class="signature">&lt;<wbr><span class="type-parameter">TLogic</span>, <span class="type-parameter">TValue</span>&gt;</span></span> <span class="parameter-name">outputPrototype</span>, </span></li>
 <li><span class="parameter" id="param-descriptor"><span>required</span> <span class="type-annotation"><a href="../../rohd_hcl/PermutationDescriptor-class.html">PermutationDescriptor</a></span> <span class="parameter-name">descriptor</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;typed_static_permutation&#39;</span>, </span></li>
 </ol>})
@@ -95,10 +95,10 @@
     throw RohdHclException(&#39;Typed permutation value codecs must match.&#39;);
   }
   for (var index = 0; index &lt; descriptor.length; index++) {
-    if (!compatiblePayloadConnection(
-        dataIn.arrayElements[descriptor.sourceIndex(index)],
-        outputPrototype.arrayElements[index],
-        ignoreConstantNames: true)) {
+    if (!rohdPayloadsCompatible([
+      dataIn.arrayElements[descriptor.sourceIndex(index)],
+      outputPrototype.arrayElements[index]
+    ], ignoreConstantNames: true)) {
       throw RohdHclException(
           &#39;Typed permutation source and destination payloads must match.&#39;);
     }

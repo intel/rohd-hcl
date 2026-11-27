@@ -54,10 +54,10 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">ToggleGate&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-enable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span>, </span></li>
+      <span class="name ">ToggleGate&lt;<wbr><span class="type-parameter">T extends Logic</span>&gt;</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="param-enable"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">enable</span>, </span></li>
 <li><span class="parameter" id="param-data"><span>required</span> <span class="type-annotation">T</span> <span class="parameter-name">data</span>, </span></li>
-<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 <li><span class="parameter" id="param-clockGateControlIntf"><span class="type-annotation"><a href="../../rohd_hcl/ClockGateControlInterface-class.html">ClockGateControlInterface</a>?</span> <span class="parameter-name">clockGateControlIntf</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;toggle_gate&#39;</span>, </span></li>
@@ -99,7 +99,7 @@ elements.</p>
     : super(definitionName: definitionName ?? &#39;ToggleGate_W${data.width}&#39;) {
   if (resetValue is Logic &amp;&amp;
       resetValue.width == data.width &amp;&amp;
-      !compatiblePayloadConnectionAllowingRenamedClone(data, resetValue)) {
+      !rohdPayloadsCompatible([data, resetValue], allowRenamedClones: true)) {
     throw ArgumentError.value(
         resetValue, &#39;resetValue&#39;, &#39;Payload formats must match.&#39;);
   }

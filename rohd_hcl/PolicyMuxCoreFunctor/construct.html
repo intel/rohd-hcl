@@ -88,7 +88,7 @@ PolicyMuxCoreBinding&lt;LogicType&gt; construct(
       &#39;payloads and request bits.&#39;,
     );
   }
-  if (!compatiblePayloadSet(request.payloads, ignoreConstantNames: true)) {
+  if (!rohdPayloadsCompatible(request.payloads, ignoreConstantNames: true)) {
     throw ArgumentError.value(
       request.payloads,
       &#39;payloads&#39;,

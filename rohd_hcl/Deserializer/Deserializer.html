@@ -54,13 +54,13 @@
 
     <section class="multi-line-signature">
       
-      <span class="name ">Deserializer&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-serialized"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">serialized</span>, </span></li>
+      <span class="name ">Deserializer&lt;<wbr><span class="type-parameter">T extends Logic</span>, <span class="type-parameter">V</span>&gt;</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="param-serialized"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">serialized</span>, </span></li>
 <li><span class="parameter" id="param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">length</span>, {</span></li>
-<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
-<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
-<li><span class="parameter" id="param-valueCodec"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicValueCodec-class.html">LogicValueCodec</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">valueCodec</span>, </span></li>
-<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
-<li><span class="parameter" id="param-last"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">last</span>, </span></li>
+<li><span class="parameter" id="param-clk"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">clk</span>, </span></li>
+<li><span class="parameter" id="param-reset"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a></span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="param-valueCodec"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/LogicValueCodec-class.html">LogicValueCodec</a><span class="signature">&lt;<wbr><span class="type-parameter">V</span>&gt;</span></span> <span class="parameter-name">valueCodec</span>, </span></li>
+<li><span class="parameter" id="param-enable"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">enable</span>, </span></li>
+<li><span class="parameter" id="param-last"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">last</span>, </span></li>
 <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">name</span> = <span class="default-value">&#39;deserializer&#39;</span>, </span></li>
 <li><span class="parameter" id="param-reserveName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveName</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="param-reserveDefinitionName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">reserveDefinitionName</span> = <span class="default-value">false</span>, </span></li>
@@ -73,11 +73,11 @@
 and aggregates it into one wide output <a href="../../rohd_hcl/Deserializer/deserialized.html">deserialized</a> of length <code>length</code>.</p>
 <p>Updates one element per clock while <code>enable</code> (if connected) is high,
 emitting <a href="../../rohd_hcl/Deserializer/done.html">done</a> when completing the filling of wide output
-<a href="https://pub.dev/documentation/rohd/0.7.5/rohd/TypedLogicArray-class.html">TypedLogicArray</a> <a href="../../rohd_hcl/Deserializer/deserialized.html">deserialized</a>.</p>
-<p>A <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/TypedLogicArray-class.html">TypedLogicArray&lt;T, V&gt;</a> input gains an outer dimension of <code>length</code>.
+<a href="https://pub.dev/documentation/rohd/0.7.6/rohd/TypedLogicArray-class.html">TypedLogicArray</a> <a href="../../rohd_hcl/Deserializer/deserialized.html">deserialized</a>.</p>
+<p>A <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/TypedLogicArray-class.html">TypedLogicArray&lt;T, V&gt;</a> input gains an outer dimension of <code>length</code>.
 A scalar or structured <code>T</code> input produces a one-dimensional array.
 <code>valueCodec</code> describes the semantic value of each leaf <code>T</code>, not a whole
-array slice. Use <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/LogicValueCodec/logicValue-constant.html">LogicValueCodec.logicValue</a> for packed values.
+array slice. Use <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/LogicValueCodec/logicValue-constant.html">LogicValueCodec.logicValue</a> for packed values.
 Array inputs must have matching declared formats for all leaves and use
 the same <code>valueCodec</code> as the input array.</p>
 <p>If <code>last</code> is connected, it is used as a potential early indicator for
@@ -113,7 +113,7 @@ completion of the deserialization.</p>
     if (leaves.isNotEmpty &amp;&amp;
         leaves
             .skip(1)
-            .any((element) =&gt; !samePayloadShape(leaves.first, element))) {
+            .any((element) =&gt; !sameRohdPayloadShape(leaves.first, element))) {
       throw ArgumentError.value(serialized, &#39;serialized&#39;,
           &#39;Deserialization requires matching leaf payload formats.&#39;);
     }

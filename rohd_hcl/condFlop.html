@@ -55,10 +55,10 @@
     <section class="multi-line-signature">
         
 <span class="returntype">LogicType</span>
-<span class="name ">condFlop</span>&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
+<span class="name ">condFlop</span>&lt;<wbr><span class="type-parameter">LogicType extends Logic</span>&gt;(<wbr><ol class="parameter-list"> <li><span class="parameter" id="condFlop-param-clk"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">clk</span>, </span></li>
 <li><span class="parameter" id="condFlop-param-d"><span class="type-annotation">LogicType</span> <span class="parameter-name">d</span>, {</span></li>
-<li><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span></li>
-<li><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.5/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-en"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">en</span>, </span></li>
+<li><span class="parameter" id="condFlop-param-reset"><span class="type-annotation"><a href="https://pub.dev/documentation/rohd/0.7.6/rohd/Logic-class.html">Logic</a>?</span> <span class="parameter-name">reset</span>, </span></li>
 <li><span class="parameter" id="condFlop-param-resetValue"><span class="type-annotation">dynamic</span> <span class="parameter-name">resetValue</span>, </span></li>
 <li><span class="parameter" id="condFlop-param-asyncReset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">asyncReset</span> = <span class="default-value">false</span>, </span></li>
 <li><span class="parameter" id="condFlop-param-outputGenerator"><span class="type-annotation">LogicType</span> <span class="parameter-name">outputGenerator</span>({<ol class="parameter-list"> <li><span class="parameter" id="param-name"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">name</span>, </span></li>
@@ -71,7 +71,7 @@
     
 <section class="desc markdown">
   <p>Conditionally constructs a positive edge triggered flip condFlop on <code>clk</code>.</p>
-<p>It returns either <a href="https://pub.dev/documentation/rohd/0.7.5/rohd/FlipFlop/q.html">FlipFlop.q</a> if <code>clk</code> is non-null or <code>d</code> if not.</p>
+<p>It returns either <a href="https://pub.dev/documentation/rohd/0.7.6/rohd/FlipFlop/q.html">FlipFlop.q</a> if <code>clk</code> is non-null or <code>d</code> if not.</p>
 <p>When the optional <code>en</code> is provided, an additional input will be created for
 condFlop. If optional <code>en</code> is high or not provided, output will vary as per
 input<code>d</code>. For low <code>en</code>, output remains frozen irrespective of input <code>d</code>.</p>
@@ -110,7 +110,7 @@ and any signal reset value; packed values remain valid bridges.</p>
   if (reset != null &amp;&amp;
       resetValue is Logic &amp;&amp;
       d.width == resetValue.width &amp;&amp;
-      !compatiblePayloadConnectionAllowingRenamedClone(d, resetValue)) {
+      !rohdPayloadsCompatible([d, resetValue], allowRenamedClones: true)) {
     throw ArgumentError(
         &#39;Register input and reset payloads must be compatible.&#39;);
   }
@@ -121,14 +121,15 @@ and any signal reset value; packed values remain valid bridges.</p>
   LogicType checkedOutput({String? name}) {
     final output = generator!(name: name);
     if (output.width == d.width &amp;&amp;
-        !compatiblePayloadConnectionAllowingRenamedClone(output, d)) {
+        !rohdPayloadsCompatible([output, d], allowRenamedClones: true)) {
       throw ArgumentError(&#39;Register output and input payloads must be &#39;
           &#39;compatible.&#39;);
     }
     if (reset != null &amp;&amp;
         resetValue is Logic &amp;&amp;
         output.width == resetValue.width &amp;&amp;
-        !compatiblePayloadConnectionAllowingRenamedClone(output, resetValue)) {
+        !rohdPayloadsCompatible([output, resetValue],
+            allowRenamedClones: true)) {
       throw ArgumentError(&#39;Register output and reset payloads must be &#39;
           &#39;compatible.&#39;);
     }

@@ -8917,49 +8917,7 @@
             ]
           }
         },
-        "struct_unpack_0_read_0": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "read_0",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "address",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 2,
-            "FIELD_1_NAME": "tag",
-            "FIELD_1_OFFSET": 2,
-            "FIELD_1_WIDTH": 4
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "address": "output",
-            "tag": "output"
-          },
-          "connections": {
-            "A": [
-              4,
-              5,
-              6,
-              7,
-              8,
-              9
-            ],
-            "address": [
-              299,
-              300
-            ],
-            "tag": [
-              301,
-              302,
-              303,
-              304
-            ]
-          }
-        },
-        "struct_unpack_1_write_0": {
+        "struct_unpack_0_write_0": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -9022,6 +8980,48 @@
               494,
               495,
               496
+            ]
+          }
+        },
+        "struct_unpack_1_read_0": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "read_0",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "address",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 2,
+            "FIELD_1_NAME": "tag",
+            "FIELD_1_OFFSET": 2,
+            "FIELD_1_WIDTH": 4
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "address": "output",
+            "tag": "output"
+          },
+          "connections": {
+            "A": [
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "address": [
+              299,
+              300
+            ],
+            "tag": [
+              301,
+              302,
+              303,
+              304
             ]
           }
         },

@@ -81,7 +81,8 @@
     throw RohdHclException(&quot;Don&#39;t use $name with an empty sequence.&quot;);
   }
   if (inps.any(hasDeclaredPayloadShape) &amp;&amp;
-      inps.any((s) =&gt; !samePayloadShapeAllowingRenamedClone(inps.first, s))) {
+      inps.any((s) =&gt;
+          !sameRohdPayloadShape(inps.first, s, allowRenamedClones: true))) {
     throw RohdHclException(&#39;Prefix payload layouts must match.&#39;);
   }
 }</code></pre>

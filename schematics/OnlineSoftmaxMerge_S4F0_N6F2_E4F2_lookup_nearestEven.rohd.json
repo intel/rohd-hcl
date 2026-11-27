@@ -13508,56 +13508,6 @@
           },
           "connections": {
             "A": [
-              145,
-              146,
-              147,
-              148
-            ],
-            "invalidInput": [
-              149
-            ],
-            "outOfRange": [
-              150
-            ],
-            "overflow": [
-              151
-            ],
-            "inexact": [
-              152
-            ]
-          }
-        },
-        "struct_unpack_2_status": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "status",
-            "FIELD_COUNT": 4,
-            "FIELD_0_NAME": "invalidInput",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 1,
-            "FIELD_1_NAME": "outOfRange",
-            "FIELD_1_OFFSET": 1,
-            "FIELD_1_WIDTH": 1,
-            "FIELD_2_NAME": "overflow",
-            "FIELD_2_OFFSET": 2,
-            "FIELD_2_WIDTH": 1,
-            "FIELD_3_NAME": "inexact",
-            "FIELD_3_OFFSET": 3,
-            "FIELD_3_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "invalidInput": "output",
-            "outOfRange": "output",
-            "overflow": "output",
-            "inexact": "output"
-          },
-          "connections": {
-            "A": [
               293,
               294,
               295,
@@ -13577,7 +13527,7 @@
             ]
           }
         },
-        "struct_unpack_3_left": {
+        "struct_unpack_2_left": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -13656,6 +13606,56 @@
             ],
             "approximationError": [
               105
+            ]
+          }
+        },
+        "struct_unpack_3_status": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "status",
+            "FIELD_COUNT": 4,
+            "FIELD_0_NAME": "invalidInput",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 1,
+            "FIELD_1_NAME": "outOfRange",
+            "FIELD_1_OFFSET": 1,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "overflow",
+            "FIELD_2_OFFSET": 2,
+            "FIELD_2_WIDTH": 1,
+            "FIELD_3_NAME": "inexact",
+            "FIELD_3_OFFSET": 3,
+            "FIELD_3_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "invalidInput": "output",
+            "outOfRange": "output",
+            "overflow": "output",
+            "inexact": "output"
+          },
+          "connections": {
+            "A": [
+              145,
+              146,
+              147,
+              148
+            ],
+            "invalidInput": [
+              149
+            ],
+            "outOfRange": [
+              150
+            ],
+            "overflow": [
+              151
+            ],
+            "inexact": [
+              152
             ]
           }
         },

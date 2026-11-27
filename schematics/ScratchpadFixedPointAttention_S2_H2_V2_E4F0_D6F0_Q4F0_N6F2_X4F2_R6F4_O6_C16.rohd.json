@@ -20703,7 +20703,57 @@
             ]
           }
         },
-        "struct_unpack_0_left": {
+        "struct_unpack_0_status": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "status",
+            "FIELD_COUNT": 4,
+            "FIELD_0_NAME": "invalidInput",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 1,
+            "FIELD_1_NAME": "outOfRange",
+            "FIELD_1_OFFSET": 1,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "overflow",
+            "FIELD_2_OFFSET": 2,
+            "FIELD_2_WIDTH": 1,
+            "FIELD_3_NAME": "inexact",
+            "FIELD_3_OFFSET": 3,
+            "FIELD_3_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "invalidInput": "output",
+            "outOfRange": "output",
+            "overflow": "output",
+            "inexact": "output"
+          },
+          "connections": {
+            "A": [
+              145,
+              146,
+              147,
+              148
+            ],
+            "invalidInput": [
+              149
+            ],
+            "outOfRange": [
+              150
+            ],
+            "overflow": [
+              151
+            ],
+            "inexact": [
+              152
+            ]
+          }
+        },
+        "struct_unpack_1_left": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -20785,7 +20835,7 @@
             ]
           }
         },
-        "struct_unpack_1_status": {
+        "struct_unpack_2_status": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -20816,26 +20866,26 @@
           },
           "connections": {
             "A": [
-              145,
-              146,
-              147,
-              148
+              293,
+              294,
+              295,
+              296
             ],
             "invalidInput": [
-              149
+              297
             ],
             "outOfRange": [
-              150
+              298
             ],
             "overflow": [
-              151
+              299
             ],
             "inexact": [
-              152
+              300
             ]
           }
         },
-        "struct_unpack_2_right": {
+        "struct_unpack_3_right": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -20914,56 +20964,6 @@
             ],
             "approximationError": [
               119
-            ]
-          }
-        },
-        "struct_unpack_3_status": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "status",
-            "FIELD_COUNT": 4,
-            "FIELD_0_NAME": "invalidInput",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 1,
-            "FIELD_1_NAME": "outOfRange",
-            "FIELD_1_OFFSET": 1,
-            "FIELD_1_WIDTH": 1,
-            "FIELD_2_NAME": "overflow",
-            "FIELD_2_OFFSET": 2,
-            "FIELD_2_WIDTH": 1,
-            "FIELD_3_NAME": "inexact",
-            "FIELD_3_OFFSET": 3,
-            "FIELD_3_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "invalidInput": "output",
-            "outOfRange": "output",
-            "overflow": "output",
-            "inexact": "output"
-          },
-          "connections": {
-            "A": [
-              293,
-              294,
-              295,
-              296
-            ],
-            "invalidInput": [
-              297
-            ],
-            "outOfRange": [
-              298
-            ],
-            "overflow": [
-              299
-            ],
-            "inexact": [
-              300
             ]
           }
         },
@@ -33428,7 +33428,89 @@
             ]
           }
         },
-        "struct_unpack_0_left": {
+        "struct_unpack_0_mergedState": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "mergedState",
+            "FIELD_COUNT": 6,
+            "FIELD_0_NAME": "maximum",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 4,
+            "FIELD_1_NAME": "normalizer",
+            "FIELD_1_OFFSET": 4,
+            "FIELD_1_WIDTH": 6,
+            "FIELD_2_NAME": "valid",
+            "FIELD_2_OFFSET": 10,
+            "FIELD_2_WIDTH": 1,
+            "FIELD_3_NAME": "overflow",
+            "FIELD_3_OFFSET": 11,
+            "FIELD_3_WIDTH": 1,
+            "FIELD_4_NAME": "inexact",
+            "FIELD_4_OFFSET": 12,
+            "FIELD_4_WIDTH": 1,
+            "FIELD_5_NAME": "approximationError",
+            "FIELD_5_OFFSET": 13,
+            "FIELD_5_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "maximum": "output",
+            "normalizer": "output",
+            "valid": "output",
+            "overflow": "output",
+            "inexact": "output",
+            "approximationError": "output"
+          },
+          "connections": {
+            "A": [
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189
+            ],
+            "maximum": [
+              190,
+              191,
+              192,
+              193
+            ],
+            "normalizer": [
+              194,
+              195,
+              196,
+              197,
+              198,
+              199
+            ],
+            "valid": [
+              200
+            ],
+            "overflow": [
+              201
+            ],
+            "inexact": [
+              202
+            ],
+            "approximationError": [
+              203
+            ]
+          }
+        },
+        "struct_unpack_1_left": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -33537,88 +33619,6 @@
               213,
               214,
               215
-            ]
-          }
-        },
-        "struct_unpack_1_mergedState": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "mergedState",
-            "FIELD_COUNT": 6,
-            "FIELD_0_NAME": "maximum",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 4,
-            "FIELD_1_NAME": "normalizer",
-            "FIELD_1_OFFSET": 4,
-            "FIELD_1_WIDTH": 6,
-            "FIELD_2_NAME": "valid",
-            "FIELD_2_OFFSET": 10,
-            "FIELD_2_WIDTH": 1,
-            "FIELD_3_NAME": "overflow",
-            "FIELD_3_OFFSET": 11,
-            "FIELD_3_WIDTH": 1,
-            "FIELD_4_NAME": "inexact",
-            "FIELD_4_OFFSET": 12,
-            "FIELD_4_WIDTH": 1,
-            "FIELD_5_NAME": "approximationError",
-            "FIELD_5_OFFSET": 13,
-            "FIELD_5_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "maximum": "output",
-            "normalizer": "output",
-            "valid": "output",
-            "overflow": "output",
-            "inexact": "output",
-            "approximationError": "output"
-          },
-          "connections": {
-            "A": [
-              176,
-              177,
-              178,
-              179,
-              180,
-              181,
-              182,
-              183,
-              184,
-              185,
-              186,
-              187,
-              188,
-              189
-            ],
-            "maximum": [
-              190,
-              191,
-              192,
-              193
-            ],
-            "normalizer": [
-              194,
-              195,
-              196,
-              197,
-              198,
-              199
-            ],
-            "valid": [
-              200
-            ],
-            "overflow": [
-              201
-            ],
-            "inexact": [
-              202
-            ],
-            "approximationError": [
-              203
             ]
           }
         },
@@ -44060,89 +44060,7 @@
             ]
           }
         },
-        "struct_unpack_0_mergedState": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "mergedState",
-            "FIELD_COUNT": 2,
-            "FIELD_0_NAME": "maximum",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 14,
-            "FIELD_1_NAME": "weightedValues",
-            "FIELD_1_OFFSET": 14,
-            "FIELD_1_WIDTH": 12
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "maximum": "output",
-            "weightedValues": "output"
-          },
-          "connections": {
-            "A": [
-              187,
-              188,
-              189,
-              190,
-              191,
-              192,
-              193,
-              194,
-              195,
-              196,
-              197,
-              198,
-              199,
-              200,
-              201,
-              202,
-              203,
-              204,
-              205,
-              206,
-              207,
-              208,
-              209,
-              210,
-              211,
-              212
-            ],
-            "maximum": [
-              272,
-              273,
-              274,
-              275,
-              276,
-              277,
-              278,
-              279,
-              280,
-              281,
-              282,
-              283,
-              284,
-              285
-            ],
-            "weightedValues": [
-              286,
-              287,
-              288,
-              289,
-              290,
-              291,
-              292,
-              293,
-              294,
-              295,
-              296,
-              297
-            ]
-          }
-        },
-        "struct_unpack_1_scalar": {
+        "struct_unpack_0_scalar": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -44221,6 +44139,88 @@
             ],
             "approximationError": [
               226
+            ]
+          }
+        },
+        "struct_unpack_1_mergedState": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "mergedState",
+            "FIELD_COUNT": 2,
+            "FIELD_0_NAME": "maximum",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 14,
+            "FIELD_1_NAME": "weightedValues",
+            "FIELD_1_OFFSET": 14,
+            "FIELD_1_WIDTH": 12
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "maximum": "output",
+            "weightedValues": "output"
+          },
+          "connections": {
+            "A": [
+              187,
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212
+            ],
+            "maximum": [
+              272,
+              273,
+              274,
+              275,
+              276,
+              277,
+              278,
+              279,
+              280,
+              281,
+              282,
+              283,
+              284,
+              285
+            ],
+            "weightedValues": [
+              312,
+              313,
+              314,
+              315,
+              316,
+              317,
+              318,
+              319,
+              320,
+              321,
+              322,
+              323
             ]
           }
         },
@@ -44321,18 +44321,18 @@
               122
             ],
             "weightedValues": [
-              326,
-              327,
-              328,
-              329,
-              330,
-              331,
-              332,
-              333,
-              334,
-              335,
-              336,
-              337
+              286,
+              287,
+              288,
+              289,
+              290,
+              291,
+              292,
+              293,
+              294,
+              295,
+              296,
+              297
             ]
           }
         },
@@ -44409,20 +44409,20 @@
               226
             ],
             "weightedValues": [
-              286,
-              287,
-              288,
-              289,
-              290,
-              291
+              312,
+              313,
+              314,
+              315,
+              316,
+              317
             ],
             "weightedValues_7": [
-              292,
-              293,
-              294,
-              295,
-              296,
-              297
+              318,
+              319,
+              320,
+              321,
+              322,
+              323
             ],
             "Y": [
               45,
@@ -44527,20 +44527,20 @@
               122
             ],
             "weightedValues": [
-              326,
-              327,
-              328,
-              329,
-              330,
-              331
+              286,
+              287,
+              288,
+              289,
+              290,
+              291
             ],
             "weightedValues_7": [
-              332,
-              333,
-              334,
-              335,
-              336,
-              337
+              292,
+              293,
+              294,
+              295,
+              296,
+              297
             ],
             "Y": [
               135,
@@ -45314,12 +45314,12 @@
         },
         "state_weightedValues[0]": {
           "bits": [
-            326,
-            327,
-            328,
-            329,
-            330,
-            331
+            286,
+            287,
+            288,
+            289,
+            290,
+            291
           ],
           "logic_type": {
             "width": 6
@@ -45330,12 +45330,12 @@
         },
         "state_weightedValues[1]": {
           "bits": [
-            332,
-            333,
-            334,
-            335,
-            336,
-            337
+            292,
+            293,
+            294,
+            295,
+            296,
+            297
           ],
           "logic_type": {
             "width": 6
@@ -45825,12 +45825,12 @@
         },
         "nextState_weightedValues[0]": {
           "bits": [
-            286,
-            287,
-            288,
-            289,
-            290,
-            291
+            312,
+            313,
+            314,
+            315,
+            316,
+            317
           ],
           "logic_type": {
             "width": 6
@@ -45841,12 +45841,12 @@
         },
         "nextState_weightedValues[1]": {
           "bits": [
-            292,
-            293,
-            294,
-            295,
-            296,
-            297
+            318,
+            319,
+            320,
+            321,
+            322,
+            323
           ],
           "logic_type": {
             "width": 6
@@ -45961,7 +45961,7 @@
           },
           "attributes": {}
         },
-        "nextState_weightedValues": {
+        "state_weightedValues": {
           "bits": [
             286,
             287,
@@ -45987,20 +45987,20 @@
             "preserved_name": 1
           }
         },
-        "state_weightedValues": {
+        "nextState_weightedValues": {
           "bits": [
-            326,
-            327,
-            328,
-            329,
-            330,
-            331,
-            332,
-            333,
-            334,
-            335,
-            336,
-            337
+            312,
+            313,
+            314,
+            315,
+            316,
+            317,
+            318,
+            319,
+            320,
+            321,
+            322,
+            323
           ],
           "logic_type": {
             "width": 12,
@@ -46975,7 +46975,57 @@
             ]
           }
         },
-        "struct_unpack_0_state": {
+        "struct_unpack_0_status": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "status",
+            "FIELD_COUNT": 4,
+            "FIELD_0_NAME": "invalidInput",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 1,
+            "FIELD_1_NAME": "outOfRange",
+            "FIELD_1_OFFSET": 1,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "overflow",
+            "FIELD_2_OFFSET": 2,
+            "FIELD_2_WIDTH": 1,
+            "FIELD_3_NAME": "inexact",
+            "FIELD_3_OFFSET": 3,
+            "FIELD_3_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "invalidInput": "output",
+            "outOfRange": "output",
+            "overflow": "output",
+            "inexact": "output"
+          },
+          "connections": {
+            "A": [
+              123,
+              124,
+              125,
+              126
+            ],
+            "invalidInput": [
+              127
+            ],
+            "outOfRange": [
+              128
+            ],
+            "overflow": [
+              129
+            ],
+            "inexact": [
+              130
+            ]
+          }
+        },
+        "struct_unpack_1_state": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -47084,56 +47134,6 @@
               91,
               92,
               93
-            ]
-          }
-        },
-        "struct_unpack_1_status": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "status",
-            "FIELD_COUNT": 4,
-            "FIELD_0_NAME": "invalidInput",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 1,
-            "FIELD_1_NAME": "outOfRange",
-            "FIELD_1_OFFSET": 1,
-            "FIELD_1_WIDTH": 1,
-            "FIELD_2_NAME": "overflow",
-            "FIELD_2_OFFSET": 2,
-            "FIELD_2_WIDTH": 1,
-            "FIELD_3_NAME": "inexact",
-            "FIELD_3_OFFSET": 3,
-            "FIELD_3_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "invalidInput": "output",
-            "outOfRange": "output",
-            "overflow": "output",
-            "inexact": "output"
-          },
-          "connections": {
-            "A": [
-              123,
-              124,
-              125,
-              126
-            ],
-            "invalidInput": [
-              127
-            ],
-            "outOfRange": [
-              128
-            ],
-            "overflow": [
-              129
-            ],
-            "inexact": [
-              130
             ]
           }
         }
@@ -50248,7 +50248,71 @@
             ]
           }
         },
-        "struct_unpack_1_nextState": {
+        "struct_unpack_1_command": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "command",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "query",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "laneMask",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 2,
+            "FIELD_2_NAME": "requestId",
+            "FIELD_2_OFFSET": 10,
+            "FIELD_2_WIDTH": 4
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "query": "output",
+            "laneMask": "output",
+            "requestId": "output"
+          },
+          "connections": {
+            "A": [
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18
+            ],
+            "query": [
+              686,
+              687,
+              688,
+              689,
+              690,
+              691,
+              692,
+              693
+            ],
+            "laneMask": [
+              332,
+              333
+            ],
+            "requestId": [
+              334,
+              335,
+              336,
+              337
+            ]
+          }
+        },
+        "struct_unpack_2_nextState": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -50299,20 +50363,20 @@
               583
             ],
             "maximum": [
-              722,
-              723,
-              724,
-              725,
-              726,
-              727,
-              728,
-              729,
-              730,
-              731,
-              732,
-              733,
-              734,
-              735
+              694,
+              695,
+              696,
+              697,
+              698,
+              699,
+              700,
+              701,
+              702,
+              703,
+              704,
+              705,
+              706,
+              707
             ],
             "weightedValues": [
               226,
@@ -50330,7 +50394,7 @@
             ]
           }
         },
-        "struct_unpack_2_scalar": {
+        "struct_unpack_3_scalar": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -50369,20 +50433,20 @@
           },
           "connections": {
             "A": [
-              722,
-              723,
-              724,
-              725,
-              726,
-              727,
-              728,
-              729,
-              730,
-              731,
-              732,
-              733,
-              734,
-              735
+              694,
+              695,
+              696,
+              697,
+              698,
+              699,
+              700,
+              701,
+              702,
+              703,
+              704,
+              705,
+              706,
+              707
             ],
             "maximum": [
               222,
@@ -50409,70 +50473,6 @@
             ],
             "approximationError": [
               309
-            ]
-          }
-        },
-        "struct_unpack_3_command": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "command",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "query",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8,
-            "FIELD_1_NAME": "laneMask",
-            "FIELD_1_OFFSET": 8,
-            "FIELD_1_WIDTH": 2,
-            "FIELD_2_NAME": "requestId",
-            "FIELD_2_OFFSET": 10,
-            "FIELD_2_WIDTH": 4
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "query": "output",
-            "laneMask": "output",
-            "requestId": "output"
-          },
-          "connections": {
-            "A": [
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18
-            ],
-            "query": [
-              700,
-              701,
-              702,
-              703,
-              704,
-              705,
-              706,
-              707
-            ],
-            "laneMask": [
-              332,
-              333
-            ],
-            "requestId": [
-              334,
-              335,
-              336,
-              337
             ]
           }
         },
@@ -51908,10 +51908,10 @@
         },
         "command_query[0]": {
           "bits": [
-            700,
-            701,
-            702,
-            703
+            686,
+            687,
+            688,
+            689
           ],
           "logic_type": {
             "width": 4
@@ -51922,10 +51922,10 @@
         },
         "command_query[1]": {
           "bits": [
-            704,
-            705,
-            706,
-            707
+            690,
+            691,
+            692,
+            693
           ],
           "logic_type": {
             "width": 4
@@ -52928,14 +52928,14 @@
         },
         "command_query": {
           "bits": [
-            700,
-            701,
-            702,
-            703,
-            704,
-            705,
-            706,
-            707
+            686,
+            687,
+            688,
+            689,
+            690,
+            691,
+            692,
+            693
           ],
           "logic_type": {
             "width": 8,
@@ -52950,20 +52950,20 @@
         },
         "nextState_scalar": {
           "bits": [
-            722,
-            723,
-            724,
-            725,
-            726,
-            727,
-            728,
-            729,
-            730,
-            731,
-            732,
-            733,
-            734,
-            735
+            694,
+            695,
+            696,
+            697,
+            698,
+            699,
+            700,
+            701,
+            702,
+            703,
+            704,
+            705,
+            706,
+            707
           ],
           "logic_type": {
             "typeName": "OnlineSoftmaxState",
@@ -52972,50 +52972,50 @@
                 "name": "maximum",
                 "width": 4,
                 "bits": [
-                  722,
-                  723,
-                  724,
-                  725
+                  694,
+                  695,
+                  696,
+                  697
                 ]
               },
               {
                 "name": "normalizer",
                 "width": 6,
                 "bits": [
-                  726,
-                  727,
-                  728,
-                  729,
-                  730,
-                  731
+                  698,
+                  699,
+                  700,
+                  701,
+                  702,
+                  703
                 ]
               },
               {
                 "name": "valid",
                 "width": 1,
                 "bits": [
-                  732
+                  704
                 ]
               },
               {
                 "name": "overflow",
                 "width": 1,
                 "bits": [
-                  733
+                  705
                 ]
               },
               {
                 "name": "inexact",
                 "width": 1,
                 "bits": [
-                  734
+                  706
                 ]
               },
               {
                 "name": "approximationError",
                 "width": 1,
                 "bits": [
-                  735
+                  707
                 ]
               }
             ]

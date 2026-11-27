@@ -1470,36 +1470,6 @@
             "preserved_name": 1
           }
         },
-        "inputTile_data[1]": {
-          "bits": [
-            126,
-            127,
-            128,
-            129,
-            130,
-            131,
-            132,
-            133,
-            134,
-            135,
-            136,
-            137,
-            138,
-            139,
-            140,
-            141
-          ],
-          "logic_type": {
-            "width": 16,
-            "arrayDims": [
-              2
-            ],
-            "elementWidth": 8
-          },
-          "attributes": {
-            "preserved_name": 1
-          }
-        },
         "inputTile_data[0]": {
           "bits": [
             110,
@@ -1518,6 +1488,36 @@
             123,
             124,
             125
+          ],
+          "logic_type": {
+            "width": 16,
+            "arrayDims": [
+              2
+            ],
+            "elementWidth": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "inputTile_data[1]": {
+          "bits": [
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138,
+            139,
+            140,
+            141
           ],
           "logic_type": {
             "width": 16,
