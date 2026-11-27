@@ -29,29 +29,37 @@ constant when a component must create a driveable scalar port.
 
 ## Component implementation
 
-HCL component implementations share helpers from
-[`payload_shape.dart`](../../lib/src/interfaces/payload_shape.dart). This is
+HCL component implementations compare payloads with ROHD's
+`sameRohdPayloadShape` and `rohdPayloadsCompatible`, and share the remaining
+helpers in
+[`payload_shape.dart`](../../lib/src/interfaces/payload_shape.dart). That is
 an internal implementation library, not a public application import. The
 checks run during construction and add no checking hardware. Reject
 incompatible declared shapes rather than silently reinterpreting them.
 
 ### Choosing a compatibility check
 
-| Requirement | HCL helper |
+| Requirement | Check |
 | --- | --- |
-| Connect two payloads, allowing an equal-width packed bridge | `compatiblePayloadConnection` |
-| Check all payloads sharing storage or selection | `compatiblePayloadSet` |
-| Compare declared shapes without allowing a packed bridge | `samePayloadShape` |
-| Compare an operation result with a valid parent-renamed typed clone | `samePayloadShapeAllowingRenamedClone` |
-| Allow either a packed bridge or a valid parent-renamed typed clone | `compatiblePayloadConnectionAllowingRenamedClone` |
-| Compare corresponding lists of declared schemas | `samePayloadSchemas` |
+| Connect two payloads, allowing an equal-width packed bridge | `rohdPayloadsCompatible([target, source])` |
+| Check all payloads sharing storage or selection | `rohdPayloadsCompatible(payloads)` |
+| Compare declared shapes without allowing a packed bridge | `sameRohdPayloadShape(first, second)` |
+| Compare an operation result with a valid parent-renamed typed clone | `sameRohdPayloadShape(first, second, allowRenamedClones: true)` |
+| Allow either a packed bridge or a valid parent-renamed typed clone | `rohdPayloadsCompatible([target, source], allowRenamedClones: true)` |
+| Compare corresponding lists of declared schemas | `samePayloadSchemas` (HCL) |
 
-`compatiblePayloadSet` checks every pair, including pairs of declared
+`rohdPayloadsCompatible` checks every pair, including pairs of declared
 schemas separated by a packed bridge. Set `allowRenamedClones: true` only
 when the component permits parent-renamed typed clones; this mode also ignores
 generated constant names. The strict comparison can independently ignore
 constant names with `ignoreConstantNames: true`. Renamed-clone checks do not
 permit unrelated field or semantic format changes.
+
+The HCL helpers that these calls replace (`samePayloadShape`,
+`compatiblePayloadConnection`, `compatiblePayloadSet`,
+`samePayloadShapeAllowingRenamedClone`, and
+`compatiblePayloadConnectionAllowingRenamedClone`) are deprecated and now
+only forward to them.
 
 ### Registering outputs and cloning schemas
 
@@ -69,7 +77,11 @@ This is the pattern used by [`Fifo`](../../lib/src/flow_control/storage/fifo.dar
 the registered output's width and declared clone shape against the supplied
 schema. By default it clones that schema. If a custom `generator` is needed
 to produce a driveable representation, its registered output must still
-match the schema. A malformed clone or generator fails during construction.
+match the schema. A malformed clone or generator fails during construction,
+with a `RohdHclException` when the width or shape changed. ROHD's
+`addTypedOutput(..., schema:)` makes the same check and reports a
+`PortTypeException`; HCL keeps its helper so that its components report the
+exception they always have.
 
 Use ROHD's `addTypedOutput` with an appropriate generator when an output has
 an independently defined schema rather than a requirement to match another
@@ -82,8 +94,11 @@ source schema.
 Use `cloneTypedPayload` with the registered local payload for retained state
 or detached schema copies; it checks clone width, type and declared shape.
 `cloneInterfacePayload` additionally converts a scalar `Const` widened to
-`Logic` into a driveable scalar port. A typed output or clone of a
-constant-containing structure still needs a suitable driveable representation.
+`Logic` into a driveable scalar port. These are ROHD's `cloneTyped` and
+`cloneInterfacePort`, kept as helpers for the same reason: a clone that
+changes width is reported as a `RohdHclException`. A typed output or clone of
+a constant-containing structure still needs a suitable driveable
+representation.
 
 For custom interface registration, `connectTypedPayloadPorts` shares typed
 port registration and connection after the caller has checked compatibility
@@ -95,17 +110,11 @@ as malformed clones or custom output generators. Where applicable, cover
 pairwise selection, nested schemas and array codecs, constants, parent-renamed
 clones, and module hierarchy or generated RTL.
 
-HCL requires ROHD 0.7.5 or later in the 0.7.x series. The
-`samePayloadShape` helper still uses the compatibility alias for
-`sameDeclaredPayloadShape`; it can migrate to the public `sameRohdPayloadShape`.
-The helpers remain in HCL until an
-appropriate additive ROHD API is released and a later HCL release can migrate
-and deprecate the redundant helpers. The proposed ROHD pairwise compatibility
-and schema-aware interface registration APIs cover part of this work, but the
-HCL helpers also handle parent-renamed clones and explicit clone-width checks.
-Do not remove those checks until equivalent upstream behavior is available.
-The [deprecation plan](../../DEPRECATION_PLAN.md) tracks the conditions for
-each migration.
+HCL requires ROHD 0.7.6 or later in the 0.7.x series, which supplies the
+renamed-clone comparisons, clone-width checks, interface schema clones, and
+schema-checked outputs that HCL previously implemented itself. The
+[deprecation plan](../../DEPRECATION_PLAN.md) lists which helpers are
+deprecated, which remain, and why.
 Existing ROHD typed operators do not
 uniformly check semantic metadata, so components must validate their own
 declared payloads before invoking those operators.

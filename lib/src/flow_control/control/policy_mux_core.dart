@@ -327,7 +327,7 @@ class PolicyMuxCoreFunctor<LogicType extends Logic> extends HardwareCoreFunctor<
         'payloads and request bits.',
       );
     }
-    if (!compatiblePayloadSet(request.payloads, ignoreConstantNames: true)) {
+    if (!rohdPayloadsCompatible(request.payloads, ignoreConstantNames: true)) {
       throw ArgumentError.value(
         request.payloads,
         'payloads',

@@ -163,7 +163,8 @@ class ReadyValidFixedLatency<Input extends Logic, Output extends Logic,
       start: tracker.accepted,
       data: input.data,
     );
-    if (!samePayloadShapeAllowingRenamedClone(downstream.data, result)) {
+    if (!sameRohdPayloadShape(downstream.data, result,
+        allowRenamedClones: true)) {
       throw ArgumentError(
           'Core result must match the downstream payload shape.');
     }

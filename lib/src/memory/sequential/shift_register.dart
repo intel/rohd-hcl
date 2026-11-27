@@ -170,8 +170,8 @@ class ShiftRegister<T extends Logic> extends Module with ResettableEntries {
           'Entry $resetValue does not have expected width $width.',
         );
       }
-      if (!compatiblePayloadConnectionAllowingRenamedClone(
-          schema, resetValue)) {
+      if (!rohdPayloadsCompatible([schema, resetValue],
+          allowRenamedClones: true)) {
         throw RohdHclException(
           'ShiftRegister reset signal layout must match the payload.',
         );

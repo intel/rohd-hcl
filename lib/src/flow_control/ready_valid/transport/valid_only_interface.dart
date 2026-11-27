@@ -58,8 +58,7 @@ class ValidOnlyInterface<LogicType extends Logic> extends PairInterface {
     }
     if (input || output) {
       final source = srcInterface.port(data.name);
-      if (!compatiblePayloadConnection(data, source,
-          ignoreConstantNames: true)) {
+      if (!rohdPayloadsCompatible([data, source], ignoreConstantNames: true)) {
         throw PortTypeException.forIntendedName(
             data.name, 'Valid-only payload shape does not match.');
       }

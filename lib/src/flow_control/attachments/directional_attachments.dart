@@ -13,7 +13,7 @@ import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_inte
 import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 void _validatePayload(Logic boundary, Logic payload) {
-  if (!compatiblePayloadConnectionAllowingRenamedClone(boundary, payload)) {
+  if (!rohdPayloadsCompatible([boundary, payload], allowRenamedClones: true)) {
     throw PortTypeException.forIntendedName(boundary.name,
         'Attachment payload does not match ${payloadShapeIdentity(boundary)}.');
   }

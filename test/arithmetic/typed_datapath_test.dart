@@ -10,7 +10,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Packet extends LogicStructure {
@@ -273,11 +272,11 @@ void _checkMetadata<T extends Logic>(String label, T schema,
         first,
         dut.sorter.outMetaB!,
       ]) {
-        expect(samePayloadShape(schema, port), isTrue);
+        expect(sameRohdPayloadShape(schema, port), isTrue);
       }
       final metadataMuxes = dut.sorter.subModules
           .whereType<Mux<T>>()
-          .where((mux) => samePayloadShape(schema, mux.out));
+          .where((mux) => sameRohdPayloadShape(schema, mux.out));
       expect(metadataMuxes, hasLength(2));
       final mask = (1 << schema.width) - 1;
       final a = 0x102030a1 & mask;

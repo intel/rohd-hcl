@@ -13,7 +13,6 @@
 import 'package:meta/meta.dart';
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A component control that is configured statically or supplied by [Logic] at
 /// runtime.
@@ -257,7 +256,8 @@ class StaticOrRuntimeParameter extends StaticOrRuntimeControl<bool> {
       LogicType whenTrue, LogicType whenFalse,
       {Module? module}) {
     if (whenTrue.width == whenFalse.width &&
-        !compatiblePayloadConnectionAllowingRenamedClone(whenTrue, whenFalse)) {
+        !rohdPayloadsCompatible([whenTrue, whenFalse],
+            allowRenamedClones: true)) {
       throw ArgumentError('Selection payloads must be compatible.');
     }
     final config = runtimeConfig;

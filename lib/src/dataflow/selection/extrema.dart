@@ -70,8 +70,8 @@ class Extrema<T extends Logic> extends Module {
       throw RohdHclException('List cannot be empty.');
     }
     if (signals.any(hasDeclaredPayloadShape) &&
-        signals.any(
-            (s) => !samePayloadShapeAllowingRenamedClone(signals.first, s))) {
+        signals.any((s) => !sameRohdPayloadShape(signals.first, s,
+            allowRenamedClones: true))) {
       throw RohdHclException('Extrema payload layouts must match.');
     }
     final logics = [

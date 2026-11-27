@@ -138,7 +138,8 @@ class TensorTileMulticast<TLogic extends Logic, TValue> extends Module {
     for (var index = 0; index < downstreams.length; index++) {
       final destination = downstreams[index].data;
       if (destination.format != upstream.data.format ||
-          !samePayloadShapeAllowingRenamedClone(upstream.data, destination)) {
+          !sameRohdPayloadShape(upstream.data, destination,
+              allowRenamedClones: true)) {
         throw ArgumentError(
           'Destination $index tile shape and format must match upstream.',
         );

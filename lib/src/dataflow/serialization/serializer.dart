@@ -74,8 +74,8 @@ class Serializer<T extends Logic, V> extends Module {
       throw ArgumentError.value(deserialized.dimensions, 'deserialized',
           'Serialization requires non-empty dimensions.');
     }
-    if (deserialized.elements.skip(1).any(
-        (element) => !samePayloadShape(deserialized.elements.first, element))) {
+    if (deserialized.elements.skip(1).any((element) =>
+        !sameRohdPayloadShape(deserialized.elements.first, element))) {
       throw ArgumentError.value(deserialized, 'deserialized',
           'Serialization requires matching outermost payload formats.');
     }

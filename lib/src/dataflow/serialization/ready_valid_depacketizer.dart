@@ -98,7 +98,7 @@ class ReadyValidDepacketizer<LogicType extends Logic> extends Module {
           '${upstream.data.data.width}-bit values.');
     }
     if (downstream.data.data.arrayElements.any((element) =>
-        !compatiblePayloadConnection(upstream.data.data, element,
+        !rohdPayloadsCompatible([upstream.data.data, element],
             ignoreConstantNames: true))) {
       throw ArgumentError('Input and packet element payloads must match.');
     }

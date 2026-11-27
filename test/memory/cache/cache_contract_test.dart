@@ -13,7 +13,6 @@ library;
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Metadata extends LogicStructure {
@@ -389,11 +388,13 @@ void main() {
     expect(port.requests.contract, ReadyValidContract.irrevocable);
     expect(port.responses.contract, ReadyValidContract.irrevocable);
     expect(port.evictions.contract, ReadyValidContract.irrevocable);
-    expect(samePayloadShape(port.requests.data, port.requests.data.clone()),
+    expect(sameRohdPayloadShape(port.requests.data, port.requests.data.clone()),
         isTrue);
-    expect(samePayloadShape(port.responses.data, port.responses.data.clone()),
+    expect(
+        sameRohdPayloadShape(port.responses.data, port.responses.data.clone()),
         isTrue);
-    expect(samePayloadShape(port.evictions.data, port.evictions.data.clone()),
+    expect(
+        sameRohdPayloadShape(port.evictions.data, port.evictions.data.clone()),
         isTrue);
     expect(port.requests.data.clone().operation.width, 4);
     expect(port.evictions.data.clone().cause.width, 2);

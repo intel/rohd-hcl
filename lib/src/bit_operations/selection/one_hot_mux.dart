@@ -44,7 +44,7 @@ class OneHotMux<T extends Logic> extends Module {
     if (selector.width != cases.length) {
       throw Exception('Selector width must equal the number of cases.');
     }
-    if (!compatiblePayloadSet(cases, allowRenamedClones: true)) {
+    if (!rohdPayloadsCompatible(cases, allowRenamedClones: true)) {
       throw ArgumentError('Mux cases must have compatible payload schemas.');
     }
 

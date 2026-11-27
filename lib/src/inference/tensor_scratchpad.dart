@@ -464,7 +464,7 @@ class TensorScratchpadCore<T extends Logic> extends Module {
         )) {
       throw ArgumentError('Scratchpad port shapes do not match.');
     }
-    if (!compatiblePayloadSet([
+    if (!rohdPayloadsCompatible([
       wordSchema,
       for (final request in writeRequests) request.data,
       for (final response in readResponses) response.data,

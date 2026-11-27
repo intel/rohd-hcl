@@ -115,7 +115,7 @@ class TagInterface<T extends Logic> extends Interface<DataPortGroup> {
     final isInOut = inOuts?.contains(DataPortGroup.control) ?? false;
     if (isInput || isOutput || isInOut) {
       final source = srcInterface.port('tag');
-      if (!compatiblePayloadConnection(tag, source)) {
+      if (!rohdPayloadsCompatible([tag, source])) {
         throw PortTypeException.forIntendedName('tag',
             'CAM tag layout does not match ${payloadShapeIdentity(tag)}.');
       }
@@ -238,7 +238,7 @@ class Cam<T extends Logic> extends Module {
     }
     final schema = lookupPorts.first.tag;
     for (final port in [...writePorts, ...lookupPorts]) {
-      if (!samePayloadShape(schema, port.tag)) {
+      if (!sameRohdPayloadShape(schema, port.tag)) {
         throw RohdHclException('CAM ports must have matching tag layouts.');
       }
       if (port.idWidth < widthFor(numEntries)) {

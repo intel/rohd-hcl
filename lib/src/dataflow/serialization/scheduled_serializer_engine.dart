@@ -64,7 +64,7 @@ class ScheduledSerializerEngine<LogicType extends Logic> extends Module {
                   '${loadData.elementWidth}_${payloadShapeIdentity(loadData)}',
           name: name,
         ) {
-    if (!compatiblePayloadSet(loadData.arrayElements,
+    if (!rohdPayloadsCompatible(loadData.arrayElements,
         ignoreConstantNames: true)) {
       throw ArgumentError('Serialized elements must have compatible payloads.');
     }

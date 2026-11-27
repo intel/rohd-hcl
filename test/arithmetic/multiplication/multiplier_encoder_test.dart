@@ -13,7 +13,6 @@ import 'dart:math';
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 const _randomIterations = 4;
@@ -161,7 +160,7 @@ void main() {
     final clone = encoded.clone(name: 'renamed');
     expect(clone.name, 'renamed');
     expect(clone.row, encoded.row);
-    expect(samePayloadShape(encoded, clone), isTrue);
+    expect(sameRohdPayloadShape(encoded, clone), isTrue);
 
     final dut = _PortModule();
     final input = dut.addTypedInput('encoded', encoded);

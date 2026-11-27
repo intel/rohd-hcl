@@ -280,7 +280,8 @@ class ReadyValidInterface<LogicType extends Logic> extends PairInterface {
         'but found ${sourcePayload.width}.',
       );
     }
-    if (!compatiblePayloadConnectionAllowingRenamedClone(data, sourcePayload)) {
+    if (!rohdPayloadsCompatible([data, sourcePayload],
+        allowRenamedClones: true)) {
       throw PortTypeException.forIntendedName(
         data.name,
         'Expected ready/valid payload shape '

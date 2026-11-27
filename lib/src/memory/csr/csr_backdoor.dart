@@ -9,7 +9,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// A grouping for interface signals of [CsrBackdoorInterface]s.
 enum CsrBackdoorPortGroup {
@@ -102,7 +101,7 @@ class CsrBackdoorInterface extends Interface<CsrBackdoorPortGroup> {
     if (input || output) {
       final local = rdData!;
       final source = srcInterface.port(config.name);
-      if (!compatiblePayloadConnection(local, source)) {
+      if (!rohdPayloadsCompatible([local, source])) {
         throw PortTypeException.forIntendedName(
             config.name, 'CSR backdoor read layout does not match.');
       }

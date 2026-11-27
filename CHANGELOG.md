@@ -1,5 +1,13 @@
 ## 0.3.5
 
+### Dependencies
+
+- Require ROHD 0.7.6.
+
+### Typed payload compatibility
+
+- HCL's payload comparisons call ROHD's `sameRohdPayloadShape` and `rohdPayloadsCompatible` directly, including their new `allowRenamedClones` option. The five internal HCL comparison helpers they replace are deprecated and only forward to them; see `DEPRECATION_PLAN.md` for each replacement. Checks, results, and reported exceptions are unchanged.
+
 ### Fixes
 
 - `SignMagnitudeDualAdder` now has its own definition name, `SignMagnitudeDualAdder_W<n>`. It shared `SignMagnitudeAdder_W<n>` with the two differently configured `SignMagnitudeAdder`s inside it, so the generated SystemVerilog gave that name to a component adder and renamed the top `SignMagnitudeAdder_W<n>_0`: instantiating the generated module by its definition name selected a component adder that needs its larger operand first.

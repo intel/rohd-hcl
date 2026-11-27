@@ -6,7 +6,6 @@
 
 import 'dart:math';
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Returns the minimum number of bits needed to represent [val] distinct
 /// values, with a minimum of 1 (since 0-width signals are not valid in
@@ -108,7 +107,7 @@ LogicType condFlop<LogicType extends Logic>(
   if (reset != null &&
       resetValue is Logic &&
       d.width == resetValue.width &&
-      !compatiblePayloadConnectionAllowingRenamedClone(d, resetValue)) {
+      !rohdPayloadsCompatible([d, resetValue], allowRenamedClones: true)) {
     throw ArgumentError(
         'Register input and reset payloads must be compatible.');
   }
@@ -119,14 +118,15 @@ LogicType condFlop<LogicType extends Logic>(
   LogicType checkedOutput({String? name}) {
     final output = generator!(name: name);
     if (output.width == d.width &&
-        !compatiblePayloadConnectionAllowingRenamedClone(output, d)) {
+        !rohdPayloadsCompatible([output, d], allowRenamedClones: true)) {
       throw ArgumentError('Register output and input payloads must be '
           'compatible.');
     }
     if (reset != null &&
         resetValue is Logic &&
         output.width == resetValue.width &&
-        !compatiblePayloadConnectionAllowingRenamedClone(output, resetValue)) {
+        !rohdPayloadsCompatible([output, resetValue],
+            allowRenamedClones: true)) {
       throw ArgumentError('Register output and reset payloads must be '
           'compatible.');
     }
@@ -149,7 +149,7 @@ LogicType condFlop<LogicType extends Logic>(
     Logic doSwap, (LogicType, LogicType) toSwap) {
   final (in1, in2) = toSwap;
   if (in1.width == in2.width &&
-      !compatiblePayloadConnectionAllowingRenamedClone(in1, in2)) {
+      !rohdPayloadsCompatible([in1, in2], allowRenamedClones: true)) {
     throw ArgumentError('Swap payloads must be compatible.');
   }
   LogicType firstClone({String? name}) => in1.cloneTyped(name: name);

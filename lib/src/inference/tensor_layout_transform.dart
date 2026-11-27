@@ -511,7 +511,7 @@ void _validateTileStream<TLogic extends Logic, TValue>(
   if (element.rowCount != tile.rowCount ||
       element.columnCount != tile.columnCount ||
       tile.data.arrayElements.any(
-        (lane) => !compatiblePayloadConnection(lane, element.data),
+        (lane) => !rohdPayloadsCompatible([lane, element.data]),
       )) {
     throw ArgumentError('Tensor tile and stream shapes do not match.');
   }

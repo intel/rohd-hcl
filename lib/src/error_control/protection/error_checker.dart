@@ -166,8 +166,8 @@ abstract class ErrorCheckingReceiver<T extends Logic> extends Module {
     if (supportsErrorCorrection) {
       final corrected = calculateCorrectedData();
       if (corrected == null ||
-          !compatiblePayloadConnectionAllowingRenamedClone(
-              correctedData!, corrected)) {
+          !rohdPayloadsCompatible([correctedData!, corrected],
+              allowRenamedClones: true)) {
         throw RohdHclException(
             'Corrected data must match the payload width and format.');
       }

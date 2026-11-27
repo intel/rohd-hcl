@@ -185,7 +185,7 @@ class DataPortInterface<LogicType extends Logic>
     final isInOut = inOuts?.contains(DataPortGroup.data) ?? false;
     if (isInput || isOutput || isInOut) {
       final source = srcInterface.port('data');
-      if (!compatiblePayloadConnection(data, source)) {
+      if (!rohdPayloadsCompatible([data, source])) {
         throw PortTypeException.forIntendedName(
             'data',
             'Memory payload layout does not match '
@@ -302,7 +302,7 @@ abstract class Memory<LogicType extends Logic> extends Module {
         throw RohdHclException('All ports must have the same data width.');
       }
     }
-    if (!compatiblePayloadSet(
+    if (!rohdPayloadsCompatible(
         [...writePorts, ...readPorts].map((port) => port.data))) {
       throw RohdHclException('All memory ports must have matching payload '
           'layouts and value codecs.');

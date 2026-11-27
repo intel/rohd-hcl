@@ -45,7 +45,7 @@ class ToggleGate<T extends Logic> extends Module {
       : super(definitionName: definitionName ?? 'ToggleGate_W${data.width}') {
     if (resetValue is Logic &&
         resetValue.width == data.width &&
-        !compatiblePayloadConnectionAllowingRenamedClone(data, resetValue)) {
+        !rohdPayloadsCompatible([data, resetValue], allowRenamedClones: true)) {
       throw ArgumentError.value(
           resetValue, 'resetValue', 'Payload formats must match.');
     }
