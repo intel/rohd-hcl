@@ -913,7 +913,7 @@
             ]
           }
         },
-        "struct_unpack_0_d0_2": {
+        "struct_unpack_2_d0_2": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -969,7 +969,7 @@
             ]
           }
         },
-        "struct_unpack_1_d0_0": {
+        "struct_unpack_3_d0_0": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -1025,7 +1025,7 @@
             ]
           }
         },
-        "struct_unpack_2_d0_1": {
+        "struct_unpack_5_d0_1": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -1081,7 +1081,7 @@
             ]
           }
         },
-        "struct_unpack_6_d0_3": {
+        "struct_unpack_7_d0_3": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -2863,7 +2863,63 @@
             ]
           }
         },
-        "struct_unpack_0_inputTile": {
+        "struct_unpack_0_data": {
+          "hide_name": 0,
+          "type": "$struct_unpack",
+          "parameters": {
+            "STRUCT_NAME": "data",
+            "FIELD_COUNT": 3,
+            "FIELD_0_NAME": "anonymous_0",
+            "FIELD_0_OFFSET": 0,
+            "FIELD_0_WIDTH": 8,
+            "FIELD_1_NAME": "rowActive",
+            "FIELD_1_OFFSET": 8,
+            "FIELD_1_WIDTH": 1,
+            "FIELD_2_NAME": "columnActive",
+            "FIELD_2_OFFSET": 9,
+            "FIELD_2_WIDTH": 1
+          },
+          "attributes": {},
+          "is_synthetic": true,
+          "synthetic_origin": "structureUnpack",
+          "port_directions": {
+            "A": "input",
+            "anonymous_0": "output",
+            "rowActive": "output",
+            "columnActive": "output"
+          },
+          "connections": {
+            "A": [
+              253,
+              254,
+              255,
+              256,
+              257,
+              258,
+              259,
+              260,
+              261,
+              262
+            ],
+            "anonymous_0": [
+              304,
+              305,
+              306,
+              307,
+              308,
+              309,
+              310,
+              311
+            ],
+            "rowActive": [
+              312
+            ],
+            "columnActive": [
+              313
+            ]
+          }
+        },
+        "struct_unpack_9_inputTile": {
           "hide_name": 0,
           "type": "$struct_unpack",
           "parameters": {
@@ -2968,62 +3024,6 @@
             "columnMask": [
               210,
               211
-            ]
-          }
-        },
-        "struct_unpack_8_data": {
-          "hide_name": 0,
-          "type": "$struct_unpack",
-          "parameters": {
-            "STRUCT_NAME": "data",
-            "FIELD_COUNT": 3,
-            "FIELD_0_NAME": "anonymous_0",
-            "FIELD_0_OFFSET": 0,
-            "FIELD_0_WIDTH": 8,
-            "FIELD_1_NAME": "rowActive",
-            "FIELD_1_OFFSET": 8,
-            "FIELD_1_WIDTH": 1,
-            "FIELD_2_NAME": "columnActive",
-            "FIELD_2_OFFSET": 9,
-            "FIELD_2_WIDTH": 1
-          },
-          "attributes": {},
-          "is_synthetic": true,
-          "synthetic_origin": "structureUnpack",
-          "port_directions": {
-            "A": "input",
-            "anonymous_0": "output",
-            "rowActive": "output",
-            "columnActive": "output"
-          },
-          "connections": {
-            "A": [
-              253,
-              254,
-              255,
-              256,
-              257,
-              258,
-              259,
-              260,
-              261,
-              262
-            ],
-            "anonymous_0": [
-              304,
-              305,
-              306,
-              307,
-              308,
-              309,
-              310,
-              311
-            ],
-            "rowActive": [
-              312
-            ],
-            "columnActive": [
-              313
             ]
           }
         },
@@ -3902,36 +3902,6 @@
             "preserved_name": 1
           }
         },
-        "inputTile_data[1]": {
-          "bits": [
-            370,
-            371,
-            372,
-            373,
-            374,
-            375,
-            376,
-            377,
-            378,
-            379,
-            380,
-            381,
-            382,
-            383,
-            384,
-            385
-          ],
-          "logic_type": {
-            "width": 16,
-            "arrayDims": [
-              2
-            ],
-            "elementWidth": 8
-          },
-          "attributes": {
-            "preserved_name": 1
-          }
-        },
         "inputTile_data[0]": {
           "bits": [
             354,
@@ -3950,6 +3920,36 @@
             367,
             368,
             369
+          ],
+          "logic_type": {
+            "width": 16,
+            "arrayDims": [
+              2
+            ],
+            "elementWidth": 8
+          },
+          "attributes": {
+            "preserved_name": 1
+          }
+        },
+        "inputTile_data[1]": {
+          "bits": [
+            370,
+            371,
+            372,
+            373,
+            374,
+            375,
+            376,
+            377,
+            378,
+            379,
+            380,
+            381,
+            382,
+            383,
+            384,
+            385
           ],
           "logic_type": {
             "width": 16,

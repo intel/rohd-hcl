@@ -120,6 +120,10 @@ Decreasing the split width will increase speed but also increase area.</li>
     throw RohdHclException(&#39;This adder currently only supports &#39;
         &#39;output exponent width equal to input exponent width.&#39;);
   }
+  if (a.exponent.width &lt; 2) {
+    throw RohdHclException(
+        &#39;This adder requires an exponent of at least 2 bits.&#39;);
+  }
   if (internalSum.mantissa.width &lt; a.mantissa.width) {
     throw RohdHclException(&#39;This adder currently only supports &#39;
         &#39;output mantissa width greater than or equal &#39;
@@ -562,7 +566,7 @@ Decreasing the split width will increase speed but also increase area.</li>
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.4
+      0.3.5
   </span>
   
 </footer>

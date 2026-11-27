@@ -130,11 +130,6 @@ fixed-point value input to this converter.
           .toInt(),
       max(topExponent + 1, alignedWidth).bitLength + 1);
 
-  &#47;&#47; Special handling needed for E4M3 as it does not support inf
-  if ((exponentWidth == 4) &amp;&amp; (mantissaWidth == 3)) {
-    UnimplementedError(&#39;E4M3 is not supported.&#39;);
-  }
-
   final Logic absValue;
   if (signed) {
     &#47;&#47; Extract sign bit
@@ -357,7 +352,7 @@ fixed-point value input to this converter.
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.4
+      0.3.5
   </span>
   
 </footer>

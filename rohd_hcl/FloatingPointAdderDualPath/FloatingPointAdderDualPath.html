@@ -91,7 +91,8 @@ functions.</li>
 </ul>
 <p>If <code>outSum</code> is provided, it will be used as the output type, otherwise
 the output type will be the same as the input type <code>a</code>. Note that
-<a href="../../rohd_hcl/FloatingPointAdderDualPath-class.html">FloatingPointAdderDualPath</a> does not support explicit j-bit types.</p>
+<a href="../../rohd_hcl/FloatingPointAdderDualPath-class.html">FloatingPointAdderDualPath</a> does not support explicit j-bit types, and
+requires exponents of at least three bits.</p>
 </section>
 
 
@@ -126,6 +127,14 @@ the output type will be the same as the input type <code>a</code>. Note that
   if (internalSum.explicitJBit) {
     throw ArgumentError(
         &#39;FloatingPointAdderDualPath does not support explicit J bit output.&#39;);
+  }
+
+  &#47;&#47; The far path extends the smaller operand by a number of bits that a
+  &#47;&#47; narrower exponent leaves too small to hold guard, round and sticky.
+  if (a.exponent.width &lt; 3 || exponentWidth &lt; 3) {
+    throw ArgumentError(
+        &#39;FloatingPointAdderDualPath requires an exponent of at least 3 &#39;
+        &#39;bits.&#39;);
   }
 
   subtract = (subtract != null) ? addInput(&#39;subtract&#39;, subtract) : null;
@@ -733,7 +742,7 @@ the output type will be the same as the input type <code>a</code>. Note that
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.4
+      0.3.5
   </span>
   
 </footer>

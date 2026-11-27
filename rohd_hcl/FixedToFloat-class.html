@@ -54,10 +54,11 @@
 
     
 <section class="desc markdown">
-  <p><a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a> converts a fixed point input to floating point with
-rouding to nearest even. If the input exceeds the floating point range,
-the output will be infinity. E4M3 is not supported as this format doesn't
-support infinity.</p>
+  <p><a href="../rohd_hcl/FixedToFloat-class.html">FixedToFloat</a> converts a fixed point input to floating point, rounding
+to nearest even by default. If the input exceeds the floating point range,
+the output is infinity or the largest finite value, as the rounding mode
+directs. In a format without infinities, such as <a href="../rohd_hcl/FloatingPoint8E4M3-class.html">FloatingPoint8E4M3</a>, it
+is always the largest finite value.</p>
 </section>
 
 
@@ -997,7 +998,7 @@ named <code>name</code>.
 <footer>
   <span class="no-break">
     rohd_hcl
-      0.3.4
+      0.3.5
   </span>
   
 </footer>
