@@ -257,7 +257,7 @@ void main() {
     expect(apb.slvErr, isNull);
   });
 
-  test('apb nse port is optional', () async {
+  test('apb nse port is optional', () {
     final withNse = ApbInterface();
     expect(withNse.nse, isNotNull);
     expect(withNse.nse!.name, 'PNSE');
