@@ -78,9 +78,25 @@ bool compatiblePayloadConnectionAllowingRenamedClone(
 /// Clones a payload and checks its width and declared shape.
 // TODO(rohd): Remove when ROHD validates width and shape for every typed clone.
 T cloneTypedPayload<T extends Logic>(T source, {String? name}) {
-  final clone = source.cloneTyped(name: name);
+  final clone = _typedClone(source, name: name);
   _validatePayloadClone(source, clone, name ?? source.name);
   return clone;
+}
+
+/// The typed clone of [source], reporting a change of width as this library
+/// does.
+///
+/// ROHD releases after 0.7.5 reject a clone that changes width themselves,
+/// before [_validatePayloadClone] can.
+T _typedClone<T extends Logic>(T source, {String? name}) {
+  try {
+    return source.cloneTyped(name: name);
+  } on LogicConstructionException {
+    if (source.clone(name: name).width != source.width) {
+      throw _invalidPayloadClone(name ?? source.name);
+    }
+    rethrow;
+  }
 }
 
 /// Unambiguous ordered identity for a collection of payload shapes.
@@ -166,7 +182,7 @@ T cloneInterfacePayload<T extends Logic>(T source) {
 // including custom generators and constant-containing structures.
 T addTypedPayloadOutput<T extends Logic>(Module module, String name, T schema,
     {T Function({String? name})? generator}) {
-  T clone({String? name}) => schema.cloneTyped(name: name);
+  T clone({String? name}) => _typedClone(schema, name: name);
   final output = module.addTypedOutput<T>(name, generator ?? clone);
   _validatePayloadClone(schema, output, name);
   return output;
@@ -203,11 +219,13 @@ void connectTypedPayloadPorts<T extends Logic>(
 
 void _validatePayloadClone(Logic source, Logic clone, String name) {
   if (source.width != clone.width || !sameTypedCloneShape(source, clone)) {
-    throw RohdHclException(
-        'Typed payload "$name" requires a clone with the same width, '
-        'payload type and format.');
+    throw _invalidPayloadClone(name);
   }
 }
+
+RohdHclException _invalidPayloadClone(String name) => RohdHclException(
+    'Typed payload "$name" requires a clone with the same width, '
+    'payload type and format.');
 
 /// Drives packed bits through a payload's leaves without semantic conversion.
 void putPackedLogicValue(Logic data, LogicValue value) {
