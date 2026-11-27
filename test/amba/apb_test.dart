@@ -257,6 +257,24 @@ void main() {
     expect(apb.slvErr, isNull);
   });
 
+  test('apb nse port is optional', () {
+    final withNse = ApbInterface();
+    expect(withNse.nse, isNotNull);
+    expect(withNse.nse!.name, 'PNSE');
+
+    final withoutNse = ApbInterface(includeNse: false);
+    expect(withoutNse.nse, isNull);
+    expect(() => withoutNse.port('PNSE'), throwsA(anything));
+    expect(withoutNse.clone().nse, isNull);
+    expect(withNse.clone().nse, isNotNull);
+
+    final apb = ApbInterface(includeNse: false);
+    apb.clk <= Logic();
+    apb.resetN <= Logic();
+    ApbCompleterTestModule(apb);
+    ApbRequesterTest(apb);
+  });
+
   test('apb csr completer - zero latency', () async {
     await runTest(ApbCsrCompleterHwTest('test'));
   });

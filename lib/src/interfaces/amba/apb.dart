@@ -96,7 +96,12 @@ class ApbInterface extends Interface<ApbDirection> {
   Logic get prot => port('PPROT');
 
   /// Extension to protection type.
-  Logic get nse => port('PNSE');
+  ///
+  /// An optional signal in the APB specification (it is only needed when the
+  /// Realm Management Extension is supported).
+  ///
+  /// Only generated if [includeNse] is `true`.
+  Logic? get nse => includeNse ? port('PNSE') : null;
 
   /// Select.
   ///
@@ -194,6 +199,11 @@ class ApbInterface extends Interface<ApbDirection> {
   /// The interface will only include [wakeup] if this is `true`.
   final bool includeWakeup;
 
+  /// If `true`, generates the [nse] port.
+  ///
+  /// Defaults to `true` to keep the existing behavior of the interface.
+  final bool includeNse;
+
   /// Construct a new instance of an APB interface.
   ApbInterface({
     this.addrWidth = 32,
@@ -203,6 +213,7 @@ class ApbInterface extends Interface<ApbDirection> {
     this.userRespWidth = 0,
     this.includeSlvErr = false,
     this.includeWakeup = false,
+    this.includeNse = true,
     this.numSelects = 1,
   }) {
     _validateParameters();
@@ -217,7 +228,7 @@ class ApbInterface extends Interface<ApbDirection> {
     setPorts([
       Logic.port('PADDR', addrWidth),
       Logic.port('PPROT', 3),
-      Logic.port('PNSE'),
+      if (includeNse) Logic.port('PNSE'),
       Logic.port('PENABLE'),
       Logic.port('PWRITE'),
       Logic.port('PWDATA', dataWidth),
@@ -257,6 +268,7 @@ class ApbInterface extends Interface<ApbDirection> {
         userRespWidth: userRespWidth,
         includeSlvErr: includeSlvErr,
         includeWakeup: includeWakeup,
+        includeNse: includeNse,
         numSelects: numSelects,
       );
 
