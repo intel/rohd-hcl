@@ -7,13 +7,13 @@ behavior until their replacements and migration instructions are ready.
 
 ## Release sequence
 
-| Milestone | Ship | Keep |
-| --- | --- | --- |
-| ROHD-HCL 0.3.3 (compatible) | The five direct generic imports and the synchronous lookup import, plus warnings for the legacy component and associative APIs below | Legacy barrel exports, constructors, callback aliases, and all HCL payload helpers |
-| Inference extension release (compatible) | Delegate strict payload shape and packed-bridge checks to hosted ROHD 0.7.5; remove the internal ROHD compatibility-alias import and duplicate strict connection logic | Existing helper entry points and behavior, renamed-clone checks, checked cloning, typed-port registration, and previously deprecated public APIs |
-| Next hosted ROHD release with payload parity (version not yet assigned here) | The reusable payload checks, cloning, and port registration changes prepared on `interface_cloning` off ROHD `main` | Existing strict defaults and untyped interface behavior |
-| First compatible HCL release after upstream parity | Adopt the hosted ROHD APIs, make the old helpers delegate where equivalent, and deprecate those helpers with migration guidance | The old helper entry points and behavior through this release |
-| Following HCL release | Remove the superseded helpers after their deprecation window; do not remove a published API in a compatible release | Helpers without a proven replacement, and operations that remain HCL-owned |
+| Milestone | Ship | Keep | State |
+| --- | --- | --- | --- |
+| ROHD-HCL 0.3.3 (compatible) | The five direct generic imports and the synchronous lookup import, plus warnings for the legacy component and associative APIs below | Legacy barrel exports, constructors, callback aliases, and all HCL payload helpers | Released |
+| ROHD-HCL 0.3.4, the inference extension release (compatible) | Delegate strict payload shape and packed-bridge checks to hosted ROHD 0.7.5; remove the internal ROHD compatibility-alias import and duplicate strict connection logic | Existing helper entry points and behavior, renamed-clone checks, checked cloning, typed-port registration, and previously deprecated public APIs | Released |
+| ROHD 0.7.6, the hosted ROHD release with payload parity | Renamed-clone comparisons, clone-width checks, interface schema clones, schema-checked outputs, and typed grouped interface ports | Existing strict defaults and untyped interface behavior | Required by ROHD-HCL 0.3.5 |
+| ROHD-HCL 0.3.5, the first compatible HCL release after upstream parity | Require ROHD 0.7.6; call the hosted ROHD comparisons directly and deprecate the five HCL comparison helpers they replace; make the clone helpers forward to ROHD | The deprecated helper entry points, and the clone and registration helpers with the exceptions they report | This release |
+| Following HCL release | Remove the five deprecated comparison helpers after their deprecation window; do not remove a published API in a compatible release | Helpers without a proven replacement, and operations that remain HCL-owned | Planned |
 
 The flat API migration has its own window: after 0.3.3 ships the warnings,
 the next **breaking** HCL release can remove the legacy flat APIs and promote
@@ -22,7 +22,7 @@ next ROHD release, and it must not shorten the separate payload-helper deprecati
 
 ## Inference extension release status
 
-No previously published public API is removed or newly deprecated in this release. The completed cleanup replaces implementation details, not helper entry points, and keeps the minimum ROHD version at 0.7.5.
+This section records ROHD-HCL 0.3.4. No previously published public API was removed or newly deprecated in that release. The completed cleanup replaced implementation details, not helper entry points, and kept the minimum ROHD version at 0.7.5.
 
 The new tensor layout and movement components use typed-only APIs. Their unpublished packed prototypes are replaced directly: `SystolicMatrixTranspose<T, V>` accepts a typed row, and `TensorScratchpad<T>` and `TensorDmaEngine<T>` retain a word schema through their ports and storage. These new APIs do not need a deprecation window or flat compatibility wrappers; the published APIs listed below still do.
 
@@ -104,48 +104,51 @@ validation and typed port behavior.
 
 ## ROHD payload compatibility helpers
 
-The [HCL payload helpers](lib/src/interfaces/payload_shape.dart) delegate
-strict shape and pairwise packed-bridge checks to ROHD 0.7.5. This delegation
-is complete for the strict paths, but does not deprecate or remove the HCL
-helpers. Keep wrappers for renamed clones, checked cloning, and schema-aware
-port registration until the remaining contracts are available in a hosted
-ROHD release.
+The [HCL payload helpers](lib/src/interfaces/payload_shape.dart) are internal
+to HCL; only `PayloadShapeMetadata` is exported. ROHD-HCL 0.3.5 requires ROHD
+0.7.6, which supplies the comparisons and checks that HCL used to implement.
 
-### Next ROHD release candidate: `interface_cloning`
+### Deprecated in 0.3.5
 
-- Support parent-renamed clones in shape and connection checks, including
-  pairwise checks across packed bridges and generated constant names. Target:
-  opt in with `allowRenamedClones` on `sameRohdPayloadShape` and
-  `rohdPayloadsCompatible`.
-- Validate clone width even for undeclared payloads, and make widened scalar
-  constants driveable when cloning interface payloads without losing
-  structured constant semantics. Target: use `cloneTyped` for detached
-  clones and `cloneInterfacePort` for interface schemas.
-- Validate typed outputs against a supplied schema, including when a custom
-  generator is used, via `Module.addTypedOutput(..., schema: ...)`. Extend
-  `Interface.typedPayloadPorts` to cover selected flat and grouped ports,
-  including input, output, and inout, with opt-in
-  `allowRenamedPayloadClones`. Keep protocol-specific policies in HCL.
-- Use the strict ROHD shape comparison for corresponding snapshot schemas;
-  list length and ordering remain the caller's contract. Keep packed-value
-  writes and generated module layout identities in HCL unless an independent
-  ROHD use establishes a shared contract. They are not interface-cloning
-  prerequisites.
+HCL's own code and tests call the ROHD function directly. Each helper remains
+for one release, forwarding to the same call:
 
-### Following two ROHD-HCL releases
+| Deprecated helper | Replacement in ROHD 0.7.6 |
+| --- | --- |
+| `samePayloadShape(first, second)` | `sameRohdPayloadShape(first, second)` |
+| `compatiblePayloadConnection(target, source)` | `rohdPayloadsCompatible([target, source])` |
+| `compatiblePayloadSet(payloads)` | `rohdPayloadsCompatible(payloads)` |
+| `samePayloadShapeAllowingRenamedClone(source, other)` | `sameRohdPayloadShape(source, other, allowRenamedClones: true)` |
+| `compatiblePayloadConnectionAllowingRenamedClone(target, source)` | `rohdPayloadsCompatible([target, source], allowRenamedClones: true)` |
 
-1. After the replacement APIs are published, release a compatible HCL
-   version that delegates to them and deprecates the superseded helpers.
-   Keep the old entry points and behavior, and document each replacement.
-2. Remove the deprecated helpers in the following HCL release, after the
-   migration window. Schedule removals that break a published API for a
-   breaking release.
+The `ignoreConstantNames` and `allowRenamedClones` options carry over
+unchanged. These are exact replacements: each helper's former definition is
+the definition of the ROHD call, and the HCL contract tests for recursive
+layouts, metadata, array codecs, constants, renamed clones, and packed
+bridges now exercise the ROHD calls.
 
-Before deprecating a helper, verify parity against the hosted ROHD release
-with the HCL contract tests: recursive layouts, metadata, array codecs,
-constants, malformed clones, packed bridges, port directions, and generated
-RTL. Re-run the supported hosted ROHD version matrix. Local upstream
-proposals are not released contracts.
+### Retained
+
+| Helper | ROHD counterpart | Why it remains |
+| --- | --- | --- |
+| `cloneTypedPayload` | `cloneTyped` | A clone that changes width is reported as a `RohdHclException`; ROHD reports a `LogicConstructionException`. The helper now only translates that case. |
+| `cloneInterfacePayload` | `cloneInterfacePort` | The same. |
+| `addTypedPayloadOutput` | `Module.addTypedOutput(..., schema:)` | An output that does not match its schema is reported as a `RohdHclException`; ROHD reports a `PortTypeException`. |
+| `connectTypedPayloadPorts` | `Interface.typedPayloadPorts` | HCL's interfaces check their payloads under their own protocol's rules before registering them, and do not declare `typedPayloadPorts`. |
+| `samePayloadSchemas` | none | The length and order of the lists are the caller's contract. |
+| `putPackedLogicValue`, `connectPackedPayload`, and the shape-identity and naming functions | none | Packed-value writes and generated module layout identities are HCL's own. |
+
+### Next
+
+1. Remove the five deprecated helpers in the following HCL release.
+2. Decide whether HCL's constructors should report ROHD's exceptions for a
+   malformed clone or output. That changes what callers can catch, so it
+   belongs in a breaking release. If so, `cloneTypedPayload`,
+   `cloneInterfacePayload`, and `addTypedPayloadOutput` can be replaced by
+   their ROHD counterparts and deprecated in turn.
+3. Decide separately whether HCL's interfaces should declare
+   `typedPayloadPorts` and drop `connectTypedPayloadPorts`. Keep
+   protocol-specific policies in HCL.
 
 ## Other existing deprecations
 

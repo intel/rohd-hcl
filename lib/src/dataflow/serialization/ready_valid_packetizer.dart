@@ -68,9 +68,9 @@ class ReadyValidPacketizer<LogicType extends Logic> extends Module {
                 '${payloadShapesIdentity([upstream.data, downstream.data])}',
             name: name) {
     final elements = upstream.data.arrayElements;
-    if (!compatiblePayloadSet(elements, ignoreConstantNames: true) ||
-        elements.any((element) => !compatiblePayloadConnection(
-            element, downstream.data.data,
+    if (!rohdPayloadsCompatible(elements, ignoreConstantNames: true) ||
+        elements.any((element) => !rohdPayloadsCompatible(
+            [element, downstream.data.data],
             ignoreConstantNames: true))) {
       throw ArgumentError('Packet elements and output payload must match.');
     }

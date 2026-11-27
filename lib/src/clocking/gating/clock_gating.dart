@@ -114,7 +114,7 @@ class ClockGateControlInterface extends PairInterface {
           }
           final local = port(extra.name);
           final source = srcInterface.port(extra.name);
-          if (!compatiblePayloadConnection(local, source,
+          if (!rohdPayloadsCompatible([local, source],
               ignoreConstantNames: true)) {
             throw PortTypeException.forIntendedName(
                 extra.name, 'Clock-gate control payload shape does not match.');
@@ -191,8 +191,8 @@ class ClockGate extends Module {
     if (_reset != null &&
         resetValue is Logic &&
         resetValue.width == original.width &&
-        !compatiblePayloadConnectionAllowingRenamedClone(
-            original, resetValue)) {
+        !rohdPayloadsCompatible([original, resetValue],
+            allowRenamedClones: true)) {
       throw ArgumentError.value(
           resetValue, 'resetValue', 'Payload formats must match.');
     }

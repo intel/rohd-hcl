@@ -8,7 +8,6 @@
 // Author: Desmond A. Kirkpatrick <desmond.a.kirkpatrick@intel.com>
 
 import 'package:rohd/rohd.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:rohd_hcl/src/memory/contracts/memory.dart';
 
 /// Read behavior when a read and a write target the same entry.
@@ -202,7 +201,7 @@ class MemoryArrayFunctor<T extends Logic> {
       throw ArgumentError('Memory-array ports have incompatible geometry '
           'or payload layouts.');
     }
-    if (!compatiblePayloadSet(ports.map((port) => port.data))) {
+    if (!rohdPayloadsCompatible(ports.map((port) => port.data))) {
       throw ArgumentError('Memory-array ports have incompatible geometry '
           'or payload layouts.');
     }

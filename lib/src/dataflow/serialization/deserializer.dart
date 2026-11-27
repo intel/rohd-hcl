@@ -68,7 +68,7 @@ class Deserializer<T extends Logic, V> extends Module {
       if (leaves.isNotEmpty &&
           leaves
               .skip(1)
-              .any((element) => !samePayloadShape(leaves.first, element))) {
+              .any((element) => !sameRohdPayloadShape(leaves.first, element))) {
         throw ArgumentError.value(serialized, 'serialized',
             'Deserialization requires matching leaf payload formats.');
       }

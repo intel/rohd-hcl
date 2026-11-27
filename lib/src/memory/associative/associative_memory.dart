@@ -84,7 +84,7 @@ abstract class AssociativePortInterface extends Interface<DataPortGroup> {
 }
 
 bool _compatibleKeys(Logic left, Logic right) =>
-    compatiblePayloadConnection(left, right);
+    rohdPayloadsCompatible([left, right]);
 
 /// A port that updates one indexed associative-memory entry.
 ///
@@ -357,9 +357,11 @@ abstract class AssociativeMemory extends Module {
   List<TypedAssociativeIndexedSideReadResponse<T>>
       _typedSideReadResponses<T extends Logic>(T key,
           {bool preferSingle = false}) {
-    if (<AssociativePortInterface>[...localUpdates, ...localLookups].any(
-        (port) =>
-            !compatiblePayloadConnectionAllowingRenamedClone(key, port.key))) {
+    if (<AssociativePortInterface>[
+      ...localUpdates,
+      ...localLookups
+    ].any((port) =>
+        !rohdPayloadsCompatible([key, port.key], allowRenamedClones: true))) {
       throw ArgumentError('The side-read key schema must be compatible with '
           'all associative ports.');
     }
@@ -442,7 +444,7 @@ abstract class AssociativeMemory extends Module {
       }
     }
     final ports = <AssociativePortInterface>[...updates, ...lookups];
-    if (!compatiblePayloadSet(ports.map((port) => port.key))) {
+    if (!rohdPayloadsCompatible(ports.map((port) => port.key))) {
       throw ArgumentError('All associative keys must have compatible '
           'declared layouts.');
     }

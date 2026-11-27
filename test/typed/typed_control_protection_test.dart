@@ -10,7 +10,6 @@
 import 'package:rohd/rohd.dart';
 import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Payload extends LogicStructure {
@@ -313,7 +312,7 @@ void _checkPayload<T extends Logic>(String label, T schema) {
     for (final delay in [true, false]) {
       test('$label controlled present=$present delay=$delay', () async {
         final dut = _Controlled<T>(schema, present: present, delay: delay);
-        expect(samePayloadShape(dut.delayed, schema), isTrue);
+        expect(sameRohdPayloadShape(dut.delayed, schema), isTrue);
         await _compare(dut, _clockVectors(bypass: !present || !delay));
       });
     }
@@ -324,11 +323,11 @@ void _checkPayload<T extends Logic>(String label, T schema) {
         () async {
       final before = schema.value;
       final dut = _Protection<T>(schema, type: type);
-      expect(samePayloadShape(dut.tx.input('data'), schema), isTrue);
-      expect(samePayloadShape(dut.original, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.tx.input('data'), schema), isTrue);
+      expect(sameRohdPayloadShape(dut.original, schema), isTrue);
       expect(dut.corrected == null, !(type?.hasCorrection ?? false));
       if (dut.corrected != null) {
-        expect(samePayloadShape(dut.corrected!, schema), isTrue);
+        expect(sameRohdPayloadShape(dut.corrected!, schema), isTrue);
       }
       await _compare(dut, _protectionVectors(dut, type: type));
       expect(schema.value, before, reason: 'A schema is not an output driver.');
@@ -627,8 +626,8 @@ void main() {
     final schema = TypedLogicArray<_Payload, LogicValue>([2], _Payload.new,
         numUnpackedDimensions: 1);
     final dut = _ControlledSignalReset(schema, typedReset: true);
-    expect(
-        samePayloadShape(dut.gate.input('payload_resetValue'), schema), isTrue);
+    expect(sameRohdPayloadShape(dut.gate.input('payload_resetValue'), schema),
+        isTrue);
     await _compare(dut, [
       Vector(
           {'clk': 0, 'enable': 0, 'reset': 1, 'data': 3, 'resetData': 5}, {}),

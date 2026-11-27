@@ -9,7 +9,6 @@
 
 import 'package:rohd/rohd.dart';
 import 'package:rohd_hcl/src/flow_control/ready_valid/transport/ready_valid_interface.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 
 /// Selects the one-entry buffer's ready and capture timing.
 enum SingleEntryBufferMode {
@@ -38,7 +37,7 @@ void configureSingleEntryBuffer<LogicType extends Logic>({
   required String name,
   Logic? admission,
 }) {
-  if (!compatiblePayloadSet([upstream.data, downstream.data, storedData],
+  if (!rohdPayloadsCompatible([upstream.data, downstream.data, storedData],
       allowRenamedClones: true)) {
     throw PortTypeException.forIntendedName(
         name, 'Single-entry buffer payload layouts must match.');

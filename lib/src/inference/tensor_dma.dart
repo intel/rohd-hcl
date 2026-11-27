@@ -377,7 +377,7 @@ class TensorDmaEngine<T extends Logic> extends Module {
       completion,
       countWidth,
     );
-    if (!compatiblePayloadSet([
+    if (!rohdPayloadsCompatible([
       sourceReadResponse.data.data,
       destinationWriteRequest.data.data,
     ], allowRenamedClones: true)) {

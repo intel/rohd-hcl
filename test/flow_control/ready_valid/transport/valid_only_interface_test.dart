@@ -534,26 +534,26 @@ void main() {
         BinaryExtensionField(modulus: BinaryPolynomial(BigInt.from(13)));
     final fieldA = _FieldPayload(first);
     final fieldB = _FieldPayload(second);
-    expect(samePayloadShape(fieldA, fieldA.clone()), isTrue);
-    expect(samePayloadShape(fieldA, fieldB), isFalse);
+    expect(sameRohdPayloadShape(fieldA, fieldA.clone()), isTrue);
+    expect(sameRohdPayloadShape(fieldA, fieldB), isFalse);
     expect(payloadShapeIdentity(fieldA), isNot(payloadShapeIdentity(fieldB)));
     TypedLogicArray<GfLogic, LogicValue> array(BinaryExtensionField field) =>
         TypedLogicArray<GfLogic, LogicValue>(
             [2], ({name}) => GfLogic(field, name: name));
-    expect(samePayloadShape(array(first), array(second)), isFalse);
+    expect(sameRohdPayloadShape(array(first), array(second)), isFalse);
     expect(payloadShapeIdentity(array(first)),
         isNot(payloadShapeIdentity(array(second))));
 
     final signed = FixedPoint(integerWidth: 2, fractionWidth: 2);
     final unsigned =
         FixedPoint(integerWidth: 3, fractionWidth: 2, signed: false);
-    expect(samePayloadShape(signed, unsigned), isFalse);
+    expect(sameRohdPayloadShape(signed, unsigned), isFalse);
     expect(payloadShapeIdentity(signed), isNot(payloadShapeIdentity(unsigned)));
 
     final normal = FloatingPoint(exponentWidth: 3, mantissaWidth: 2);
     final explicit =
         FloatingPoint(exponentWidth: 3, mantissaWidth: 2, explicitJBit: true);
-    expect(samePayloadShape(normal, explicit), isFalse);
+    expect(sameRohdPayloadShape(normal, explicit), isFalse);
     expect(payloadShapeIdentity(normal), isNot(payloadShapeIdentity(explicit)));
   });
 
@@ -587,7 +587,7 @@ void main() {
         );
     final uniform = array(mixed: false);
     final mixed = array(mixed: true);
-    expect(samePayloadShape(uniform, mixed), isFalse);
+    expect(sameRohdPayloadShape(uniform, mixed), isFalse);
     expect(payloadShapeIdentity(uniform), isNot(payloadShapeIdentity(mixed)));
     expect(
       () => general.PriorityMux<TypedLogicArray<GfLogic, LogicValue>>(

@@ -59,10 +59,10 @@ class TypedStaticPermutation<TLogic extends Logic, TValue> extends Module {
       throw RohdHclException('Typed permutation value codecs must match.');
     }
     for (var index = 0; index < descriptor.length; index++) {
-      if (!compatiblePayloadConnection(
-          dataIn.arrayElements[descriptor.sourceIndex(index)],
-          outputPrototype.arrayElements[index],
-          ignoreConstantNames: true)) {
+      if (!rohdPayloadsCompatible([
+        dataIn.arrayElements[descriptor.sourceIndex(index)],
+        outputPrototype.arrayElements[index]
+      ], ignoreConstantNames: true)) {
         throw RohdHclException(
             'Typed permutation source and destination payloads must match.');
       }

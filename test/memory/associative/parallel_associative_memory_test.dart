@@ -15,7 +15,6 @@ import 'package:rohd/src/utilities/simcompare.dart';
 import 'package:rohd_hcl/memory/associative/synchronous_associative_lookup_port_interface.dart'
     as general;
 import 'package:rohd_hcl/rohd_hcl.dart';
-import 'package:rohd_hcl/src/interfaces/payload_shape.dart';
 import 'package:test/test.dart';
 
 class _Key extends LogicStructure {
@@ -929,10 +928,10 @@ void main() {
       final dut = _Harness(schema, selection);
       expect(dut.update.clone().key, isA<_Key>());
       expect(dut.lookup.clone().key, isA<_Key>());
-      expect(
-          samePayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
-      expect(
-          samePayloadShape(dut.memory.input('lookup_key_0'), schema), isTrue);
+      expect(sameRohdPayloadShape(dut.memory.input('update_key_0'), schema),
+          isTrue);
+      expect(sameRohdPayloadShape(dut.memory.input('lookup_key_0'), schema),
+          isTrue);
       final vectors = [
         Vector({
           'clk': 0,
@@ -973,7 +972,8 @@ void main() {
     final dut = _Harness(schema, AssociativeMatchSelection.lowestIndex);
     expect(dut.update.key.valueCodec, same(_codec));
     expect(dut.lookup.clone().key.valueCodec, same(_codec));
-    expect(samePayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
+    expect(
+        sameRohdPayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
     await dut.build();
     final vectors = [
       Vector({
@@ -1004,12 +1004,12 @@ void main() {
     test('preserves ${schema.runtimeType} associative keys', () async {
       final dut =
           _Harness<Logic>(schema, AssociativeMatchSelection.lowestIndex);
-      expect(samePayloadShape(dut.update.clone().key, schema), isTrue);
-      expect(samePayloadShape(dut.lookup.clone().key, schema), isTrue);
-      expect(
-          samePayloadShape(dut.memory.input('update_key_0'), schema), isTrue);
-      expect(
-          samePayloadShape(dut.memory.input('lookup_key_0'), schema), isTrue);
+      expect(sameRohdPayloadShape(dut.update.clone().key, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.lookup.clone().key, schema), isTrue);
+      expect(sameRohdPayloadShape(dut.memory.input('update_key_0'), schema),
+          isTrue);
+      expect(sameRohdPayloadShape(dut.memory.input('lookup_key_0'), schema),
+          isTrue);
       await dut.build();
     });
   }

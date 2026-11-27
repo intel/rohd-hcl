@@ -150,8 +150,9 @@ class AssociativeMatchSelectorImplementation<T extends Logic> extends Module {
     }
     if (!flatPorts &&
         selectionValues != null &&
-        selectionValues.any((value) => !samePayloadShapeAllowingRenamedClone(
-            selectionValues.first, value))) {
+        selectionValues.any((value) => !sameRohdPayloadShape(
+            selectionValues.first, value,
+            allowRenamedClones: true))) {
       throw ArgumentError(
           'Selection values must have matching payload shapes.');
     }

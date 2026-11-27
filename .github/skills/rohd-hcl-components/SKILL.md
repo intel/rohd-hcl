@@ -40,9 +40,10 @@ component documentation are authoritative.
   storage. Equal width alone is insufficient for two declared schemas; a packed
   `Logic` bridge is intentional and does not convert formats. When multiple
   declared sources share storage or selection, check them pairwise.
-  In HCL implementation code, use `compatiblePayloadConnection` for a single
-  connection and `compatiblePayloadSet` for shared or selected payloads;
-  permit renamed clones only where the contract allows them.
+  In HCL implementation code, use ROHD's `rohdPayloadsCompatible` for a
+  connection or for shared or selected payloads, and `sameRohdPayloadShape`
+  for a strict comparison; pass `allowRenamedClones: true` only where the
+  contract allows renamed clones.
 - Use `addTypedPayloadOutput` when an output must retain an existing payload's
   width and declared shape. Use ROHD's `addTypedOutput` with an appropriate
   generator for an independently defined output, not as a substitute for
